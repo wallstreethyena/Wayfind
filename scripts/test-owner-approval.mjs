@@ -36,11 +36,16 @@
  */
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
+import { createHash, generateKeyPairSync, sign as cryptoSign } from "node:crypto";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { findOwnerApproval, decideOwnerApproval, isOwnerOnly, OWNERS, OWNER_LOGINS } from "./lib/ownerApproval.mjs";
+import {
+  findOwnerApproval as findOwnerApprovalRaw, decideOwnerApproval as decideOwnerApprovalRaw, approvedCommitCandidates,
+  isOwnerOnly, OWNERS, OWNER_LOGINS, OWNER_SIGNING_KEYS, APPROVAL_NAMESPACE, approvalMessage,
+} from "./lib/ownerApproval.mjs";
+import { checkSshSignature, extractSshSignatureBlocks, parseOpenSshPublicKey, verifySshSignature } from "./lib/sshSignature.mjs";
+import { approvalMessageLiteral, approvalSignature, makeSigner, signedApprovalBody, sshSign, writeKeyInjectionPreload } from "./lib/ownerSigningTestkit.mjs";
 
 const REPO = process.cwd();
 const GUARD = join(REPO, "scripts", "check-doc-ownership.mjs");
@@ -56,31 +61,46 @@ const T = { created_at: "2026-09-24T00:00:00Z", updated_at: "2026-09-24T00:00:00
 
 let checks = 0;
 const ok = (cond, msg) => { assert.ok(cond, msg); checks += 1; };
+
+// Real keys made by ssh-keygen for this run. OWNER_SIGNING_KEYS is the owner's
+// hardware key (empty until he adds it), so every test passes its keys in: as an
+// argument for pure calls, and through a module-loader hook for the real scripts
+// run as child processes (scripts/lib/ownerSigningTestkit.mjs).
+const keyDir = mkdtempSync(join(tmpdir(), "wf-owner-keys-"));
+process.on("exit", () => rmSync(keyDir, { recursive: true, force: true }));
+const OWNER_KEY = makeSigner(keyDir, "ed25519");
+const INTRUDER_KEY = makeSigner(keyDir, "ed25519");
+const ECDSA_KEY = makeSigner(keyDir, "ecdsa"); // OpenSSH has had ecdsa since 5.7; a missing one should fail loudly, not skip a proof
+const KEYS = [OWNER_KEY.publicLine];
+// Sections 1 and 2 test the account rules, which need a valid signature to reach.
+const findOwnerApproval = (comments, sha, owners = OWNERS) => findOwnerApprovalRaw(comments, sha, owners, KEYS);
+const decideOwnerApproval = (evidence) => decideOwnerApprovalRaw(evidence, KEYS);
 const gitBlobSha1 = (buf) => createHash("sha1").update(`blob ${buf.length}\0`).update(buf).digest("hex");
 const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: "utf8", env: { ...process.env, ...env }, stdio: ["ignore", "pipe", "pipe"] }).trim();
 
 // ── 1. Pure rules (no git, no network) ─────────────────────────────────────
 {
   const head = "a".repeat(40);
+  const S = (text, sha = head) => `${text}\n${approvalSignature(OWNER_KEY, sha)}`;
   const owner = { type: "User", login: OWNER_LOGIN, id: OWNER_ID };
-  ok(findOwnerApproval([{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }], head)?.id === 1, "owner comment naming the full head sha approves");
-  ok(findOwnerApproval([{ id: 2, ...T, user: { ...owner, login: OWNER_LOGIN.toUpperCase() }, body: `/owner-approve ${head}` }], head)?.id === 2, "logins compare case-insensitively");
-  ok(findOwnerApproval([{ id: 3, ...T, user: owner, body: `lgtm\n/owner-approve ${head.toUpperCase()}\nthanks` }], head)?.id === 3, "the command may sit on its own line inside a longer comment");
-  ok(findOwnerApproval([{ id: 4, ...T, user: owner, body: `/owner-approve ${head.slice(0, 12)}` }], head) === null && findOwnerApproval([{ id: 4, ...T, user: owner, body: `/owner-approve ${head.slice(0, 39)}` }], head) === null,
+  ok(findOwnerApproval([{ id: 1, ...T, user: owner, body: S(`/owner-approve ${head}`) }], head)?.id === 1, "owner comment naming the full head sha approves");
+  ok(findOwnerApproval([{ id: 2, ...T, user: { ...owner, login: OWNER_LOGIN.toUpperCase() }, body: S(`/owner-approve ${head}`) }], head)?.id === 2, "logins compare case-insensitively");
+  ok(findOwnerApproval([{ id: 3, ...T, user: owner, body: S(`lgtm\n/owner-approve ${head.toUpperCase()}\nthanks`) }], head)?.id === 3, "the command may sit on its own line inside a longer comment");
+  ok(findOwnerApproval([{ id: 4, ...T, user: owner, body: S(`/owner-approve ${head.slice(0, 12)}`) }], head) === null && findOwnerApproval([{ id: 4, ...T, user: owner, body: S(`/owner-approve ${head.slice(0, 39)}`) }], head) === null,
     "a prefix never approves, only the full 40-character sha (a short prefix can be ground)");
-  ok(findOwnerApproval([{ id: 5, ...T, user: owner, body: `/owner-approve ${"b".repeat(12)}` }], head) === null, "a different commit never approves");
-  ok(findOwnerApproval([{ id: 6, ...T, user: owner, body: `please /owner-approve ${head.slice(0, 12)}` }], head) === null, "a mid-line mention is not the command");
-  ok(findOwnerApproval([{ id: 7, ...T, user: { type: "User", login: "someone-else", id: 1 }, body: `/owner-approve ${head}` }], head) === null, "a non-owner login never approves");
-  ok(findOwnerApproval([{ id: 81, ...T, user: owner, performed_via_github_app: { slug: "claude", id: 1 }, body: `/owner-approve ${head}` }], head) === null, "an approval an App posted with the owner's token never approves (performed_via_github_app set)");
-  ok(findOwnerApproval([{ id: 82, ...T, user: owner, performed_via_github_app: null, body: `/owner-approve ${head}` }], head)?.id === 82, "the owner's own comment (performed_via_github_app null, as GitHub returns it) still approves");
-  ok(findOwnerApproval([{ id: 83, ...T, user: owner, performed_via_github_app: { slug: "claude" }, body: `/owner-approve ${head}` }, { id: 84, ...T, user: owner, body: `/owner-approve ${head}` }], head)?.id === 84, "an App-posted approval is skipped, a person-posted one on the same head still counts");
-  ok(findOwnerApproval([{ id: 8, ...T, user: { type: "Bot", login: OWNER_LOGIN, id: OWNER_ID }, body: `/owner-approve ${head}` }], head) === null, "a bot account never approves");
-  ok(findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN, id: OWNER_ID + 1 } , body: `/owner-approve ${head}` }], head) === null
-    && findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN }, body: `/owner-approve ${head}` }], head) === null,
+  ok(findOwnerApproval([{ id: 5, ...T, user: owner, body: S(`/owner-approve ${"b".repeat(12)}`) }], head) === null, "a different commit never approves");
+  ok(findOwnerApproval([{ id: 6, ...T, user: owner, body: S(`please /owner-approve ${head.slice(0, 12)}`) }], head) === null, "a mid-line mention is not the command");
+  ok(findOwnerApproval([{ id: 7, ...T, user: { type: "User", login: "someone-else", id: 1 }, body: S(`/owner-approve ${head}`) }], head) === null, "a non-owner login never approves");
+  ok(findOwnerApproval([{ id: 81, ...T, user: owner, performed_via_github_app: { slug: "claude", id: 1 }, body: S(`/owner-approve ${head}`) }], head) === null, "an approval an App posted with the owner's token never approves (performed_via_github_app set)");
+  ok(findOwnerApproval([{ id: 82, ...T, user: owner, performed_via_github_app: null, body: S(`/owner-approve ${head}`) }], head)?.id === 82, "the owner's own comment (performed_via_github_app null, as GitHub returns it) still approves");
+  ok(findOwnerApproval([{ id: 83, ...T, user: owner, performed_via_github_app: { slug: "claude" }, body: S(`/owner-approve ${head}`) }, { id: 84, ...T, user: owner, body: S(`/owner-approve ${head}`) }], head)?.id === 84, "an App-posted approval is skipped, a person-posted one on the same head still counts");
+  ok(findOwnerApproval([{ id: 8, ...T, user: { type: "Bot", login: OWNER_LOGIN, id: OWNER_ID }, body: S(`/owner-approve ${head}`) }], head) === null, "a bot account never approves");
+  ok(findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN, id: OWNER_ID + 1 } , body: S(`/owner-approve ${head}`) }], head) === null
+    && findOwnerApproval([{ id: 9, ...T, user: { type: "User", login: OWNER_LOGIN }, body: S(`/owner-approve ${head}`) }], head) === null,
     "the owner's login on a different (or missing) account id never approves: a re-registered login is not the owner");
-  ok(findOwnerApproval([{ id: 9, ...T, user: owner, body: `/owner-approve ${head}` }], "not-a-sha") === null, "no valid head, no approval");
-  ok(findOwnerApproval([{ id: 10, created_at: T.created_at, updated_at: "2026-09-24T00:05:00Z", user: owner, body: `/owner-approve ${head}` }], head) === null
-    && findOwnerApproval([{ id: 11, user: owner, body: `/owner-approve ${head}` }], head) === null,
+  ok(findOwnerApproval([{ id: 9, ...T, user: owner, body: S(`/owner-approve ${head}`) }], "not-a-sha") === null, "no valid head, no approval");
+  ok(findOwnerApproval([{ id: 10, created_at: T.created_at, updated_at: "2026-09-24T00:05:00Z", user: owner, body: S(`/owner-approve ${head}`) }], head) === null
+    && findOwnerApproval([{ id: 11, user: owner, body: S(`/owner-approve ${head}`) }], head) === null,
     "an EDITED comment never approves (anyone with write access can edit it), nor one without timestamps");
   ok(findOwnerApproval(null, head) === null && findOwnerApproval([null, { body: 1 }], head) === null, "malformed comment lists never approve or throw");
   ok(!isOwnerOnly("CLAUDE.md") && !isOwnerOnly("claude.md") && isOwnerOnly("AGENTS.md") && isOwnerOnly("docs/card-standard.md") && isOwnerOnly("scripts/check-doc-ownership.mjs")
@@ -92,11 +112,152 @@ const git = (cwd, args, env = {}) => execFileSync("git", args, { cwd, encoding: 
   "owner-only set covers the rule files (CLAUDE.md excluded since 2026-11-14 by owner decision), the gates' own code and everything under .github/, case-insensitively, nothing else");
   const base = { changedPaths: ["AGENTS.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [], error: null };
   ok(decideOwnerApproval({ ...base, changedPaths: ["lib/x.js"] }).ok, "decision: ordinary change passes");
-  ok(!decideOwnerApproval({ ...base, mergeGate: false, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: off the merge gate even a real approval is not accepted");
+  ok(!decideOwnerApproval({ ...base, mergeGate: false, comments: [{ id: 1, ...T, user: owner, body: S(`/owner-approve ${head}`) }] }).ok, "decision: off the merge gate even a real approval is not accepted");
   ok(!decideOwnerApproval({ ...base, error: "boom" }).ok && !decideOwnerApproval({ ...base, pr: null }).ok, "decision: missing evidence fails closed");
-  ok(!decideOwnerApproval({ ...base, pr: { number: 7, eventHeadSha: head, liveHeadSha: "c".repeat(40) }, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${"c".repeat(40)}` }] }).ok, "decision: a head that moved after the run started fails");
-  ok(decideOwnerApproval({ ...base, comments: [{ id: 1, ...T, user: owner, body: `/owner-approve ${head}` }] }).ok, "decision: owner approval of the exact head passes");
+  ok(!decideOwnerApproval({ ...base, pr: { number: 7, eventHeadSha: head, liveHeadSha: "c".repeat(40) }, comments: [{ id: 1, ...T, user: owner, body: S(`/owner-approve ${"c".repeat(40)}`) }] }).ok, "decision: a head that moved after the run started fails");
+  ok(decideOwnerApproval({ ...base, comments: [{ id: 1, ...T, user: owner, body: S(`/owner-approve ${head}`) }] }).ok, "decision: owner approval of the exact head passes");
   ok(decideOwnerApproval({ ...base, comments: [] }).reason.includes(`/owner-approve ${head}"`), "decision: the refusal prints the full sha to paste");
+}
+
+// ── 1b. Signed approval: real SSH signatures, real crypto ──────────────────
+// An approval comment must carry an SSH signature, by an owner key, over
+// "wayfind-owner-approve v1 / repo=... / sha=<head>". Comment metadata cannot tell
+// the owner from an agent using his gh token (issue #2477), a hardware-key
+// signature can.
+{
+  const head = "a1".repeat(20);
+  const other = "b2".repeat(20);
+  const owner = { type: "User", login: OWNER_LOGIN, id: OWNER_ID };
+  const mk = (body, extra = {}) => ({ id: 5000, ...T, user: owner, body, ...extra });
+  const find = (comments, sha = head, keys = KEYS) => findOwnerApprovalRaw(comments, sha, OWNERS, keys);
+  const line = (sha) => `/owner-approve ${sha}`;
+  const body = (signer, sha = head) => signedApprovalBody(signer, sha);
+  const B64 = /-----BEGIN SSH SIGNATURE-----\r?\n([\s\S]*?)-----END SSH SIGNATURE-----/;
+  const decode = (armored) => Buffer.from(B64.exec(armored)[1].replace(/\s+/g, ""), "base64");
+  const armorOf = (buf) => `-----BEGIN SSH SIGNATURE-----\n${buf.toString("base64").match(/.{1,70}/g).join("\n")}\n-----END SSH SIGNATURE-----\n`;
+
+  ok(approvalMessage(head) === `wayfind-owner-approve v1\nrepo=wallstreethyena/Wayfind\nsha=${head}` && approvalMessage(head) === approvalMessageLiteral(head) && APPROVAL_NAMESPACE === "wayfind-owner-approve",
+    "the signed message is exactly 'wayfind-owner-approve v1', the repo and the 40-hex sha, no trailing newline, namespace wayfind-owner-approve");
+  ok(find([mk(body(OWNER_KEY))])?.id === 5000, "ed25519: a comment with the owner's signature over this head's message is approved");
+  ok(find([mk(body(OWNER_KEY))], head, [INTRUDER_KEY.publicLine, OWNER_KEY.publicLine])?.id === 5000, "any one of several configured owner keys may sign");
+  ok(find([mk(body(ECDSA_KEY))], head, [ECDSA_KEY.publicLine])?.id === 5000 && find([mk(body(OWNER_KEY))], head, [ECDSA_KEY.publicLine]) === null,
+    "ecdsa-sha2-nistp256: approved with its own key, and an ed25519 signature does not match an ecdsa-only key list");
+  // an independent oracle: OpenSSH itself accepts the signature this verifier accepts
+  {
+    const dir = join(keyDir, "oracle");
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "msg"), approvalMessageLiteral(head));
+    writeFileSync(join(dir, "sig"), approvalSignature(OWNER_KEY, head));
+    writeFileSync(join(dir, "allowed"), `owner namespaces="wayfind-owner-approve" ${OWNER_KEY.publicLine}\n`);
+    let oracle = false;
+    try { execFileSync("ssh-keygen", ["-Y", "verify", "-f", join(dir, "allowed"), "-I", "owner", "-n", "wayfind-owner-approve", "-s", join(dir, "sig")], { input: readFileSync(join(dir, "msg")), stdio: ["pipe", "pipe", "pipe"] }); oracle = true; } catch { /* rejected */ }
+    ok(oracle && verifySshSignature({ armored: approvalSignature(OWNER_KEY, head), message: approvalMessageLiteral(head), namespace: APPROVAL_NAMESPACE, publicKeyLine: OWNER_KEY.publicLine }),
+      "cross-check: ssh-keygen -Y verify and this verifier both accept the same signature");
+  }
+
+  // Everything below must be REFUSED. Each carries an otherwise complete, valid-looking comment.
+  ok(find([mk(line(head))]) === null, "no signature: the account checks alone no longer approve (an agent with the owner's gh token has no key)");
+  ok(find([mk(`${line(head)}\n${approvalSignature(OWNER_KEY, other)}`)]) === null, "replay: a signature made for another commit does not approve this head");
+  ok(find([mk(`${line(other)}\n${approvalSignature(OWNER_KEY, other)}`)], head) === null, "replay: an approval of an old head does not approve a new head");
+  ok(find([mk(`${line(head)}\n${sshSign(OWNER_KEY, `wayfind-owner-approve v1\nrepo=attacker/Wayfind\nsha=${head}`)}`)]) === null, "a signature over a different repository string is refused");
+  ok(find([mk(`${line(head)}\n${sshSign(OWNER_KEY, approvalMessageLiteral(head), "git")}`)]) === null, "a signature in the wrong namespace (e.g. a git signature) is refused");
+  ok(find([mk(`${line(head)}\n${sshSign(OWNER_KEY, `${approvalMessageLiteral(head)}\n`)}`)]) === null && find([mk(`${line(head)}\n${sshSign(OWNER_KEY, approvalMessageLiteral(head).replace("v1", "v2"))}`)]) === null,
+    "the message must be byte-exact: a trailing newline or another version is refused");
+  ok(find([mk(body(INTRUDER_KEY))]) === null, "a signature by a key that is not an owner key is refused");
+  // ssh-keygen wraps at 70 columns and can leave the base64 padding alone on the last line
+  // ("=" or "==" by itself); a verifier that rejects that refuses a random one in three ecdsa signatures.
+  ok(/[A-Za-z0-9+/]=\n-----END/.test(approvalSignature(OWNER_KEY, head)) && find([mk(`${line(head)}\n${approvalSignature(OWNER_KEY, head).replace(/=\n-----END/, "\n=\n-----END")}`)])?.id === 5000,
+    "a signature whose base64 padding sits alone on the last armor line (as ssh-keygen writes it) is accepted");
+  ok(find([mk(body(OWNER_KEY))], head, []) === null && find([mk(body(OWNER_KEY))], head, ["not a key", "ssh-ed25519 AAAA"]) === null,
+    "fail closed: an empty or unusable key list approves nothing");
+  ok(OWNER_SIGNING_KEYS.length > 0 || findOwnerApprovalRaw([mk(body(OWNER_KEY))], head) === null,
+    "fail closed: with the shipped OWNER_SIGNING_KEYS (empty until the owner adds his hardware key) nothing is approved");
+  ok(Object.isFrozen(OWNER_SIGNING_KEYS) && Array.isArray(OWNER_SIGNING_KEYS) && OWNER_SIGNING_KEYS.every((l) => { try { parseOpenSshPublicKey(l); return true; } catch { return false; } }),
+    "OWNER_SIGNING_KEYS is a frozen list of parseable OpenSSH public keys of a supported type");
+
+  const sigText = approvalSignature(OWNER_KEY, head);
+  const blob = decode(sigText);
+  const flipped = (at) => { const c = Buffer.from(blob); c[at] ^= 0x01; return c; };
+  ok(find([mk(`${line(head)}\n${armorOf(flipped(blob.length - 1))}`)]) === null, "a signature with one mutated byte in the signature data is refused");
+  ok(find([mk(`${line(head)}\n${armorOf(flipped(30))}`)]) === null, "a signature with one mutated byte in the embedded public key is refused");
+  ok(find([mk(`${line(head)}\n${armorOf(Buffer.concat([blob, Buffer.from([0, 0, 0, 0])]))}`)]) === null, "trailing garbage after the signature is refused");
+  ok(find([mk(`${line(head)}\n${sigText.replace("-----END SSH SIGNATURE-----", "")}`)]) === null
+    && find([mk(`${line(head)}\n${sigText.replace(/\n(?=[A-Za-z0-9+/=]+\n-----END)/, "\n!!")}`)]) === null
+    && find([mk(`${line(head)}\n-----BEGIN SSH SIGNATURE-----\n-----END SSH SIGNATURE-----`)]) === null,
+  "malformed armor (no end line, a non-base64 line, an empty block) is refused without throwing");
+  ok(find([mk(body(OWNER_KEY), { updated_at: "2026-09-24T00:05:00Z" })]) === null, "an EDITED comment with a valid signature is still refused");
+  ok(find([mk(body(OWNER_KEY), { performed_via_github_app: { slug: "claude", id: 1 } })]) === null, "an App-posted comment with a valid signature is still refused");
+  ok(find([{ ...mk(body(OWNER_KEY)), user: { ...owner, type: "Bot" } }]) === null && find([{ ...mk(body(OWNER_KEY)), user: { type: "User", login: "someone-else", id: 1 } }]) === null,
+    "a bot, or a non-owner account, posting a valid owner signature is refused");
+  ok(find([mk(`${line(head)}\r\n${approvalSignature(OWNER_KEY, head).replace(/\n/g, "\r\n")}`)])?.id === 5000, "a comment typed on github.com (CRLF line endings) is approved");
+  ok(find([mk(`I approve this.\n\n\`\`\`\n${line(head)}\n${approvalSignature(OWNER_KEY, head)}\`\`\`\n`)])?.id === 5000, "the command and signature pasted inside a code fence, with prose around them, are approved");
+
+  // carry-forward candidates need the signature too
+  const cands = approvedCommitCandidates([mk(body(OWNER_KEY, other))], head, OWNERS, KEYS);
+  ok(cands.length === 1 && cands[0].sha === other && approvedCommitCandidates([mk(line(other))], head, OWNERS, KEYS).length === 0
+    && approvedCommitCandidates([mk(body(INTRUDER_KEY, other))], head, OWNERS, KEYS).length === 0 && approvedCommitCandidates([mk(body(OWNER_KEY, other))], head, OWNERS, []).length === 0,
+  "carry-forward candidates: only an owner-signed approval of an earlier head is considered");
+  const verdictNoKeys = decideOwnerApprovalRaw({ changedPaths: ["AGENTS.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [mk(body(OWNER_KEY))], error: null }, []);
+  ok(!verdictNoKeys.ok && /OWNER_SIGNING_KEYS/.test(verdictNoKeys.reason) && decideOwnerApprovalRaw({ changedPaths: ["AGENTS.md"], mergeGate: true, pr: { number: 7, eventHeadSha: head, liveHeadSha: head }, comments: [mk(body(OWNER_KEY))], error: null }, KEYS).ok,
+    "decision: with no key configured the refusal says so; with the owner's key the same comment approves");
+  ok(extractSshSignatureBlocks(`a\n${sigText}\nb\n${sigText}`).length === 2 && extractSshSignatureBlocks(null).length === 0, "signature blocks are found anywhere in a comment, and odd input yields none");
+
+  // The owner-run helper signs with `ssh-keygen -Y sign`, prints the comment to paste, and never posts anything.
+  {
+    const helper = join(REPO, "scripts", "owner-sign-approval.mjs");
+    const printed = execFileSync(process.execPath, [helper, "--sha", head.toUpperCase(), "--key", OWNER_KEY.keyPath], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    ok(printed.startsWith(`/owner-approve ${head}\n-----BEGIN SSH SIGNATURE-----`) && find([mk(printed)])?.id === 5000 && find([mk(printed)], other) === null,
+      "owner-sign-approval.mjs prints '/owner-approve <sha>' plus a signature block that the verifier accepts for that sha only");
+    const src = readFileSync(helper, "utf8").split("\n").filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l)).join("\n");
+    ok(!/fetch\(|"comment"|"api"|"issue"|"--method"|https?:\/\//.test(src) && /"pr", "view"/.test(src),
+      "the helper only reads (gh pr view) and prints; it has no code path that posts or edits a comment");
+  }
+
+  // Security-key (sk-*) signatures, built in the test with node:crypto per PROTOCOL.sshsig + PROTOCOL.u2f.
+  const u32 = (n) => { const b = Buffer.alloc(4); b.writeUInt32BE(n); return b; };
+  const S_ = (x) => { const b = Buffer.isBuffer(x) ? x : Buffer.from(x); return Buffer.concat([u32(b.length), b]); };
+  const sha256 = (b) => createHash("sha256").update(b).digest();
+  const mpint = (b) => { let v = b; while (v.length > 1 && v[0] === 0) v = v.subarray(1); return v[0] & 0x80 ? Buffer.concat([Buffer.from([0]), v]) : v; };
+  const APP = "ssh:";
+  const makeSk = (kind) => {
+    if (kind === "ed") {
+      const kp = generateKeyPairSync("ed25519");
+      const raw = kp.publicKey.export({ format: "der", type: "spki" }).subarray(-32);
+      const type = "sk-ssh-ed25519@openssh.com";
+      return { type, publicLine: `${type} ${Buffer.concat([S_(type), S_(raw), S_(APP)]).toString("base64")} test-sk`,
+        keyBlob: Buffer.concat([S_(type), S_(raw), S_(APP)]), sigBody: (data) => S_(cryptoSign(null, data, kp.privateKey)) };
+    }
+    const kp = generateKeyPairSync("ec", { namedCurve: "prime256v1" });
+    const jwk = kp.publicKey.export({ format: "jwk" });
+    const point = Buffer.concat([Buffer.from([4]), Buffer.from(jwk.x, "base64url"), Buffer.from(jwk.y, "base64url")]);
+    const type = "sk-ecdsa-sha2-nistp256@openssh.com";
+    const keyBlob = Buffer.concat([S_(type), S_("nistp256"), S_(point), S_(APP)]);
+    return { type, publicLine: `${type} ${keyBlob.toString("base64")} test-sk`, keyBlob,
+      sigBody: (data) => { const rs = cryptoSign("sha256", data, { key: kp.privateKey, dsaEncoding: "ieee-p1363" }); return S_(Buffer.concat([S_(mpint(rs.subarray(0, 32))), S_(mpint(rs.subarray(32)))])); } };
+  };
+  const skSign = (key, { message, namespace = APPROVAL_NAMESPACE, hashAlg = "sha512", signedFlags = 1, blobFlags = signedFlags, counter = 7 }) => {
+    const signed = Buffer.concat([Buffer.from("SSHSIG"), S_(namespace), S_(""), S_(hashAlg), S_(createHash(hashAlg).update(message).digest())]);
+    const u2f = Buffer.concat([sha256(APP), Buffer.from([signedFlags]), u32(counter), sha256(signed)]);
+    const sigBlob = Buffer.concat([S_(key.type), key.sigBody(u2f), Buffer.from([blobFlags]), u32(counter)]);
+    return armorOf(Buffer.concat([Buffer.from("SSHSIG"), u32(1), S_(key.keyBlob), S_(namespace), S_(""), S_(hashAlg), S_(sigBlob)]));
+  };
+  for (const kind of ["ed", "ec"]) {
+    const key = makeSk(kind);
+    const keys = [key.publicLine];
+    const msg = approvalMessageLiteral(head);
+    const cm = (armored) => mk(`${line(head)}\n${armored}`);
+    ok(find([cm(skSign(key, { message: msg, signedFlags: 1 }))], head, keys)?.id === 5000 && find([cm(skSign(key, { message: msg, signedFlags: 5 }))], head, keys)?.id === 5000,
+      `sk-${kind}: a security-key signature with user presence (touch) set is accepted (flags 0x01, and 0x05 with user verification)`);
+    ok(find([cm(skSign(key, { message: msg, signedFlags: 0 }))], head, keys) === null && /no touch/.test(checkSshSignature({ armored: skSign(key, { message: msg, signedFlags: 0 }), message: msg, namespace: APPROVAL_NAMESPACE, publicKeyLine: key.publicLine }).reason || ""),
+      `sk-${kind}: user presence NOT set (flags 0x00) is refused, with that reason`);
+    ok(find([cm(skSign(key, { message: msg, signedFlags: 0, blobFlags: 1 }))], head, keys) === null && find([cm(skSign(key, { message: msg, signedFlags: 1, blobFlags: 0 }))], head, keys) === null,
+      `sk-${kind}: flipping the presence flag in the signature blob breaks it (the flags are covered by the signature)`);
+    ok(find([cm(skSign(key, { message: msg, counter: 7 }))], head, keys)?.id === 5000 && find([cm(skSign(key, { message: msg.replace(head, other) }))], head, keys) === null
+      && find([cm(skSign(key, { message: msg, namespace: "git" }))], head, keys) === null,
+    `sk-${kind}: bound to the message and the namespace like any other signature`);
+    ok(find([cm(skSign(key, { message: msg, hashAlg: "sha256" }))], head, keys)?.id === 5000 && find([cm(skSign(key, { message: msg, hashAlg: "sha1" }))], head, keys) === null,
+      `sk-${kind}: sha256 and sha512 are accepted, any other hash algorithm is refused`);
+  }
 }
 
 // ── 2. The real guard, in real git repositories, with a stub GitHub API ────
@@ -152,6 +313,7 @@ globalThis.fetch = async (url, init = {}) => {
   return { ok: false, status: 404, json: async () => ({}) };
 };`);
 
+  const injectKeys = writeKeyInjectionPreload(root, KEYS);
   let runN = 0;
   const run = ({ dir, script = GUARD, gate = false, event = "pull_request", eventHead, liveHead, liveHeadLater, comments = [], status = 200, token = "fixture-token", eventFile = true, files, changedFiles, pageSize }) => {
     const tag = ++runN;
@@ -166,11 +328,11 @@ globalThis.fetch = async (url, init = {}) => {
     if (gate) Object.assign(env, { GITHUB_EVENT_NAME: event, GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: "wallstreethyena/Wayfind", GITHUB_API_URL: "https://api.github.fixture.invalid" });
     if (gate && token) env.GITHUB_TOKEN = token;
     let code = 0, out = "";
-    try { out = execFileSync(process.execPath, ["--import", preload, script], { cwd: dir, encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] }); }
+    try { out = execFileSync(process.execPath, ["--import", preload, "--import", injectKeys, script], { cwd: dir, encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] }); }
     catch (e) { code = e.status ?? 1; out = `${e.stdout || ""}${e.stderr || ""}`; }
     return { code, out, calls: readFileSync(log, "utf8").split("\n").filter(Boolean) };
   };
-  const approve = (sha, login = OWNER_LOGIN, type = "User", prefix = "") => ({ id: 100 + runN, ...T, user: { login, type, id: login === OWNER_LOGIN ? OWNER_ID : 4242 }, body: `${prefix}/owner-approve ${sha}` });
+  const approve = (sha, login = OWNER_LOGIN, type = "User", prefix = "") => ({ id: 100 + runN, ...T, user: { login, type, id: login === OWNER_LOGIN ? OWNER_ID : 4242 }, body: `${prefix}/owner-approve ${sha}\n${approvalSignature(OWNER_KEY, sha)}` });
 
   // A. no owner-only change -> pass, locally and on the gate, with no API call.
   const plain = branch([["lib/thing.js", "export const a = 1;\n"]]);
@@ -303,7 +465,7 @@ globalThis.fetch = async (url, init = {}) => {
   ok(uses.length === 2 && uses.every((u) => /@[0-9a-f]{40}$/.test(u)), `owner-approval pins every action to a full commit sha (${uses.join(", ")})`);
 }
 
-const EXPECTED = 68;
+const EXPECTED = 108;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);

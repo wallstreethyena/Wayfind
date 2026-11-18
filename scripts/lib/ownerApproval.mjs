@@ -24,17 +24,48 @@
 // "owner-approval" check, which applies the BASE branch's copy of this file);
 // a local run can never grant approval.
 //
+// SIGNED APPROVAL (2026-11-18). The login, account type, edit and App checks
+// above prove only WHICH ACCOUNT posted a comment, not WHO was at the keyboard:
+// a comment posted through the owner's `gh` CLI OAuth token shows
+// user.login=<owner>, type=User, performed_via_github_app=null, identical to a
+// hand-typed one (proven on issue #2477, comment of 2026-11-14T20:44:38Z, posted
+// by an agent). So a comment now counts only when it ALSO carries an OpenSSH
+// signature (ssh-keygen -Y sign) over the exact message
+//
+//     wayfind-owner-approve v1\nrepo=wallstreethyena/Wayfind\nsha=<head sha>
+//
+// that verifies against one of OWNER_SIGNING_KEYS, a hardware-held key the owner
+// controls (see docs/OWNER_APPROVAL.md). The signature binds the approval to one
+// repository and one exact commit, so it cannot be replayed on a new head or a
+// fork. No keys configured, an unparsable signature, or any error: not approved.
+//
 // Pure module: no environment, filesystem, network or git access. The caller
 // (scripts/check-doc-ownership.mjs) gathers evidence and passes it in, so every
 // rule here is executable in hermetic tests.
 
 import { createHash } from "node:crypto";
+import { extractSshSignatureBlocks, parseOpenSshPublicKey, verifySshSignature } from "./sshSignature.mjs";
 
 // Accounts allowed to approve: the login (compared case-insensitively, as GitHub
 // does) AND the numeric account id, which never changes, so a renamed or released
 // login that someone else registers later cannot approve.
 export const OWNERS = Object.freeze([Object.freeze({ login: "wallstreethyena", id: 297334934 })]);
 export const OWNER_LOGINS = Object.freeze(OWNERS.map((o) => o.login));
+
+// The owner's approval-signing PUBLIC keys: OpenSSH public key lines
+// ("sk-ssh-ed25519@openssh.com AAAA... comment"), supported types
+// ssh-ed25519, sk-ssh-ed25519@openssh.com, ecdsa-sha2-nistp256 and
+// sk-ecdsa-sha2-nistp256@openssh.com. EMPTY until the owner adds his own: while
+// it is empty NO owner-only change can be approved (fail closed).
+//
+// The owner must add a key whose private half is held in HARDWARE and needs a
+// touch to sign: a YubiKey (`ssh-keygen -t ed25519-sk`, preferred) or a
+// Secure-Enclave-backed key. A private key FILE in ~/.ssh that an agent or any
+// process running as the owner can read is NOT acceptable: it would let an agent
+// sign for him, which is the exact hole this list exists to close. Only the
+// public line goes here, and adding or changing it is itself an owner-only edit.
+export const OWNER_SIGNING_KEYS = Object.freeze([
+]);
 
 // Owner-only paths: rule-defining documents, plus the pieces that enforce this
 // rule, so a pull request cannot quietly weaken its own gate. Case-insensitive:
@@ -63,7 +94,15 @@ export const OWNER_ONLY = Object.freeze([
 ]);
 
 export const APPROVAL_COMMAND = "/owner-approve";
-const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{40})[ \t]*$/gm;
+// A trailing carriage return is tolerated: comments typed on github.com keep CRLF line endings.
+const APPROVAL_LINE = /^\/owner-approve[ \t]+([0-9a-fA-F]{40})[ \t]*\r?$/gm;
+export const APPROVAL_NAMESPACE = "wayfind-owner-approve";
+export const APPROVAL_REPO = "wallstreethyena/Wayfind";
+
+/** The exact bytes the owner signs for `sha` (no trailing newline). */
+export function approvalMessage(sha) {
+  return `${APPROVAL_NAMESPACE} v1\nrepo=${APPROVAL_REPO}\nsha=${String(sha).toLowerCase()}`;
+}
 const SHA40 = /^[0-9a-f]{40}$/;
 
 export function isOwnerOnly(path) {
@@ -105,12 +144,36 @@ function postedByPerson(comment) {
   return comment.performed_via_github_app == null;
 }
 
+// Does `body` hold an SSH signature over the approval message for `sha` that one
+// of `keys` made? Fails closed: no keys, no usable key line, no signature block,
+// or any error is false.
+function hasOwnerSignature(body, sha, keys) {
+  try {
+    if (!Array.isArray(keys) || !keys.length || !SHA40.test(sha)) return false;
+    const blocks = extractSshSignatureBlocks(body);
+    if (!blocks.length) return false;
+    const message = approvalMessage(sha);
+    for (const publicKeyLine of keys) {
+      if (typeof publicKeyLine !== "string") continue;
+      try { parseOpenSshPublicKey(publicKeyLine); } catch { continue; }
+      for (const armored of blocks) {
+        if (verifySshSignature({ armored, message, namespace: APPROVAL_NAMESPACE, publicKeyLine })) return true;
+      }
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Find an owner approval for exactly `headSha` among GitHub issue comments
  * (REST shape: { id, body, user: { login, id, type }, created_at, updated_at }).
+ * Besides the account checks, the comment must carry an SSH signature by one of
+ * `keys` (default OWNER_SIGNING_KEYS) over approvalMessage(headSha).
  * Returns the approving comment or null. Never throws on odd input.
  */
-export function findOwnerApproval(comments, headSha, owners = OWNERS) {
+export function findOwnerApproval(comments, headSha, owners = OWNERS, keys = OWNER_SIGNING_KEYS) {
   const head = String(headSha || "").toLowerCase();
   if (!SHA40.test(head) || !Array.isArray(owners) || !owners.length) return null;
   for (const comment of Array.isArray(comments) ? comments : []) {
@@ -120,7 +183,7 @@ export function findOwnerApproval(comments, headSha, owners = OWNERS) {
     if (!postedByPerson(comment)) continue;
     const body = typeof comment.body === "string" ? comment.body : "";
     for (const match of body.matchAll(APPROVAL_LINE)) {
-      if (match[1].toLowerCase() === head) return comment;
+      if (match[1].toLowerCase() === head && hasOwnerSignature(body, head, keys)) return comment;
     }
   }
   return null;
@@ -180,11 +243,12 @@ export const MAX_CARRY_FORWARD_CANDIDATES = 3;
 /**
  * Commits the owner approved on this pull request, newest comment first, from the
  * same evidence findOwnerApproval trusts (owner account, User type, unedited
- * comment posted by the person and not an App, full sha on its own line).
+ * comment posted by the person and not an App, full sha on its own line, and an
+ * SSH signature by one of `keys` over that sha's approval message).
  * Excludes `headSha`. Returns
  * [{ sha, comment }], at most MAX_CARRY_FORWARD_CANDIDATES.
  */
-export function approvedCommitCandidates(comments, headSha, owners = OWNERS) {
+export function approvedCommitCandidates(comments, headSha, owners = OWNERS, keys = OWNER_SIGNING_KEYS) {
   const head = String(headSha || "").toLowerCase();
   const found = [];
   const seen = new Set();
@@ -199,6 +263,7 @@ export function approvedCommitCandidates(comments, headSha, owners = OWNERS) {
     for (const match of body.matchAll(APPROVAL_LINE)) {
       const sha = match[1].toLowerCase();
       if (sha === head || seen.has(sha)) continue;
+      if (!hasOwnerSignature(body, sha, keys)) continue;
       seen.add(sha);
       found.push({ sha, comment });
       if (found.length >= MAX_CARRY_FORWARD_CANDIDATES) return found;
@@ -360,7 +425,7 @@ export function compareApprovedChange(approvedFiles, currentFiles) {
  * earlier approval that was compared (PR, approved and current head and base,
  * change fingerprints, files, approval time, actor, decision and why).
  */
-export function decideOwnerApproval(evidence) {
+export function decideOwnerApproval(evidence, keys = OWNER_SIGNING_KEYS) {
   const protectedPaths = ownerOnlyChanges(evidence && evidence.changedPaths);
   if (!protectedPaths.length) return { ok: true, protectedPaths, reason: "no owner-only files changed" };
   const list = protectedPaths.join(", ");
@@ -375,7 +440,7 @@ export function decideOwnerApproval(evidence) {
   if (pr.eventHeadSha !== pr.liveHeadSha) {
     return { ok: false, protectedPaths, reason: `owner-only files changed (${list}) but PR #${pr.number} moved from ${pr.eventHeadSha.slice(0, 12)} to ${pr.liveHeadSha.slice(0, 12)} after this run started; re-run on the new head` };
   }
-  const approval = findOwnerApproval(evidence.comments, pr.liveHeadSha);
+  const approval = findOwnerApproval(evidence.comments, pr.liveHeadSha, OWNERS, keys);
   if (approval) {
     return { ok: true, protectedPaths, reason: `owner-only files changed (${list}); approved by @${approval.user.login} for head ${pr.liveHeadSha.slice(0, 12)} in comment ${approval.id}` };
   }
@@ -384,7 +449,7 @@ export function decideOwnerApproval(evidence) {
   const notes = [];
   const audits = [];
   const supplied = Array.isArray(evidence.carryForward) ? evidence.carryForward : [];
-  for (const candidate of approvedCommitCandidates(evidence.comments, pr.liveHeadSha)) {
+  for (const candidate of approvedCommitCandidates(evidence.comments, pr.liveHeadSha, OWNERS, keys)) {
     const entry = supplied.find((c) => c && String(c.sha || "").toLowerCase() === candidate.sha);
     if (!entry) continue;
     if (entry.error) { notes.push(`the approval of ${candidate.sha.slice(0, 12)} could not be compared (${entry.error})`); continue; }
@@ -412,5 +477,8 @@ export function decideOwnerApproval(evidence) {
     notes.push(`the approval of ${candidate.sha.slice(0, 12)} does not carry forward because ${verdict.material.join("; ")}`);
   }
   const why = notes.length ? `. ${notes.join(". ")}` : "";
-  return { ok: false, protectedPaths, audit: audits, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}${why}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full sha), then re-running the checks` };
+  const keyHint = !Array.isArray(keys) || !keys.length
+    ? ". No owner signing key is configured in OWNER_SIGNING_KEYS (scripts/lib/ownerApproval.mjs), so no approval can count until the owner adds his hardware-backed public key"
+    : "";
+  return { ok: false, protectedPaths, audit: audits, reason: `owner-only files changed (${list}) with no owner approval for head ${pr.liveHeadSha.slice(0, 12)}${why}. The owner (${OWNER_LOGINS.join(", ")}) approves by commenting on PR #${pr.number}: "${APPROVAL_COMMAND} ${pr.liveHeadSha}" (the full sha) followed by his ssh-keygen signature block over the approval message (run \`node scripts/owner-sign-approval.mjs --pr ${pr.number}\` on his own machine; see docs/OWNER_APPROVAL.md), then re-running the checks${keyHint}` };
 }

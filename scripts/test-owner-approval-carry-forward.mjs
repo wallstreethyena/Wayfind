@@ -28,10 +28,20 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
+import { approvalSignature, injectKeysInProcess, makeSigner, writeKeyInjectionPreload } from "./lib/ownerSigningTestkit.mjs";
+
+// An approval needs a real SSH signature by an owner key, and OWNER_SIGNING_KEYS is the owner's
+// hardware key (empty until he adds it). This run signs with a throwaway ssh-keygen key and
+// substitutes its public line into ownerApproval.mjs as it loads (a module-loader hook, so the
+// rule code is the real code), hence the dynamic imports AFTER the hook is registered.
+const keyDir = mkdtempSync(join(tmpdir(), "carry-forward-keys-"));
+const OWNER_KEY = makeSigner(keyDir, "ed25519");
+injectKeysInProcess([OWNER_KEY.publicLine]);
+const injectKeys = writeKeyInjectionPreload(keyDir, [OWNER_KEY.publicLine]);
+const {
   compareApprovedChange, approvedCommitCandidates, decideOwnerApproval, OWNERS, isOwnerOnly,
-} from "./lib/ownerApproval.mjs";
-import { fetchCarryForward } from "./lib/githubPullEvidence.mjs";
+} = await import("./lib/ownerApproval.mjs");
+const { fetchCarryForward } = await import("./lib/githubPullEvidence.mjs");
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
 let n = 0;
@@ -40,7 +50,7 @@ const ok = (cond, msg) => { assert.ok(cond, msg); n++; };
 const OWNER = OWNERS[0];
 const T = { created_at: "2026-11-12T22:30:46Z", updated_at: "2026-11-12T22:30:46Z" };
 const approve = (sha, user = { login: OWNER.login, id: OWNER.id, type: "User" }, extra = {}) =>
-  ({ id: 9000 + n, ...T, ...extra, user, body: `/owner-approve ${sha}` });
+  ({ id: 9000 + n, ...T, ...extra, user, body: `/owner-approve ${sha}\n${approvalSignature(OWNER_KEY, sha)}` });
 
 const root = mkdtempSync(join(tmpdir(), "carry-forward-"));
 const ENV = { ...process.env, GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@x.invalid", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@x.invalid", GIT_CONFIG_NOSYSTEM: "1", HOME: root };
@@ -278,6 +288,8 @@ v = decideOwnerApproval(ev([approve(s1.approvedSha, { login: OWNER.login, id: OW
 ok(!v.ok, "decide: a bot account with the owner's login is never carried forward");
 v = decideOwnerApproval(ev([approve(s1.approvedSha, undefined, { updated_at: "2026-11-12T23:00:00Z" })], cf));
 ok(!v.ok, "decide: an edited approval comment is never carried forward");
+v = decideOwnerApproval(ev([{ ...approve(s1.approvedSha), body: `/owner-approve ${s1.approvedSha}` }], cf));
+ok(!v.ok, "decide: an earlier approval WITHOUT the owner's key signature is never carried forward (an agent with his token has no key)");
 v = decideOwnerApproval(ev([approve(s1.approvedSha, undefined, { performed_via_github_app: { slug: "claude", id: 1 } })], cf));
 ok(!v.ok, "decide: an approval an App posted with the owner's token is never carried forward");
 v = decideOwnerApproval(ev([approve("e".repeat(40))], cf));
@@ -344,7 +356,7 @@ const runCheck = (dir) => {
   const eventPath = join(root, "event.json");
   writeFileSync(eventPath, JSON.stringify({ pull_request: { number: 2175, head: { sha: s1.headSha } } }));
   const env = { ...process.env, GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "pull_request_target", GITHUB_EVENT_PATH: eventPath, GITHUB_REPOSITORY: "wallstreethyena/Wayfind", GITHUB_API_URL: "https://api.github.fixture.invalid", GITHUB_TOKEN: "fixture", STUB_CONFIG: join(root, "stub.json") };
-  try { return { code: 0, out: execFileSync(process.execPath, ["--import", preload, join(dir, "scripts/check-owner-approval-pr.mjs")], { encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] }) }; }
+  try { return { code: 0, out: execFileSync(process.execPath, ["--import", preload, "--import", injectKeys, join(dir, "scripts/check-owner-approval-pr.mjs")], { encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] }) }; }
   catch (e) { return { code: e.status ?? 1, out: `${e.stdout || ""}${e.stderr || ""}` }; }
 };
 let r = runCheck(REPO);
@@ -371,4 +383,5 @@ for (const f of ["scripts/check-doc-ownership.mjs", "scripts/check-owner-approva
 }
 
 rmSync(root, { recursive: true, force: true });
+rmSync(keyDir, { recursive: true, force: true });
 console.log(`test-owner-approval-carry-forward: OK — ${n} assertions (${scenarios.length} scenarios from real git history: merge and rebase catch-ups and moved registry rows carry the approval; new code, edited lines, DROP TABLE, a new migration, removed or added guard rows, a dropped main rule, a moved code line, binaries and 300-file lists need a fresh one; only the owner's own unedited approval counts; red-proved against three wrong rules and the pre-fix check)`);

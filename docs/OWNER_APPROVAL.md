@@ -22,13 +22,18 @@ case-insensitively, because on a Mac `agents.md` is the same file as `AGENTS.md`
 
 A comment on the pull request, posted from the owner's GitHub account
 (`OWNERS`: login `wallstreethyena` and account id `297334934`, so a renamed
-or re-registered login does not count), with its own line:
+or re-registered login does not count), with its own line, **followed by an SSH
+signature block that the owner's hardware key made over that exact commit** (see
+"Signed approval" below; without a verifying signature the comment is not evidence):
 
 ```
 /owner-approve <the PR's current head commit, all 40 characters>
+-----BEGIN SSH SIGNATURE-----
+...
+-----END SSH SIGNATURE-----
 ```
 
-The failing check prints the exact line to paste. A shortened sha does not
+The failing check prints the exact line to paste and the helper command that makes the signature. A shortened sha does not
 count, because a different commit with the same short prefix can be made on
 purpose. An **edited** comment does not count either: anyone with write access
 (an App included) can edit a comment without changing its author, so an approval
@@ -45,6 +50,95 @@ App posted with the owner's token. GitHub marks that comment with
 this repository in November 2026, including the one that merged #2491). A
 comment the owner posts himself comes back with that field null and still
 counts. The same rejection applies when an earlier approval is carried forward.
+(Even a comment the owner's account posts is not enough on its own any more; see the
+next two sections.)
+
+## Why the account checks are not enough (threat model, 2026-11-18)
+
+Everything above proves which ACCOUNT posted a comment, not WHO was at the keyboard.
+A comment posted through the owner's `gh` CLI OAuth token comes back from the API
+with `user.login` = `wallstreethyena`, `user.type` = `User`, the owner's account id,
+`performed_via_github_app` = `null`, and identical `created_at`/`updated_at`: byte for
+byte what a hand-typed comment looks like. This was shown on issue #2477 (comment of
+2026-11-14T20:44:38Z, posted by an agent using the owner's token). So the login, id,
+type, unedited and `performed_via_github_app` checks can all be satisfied by anything
+that holds the owner's token. Agents running as the owner (or with his token on disk)
+could therefore approve their own changes to the rules and to this gate.
+
+The one thing such an agent cannot produce is a signature from a private key that
+never leaves the owner's hardware and needs a physical touch to use. So an approval
+now requires that proof, and the proof is bound to the repository and the exact commit.
+
+## Signed approval (the rule since 2026-11-18)
+
+The comment must contain an OpenSSH signature (`ssh-keygen -Y sign`, namespace
+`wayfind-owner-approve`) over exactly these bytes (no trailing newline):
+
+```
+wayfind-owner-approve v1
+repo=wallstreethyena/Wayfind
+sha=<the full 40-character head sha, lowercase>
+```
+
+and it must verify, with `scripts/lib/sshSignature.mjs` (node:crypto only, following
+OpenSSH `PROTOCOL.sshsig` and `PROTOCOL.u2f`), against a key in `OWNER_SIGNING_KEYS`
+in `scripts/lib/ownerApproval.mjs`. Supported key types: `ssh-ed25519`,
+`sk-ssh-ed25519@openssh.com`, `ecdsa-sha2-nistp256`, `sk-ecdsa-sha2-nistp256@openssh.com`.
+For the `sk-` (security key) types the signature must show the user-presence flag, i.e.
+the key was physically touched. Every earlier rule still applies (owner login and id,
+`User` type, unedited, not posted by an App, full 40-hex sha, head binding, carry-forward).
+A wrong namespace or hash, another key, another repository, another commit, a
+modified byte, trailing garbage or any parse error is a refusal. **If
+`OWNER_SIGNING_KEYS` is empty, nothing is approved**: the gate fails closed.
+
+Because the message names the repository and the commit, a signature cannot be replayed
+on a new head or on a fork. Carry-forward of an approval to a caught-up head still works,
+because it starts from an earlier head that carries a valid signature.
+
+### Owner setup (one time, on your own machine)
+
+1. Make a hardware-backed key. A YubiKey (or another FIDO2 key) is preferred:
+
+   ```
+   ssh-keygen -t ed25519-sk -O verify-required -C "wayfind owner approval" -f ~/.ssh/id_ed25519_sk
+   ```
+
+   (OpenSSH 8.2 or newer; touch the key when it blinks. Leave out `-O verify-required` if
+   you do not want a PIN as well.) A Secure-Enclave-backed key is the alternative. **Do not
+   use a plain private-key file that anything running as you can read** (an ordinary
+   `~/.ssh/id_ed25519` an agent can open): that lets an agent sign for you, which is the
+   hole this closes. The private key must stay on the hardware.
+2. Add the public line (the `.pub` file's one line) to `OWNER_SIGNING_KEYS` in
+   `scripts/lib/ownerApproval.mjs`, either in the pull request that introduces this rule
+   (before you approve it) or in a follow-up. That file is owner-only, so changing the list
+   needs your own approval of that change. For the pull request that introduces this rule:
+   add your key line, push, then sign the NEW head (step 3). The `guards` check runs the
+   pull request's own rule and needs the signature; the base-branch checks still run main's
+   older rule until it merges and accept the plain `/owner-approve <sha>` line, which the
+   same comment contains.
+
+   ```
+   cat ~/.ssh/id_ed25519_sk.pub
+   ```
+
+   Until a key is in the list, no owner-only change can be approved by anyone.
+3. To approve a pull request, run the helper on your machine (it prints, it never posts):
+
+   ```
+   node scripts/owner-sign-approval.mjs --pr <number>
+   # or: node scripts/owner-sign-approval.mjs --sha <the 40-character head> [--key ~/.ssh/id_ed25519_sk]
+   ```
+
+   Touch the key when asked. It prints the whole comment: the `/owner-approve <sha>` line
+   and the `-----BEGIN SSH SIGNATURE-----` block.
+4. Paste all of that into a new comment on the pull request yourself, in the GitHub website
+   or app (not through an agent or `gh`). Then re-run the two checks. Push anything new and
+   the head changes, so sign again for the new head.
+
+An agent never posts, edits, drafts for posting, or relays an `/owner-approve` comment or
+signature, on any account (AGENTS.md section 11). Testing: `scripts/test-owner-approval.mjs`
+makes real ssh-keygen keys and signatures at test time and proves the rule, including security
+keys with and without the touch flag; the owner's hardware key is never needed to run tests.
 
 ## Catching up with main does not void an approval (2026-11-12)
 

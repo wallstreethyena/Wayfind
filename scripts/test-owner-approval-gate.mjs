@@ -40,6 +40,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createAppJwt } from "./lib/githubAppAuth.mjs";
 import { isOwnerOnly, OWNERS } from "./lib/ownerApproval.mjs";
+import { approvalSignature, makeSigner, writeKeyInjectionPreload } from "./lib/ownerSigningTestkit.mjs";
 
 const REPO = process.cwd();
 const GATE = join(REPO, "scripts", "owner-approval-gate.mjs");
@@ -70,6 +71,11 @@ const other = generateKeyPairSync("rsa", { modulusLength: 2048 }).privateKey.exp
 
 // ── 2. The real gate script against a stub GitHub API ──────────────────────
 const root = mkdtempSync(join(tmpdir(), "wf-owner-gate-"));
+// Approvals need a real SSH signature by an owner key; OWNER_SIGNING_KEYS is the owner's
+// hardware key (empty until he adds it), so this run signs with a throwaway ssh-keygen key and
+// substitutes its public line into the gate's copy of the constant (ownerSigningTestkit.mjs).
+const OWNER_KEY = makeSigner(join(root, "keys"), "ed25519");
+const injectKeys = writeKeyInjectionPreload(join(root, "keys"), [OWNER_KEY.publicLine]);
 const preload = join(root, "stub.mjs");
 writeFileSync(preload, `
 import { readFileSync, appendFileSync } from "node:fs";
@@ -101,7 +107,7 @@ globalThis.fetch = async (url, init = {}) => {
 const HEAD = "a".repeat(40);
 let n = 0;
 const file = (filename) => ({ filename, status: "modified" });
-const approve = (sha = HEAD, user = { login: OWNER.login, id: OWNER.id, type: "User" }, edited = false) => ({ id: 900 + n, user, body: `/owner-approve ${sha}`, created_at: "2026-09-24T00:00:00Z", updated_at: edited ? "2026-09-24T00:09:00Z" : "2026-09-24T00:00:00Z" });
+const approve = (sha = HEAD, user = { login: OWNER.login, id: OWNER.id, type: "User" }, edited = false) => ({ id: 900 + n, user, body: `/owner-approve ${sha}\n${approvalSignature(OWNER_KEY, sha)}`, created_at: "2026-09-24T00:00:00Z", updated_at: edited ? "2026-09-24T00:09:00Z" : "2026-09-24T00:00:00Z" });
 const gate = ({ event = "pull_request_target", ref = "refs/heads/main", appId = APP_ID, key = PRIVATE_PEM, files = [file("lib/x.js")], comments = [], liveHead = HEAD, eventHead = HEAD, onIssue = false, apiStatus = 0, mintFails = false, baseRef, liveHeadLater, attempt = 1 } = {}) => {
   const tag = ++n;
   const log = join(root, `log-${tag}.jsonl`); writeFileSync(log, "");
@@ -115,7 +121,7 @@ const gate = ({ event = "pull_request_target", ref = "refs/heads/main", appId = 
   const env = { ...process.env, STUB_CONFIG: cfgPath, STUB_LOG: log, GITHUB_ACTIONS: "true", GITHUB_REF: ref, GITHUB_EVENT_NAME: event, GITHUB_EVENT_PATH: eventPath,
     GITHUB_RUN_ATTEMPT: String(attempt), GITHUB_TOKEN: "workflow-token", GITHUB_REPOSITORY: "wallstreethyena/Wayfind", GITHUB_API_URL: "https://api.github.fixture.invalid", OWNER_GATE_APP_ID: appId, OWNER_GATE_PRIVATE_KEY: key };
   let code = 0; let out = "";
-  try { out = execFileSync(process.execPath, ["--import", preload, GATE], { cwd: root, encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] }); }
+  try { out = execFileSync(process.execPath, ["--import", preload, "--import", injectKeys, GATE], { cwd: root, encoding: "utf8", env, stdio: ["ignore", "pipe", "pipe"] }); }
   catch (e) { code = e.status ?? 1; out = `${e.stdout || ""}${e.stderr || ""}`; }
   const calls = readFileSync(log, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
   const posted = calls.filter((c) => c.method === "POST" && c.path.endsWith("/check-runs"));
@@ -158,6 +164,8 @@ try {
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure" && r.posted[0].body.output.title === "Owner approval required", "S4: owner-only change without approval: failing gate check");
   r = gate({ files: [file("AGENTS.md")], comments: [approve()] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "success" && r.posted[0].body.output.title === "Approved by the owner", "S4: the owner's full-sha comment passes");
+  r = gate({ files: [file("AGENTS.md")], comments: [{ ...approve(), body: `/owner-approve ${HEAD}` }] });
+  ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S4: the owner's account naming the exact head WITHOUT a signature fails (an agent using his gh token has no key)");
   r = gate({ files: [file("AGENTS.md")], comments: [approve(HEAD.slice(0, 12)), approve(HEAD, { login: OWNER.login, id: OWNER.id, type: "Bot" }), approve(HEAD, { login: "wayfind-agents[bot]", id: 5, type: "Bot" }), approve(HEAD, { login: OWNER.login, id: OWNER.id + 1, type: "User" })] });
   ok(r.posted.length === 1 && r.posted[0].body.conclusion === "failure", "S4: a shortened sha, a bot, the agents' App, and a look-alike account all fail");
   r = gate({ event: "issue_comment", files: [file("AGENTS.md")], comments: [approve(HEAD, undefined, true)] });
@@ -224,7 +232,7 @@ const code = (f) => readFileSync(join(WF_DIR, f), "utf8").split("\n").filter((l)
   ok(clashes.length === 0, `S7: "guards" and "owner-approval" come from exactly one workflow each, and no workflow job is named "owner-approval-gate" (${clashes.join(", ") || "none"})`);
 }
 
-const EXPECTED = 38;
+const EXPECTED = 39;
 if (checks !== EXPECTED) {
   console.error(`test-owner-approval-gate: FAIL — ran ${checks} assertions, expected exactly ${EXPECTED}; a proof was skipped or added without review.`);
   process.exit(1);
