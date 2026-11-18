@@ -95,13 +95,20 @@ const ev = strip(read("app/florida-events/[slug]/page.js"));
 ok(/creatorCoversFor\(\[e\.place_id\]\)/.test(ev) && /posterCredit=\{socialPosterCredit\}/.test(ev), "event creator posts fall back to our own credited venue photo");
 
 // ── 3. Stay on site ─────────────────────────────────────────────────────────
+// Positive controls: the absence probes below DO find a real outbound link.
+const NEW_TAB = /target=["']_blank["']/;
+const POST_LINK = /href=\{[^}]*\b(?:post|video|v|selected)\.(?:url|videoUrl)\b[^}]*\}/;
+const POST_HREF = /href=["']https?:\/\/(?:www\.)?(?:instagram|tiktok)\.com\/(?:reel|reels|p|tv|@[^"']*\/video)/;
+ok(NEW_TAB.test('<a href={source} target="_blank" rel="noopener">'), "probe: a new-tab link is detected (positive control)");
+ok(POST_LINK.test('<a href={post.url}>Watch</a>') && POST_LINK.test('<a href={selected.videoUrl}>'), "probe: a link to the post URL is detected (positive control)");
+ok(POST_HREF.test('<a href="https://www.instagram.com/reel/ABC/">') && POST_HREF.test("<a href='https://www.tiktok.com/@x/video/1'>"), "probe: a hard-coded post link is detected (positive control)");
 const action = strip(read("app/components/CreatorVideoAction.js"));
-ok(!/target=["']_blank["']/.test(action) && !/<a[\s>]/.test(action), "the watch action never links out (no new-tab or anchor)");
+ok(!NEW_TAB.test(action) && !/<a[\s>]/.test(action), "the watch action never links out (no new-tab or anchor)");
 ok(/if \(!isEmbeddable\(platform, safeUrl\(url\)\)\) return null;/.test(action), "a post that cannot play here gets no watch button");
 const surfaces = ["app/christmas-in-florida/page.js", "app/florida-events/[slug]/page.js", "app/components/sheets/SocialFind.js", "app/components/CreatorMapPanel.js", "app/components/VideoFacade.js", "app/components/CreatorVideoPlayer.js", "app/components/CreatorCoverFacade.js"];
 for (const f of surfaces) {
   const src = strip(read(f));
-  ok(!/href=\{[^}]*\b(?:post|video|v|selected)\.(?:url|videoUrl)\b[^}]*\}/.test(src) && !/href=["']https?:\/\/(?:www\.)?(?:instagram|tiktok)\.com\/(?:reel|reels|p|tv|@[^"']*\/video)/.test(src), `${f}: no link sends a visitor to the creator post itself`);
+  ok(!POST_LINK.test(src) && !POST_HREF.test(src), `${f}: no link sends a visitor to the creator post itself`);
 }
 
 if (failures.length) {
