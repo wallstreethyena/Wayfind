@@ -2710,3 +2710,4 @@ node scripts/test-home-landing-thanksgiving.mjs
 
 # Universal holiday atlas: real targets and actual food media, not screenshot crops.
 node scripts/check-universal-holiday-guide.mjs
+node scripts/check-creator-video-rules.mjs
