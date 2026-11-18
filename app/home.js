@@ -6,6 +6,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, dis
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
 import CardPhoto from "./components/CardPhoto";
+import PortraitAwareImg from "./components/PortraitAwareImg";
 import { cardPhotoRequest, isApiPhotoSrc, photoPlaceIdFromSrc } from "../lib/cardPhotoRequest.js";
 import { rememberAuthReturn, consumeAuthReturn } from "../lib/authReturn.js";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
@@ -410,7 +411,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.64.0";
+const BUILD_ID = "v8.64.1";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -1991,7 +1992,7 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover", defer = false }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover", defer = false, portraitFit = false }) {
   // An unrelated fallback update must not hide an already decoded primary.
   // Keep outcomes attached to the URL that actually emitted the event.
   const [outcomes, setOutcomes] = useState(() => new Map());
@@ -2110,7 +2111,9 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
-      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+      {portraitFit
+        ? <PortraitAwareImg key={activeSrc} imgRef={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+        : <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />}
     </div>
   );
 }
@@ -5961,7 +5964,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const galleryRef = useRef(null);
   function scrollGallery(dir) {
     const el = galleryRef.current;
-    if (el) el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.85), behavior: "smooth" });
+    if (el) el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" }); // one full-width photo per tap (owner 2026-11-18)
   }
 
   // ── Full-screen photo viewer paging (v6.43) ────────────────────────────────
@@ -6013,15 +6016,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     }
   }, [lightbox, lightboxIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Pinch to zoom (owner 2026-11-18): two fingers, or a page already zoomed in,
+  // belong to the browser's zoom, never to photo paging.
+  const lightboxZoomed = () => typeof window !== "undefined" && !!window.visualViewport && window.visualViewport.scale > 1.01;
   function lightboxTouchStart(e) {
     const t = e.touches && e.touches[0];
     if (!t) return;
+    if (e.touches.length > 1 || lightboxZoomed()) { lbTouch.current = null; setLbDrag(0); return; }
     lbTouch.current = { x: t.clientX, y: t.clientY, axis: null };
   }
   function lightboxTouchMove(e) {
     const g = lbTouch.current;
     const t = e.touches && e.touches[0];
     if (!g || !t) return;
+    if (e.touches.length > 1) { lbTouch.current = null; setLbDrag(0); return; }
     const dx = t.clientX - g.x;
     const dy = t.clientY - g.y;
     // Lock the axis once past the noise floor so a diagonal drag does not
@@ -12174,7 +12182,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             onTouchMove={lightboxTouchMove}
             onTouchEnd={lightboxTouchEnd}
             onTouchCancel={lightboxTouchEnd}
-            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, touchAction: "pan-y", overflow: "hidden" }}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, touchAction: "pan-y pinch-zoom", overflow: "hidden" }}
           >
             <img
               src={lightbox}

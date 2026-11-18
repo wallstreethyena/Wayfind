@@ -1,0 +1,3163 @@
+{
+  "verifiedAt": "2026-11-17",
+  "note": "Full postal addresses verified from repo records, inventory editorial cards, event rows, or the venue's own page. Census geocoder filled a missing ZIP only when the street number and city matched. Unverified places are absent, not guessed.",
+  "byPlaceId": {
+    "ChIJHcu6u2BHw4gRDKuRC9sow20": {
+      "address": "125 N Cattlemen Road, Sarasota, FL 34243",
+      "name": "The Green at UTC",
+      "source": "record",
+      "sourceUrl": "https://utcsarasota.com/event/utc-night-market-7/"
+    },
+    "ChIJhWqZvoVHw4gRehUSFsbZARo": {
+      "address": "7410 Fruitville Rd, Sarasota, FL 34240",
+      "name": "Fruitville Grove",
+      "source": "record",
+      "sourceUrl": "https://fruitvillegrovefarm.com/festival/"
+    },
+    "ChIJ_5yVrBY13YgRwSgyH1hrRjg": {
+      "address": "5202 Thonotosassa Rd, Plant City, FL 33565",
+      "name": "Keel Farms",
+      "source": "record",
+      "sourceUrl": "https://www.keelfarms.com/festivals"
+    },
+    "ChIJB_GKfW81w4gRsCQHi5hjasA": {
+      "address": "30771 Betts Rd, Myakka City, FL 34251",
+      "name": "Dakin Dairy Farms",
+      "source": "record",
+      "sourceUrl": "https://dakindairyfarms.com/events/"
+    },
+    "ChIJuSnFvF8xw4gRt0WOWL_cqRc": {
+      "address": "5500 County Road 675, Bradenton, FL 34211",
+      "name": "Hunsader Farms",
+      "source": "record",
+      "sourceUrl": "https://www.hunsaderfarms.com/pumpkin-festival"
+    },
+    "ChIJczkDFL04w4gRwfowcSv8Tro": {
+      "address": "5851 Nathan Benderson Circle, Sarasota, FL 34235",
+      "name": "Nathan Benderson Park",
+      "source": "record",
+      "sourceUrl": "https://nathanbendersonpark.org/event/oktoberfest/"
+    },
+    "ChIJ8SekLo9Gw4gR81Gftma1QvU": {
+      "address": "6600 Clark Road, Sarasota, FL 34241",
+      "name": "UF/IFAS Extension Sarasota County, Twin Lakes Park",
+      "source": "record",
+      "sourceUrl": "https://sfyl.ifas.ufl.edu/sarasota/gardening-and-landscaping/horticulture-residential/master-gardener/plant-sale/"
+    },
+    "ChIJ6y2dx9g_w4gRWoZIRhLk-JI": {
+      "address": "5401 Bay Shore Rd, Sarasota, FL 34243",
+      "name": "The Ringling Museum, Museum of Art Courtyard",
+      "source": "record",
+      "sourceUrl": "https://www.ringling.org/"
+    },
+    "ChIJu73by6Rbw4gR857K3YRfLQo": {
+      "address": "200 W Venice Ave, Venice, FL 34285",
+      "name": "Centennial Park",
+      "source": "record",
+      "sourceUrl": "https://www.womenssertoma.com/sun-fiesta"
+    },
+    "ChIJ______8sw4gRMudh58gsGMU": {
+      "address": "12210 83rd St E, Parrish, FL 34219",
+      "name": "Florida Railroad Museum",
+      "source": "record",
+      "sourceUrl": "https://www.frrm.org/pumpkin-patch-express/"
+    },
+    "ChIJg1HuP9xbw4gRs9PHCFmC4VU": {
+      "address": "1800 Harbor Dr S, Venice, FL 34285",
+      "name": "Maxine Barritt Park",
+      "source": "record",
+      "sourceUrl": "https://www.venicegov.com/Home/Components/Calendar/Event/7113/20?curm=10&cury=2026"
+    },
+    "ChIJew4bcA9Aw4gR3bU-SA7qAgU": {
+      "address": "777 N Tamiami Trl, Sarasota, FL 34236",
+      "name": "Van Wezel Performing Arts Hall",
+      "source": "record",
+      "sourceUrl": "https://www.vanwezel.org/events/detail/ghostbusters-in-concert"
+    },
+    "ChIJJQVMQuJXw4gRhD0CpEOETGo": {
+      "address": "19745 Wellen Park Blvd, Venice, FL 34293",
+      "name": "Downtown Wellen Park, Solis Hall and Wellen Park Boulevard",
+      "source": "record",
+      "sourceUrl": "https://wellenpark.com/wine/"
+    },
+    "ChIJo2bql5B654gR_ITN9PGhBbU": {
+      "address": "777 E Princeton St, Orlando, FL 32803",
+      "name": "Orlando Science Center",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJ9RHZGx6H3YgRnWVYIWsHNPM": {
+      "address": "14501 S Orange Blossom Trl, Orlando, FL 32837",
+      "name": "Gatorland",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "wfadd_snowcat_ridge_dade_city": {
+      "address": "27839 Saint Joe Rd, Dade City, FL 33525",
+      "name": "Snowcat Ridge Alpine Snow Park",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJl0CYCGZ_3YgRL05pG5wZSsE": {
+      "address": "6000 W Osceola Pkwy, Kissimmee, FL 34746",
+      "name": "Gaylord Palms Resort & Convention Center",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJCRCYGrx654gR3G9qoVbWlpY": {
+      "address": "1920 North Forest Avenue, Orlando, Florida 32803",
+      "name": "Harry P Leu Gardens",
+      "source": "inventory-editorial",
+      "sourceUrl": ""
+    },
+    "wfadd_centro_ybor_tampa": {
+      "address": "1600 E 8th Ave, Tampa, FL 33605",
+      "name": "Centro Ybor",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "wfadd_oldest_wooden_school_house_st_augustine": {
+      "address": "14 St. George St, St. Augustine, FL 32084",
+      "name": "Oldest Wooden School House Historic Museum & Gardens",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "wfadd_wunder_glow_dade_city": {
+      "address": "27839 Saint Joe Rd, Dade City, FL 33525",
+      "name": "Wunder Glow",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJ4XkjoBtw54gRGiqFxtWvbM8": {
+      "address": "312 East Morse Blvd. Winter Park, FL 32789",
+      "name": "Scenic Boat Tour",
+      "source": "inventory-editorial",
+      "sourceUrl": ""
+    },
+    "ChIJ38rlfogN3YgRGic46M9dbLw": {
+      "address": "1 Legoland Way, Winter Haven, FL 33884",
+      "name": "LEGOLAND Florida Resort",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJ98cKiInEwogRfyDonUPi2bc": {
+      "address": "711 N Franklin St, Tampa, FL 33602",
+      "name": "Tampa Theatre — Historic Duncan Auditorium",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJlRUlG4nEwogRJOgu0Hf2n54": {
+      "address": "600 North Ashley Drive, Tampa, FL 33602",
+      "name": "Curtis Hixon Waterfront Park",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJX-E766nhwogR8u_Re6nJTyk": {
+      "address": "600 2nd Ave NE, St. Petersburg, FL 33701",
+      "name": "St. Pete Pier",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJLZ2vzRxBw4gRMOtW0ArhBhw": {
+      "address": "1055 Boulevard of the Arts, Sarasota, FL 34236",
+      "name": "The Oval at The Bay",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJaXSQbL4n5IgR41hDG9udv2o": {
+      "address": "33 St George St, St. Augustine, FL 32084",
+      "name": "Colonial Quarter",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJ73yw37J954gRDwQad4ih7Wk": {
+      "address": "8001 S Orange Blossom Trl, Orlando, FL 32809",
+      "name": "Crayola Experience Orlando",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJcxJRMYe42YgRDSlj6Z_CDxk": {
+      "address": "7900 SW 40th St, Miami, FL 33155",
+      "name": "Tropical Park",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJU7bqHVV-54gRJAwZAp5qCpk": {
+      "address": "8449 International Drive, Orlando, FL 32819",
+      "name": "The Orlando Eye (ICON Park)",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJfyPWjCh-54gR1SvWozmef5k": {
+      "address": "7007 Sea World Dr, Orlando, FL 32821",
+      "name": "SeaWorld Orlando",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJmy7U4VJ-54gRi1LoS6wwFj0": {
+      "address": "8449 International Drive, Orlando, FL 32819",
+      "name": "SEA LIFE Orlando Aquarium",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJJboiAY3EwogRJCLbox7T-70": {
+      "address": "801 Water Street, Tampa, FL 33602",
+      "name": "Tampa Bay History Center",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJUczTK5XC2YgRRt4Jp6N3B70": {
+      "address": "14890 SW 216 St, Miami, FL 33170",
+      "name": "Pinto's Farm",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek": {
+      "address": "8225 N Wickham Rd, Melbourne, FL 32940",
+      "name": "Brevard Zoo",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJYWj9iZ_PwogRQebjN7pJ_Nw": {
+      "address": "1910 N Ola Ave, Tampa, FL 33602",
+      "name": "Armature Works",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJ5UOOwKux5YgRAmO1YNbhTc0": {
+      "address": "370 Zoo Pkwy, Jacksonville, FL 32218",
+      "name": "Jacksonville Zoo and Botanical Gardens",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJOcKapod_3YgR90H_S_UKiMA": {
+      "address": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "name": "Raglan Road Irish Pub (Disney Springs)",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJzyHjx5LEwogRuGs9V-RMHrA": {
+      "address": "601 South Harbour Island Boulevard, #107, Tampa, FL 33602",
+      "name": "American Social",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJm-1TQ1N-54gRtKSCx6hQ8SU": {
+      "address": "8387 International Drive, Orlando, FL 32819",
+      "name": "Madame Tussauds Orlando",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJRyOEfAo5w4gR664aD_YYBLU": {
+      "address": "225 University Town Center Drive, Sarasota, FL 34243",
+      "name": "Exploration Hall at Mote Science Education Aquarium (Mote SEA)",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8": {
+      "address": "1 St. Armands Circle, Sarasota, FL 34236",
+      "name": "St. Armands Circle",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJtcnZQU9Bw4gROmYnVLnl0hE": {
+      "address": "1216 1st Street, Sarasota, FL 34236",
+      "name": "Sage Restaurant & Venue Space",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJBQ5SjLHGwogRL4X19g4J5tI": {
+      "address": "1101 W Sligh Ave, Tampa, FL 33604",
+      "name": "ZooTampa at Lowry Park",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJce6XFIjEwogRaNJA6ZKu31c": {
+      "address": "1010 N MacInnes Pl, Tampa, FL 33602",
+      "name": "Straz Center for the Performing Arts (Carol Morsani Hall)",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJk5xl2oZ_3YgRg7yR_vn87h4": {
+      "address": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "name": "Chef Art Smith's Homecomin' (Disney Springs)",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJh8tXh-FBw4gR9kFzfZN_g60": {
+      "address": "948 Beach Road, Siesta Key, FL 34242",
+      "name": "Siesta Beach",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJvwS00mgn5IgRdR5IlMxNUp0": {
+      "address": "300 Anastasia Park Rd, St. Augustine, FL 32080",
+      "name": "Anastasia State Park",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJu3hNU-N654gR0x0I9_3iNvc": {
+      "address": "101 North Rosalind Avenue, Orlando, FL 32801",
+      "name": "Lake Eola Amphitheater",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJhWCYaL4n5IgRhwgdf5lIGbc": {
+      "address": "6 St. George St, Suite 107, St. Augustine, FL 32084",
+      "name": "St. Augustine Coffee House",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJa9H7lA4n5IgRViVY0j2H7bY": {
+      "address": "3 St. George St, St. Augustine, FL 32084",
+      "name": "Auggie's Draft Room",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJ9d2y1ivFwogRU2MFLQrwqsc": {
+      "address": "4408 N Florida Ave, Tampa, FL 33603",
+      "name": "Blooming Floral Cafe holiday menu",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJu5KCkJYn5IgRVVjGR-aX2N4": {
+      "address": "6 Aviles St, St. Augustine, FL 32084",
+      "name": "Forgotten Tonic",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJ71KjTtzF5YgRvlsJJQkcNdU": {
+      "address": "1039 Kingsley Ave, Orange Park, FL 32073",
+      "name": "Clarke House Park",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJw5jVAVN-54gRScNxiRF16j4": {
+      "address": "8375 International Dr, Orlando, FL 32819",
+      "name": "ICON Park",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJFfcS4GT17IgRqFA1iDnCdzs": {
+      "address": "1001 S Gadsden St, Tallahassee, FL 32301",
+      "name": "The Adderley Amphitheater at Cascades Park",
+      "source": "inventory-official",
+      "sourceUrl": ""
+    },
+    "ChIJD0N73GTFwogRuJTf5jAk5B8": {
+      "address": "615 Channelside Dr, Tampa, FL 33602",
+      "name": "Sparkman Wharf",
+      "source": "official-site",
+      "sourceUrl": "https://sparkmanwharf.com/"
+    },
+    "ChIJIwZqEutAw4gR-1cOUgiln24": {
+      "address": "3434 Bahia Vista ST, Sarasota, FL 34239",
+      "name": "Yoder's Restaurant",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "3434 Bahia Vista St, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJu9V8cNY6w4gR14jQbFoNfsE": {
+      "address": "1605 Fort Hamer RD, Parrish, FL 34219",
+      "name": "Fort Hamer Park",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "1605 Ft Hamer Rd, Parrish, FL",
+      "city": "Parrish"
+    },
+    "ChIJr7ec9tEXw4gRwicCx3wfH2w": {
+      "address": "201 10th ST W, Bradenton, FL 34205",
+      "name": "The Bishop Museum of Science and Nature",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "201 10th Street West, Bradenton, FL",
+      "city": "Bradenton"
+    },
+    "ChIJyyWN_lrEwogRP7gRxR2d19U": {
+      "address": "1303 E 8th AVE, Tampa, FL 33605",
+      "name": "Parque Amigos de José Martí",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "1303 E 8th Ave, Ybor City, Tampa, FL",
+      "city": "Tampa"
+    },
+    "ChIJrYGdKBJAw4gRafewzUWWYnk": {
+      "address": "1241 N Palm AVE, Sarasota, FL 34236",
+      "name": "Florida Studio Theatre",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "1241 N Palm Avenue, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJSxtyZcBAw4gRrgOGwbkWXIU": {
+      "address": "3713 Bahia Vista ST, Sarasota, FL 34232",
+      "name": "Der Dutchman",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "3713 Bahia Vista St, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJCZgnUKHcwogRbPR7qCWl-UA": {
+      "address": "5300 Interbay BLVD, Tampa, FL 33611",
+      "name": "Ballast Point Park",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "5300 Interbay Blvd, Tampa, FL",
+      "city": "Tampa"
+    },
+    "ChIJf5M5VmBZw4gRVHX-dcX1dBk": {
+      "address": "1600 Harbor DR S, Venice, FL 34285",
+      "name": "Fins At Sharky's",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "1600 Harbor Dr S, Venice, FL",
+      "city": "Venice"
+    },
+    "ChIJaTQEjpFqw4gRnHJU2Klfw0o": {
+      "address": "411 Saint Armands CIR, Sarasota, FL 34236",
+      "name": "Columbia Restaurant",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "411 St. Armands Cir, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJ_37IauQ_w4gRz03lc0QInIE": {
+      "address": "3701 Bay Shore RD, Sarasota, FL 34234",
+      "name": "Sarasota Jungle Gardens",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "3701 Bay Shore Rd, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJCXAq5_DEwogRjTPE2xlsZtE": {
+      "address": "701 Channelside DR, Tampa, FL 33602",
+      "name": "The Florida Aquarium",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "701 Channelside Dr, Tampa, FL",
+      "city": "Tampa"
+    },
+    "ChIJ5ab4TmtAw4gROiDA30SjNWY": {
+      "address": "516 Burns CT, Sarasota, FL 34236",
+      "name": "Owens Fish Camp",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "516 Burns Court, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJKRTWX9g_w4gRk2YMbJtyfi4": {
+      "address": "5401 Bay Shore RD, Sarasota, FL 34243",
+      "name": "Tibbals Learning Center & Circus Museum at The Ringling",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "5401 Bay Shore Rd, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJs8HMPKxDw4gR8rXHdqdvpmE": {
+      "address": "9105 Midnight Pass RD, Sarasota, FL 34242",
+      "name": "Ophelia's on the Bay",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "9105 Midnight Pass Rd, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4": {
+      "address": "1001 S Tamiami TRL, Sarasota, FL 34236",
+      "name": "Sarasota Art Museum",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "1001 South Tamiami Trail, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJKQXHdmfDwogRJFCLuT7eJ6I": {
+      "address": "1208 N Howard AVE, Tampa, FL 33607",
+      "name": "Bern's Steak House",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "1208 S Howard Ave, Tampa, FL",
+      "city": "Tampa"
+    },
+    "ChIJSZyKtGVaw4gRkKUbiPqvOVI": {
+      "address": "1740 E Venice AVE, Venice, FL 34292",
+      "name": "Original Word of Mouth - Venice",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "1740 E Venice Ave, Venice, FL",
+      "city": "Venice"
+    },
+    "ChIJlR-NjATIwogRoSE1MsVTpmA": {
+      "address": "6920 E Fletcher AVE, Tampa, FL 33637",
+      "name": "Lettuce Lake Park",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "6920 E Fletcher Ave, Tampa, FL",
+      "city": "Tampa"
+    },
+    "ChIJRzUAPopDw4gR8YbL_V5iSWo": {
+      "address": "7905 Mcintosh RD, Sarasota, FL 34238",
+      "name": "Legacy Trail",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "7905 McIntosh Rd, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJi43QGNE5w4gRgxvO7rqqJfE": {
+      "address": "7500 Island Cove Ter, Lakewood Ranch, FL 34240",
+      "name": "Waterside Place",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "7500 Island Cove Ter, Lakewood Ranch, FL",
+      "city": "Lakewood Ranch"
+    },
+    "ChIJJ1O7nANrw4gRH8y1qHMjpRs": {
+      "address": "326 John Ringling BLVD, Sarasota, FL 34236",
+      "name": "Arcade Monsters",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "326 John Ringling Blvd, Sarasota, FL",
+      "city": "Sarasota"
+    },
+    "ChIJJWCbj5kRw4gRYkZ7QJ-L91s": {
+      "address": "900 Gulf DR N, Bradenton Beach, FL 34217",
+      "name": "Gulf Drive Cafe",
+      "source": "inventory-editorial+census",
+      "sourceUrl": "",
+      "censusQuery": "900 Gulf Dr N, Bradenton Beach, FL",
+      "city": "Bradenton Beach"
+    },
+    "ChIJEfuXNVcA2YgRtSS3Jo9Jsw0": {
+      "address": "888 E Las Olas Blvd #210, Fort Lauderdale, FL 33301",
+      "name": "Riverwalk Fort Lauderdale",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T07:52:56.456Z",
+      "note": "Route parade. Street address of Riverwalk Fort Lauderdale, the viewing place pinned on the guide. The boats start at Stranahan House and run the New River. This is that pinned place, not every point on the route."
+    },
+    "ChIJCRW-9SK35YgRwOMNBWLdzRI": {
+      "address": "1001 Museum Cir, Jacksonville, FL 32207",
+      "name": "Southbank Riverwalk",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-22T13:40:40.830Z",
+      "note": "Route parade. Street address of Southbank Riverwalk, where the city says spectators gather. The boats cruise the St. Johns River. This is that pinned riverwalk, not every point on the route."
+    },
+    "ChIJnW4wY-TxwogRQku5XIBxGao": {
+      "address": "255 Drew St, Clearwater, FL 33755",
+      "name": "The BayCare Sound",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-01T05:50:05.626Z",
+      "note": "Route parade. Street address of The BayCare Sound, the park the guide pins on the route (Coachman Park). The boats pass this park. This is that venue, not every point on the route."
+    },
+    "ChIJr5B534biwogRAajykNa8968": {
+      "address": "29th Ave S & Miriam St S, Gulfport, FL 33711",
+      "name": "Clam Bayou Nature Park",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T14:10:45.120Z",
+      "note": "Route parade. Place Details gives the intersection for Clam Bayou Nature Park, the park pinned on the guide. The line forms at Gulfport Municipal Marina and passes this park. This is that park, not every point on the route."
+    },
+    "ChIJ1wH4N3QWw4gREDvfx8VmUSY": {
+      "address": "2507 53rd Ave E, Bradenton, FL 34203",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-11-01T00:04:45.433+00:00"
+    },
+    "ChIJ32YG_ao5w4gRpzcR49e5sMo": {
+      "address": "140 University Town Center Dr, Center court Level 2, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-13T14:20:58.311+00:00"
+    },
+    "ChIJWerCJQA5w4gRkgxRabmvuBI": {
+      "address": "257 N Cattlemen Rd #90, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-03T07:05:37.359+00:00"
+    },
+    "ChIJJ3XVfEhrw4gRY3oXQ874Cco": {
+      "address": "190 Taft Dr, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-13T16:23:30.567+00:00"
+    },
+    "ChIJy66Xe53FwogRcpjZQHX4cCI": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T17:10:46.004+00:00",
+      "rawAddress": "E Cumberland Ave, Tampa, FL 33602, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJFT5Zr1Ee24gRzaRJRV99tKM": {
+      "address": "465 Seagate Dr, Naples, FL 34103",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-13T23:34:55.886+00:00"
+    },
+    "ChIJz6wmd_5Kw4gR1PNqMrYU_RY": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T12:10:12.697+00:00",
+      "rawAddress": "Sarasota, FL 34240, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJA7aoMgAXw4gRdvEXDPTzHKg": {
+      "address": "701 Cortez Rd W suite 701, Bradenton, FL 34207",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-16T15:06:24.593+00:00"
+    },
+    "ChIJMRKPC1mC3YgRTs5evGTqF4k": {
+      "address": "1881 Jack Calhoun Dr, Kissimmee, FL 34741",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-17T22:24:42.762+00:00"
+    },
+    "ChIJr8ttJtR754gRK0m2p7YmVN4": {
+      "address": "629 E Central Blvd, Orlando, FL 32801",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-17T22:26:13.604+00:00"
+    },
+    "ChIJdd8VlMN-54gRoaU0d_zYhfk": {
+      "address": "6000 Universal Blvd, Orlando, FL 32819",
+      "name": "Universal Studios Florida",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJm9xjdgx754gRvYolbCqZPBQ": {
+      "address": "1114 E Colonial Dr, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-17T22:26:32.324+00:00"
+    },
+    "ChIJ96XKNOZ-3YgR21T9j0Kq8Qc": {
+      "address": "4600 World Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-18T18:59:16.95+00:00"
+    },
+    "ChIJ8_xGlpFqw4gRpBDnt0x_mdg": {
+      "address": "431 St Armands Cir, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-19T09:04:33.719+00:00"
+    },
+    "ChIJS6okKNZ754gRnwUlHBXAhU8": {
+      "address": "720 N Mills Ave, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T02:38:32.619+00:00"
+    },
+    "ChIJL0bExYvEwogRWA4X9n0d7MA": {
+      "address": "300 E Madison St #301, Tampa, FL 33602",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T02:39:08.516+00:00"
+    },
+    "ChIJh6exAYbhwogRd4RP1WCELps": {
+      "address": "3901 6th St S, St. Petersburg, FL 33705",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-20T12:00:39.786+00:00"
+    },
+    "ChIJu0jFtWc924gRf_9YuPnSc2w": {
+      "address": "8700 Estero Blvd, Fort Myers Beach, FL 33931",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-21T04:18:48.776+00:00"
+    },
+    "ChIJXTeLe0XEwogR-wheRdFeKEY": {
+      "address": "2512 N 15th St, Tampa, FL 33605",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T17:36:49.121+00:00"
+    },
+    "ChIJPbUnl43DwogRz7WNKvF2Avw": {
+      "address": "3904 N Armenia Ave, Tampa, FL 33607",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T17:37:19.815+00:00"
+    },
+    "ChIJj5mZXMUVw4gRxUsGj0ccPvc": {
+      "address": "3970 Royal Rd, Longboat Key, FL 34228",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T17:38:48.519+00:00"
+    },
+    "ChIJPd6UAfJ_3YgRP-V0GS5jS8I": {
+      "address": "1600 Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T17:39:14.077+00:00"
+    },
+    "ChIJGzFs3q9_3YgRvZd1y2NSJOo": {
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "name": "Epcot",
+      "note": "Place Details returned Bay Lake, FL with no street number. The map link opens this named park.",
+      "address": ""
+    },
+    "ChIJ6_k9TmCz5YgRZoTCykSG8rA": {
+      "address": "1445 Millcoe Rd, Jacksonville, FL 32225",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T17:40:40.051+00:00"
+    },
+    "ChIJRx6CYyd83YgRD_HjNqPO_7s": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T17:41:23.882+00:00",
+      "rawAddress": "Bay Lake, FL 34747, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJYb7ys7N654gRxvFvaVDAB0c": {
+      "address": "3201 Corrine Dr Ste 100, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T18:48:23.773+00:00"
+    },
+    "ChIJ-REJt5Fqw4gRLOdF-9RkZe4": {
+      "address": "470 John Ringling Blvd, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T18:48:59.202+00:00"
+    },
+    "ChIJuyCMUy3G2YgRyrGn93iiGoM": {
+      "address": "11000 Red Rd, Pinecrest, FL 33156",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T18:50:07.718+00:00"
+    },
+    "ChIJKYwJVy0jw4gRkXnEq-Or48M": {
+      "address": "5461 Factory Shops Blvd, Ellenton, FL 34222",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-11-01T00:04:45.019+00:00"
+    },
+    "ChIJf9MKQU3U2IgR0Rp4MD467xw": {
+      "address": "6000 N Flagler Dr, West Palm Beach, FL 33407",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T18:50:59.186+00:00"
+    },
+    "ChIJrS5xlJFqw4gR6kPVXoSwct0": {
+      "address": "420 St Armands Cir, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-22T18:52:25.164+00:00"
+    },
+    "ChIJgUulalN-3YgRGoTaWM2LawY": {
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "name": "Magic Kingdom Park",
+      "note": "Place Details returned Bay Lake, FL 32836 with no street number. The map link opens this named park.",
+      "address": ""
+    },
+    "ChIJrdrmAJJqw4gRcHU7hwuv-3c": {
+      "address": "312 John Ringling Blvd, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-11-01T00:10:43.368+00:00"
+    },
+    "ChIJg433znRw54gRBeLC7eymGVw": {
+      "address": "565 W Fairbanks Ave, Winter Park, FL 32789",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-23T06:23:10.928+00:00"
+    },
+    "ChIJGSMzu2Oi54gR-rlDDL6V3Qs": {
+      "address": "700-798 N Baker St, Mt Dora, FL 32757",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-11-01T00:31:51.116+00:00"
+    },
+    "ChIJlcQil-Pj2ogRZXbB55ldZcQ": {
+      "address": "4820 Bayshore Dr, Naples, FL 34112",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-24T10:37:51.592+00:00"
+    },
+    "ChIJ16W70NY9w4gRG9cBamnCpn0": {
+      "address": "5259 30th St E, Bradenton, FL 34203",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-24T10:41:10.732+00:00"
+    },
+    "ChIJyWJV1WxAw4gRv8El830m2PY": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-24T10:41:25.838+00:00",
+      "rawAddress": "N Lemon Ave, Sarasota, FL 34236, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJk-o9uSlBw4gR6tDfhvqtdRk": {
+      "address": "2300 Bee Ridge Rd, Sarasota, FL 34239",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-24T10:41:41.047+00:00"
+    },
+    "ChIJJ13SCI3EwogRcX2q5Fs_HkU": {
+      "address": "225 S Franklin St, Tampa, FL 33602",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-25T19:38:33.001+00:00"
+    },
+    "ChIJ0XiHxYJx54gRpLzDNEGdyV0": {
+      "address": "274 Cranes Roost Blvd, Altamonte Springs, FL 32701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-29T19:14:27.049+00:00"
+    },
+    "ChIJuclcIkWB3YgRi8GT12wxByM": {
+      "address": "11815 Glass House Ln #110, Orlando, FL 32836",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-11-01T00:31:54.629+00:00"
+    },
+    "ChIJjXi_isN654gRGkLnctUt860": {
+      "address": "1915 E Colonial Dr, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-28T19:19:14.095+00:00"
+    },
+    "ChIJ001Ra3p754gRq1bFeHUUxXY": {
+      "address": "445 S Magnolia Ave, Orlando, FL 32801",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-01T08:54:02.92+00:00"
+    },
+    "ChIJR_Wrg-fFwogRUIk0jJIOQW8": {
+      "address": "1865 Angel Oliva Senior St, Tampa, FL 33605",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-30T15:50:38.191+00:00"
+    },
+    "ChIJdeCS1uW54IgRqG67_UFPInI": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-31T16:20:25.406+00:00",
+      "rawAddress": "PLAYALINDA Beach, Florida, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJZwpmWwVw54gRK5HD5FqlBfU": {
+      "address": "500 S Park Ave, Winter Park, FL 32789",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-01T20:23:53.76+00:00"
+    },
+    "ChIJE1158xWa3YgRyxYmba83M0o": {
+      "address": "2001 E Southport Rd, Kissimmee, FL 34746",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-07-31T22:41:06.231+00:00"
+    },
+    "ChIJ6yU9i-IVw4gRo01we-1UEZU": {
+      "address": "5427 14th St W, Bradenton, FL 34207",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-09T12:04:43.913+00:00"
+    },
+    "ChIJbQc50hEWw4gRekS45lcFEFU": {
+      "address": "4616 14th St W, Bradenton, FL 34207",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-09T12:02:45.872+00:00"
+    },
+    "ChIJT8zbHlex2YgRbmlvb54NTIY": {
+      "address": "3900 NE 2nd Ave, Miami, FL 33137",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T05:16:17.364+00:00"
+    },
+    "ChIJsSLy8Nex2YgRgbI_3id8b_E": {
+      "address": "5143 NE 2nd Ave, Miami, FL 33137",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T05:19:08.082+00:00"
+    },
+    "ChIJzwEW8bK32YgRoeQcKaBkwrs": {
+      "address": "151 E Flagler St, Miami, FL 33131",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T05:22:41.247+00:00"
+    },
+    "ChIJMZ2NFvQB2YgRCwcJecybdGY": {
+      "address": "3000 E Las Olas Blvd, Fort Lauderdale, FL 33316",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T07:48:28.818+00:00"
+    },
+    "ChIJLzMH2FcA2YgRyz8FN7F7OOY": {
+      "address": "32 E Las Olas Blvd, Fort Lauderdale, FL 33301",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T07:48:32.477+00:00"
+    },
+    "ChIJT6PHOUbK2YgRamANgVMeFqk": {
+      "address": "1200 Crandon Blvd, Key Biscayne, FL 33149",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T07:50:21.239+00:00"
+    },
+    "ChIJcZJcKfG02YgRpzq_bjkv3vc": {
+      "address": "1 Washington Ave, Miami Beach, FL 33139",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-09T21:01:25.705+00:00"
+    },
+    "ChIJ3YuEdVp754gRoWwBx528kNc": {
+      "address": "618 N Thornton Ave, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-09T06:29:47.308+00:00"
+    },
+    "ChIJdZyA4pl654gRe829ktxXMOo": {
+      "address": "812 E Rollins St, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-07T19:44:47.834+00:00"
+    },
+    "ChIJhcub0Rs_w4gRCEvPuk8tBok": {
+      "address": "6250 Lockwood Ridge Rd, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-08T19:54:01.351+00:00"
+    },
+    "ChIJYfzA4SUlw4gRnPt72baj7pU": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-08T19:52:28.684+00:00",
+      "rawAddress": "8990 US-301 #123, Parrish, FL 34219, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJYVYFKETjwogRol57F48FMxc": {
+      "address": "2228 Central Ave, St. Petersburg, FL 33712",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-11T02:31:56.541+00:00"
+    },
+    "ChIJyefyOo4f6YgR98DvEw2xLgA": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-11T02:35:43.29+00:00",
+      "rawAddress": "18020 Northwest, 18020 US-19, Fanning Springs, FL 32693, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJpR7FkLoWw4gRGsi3ogvZxw4": {
+      "address": "7476 Cortez Rd W, Bradenton, FL 34210",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-11T22:12:32.994+00:00"
+    },
+    "ChIJVaGvf6gkw4gROjdp7yQzLh4": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-12T02:22:18.465+00:00",
+      "rawAddress": "8348 US-301, Parrish, FL 34219, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJO3PrEmdx54gRW1c11w1Yxlo": {
+      "address": "115 E Lyman Ave, Winter Park, FL 32789",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-12T06:34:38.885+00:00"
+    },
+    "ChIJTTHiI8w_6IgR89hvVjSS-vc": {
+      "address": "4150 S Suncoast Blvd, Homosassa, FL 34446",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-12T15:35:54.099+00:00"
+    },
+    "ChIJyUVHMkMRw4gRWxSSGDprdYQ": {
+      "address": "3515 Cortez Rd W, Bradenton, FL 34210",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-12T16:39:30.011+00:00"
+    },
+    "ChIJiQYx6JiD3YgRGKwhW35QY0E": {
+      "address": "4580 W Irlo Bronson Memorial Hwy, Kissimmee, FL 34746",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-12T17:32:36.412+00:00"
+    },
+    "ChIJiVUwo8Y9w4gRyfRSxgrLTps": {
+      "address": "575 66th St Ct E, Bradenton, FL 34208",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-13T06:40:14.249+00:00"
+    },
+    "ChIJ3TqagqwXw4gRSzSibPN094s": {
+      "address": "3816 Manatee Ave W, Bradenton, FL 34209",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-15T22:50:14.662+00:00"
+    },
+    "ChIJO82XwLSHk4gREot8bwSy8Q8": {
+      "address": "4607 State Park Ln, Panama City, FL 32408",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-17T00:13:03.091+00:00"
+    },
+    "ChIJAyTZ7DqN3YgRrdAAVCHFMkA": {
+      "address": "1550 Dolphin Dr, St Cloud, FL 34771",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-16T17:22:49.91+00:00"
+    },
+    "ChIJxarXNwCr2YgRZvrLZ_ZW9dQ": {
+      "address": "891 SW 34th St, Fort Lauderdale, FL 33315",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-16T14:24:05.389+00:00"
+    },
+    "ChIJsR0yJpiNk4gRzx0d79JwKns": {
+      "address": "16061 Panama City Beach Pkwy, Panama City Beach, FL 32413",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-17T00:16:01.24+00:00"
+    },
+    "ChIJK0m8N2eNk4gR3Q6Fe6gYs_w": {
+      "address": "15475 Topgolf Way, Panama City Beach, FL 32413",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-17T00:16:43.202+00:00"
+    },
+    "ChIJ0dm17kix2YgRoDAy8rxLOjU": {
+      "address": "7357 NW Miami Ct, Miami, FL 33150",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-17T08:40:57.246+00:00"
+    },
+    "ChIJ98BffLK22YgRsymdIvOgjNA": {
+      "address": "2516 NW 2nd Ave, Miami, FL 33127",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-22T18:31:50.005+00:00"
+    },
+    "ChIJy6ESWITDwogReu72OLauRMM": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T13:10:47.084+00:00",
+      "rawAddress": "120 W Gasparilla Plaza, Tampa, FL 33602, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJJb8wlVHEwogRywROz8FsuZM": {
+      "address": "1818 E 9th Ave, Tampa, FL 33605",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T17:10:46.465+00:00"
+    },
+    "ChIJP1om-VJ-54gRAF-_k_y5cig": {
+      "address": "8441 International Dr #260, Orlando, FL 32819",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T09:10:45.527+00:00"
+    },
+    "ChIJOwkr93R754gRwukRdzlSJgM": {
+      "address": "2304 E Robinson St, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T19:10:27.24+00:00"
+    },
+    "ChIJyRaIJPx654gRhAbigeu9AMg": {
+      "address": "65 E Central Blvd, Orlando, FL 32801",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T07:10:26.695+00:00"
+    },
+    "ChIJq2_lAFHEwogRRCeJJ77fHgg": {
+      "address": "1717 E 7th Ave, Tampa, FL 33605",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T13:10:44.049+00:00"
+    },
+    "ChIJwZ_GK-d-54gRm5Ahg7PZYeY": {
+      "address": "6000 Universal Blvd, Orlando, FL 32819",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T14:10:42.977+00:00"
+    },
+    "ChIJj7-A7nXhwogRGvQ_vcrP7uU": {
+      "address": "400 Bayshore Dr NE, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T03:10:06.399+00:00"
+    },
+    "ChIJZQ__1N_rwogRkz34m52_aHo": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T10:10:06.08+00:00",
+      "rawAddress": "8118 Citrus Park Town Center Mall, Tampa, FL 33625, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJB1L_XIzEwogR1Eslu42A1NQ": {
+      "address": "107 S Franklin St, Tampa, FL 33602",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T04:10:05.371+00:00"
+    },
+    "ChIJv30X8SzHwogRVHpiMio-n70": {
+      "address": "11301 N 56th St Ste 10, Temple Terrace, FL 33617",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T04:10:07.038+00:00"
+    },
+    "ChIJieaBrMgQw4gR5Bwyah-XE_U": {
+      "address": "9800 17th Ave NW, Bradenton, FL 34209",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T23:10:21.688+00:00"
+    },
+    "ChIJ70rJA_w5w4gRrx0l1ukJBDc": {
+      "address": "7500 Island Cove Terrace, Lakewood Ranch, FL 34240",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T08:10:03.778+00:00"
+    },
+    "ChIJyaCQzpHhwogRBdPcZI6UOyc": {
+      "address": "1 Dali Blvd, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T05:10:08.509+00:00"
+    },
+    "ChIJy-qcFhl-3YgRMvawaCwY1RE": {
+      "address": "1600 Seven Seas Drive, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T06:10:46.536+00:00"
+    },
+    "ChIJ-0qgNoF_3YgRg3Lh7xHDooU": {
+      "address": "1486 Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T23:11:19.854+00:00"
+    },
+    "ChIJw5hmHut154gRI1LE7BjQiEg": {
+      "address": "400 E Kelly Park Rd, Apopka, FL 32712",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T23:11:21.841+00:00"
+    },
+    "ChIJt9yvFgu32YgRrk-vKGEQB6g": {
+      "address": "3555 SW 8th St, Miami, FL 33135",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T23:11:19.826+00:00"
+    },
+    "ChIJwYxPGfu30YgRBuPGwZRZp-g": {
+      "address": "420 Wall St, Key West, FL 33040",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T23:11:19.868+00:00"
+    },
+    "ChIJvRBCrN9-54gRGZuuaCLGrQE": {
+      "address": "6000 Universal Blvd, Orlando, FL 32819",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T23:11:19.832+00:00"
+    },
+    "ChIJp6kyPa1Dw4gR5BhsSYE8pdo": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T03:10:05.712+00:00",
+      "rawAddress": "Turtle Beach, Florida 34242, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJay8TEmElw4gRmgRP3SXl7eM": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T23:10:22.621+00:00",
+      "rawAddress": "8980 US-301 Unit 138, Parrish, FL 34219, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJsxtTEU_EwogREc-soNYgMu0": {
+      "address": "2701 N 16th St, Tampa, FL 33605",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T03:52:04.179+00:00"
+    },
+    "ChIJ5RBa1A604IgR0u0SUVMbBQE": {
+      "address": "1987 Scrub Jay Way #32782, Titusville, FL 32782",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T03:53:12.192+00:00"
+    },
+    "ChIJk56jVSZ-3YgRn_VPMtC9CdI": {
+      "address": "901 Timberline Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T03:53:34.373+00:00"
+    },
+    "ChIJjZq3rbFB6IgRb6e1zyAKbg4": {
+      "address": "36 NE 4th St, Crystal River, FL 34429",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T03:53:38.554+00:00"
+    },
+    "ChIJ-8Eajc5_3YgRnNnghOJqkrc": {
+      "address": "4510 Fort Wilderness Trail, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T03:54:55.265+00:00"
+    },
+    "ChIJ1WZIXhjFwogR1M-_3DXnG6Y": {
+      "address": "323 W Palm Ave, Tampa, FL 33602",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T18:19:15.544+00:00"
+    },
+    "ChIJ7wa-IxRAw4gRnwt6LGL2yeM": {
+      "address": "5 Bayfront Dr, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T07:10:04.379+00:00"
+    },
+    "ChIJdaUo-PPhwogRii2HqysdgjI": {
+      "address": "97 Central Ave, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T19:53:31.393+00:00"
+    },
+    "ChIJnZwugRXhwogRpN-HY445tJM": {
+      "address": "501 5th Ave NE, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T19:53:30.581+00:00"
+    },
+    "ChIJE0_XXFVJw4gRroRqJ-TSTXg": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T04:10:05.899+00:00",
+      "rawAddress": "Sarasota, FL 34241, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJ5eLMVXE9w4gR15l0tMZGkMY": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T13:10:06.447+00:00",
+      "rawAddress": "Coquina Beach, Gulf Dr S, Bradenton Beach, FL 34217, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJfUYeWmAlw4gReflS439GCg0": {
+      "address": "14950 Golf Course Rd, Parrish, FL 34219",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T20:19:40.534+00:00"
+    },
+    "ChIJEUM6S7JOw4gRSeCj4mQQrQ0": {
+      "address": "13208 State Rd 72, Sarasota, FL 34241",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T09:10:04.15+00:00"
+    },
+    "ChIJ3-wcgLJBw4gR9UGr_yLsHJY": {
+      "address": "3501 S Tamiami Trl Ste 1100, Sarasota, FL 34239",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T07:10:06.264+00:00"
+    },
+    "ChIJ38CBz8Vqw4gRg0oFYUGBU_s": {
+      "address": "412 Gulf of Mexico Dr, Longboat Key, FL 34228",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T02:10:04.245+00:00"
+    },
+    "ChIJyYEUav8P54gRatuv_zQzm20": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.398+00:00",
+      "rawAddress": "Florida, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJa7bjTAB_54gR-M-m-KIOCP0": {
+      "address": "1001 Epic Blvd, Orlando, FL 32819",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.435+00:00"
+    },
+    "ChIJd_yTxUh054gR9cGD0gI_yHw": {
+      "address": "1800 Wekiwa Cir, Apopka, FL 32712",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.517+00:00"
+    },
+    "ChIJ_4R4dXj0wogRhGK2MtUmBjI": {
+      "address": "1 Causeway Blvd, Dunedin, FL 34698",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.522+00:00"
+    },
+    "ChIJv5qSjFsbw4gRSAnuSwy0zHA": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.598+00:00",
+      "rawAddress": "Florida, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJV5IKfmXhwogRV3X8VCd713A": {
+      "address": "1825 4th St N, St. Petersburg, FL 33704",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.585+00:00"
+    },
+    "ChIJR0i18icRw4gRbyGIoLLoSo0": {
+      "address": "1704 99th St NW, Bradenton, FL 34209",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-11-01T00:04:45.208+00:00"
+    },
+    "ChIJhRo4DU_GwogRUgjhMAj-pag": {
+      "address": "10165 McKinley Dr, Tampa, FL 33612",
+      "name": "Busch Gardens Tampa Bay",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJz3OOrDIg6IgRMKjzAPsV3NI": {
+      "address": "6131 Commercial Way, Spring Hill, FL 34606",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.565+00:00"
+    },
+    "ChIJ5_NkHLUcw4gRndvLQGe_Ox8": {
+      "address": "2187 Oceanview Dr, Tierra Verde, FL 33715",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.639+00:00"
+    },
+    "ChIJPTvxtmpAw4gReToYD5mTNwE": {
+      "address": "1534 Mound St, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.581+00:00"
+    },
+    "ChIJiTHKxDOu4IgRgAU6btoqIsU": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.578+00:00",
+      "rawAddress": "Space Commerce Wy, Merritt Island, FL 32953, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJz8e7TVLEwogRBeybvscHnD4": {
+      "address": "2117 E 7th Ave, Tampa, FL 33605",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.554+00:00"
+    },
+    "ChIJVcqB2MUQw4gRbN_T0WF8QEw": {
+      "address": "8300 Desoto Memorial Hwy, Bradenton, FL 34209",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.566+00:00"
+    },
+    "ChIJxaeEtGVMw4gRd5SI3lZDqnY": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.582+00:00",
+      "rawAddress": "Sarasota, FL 34241, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJEVArB1LGwogRM2k5RHvCuX4": {
+      "address": "10001 McKinley Dr, Tampa, FL 33612",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.579+00:00"
+    },
+    "ChIJ-6lKAInEwogRVnf5NBtjZss": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-18T22:16:44.742+00:00",
+      "rawAddress": "110 W Gasparilla Plaza, Tampa, FL 33602, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJg3dcWgZHw4gRXN7pMNzP_pA": {
+      "address": "3130 Fruitville Commons Blvd, Sarasota, FL 34240",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T08:10:06.922+00:00"
+    },
+    "ChIJpXGK53VC24gRWMneFVtK6hY": {
+      "address": "5401 Bay Shore Rd, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T11:10:46.797+00:00"
+    },
+    "ChIJVaN0nNZDw4gRZr-D4qxm-oo": {
+      "address": "7221 S Tamiami Trl, Sarasota, FL 34231",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T11:10:45.025+00:00"
+    },
+    "ChIJ7-I5X4tHw4gRAK6g4JEha7M": {
+      "address": "6799 Palmer Blvd, Sarasota, FL 34240",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T11:10:47.022+00:00"
+    },
+    "ChIJ82ZQGhEWw4gRyW9_GZld-8I": {
+      "address": "4420 14th St W, Bradenton, FL 34207",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T15:10:12.649+00:00"
+    },
+    "ChIJnzqyfgvT3IgR7ZawhYrxDf4": {
+      "address": "35600 St. Rd, FL-62, Duette, FL 34219",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T00:10:51.442+00:00"
+    },
+    "ChIJU17a-Akxw4gR3ppLxjXbveg": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T16:10:12.304+00:00",
+      "rawAddress": "20007 FL-64, Bradenton, FL 34212, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJQd5TVAgWw4gRtK1Eo_WdA9U": {
+      "address": "5217 14th St W, Bradenton, FL 34231",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T17:02:09.551+00:00"
+    },
+    "ChIJ_5OG3Z45w4gRbGmfLDXwT6A": {
+      "address": "215 N Cattlemen Rd #56, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T17:02:26.683+00:00"
+    },
+    "ChIJ2SaIlRsWw4gRzGAwvP0eDaE": {
+      "address": "621 Cortez Rd W, Bradenton, FL 34207",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T17:02:45.568+00:00"
+    },
+    "ChIJVcT9hOc4w4gREnfUoBV42RA": {
+      "address": "140 University Town Center Dr Unit 227, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T17:04:36.905+00:00"
+    },
+    "ChIJmyxjyZgXw4gRB3WmGve_TxY": {
+      "address": "7110 Cortez Rd W, Bradenton, FL 34210",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T17:05:37.288+00:00"
+    },
+    "ChIJ2RTKm1tHw4gRK4xtJw-jqWI": {
+      "address": "5354 Fruitville Rd, Sarasota, FL 34232",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T17:05:38.716+00:00"
+    },
+    "ChIJFUZKhud654gR90uHGsWRxHQ": {
+      "address": "337 Shine Ave, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T01:10:42.975+00:00"
+    },
+    "ChIJF7KJye5-3YgR0mRAbGMtS10": {
+      "address": "1600 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T01:10:43.274+00:00"
+    },
+    "ChIJZ0W_vt04w4gRlbOczIeB2k0": {
+      "address": "130 University Town Center Dr, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T17:10:07.006+00:00"
+    },
+    "ChIJ_1KKw-oXw4gRGao51ByvSIc": {
+      "address": "4311 Manatee Ave W, Bradenton, FL 34209",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T18:10:41.175+00:00"
+    },
+    "ChIJCTw8qAE9w4gRV4bsIMbQ2H8": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T18:10:41.857+00:00",
+      "rawAddress": "6285 US-301, Ellenton, FL 34222, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJJYDKlHM5w4gRpCS0kh1pDG8": {
+      "address": "190 N Cattlemen Rd Unit 5, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T18:13:26.179+00:00"
+    },
+    "ChIJFy96TuUPw4gRr3IUjLXDXfM": {
+      "address": "793 N Shore Dr, Anna Maria, FL 34216",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T19:10:03.739+00:00"
+    },
+    "ChIJObBe1x8Ww4gRZocRz7u1X2g": {
+      "address": "3715 1st St, Bradenton, FL 34208",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T21:02:18.567+00:00"
+    },
+    "ChIJHaxvqjIjw4gRAr21gNtVWBw": {
+      "address": "5371 Factory Shops Blvd Ste 590, Ellenton, FL 34222",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T21:04:51.977+00:00"
+    },
+    "ChIJafhu4hYWw4gRyNie7mo17V4": {
+      "address": "4020 14th St W, Bradenton, FL 34205",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T21:05:14.054+00:00"
+    },
+    "ChIJJSK6DAolw4gR2-tcgDhSPVI": {
+      "address": "7550 Fort Hamer Rd, Parrish, FL 34219",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T21:10:39.094+00:00"
+    },
+    "ChIJ0_My9aR_3YgRQnilGsmaCps": {
+      "address": "1482 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T01:10:46.364+00:00"
+    },
+    "ChIJ91E5TZp754gR6UAe4qltcFE": {
+      "address": "3022 Corrine Dr, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T21:28:21.276+00:00"
+    },
+    "ChIJjZhUvSU9w4gRCuTRgyrctZA": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-19T22:10:50.797+00:00",
+      "rawAddress": "3710 US-301, Ellenton, FL 34222, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJpUJtM-_ZwogROGyfAWFNelo": {
+      "address": "6990 Dickman Rd, Apollo Beach, FL 33572",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T14:00:53.249+00:00"
+    },
+    "ChIJRdxzRk1-54gRJvqlZQbtpE4": {
+      "address": "9067 International Dr, Orlando, FL 32819",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T03:10:46.01+00:00"
+    },
+    "ChIJz4eUs7N654gRiMJs2630XVc": {
+      "address": "3201 Corrine Dr, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T04:10:42.992+00:00"
+    },
+    "ChIJZQAgqdt_3YgRnCLWjBzzC28": {
+      "address": "10100 Dream Tree Blvd, Lake Buena Vista, FL 32836",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T05:10:45.067+00:00"
+    },
+    "ChIJgWr-M_x654gRRd7J_Abj-SY": {
+      "address": "23 1/2 S Magnolia Ave, Orlando, FL 32801",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T06:10:43.699+00:00"
+    },
+    "ChIJAZ2Ywx1-3YgRMOY_HCjnAXk": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T06:10:46.443+00:00",
+      "rawAddress": "4401 Floridian Wy, Lake Buena Vista, FL 32830, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJO3vjMIF_3YgRqb3SdwzbyII": {
+      "address": "1676 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T07:10:26.525+00:00"
+    },
+    "ChIJlUpNP_9_54gRQKh-tw2ZX1s": {
+      "address": "6362 International Dr, Orlando, FL 32819",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T13:10:42.465+00:00"
+    },
+    "ChIJc1x01Xl_54gR3yyWFYterI4": {
+      "address": "8441 International Dr Ste 250, Orlando, FL 32819",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T14:10:43.538+00:00"
+    },
+    "ChIJq6E9W8_HwogRUggO5759Ook": {
+      "address": "4801 E Fowler Ave, Tampa, FL 33617",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T07:10:07.136+00:00"
+    },
+    "ChIJD8rK2Y0n5IgRnagsN_AKOXQ": {
+      "address": "56 Charlotte St, St. Augustine, FL 32084",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T17:00:05.958+00:00"
+    },
+    "ChIJ-X6wLJQn5IgRvYMgcGVzY80": {
+      "address": "170 St George St, St. Augustine, FL 32084",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T17:00:32.579+00:00"
+    },
+    "ChIJwQne8wd754gRvBfDab1krMk": {
+      "address": "295 NE Ivanhoe Blvd Ste A, Orlando, FL 32804",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T17:10:33.112+00:00"
+    },
+    "ChIJG1opWwB754gRGs--XkuAER0": {
+      "address": "1110 E Colonial Dr, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T18:10:43.815+00:00"
+    },
+    "ChIJyWaYUYd_3YgR7gx9sx98KI0": {
+      "address": "1620 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T18:10:45.112+00:00"
+    },
+    "ChIJ_7j9pYd_3YgRmJkanPMuZ0k": {
+      "address": "1610 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T19:10:28.78+00:00"
+    },
+    "ChIJRfPBKCriwogR4yaS_ccI5so": {
+      "address": "1180 Central Ave, St. Petersburg, FL 33705",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T19:45:21.619+00:00"
+    },
+    "ChIJgb8MYx3DwogR70_o9aWhkrQ": {
+      "address": "1134 Gramercy Ln, Tampa, FL 33607",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T09:10:08.885+00:00"
+    },
+    "ChIJyzrZADLiwogRDSaWoWljzTE": {
+      "address": "1901 Central Ave, St. Petersburg, FL 33713",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T12:10:45.969+00:00"
+    },
+    "ChIJ3SpvbYPhwogRS17En4FSzVI": {
+      "address": "449 Central Ave #101st, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T21:10:11.952+00:00"
+    },
+    "ChIJ3Vyq7WTEwogRA-WDC7Mze2E": {
+      "address": "1810 N Highland Ave, Tampa, FL 33602",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T21:10:12.329+00:00"
+    },
+    "ChIJG365UJ_jwogRAIblIxnwvzU": {
+      "address": "1211 1st Ave N Ste 101, St. Petersburg, FL 33705",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T14:10:45.549+00:00"
+    },
+    "ChIJ_RvwD3nDwogRCeHQydPsx_k": {
+      "address": "701 N Howard Ave, Tampa, FL 33606",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T22:10:09.286+00:00"
+    },
+    "ChIJ5crCip3EwogRQnhkbw_Ir6U": {
+      "address": "1501 W Swann Ave, Tampa, FL 33606",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T22:10:09.896+00:00"
+    },
+    "ChIJL_dfJozEwogRF_55TezQpYo": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T22:10:10.55+00:00",
+      "rawAddress": "Riverwalk, Tampa, FL 33602, USA",
+      "note": "Place Details did not return a street number. The map link opens this named place."
+    },
+    "ChIJ11hsiYXEwogRjDBv39F04J8": {
+      "address": "420 W Kennedy Blvd, Tampa, FL 33606",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T22:10:11.275+00:00"
+    },
+    "ChIJG00H7u7jwogRoWLHFmmGmbY": {
+      "address": "2710 Central Ave, St. Petersburg, FL 33712",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-20T23:10:08.594+00:00"
+    },
+    "ChIJmfFGVBPFwogRIYyNhvz3X9Y": {
+      "address": "1930 E 7th Ave, Tampa, FL 33605",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T00:10:10.601+00:00"
+    },
+    "ChIJPRvtBsfjwogRvhNpBGje2hA": {
+      "address": "2340 1st Ave S, St. Petersburg, FL 33712",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T01:10:10.267+00:00"
+    },
+    "ChIJc9TZhGDAwogRRHZ5EzKtJIc": {
+      "address": "4526 W Village Dr, Tampa, FL 33624",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T18:10:05.973+00:00"
+    },
+    "ChIJKZW0N5XDwogRoKTCdhDprnU": {
+      "address": "1901 N Howard Ave, Tampa, FL 33607",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T21:10:19.619+00:00"
+    },
+    "ChIJHxcB0vPEwogR3fFnuF_MWmg": {
+      "address": "603 Channelside Dr, Tampa, FL 33602",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-21T22:04:10.555+00:00"
+    },
+    "ChIJz5Lpb5c_w4gRivPISVkQG3A": {
+      "address": "6000 Rick Piccolo Cir, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-22T18:13:35.539+00:00"
+    },
+    "ChIJO2jhb4m32YgRvulhfY9IMx0": {
+      "address": "2701 De Soto Blvd, Coral Gables, FL 33134",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-23T00:58:57.358+00:00"
+    },
+    "ChIJoZfKYcy32YgR4ROg8Mdxtnw": {
+      "address": "3444 Main Hwy Ste 21, Miami, FL 33133",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-23T00:59:50.689+00:00"
+    },
+    "ChIJmcZ22HARw4gR5Th1Pxcl9II": {
+      "address": "12306 46th Ave W, Cortez, FL 34215",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-23T02:25:19.341+00:00"
+    },
+    "ChIJ9ZlVHnmx2YgRIhh-NLFLt5w": {
+      "address": "219 NE 79th St, Miami, FL 33138",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-23T08:19:45.584+00:00"
+    },
+    "ChIJQVp535WxwogR42W828PdPRw": {
+      "address": "1722 Bruce B Downs Blvd, Wesley Chapel, FL 33544",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-10-01T00:14:22.338+00:00"
+    },
+    "ChIJLWQ9xoZx54gRgT08_-0eAM4": {
+      "address": "290 S Park Ave, Winter Park, FL 32789",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-26T18:29:01.738+00:00"
+    },
+    "ChIJaeBbjZmx2YgRI0Yb0-WQtPU": {
+      "address": "7289 NW 2nd Ave, Miami, FL 33150",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-24T00:01:35.974+00:00"
+    },
+    "ChIJte0b2xux2YgRr8f-xaLb0jw": {
+      "address": "5205 NE 2nd Ave, Miami, FL 33137",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-24T00:03:21.953+00:00"
+    },
+    "ChIJ1yQNClHEwogRaCW7u5bgT0Y": {
+      "address": "1805 E 7th Ave, Tampa, FL 33605",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-24T04:19:14.884+00:00"
+    },
+    "ChIJlb2_qywf24gRFYBsNGXcHW0": {
+      "address": "11135 Gulf Shore Dr, Naples, FL 34108",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-24T06:16:55.529+00:00"
+    },
+    "ChIJIyCdCXfhwogRH8MxhxaUGgs": {
+      "address": "610 2nd Ave NE, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-10-01T00:23:22.022+00:00"
+    },
+    "ChIJaeoTfN9Bw4gR4KQRHwdosqs": {
+      "address": "1812 S Osprey Ave, Sarasota, FL 34239",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-10-01T00:23:22.869+00:00"
+    },
+    "ChIJpegta8x654gRmUI2JGqYuus": {
+      "address": "3122 E Colonial Dr, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-24T08:08:52.782+00:00"
+    },
+    "ChIJK6b43nXhwogRCV39bMyGJGo": {
+      "address": "400 Beach Dr NE, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-10-01T00:23:26.233+00:00"
+    },
+    "ChIJUTI3PKk5w4gRtaS2weXk70A": {
+      "address": "295 N Cattlemen Rd Suite 4, Sarasota, FL 34243",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-10-01T00:23:33.657+00:00"
+    },
+    "ChIJh4m6DH7DwogRcwo9evYZIhg": {
+      "address": "3601 W Swann Ave, Tampa, FL 33609",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-10-01T00:34:03.086+00:00"
+    },
+    "ChIJa1kHd4Vp24gRj7H2MiIoSwo": {
+      "address": "10901 Palm Beach Blvd, Fort Myers, FL 33905",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-24T12:36:50.544+00:00"
+    },
+    "ChIJM8CbE53hwogR_Py8YaLt6As": {
+      "address": "214 2nd St N, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-08-25T00:19:54.602+00:00"
+    },
+    "ChIJmzKZ8InEwogR0PM7xTqUB6M": {
+      "address": "903 N Franklin St, Tampa, FL 33602",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-09-03T01:30:48.25+00:00"
+    },
+    "ChIJIV9AOfbHwogR5SPjijvBLRM": {
+      "address": "15357 Amberly Dr, Tampa, FL 33647",
+      "source": "wf_places_cache",
+      "wroteAt": "2026-09-03T01:30:48.644+00:00"
+    },
+    "ChIJjapVvA9w54gRY4Tpi19HXhI": {
+      "address": "229 W FAIRBANKS AVE, WINTER PARK, FL 32789",
+      "source": "event-record+census",
+      "name": "All Fired Up (Winter Park) Pottery Painting",
+      "censusQuery": "229 W Fairbanks Ave, Winter Park, FL"
+    },
+    "ChIJhbni_xFn54gR0p89LazzSD8": {
+      "address": "709 N ALAFAYA TRL, ORLANDO, FL 32828",
+      "source": "event-record+census",
+      "name": "All Fired Up (Waterford Lakes) Pottery Painting",
+      "censusQuery": "709 N Alafaya Trail, Orlando, FL"
+    },
+    "ChIJRStTdYSD54gRhH5dTvKQLJI": {
+      "address": "251 W TREMAINE ST, WINTER GARDEN, FL 34787",
+      "source": "event-record+census",
+      "name": "MANGONI Italian Market Pizza",
+      "censusQuery": "251 Tremaine St, Winter Garden, FL"
+    },
+    "ChIJ15lqd26D54gR0zik2zNTX4o": {
+      "address": "141 W PLANT ST, WINTER GARDEN, FL 34787",
+      "source": "event-record+census",
+      "name": "Rosallie Le French Cafe",
+      "censusQuery": "141 W Plant Street, Winter Garden, FL"
+    },
+    "ChIJW5C20gaI54gRZuH_-8hPQy8": {
+      "address": "15051 FRANK JARRELL RD, CLERMONT, FL 34714",
+      "source": "event-record+census",
+      "name": "Showcase of Citrus",
+      "censusQuery": "15051 Frank Jarrell Rd, Clermont, FL"
+    },
+    "ChIJRQqLckVAw4gR-Qh_02eZQJQ": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJz80-WhEWw4gRzOuwAzFVxag": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJv7BTO4-t2YgRqNxbUEldJjE": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJT1fY8CWr2YgRPfvi-_9cSiU": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJf2LtZui20YgRGZXS-SvwkNI": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJH6jzd74n5IgRsYpaqo4LwNk": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJw2VLy7sp54gRE6a7GJmmDaY": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJBRbiDBXa5ogRE8I7w4R_5u4": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJxVcTIQ7i0IgRgYa6c5TNrgk": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJE7CJBHv6wogRgU_CnoymVIY": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJk4XLpEnZ5ogRl8zItcDGhxM": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJEyrKF49q24gRi1npcziO2eE": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJhS6CJtf2wogRF3KX4LwQviY": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJWSFAm9XE54gRynJk-W1qRFA": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "ChIJ68SLYriZ54gRaJgw169KqYA": {
+      "address": "26216 County Road 448A, Mount Dora, FL 32757",
+      "source": "official-organizer+census",
+      "sourceUrl": "https://www.visitgreatscott.com/fall-festival",
+      "name": ""
+    },
+    "ChIJ-aI9NvSI54gRrVByB84z-AY": {
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_inventory",
+      "note": "Google place id is on the guide and in wf_inventory. Place Details cache has no street number, so the map link opens this named place."
+    },
+    "wfadd_legoland_florida": {
+      "address": "1 Legoland Way, Winter Haven, FL 33884",
+      "name": "LEGOLAND Florida Resort",
+      "source": "inventory-official",
+      "placeId": "ChIJ38rlfogN3YgRGic46M9dbLw",
+      "note": "Same official address already held for LEGOLAND Florida Resort."
+    },
+    "ChIJkyg5UW6654gRECAKyCherD8": {
+      "address": "36111 County Road 44A, Eustis, FL 32736",
+      "source": "official-organizer+census",
+      "sourceUrl": "https://amberbrookefarms.com/event/6th-annual-fall-festival-11/",
+      "name": ""
+    },
+    "ChIJ336If1rEwogRx-8ntTOjVvk": {
+      "address": "1503 E 7th Ave, Tampa, FL 33605",
+      "name": "The Ritz Ybor",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJafwoyukXw4gR5WAdMZEa_c0": {
+      "address": "1036 6th St W, Palmetto, FL 34221",
+      "name": "Sutton Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJAUUpLJq22YgRAU604E8-tsM": {
+      "address": "1103 Biscayne Blvd, Miami, FL 33132",
+      "name": "Pérez Art Museum Miami",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJc8QsSADFwogRH9awG-1qaCs": {
+      "address": "601 Water St, Tampa, FL 33602",
+      "name": "Cotanchobee Fort Brooke Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJFY7wCsjD2YgRn8R_2IMRjtw": {
+      "address": "12400 SW 152nd St, Miami, FL 33177",
+      "name": "Zoo Miami",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJhdEC7MUD2YgRWqeIwaYujc4": {
+      "address": "5300 Powerline Rd, Fort Lauderdale, FL 33309",
+      "name": "Xtreme Action Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJkWXRuBC02YgRripCIoUAN9g": {
+      "address": "1111 Parrot Jungle Trail, Miami, FL 33132",
+      "name": "Jungle Island",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJM6cv59Pn2YgRdXaKYZKWWms": {
+      "address": "24801 SW 187th Ave, Homestead, FL 33031",
+      "name": "Fruit & Spice Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJoVWX_Rm02YgRllHsIZGN16c": {
+      "address": "980 MacArthur Cswy, Miami, FL 33132",
+      "name": "Miami Children's Museum",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJOzaIz9AB2YgRJozqXFy4BIw": {
+      "address": "900 N Birch Rd, Fort Lauderdale, FL 33304",
+      "name": "Bonnet House Museum & Gardens",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJE5jqT1222YgR4STdDoStYPg": {
+      "address": "3251 S Miami Ave, Miami, FL 33129",
+      "name": "Vizcaya Museum & Gardens",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJ0UaxcHon5IgRtIDfdNZ5UsQ": {
+      "address": "999 Anastasia Blvd, St. Augustine, FL 32080",
+      "name": "St. Augustine Alligator Farm Zoological Park",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    },
+    "ChIJtdOV03ERw4gRGXAX7OPPQ1M": {
+      "address": "4628 119th St W, Cortez, FL 34215",
+      "name": "Swordfish Grill",
+      "source": "wf_places_cache",
+      "wroteAt": "cache"
+    }
+  },
+  "byPickKey": {
+    "florida-fall-festivals-2026\tThe Berry Farm Harvest Festival": {
+      "address": "13720 SW 216TH ST, MIAMI, FL 33170",
+      "source": "event-record+census",
+      "name": "The Berry Farm",
+      "censusQuery": "13720 SW 216th St, Miami, FL"
+    },
+    "florida-fall-festivals-2026\tPalace Miami Beach Fall Harvest Menu": {
+      "address": "1052 OCEAN DR, MIAMI BEACH, FL 33139",
+      "source": "event-record+census",
+      "name": "Palace South Beach",
+      "censusQuery": "1052 Ocean Drive, Miami Beach, FL"
+    },
+    "florida-fall-festivals-2026\tHouse of Horror Carnival": {
+      "address": "7900 SW 40TH ST, MIAMI, FL 33165",
+      "source": "event-record+census",
+      "name": "House of Horror at Tropical Park",
+      "censusQuery": "7900 SW 40th St, Miami, FL"
+    },
+    "florida-fall-festivals-2026\tOktoberfest Miami at the German American Social Club": {
+      "address": "11919 SW 56TH ST, MIAMI, FL 33175",
+      "source": "event-record+census",
+      "name": "German American Social Club of Greater Miami",
+      "censusQuery": "11919 SW 56th St, Miami, FL"
+    },
+    "florida-fall-festivals-2026\tDeerfield Beach Fall Festival": {
+      "address": "217 NE 5TH AVE, DEERFIELD BEACH, FL 33441",
+      "source": "event-record+census",
+      "name": "Pioneer Park",
+      "censusQuery": "217 NE 5th Ave, Deerfield Beach, FL"
+    },
+    "florida-fall-festivals-2026\tBoo Bash Pompano Beach Parks": {
+      "address": "1801 NE 6TH ST, POMPANO BEACH, FL 33060",
+      "source": "event-record+census",
+      "name": "Pompano Beach Community Park",
+      "censusQuery": "1801 NE 6th St, Pompano Beach, FL"
+    },
+    "florida-fall-festivals-2026\tBonnet House Halloween Fest": {
+      "placeId": "ChIJOzaIz9AB2YgRJozqXFy4BIw",
+      "address": "900 N Birch Rd, Fort Lauderdale, FL 33304",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Bonnet House Museum & Gardens. Address is that museum's place-cache street."
+    },
+    "florida-fall-festivals-2026\tBoo in Bloom at Fruit & Spice Park": {
+      "placeId": "ChIJM6cv59Pn2YgRdXaKYZKWWms",
+      "address": "24801 SW 187th Ave, Homestead, FL 33031",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Fruit & Spice Park. Address is that park's place-cache street."
+    },
+    "florida-fall-festivals-2026\tHalloween at Faena Miami Beach": {
+      "address": "3201 COLLINS AVE, MIAMI BEACH, FL 33140",
+      "source": "event-record+census",
+      "name": "Faena Miami Beach",
+      "censusQuery": "3201 Collins Ave, Miami Beach, FL"
+    },
+    "bioluminescence-kayak-tour-space-coast\tMake it a Space Coast night": {
+      "address": "",
+      "placeId": "ChIJiTHKxDOu4IgRgAU6btoqIsU",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "Place Details has no street number. The map link opens this named place."
+    },
+    "pinecraft-sarasota-amish-village\tThe village itself": {
+      "address": "1420 Gilbert Ave, Sarasota, FL 34239",
+      "placeId": "ChIJfTwcQOxAw4gRa-IT5Vr2YqE",
+      "source": "wf_places_cache",
+      "name": "The village itself"
+    },
+    "siesta-key-vs-lido-key\tLido Key: the balance": {
+      "address": "400 Benjamin Franklin Dr, Sarasota, FL 34236",
+      "placeId": "ChIJaW-sUB9rw4gRrQvxVM94nOY",
+      "source": "wf_places_cache",
+      "name": "Lido Key: the balance"
+    },
+    "things-to-do-orlando-summer-2026\tLevel99 at Disney Springs": {
+      "address": "1486 Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "placeId": "ChIJ-0qgNoF_3YgRg3Lh7xHDooU",
+      "source": "wf_places_cache",
+      "name": "Level99 at Disney Springs"
+    },
+    "things-to-do-st-augustine-summer-2026\tThe crab-boil giants: Outback Crab Shack and Crabby's": {
+      "address": "8155 County Rd 13 N, St. Augustine, FL 32092",
+      "placeId": "ChIJ0wLJ6bTV5YgRgDgJt_ZIZdE",
+      "source": "wf_places_cache",
+      "name": "The crab-boil giants: Outback Crab Shack and Crabby's"
+    },
+    "things-to-do-daytona-beach-summer-2026\tDaytona Lagoon and the revamped Ocean Center district": {
+      "address": "601 Earl St, Daytona Beach, FL 32118",
+      "placeId": "ChIJxdXyvj_a5ogRK7jMPfa32Wo",
+      "source": "wf_places_cache",
+      "name": "Daytona Lagoon and the revamped Ocean Center district"
+    },
+    "things-to-do-st-petersburg-clearwater-summer-2026\tClearwater Beach and the Pier 60 sunset festival": {
+      "address": "",
+      "placeId": "ChIJedHi-9D2wogRU6D1LsJcgNI",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "Place Details has no street number. The map link opens this named place."
+    },
+    "things-to-do-st-petersburg-clearwater-summer-2026\tCaladesi Island by ferry": {
+      "address": "1 Causeway Blvd, Dunedin, FL 34698",
+      "placeId": "ChIJPylah1XxwogR9E_DFv5PZXc",
+      "source": "wf_places_cache",
+      "name": "Caladesi Island by ferry"
+    },
+    "things-to-do-st-petersburg-clearwater-summer-2026\tClearwater Marine Aquarium": {
+      "address": "",
+      "placeId": "ChIJiZrtZSvxwogRE9eu4Xpy9Yc",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "Place Details has no street number. The map link opens this named place."
+    },
+    "things-to-do-naples-summer-2026\tTigress at The Perry Hotel": {
+      "address": "12155 Tamiami Trl N, Naples, FL 34110",
+      "placeId": "ChIJEVbdY68Z24gRFTJkr-rdchQ",
+      "source": "wf_places_cache",
+      "name": "Tigress at The Perry Hotel"
+    },
+    "fall-events-orlando-2026\tEPCOT International Food & Wine Festival": {
+      "address": "",
+      "placeId": "ChIJGzFs3q9_3YgRvZd1y2NSJOo",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "Place Details has no street number. The map link opens this named place."
+    },
+    "fall-events-orlando-2026\tFall concerts at Kia Center": {
+      "address": "400 W Church St, Orlando, FL 32801",
+      "placeId": "ChIJVcr7Ufp654gRkJGTJZILyfc",
+      "source": "wf_places_cache",
+      "name": "Fall concerts at Kia Center"
+    },
+    "things-to-do-in-palmetto-florida\tPalmetto Historical Park": {
+      "address": "515 10th Ave W, Palmetto, FL 34221",
+      "placeId": "ChIJU2tY1-kXw4gROk66zvWlDnQ",
+      "source": "wf_places_cache",
+      "name": "Palmetto Historical Park"
+    },
+    "things-to-do-in-palmetto-florida\tEmerson Point Preserve": {
+      "address": "5801 17th St W, Palmetto, FL 34221",
+      "placeId": "ChIJ1XLnHF0Xw4gRk6bBUmmf2sU",
+      "source": "wf_places_cache",
+      "name": "Emerson Point Preserve"
+    },
+    "things-to-do-in-venice-florida\tVenice Beach": {
+      "address": "",
+      "placeId": "ChIJpY1xybu6woARL9_iGplujMI",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "Place Details has no street number. The map link opens this named place."
+    },
+    "siesta-key-drum-circle\tWhen and exactly where": {
+      "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+      "address": "948 Beach Road, Siesta Key, FL 34242",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "Same verified place already held under this name."
+    },
+    "siesta-key-vs-lido-key\tSiesta Key: the sand": {
+      "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+      "address": "948 Beach Road, Siesta Key, FL 34242",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "Same verified place already held under this name."
+    },
+    "red-bull-dance-your-style-tampa-2026\tSaturday: the National Final": {
+      "address": "333 S Franklin St, Tampa, FL 33602",
+      "source": "guide-text+census",
+      "note": "Street is in the guide blurb. Census matched 333 S FRANKLIN ST, TAMPA, FL, 33602.",
+      "placeId": ""
+    },
+    "red-bull-dance-your-style-tampa-2026\tFriday: Battle Day at The RITZ Ybor": {
+      "address": "1503 E 7th Ave, Tampa, FL 33605",
+      "source": "guide-text+census",
+      "note": "Street is in the guide blurb and matches The Ritz Ybor in the place cache. Census matched 1503 E 7TH AVE, TAMPA, FL, 33605.",
+      "placeId": ""
+    },
+    "orlando-christmas-concerts-and-santa-2026\tLake Eola: DTOLive! for the Holidays": {
+      "address": "101 N Rosalind Ave, Orlando, FL 32801",
+      "source": "guide-text+census",
+      "note": "Street is in the guide blurb. Census matched 101 N ROSALIND AVE, ORLANDO, FL, 32801.",
+      "placeId": ""
+    },
+    "jacksonville-christmas-by-area-budget-2026\tJacksonville Light Boat Parade": {
+      "address": "2 Independent Dr, Jacksonville, FL 32202",
+      "source": "guide-text+census",
+      "note": "Route parade. The guide names Riverfront Plaza, 2 W. Independent Drive, as the start. Census matched 2 INDEPENDENT DR, JACKSONVILLE, FL, 32202.",
+      "placeId": ""
+    },
+    "jacksonville-christmas-by-area-budget-2026\tJAX Artist Walk on Ice": {
+      "address": "718 Riverside Ave, Jacksonville, FL 32204",
+      "source": "guide-text+census",
+      "note": "The guide names 718 Riverside Avenue. Census matched 718 RIVERSIDE AVE, JACKSONVILLE, FL, 32204.",
+      "placeId": ""
+    },
+    "jacksonville-christmas-by-area-budget-2026\tVintage Market Days of Jacksonville: Shiny & Bright": {
+      "address": "2497 State Hwy 16, Green Cove Springs, FL 32043",
+      "source": "guide-text+census",
+      "note": "The guide names Clay County Fairgrounds, 2497 State Road 16. Census matched 2497 STATE HWY 16, GREEN COVE SPRINGS, FL, 32043.",
+      "placeId": ""
+    },
+    "jacksonville-christmas-by-area-budget-2026\tZOOLights at Jacksonville Zoo and Botanical Gardens": {
+      "address": "370 Zoo Pkwy, Jacksonville, FL 32218",
+      "source": "guide-text+census",
+      "note": "The guide names 370 Zoo Parkway. The place cache and Census agree on 370 Zoo Pkwy, Jacksonville, FL 32218.",
+      "placeId": "ChIJ5UOOwKux5YgRAmO1YNbhTc0"
+    },
+    "florida-fall-festivals-2026\tBrick or Treat at LEGOLAND Florida": {
+      "placeId": "ChIJ38rlfogN3YgRGic46M9dbLw",
+      "address": "1 Legoland Way, Winter Haven, FL 33884",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "The event name names LEGOLAND Florida. Address is the verified LEGOLAND street."
+    },
+    "florida-fall-festivals-2026\tHowl O Scream at SeaWorld Orlando": {
+      "placeId": "ChIJfyPWjCh-54gR1SvWozmef5k",
+      "address": "7007 Sea World Dr, Orlando, FL 32821",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "The event name names SeaWorld Orlando. Address is that park's verified street."
+    },
+    "florida-fall-festivals-2026\tHowl O Scream at Busch Gardens Tampa Bay": {
+      "placeId": "ChIJhRo4DU_GwogRUgjhMAj-pag",
+      "address": "10165 McKinley Dr, Tampa, FL 33612",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event name names Busch Gardens Tampa Bay. Address is that park's place-cache street."
+    },
+    "florida-fall-festivals-2026\tGators, Ghosts and Goblins at Gatorland": {
+      "placeId": "ChIJ9RHZGx6H3YgRnWVYIWsHNPM",
+      "address": "14501 S Orange Blossom Trl, Orlando, FL 32837",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "The event name names Gatorland. Address is that park's verified street."
+    },
+    "florida-fall-festivals-2026\tMickey's Not So Scary Halloween Party": {
+      "placeId": "ChIJgUulalN-3YgRGoTaWM2LawY",
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "The event note says the party is at Magic Kingdom. Place Details has no street number, so the map link opens that park."
+    },
+    "florida-fall-festivals-2026\tEPCOT International Food and Wine Festival": {
+      "placeId": "ChIJGzFs3q9_3YgRvZd1y2NSJOo",
+      "address": "",
+      "reviewed": true,
+      "placeVerified": true,
+      "source": "wf_places_cache",
+      "note": "The event is the EPCOT festival and the official page is the EPCOT event. Place Details has no street number, so the map link opens that park."
+    },
+    "florida-fall-festivals-2026\tSt. Pete Pier Fall Fest and Pumpkin Patch": {
+      "placeId": "ChIJX-E766nhwogR8u_Re6nJTyk",
+      "address": "600 2nd Ave NE, St. Petersburg, FL 33701",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "inventory-official",
+      "note": "The event name and the organizer page are the St. Pete Pier. Address is that pier's verified street."
+    },
+    "florida-fall-festivals-2026\tTampa Riverwalk Trick or Treat": {
+      "placeId": "ChIJc8QsSADFwogRH9awG-1qaCs",
+      "address": "601 Water St, Tampa, FL 33602",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event note names Cotanchobee Fort Brooke Park. Address is that park's place-cache street."
+    },
+    "florida-fall-festivals-2026\tThe Horrorland at Jungle Island": {
+      "placeId": "ChIJkWXRuBC02YgRripCIoUAN9g",
+      "address": "1111 Parrot Jungle Trail, Miami, FL 33132",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Jungle Island. Address is that place's place-cache street."
+    },
+    "florida-fall-festivals-2026\tNightmare Village at Xtreme Action Park": {
+      "placeId": "ChIJhdEC7MUD2YgRWqeIwaYujc4",
+      "address": "5300 Powerline Rd, Fort Lauderdale, FL 33309",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Xtreme Action Park. Address is that place's place-cache street."
+    },
+    "florida-fall-festivals-2026\tNot So Scary Halloween Bash at Miami Children's Museum": {
+      "placeId": "ChIJoVWX_Rm02YgRllHsIZGN16c",
+      "address": "980 MacArthur Cswy, Miami, FL 33132",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Miami Children's Museum. Address is that museum's place-cache street."
+    },
+    "florida-fall-festivals-2026\tRoars, S'mores and Snores Spooktacular Campout at Zoo Miami": {
+      "placeId": "ChIJFY7wCsjD2YgRn8R_2IMRjtw",
+      "address": "12400 SW 152nd St, Miami, FL 33177",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Zoo Miami. Address is that zoo's place-cache street."
+    },
+    "florida-fall-festivals-2026\tZoo Miami Monster Masquerade": {
+      "placeId": "ChIJFY7wCsjD2YgRn8R_2IMRjtw",
+      "address": "12400 SW 152nd St, Miami, FL 33177",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Zoo Miami. Address is that zoo's place-cache street."
+    },
+    "florida-fall-festivals-2026\tZoo Boo at Zoo Miami": {
+      "placeId": "ChIJFY7wCsjD2YgRn8R_2IMRjtw",
+      "address": "12400 SW 152nd St, Miami, FL 33177",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The event names Zoo Miami. Address is that zoo's place-cache street."
+    },
+    "florida-fall-festivals-2026\tAmber Brooke Farms Fall Festival": {
+      "placeId": "ChIJkyg5UW6654gRECAKyCherD8",
+      "address": "36111 County Road 44A, Eustis, FL 32736",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "official-organizer+census",
+      "note": "The event record says 36111 N CR 44A, Eustis. Census matched 36111 CO RD 44A, EUSTIS, FL, 32736, the same official address already corroborated for this farm."
+    },
+    "things-to-do-in-miami-florida\tVizcaya Museum and Gardens": {
+      "placeId": "ChIJE5jqT1222YgR4STdDoStYPg",
+      "address": "3251 S Miami Ave, Miami, FL 33129",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names Vizcaya Museum and Gardens. The place cache has one place, Vizcaya Museum & Gardens, at this street."
+    },
+    "things-to-do-in-miami-florida\tPérez Art Museum Miami": {
+      "placeId": "ChIJAUUpLJq22YgRAU604E8-tsM",
+      "address": "1103 Biscayne Blvd, Miami, FL 33132",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names Pérez Art Museum Miami. The place cache street is this address."
+    },
+    "things-to-do-in-palmetto-florida\tSutton Park": {
+      "placeId": "ChIJafwoyukXw4gR5WAdMZEa_c0",
+      "address": "1036 6th St W, Palmetto, FL 34221",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names Sutton Park. The place cache has one Sutton Park in Palmetto at this street."
+    },
+    "things-to-do-in-cortez-florida\tSwordfish Grill & Tiki Bar": {
+      "placeId": "ChIJtdOV03ERw4gRGXAX7OPPQ1M",
+      "address": "4628 119th St W, Cortez, FL 34215",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names Swordfish Grill & Tiki Bar. The place cache has one Swordfish Grill in Cortez at this street."
+    },
+    "things-to-do-st-augustine-summer-2026\tThe Alligator Farm's zip line": {
+      "placeId": "ChIJ0UaxcHon5IgRtIDfdNZ5UsQ",
+      "address": "999 Anastasia Blvd, St. Augustine, FL 32080",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide names St. Augustine Alligator Farm. The place cache name is St. Augustine Alligator Farm Zoological Park, one place, at this street."
+    },
+    "florida-theme-park-christmas-2026\tDisney Springs Christmas Tree Stroll and Santa": {
+      "placeId": "ChIJ-0qgNoF_3YgRg3Lh7xHDooU",
+      "address": "1486 Buena Vista Dr, Lake Buena Vista, FL 32830",
+      "reviewed": false,
+      "placeVerified": false,
+      "source": "wf_places_cache",
+      "note": "The guide places Santa and the tree stroll at Disney Springs. Address is that place's verified street."
+    },
+    "things-to-do-key-west-summer-2026\tThe Hemingway Home's six-toed cats": {
+      "address": "907 Whitehead St, Key West, FL 33040",
+      "source": "official-site",
+      "sourceUrl": "https://www.hemingwayhome.com/",
+      "note": "The Hemingway Home site states 907 Whitehead Street, Key West, FL 33040."
+    },
+    "things-to-do-key-west-summer-2026\tFort Zachary Taylor's beach and fort": {
+      "address": "601 Howard England Way, Key West, FL 33040",
+      "source": "official-site",
+      "sourceUrl": "https://fortzacharytaylor.com/",
+      "note": "The park site states 601 Howard England Way, Key West, FL 33040."
+    },
+    "things-to-do-naples-summer-2026\tCorkscrew Swamp Sanctuary's boardwalk": {
+      "address": "375 Sanctuary Road West, Naples, FL 34120",
+      "source": "official-site",
+      "sourceUrl": "https://corkscrew.audubon.org/",
+      "note": "The Audubon Corkscrew page states 375 Sanctuary Road West, Naples, FL 34120."
+    },
+    "things-to-do-st-petersburg-clearwater-summer-2026\tShuffleboard Fridays at the world's oldest club": {
+      "address": "559 Mirror Lake Dr N, St. Petersburg, FL 33701",
+      "source": "official-site",
+      "sourceUrl": "https://stpeteshuffle.com/",
+      "note": "The club site states 559 Mirror Lake Dr. N., St. Petersburg, FL 33701."
+    },
+    "things-to-do-st-petersburg-clearwater-summer-2026\tSt. Pete's new fine-dining wave": {
+      "address": "501 5th Ave NE, St. Petersburg, FL 33701",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "The guide names The Vinoy Resort. One place-cache row is The Vinoy Resort & Golf Club at this street."
+    },
+    "fall-events-orlando-2026\tFusionFest": {
+      "address": "777 E Princeton St, Orlando, FL 32803",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "The guide names Loch Haven Park. The place cache has one Loch Haven Park at this street."
+    },
+    "fall-events-orlando-2026\tWalt Disney World Swan and Dolphin Food & Wine Classic": {
+      "address": "1200 Epcot Resorts Blvd, Lake Buena Vista, FL 32830",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "The event names the Swan and Dolphin. The place cache street is Walt Disney World Swan, one of the two named hotels."
+    },
+    "florida-fall-festivals-2026\tSelby Spooktacular": {
+      "address": "1534 Mound St, Sarasota, FL 34236",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "Selby Spooktacular is the gardens' event. Marie Selby Botanical Gardens is at this place-cache street."
+    },
+    "florida-fall-festivals-2026\tSpooktacular at Jacksonville Zoo and Botanical Gardens": {
+      "address": "370 Zoo Pkwy, Jacksonville, FL 32218",
+      "source": "wf_places_cache",
+      "sourceUrl": "",
+      "note": "The event names Jacksonville Zoo and Botanical Gardens. Address is that zoo's place-cache street."
+    },
+    "florida-fall-festivals-2026\tWeekend at BerryHaus": {
+      "address": "13720 SW 216th St, Miami, FL 33170",
+      "source": "event-record+census",
+      "sourceUrl": "",
+      "note": "Same farm street already census-matched for The Berry Farm Harvest Festival: 13720 SW 216TH ST, MIAMI, FL, 33170."
+    },
+    "gatorland-vs-wild-florida\tWild Florida: the airboat experience": {
+      "address": "3301 Lake Cypress Rd, Kenansville, FL 34739",
+      "source": "official-site",
+      "sourceUrl": "https://www.wildfloridaairboats.com/",
+      "note": "The operator page states 3301 Lake Cypress Rd, Kenansville, FL 34739."
+    },
+    "things-to-do-miami-summer-2026\tJoia Beach Club on Watson Island": {
+      "address": "1111 Parrot Jungle Trail, Miami, FL 33132",
+      "source": "official-site",
+      "sourceUrl": "https://joiabeachmiami.com/",
+      "note": "Joia Beach's own page states 1111 Parrot Jungle Trail, Miami, FL 33132."
+    },
+    "things-to-do-key-west-summer-2026\tThe Reserve, the new bank takeover": {
+      "address": "510 Southard St, Key West, FL 33040",
+      "source": "guide-text+census",
+      "sourceUrl": "",
+      "note": "The guide says the converted bank is at 510 Southard. Census matched 510 SOUTHARD ST, KEY WEST, FL, 33040."
+    },
+    "things-to-do-key-west-summer-2026\tThe Southernmost Point buoy, temporary edition": {
+      "address": "1400 Duval St, Key West, FL 33040",
+      "source": "guide-text+census",
+      "sourceUrl": "",
+      "note": "The guide says the temporary buoy is at Duval Pocket Park at 1400 Duval. Census matched 1400 DUVAL ST, KEY WEST, FL, 33040."
+    },
+    "things-to-do-key-west-summer-2026\tPapa's Pilar rum distillery": {
+      "address": "201 Simonton St, Key West, FL 33040",
+      "source": "official-site",
+      "sourceUrl": "https://www.papaspilar.com/",
+      "note": "The distillery page states 201 Simonton St, Key West, FL 33040. Census matched the same line."
+    },
+    "things-to-do-panama-city-beach-summer-2026\tShipwreck Island Waterpark": {
+      "address": "12201 Hutchison Blvd, Panama City Beach, FL 32407",
+      "source": "official-site",
+      "sourceUrl": "https://shipwreckisland.com/",
+      "note": "The waterpark site links 12201 Hutchison Blvd, Panama City Beach, FL 32407. Census matched that line."
+    },
+    "fall-events-orlando-2026\tVans Warped Tour Orlando": {
+      "address": "1 Citrus Bowl Pl, Orlando, FL 32805",
+      "source": "official-site",
+      "sourceUrl": "https://www.orlando.gov/Our-Government/Departments-Offices/Venues/Camping-World-Stadium",
+      "note": "The City of Orlando venue page states 1 Citrus Bowl Place, Orlando, Florida 32805. Census matched 1 CITRUS BOWL PL."
+    },
+    "fall-events-orlando-2026\tFlorida Blue Florida Classic": {
+      "address": "1 Citrus Bowl Pl, Orlando, FL 32805",
+      "source": "official-site",
+      "sourceUrl": "https://www.orlando.gov/Our-Government/Departments-Offices/Venues/Camping-World-Stadium",
+      "note": "The City of Orlando venue page states 1 Citrus Bowl Place, Orlando, Florida 32805. Census matched 1 CITRUS BOWL PL."
+    },
+    "things-to-do-in-ellenton-florida\tEllenton Ice & Sports Complex": {
+      "address": "5309 29th Street East, Ellenton, FL 34222",
+      "source": "official-site",
+      "sourceUrl": "https://www.ellentonice.com/",
+      "note": "The rink site states 5309 29th Street East, Ellenton, Florida 34222."
+    },
+    "florida-fall-festivals-2026\tScream A Geddon Horror Park": {
+      "address": "27839 Saint Joe Rd, Dade City, FL 33525",
+      "source": "official-site",
+      "sourceUrl": "https://screamageddon.com/",
+      "note": "The park site states 27839 Saint Joe Rd, Dade City, FL 33525."
+    },
+    "florida-fall-festivals-2026\tCongaree and Penn Pumpkin Patch": {
+      "address": "11830 Old Kings Road, Jacksonville, FL 32219",
+      "source": "official-site",
+      "sourceUrl": "https://www.congareeandpenn.com/",
+      "note": "The farm site states 11830 Old Kings Road, Jacksonville, Florida 32219."
+    },
+    "florida-fall-festivals-2026\tSykes Family Farms Fall Festival": {
+      "address": "5995 Brough Rd, Elkton, FL 32033",
+      "source": "official-site",
+      "sourceUrl": "https://sycofarms.com/",
+      "note": "The farm site states 5995 Brough Rd, Elkton, FL 32033. Census matched that line."
+    },
+    "florida-fall-festivals-2026\tBedner's Farm Fresh Market Fall Festival": {
+      "address": "10066 Lee Road, Boynton Beach, FL 33473",
+      "source": "official-site",
+      "sourceUrl": "https://bedners.com/contact/",
+      "note": "The farm contact page states 10066 Lee Road, Boynton Beach, FL 33473."
+    },
+    "orlando-christmas-concerts-and-santa-2026\tCarousel on the Promenade: the nearby extra": {
+      "address": "8375 International Dr, Orlando, FL 32819",
+      "source": "official-site",
+      "sourceUrl": "https://iconparkorlando.com/attractions/carousel-on-the-promenade/",
+      "note": "ICON Park's carousel page states 8375 International Drive, Orlando, FL 32819. Census matched that line."
+    },
+    "florida-fall-festivals-2026\tSharktoberfest at Mote SEA": {
+      "address": "225 University Town Center Drive, Sarasota, FL 34243",
+      "source": "official-site",
+      "sourceUrl": "https://mote.org/aquarium/sea-visitor-information/",
+      "note": "Mote's visitor page states 225 University Town Center Drive, Sarasota, FL 34243."
+    },
+    "swim-with-manatees-crystal-river\tSwim with the manatees in Kings Bay": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A swim trip in Kings Bay, not one street door.",
+      "mapQuery": "Kings Bay, Crystal River, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Kings%20Bay%2C%20Crystal%20River%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "bioluminescence-kayak-tour-space-coast\tA clear-kayak bioluminescence tour": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A night tour out of Cocoa Beach, not one street door.",
+      "mapQuery": "Cocoa Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Cocoa%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-scalloping-crystal-river-homosassa\tA guided scallop trip from Crystal River or Homosassa": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A guided boat trip, not one street door.",
+      "mapQuery": "Crystal River, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Crystal%20River%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-scalloping-crystal-river-homosassa\tOff-season, swim with the manatees instead": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A seasonal trip, not one street door.",
+      "mapQuery": "Crystal River, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Crystal%20River%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "winter-park-scenic-boat-tour\tMake it a Winter Park day": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A day in the city, not one street door.",
+      "mapQuery": "Winter Park, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Winter%20Park%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "anna-maria-island-day-trip\tPine Avenue and the City Pier": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street and pier area, not one street door.",
+      "mapQuery": "Pine Avenue, Anna Maria, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Pine%20Avenue%2C%20Anna%20Maria%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "anna-maria-island-day-trip\tThe free trolley, your parking cheat code": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An island trolley, not one street door.",
+      "mapQuery": "Anna Maria Island, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Island%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "ybor-city-tampa-guide\tSeventh Avenue and the cigar legacy": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A historic street, not one street door.",
+      "mapQuery": "7th Avenue, Ybor City, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=7th%20Avenue%2C%20Ybor%20City%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "ybor-city-tampa-guide\tThe streetcar and the roosters": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A transit route, not one street door.",
+      "mapQuery": "TECO Line Streetcar, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=TECO%20Line%20Streetcar%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-orlando-summer-2026\tEola Food Hall and the Mills 50 crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A restaurant crawl, not one street door.",
+      "mapQuery": "Mills 50, Orlando, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Mills%2050%2C%20Orlando%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-miami-summer-2026\tThe Coral Gables restaurant boom": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A neighborhood of restaurants, not one street door.",
+      "mapQuery": "Coral Gables, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Coral%20Gables%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-miami-summer-2026\tVersace Mansion and the Ocean Drive icons": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street of landmarks, not one street door.",
+      "mapQuery": "Ocean Drive, Miami Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Ocean%20Drive%2C%20Miami%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-miami-summer-2026\tLittle Havana's Calle Ocho": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street, not one street door.",
+      "mapQuery": "Calle Ocho, Little Havana, Miami, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Calle%20Ocho%2C%20Little%20Havana%2C%20Miami%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-tampa-summer-2026\tThe Riverwalk with the Pirate Water Taxi": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A riverwalk route, not one street door.",
+      "mapQuery": "Tampa Riverwalk, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Tampa%20Riverwalk%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-tampa-summer-2026\tYbor City": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A district, not one street door.",
+      "mapQuery": "Ybor City, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Ybor%20City%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-fort-lauderdale-summer-2026\tFort Lauderdale Beach and the reef offshore": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach, not one street door.",
+      "mapQuery": "Fort Lauderdale Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Fort%20Lauderdale%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-fort-lauderdale-summer-2026\tLas Olas Boulevard's restaurant wave": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A restaurant street, not one street door.",
+      "mapQuery": "Las Olas Boulevard, Fort Lauderdale, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Las%20Olas%20Boulevard%2C%20Fort%20Lauderdale%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-fort-lauderdale-summer-2026\tLas Olas Beach at sunrise": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach, not one street door.",
+      "mapQuery": "Las Olas Beach, Fort Lauderdale, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Las%20Olas%20Beach%2C%20Fort%20Lauderdale%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-key-west-summer-2026\tThe Duval Street crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street crawl, not one street door.",
+      "mapQuery": "Duval Street, Key West, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Duval%20Street%2C%20Key%20West%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-st-augustine-summer-2026\tSt. George Street and the old town": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A historic street, not one street door.",
+      "mapQuery": "St. George Street, St. Augustine, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=St.%20George%20Street%2C%20St.%20Augustine%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-daytona-beach-summer-2026\tDriving the World's Most Famous Beach": {
+      "area": true,
+      "reviewed": true,
+      "reason": "The driving beach, not one street door.",
+      "mapQuery": "Daytona Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Daytona%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tShell Island": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A barrier island reached by boat, not one street door.",
+      "mapQuery": "Shell Island, Panama City Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Shell%20Island%2C%20Panama%20City%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tThe 27 miles of sugar-white beach": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A stretch of beach, not one street door.",
+      "mapQuery": "Panama City Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Panama%20City%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tThe TikTok food crawl: Boondocks and Coco Loco": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A food crawl of more than one stop, not one street door.",
+      "mapQuery": "Panama City Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Panama%20City%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-naples-summer-2026\tThe Naples Beach sunset, pier or no pier": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach sunset, not one street door.",
+      "mapQuery": "Naples Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Naples%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-naples-summer-2026\tKeewaydin Island by boat": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An island reached by boat, not one street door.",
+      "mapQuery": "Keewaydin Island, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Keewaydin%20Island%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-naples-summer-2026\tFifth Avenue South on summer deals": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A shopping street, not one street door.",
+      "mapQuery": "Fifth Avenue South, Naples, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Fifth%20Avenue%20South%2C%20Naples%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-tampa-florida\tA real Tampa Cuban sandwich": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A food to seek in the city, not one restaurant door.",
+      "mapQuery": "Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-tampa-florida\tThe TECO Line Streetcar": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A transit route, not one street door.",
+      "mapQuery": "TECO Line Streetcar, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=TECO%20Line%20Streetcar%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-tampa-florida\tBayshore Boulevard": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A boulevard, not one street door.",
+      "mapQuery": "Bayshore Boulevard, Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Bayshore%20Boulevard%2C%20Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-tampa-florida\tGasparilla Pirate Fest": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A citywide parade, not one street door.",
+      "mapQuery": "Tampa, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Tampa%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-miami-florida\tLittle Havana": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A neighborhood, not one street door.",
+      "mapQuery": "Little Havana, Miami, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Little%20Havana%2C%20Miami%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-bradenton-florida\tBradenton Riverwalk": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A riverwalk, not one street door.",
+      "mapQuery": "Bradenton Riverwalk, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Bradenton%20Riverwalk%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-bradenton-florida\tVillage of the Arts": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An arts neighborhood, not one street door.",
+      "mapQuery": "Village of the Arts, Bradenton, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Village%20of%20the%20Arts%2C%20Bradenton%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-lakewood-ranch-florida\tLakewood Ranch Main Street": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A main street district, not one street door.",
+      "mapQuery": "Lakewood Ranch Main Street, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Lakewood%20Ranch%20Main%20Street%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tDeck the Chairs": {
+      "area": true,
+      "reviewed": true,
+      "reason": "Beach lights across two plazas, not one entrance.",
+      "mapQuery": "Jacksonville Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Jacksonville%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tRiverside Avondale Luminaria": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A neighborhood luminaria. The guide says the Buckland House is not a single entrance.",
+      "mapQuery": "Riverside Avondale, Jacksonville, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Riverside%20Avondale%2C%20Jacksonville%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tBlackhawk Bluff Christmas Lights": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A residential light display, not one public door.",
+      "mapQuery": "Girvin Road, Jacksonville, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Girvin%20Road%2C%20Jacksonville%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tChristmas on Walnut Street": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street festival, not one street door.",
+      "mapQuery": "Walnut Street, Green Cove Springs, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Walnut%20Street%2C%20Green%20Cove%20Springs%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tParade of Trees": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An evening park stroll, not one ticketed door.",
+      "mapQuery": "Spring Park, Green Cove Springs, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Spring%20Park%2C%20Green%20Cove%20Springs%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "jacksonville-christmas-by-area-budget-2026\tNights of Lights": {
+      "area": true,
+      "reviewed": true,
+      "reason": "Citywide public lights, not one street door.",
+      "mapQuery": "St. Augustine, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=St.%20Augustine%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "st-augustine-christmas-coffee-snow-walk-2026\tNights of Lights: the evening anchor": {
+      "area": true,
+      "reviewed": true,
+      "reason": "Citywide public lights, not one street door.",
+      "mapQuery": "St. Augustine, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=St.%20Augustine%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tHaunted Sarasota Ghost Tour": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A walking tour, not one street door.",
+      "mapQuery": "Sarasota, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Sarasota%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tROCKtoberfest Downtown Sarasota": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A downtown festival, not one street door.",
+      "mapQuery": "Downtown Sarasota, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Downtown%20Sarasota%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tFantasy Fest": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A citywide festival, not one street door.",
+      "mapQuery": "Key West, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Key%20West%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tAnna Maria Island BayFest": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An island festival, not one street door.",
+      "mapQuery": "Anna Maria Island, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Island%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tCedar Key Seafood Festival": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A town festival, not one street door.",
+      "mapQuery": "Cedar Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Cedar%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tCandlelight Halloween Classics at Siesta Key": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A concert on the key, not one street door.",
+      "mapQuery": "Siesta Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Siesta%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tMount Dora Craft Fair": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A town craft fair, not one street door.",
+      "mapQuery": "Mount Dora, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Mount%20Dora%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tHalloween on Central": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A street festival, not one street door.",
+      "mapQuery": "Central Avenue, St. Petersburg, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Central%20Avenue%2C%20St.%20Petersburg%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tFoo Foo Festival": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A citywide festival, not one street door.",
+      "mapQuery": "Pensacola, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Pensacola%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tTaste of the Beach Festival": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach festival, not one street door.",
+      "mapQuery": "Pensacola Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Pensacola%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tIsland Trunk or Treat": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An island event, not one street door.",
+      "mapQuery": "Anna Maria Island, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Island%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tSt. Pete Official Halloween Bar Crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A bar crawl, not one street door.",
+      "mapQuery": "St. Petersburg, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=St.%20Petersburg%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tSarasota Boos and Booze Halloween Bar Crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A bar crawl, not one street door.",
+      "mapQuery": "Sarasota, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Sarasota%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "florida-fall-festivals-2026\tNaples Stone Crab Festival": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A city festival, not one street door.",
+      "mapQuery": "Naples, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Naples%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tPier Park and the SkyWheel": {
+      "address": "600 Pier Park Dr, Panama City Beach, FL 32413",
+      "source": "official-site",
+      "sourceUrl": "https://www.simon.com/mall/pier-park/about",
+      "note": "Simon, the operator of Pier Park, states 600 Pier Park Dr, Panama City Beach, FL 32413."
+    },
+    "jacksonville-christmas-by-area-budget-2026\tDiamonds in the Rust Fall Market": {
+      "address": "7263 Solomon Rd, Jax, FL 32234",
+      "source": "official-site",
+      "sourceUrl": "https://diamonddranchinc.com/",
+      "note": "Diamond D Ranch's site states 7263 Solomon Rd, Jax, FL 32234."
+    },
+    "things-to-do-fort-lauderdale-summer-2026\tPier Sixty-Six and the rotating Pier Top": {
+      "address": "2301 SE 17th St, Fort Lauderdale, FL 33316",
+      "source": "two-public-sources",
+      "note": "OpenStreetMap Nominatim and the US Census geocoder both match 2301 SE 17th St, Fort Lauderdale, FL 33316."
+    },
+    "things-to-do-st-augustine-summer-2026\tA show at the number-one amphitheater in America": {
+      "address": "1340C State Road A1A, St. Augustine, FL 32080",
+      "source": "two-public-sources",
+      "note": "The Wikipedia infobox states 1340C A1A South, St. Augustine, FL 32080. Census matched 1340C STATE RD A1A, ST AUGUSTINE, FL, 32080."
+    },
+    "things-to-do-daytona-beach-summer-2026\tDaytona International Speedway": {
+      "address": "1801 W International Speedway Blvd, Daytona Beach, FL 32114",
+      "source": "two-public-sources",
+      "note": "The Wikipedia infobox and OpenStreetMap both state 1801 West International Speedway Blvd, Daytona Beach, FL 32114. Census matched 1801 INTERNATIONAL SPEEDWAY BLVD, DAYTONA BEACH, FL, 32114."
+    },
+    "things-to-do-daytona-beach-summer-2026\tA Tortugas game at Jackie Robinson Ballpark": {
+      "address": "105 E Orange Ave, Daytona Beach, FL 32114",
+      "source": "two-public-sources",
+      "note": "The Wikipedia infobox states 105 East Orange Avenue, Daytona Beach. OpenStreetMap and Census match 105 E Orange Ave, Daytona Beach, FL 32114."
+    },
+    "things-to-do-in-tampa-florida\tA Tampa Bay Lightning game": {
+      "address": "401 Channelside Dr, Tampa, FL 33602",
+      "source": "two-public-sources",
+      "note": "The Wikipedia infobox and OpenStreetMap both state 401 Channelside Drive, Tampa, FL 33602."
+    },
+    "florida-fall-festivals-2026\tOktoberfest Tampa Bay": {
+      "address": "8098 66th St N, Pinellas Park, FL 33781",
+      "source": "two-public-sources",
+      "note": "The German American Society page states 8098 66th Street North, Pinellas Park, FL 33781. Census matched the same line."
+    },
+    "florida-fall-festivals-2026\tSir Henry's Haunted Trail": {
+      "address": "2837 S Frontage Rd, Plant City, FL 33566",
+      "source": "two-public-sources",
+      "note": "The trail site states 2837 South Frontage Road, Plant City. Census matched 2837 S FRONTAGE RD, PLANT CITY, FL, 33566."
+    },
+    "florida-fall-festivals-2026\tFEARville at DK Farms": {
+      "address": "1750 Lake Ave SE, Largo, FL 33771",
+      "source": "two-public-sources",
+      "note": "The farm site states 1750 Lake Avenue Southeast, Largo. Census matched 1750 LAKE AVE SE, LARGO, FL, 33771."
+    },
+    "florida-fall-festivals-2026\tSweet Season Farms Corn Maze and Fall Fun Festival": {
+      "address": "2260 Horn Rd, Milton, FL 32570",
+      "source": "two-public-sources",
+      "note": "The farm site states 2260 Horn Road. Census matched 2260 HORN RD, MILTON, FL, 32570."
+    },
+    "florida-fall-festivals-2026\tAunt Louise's Farm Fall Farm Days": {
+      "address": "8101 Waukeenah Hwy, Monticello, FL 32344",
+      "source": "two-public-sources",
+      "note": "The farm site states 8101 Waukeenah Hwy, Monticello, FL 32344. Census matched the same line."
+    },
+    "florida-fall-festivals-2026\tLights at Spooky Point": {
+      "address": "401 N Tamiami Trail, Osprey, FL 34229",
+      "source": "two-public-sources",
+      "note": "Selby's event page and the Wikipedia infobox both state 401 North Tamiami Trail, Osprey. Census matched 401 TAMIAMI TRL, OSPREY, FL, 34229."
+    },
+    "florida-fall-festivals-2026\tParktoberfest at The Bay": {
+      "address": "1055 Boulevard of the Arts, Sarasota, FL 34236",
+      "source": "two-public-sources",
+      "note": "The event is on The Oval at The Bay. That park's verified address is 1055 Boulevard of the Arts, and Census matches it."
+    },
+    "florida-fall-festivals-2026\tOktoberfest Tampa": {
+      "address": "600 N Ashley Dr, Tampa, FL 33602",
+      "source": "two-public-sources",
+      "note": "The event note names Curtis Hixon Waterfront Park. That park's verified address is 600 N Ashley Dr, Tampa, FL 33602, and Census matches it."
+    },
+    "florida-fall-festivals-2026\tHalloween Horror Nights 35": {
+      "address": "6000 Universal Blvd, Orlando, FL 32819",
+      "source": "two-public-sources",
+      "note": "Place Details for Universal Studios Florida and the Census geocoder both match 6000 Universal Blvd, Orlando, FL 32819."
+    },
+    "florida-fall-festivals-2026\tPensacola Interstate Fair": {
+      "address": "6655 W Mobile Hwy, Pensacola, FL 32526",
+      "source": "two-public-sources",
+      "note": "The fair site states the physical address 6655 W. Mobile Hwy, Pensacola, FL 32526. Census matched 6655 MOBILE HWY, PENSACOLA, FL, 32526. The Nine Mile Road line on the same page is the mailing address."
+    },
+    "things-to-do-daytona-beach-summer-2026\tThe boardwalk and pier at night": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A boardwalk and pier to stroll, not one building door.",
+      "mapQuery": "Daytona Beach Boardwalk, Daytona Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Daytona%20Beach%20Boardwalk%2C%20Daytona%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-daytona-beach-summer-2026\tThe Fairchild Oak and the content circuit": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A state park and a trail tree, not one building door.",
+      "mapQuery": "Bulow Creek State Park, Ormond Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Bulow%20Creek%20State%20Park%2C%20Ormond%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-panama-city-beach-summer-2026\tFree concerts at Aaron Bessant Park": {
+      "area": true,
+      "reviewed": true,
+      "reason": "An outdoor concert lawn, not one building door.",
+      "mapQuery": "Aaron Bessant Park, Panama City Beach, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Aaron%20Bessant%20Park%2C%20Panama%20City%20Beach%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-cortez-florida\tFISH Preserve": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A nature preserve, not one building door.",
+      "mapQuery": "FISH Preserve, Cortez, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=FISH%20Preserve%2C%20Cortez%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-longboat-key-florida\tPublic beach access at 4001 Gulf of Mexico Drive": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A public beach access, not a building door. Census did not return a ZIP, so no street line is shown.",
+      "mapQuery": "4001 Gulf of Mexico Drive, Longboat Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=4001%20Gulf%20of%20Mexico%20Drive%2C%20Longboat%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-longboat-key-florida\tQuick Point Nature Preserve": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A nature preserve, not one building door.",
+      "mapQuery": "Quick Point Nature Preserve, Longboat Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Quick%20Point%20Nature%20Preserve%2C%20Longboat%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-in-venice-florida\tCaspersen Beach Park": {
+      "area": true,
+      "reviewed": true,
+      "reason": "A beach park, not one building door.",
+      "mapQuery": "Caspersen Beach, Venice, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Caspersen%20Beach%2C%20Venice%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "things-to-do-daytona-beach-summer-2026\tCrabby Joe's on Sunglow Pier": {
+      "address": "3701 S Atlantic Ave, Daytona Beach Shores, FL 32118",
+      "source": "two-public-sources",
+      "name": "Crabby Joe's Deck and Grill",
+      "note": "The restaurant site and the Daytona Beach tourism listing both state 3701 South Atlantic Avenue, Daytona Beach Shores, FL 32118, and both place the restaurant on Sunglow Pier. Census matched 3701 S ATLANTIC AVE, DAYTONA BEACH SHORES, FL, 32118.",
+      "sourceUrl": "https://www.crabbyjoesdaytona.com/",
+      "secondSourceUrl": "https://www.daytonabeach.com/listings/crabby-joes-deck-%26-grill-(pier)/3664/"
+    },
+    "things-to-do-naples-summer-2026\tAn FC Naples match night": {
+      "address": "3940 City Gate Blvd N, Naples, FL 34117",
+      "source": "two-public-sources",
+      "name": "Paradise Coast Sports Complex",
+      "note": "FC Naples says the club plays at Paradise Coast Sports Complex, 3940 City Gate Blvd N, Naples, FL 34117. The complex's home-game listing uses that same street. Census matched 3940 CITY GATE BLVD N, NAPLES, FL, 34117. The complex FAQ also lists a stadium pin at 3565 City Gate Blvd S, which the Census geocoder does not recognize.",
+      "sourceUrl": "https://www.fcnaples.com/tickets-2/",
+      "secondSourceUrl": "https://playparadisecoast.com/event/fc-naples-home-game-vs-richmond-kickers/"
+    },
+    "things-to-do-naples-summer-2026\tA sunset cruise from Tin City": {
+      "address": "1200 5th Ave S, Naples, FL 34102",
+      "source": "two-public-sources",
+      "name": "Tin City",
+      "note": "Tin City's contact page and the Visit Naples listing both state 1200 5th Ave S, Naples, FL 34102. Census matched 1200 5TH AVE S, NAPLES, FL, 34102.",
+      "sourceUrl": "https://www.tincityofnaples.com/contact-tin-city-waterfront-shops",
+      "secondSourceUrl": "https://www.visitnaplesfl.com/listing/tin-city"
+    },
+    "fall-events-orlando-2026\tEDC Orlando": {
+      "address": "287 S Tampa Ave, Orlando, FL 32805",
+      "source": "two-public-sources",
+      "name": "Tinker Field",
+      "note": "EDC's location page states Tinker Field is at 287 S Tampa Ave, Orlando, FL 32805. The UCF RICHES record of the stadium states 287 South Tampa Avenue. Census matched 287 S TAMPA AVE, ORLANDO, FL, 32805. The National Register entry uses 1610 W Church St, and Camping World Stadium's office address is 1 Citrus Bowl Pl. The event's published door is 287 S Tampa Ave.",
+      "sourceUrl": "https://orlando.edc.com/travel/location/",
+      "secondSourceUrl": "https://richesmi.cah.ucf.edu/omeka/items/show/1788"
+    },
+    "things-to-do-in-venice-florida\tVenice Museum": {
+      "address": "351 Nassau St S, Venice, FL 34285",
+      "source": "two-public-sources",
+      "name": "Venice History Museum",
+      "note": "The City of Venice museum page and Venice Heritage both state 351 Nassau Street South, Venice, FL 34285, the historic Triangle Inn. Census matched 351 NASSAU ST S, VENICE, FL, 34285.",
+      "sourceUrl": "https://www.venicegov.com/government/historical-resources/venice-museum",
+      "secondSourceUrl": "https://veniceheritage.org/venice-museum/"
+    },
+    "florida-fall-festivals-2026\tFox Squirrel Corn Maze and Pumpkin Patch": {
+      "address": "6151 Varn Rd, Plant City, FL 33565",
+      "source": "two-public-sources",
+      "name": "Fox Squirrel Corn Maze",
+      "note": "The farm contact page states 6151 Varn Rd, Plant City, FL 33565. The Florida Division of Corporations annual report for Fox Squirrel Corn Maze LLC lists that same principal place of business. Census matched 6151 VARN RD, PLANT CITY, FL, 33565.",
+      "sourceUrl": "https://foxsquirrelcornmaze.com/contact-us/",
+      "secondSourceUrl": "https://search.sunbiz.org/Inquiry/CorporationSearch/GetDocument?aggregateId=flal-l22000313073-a5a3831c-39a3-489e-8714-e466175c954d&formatType=PDF&transactionId=l22000313073-1c9bcf8c-691b-4307-b496-f21988214e0d"
+    },
+    "florida-fall-festivals-2026\tJacksonville Pumpkin Festival at Amazing Grace Family Farms": {
+      "address": "4251 State Road 21, Green Cove Springs, FL 32043",
+      "source": "two-public-sources",
+      "name": "Amazing Grace Family Farms",
+      "note": "The farm's current location page and Fresh From Florida both state 4251 State Road 21, Green Cove Springs, FL 32043. Census matched 4251 STATE HWY 21, GREEN COVE SPRINGS, FL, 32043. An older contact block on the farm site still shows 2899 Wisteria Farms Road, which Census does not recognize.",
+      "sourceUrl": "https://www.agcropmaze.com/find-farm",
+      "secondSourceUrl": "https://followfreshfromflorida.com/agritourism/amazing-grace-crop-maze"
+    },
+    "florida-fall-festivals-2026\tTampa Pig Jig": {
+      "address": "1001 N Boulevard, Tampa, FL 33607",
+      "source": "two-public-sources",
+      "name": "Julian B. Lane Riverfront Park",
+      "note": "The organizer places the festival at Julian B. Lane Park. The City of Tampa park page states 1001 N Boulevard, Tampa, FL 33607. Census matched 1001 NORTH BLVD, TAMPA, FL, 33607, and OpenStreetMap has house 1001 on North Boulevard in 33607.",
+      "sourceUrl": "https://www.tampa.gov/parks-and-recreation/featured-parks/riverfrontpark",
+      "secondSourceUrl": "https://www.tampa.gov/parks-and-recreation/activities-recreation/aquatics/splash-pads"
+    },
+    "orlando-halloween-food-2026\tRigatoni Ritual Pie": {
+      "address": "6000 Universal Blvd, Orlando, FL 32819",
+      "label": "Louie's Italian Restaurant, inside Universal Studios Florida, 6000 Universal Blvd, Orlando, FL 32819",
+      "mapsName": "Universal Studios Florida",
+      "source": "two-public-sources",
+      "name": "Louie's Italian Restaurant",
+      "note": "Louie's is inside Universal Studios Florida and has no separate guest door. Universal's directions page gives Universal Studios Florida the guest address 6000 Universal Boulevard, Orlando, FL 32819. Visit Orlando lists Universal Studios Florida at the same street. The Florida food-license record SEA5805878 uses 1000 Universal Studios Plaza, which the Census geocoder does not match.",
+      "sourceUrl": "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information/directions-and-parking",
+      "secondSourceUrl": "https://www.visitorlando.com/listing/universal-studios-florida/31411/"
+    },
+    "florida-fall-festivals-2026\tTour of Destruction Halloween Edition": {
+      "address": "21050 E State Road 64, Bradenton, FL 34212",
+      "source": "two-public-sources",
+      "name": "Freedom Factory",
+      "note": "Freedom Factory's 2026 Tour of Destruction ticket listing states 21050 E. State Road 64, Bradenton, FL 34212. The venue site states 21050 FL-64, Bradenton, FL 34212, and lists October 30 and 31 as Tour of Destruction. Census matched both lines to 21050 E STATE RD 64, BRADENTON, FL, 34212.",
+      "sourceUrl": "https://tickets.thefoat.com/FreedomFactory/event-249185/Freedom+Factory+Tour+of+Destruction+-+October/",
+      "secondSourceUrl": "https://www.freedomfactoryusa.com/"
+    }
+  }
+}

@@ -1,0 +1,995 @@
+{
+  "title": "Universal Orlando Christmas 2026",
+  "description": "Find your Grinch moment, choose your holiday food stops and give each park the time it deserves.",
+  "intro": "<section class=\"wf-intro-copy\"><p>Universal Orlando’s holiday celebration runs <strong>November 14, 2026 through January 3, 2027</strong>. Choose <strong>Islands of Adventure</strong> for the Grinch and Hogwarts at night, <strong>Universal Studios Florida</strong> for the holiday parade and food kiosks, or <strong>Epic Universe</strong> for Nintendo, Snoggletog and a separate day of seasonal food. CityWalk adds an evening option outside the theme park gates. The core in-park celebration is included with admission to the park you visit; meals, drinks and special experiences cost extra. <sup class=\"refs\"><a class=\"ref\" href=\"#source-1\" aria-label=\"Source 1\">1</a></sup></p>\n<p>Our recommendation: give Universal Studios Florida and Islands of Adventure one day each when you can. Add a third day for Epic Universe. With only one day, pick your main holiday experience first and let that determine your ticket. Trying to taste everything across three parks leaves too much of the day between the places you came to enjoy.</p>\n<div class=\"callout\"><strong>Start with the experience, then buy the ticket.</strong><p>The Grinch is at Islands of Adventure. The Macy’s holiday parade is at Universal Studios Florida. Mario’s snowman cake is at Epic Universe. A ticket to one does not automatically admit you to the others.</p></div>\n\n</section>",
+  "sections": [
+    {
+      "id": "choose-your-park",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"choose-your-park\">Choose your park</h2>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<div class=\"table-wrap\"><table>\n<thead>\n<tr>\n<th>Your priority</th>\n<th>Start here</th>\n<th>Build the day around</th>\n<th>The trade-off</th>\n</tr>\n</thead>\n<tbody><tr>\n<td>The Grinch and colorful family photos</td>\n<td>Islands of Adventure</td>\n<td>Seuss Landing, a Grinchmas show and a Grinch treat</td>\n<td>Character queues compete with ride time</td>\n</tr>\n<tr>\n<td>A traditional Christmas parade</td>\n<td>Universal Studios Florida</td>\n<td>New York food kiosks, the holiday parade and Diagon Alley</td>\n<td>The parade fixes part of your afternoon or evening</td>\n</tr>\n<tr>\n<td>Nintendo and dragons</td>\n<td>Epic Universe</td>\n<td>Snowman Cake at Toadstool Cafe, Isle of Berk and Celestial Park after dark</td>\n<td>Plan it as its own park day</td>\n</tr>\n<tr>\n<td>Harry Potter holiday atmosphere</td>\n<td>Islands of Adventure and Universal Studios Florida</td>\n<td>Hogsmeade and Diagon Alley</td>\n<td>Same-day entry to both needs the right ticket</td>\n</tr>\n<tr>\n<td>A festive evening without a theme park ticket</td>\n<td>Universal CityWalk</td>\n<td>Dinner and Green and Red Coconut Club</td>\n<td>Food, drinks and parking can still cost money</td>\n</tr>\n</tbody></table></div>\n"
+        }
+      ]
+    },
+    {
+      "id": "islands-of-adventure",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"islands-of-adventure\" class=\"wf-pick-heading\"><span class=\"wf-number\" aria-hidden=\"true\">01</span><span>Islands of Adventure</span></h2>"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"islands\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "photo",
+          "key": "seuss-landing",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"islands\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"grinchmas-seuss-landing\" tabindex=\"-1\">Make Seuss Landing the first holiday decision</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Grinchmas brings the <strong>Grinchmas Who-liday Spectacular</strong>, Grinch encounters, roaming Whos and the Who-ville Tree Lot to this park. Check the Universal Orlando app for that day’s show and character information before joining a long queue. Choose which matters more to your group: meeting the Grinch or watching the show. Build around that choice first. <sup class=\"refs\"><a class=\"ref\" href=\"#source-3\" aria-label=\"Source 3\">3</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>For families, put the desired character experience before a long string of unrelated rides. Give children a snack and restroom break before entering a queue. A child who wants the colorful surroundings may enjoy a shorter Seuss Landing visit more than a schedule dominated by one meet and greet.</p>\n"
+        },
+        {
+          "kind": "photoPair",
+          "photos": [
+            {
+              "kind": "photo",
+              "key": "green-eggs-ham",
+              "role": "tile"
+            },
+            {
+              "kind": "photo",
+              "key": "caro-seuss-el",
+              "role": "tile"
+            }
+          ]
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"grinch-treats\" tabindex=\"-1\">Follow the Grinch treat to the right place</h3>\n"
+        },
+        {
+          "kind": "foodStop",
+          "id": "hop-on-pop",
+          "blocks": [
+            {
+              "kind": "html",
+              "html": "<div class=\"wf-stop-top\"><p class=\"wf-kicker\">Seuss Landing · Hop on Pop</p><a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"islands\"><span aria-hidden=\"true\">↑</span> Back to map</a></div>"
+            },
+            {
+              "kind": "html",
+              "html": "<h4>Very Grinchmas Ice Cream Sandwich</h4>"
+            },
+            {
+              "kind": "html",
+              "html": "<p>For a Grinch dessert, look for the <strong>Very Grinchmas Ice Cream Sandwich</strong> at <strong>Hop on Pop Ice Cream Shop</strong> in Seuss Landing. <strong>BAH! Jam Tart</strong> is another seasonal Seuss Landing sweet. Check the serving menu before ordering, then take your photo before the ice cream starts to melt.</p>"
+            },
+            {
+              "kind": "html",
+              "html": "<p>Treat the sandwich as a deliberate dessert stop rather than another thing to carry through a queue. If your group is sharing, decide who wants the first photo before the ice cream has other plans.</p>\n"
+            }
+          ]
+        },
+        {
+          "kind": "foodStop",
+          "id": "green-eggs-and-ham",
+          "blocks": [
+            {
+              "kind": "html",
+              "html": "<div class=\"wf-stop-top\"><p class=\"wf-kicker\">Seuss Landing · Green Eggs &amp; Ham Cafe</p><a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"islands\"><span aria-hidden=\"true\">↑</span> Back to map</a></div>"
+            },
+            {
+              "kind": "html",
+              "html": "<h4>A savory stop between sweets</h4>"
+            },
+            {
+              "kind": "html",
+              "html": "<p>Make this your savory Seuss Landing break before the Grinch dessert. Check the serving menu for the day’s tot toppings, then share a bowl if a full meal would spoil the next stop.</p>"
+            }
+          ]
+        },
+        {
+          "kind": "photo",
+          "key": "hogsmeade-rooftops",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"islands\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"hogsmeade-christmas\" tabindex=\"-1\">Keep Hogsmeade for a second holiday chapter</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Hogsmeade offers holiday entertainment and <strong>The Magic of Christmas at Hogwarts Castle</strong>. The official guide describes the castle projections as running from dusk to park close; use the current app and posted information to plan your visit. <sup class=\"refs\"><a class=\"ref\" href=\"#source-3\" aria-label=\"Source 3\">3</a> <a class=\"ref\" href=\"#source-4\" aria-label=\"Source 4\">4</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Make this the final neighborhood of an Islands of Adventure day if the castle is your main evening priority. For a two-park day ending at Universal Studios Florida’s parade, choose whether the castle is important enough to justify returning later. Another crossing can turn a relaxed evening into a closing-time calculation.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"islands\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"grinch-character-breakfast\" tabindex=\"-1\">Is the Grinch breakfast worth adding</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>The <strong>Grinch &amp; Friends Character Breakfast</strong> is at <strong>Circus McGurkus Cafe Stoo-pendous</strong>. Universal currently lists <strong>$64.99 for adults and $38.99 for children, plus tax</strong>, with an automatic <strong>20% gratuity already included in the displayed prices</strong>. Separate same-date Islands of Adventure admission is required. Reservations and availability apply. <sup class=\"refs\"><a class=\"ref\" href=\"#source-3\" aria-label=\"Source 3\">3</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Choose it when the character meal is part of the trip’s purpose. For a group of two adults and one child, those displayed prices total <strong>$168.97 before tax</strong>, in addition to park admission. That calculation is a planning example, not a quote for a selected reservation. Skip the upgrade if your group would rather spend its budget on rides and a few snacks.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<aside class=\"wf-watch\"><span class=\"wf-watch-label\">Seen from local creators</span><a href=\"https://www.instagram.com/reel/DfztWYjRbw8/\" target=\"_blank\" rel=\"noopener noreferrer\">See the Grinch ice cream sandwich <span aria-hidden=\"true\">↗︎</span></a><small>@walruscarpkirk</small></aside>"
+        }
+      ]
+    },
+    {
+      "id": "universal-studios-florida",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"universal-studios-florida\" class=\"wf-pick-heading\"><span class=\"wf-number\" aria-hidden=\"true\">02</span><span>Universal Studios Florida</span></h2>"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"studios\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "photo",
+          "key": "universal-holiday-parade",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"studios\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"studios-holiday-parade\" tabindex=\"-1\">Anchor the day around the holiday parade</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Universal’s Holiday Parade featuring Macy’s</strong> belongs in this park. Find the current start time before committing to dinner. Universal’s official planning guide recommends reaching your chosen viewing area about <strong>25 to 30 minutes early</strong>. Grab food and finish restroom visits before settling into the viewing area. <sup class=\"refs\"><a class=\"ref\" href=\"#source-2\" aria-label=\"Source 2\">2</a> <a class=\"ref\" href=\"#source-4\" aria-label=\"Source 4\">4</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>For a parade-focused visit, resist the temptation to add one more distant stop immediately beforehand. Pick a place along the posted route, stay with your group and follow team member directions. The useful decision is whether a clear view matters more than squeezing in another attraction.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"studios\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"new-york-holiday-kiosks\" tabindex=\"-1\">Eat around New York and save room for one sweet</h3>\n"
+        },
+        {
+          "kind": "photo",
+          "key": "holiday-food-selection",
+          "role": "pick"
+        },
+        {
+          "kind": "photo",
+          "key": "holiday-sweets-drinks",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<p>The 2026 announcement confirms new holiday kiosks in <strong>New York</strong>, with savory dishes and seasonal desserts. Choose one savory item and one dessert to start. Buy another only if you still want it. A list of interesting snacks is a menu for the group, not a requirement for each person. <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Visit the <strong>Holiday Tribute Store</strong> while you are already in this part of the park. Its 2026 presentation celebrates the history of the Macy’s Thanksgiving Day Parade. It makes a sensible shopping stop on a Studios day rather than a reason to switch parks by itself. <sup class=\"refs\"><a class=\"ref\" href=\"#source-2\" aria-label=\"Source 2\">2</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"studios\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"diagon-alley-christmas\" tabindex=\"-1\">Add Diagon Alley when the day has room</h3>\n"
+        },
+        {
+          "kind": "photo",
+          "key": "diagon-dragon",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Diagon Alley has Christmas decorations and seasonal entertainment. It is a different Wizarding World location from Hogsmeade, and the two should not be treated as interchangeable pins on a map. <sup class=\"refs\"><a class=\"ref\" href=\"#source-2\" aria-label=\"Source 2\">2</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>If the parade is the main reason you booked this park, fit Diagon Alley into the day without sacrificing that viewing plan. If Harry Potter is the main reason, consider giving the two original parks separate days instead of compressing both into one.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<aside class=\"wf-watch\"><span class=\"wf-watch-label\">Seen from local creators</span><a href=\"https://www.instagram.com/reel/Dfz0pUFFEtC/\" target=\"_blank\" rel=\"noopener noreferrer\">Watch the holiday sweets and drinks roundup <span aria-hidden=\"true\">↗︎</span></a><small>@soflofooodie</small></aside>"
+        }
+      ]
+    },
+    {
+      "id": "epic-universe",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"epic-universe\" class=\"wf-pick-heading\"><span class=\"wf-number\" aria-hidden=\"true\">03</span><span>Epic Universe</span></h2>"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"epic\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "photo",
+          "key": "nintendo-day",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"epic-worlds\" tabindex=\"-1\">Give Nintendo and Snoggletog their own day</h3>\n"
+        },
+        {
+          "kind": "photoPair",
+          "photos": [
+            {
+              "kind": "photo",
+              "key": "epic-entrance",
+              "role": "tile"
+            },
+            {
+              "kind": "photo",
+              "key": "berk-portal",
+              "role": "tile"
+            }
+          ]
+        },
+        {
+          "kind": "html",
+          "html": "<p>The 2026 celebration adds holiday decorations in <strong>SUPER NINTENDO WORLD</strong> and <strong>How to Train Your Dragon – Isle of Berk</strong>. Celestial Park also has seasonal decorations and fountain programming. These are the strongest reasons to add an Epic day to an existing Universal holiday trip. <sup class=\"refs\"><a class=\"ref\" href=\"#source-1\" aria-label=\"Source 1\">1</a> <a class=\"ref\" href=\"#source-4\" aria-label=\"Source 4\">4</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Choose one food priority before entering each world. Toadstool Cafe makes sense for the Mario cake; Isle of Berk supplies a savory holiday option; Frosty Moon gives you an ice cream stop in Celestial Park. You do not need to return to the center for dessert after every portal visit.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>The food stops from your saved reels</h3>\n"
+        },
+        {
+          "kind": "foodStop",
+          "id": "toadstool-cafe",
+          "blocks": [
+            {
+              "kind": "html",
+              "html": "<div class=\"wf-stop-top\"><p class=\"wf-kicker\">SUPER NINTENDO WORLD · Toadstool Cafe</p><a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"epic\"><span aria-hidden=\"true\">↑</span> Back to map</a></div>"
+            },
+            {
+              "kind": "html",
+              "html": "<h4>Mario Snowman Cake</h4>"
+            },
+            {
+              "kind": "html",
+              "html": "<p>Snowman Cake at Toadstool Cafe is the Mario dessert to look for in SUPER NINTENDO WORLD. The creator caption describes cookie butter vanilla mousse, cinnamon streusel cake, a brownie Christmas tree and a chocolate Super Star. The small red Mario hat is plastic, so remove it before eating.</p>\n"
+            }
+          ]
+        },
+        {
+          "kind": "foodStop",
+          "id": "frosty-moon",
+          "blocks": [
+            {
+              "kind": "html",
+              "html": "<div class=\"wf-stop-top\"><p class=\"wf-kicker\">Celestial Park · Frosty Moon</p><a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"epic\"><span aria-hidden=\"true\">↑</span> Back to map</a></div>"
+            },
+            {
+              "kind": "html",
+              "html": "<h4>The Winter Owl</h4>"
+            },
+            {
+              "kind": "html",
+              "html": "<p>Look for the seasonal owl sundae at Frosty Moon in Celestial Park. The souvenir cup is the keepsake; check the serving menu for the holiday recipe and what is included with your order.</p>\n"
+            }
+          ]
+        },
+        {
+          "kind": "photo",
+          "key": "isle-of-berk",
+          "role": "pick"
+        },
+        {
+          "kind": "foodStop",
+          "id": "hooligans-grog-and-gruel",
+          "blocks": [
+            {
+              "kind": "html",
+              "html": "<div class=\"wf-stop-top\"><p class=\"wf-kicker\">Isle of Berk · Hooligan’s Grog &amp; Gruel</p><a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"epic\"><span aria-hidden=\"true\">↑</span> Back to map</a></div>"
+            },
+            {
+              "kind": "html",
+              "html": "<h4>Snoggletog Harvest Mac and Cheese Cone</h4>"
+            },
+            {
+              "kind": "html",
+              "html": "<p><strong>The Snoggletog Harvest Mac and Cheese Cone</strong> is confirmed for Isle of Berk. The supplied creator caption places it at Hooligan’s Grog &amp; Gruel. Use the app or ask in the land for the current serving point, since seasonal locations and availability can change. This is the savory counterweight to a day that could otherwise become three desserts and a coffee. <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a> <a class=\"ref\" href=\"#source-R3\" aria-label=\"Source R3\">R3</a></sup></p>\n"
+            }
+          ]
+        },
+        {
+          "kind": "photo",
+          "key": "wizarding-paris-night",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"epic\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"celestial-park-after-dark\" tabindex=\"-1\">Finish where you want your evening photos</h3>\n"
+        },
+        {
+          "kind": "photoPair",
+          "photos": [
+            {
+              "kind": "photo",
+              "key": "wizarding-paris-facade",
+              "role": "tile"
+            },
+            {
+              "kind": "photo",
+              "key": "ministry-portal",
+              "role": "tile"
+            }
+          ]
+        },
+        {
+          "kind": "html",
+          "html": "<p>Decide whether your last hour belongs to Celestial Park or your favorite world. If lights and a relaxed exit matter most, leave room for Celestial Park instead of planning a final cross-park food mission. Check that day’s programming and venue hours before fixing a dinner time.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<aside class=\"wf-watch\"><span class=\"wf-watch-label\">Seen from local creators</span><a href=\"https://www.instagram.com/reel/Df0JZt1juVY/\" target=\"_blank\" rel=\"noopener noreferrer\">See the Epic Universe holiday food picks <span aria-hidden=\"true\">↗︎</span></a><small>@walruscarpkirk</small></aside>"
+        }
+      ]
+    },
+    {
+      "id": "universal-citywalk",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"universal-citywalk\" class=\"wf-pick-heading\"><span class=\"wf-number\" aria-hidden=\"true\">04</span><span>Universal CityWalk</span></h2>"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"citywalk\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "photo",
+          "key": "citywalk",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<a class=\"wf-map-return\" href=\"#explore-the-park\" data-return-park=\"citywalk\"><span aria-hidden=\"true\">↑</span> Back to map</a>"
+        },
+        {
+          "kind": "html",
+          "html": "<h3 id=\"green-red-coconut-club\" tabindex=\"-1\">Green and Red Coconut Club for an evening outside the parks</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Universal’s current venue page identifies the 2026 seasonal setting as an alpine pub and Christmas market; the accompanying official imagery names it <strong>Haus Noël</strong>. Admission is listed as <strong>free</strong>, with live entertainment on Fridays and Saturdays, subject to change. Alcohol requires age 21 or older and valid photo ID. Check the venue’s own hours in the app rather than using CityWalk’s overall opening window. <sup class=\"refs\"><a class=\"ref\" href=\"#source-8\" aria-label=\"Source 8\">8</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>The official club guide describes Red Coconut Club as generally open to all ages, with event-specific exceptions. Confirm the policy for your night before making it the main family destination. A venue allowing children and a venue being the best fit for your child are different decisions. <sup class=\"refs\"><a class=\"ref\" href=\"#source-9\" aria-label=\"Source 9\">9</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Give CityWalk roughly <strong>two to three hours</strong> for dinner and the club if it is your whole outing. That is our planning allowance, not a published event duration. If it is a bonus after a park day, keep it optional. You can enjoy the parade or castle show without committing tired children to another stop.</p>\n"
+        }
+      ]
+    },
+    {
+      "id": "holiday-food-shortlist",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"holiday-food-shortlist\">Holiday food shortlist</h2>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p class=\"muted\">Filter the shortlist by park, then choose one savory stop and one sweet. Check the serving menu for that day’s prices and availability.</p>\n\n"
+        },
+        {
+          "kind": "foodFilters"
+        },
+        {
+          "kind": "html",
+          "html": "<div class=\"food-list\" data-universal-food-table=\"true\">\n\n<div class=\"table-wrap\"><table>\n<thead>\n<tr>\n<th>Park</th>\n<th>Food or drink</th>\n<th>Where to look</th>\n<th>Choose it for</th>\n</tr>\n</thead>\n<tbody><tr data-park=\"islands\">\n<td>Islands</td>\n<td>Very Grinchmas Ice Cream Sandwich</td>\n<td>Seuss Landing; Hop on Pop identified by the creator</td>\n<td>A Grinch dessert photo <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a> <a class=\"ref\" href=\"#source-R1\" aria-label=\"Source R1\">R1</a></sup></td>\n</tr>\n<tr data-park=\"islands\">\n<td>Islands</td>\n<td>BAH! Jam Tart</td>\n<td>Seuss Landing</td>\n<td>A second seasonal sweet to compare <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr data-park=\"islands\">\n<td>Islands</td>\n<td>Hot Butterbeer</td>\n<td>Hogsmeade</td>\n<td>A warm drink during the holiday visit <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr data-park=\"studios\">\n<td>Studios</td>\n<td>Fire-roasted holiday striploin</td>\n<td>New York holiday kiosks</td>\n<td>A savory choice before dessert <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr data-park=\"studios\">\n<td>Studios</td>\n<td>Potato pancakes and pierogies</td>\n<td>New York holiday kiosks</td>\n<td>A savory alternative to another sweet <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr data-park=\"studios\">\n<td>Studios</td>\n<td>Christmas tree waffles</td>\n<td>New York holiday kiosks</td>\n<td>A seasonal dessert shape <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr data-park=\"studios\">\n<td>Studios</td>\n<td>Red-nose reindeer donuts</td>\n<td>New York holiday kiosks</td>\n<td>A festive sweet for the snack list <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr data-park=\"studios\">\n<td>Studios</td>\n<td>Earl the Squirrel’s hazelnut dot cake</td>\n<td>New York holiday kiosks</td>\n<td>An Earl-themed dessert <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr id=\"gingy-gingerbread-cake\" tabindex=\"-1\" data-park=\"studios\">\n<td>Studios</td>\n<td>Gingy’s Gingerbread Streusel Cake</td>\n<td>DreamWorks Imagination Cafe</td>\n<td>A gingerbread option away from the kiosk list <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr data-park=\"epic\">\n<td>Epic</td>\n<td>Snowman Cake Mario</td>\n<td>Toadstool Cafe, SUPER NINTENDO WORLD</td>\n<td>The Mario dessert shown in your reel <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a> <a class=\"ref\" href=\"#source-R3\" aria-label=\"Source R3\">R3</a></sup></td>\n</tr>\n<tr data-park=\"epic\">\n<td>Epic</td>\n<td>The Winter Owl</td>\n<td>Frosty Moon, Celestial Park</td>\n<td>Ice cream with a souvenir cup <sup class=\"refs\"><a class=\"ref\" href=\"#source-6\" aria-label=\"Source 6\">6</a></sup></td>\n</tr>\n<tr data-park=\"epic\">\n<td>Epic</td>\n<td>Snoggletog Harvest Mac and Cheese Cone</td>\n<td>Isle of Berk</td>\n<td>A savory seasonal stop <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a> <a class=\"ref\" href=\"#source-R3\" aria-label=\"Source R3\">R3</a></sup></td>\n</tr>\n<tr id=\"le-gobelet-noir\" tabindex=\"-1\" data-park=\"epic\">\n<td>Epic</td>\n<td>Noir Holiday Supper</td>\n<td>Le Gobelet Noir, Ministry of Magic</td>\n<td>A holiday meal in wizarding Paris <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n<tr id=\"burning-blade-tavern\" tabindex=\"-1\" data-park=\"epic\">\n<td>Epic</td>\n<td>Winter Hunter Mule</td>\n<td>Burning Blade Tavern, Dark Universe</td>\n<td>A seasonal cocktail for adults 21 and older <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></td>\n</tr>\n</tbody></table></div>\n</div>\n\n"
+        },
+        {
+          "kind": "photo",
+          "key": "butterbeer-cart",
+          "role": "pick"
+        }
+      ]
+    },
+    {
+      "id": "tickets-without-the-expensive-mixup",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"tickets-without-the-expensive-mixup\">Tickets without the expensive mix-up</h2>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<div class=\"table-wrap\"><table>\n<thead>\n<tr>\n<th>Plan</th>\n<th>What to check before buying</th>\n</tr>\n</thead>\n<tbody><tr>\n<td>One park for the whole day</td>\n<td>Admission covers the exact park and visit date you want</td>\n</tr>\n<tr>\n<td>Studios and Islands on the same day</td>\n<td>The product specifically grants same-day access to both parks</td>\n</tr>\n<tr>\n<td>Hogwarts Express</td>\n<td>Park-to-Park access between Studios and Islands is required <sup class=\"refs\"><a class=\"ref\" href=\"#source-10\" aria-label=\"Source 10\">10</a></sup></td>\n</tr>\n<tr>\n<td>Epic Universe</td>\n<td>Epic is explicitly included for the planned day; do not infer access from an older ticket name</td>\n</tr>\n<tr>\n<td>Holiday Tour or Grinch breakfast</td>\n<td>Separate reservation and payment, plus the required park admission</td>\n</tr>\n<tr>\n<td>Express</td>\n<td>The selected parks, date and covered attractions match your plan; it is separate from park admission <sup class=\"refs\"><a class=\"ref\" href=\"#source-11\" aria-label=\"Source 11\">11</a></sup></td>\n</tr>\n</tbody></table></div>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Universal currently sells several ticket structures, including products with Epic access and products with a more limited allocation of days. Compare the actual inclusion list and total price, not just the words “three days.” <sup class=\"refs\"><a class=\"ref\" href=\"#source-12\" aria-label=\"Source 12\">12</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>The <strong>Universal Holiday Tour</strong> lasts about <strong>two and a half hours</strong> and requires a reservation. The current official pages list Grinch, Max and Santa encounters, reserved Grinchmas seating, and optional reserved parade viewing. Park admission is separate. Check the exact product’s requirements and inclusions before buying. <sup class=\"refs\"><a class=\"ref\" href=\"#source-2\" aria-label=\"Source 2\">2</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>For a food-focused day, decide how much paid queue reduction your actual ride list needs. Do not buy Express assuming it solves restaurant waits, every character line, or every holiday viewing need.</p>\n"
+        }
+      ]
+    },
+    {
+      "id": "park-routes-you-can-actually-use",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"park-routes-you-can-actually-use\">Park routes you can actually use</h2>\n"
+        },
+        {
+          "kind": "photo",
+          "key": "epic-overview",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<p>These are suggested sequences, not live optimized routes. Choose showtimes and dining availability in the official app first. All timing allowances below are editorial estimates. Queue length, weather, mobility needs and park hours can change the plan.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>One day with the Grinch as the priority</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<ol>\n<li><strong>At opening:</strong> enter Islands of Adventure and check the Grinch experience and show options. Choose the most important one.</li>\n<li><strong>Morning:</strong> stay in Seuss Landing for the selected experience, trees and photos. Put a snack or restroom break before the next queue.</li>\n<li><strong>Lunch:</strong> take a proper meal break. Check Hop on Pop’s current offering if the sandwich is on your list.</li>\n<li><strong>Afternoon:</strong> choose your rides and move toward Hogsmeade. Keep enough time for the evening priority.</li>\n<li><strong>After dusk:</strong> see the castle holiday presentation when operating. Skip CityWalk if the group is ready to leave.</li>\n</ol>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>One day with the parade as the priority</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<ol>\n<li><strong>Morning:</strong> start in Universal Studios Florida with your chosen attractions and a Diagon Alley visit.</li>\n<li><strong>Lunch and afternoon:</strong> work toward New York for a savory holiday kiosk stop and the Tribute Store.</li>\n<li><strong>Before the parade:</strong> finish food purchases and restroom visits, then follow the posted route to your viewing spot.</li>\n<li><strong>Afterward:</strong> use the remaining park hours for one nearby priority. Do not schedule an unverified late-night meal as a certainty.</li>\n</ol>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>One day for both original parks</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Choose this only with valid same-day admission to both. Start at Islands of Adventure for Seuss Landing, then move once to Universal Studios Florida for the parade. Budget a generous transfer window rather than scheduling a show immediately after a train ride or exit. If the Hogwarts Express queue is long, consider the permitted pedestrian route between the park entrances. Use current maps and access instructions.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>This plan intentionally prioritizes the Grinch and parade. Treat the Hogwarts castle presentation as a separate choice. If seeing all three is essential, two days gives you a more forgiving trip.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>One full Epic day</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<ol>\n<li><strong>Before arrival:</strong> check park hours, attraction priorities and current dining access for Toadstool Cafe.</li>\n<li><strong>First half:</strong> visit your preferred world. If Nintendo leads the day, group the cake stop with that visit.</li>\n<li><strong>Midday:</strong> leave room for a meal or the Snoggletog cone when visiting Isle of Berk. Avoid returning there solely for food after you have crossed the park.</li>\n<li><strong>Afternoon:</strong> keep your remaining worlds and attractions together where practical. Choose the churro or owl sundae if available and desired.</li>\n<li><strong>Evening:</strong> return to Celestial Park if its seasonal atmosphere is your preferred finish. Check programming rather than assuming a fountain time.</li>\n</ol>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>Two or three days</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>With <strong>two days</strong>, choose one original park per day, or pair the original parks on one day and give Epic the other. The second option requires the appropriate admission and accepts a shorter original-park experience. With <strong>three days</strong>, give each park a day. These are different experiences at different gates, not interchangeable additions to one shopping center visit.</p>\n"
+        }
+      ]
+    },
+    {
+      "id": "parking-and-arrival",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"parking-and-arrival\">Parking and arrival</h2>\n"
+        },
+        {
+          "kind": "photo",
+          "key": "universal-globe",
+          "role": "pick"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Studios, Islands and CityWalk:</strong> the shared garage address is <strong>6000 Universal Boulevard, Orlando, FL 32819</strong>. <strong>Epic parking:</strong> <strong>1001 Epic Boulevard, Orlando, FL 32819</strong>. Epic’s rideshare area is <strong>1201 Epic Boulevard</strong>. <sup class=\"refs\"><a class=\"ref\" href=\"#source-13\" aria-label=\"Source 13\">13</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>The official page currently lists <strong>regular self-parking at $35 per vehicle, tax included</strong>, both prepaid and at the toll plaza. Same-day parking can be used at the other Universal parking location with the required receipt or QR code and photo ID. <sup class=\"refs\"><a class=\"ref\" href=\"#source-13\" aria-label=\"Source 13\">13</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Free self-parking after 6 PM has exclusions:</strong> it does not apply at Epic Universe or on December 31, and other event restrictions can apply. It should not be used to advertise an entirely free Epic evening. <sup class=\"refs\"><a class=\"ref\" href=\"#source-13\" aria-label=\"Source 13\">13</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Allow time for parking, security and the walk to the gate. Epic requires a transfer from the original park area; do not write it into a route as a walk through CityWalk. Ask about current transport options and check your arrival instructions. Hotel parking is a separate consideration from the theme park garage price.</p>\n"
+        }
+      ]
+    },
+    {
+      "id": "budget-weather-and-family-choices",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"budget-weather-and-family-choices\">Budget weather and family choices</h2>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>Budget by choices rather than a misleading total</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Keep admission, parking, food, upgrades and souvenirs as separate lines. A food allowance of <strong>$35 per person</strong> is a personal spending cap you can choose, not a promise that it buys a particular meal and two desserts. For two people driving and paying the listed $35 regular parking, a chosen $70 food allowance plus parking is <strong>$105 before any food tax or gratuity</strong>, with admission and other purchases excluded.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>For lower spending, choose one park, a planned meal and one shared sweet if that fits your group. For a splurge, choose the character breakfast or tour because you want that experience. Purchasing both is not required to enjoy the basic holiday celebration.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>Make the weather decision close to the visit</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Check the Orlando forecast when choosing your date and again before leaving. Bring a layer for an evening finish and a rain option that works for your group. If rain changes the outdoor plan, consider a meal or shopping stop that is actually open, then check updated entertainment information. This is a flexible planning suggestion, not a guarantee that a show or ride will continue in bad weather.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>There is no universal “best hour” for all the food stops. Arrive with a short priority list, check the current menu and opening hours, and avoid leaving your only desired dish until the last minutes of its venue’s service.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<h3>Make the family plan smaller before making it faster</h3>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>For a child who loves the Grinch, start with Islands. For Nintendo and dragons, start with Epic. For a family that wants a seated viewing break, investigate the parade plan while considering your child’s comfort and the actual viewing area. Verify ride height requirements and access needs separately; this guide does not classify every ride as suitable for every age.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>For a date night, pick one anchor: the Studios parade, the Hogwarts presentation, Epic’s evening atmosphere, or CityWalk dinner and the club. A good night out does not need a transfer between all of them.</p>\n"
+        }
+      ]
+    },
+    {
+      "id": "photo-and-video-stops",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"photo-and-video-stops\">Photo and video stops</h2>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<div class=\"table-wrap\"><table>\n<thead>\n<tr>\n<th>Place</th>\n<th>Capture</th>\n<th>Keep it practical</th>\n</tr>\n</thead>\n<tbody><tr>\n<td>Hop on Pop</td>\n<td>A close view of the sandwich and a second shot with Seuss Landing behind it</td>\n<td>Photograph before it melts; keep the queue clear</td>\n</tr>\n<tr>\n<td>Toadstool Cafe</td>\n<td>The snowman and tree together, then a detail of the cake</td>\n<td>Do not photograph an inedible decoration as a bite</td>\n</tr>\n<tr>\n<td>Frosty Moon</td>\n<td>The owl cup followed by the dessert detail</td>\n<td>Show what is actually included in the order</td>\n</tr>\n<tr>\n<td>New York kiosks</td>\n<td>One savory purchase and one dessert with the holiday setting</td>\n<td>Avoid suggesting every kiosk item was tried</td>\n</tr>\n<tr>\n<td>Grinchmas</td>\n<td>Your group’s reaction and the surrounding decorations</td>\n<td>Follow current filming and character instructions</td>\n</tr>\n<tr>\n<td>CityWalk club</td>\n<td>The seasonal sign and a drink or mocktail you actually purchased</td>\n<td>Identify the actual year and current theme</td>\n</tr>\n</tbody></table></div>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>These are shot ideas, not a record of a Wayfind visit. Ask your group whether filming is part of the outing before allowing every snack to become a production.</p>\n"
+        }
+      ]
+    },
+    {
+      "id": "quick-answers",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"quick-answers\">Quick answers</h2>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Do I need a separate Christmas party ticket?</strong> The core holiday offerings are included with appropriate admission to the park you visit. Breakfast, the tour, food and other upgrades are additional purchases. <sup class=\"refs\"><a class=\"ref\" href=\"#source-1\" aria-label=\"Source 1\">1</a> <a class=\"ref\" href=\"#source-2\" aria-label=\"Source 2\">2</a> <a class=\"ref\" href=\"#source-3\" aria-label=\"Source 3\">3</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Can I see the Grinch and the parade in one day?</strong> They are in different parks. The plan needs admission valid for both on that date, transfer time and compatible showtimes. It is a possible itinerary choice, not a guaranteed schedule.</p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Does the Hogwarts Express go to Epic Universe?</strong> No. The published route connects Hogsmeade in Islands of Adventure and King’s Cross in Universal Studios Florida. Epic requires separate transport. <sup class=\"refs\"><a class=\"ref\" href=\"#source-10\" aria-label=\"Source 10\">10</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Which park has the Mario snowman cake?</strong> Epic Universe, at Toadstool Cafe in SUPER NINTENDO WORLD. <sup class=\"refs\"><a class=\"ref\" href=\"#source-5\" aria-label=\"Source 5\">5</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Is CityWalk free?</strong> Entering CityWalk does not require a theme park ticket, and the club currently lists free admission. Purchases and parking are separate. Check the parking exceptions and the venue’s hours. <sup class=\"refs\"><a class=\"ref\" href=\"#source-8\" aria-label=\"Source 8\">8</a> <a class=\"ref\" href=\"#source-13\" aria-label=\"Source 13\">13</a></sup></p>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p><strong>Are these firsthand food reviews?</strong> No. This is a planning guide researched from official information and the creator screenshots and links supplied for the project. The recommendations explain fit and logistics; they do not invent a Wayfind tasting visit.</p>\n"
+        }
+      ]
+    },
+    {
+      "id": "keep-planning-with-wayfind",
+      "blocks": [
+        {
+          "kind": "html",
+          "html": "<h2 id=\"keep-planning-with-wayfind\">Keep planning with Wayfind</h2>\n"
+        },
+        {
+          "kind": "html",
+          "html": "<p>Use the <a href=\"https://www.gowayfind.com/florida-events/universal-orlando-holidays-2026\">Universal holiday event page</a> for the existing event listing, the <a href=\"https://www.gowayfind.com/p/ChIJvRBCrN9-54gRGZuuaCLGrQE\">Universal Orlando place card</a> for the resort, or the <a href=\"https://www.gowayfind.com/guides/florida-theme-park-christmas-2026\">Florida theme park Christmas comparison</a> when choosing between destinations. The broader <a href=\"https://www.gowayfind.com/christmas-in-florida\">Christmas in Florida page</a> covers outings beyond Universal.</p>\n"
+        }
+      ]
+    }
+  ],
+  "photos": {
+    "nintendo-night": {
+      "src": "/guides/universal-orlando-christmas-2026/nintendo-night.webp",
+      "width": 1600,
+      "height": 900,
+      "alt": "Colorful SUPER NINTENDO WORLD buildings and Toadstool Cafe after dark at Epic Universe",
+      "credit": "Jeremy Thompson",
+      "source": "https://commons.wikimedia.org/wiki/File:Super_Nintendo_World_(Universal_Epic_Universe)_1.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "position": "50% 52%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Nintendo night · Jeremy Thompson · CC BY 4.0. Resized, cropped to 1600 by 900 and converted to WebP. The adaptation retains the source license. SUPER NINTENDO WORLD at Epic Universe after dark. Photographed March 2026; holiday decorations and the Snowman Cake are not pictured.",
+      "bytes": 271604
+    },
+    "seuss-landing": {
+      "src": "/guides/universal-orlando-christmas-2026/seuss-landing.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Colorful Seuss Landing entrance arch and Caro-Seuss-el beyond it",
+      "credit": "David Bjorgen",
+      "source": "https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg",
+      "license": "CC BY-SA 2.5",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+      "position": "50% 52%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Seuss landing · David Bjorgen · CC BY-SA 2.5. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. Seuss Landing at Islands of Adventure. Location context; Grinchmas decorations are not pictured.",
+      "bytes": 177102
+    },
+    "green-eggs-ham": {
+      "src": "/guides/universal-orlando-christmas-2026/green-eggs-ham.webp",
+      "width": 800,
+      "height": 800,
+      "alt": "Green Eggs and Ham Cafe sign on the restaurant’s green roof at Islands of Adventure",
+      "credit": "Jeremy Thompson",
+      "source": "https://commons.wikimedia.org/wiki/File:Seuss_Landing_02.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "position": "50% 50%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Green eggs ham · Jeremy Thompson from United States of America · CC BY 2.0. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license. Green Eggs and Ham Cafe in Seuss Landing. Location photo; the tots in the saved reel are not pictured.",
+      "bytes": 56414
+    },
+    "caro-seuss-el": {
+      "src": "/guides/universal-orlando-christmas-2026/caro-seuss-el.webp",
+      "width": 800,
+      "height": 800,
+      "alt": "Illuminated colorful carousel creatures on Caro-Seuss-el at Islands of Adventure",
+      "credit": "Jeremy Thompson",
+      "source": "https://commons.wikimedia.org/wiki/File:Caro-Seuss-el.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "position": "50% 50%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Caro seuss el · Jeremy Thompson from United States of America · CC BY 2.0. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license. Caro-Seuss-el in Seuss Landing. Archive location photo.",
+      "bytes": 71312
+    },
+    "hogsmeade-rooftops": {
+      "src": "/guides/universal-orlando-christmas-2026/hogsmeade-rooftops.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Snow-topped Hogsmeade rooftops under a blue sky at Islands of Adventure",
+      "credit": "HarshLight",
+      "source": "https://commons.wikimedia.org/wiki/File:Hogsmeade_(29464748618).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "position": "50% 45%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Hogsmeade rooftops · HarshLight from San Jose, CA, USA · CC BY 2.0. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. Hogsmeade at Islands of Adventure. The snow on the rooftops is part of the land’s setting, not a current weather report.",
+      "bytes": 117744
+    },
+    "universal-holiday-parade": {
+      "src": "/guides/universal-orlando-christmas-2026/universal-holiday-parade.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Balloon head performers in red and green holiday clothes on a decorated street at Universal Studios Florida",
+      "credit": "jared422_80",
+      "source": "https://www.flickr.com/photos/93283041@N00/6669301281",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "position": "50% 50%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Universal holiday parade · jared422_80 · CC BY 2.0. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. Universal Studios Florida’s holiday parade, photographed December 18, 2011. Historical scene, not the 2026 program.",
+      "bytes": 90458
+    },
+    "diagon-dragon": {
+      "src": "/guides/universal-orlando-christmas-2026/diagon-dragon.webp",
+      "width": 800,
+      "height": 800,
+      "alt": "Dragon on top of Gringotts in Diagon Alley at Universal Studios Florida",
+      "credit": "Milksteak27",
+      "source": "https://commons.wikimedia.org/wiki/File:Dragon_at_Universal_Studios_Orlando,_FL.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "position": "50% 0%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Diagon dragon · Milksteak27 · CC BY-SA 4.0. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license. The Gringotts dragon in Diagon Alley, December 2022. Archive location photo.",
+      "bytes": 61022
+    },
+    "nintendo-day": {
+      "src": "/guides/universal-orlando-christmas-2026/nintendo-day.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Brightly colored SUPER NINTENDO WORLD buildings under a blue sky at Epic Universe",
+      "credit": "Brunnofernando",
+      "source": "https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+      "position": "50% 55%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Nintendo day · Brunnofernando · CC BY 4.0. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. SUPER NINTENDO WORLD at Epic Universe, September 2026. Location context; the seasonal cake is not pictured.",
+      "bytes": 190306
+    },
+    "epic-entrance": {
+      "src": "/guides/universal-orlando-christmas-2026/epic-entrance.webp",
+      "width": 800,
+      "height": 800,
+      "alt": "Gold and turquoise Epic Universe entrance structure under a partly cloudy sky",
+      "credit": "CANthony0125",
+      "source": "https://commons.wikimedia.org/wiki/File:UEU_Entrance.jpg",
+      "license": "Public domain",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "position": "50% 35%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Epic entrance · CANthony0125 · Public domain. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license. The entrance to Epic Universe, April 2025. Arrival context.",
+      "bytes": 61788
+    },
+    "berk-portal": {
+      "src": "/guides/universal-orlando-christmas-2026/berk-portal.webp",
+      "width": 800,
+      "height": 800,
+      "alt": "Ornate entrance portal to How to Train Your Dragon Isle of Berk at Epic Universe",
+      "credit": "Martin Lewison",
+      "source": "https://commons.wikimedia.org/wiki/File:How_to_Train_Your_Dragon_-_Isle_of_Berk_-_54563945175.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "position": "50% 40%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Berk portal · Martin Lewison · CC BY 2.0. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license. The Isle of Berk entrance at Epic Universe, May 2025. Location context.",
+      "bytes": 120648
+    },
+    "isle-of-berk": {
+      "src": "/guides/universal-orlando-christmas-2026/isle-of-berk.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Viking buildings and the rocky scenery of Isle of Berk at Epic Universe",
+      "credit": "Martin Lewison",
+      "source": "https://commons.wikimedia.org/wiki/File:Milst1_-_54563946035.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "position": "50% 45%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Isle of berk · Martin Lewison · CC BY 2.0. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. Isle of Berk at Epic Universe, May 2025. The Snoggletog cone and seasonal decorations are not pictured.",
+      "bytes": 264466
+    },
+    "wizarding-paris-night": {
+      "src": "/guides/universal-orlando-christmas-2026/wizarding-paris-night.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Illuminated wizarding Paris shopfronts and a red cafe canopy after dark at Epic Universe",
+      "credit": "Gfgbeach",
+      "source": "https://commons.wikimedia.org/wiki/File:Skylineof_Wizarding_World_Ministry_of_Magic_at_night.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "position": "50% 50%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Wizarding paris night · Gfgbeach · CC0. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. Wizarding Paris at Epic Universe after dark, April 2025. Location context, not the current holiday program.",
+      "bytes": 220832
+    },
+    "wizarding-paris-facade": {
+      "src": "/guides/universal-orlando-christmas-2026/wizarding-paris-facade.webp",
+      "width": 800,
+      "height": 800,
+      "alt": "Curved windows and a Metrofloo sign on a wizarding Paris building at Epic Universe",
+      "credit": "Martin Lewison",
+      "source": "https://commons.wikimedia.org/wiki/File:Ministry_of_Magic_Metrofloo,_The_Wizarding_World_of_Harry_Potter.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "position": "50% 42%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Wizarding paris facade · Martin Lewison · CC BY 2.0. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license. A wizarding Paris facade at Epic Universe, May 2025. Location context.",
+      "bytes": 171636
+    },
+    "ministry-portal": {
+      "src": "/guides/universal-orlando-christmas-2026/ministry-portal.webp",
+      "width": 800,
+      "height": 800,
+      "alt": "Blue and gold Ministry of Magic portal illuminated at night at Epic Universe",
+      "credit": "Gfgbeach",
+      "source": "https://commons.wikimedia.org/wiki/File:Wizarding_World_Ministry_of_Magic_portal_night.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "position": "50% 66%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Ministry portal · Gfgbeach · CC0. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license. The Ministry of Magic portal at Epic Universe after dark, April 2025. Location context.",
+      "bytes": 69828
+    },
+    "citywalk": {
+      "src": "/guides/universal-orlando-christmas-2026/citywalk.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Restaurant signs at Universal CityWalk in Orlando",
+      "credit": "Miosotis Jade",
+      "source": "https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "position": "50% 36%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Citywalk · Miosotis Jade · CC BY-SA 4.0. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. Universal CityWalk in Orlando. General location context; Green and Red Coconut Club is not pictured.",
+      "bytes": 95254
+    },
+    "butterbeer-cart": {
+      "src": "/guides/universal-orlando-christmas-2026/butterbeer-cart.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Red Butterbeer barrel stall among Hogsmeade shopfronts at Islands of Adventure",
+      "credit": "Snowman Guy (talk)",
+      "source": "https://commons.wikimedia.org/wiki/File:ButterbeerUniversalStudios.JPG",
+      "license": "Public domain",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "position": "50% 48%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Butterbeer cart · Snowman Guy (talk) · Public domain. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. The Butterbeer stall at Islands of Adventure. Archive location photo; a hot Butterbeer serving is not pictured.",
+      "bytes": 158074
+    },
+    "epic-overview": {
+      "src": "/guides/universal-orlando-christmas-2026/epic-overview.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Aerial view of Celestial Park with its circular water features and Epic Universe worlds beyond",
+      "credit": "Gfgbeach",
+      "source": "https://commons.wikimedia.org/wiki/File:Celestial_Park.jpg",
+      "license": "CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "position": "50% 50%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Epic overview · Gfgbeach · CC0. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. An aerial view of Celestial Park and the surrounding worlds, April 2025. Layout context, not a navigation map.",
+      "bytes": 366216
+    },
+    "universal-globe": {
+      "src": "/guides/universal-orlando-christmas-2026/universal-globe.webp",
+      "width": 1280,
+      "height": 720,
+      "alt": "Gold Universal letters across the globe sculpture with palm trees behind it",
+      "credit": "Studio Sarah Lou",
+      "source": "https://commons.wikimedia.org/wiki/File:Universal_Orlando_(15381042583).jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "position": "50% 48%",
+      "caption": "",
+      "reviewedAt": "2026-11-17",
+      "kind": "documentary",
+      "reviewNotes": "Universal globe · Studio Sarah Lou · CC BY 2.0. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license. The Universal globe in Orlando, November 2014. Archive arrival photo, not a current event scene.",
+      "bytes": 265506
+    },
+    "holiday-food-selection": {
+      "src": "/guides/universal-orlando-christmas-2026/holiday-food-selection.jpg",
+      "width": 1024,
+      "height": 685,
+      "alt": "Universal holiday food selection: a plated roast dinner, a sprinkle topped dessert and a warm spiced drink",
+      "credit": "©2026 Universal Orlando. All Rights Reserved.",
+      "source": "https://media.universalparksusa.com/photos/holiday-food-and-beverage-offerings/",
+      "license": "Editorial use",
+      "licenseUrl": "https://media.universalparksusa.com/usage-policy/",
+      "caption": "",
+      "bytes": 243740,
+      "kind": "documentary",
+      "reviewedAt": "2026-11-17",
+      "preserveFraming": true,
+      "reviewNotes": "Official 2026 holiday press image, visually inspected. Provider-prepared 1024px rendition downloaded without alteration. Editorial reporting only; no marketing reuse. Complete image is displayed without cropping."
+    },
+    "holiday-sweets-drinks": {
+      "src": "/guides/universal-orlando-christmas-2026/holiday-sweets-drinks.jpg",
+      "width": 1024,
+      "height": 683,
+      "alt": "Universal holiday sweets and drinks: a sprinkle covered sweet on a stick, two festive drinks and a skillet dessert",
+      "credit": "©2026 Universal Orlando. All Rights Reserved.",
+      "source": "https://media.universalparksusa.com/photos/holiday-food-and-beverage-offerings-2/",
+      "license": "Editorial use",
+      "licenseUrl": "https://media.universalparksusa.com/usage-policy/",
+      "caption": "",
+      "bytes": 172375,
+      "kind": "documentary",
+      "reviewedAt": "2026-11-17",
+      "preserveFraming": true,
+      "reviewNotes": "Official 2026 holiday press image, visually inspected. Provider-prepared 1024px rendition downloaded without alteration. Editorial reporting only; no marketing reuse. Complete image is displayed without cropping."
+    }
+  },
+  "closingCredits": "<details class=\"wf-closing-credits\"><summary>View sources and photo credits</summary><p>Photographs show Universal Orlando locations across different seasons. The parade image is from 2011; other park photographs include 2014 through 2026. Current seasonal offerings are based on the official sources below.</p><h3>Photography</h3><ol class=\"wf-final-photo-credits\"><li><strong>Nintendo night</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Super_Nintendo_World_(Universal_Epic_Universe)_1.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Jeremy Thompson</a> · <a href=\"https://creativecommons.org/licenses/by/4.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 4.0</a>. Resized, cropped to 1600 by 900 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> SUPER NINTENDO WORLD at Epic Universe after dark. Photographed March 2026; holiday decorations and the Snowman Cake are not pictured.</span></li><li><strong>Seuss landing</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">David Bjorgen</a> · <a href=\"https://creativecommons.org/licenses/by-sa/2.5\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY-SA 2.5</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> Seuss Landing at Islands of Adventure. Location context; Grinchmas decorations are not pictured.</span></li><li><strong>Green eggs ham</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Seuss_Landing_02.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Jeremy Thompson from United States of America</a> · <a href=\"https://creativecommons.org/licenses/by/2.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 2.0</a>. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> Green Eggs and Ham Cafe in Seuss Landing. Location photo; the tots in the saved reel are not pictured.</span></li><li><strong>Caro seuss el</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Caro-Seuss-el.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Jeremy Thompson from United States of America</a> · <a href=\"https://creativecommons.org/licenses/by/2.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 2.0</a>. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> Caro-Seuss-el in Seuss Landing. Archive location photo.</span></li><li><strong>Hogsmeade rooftops</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Hogsmeade_(29464748618).jpg\" target=\"_blank\" rel=\"noopener noreferrer\">HarshLight from San Jose, CA, USA</a> · <a href=\"https://creativecommons.org/licenses/by/2.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 2.0</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> Hogsmeade at Islands of Adventure. The snow on the rooftops is part of the land’s setting, not a current weather report.</span></li><li><strong>Universal holiday parade</strong> · <a href=\"https://www.flickr.com/photos/93283041@N00/6669301281\" target=\"_blank\" rel=\"noopener noreferrer\">jared422_80</a> · <a href=\"https://creativecommons.org/licenses/by/2.0/\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 2.0</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> Universal Studios Florida’s holiday parade, photographed December 18, 2011. Historical scene, not the 2026 program.</span></li><li><strong>Diagon dragon</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Dragon_at_Universal_Studios_Orlando,_FL.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Milksteak27</a> · <a href=\"https://creativecommons.org/licenses/by-sa/4.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY-SA 4.0</a>. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> The Gringotts dragon in Diagon Alley, December 2022. Archive location photo.</span></li><li><strong>Nintendo day</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Brunnofernando</a> · <a href=\"https://creativecommons.org/licenses/by/4.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 4.0</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> SUPER NINTENDO WORLD at Epic Universe, September 2026. Location context; the seasonal cake is not pictured.</span></li><li><strong>Epic entrance</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:UEU_Entrance.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">CANthony0125</a> · <a href=\"https://commons.wikimedia.org/wiki/File:UEU_Entrance.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Public domain</a>. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> The entrance to Epic Universe, April 2025. Arrival context.</span></li><li><strong>Berk portal</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:How_to_Train_Your_Dragon_-_Isle_of_Berk_-_54563945175.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Martin Lewison</a> · <a href=\"https://creativecommons.org/licenses/by/2.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 2.0</a>. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> The Isle of Berk entrance at Epic Universe, May 2025. Location context.</span></li><li><strong>Isle of berk</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Milst1_-_54563946035.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Martin Lewison</a> · <a href=\"https://creativecommons.org/licenses/by/2.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 2.0</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> Isle of Berk at Epic Universe, May 2025. The Snoggletog cone and seasonal decorations are not pictured.</span></li><li><strong>Wizarding paris night</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Skylineof_Wizarding_World_Ministry_of_Magic_at_night.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Gfgbeach</a> · <a href=\"http://creativecommons.org/publicdomain/zero/1.0/deed.en\" target=\"_blank\" rel=\"noopener noreferrer\">CC0</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> Wizarding Paris at Epic Universe after dark, April 2025. Location context, not the current holiday program.</span></li><li><strong>Wizarding paris facade</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Ministry_of_Magic_Metrofloo,_The_Wizarding_World_of_Harry_Potter.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Martin Lewison</a> · <a href=\"https://creativecommons.org/licenses/by/2.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 2.0</a>. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> A wizarding Paris facade at Epic Universe, May 2025. Location context.</span></li><li><strong>Ministry portal</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Wizarding_World_Ministry_of_Magic_portal_night.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Gfgbeach</a> · <a href=\"http://creativecommons.org/publicdomain/zero/1.0/deed.en\" target=\"_blank\" rel=\"noopener noreferrer\">CC0</a>. Resized, cropped to 800 by 800 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> The Ministry of Magic portal at Epic Universe after dark, April 2025. Location context.</span></li><li><strong>Citywalk</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Miosotis Jade</a> · <a href=\"https://creativecommons.org/licenses/by-sa/4.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY-SA 4.0</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> Universal CityWalk in Orlando. General location context; Green and Red Coconut Club is not pictured.</span></li><li><strong>Butterbeer cart</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:ButterbeerUniversalStudios.JPG\" target=\"_blank\" rel=\"noopener noreferrer\">Snowman Guy (talk)</a> · <a href=\"https://commons.wikimedia.org/wiki/File:ButterbeerUniversalStudios.JPG\" target=\"_blank\" rel=\"noopener noreferrer\">Public domain</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> The Butterbeer stall at Islands of Adventure. Archive location photo; a hot Butterbeer serving is not pictured.</span></li><li><strong>Epic overview</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Celestial_Park.jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Gfgbeach</a> · <a href=\"http://creativecommons.org/publicdomain/zero/1.0/deed.en\" target=\"_blank\" rel=\"noopener noreferrer\">CC0</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> An aerial view of Celestial Park and the surrounding worlds, April 2025. Layout context, not a navigation map.</span></li><li><strong>Universal globe</strong> · <a href=\"https://commons.wikimedia.org/wiki/File:Universal_Orlando_(15381042583).jpg\" target=\"_blank\" rel=\"noopener noreferrer\">Studio Sarah Lou</a> · <a href=\"https://creativecommons.org/licenses/by/2.0\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 2.0</a>. Resized, cropped to 1280 by 720 and converted to WebP. The adaptation retains the source license.<span class=\"wf-credit-record\"> The Universal globe in Orlando, November 2014. Archive arrival photo, not a current event scene.</span></li></ol><h3>Official information</h3><ol class=\"source-list\"><li id=\"source-1\"><a href=\"https://www.universalorlando.com/web/en/us/things-to-do/events/holidays-at-universal\" target=\"_blank\" rel=\"noopener noreferrer\">Universal holiday dates and admission</a><p>Official 2026 event landing page.</p></li><li id=\"source-2\"><a href=\"https://www.universalorlando.com/web/en/us/holidays/universal-studios-florida\" target=\"_blank\" rel=\"noopener noreferrer\">Universal Studios Florida holiday experiences</a><p>Official park page and tour terms.</p></li><li id=\"source-3\"><a href=\"https://www.universalorlando.com/web/en/us/holidays/islands-of-adventure\" target=\"_blank\" rel=\"noopener noreferrer\">Islands of Adventure holiday experiences</a><p>Official Grinchmas, breakfast prices and admission terms.</p></li><li id=\"source-4\"><a href=\"https://blog.discoveruniversal.com/events/guide-to-the-holidays-at-universal-orlando-resort/\" target=\"_blank\" rel=\"noopener noreferrer\">Discover Universal holiday planning guide</a><p>Official planning article published November 4, 2026.</p></li><li id=\"source-5\"><a href=\"https://media.universalparksusa.com/press-releases/universal-orlando-resort-kicks-off-its-destination-wide-holidaycelebration-trade-111126/\" target=\"_blank\" rel=\"noopener noreferrer\">Universal November holiday announcement</a><p>Official current-season announcement, including named seasonal foods.</p></li><li id=\"source-6\"><a href=\"https://www.universalorlando.com/web/en/us/things-to-do/dining/frosty-moon/menu.html\" target=\"_blank\" rel=\"noopener noreferrer\">Frosty Moon official menu</a><p>The Winter Owl name, ingredients and souvenir cup.</p></li><li id=\"source-7\"><a href=\"https://blog.discoveruniversal.com/dining/celebrate-the-holidays-with-seasonal-food-beverage-offerings-in-universal-epic-universe/\" target=\"_blank\" rel=\"noopener noreferrer\">Epic Universe seasonal food article from 2025</a><p>Historical source used to identify the recipe mismatch, not to establish the 2026 churro.</p></li><li id=\"source-8\"><a href=\"https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club\" target=\"_blank\" rel=\"noopener noreferrer\">Red Coconut Club official venue page</a><p>Current seasonal description, admission, entertainment and alcohol terms.</p></li><li id=\"source-9\"><a href=\"https://blog.discoveruniversal.com/guides-and-tips/guide-to-red-coconut-club-at-universal-citywalk/\" target=\"_blank\" rel=\"noopener noreferrer\">Discover Universal club guide</a><p>Venue setting and general age policy; check night-specific requirements.</p></li><li id=\"source-10\"><a href=\"https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/hogwarts-express-kings-cross-station\" target=\"_blank\" rel=\"noopener noreferrer\">Hogwarts Express official attraction page</a><p>Route and Park-to-Park admission requirement.</p></li><li id=\"source-11\"><a href=\"https://blog.discoveruniversal.com/guides-and-tips/complete-guide-to-express-passes-at-universal-orlando-resort/\" target=\"_blank\" rel=\"noopener noreferrer\">Universal Express official guide</a><p>Express is an addition to separate admission; check park and attraction coverage.</p></li><li id=\"source-12\"><a href=\"https://www.universalorlando.com/web/en/us/tickets-packages/park-tickets\" target=\"_blank\" rel=\"noopener noreferrer\">Universal park ticket types</a><p>Current product overview. No date-specific checkout was performed.</p></li><li id=\"source-13\"><a href=\"https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information/directions-and-parking\" target=\"_blank\" rel=\"noopener noreferrer\">Universal parking and arrival</a><p>Current parking prices, addresses, re-entry and evening parking exclusions.</p></li></ol><h3>Creator videos</h3><ul><li id=\"source-R1\"><a href=\"https://www.instagram.com/reel/DfztWYjRbw8/\" target=\"_blank\" rel=\"noopener noreferrer\">Grinch ice cream sandwich</a> · @walruscarpkirk</li><li id=\"source-R2\"><a href=\"https://www.instagram.com/reel/Dfz0pUFFEtC/\" target=\"_blank\" rel=\"noopener noreferrer\">Universal holiday sweets and drinks</a> · @soflofooodie</li><li id=\"source-R3\"><a href=\"https://www.instagram.com/reel/Df0JZt1juVY/\" target=\"_blank\" rel=\"noopener noreferrer\">Epic Universe holiday food picks</a> · @walruscarpkirk</li><li id=\"source-R4\"><a href=\"https://www.instagram.com/reel/Dfu4j3ij0V5/\" target=\"_blank\" rel=\"noopener noreferrer\">Green and Red Coconut Club Santa versus Krampus</a> · @walruscarpkirk</li><li id=\"source-R5\"><a href=\"https://www.instagram.com/reel/Dfux4jQjBxi/\" target=\"_blank\" rel=\"noopener noreferrer\">Additional reel awaiting identification</a> · Creator unconfirmed</li><li id=\"source-R6\"><a href=\"https://www.instagram.com/reel/DRhjJBcDcLg/\" target=\"_blank\" rel=\"noopener noreferrer\">Tots Butterbeer and holiday snacks</a> · Creator not visible in screenshot</li></ul><p>Research checked November 17, 2026. This guide uses official venue information and supplied creator captions. Recommendations describe planning fit rather than a firsthand Wayfind tasting visit.</p></details>",
+  "researchChecked": "2026-11-17"
+}

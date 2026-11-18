@@ -64,6 +64,7 @@ import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave, shareCard as fallbackShare } from "../../lib/cardActions";
 import { useContentCardActions } from "../../lib/contentCardActions";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
+import { railPosition } from "../../lib/railPosition.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
@@ -190,6 +191,33 @@ export function RailNav({ railId, count, unit, total, loaded }) {
   // fact about the rail, never about the claim — so they key off `total`, and
   // fall back to `count` for every caller that passes only the one number.
   const cards = Number.isFinite(total) ? total : count;
+  // The "N of M" counter is a POSITION (lib/railPosition.js), read off the
+  // rail's scroll the same way RailDots reads its page. It used to print the
+  // LOADED count ("28 of 28" on card 1). SSR and first paint say 1.
+  const [pos, setPos] = useState(1);
+  useEffect(() => {
+    if (typeof document === "undefined" || !cards || cards < 2) return;
+    const rail = document.querySelector(`[data-rail="${railId}"]`);
+    if (!rail) return;
+    const read = () => {
+      // Cards are the rail's boxes; a display:contents wrapper (the guide slot)
+      // has no box of its own, so its children stand in for it.
+      const kids = [];
+      for (const k of Array.from(rail.children)) {
+        if (k.firstElementChild && getComputedStyle(k).display === "contents") kids.push(...Array.from(k.children));
+        else kids.push(k);
+      }
+      if (!kids.length) return;
+      const first = kids[0].getBoundingClientRect().left;
+      const cardOffsets = kids.map((k) => k.getBoundingClientRect().left - first);
+      setPos(railPosition({ scrollLeft: rail.scrollLeft, clientWidth: rail.clientWidth, scrollWidth: rail.scrollWidth, cardOffsets }));
+    };
+    rail.addEventListener("scroll", read, { passive: true });
+    let ro = null;
+    if (typeof ResizeObserver === "function") { ro = new ResizeObserver(read); ro.observe(rail); }
+    read();
+    return () => { rail.removeEventListener("scroll", read); if (ro) ro.disconnect(); };
+  }, [railId, cards, loaded]);
   if (!cards || cards < 2) return null;
   const move = (dir) => {
     if (typeof document === "undefined") return;
@@ -202,7 +230,7 @@ export function RailNav({ railId, count, unit, total, loaded }) {
   return (
     <div className="wf-rail-nav">
       <span className="wf-rail-nav-hint">{Number.isFinite(loaded) && loaded <= cards
-        ? <><b>{loaded}</b> of <b>{cards}</b></>
+        ? <><b>{Math.min(pos, cards)}</b> of <b>{cards}</b></>
         : <><b>{count}</b> {unit}</>}</span>
       <span className="wf-rail-nav-btns">
         <button type="button" className="wf-rail-nav-btn" aria-label={"Previous " + unit} onClick={() => move(-1)}>‹</button>

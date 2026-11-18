@@ -23,12 +23,13 @@ node scripts/check-response-imports.mjs
 # 2026-07-31 after 5c541b4 let `.env.production.local` decide whether a live
 # affiliate program was protected.
 node scripts/check-guard-hermeticity.mjs
+# The CI audit step ignores one picomatch advisory with no patched release.
+# This test locks that the exception cannot hide any other advisory.
+node scripts/test-npm-audit-allowlist.mjs
 # Vercel runs `npm run build` (postbuild → check-bundle). GitHub used to run
 # `npx next build` only, so a homepage JS overage shipped green and died on
 # deploy (#949, 2026-08-26). This lock is source-level and cheap.
 node scripts/check-build-lifecycle.mjs
-# The picomatch audit exception is one advisory and it expires.
-node scripts/test-npm-audit-exception.mjs
 npm run check:version
 npm run check:jsx
 node scripts/check-hydration-style.mjs
@@ -198,6 +199,7 @@ node scripts/test-command-center-feedback.mjs
 node scripts/test-cc-stale-cache-shape.mjs
 node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
+node scripts/test-rail-menu-reserve.mjs
 node scripts/test-lightbox-paging.mjs
 node scripts/test-brand-rail-dedupe.mjs
 node scripts/test-first-screen.mjs
@@ -2424,6 +2426,11 @@ node scripts/test-guide-context-photos.mjs
 # and renders the real figures for all 24 picks; red-proven by mutation.
 node scripts/check-guide-neutral-fallback.mjs
 
+# 2026-11-17: every guide and blog place or event recommendation shows a verified
+# full street address and a Google Maps link. Partial lines and missing venues fail.
+node scripts/test-guide-place-addresses.mjs
+node scripts/check-guide-place-addresses.mjs
+
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
@@ -2703,3 +2710,11 @@ node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
 node scripts/check-photo-rail-swipe.mjs
 node scripts/test-home-landing-thanksgiving.mjs
+
+# Universal holiday atlas: real targets and actual food media, not screenshot crops.
+node scripts/check-universal-holiday-guide.mjs
+node scripts/check-creator-video-rules.mjs
+node scripts/check-rail-position-counter.mjs
+
+# Portrait photos show whole (contain over blurred fill) on event hero, place sheet, paid landing.
+node scripts/check-portrait-photo-fit.mjs
