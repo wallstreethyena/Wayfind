@@ -11,7 +11,9 @@
 //   6. Internal Actionability Coverage (Before -> After) + Demand Operations Queue
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import fs, { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -149,31 +151,32 @@ const eq = (a, b, msg) => {
 
 // ── 2. Commerce Health & Automatic Offer Quarantine ────────────────────────
 {
-  // Sold-out Clipp merchant 12875835 (Pizza Kitchen, clipp-m-pizza-kitchen) is quarantined everywhere
-  ok(QUARANTINED_PARTNER_OFFERS.includes("clipp-m-pizza-kitchen"), "clipp-m-pizza-kitchen is in QUARANTINED_PARTNER_OFFERS");
-  ok(isQuarantinedPartnerOffer("clipp-m-pizza-kitchen"), "clipp-m-pizza-kitchen is quarantined");
-  ok(isBlockedPartnerOffer("clipp-m-pizza-kitchen"), "clipp-m-pizza-kitchen is blocked");
-  ok(HELD_PARTNER_OFFERS.length >= 5 && isHeldPartnerOffer("gurnee-hook-six-flags"), "HELD_PARTNER_OFFERS remains intact");
-  eq(clippOfferById("clipp-m-pizza-kitchen"), null, "clippOfferById excludes sold-out clipp-m-pizza-kitchen");
-  const qRec = quarantinedClippOfferById("clipp-m-pizza-kitchen");
-  ok(qRec && qRec.status === "SOLD_OUT", "quarantinedClippOfferById records clipp-m-pizza-kitchen as SOLD_OUT");
-  eq(couponForPlace({ place_id: "ChIJrd5cMw_DwogRgRc4JgnCIBw", name: "Pizza Kitchen" }, "2026-11-13"), null, "couponForPlace never serves sold-out Pizza Kitchen");
-  const activeCoupons = liveCoupons("2026-11-13");
-  ok(!activeCoupons.some((c) => c.id === "cpn-clipp-m-pizza-kitchen" || /Pizza Kitchen/i.test(c.business)), "liveCoupons excludes sold-out Pizza Kitchen");
-
-  // Almost Gone Clipp merchants carry ALMOST_GONE status and scarcity badge
-  for (const id of ["clipp-m-4th-street-pizza", "clipp-m-marcos-riverview"]) {
-    const m = clippOfferById(id);
-    ok(m && m.status === OFFER_HEALTH_STATUS.ALMOST_GONE, `merchant ${id} carries ALMOST_GONE status`);
+  // Sold-out Clipp merchants (Pizza Kitchen, Marco's Pizza - Riverview) are quarantined everywhere
+  for (const id of ["clipp-m-pizza-kitchen", "clipp-m-marcos-riverview"]) {
+    ok(QUARANTINED_PARTNER_OFFERS.includes(id), `${id} is in QUARANTINED_PARTNER_OFFERS`);
+    ok(isQuarantinedPartnerOffer(id), `${id} is quarantined`);
+    ok(isBlockedPartnerOffer(id), `${id} is blocked`);
+    eq(clippOfferById(id), null, `clippOfferById excludes sold-out ${id}`);
+    const qRec = quarantinedClippOfferById(id);
+    ok(qRec && qRec.status === "SOLD_OUT", `quarantinedClippOfferById records ${id} as SOLD_OUT`);
   }
+  ok(HELD_PARTNER_OFFERS.length >= 5 && isHeldPartnerOffer("gurnee-hook-six-flags"), "HELD_PARTNER_OFFERS remains intact");
+  eq(couponForPlace({ place_id: "ChIJrd5cMw_DwogRgRc4JgnCIBw", name: "Pizza Kitchen" }, "2026-11-18"), null, "couponForPlace never serves sold-out Pizza Kitchen");
+  const activeCoupons = liveCoupons("2026-11-18");
+  ok(!activeCoupons.some((c) => c.id === "cpn-clipp-m-pizza-kitchen" || /Pizza Kitchen/i.test(c.business)), "liveCoupons excludes sold-out Pizza Kitchen");
+  ok(!activeCoupons.some((c) => c.id === "cpn-clipp-m-marcos-riverview" || /Riverview/i.test(c.business)), "liveCoupons excludes sold-out Marco's Pizza - Riverview");
+
+  // Almost Gone Clipp merchant carries ALMOST_GONE status and scarcity badge
+  const fourthM = clippOfferById("clipp-m-4th-street-pizza");
+  ok(fourthM && fourthM.status === OFFER_HEALTH_STATUS.ALMOST_GONE, "clipp-m-4th-street-pizza carries ALMOST_GONE status");
   const fourthStCoupon = COUPONS.find((c) => c.id === "cpn-clipp-m-4th-street-pizza");
   ok(fourthStCoupon && fourthStCoupon.status === "ALMOST_GONE", "4th Street Pizza coupon exposes ALMOST_GONE status");
 
-  // Promo price-drop Clipp merchants carry PRICE_CHANGED metadata and livePrice
+  // In baseline catalogue on 2026-11-18, the 8 flash promo-drop merchants ended flash promo and reverted to ACTIVE
   const promoDropped = CLIPP_MERCHANT_OFFERS.filter((m) => m.status === "PRICE_CHANGED" && m.priceChangeKind === "promo_drop");
-  eq(promoDropped.length, 8, "all 8 promo-drop Clipp merchants carry status PRICE_CHANGED and priceChangeKind promo_drop");
+  eq(promoDropped.length, 0, "all 8 promo-drop Clipp merchants ended flash promo and reverted to standard 50%-off terms by 2026-11-18");
   const ismash = clippOfferById("clipp-m-ismash-brandon");
-  eq([ismash.status, ismash.priceChangeKind, ismash.livePrice], ["PRICE_CHANGED", "promo_drop", 28], "iSmash Brandon carries PRICE_CHANGED promo_drop metadata with livePrice 28");
+  ok(ismash && ismash.offerId === "clipp-m-ismash-brandon" && !ismash.livePrice, "iSmash Brandon carries standard 50%-off active terms in baseline");
 
   // HTML classifier & evidence threshold transitions
   const soldOutClassification = classifyClippLandingPage({
@@ -563,12 +566,12 @@ const eq = (a, b, msg) => {
     resetClippRuntimeEvidence,
   } = await import("../lib/clippOffers.js");
 
-  const fourthFresh = clippOfferById("clipp-m-4th-street-pizza", { now: "2026-11-12T12:00:00Z" });
+  const fourthFresh = clippOfferById("clipp-m-4th-street-pizza", { now: "2026-11-19T10:00:00Z" });
   ok(
     fourthFresh && fourthFresh.status === "ALMOST_GONE" && fourthFresh.health?.scarcityFresh === true,
-    "4th Street Pizza has status ALMOST_GONE and scarcityFresh: true at audit baseline"
+    "4th Street Pizza has status ALMOST_GONE and scarcityFresh: true within 24h of 2026-11-18 audit"
   );
-  const fourthDecayed = clippOfferById("clipp-m-4th-street-pizza", { now: "2026-11-15T12:00:00Z" });
+  const fourthDecayed = clippOfferById("clipp-m-4th-street-pizza", { now: "2026-11-20T01:00:00Z" });
   ok(
     fourthDecayed &&
       fourthDecayed.status === "ACTIVE" &&
@@ -578,22 +581,34 @@ const eq = (a, b, msg) => {
     "4th Street Pizza decays to ACTIVE with scarcityExpired: true after 24h while remaining serveable"
   );
 
-  const ismashFresh = clippOfferById("clipp-m-ismash-brandon", { now: "2026-11-13T12:00:00Z" });
-  ok(
-    ismashFresh &&
-      ismashFresh.status === "PRICE_CHANGED" &&
-      (ismashFresh.livePrice === 28 || ismashFresh.livePrice === 17.5),
-    "iSmash Brandon carries PRICE_CHANGED and live price within 48h"
-  );
-  const ismashDecayed = clippOfferById("clipp-m-ismash-brandon", { now: "2026-11-16T12:00:00Z" });
-  ok(
-    ismashDecayed &&
-      ismashDecayed.status === "ACTIVE" &&
-      ismashDecayed.livePrice === null &&
-      ismashDecayed.promoExpired === true &&
-      ismashDecayed.health?.serveable === true,
-    "iSmash Brandon decays to ACTIVE with livePrice null and promoExpired: true after 48h while remaining serveable"
-  );
+  try {
+    ingestClippOfferEvidence(
+      "clipp-m-ismash-brandon",
+      {
+        httpStatus: 200,
+        html: "<title>iSmash Brandon, FL</title><div>Add to Cart Buy Now $28 for $80 of starter smash sessions</div>",
+      },
+      { now: new Date("2026-11-18T12:00:00Z") }
+    );
+    const ismashFresh = clippOfferById("clipp-m-ismash-brandon", { now: "2026-11-19T12:00:00Z" });
+    ok(
+      ismashFresh &&
+        ismashFresh.status === "PRICE_CHANGED" &&
+        ismashFresh.livePrice === 28,
+      "iSmash Brandon carries PRICE_CHANGED and live price within 48h of ingestion"
+    );
+    const ismashDecayed = clippOfferById("clipp-m-ismash-brandon", { now: "2026-11-21T00:00:00Z" });
+    ok(
+      ismashDecayed &&
+        ismashDecayed.status === "ACTIVE" &&
+        ismashDecayed.livePrice === null &&
+        ismashDecayed.promoExpired === true &&
+        ismashDecayed.health?.serveable === true,
+      "iSmash Brandon decays to ACTIVE with livePrice null and promoExpired: true after 48h while remaining serveable"
+    );
+  } finally {
+    resetClippRuntimeEvidence();
+  }
 
   const pastExpiry = "2026-11-25T12:00:00Z";
   eq(
@@ -731,6 +746,217 @@ const eq = (a, b, msg) => {
     true,
     "hydrateDetailHours marks oh._stale === true for >90d owned hours"
   );
+}
+
+// ── 8. C3 Completion Contract: P1–P4 Durable Fresh-Process Lifecycle & Nov 18 Freshness ──
+{
+  // Nov 18 Source Freshness & Non-Extension Invariants
+  const clippMod = await import("../lib/clippOffers.js");
+  eq(clippMod.CLIPP_AUDIT_EXPIRY, "2026-11-23", "CLIPP_AUDIT_EXPIRY is 2026-11-23 (not blindly extended)");
+  eq(clippMod.CLIPP_VERIFICATION_MODE, "manual", "CLIPP_VERIFICATION_MODE is manual");
+  eq(clippMod.CLIPP_LAST_MANUAL_AUDIT_AT, "2026-11-18T23:19:12.000Z", "CLIPP_LAST_MANUAL_AUDIT_AT is 2026-11-18T23:19:12.000Z");
+  ok(QUARANTINED_PARTNER_OFFERS.includes("clipp-m-pizza-kitchen"), "clipp-m-pizza-kitchen in QUARANTINED_PARTNER_OFFERS");
+  ok(QUARANTINED_PARTNER_OFFERS.includes("clipp-m-marcos-riverview"), "clipp-m-marcos-riverview in QUARANTINED_PARTNER_OFFERS");
+  eq(clippOfferById("clipp-m-pizza-kitchen"), null, "clippOfferById returns null for clipp-m-pizza-kitchen");
+  eq(clippOfferById("clipp-m-marcos-riverview"), null, "clippOfferById returns null for clipp-m-marcos-riverview");
+  ok(quarantinedClippOfferById("clipp-m-pizza-kitchen") !== null, "quarantinedClippOfferById non-null for pizza-kitchen");
+  ok(quarantinedClippOfferById("clipp-m-marcos-riverview") !== null, "quarantinedClippOfferById non-null for marcos-riverview");
+
+  const tmpFixturePath = path.join(os.tmpdir(), `clipp-fixture-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+  const tmpStorePath = path.join(os.tmpdir(), `clipp-store-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+  const tmpSnapPath = path.join(os.tmpdir(), `clipp-snap-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+
+  try {
+    // P1: Producer CLI Dry-Run Proof
+    fs.writeFileSync(
+      tmpFixturePath,
+      JSON.stringify([
+        {
+          offerId: "clipp-m-chez-leon",
+          httpStatus: 200,
+          finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
+          title: "Chez Leon Tampa, FL",
+          hasSoldOut: true,
+          observedAt: "2026-11-18T23:00:00.000Z",
+        },
+      ]),
+      "utf8"
+    );
+
+    const dryRunStdout = execFileSync(
+      process.execPath,
+      ["scripts/produce-clipp-evidence.mjs", "--dry-run", "--fixture", tmpFixturePath],
+      { cwd: ROOT, encoding: "utf8" }
+    );
+    const dryRunParsed = JSON.parse(dryRunStdout);
+    ok(dryRunParsed && dryRunParsed.ok === true && dryRunParsed.dryRun === true, "producer CLI dry run exits 0 with ok: true");
+
+    // P1 + P2 + P3: Cron Execution Receipt & Durable Store Write (Process A)
+    fs.writeFileSync(
+      tmpSnapPath,
+      JSON.stringify({
+        observedAt: "2026-11-18T23:19:12.000Z",
+        verificationMode: "manual",
+        results: [
+          {
+            offerId: "clipp-m-chez-leon",
+            httpStatus: 200,
+            finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
+            title: "Chez Leon Tampa, FL",
+            html: "<title>Chez Leon Tampa, FL</title><div>Sold Out for Now</div>",
+            hasSoldOut: true,
+            hasAddToCart: false,
+            hasBuyNow: false,
+          },
+          {
+            offerId: "clipp-m-blind-goat",
+            httpStatus: 200,
+            finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+            title: "The Blind Goat Tampa, FL",
+            html: "<title>The Blind Goat Tampa, FL</title><div>Add to Cart Buy Now $12 For $30 Worth Of Casual Dining</div>",
+            hasSoldOut: false,
+            hasAddToCart: true,
+            hasBuyNow: true,
+          },
+          {
+            offerId: "clipp-m-pizza-kitchen",
+            httpStatus: 200,
+            finalUrl: "https://www.clipp.com/all-offers/20-casual-dining-tampa-fl-deal-12875835",
+            title: "Pizza Kitchen Tampa, FL",
+            html: "<title>Pizza Kitchen Tampa, FL</title><div>Add to Cart Buy Now $10 For $20 Worth Of Casual Dining</div>",
+            hasSoldOut: false,
+            hasAddToCart: true,
+            hasBuyNow: true,
+          },
+          {
+            offerId: "clipp-m-dip-and-happy",
+            httpStatus: 403,
+            finalUrl: "https://www.clipp.com/all-offers/40-casual-dining-tampa-fl-deal-12863594",
+            title: "Access Denied",
+            html: "Access Denied",
+          },
+          {
+            offerId: "clipp-m-marcos-riverview",
+            httpStatus: 403,
+            finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-riverview-fl-deal-12853657",
+            title: "Access Denied",
+            html: "Access Denied",
+          },
+        ],
+      }),
+      "utf8"
+    );
+
+    const procACode = `
+      import assert from "node:assert/strict";
+      import fs from "node:fs";
+      import { POST } from "./app/api/cron/verify-offers/route.js";
+
+      const req = new Request("https://wayfind.test/api/cron/verify-offers", {
+        method: "POST",
+        headers: {
+          authorization: "Bearer c3-test-secret",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          snapshotPath: process.env.CLIPP_EVIDENCE_SNAPSHOT_PATH,
+          storePath: process.env.WF_CLIPP_EVIDENCE_STORE_PATH,
+        }),
+      });
+
+      const res = await POST(req);
+      assert.equal(res.status, 200);
+      const json = await res.json();
+      assert.equal(json.ok, true);
+      assert.ok(json.quarantined >= 1, "quarantined >= 1");
+      assert.ok(json.recovered >= 1, "recovered >= 1");
+      assert.ok(json.inconclusive >= 2, "inconclusive >= 2");
+      assert.ok(fs.existsSync(process.env.WF_CLIPP_EVIDENCE_STORE_PATH), "store file exists");
+      console.log(JSON.stringify({ ok: true, quarantined: json.quarantined, recovered: json.recovered, inconclusive: json.inconclusive }));
+    `;
+    const procAStdout = execFileSync(process.execPath, ["--input-type=module", "-e", procACode], {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        CRON_SECRET: "c3-test-secret",
+        WF_CLIPP_EVIDENCE_STORE_PATH: tmpStorePath,
+        CLIPP_EVIDENCE_SNAPSHOT_PATH: tmpSnapPath,
+      },
+      encoding: "utf8",
+    });
+    const procAParsed = JSON.parse(procAStdout);
+    ok(procAParsed && procAParsed.ok === true, "Process A POST /api/cron/verify-offers succeeds and writes durable store");
+    ok(fs.existsSync(tmpStorePath), "tmpStorePath exists on disk after Process A");
+
+    // P4: Real Serving & /api/commerce/go Redirect Proof After a Fresh Process Starts (Process B)
+    const procBCode = `
+      import assert from "node:assert/strict";
+      import { getClippExecutionReceipts } from "./lib/clippDurableStore.js";
+      import { clippOfferById } from "./lib/clippOffers.js";
+      import { COUPONS, couponIsLive } from "./lib/coupons.js";
+      import { GET as getHealth } from "./app/api/offers/health/route.js";
+      import { GET as getRedirect } from "./app/api/commerce/go/route.js";
+
+      // 1. Receipts in fresh Process B
+      const receipts = getClippExecutionReceipts();
+      assert.ok(receipts.length >= 1, "receipts present");
+      const lastReceipt = receipts[receipts.length - 1];
+      assert.equal(lastReceipt.job, "verify-offers:clipp");
+
+      // 2. clipp-m-chez-leon (durably quarantined)
+      assert.equal(clippOfferById("clipp-m-chez-leon"), null);
+      const chezCoupon = COUPONS.find((c) => c.id === "cpn-clipp-m-chez-leon");
+      assert.equal(couponIsLive(chezCoupon, "2026-11-18"), false);
+      const healthRes = await getHealth();
+      assert.equal(healthRes.status, 200);
+      const healthJson = await healthRes.json();
+      assert.equal(healthJson.clipp?.overlays?.["clipp-m-chez-leon"]?.quarantined, true);
+
+      const chezReq = new Request("https://wayfind.test/api/commerce/go?provider=clipp&offer=clipp-m-chez-leon", {
+        headers: { "user-agent": "WayfindVerify/1.0" },
+      });
+      const chezRedirect = await getRedirect(chezReq);
+      assert.equal(chezRedirect.status, 302);
+      assert.equal(chezRedirect.headers.get("location"), "https://wayfind.test/");
+
+      // 3. clipp-m-pizza-kitchen (durably recovered)
+      const pk = clippOfferById("clipp-m-pizza-kitchen");
+      assert.ok(pk && pk.status === "ACTIVE");
+      const pkReq = new Request("https://wayfind.test/api/commerce/go?provider=clipp&offer=clipp-m-pizza-kitchen", {
+        headers: { "user-agent": "WayfindVerify/1.0" },
+      });
+      const pkRedirect = await getRedirect(pkReq);
+      assert.equal(pkRedirect.status, 302);
+      const pkLoc = pkRedirect.headers.get("location") || "";
+      assert.ok(pkLoc.startsWith("https://www.dpbolvw.net/click-101643573-12174096"), "redirects to CJ affiliate destination");
+
+      // 4. clipp-m-blind-goat (durably updated promo)
+      const bg = clippOfferById("clipp-m-blind-goat");
+      assert.ok(bg && bg.status === "PRICE_CHANGED" && bg.livePrice === 12);
+
+      // 5. clipp-m-dip-and-happy & clipp-m-marcos-riverview (403 WAF firewall)
+      const dh = clippOfferById("clipp-m-dip-and-happy");
+      assert.ok(dh !== null);
+      assert.equal(dh.runtimeVerifiedAt, undefined);
+      assert.equal(clippOfferById("clipp-m-marcos-riverview"), null);
+
+      console.log(JSON.stringify({ ok: true }));
+    `;
+    const procBStdout = execFileSync(process.execPath, ["--input-type=module", "-e", procBCode], {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        WF_CLIPP_EVIDENCE_STORE_PATH: tmpStorePath,
+      },
+      encoding: "utf8",
+    });
+    const procBParsed = JSON.parse(procBStdout);
+    ok(procBParsed && procBParsed.ok === true, "Process B fresh cold process verified durable receipts, health route, redirect fail-closed and recovery");
+  } finally {
+    try { if (fs.existsSync(tmpFixturePath)) fs.unlinkSync(tmpFixturePath); } catch {}
+    try { if (fs.existsSync(tmpSnapPath)) fs.unlinkSync(tmpSnapPath); } catch {}
+    try { if (fs.existsSync(tmpStorePath)) fs.unlinkSync(tmpStorePath); } catch {}
+  }
 }
 
 console.log(`test-self-healing-truth-engine: OK — ${assertions} assertions passed`);
