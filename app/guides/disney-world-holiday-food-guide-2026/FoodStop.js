@@ -1,9 +1,9 @@
 import locations from "../../../lib/disneyChristmasFoodLocations2026.json";
-import VideoFacade from "../../components/VideoFacade";
+import CreatorCoverFacade from "../../components/CreatorCoverFacade";
 import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails";
 import styles from "./page.module.css";
 
-export default function FoodStop({ stop, destination }) {
+export default function FoodStop({ stop, destination, placeId = null }) {
   const point = locations[stop.id];
   return <section id={stop.id} className={styles.stop} aria-labelledby={stop.id + "-heading"}>
     <p className={styles.kicker}>{stop.venue}</p>
@@ -15,14 +15,13 @@ export default function FoodStop({ stop, destination }) {
       <div><dt>Admission</dt><dd>{stop.admission}</dd></div>
       <div><dt>Availability</dt><dd>{stop.availability}</dd></div>
     </dl>
-    <div className={styles.foodMedia}>{stop.posts.map((post) => {
+    <div className={styles.foodMedia}>{(placeId ? stop.posts : []).map((post) => {
       return <CreatorPlaybackDetails key={post.url} details={<p className={styles.mediaCredit}>
         {post.kind === "carousel" ? "Post" : "Reel"} by <a href={post.url} target="_blank" rel="noopener noreferrer">@{post.creator}</a>
       </p>}>
-        {/* post.cover is an owned, credited photo (with post.coverCredit) when Wayfind has one. None
-            does today, so every tile keeps the branded cover. No illustration stands in for a dish. */}
-        <VideoFacade platform="instagram" url={post.url} label={post.label}
-          poster={post.cover || null} posterCredit={post.coverCredit || null}
+        {/* The cover is Wayfind's own credited photo of the park where this food is sold (never an
+            illustration and never creator media). A stop with no park row shows no video tile. */}
+        <CreatorCoverFacade placeId={placeId} platform="instagram" url={post.url} label={post.label}
           coverCity={destination} coverTitle={post.coverTitle || stop.title} coverEyebrow={"@" + post.creator} />
       </CreatorPlaybackDetails>;
     })}</div>

@@ -118,12 +118,13 @@ for (const f of surfaces) {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const stopFile = path.join(here, "../app/guides/disney-world-holiday-food-guide-2026/FoodStop.js");
   const stop = readFileSync(stopFile, "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\/.*$/gm, "");
-  const tile = /<VideoFacade\b[^>]*>/.exec(stop);
-  ok(!!tile, "positive control: the Disney food stop renders a VideoFacade creator tile");
-  ok(!/disney-christmas-maps\/covers|Food illustration/.test(stop), "the Disney food stop uses no illustration as a creator tile cover");
-  ok(!!tile && /posterCredit=\{post\.coverCredit \|\| null\}/.test(tile[0]) && /poster=\{post\.cover \|\| null\}/.test(tile[0]), "a Disney creator tile cover comes only from the post's own credited cover fields");
-  const disneyData = readFileSync(path.join(here, "../lib/guidesDisneyHolidayFood2026.js"), "utf8");
-  ok((disneyData.match(/\bcover:/g) || []).length === (disneyData.match(/\bcoverCredit:/g) || []).length, "every Disney creator cover carries a credit");
+  const tile = /<CreatorCoverFacade\b[^>]*>/.exec(stop);
+  ok(!!tile && /\bplaceId=\{placeId\}/.test(tile[0]), "positive control: the Disney food stop renders its creator tile through CreatorCoverFacade with the park's place id");
+  ok(!/disney-christmas-maps\/covers|Food illustration|\bposter=/.test(stop), "the Disney food stop uses no illustration or hand-set picture as a creator tile cover");
+  ok(/\(placeId \? stop\.posts : \[\]\)\.map\(/.test(stop), "a Disney stop with no park row shows no video tile (no blank tile)");
+  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS } = await import("../lib/guidesDisneyHolidayFood2026.js");
+  ok(DISNEY_FOOD_PARKS.length === 5 && DISNEY_FOOD_PARKS.every((park) => /^ChIJ[\w-]{20,}$/.test(park.placeId || "")), "every Disney food park carries its inventory place id for the credited cover");
+  ok(DISNEY_FOOD_STOPS.every((s) => DISNEY_FOOD_PARKS.some((park) => park.id === s.parkId)), "every Florida food stop belongs to a park with a cover source");
   let coversExist = true;
   try { statSync(path.join(here, "../public/guides/disney-christmas-maps/covers")); } catch { coversExist = false; }
   ok(!coversExist, "public/guides/disney-christmas-maps/covers holds no uncredited cover art");
