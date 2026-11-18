@@ -51,7 +51,7 @@ export default function DisneyHolidayFoodGuidePage() {
       region="Walt Disney World" category="Holiday food guide 2026"
       updatedLabel="By Gabriel Pereira · Research checked November 17, 2026"
       jumpHref="#disney-food-map" jumpLabel="Explore the food map"
-      actions={<ShareButton url={pageShareUrl("/guides/disney-world-holiday-food-guide-2026")} title={guide.title} text="The Disney holiday food guide: illustrated park maps and creator videos. On Wayfind." tone="dark" event="guide_share" meta={{ slug: DISNEY_FOOD_SLUG, placement: "hero" }} />}
+      actions={<ShareButton url={pageShareUrl("/guides/disney-world-holiday-food-guide-2026")} title={guide.title} text="The Disney holiday food guide: park maps and creator videos. On Wayfind." tone="dark" event="guide_share" meta={{ slug: DISNEY_FOOD_SLUG, placement: "hero" }} />}
     >
     </GuideArticleHero>
 
@@ -90,7 +90,7 @@ export default function DisneyHolidayFoodGuidePage() {
         <p>Researched November 17, 2026 using Disney Parks Blog’s official 2026 menus, the Summer House menu, six reels by @disneyforfoodies and posts by @disneyfoodblog. The Anaheim bonus features @eatsbynatt’s reel. This is a researched planning guide, not a claim that Wayfind personally tasted each dish.</p>
         <p>Prices come from the shared posts. Daily operating hours, current stock, the Cookie Bar sundae and the San Angel Inn special were not independently confirmed. Instagram controls post and embed availability; every post has a direct source link so the guide remains useful if an embed cannot play.</p>
         <ul>{guide.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label} ↗</a></li>)}</ul>
-        <p>The illustrations show the areas where the food counters are located. Use the park’s current map for walking directions.</p>
+        <p>The park maps locate food counters and mark the nearest known landmark for seasonal pop-ups. Select a pin to open its food details.</p>
       </section>
 
       <GuideFigure image={hero} role="card" />

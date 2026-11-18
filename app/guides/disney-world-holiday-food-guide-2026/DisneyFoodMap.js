@@ -1,13 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import MapCategoryPin from "../../components/MapCategoryPin";
+import { useEffect, useMemo, useState } from "react";
+import CreatorAppleMap from "../../components/CreatorAppleMap";
+import locations from "../../../lib/disneyChristmasFoodLocations2026.json";
 import styles from "./DisneyFoodMap.module.css";
 
 const initialPark = "animal-kingdom";
 
 export default function DisneyFoodMap({ parks, stops, panels }) {
   const [parkId, setParkId] = useState(initialPark);
+
+  const [selectedId, setSelectedId] = useState(null);
+  const places = useMemo(() => stops
+    .filter((stop) => stop.parkId === parkId && locations[stop.id])
+    .map((stop) => ({
+      id: stop.id,
+      lat: locations[stop.id].lat,
+      lng: locations[stop.id].lng,
+      name: locations[stop.id].label,
+      city: stop.title,
+      category: "food",
+    })), [parkId, stops]);
+
+  function openStop(id) {
+    if (!id) return;
+    setSelectedId(id);
+    if (window.location.hash === "#" + id) document.getElementById(id)?.scrollIntoView();
+    else window.location.hash = id;
+  }
 
   // Deep links and the browser's Back button also open the park containing the food.
   useEffect(() => {
@@ -18,6 +38,7 @@ export default function DisneyFoodMap({ parks, stops, panels }) {
       const park = parks.find((item) => id === "park-" + item.id);
       if (!stop && !park) return;
       setParkId(stop ? stop.parkId : park.id);
+      setSelectedId(stop?.id || null);
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: "start" }));
     };
@@ -31,6 +52,7 @@ export default function DisneyFoodMap({ parks, stops, panels }) {
 
   function changePark(id) {
     setParkId(id);
+    setSelectedId(null);
     window.history.replaceState(window.history.state, "", "#park-" + id);
   }
 
@@ -46,16 +68,12 @@ export default function DisneyFoodMap({ parks, stops, panels }) {
       const parkStops = stops.filter((stop) => stop.parkId === park.id);
       return <div className={styles.panel} key={park.id} data-park={park.id} id={"park-" + park.id}>
         <h3>{park.shortName}</h3>
-        <div className={styles.artboard}>
-          <img data-guide-map-canvas alt={"Illustrated food areas in " + park.name} className={styles.art} width="766" height="340" src={"/guides/disney-christmas-maps/" + park.id + ".webp"} loading="lazy" />
-          {parkStops.map((stop, index) => <a key={stop.id} className={styles.pin} href={"#" + stop.id}
-            aria-label={stop.venue + " — " + stop.title} style={{ left: stop.mapX + "%", top: stop.mapY + "%" }}>
-            <MapCategoryPin family="food" height={36} /><span>{index + 1}</span>
-          </a>)}
-        </div>
-        <p className={styles.legend}>Illustrated food areas · Approximate locations</p>
+        {park.id === parkId && <div className={styles.mapFrame} aria-label={"Food locations in " + park.name}>
+          <CreatorAppleMap places={places} selectedId={selectedId} onSelect={openStop} />
+        </div>}
         <ol className={styles.keyList}>{parkStops.map((stop) => <li key={stop.id}>
           <a href={"#" + stop.id}><strong>{stop.venue}</strong><small>{stop.title}</small></a>
+          {locations[stop.id]?.landmark && <small className={styles.mapNote}>Pin at {locations[stop.id].label} · {locations[stop.id].landmark}</small>}
         </li>)}</ol>
         <div key={parkId === park.id ? "active" : "idle"}>{panels[park.id]}</div>
       </div>;

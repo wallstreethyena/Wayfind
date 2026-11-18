@@ -11,11 +11,8 @@
 .explorer:has(input[value="animal-kingdom"]:checked) .panel[data-park="animal-kingdom"],
 .explorer:has(input[value="hollywood-studios"]:checked) .panel[data-park="hollywood-studios"],
 .explorer:has(input[value="disney-springs"]:checked) .panel[data-park="disney-springs"] { display: block; }
-.artboard { position: relative; overflow: hidden; border-radius: 12px; background: #dce6d4; }
-.art { display: block; width: 100%; height: auto; }
-.pin { position:absolute; transform:translate(-50%,-72%); display:grid; place-items:center; width:44px; height:44px; text-decoration:none; filter:drop-shadow(0 2px 3px #111a); }
-.pin span { position:absolute; right:1px; top:1px; display:grid; place-items:center; background:#233c31; border:2px solid white; border-radius:50%; width:20px; height:20px; font:bold 12px/1 system-ui; color:white; }
-.legend { margin:6px 0 14px!important; font-size:12px; color:#b7c4ba; }
+.mapFrame { position: relative; height: clamp(330px, 53vh, 540px); overflow: hidden; border-radius: 12px; background: #162423; }
+.mapNote { display: block; font-size: 13px; color: #bbc7c0; }
 .keyList { margin: 0 0 24px; padding-left: 25px; }
 .keyList li { padding: 4px 0; color: #ffe1b8; }
 .keyList a { display: inline-flex; justify-content:center; flex-direction:column; min-height:44px; text-decoration:none; }
