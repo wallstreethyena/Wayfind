@@ -1,12 +1,68 @@
 {
   "slug": "st-augustine-christmas-coffee-snow-walk-2026",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "Oldest Wooden School House: start before closing": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/oldest-wooden-school-house.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The Oldest Wooden School House on St. George Street in St. Augustine",
+      "caption": "Oldest Wooden School House, St. George Street, St. Augustine.",
+      "credit": "Adam Chivers",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Oldest_School_House.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oldest_School_House.jpg",
+      "author": "Adam Chivers",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": "wfadd_oldest_wooden_school_house_st_augustine",
-      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+      "verification": "Building plaque reads The Oldest Wooden School House in the U.S.; chain anchor and St. George Street setting match. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     },
+    "Optional Aviles Street extension: Forgotten Tonic": {
+      "src": "/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/aviles-street-st-augustine.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Brick paved Aviles Street lined with palms and historic walls in St. Augustine",
+      "caption": "Aviles Street, St. Augustine, the optional extension toward Forgotten Tonic.",
+      "credit": "Kiran891",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Aviles_Street,_seen_from_the_north,_St._Augustine_01.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Aviles_Street,_seen_from_the_north,_St._Augustine_01.jpg",
+      "author": "Kiran891",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
+      "verification": "Commons file titled Aviles Street, seen from the north, St. Augustine; brick lane and coquina walls match. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "Nights of Lights: the evening anchor": {
+      "src": "/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/nights-of-lights-plaza-gazebo.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "White Nights of Lights strands in the oaks and the lit gazebo of the Plaza de la Constitucion in St. Augustine at night",
+      "caption": "The Plaza de la Constitucion during St. Augustine's Nights of Lights.",
+      "credit": "Joe Ross",
+      "creditHref": "https://www.flickr.com/photos/59398780@N00/22847814974",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/59398780@N00/22847814974",
+      "author": "Joe Ross",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo 2015 St. Augustine Nights of Lights by Joetography LLC. Viewed the full image: the plaza gazebo and oaks wrapped in white lights in downtown St. Augustine during Nights of Lights. Exact event and place. No overlay or watermark. Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
+  "gaps": {
     "St. Augustine Coffee House: Santa's Toy Shop": {
       "reason": "no-verified-source",
       "placeId": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
@@ -15,16 +71,6 @@
     "Auggie's Draft Room: check the snowfall separately": {
       "reason": "no-verified-source",
       "placeId": "ChIJa9H7lA4n5IgRViVY0j2H7bY",
-      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
-    },
-    "Nights of Lights: the evening anchor": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
-    },
-    "Optional Aviles Street extension: Forgotten Tonic": {
-      "reason": "no-verified-source",
-      "placeId": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
       "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
     },
     "Put the stops in an order that respects closing times": {
