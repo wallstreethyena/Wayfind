@@ -1,0 +1,53 @@
+{
+ "batch": "2026-11-18-creators",
+ "note": "Poster-only batch for the Christmas creator rail (lib/christmasCreatorPosters.js). No wf_inventory writes.",
+ "posters": {
+  "the-sail-plaza-tampa": {
+   "file": "public/place-photos/batch-2026-11-18-creators/the-sail-plaza-tampa/cp_730c07b50d20ec0b.jpg",
+   "page": "https://www.tampa.gov/tcc/sail-plaza",
+   "basis": "official website (City of Tampa / Tampa Convention Center page)",
+   "sha256_16": "730c07b50d20ec0b"
+  },
+  "bens-soft-pretzels-st-augustine": {
+   "file": "public/place-photos/batch-2026-11-18-creators/bens-soft-pretzels-st-augustine/cp_9b84488c976a1978.jpg",
+   "page": "https://www.benspretzels.com/",
+   "basis": "official website; locations page lists 54 St George St",
+   "sha256_16": "9b84488c976a1978"
+  },
+  "mimis-famous-crepes-st-augustine": {
+   "file": "public/place-photos/batch-2026-11-18-creators/mimis-famous-crepes-st-augustine/cp_7f4e2c1cf06c5b3b.jpg",
+   "page": "https://www.mimisfamouscrepes.com/",
+   "basis": "official website",
+   "sha256_16": "7f4e2c1cf06c5b3b"
+  },
+  "jock-lindseys-hangar-bar-disney-springs": {
+   "file": "public/place-photos/batch-2026-11-18-creators/jock-lindseys-hangar-bar-disney-springs/cp_35917a38c971b9ae.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Jock_Lindsey%27s_Hangar_Bar_at_Disney_Springs.jpg",
+   "basis": "CC BY-SA 4.0, author Jedi94",
+   "sha256_16": "35917a38c971b9ae"
+  },
+  "snowcat-ridge-dade-city": {
+   "file": "public/place-photos/batch-2026-11-18-creators/snowcat-ridge-dade-city/cp_452dfa740dd5a48a.jpg",
+   "page": "https://snowcatridge.com/attractions/snowy-slopes/",
+   "basis": "official website",
+   "sha256_16": "452dfa740dd5a48a"
+  },
+  "santas-christmas-tree-forest-eustis": {
+   "file": "public/place-photos/batch-2026-11-18-creators/santas-christmas-tree-forest-eustis/cp_0e4c8735b734f4a7.jpg",
+   "page": "https://santaschristmastreeforest.com/",
+   "basis": "official website",
+   "sha256_16": "0e4c8735b734f4a7"
+  },
+  "st-augustine-coffee-house": {
+   "file": "public/place-photos/batch-2026-11-18-creators/st-augustine-coffee-house/cp_764e18b20dc90674.jpg",
+   "page": "https://www.staugcoffee.com/",
+   "basis": "official website",
+   "sha256_16": "764e18b20dc90674"
+  }
+ },
+ "skipped": {
+  "roberts-christmas-wonderland-clearwater": "official site robertscw.com has an invalid TLS certificate and an empty Flash page; no licensed photo found",
+  "dead-coconut-club-citywalk-orlando": "Universal media usage policy bars non-editorial use; no CC image of the club itself",
+  "spirit-christmas-clearwater": "no licensed photo of that exact store"
+ }
+}
