@@ -16,13 +16,14 @@ export default function FoodStop({ stop, destination }) {
       <div><dt>Availability</dt><dd>{stop.availability}</dd></div>
     </dl>
     <div className={styles.foodMedia}>{stop.posts.map((post) => {
-      const shortcode = new URL(post.url).pathname.split("/")[2];
       return <CreatorPlaybackDetails key={post.url} details={<p className={styles.mediaCredit}>
         {post.kind === "carousel" ? "Post" : "Reel"} by <a href={post.url} target="_blank" rel="noopener noreferrer">@{post.creator}</a>
       </p>}>
+        {/* post.cover is an owned, credited photo (with post.coverCredit) when Wayfind has one. None
+            does today, so every tile keeps the branded cover. No illustration stands in for a dish. */}
         <VideoFacade platform="instagram" url={post.url} label={post.label}
-          poster={"/guides/disney-christmas-maps/covers/" + shortcode + ".webp"} coverCity={destination}
-          posterCredit="Food illustration" coverTitle={post.coverTitle || stop.title} coverEyebrow={"@" + post.creator} />
+          poster={post.cover || null} posterCredit={post.coverCredit || null}
+          coverCity={destination} coverTitle={post.coverTitle || stop.title} coverEyebrow={"@" + post.creator} />
       </CreatorPlaybackDetails>;
     })}</div>
     {stop.planning && <p>{stop.planning}</p>}

@@ -111,6 +111,23 @@ for (const f of surfaces) {
   ok(!POST_LINK.test(src) && !POST_HREF.test(src), `${f}: no link sends a visitor to the creator post itself`);
 }
 
+// Disney holiday food guide (audit 2026-11-18): its nine creator tiles shipped with painted
+// illustrations of the dishes, with no credit, source or licence. A creator tile takes a cover
+// only from an owned credited photo; otherwise it keeps the branded cover.
+{
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const stopFile = path.join(here, "../app/guides/disney-world-holiday-food-guide-2026/FoodStop.js");
+  const stop = readFileSync(stopFile, "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\/.*$/gm, "");
+  const tile = /<VideoFacade\b[^>]*>/.exec(stop);
+  ok(!!tile, "positive control: the Disney food stop renders a VideoFacade creator tile");
+  ok(!/disney-christmas-maps\/covers|Food illustration/.test(stop), "the Disney food stop uses no illustration as a creator tile cover");
+  ok(!!tile && /posterCredit=\{post\.coverCredit \|\| null\}/.test(tile[0]) && /poster=\{post\.cover \|\| null\}/.test(tile[0]), "a Disney creator tile cover comes only from the post's own credited cover fields");
+  const disneyData = readFileSync(path.join(here, "../lib/guidesDisneyHolidayFood2026.js"), "utf8");
+  ok((disneyData.match(/\bcover:/g) || []).length === (disneyData.match(/\bcoverCredit:/g) || []).length, "every Disney creator cover carries a credit");
+  let coversExist = true;
+  try { statSync(path.join(here, "../public/guides/disney-christmas-maps/covers")); } catch { coversExist = false; }
+  ok(!coversExist, "public/guides/disney-christmas-maps/covers holds no uncredited cover art");
+}
 if (failures.length) {
   console.error(`check-creator-video-rules: ${failures.length} FAILED (${passed} passed)`);
   for (const m of failures) console.error("  ✗ " + m);
