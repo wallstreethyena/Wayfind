@@ -2701,3 +2701,6 @@ node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
 node scripts/check-photo-rail-swipe.mjs
 node scripts/test-home-landing-thanksgiving.mjs
+
+# Universal holiday atlas: real targets and actual food media, not screenshot crops.
+node scripts/check-universal-holiday-guide.mjs
