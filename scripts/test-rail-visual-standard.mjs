@@ -40,7 +40,7 @@ const pagedHeading = render(RailHeading, {
 });
 const pagedHeader = headingMarkup(pagedHeading);
 ok(pagedHeader.includes("Late-night favorites") && pagedHeader.includes("Independent local places open after dark."), "RailHeading renders its title and deck inside the shared header");
-ok(pagedHeader.includes("<b>10</b> of <b>19</b>"), "a partially loaded rail says 10 of 19 inside its heading");
+ok(pagedHeader.includes("<b>1</b> of <b>19</b>"), "a rail at its first card says 1 of 19 (position of the total, never the loaded count) inside its heading");
 equal((pagedHeader.match(/<button\b/g) || []).length, 2, "a navigable rail renders exactly two buttons");
 ok(pagedHeader.includes('type="button"') && pagedHeader.includes('aria-label="Previous verified options"') && pagedHeader.includes('aria-label="Next verified options"'), "both rail controls are typed and accessibly named");
 

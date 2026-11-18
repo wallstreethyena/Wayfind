@@ -103,8 +103,12 @@ ok(SMALLEST < 60 * 1024, `hero-460.avif is ${(SMALLEST / 1024).toFixed(1)}KB —
   const rails = readFileSync(p2("lib/rails.js"), "utf8");
   ok(/return `\$\{RAIL_ART_DIR\}\/\$\{base\}-760\.jpg\?v=\$\{RAIL_ART_V\}`/.test(rails),
     "railArtFallback must return a 760w DERIVATIVE — naming a full-size original here is the exact preload bug this section guards");
-  ok(/sizes=\{RAIL_ART_SIZES\}/.test(rail) && (rail.match(/sizes=\{RAIL_ART_SIZES\}/g) || []).length === 2,
-    "both <source>s must carry the SAME sizes value — one of them guessing differently is how a phone downloads the 760px candidate");
+  for (const base of ["base", "selArtBase"]) {
+    for (const format of ["avif", "webp"]) {
+      const source = `<source type="image/${format}" srcSet={railArtSrcSet(${base}, "${format}")} sizes={RAIL_ART_SIZES}`;
+      ok(rail.includes(source), `poster and selected thumbnail must reuse the responsive ${format} candidates and sizes (${base})`);
+    }
+  }
   ok(/const RAIL_ART_SIZES = "\(max-width:900px\) 76vw, \(max-width:1100px\) 34vw, \d+px"/.test(rails),
     "RAIL_ART_SIZES must mirror the tile's real CSS width (--wf8-tw), or the browser picks the wrong file");
 }

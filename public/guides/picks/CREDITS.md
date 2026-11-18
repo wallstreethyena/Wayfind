@@ -617,6 +617,13 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/trending-in-florida-this-week-oct-19-2026/johns-pass-village-boardwalk.jpg` — trending-in-florida-this-week-oct-19-2026: 45th John's Pass Seafood Festival. [Richard Mc Neil](https://commons.wikimedia.org/wiki/File:Boutiques_colorées_du_Village_de_John's_Pass,_Madeira_Beach_-_panoramio.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/trending-in-florida-this-week-oct-19-2026/tropicana-field-game-day.jpg` — trending-in-florida-this-week-oct-19-2026: Rays win the AL pennant; World Series vs Brewers. [EaglesFanInTampa](https://commons.wikimedia.org/wiki/File:Tropicana_Field_Playing_Field_Opening_Day_2010.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## universal-orlando-christmas-2026
+
+- `/guides/picks/universal-orlando-christmas-2026/citywalk.webp` — universal-orlando-christmas-2026: Universal CityWalk. [Miosotis Jade](https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/universal-orlando-christmas-2026/nintendo-day.webp` — universal-orlando-christmas-2026: Universal Epic Universe. [Brunnofernando](https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/universal-orlando-christmas-2026/seuss-landing.webp` — universal-orlando-christmas-2026: Universal Islands of Adventure. [David Bjorgen](https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg); [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/universal-orlando-christmas-2026/universal-holiday-parade.webp` — universal-orlando-christmas-2026: Universal Studios Florida. [jared422_80](https://www.flickr.com/photos/93283041@N00/6669301281); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+
 ## weeki-wachee-kayak-mermaids-guide
 
 - `/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-the-spring-fed-water-park.webp` — weeki-wachee-kayak-mermaids-guide: Buccaneer Bay, the spring-fed water park. [eutrophication&hypoxia](https://www.flickr.com/photos/48722974@N07/4584923946); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).

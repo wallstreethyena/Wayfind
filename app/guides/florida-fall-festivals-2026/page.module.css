@@ -911,6 +911,14 @@
   background: rgba(255,255,255,.06);
 }
 
+.bucketRow {
+  display: flex;
+  flex-direction: column;
+  background: #111;
+}
+.bucketRow a {
+  background: transparent;
+}
 .bucketList a,
 .regionLinks a {
   display: flex;

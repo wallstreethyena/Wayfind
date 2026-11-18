@@ -3,22 +3,22 @@
   "verifiedAt": "2026-11-17",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 383,
-    "usages": 409,
-    "verified": 383,
+    "files": 387,
+    "usages": 413,
+    "verified": 387,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 94,
+      "CC BY-SA 4.0": 95,
       "CC BY-SA 3.0": 82,
-      "CC BY 4.0": 21,
+      "CC BY 4.0": 22,
       "CC BY 3.0": 21,
-      "CC BY 2.0": 93,
+      "CC BY 2.0": 95,
       "CC0 1.0 Universal": 25,
       "CC BY-SA 2.0": 38,
       "Unsplash License": 4,
       "Public domain": 3,
-      "CC BY-SA 2.5": 1
+      "CC BY-SA 2.5": 2
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -1203,13 +1203,13 @@
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Marie_Selby_Botanical_Gardens_Lights_in_Bloom_12DEC2024.jpg",
         "title": "Marie Selby Botanical Gardens Lights in Bloom 12DEC2024",
-        "author": "Kimberli M\u00e4k\u00e4r\u00e4inen",
+        "author": "Kimberli Mäkäräinen",
         "dateTaken": "2024-12-12 20:10:50",
         "licence": "CC BY-SA 4.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       },
       "wayfind": {
-        "credit": "Kimberli M\u00e4k\u00e4r\u00e4inen",
+        "credit": "Kimberli Mäkäräinen",
         "creditHref": "https://commons.wikimedia.org/wiki/File:Marie_Selby_Botanical_Gardens_Lights_in_Bloom_12DEC2024.jpg",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
@@ -2544,7 +2544,7 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/97651299@N00/50730504463",
-        "title": "\u201cWinter Nights Under the Lights\u201d Palma Sola Botanical Park",
+        "title": "“Winter Nights Under the Lights” Palma Sola Botanical Park",
         "author": "Carol VanHook",
         "displayName": "Carol VanHook",
         "dateTaken": "2020-12-17 15:31:34",
@@ -2822,7 +2822,7 @@
         {
           "slug": "orlando-restaurants",
           "role": "pick",
-          "pick": "Otto\u2019s High Dive"
+          "pick": "Otto’s High Dive"
         },
         {
           "slug": "magical-dining-orlando-2026",
@@ -2832,7 +2832,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg",
-        "title": "Otto\u2019s Rum Bar",
+        "title": "Otto’s Rum Bar",
         "author": "Dclemens1971",
         "dateTaken": "2026-02-15 09:35:25",
         "licence": "CC BY 4.0",
@@ -2892,7 +2892,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:%EA%BD%83_(Cote),_Design_District,_Miami,_Florida.jpg",
-        "title": "\uaf43 (Cote), Design District, Miami, Florida",
+        "title": "꽃 (Cote), Design District, Miami, Florida",
         "author": "Sharon Hahn Darlin",
         "dateTaken": "2021-06-05 19:29:35",
         "licence": "CC BY 2.0",
@@ -3902,14 +3902,14 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022.JPG",
-        "title": "SEA LIFE Orlando Aquarium en f\u00e9vrier 2022",
-        "author": "Beno\u00eet Prieur",
+        "title": "SEA LIFE Orlando Aquarium en février 2022",
+        "author": "Benoît Prieur",
         "dateTaken": "2022-02-03 10:29:42",
         "licence": "CC0 1.0 Universal",
         "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
       },
       "wayfind": {
-        "credit": "Beno\u00eet Prieur",
+        "credit": "Benoît Prieur",
         "creditHref": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022.JPG",
         "license": "CC0 1.0 Universal",
         "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
@@ -6113,13 +6113,13 @@
         {
           "slug": "things-to-do-in-miami-florida",
           "role": "pick",
-          "pick": "P\u00e9rez Art Museum Miami"
+          "pick": "Pérez Art Museum Miami"
         }
       ],
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/southbeachcars/22601118889",
-        "title": "P\u00e9rez Art Museum Miami",
+        "title": "Pérez Art Museum Miami",
         "author": "Phillip Pessar",
         "displayName": "Phillip Pessar",
         "dateTaken": "2015-11-13 13:23:08",
@@ -7248,7 +7248,7 @@
         "licence": "Unsplash License",
         "licenceUrl": "https://unsplash.com/license",
         "evidence": "Primary photo page identifies the named location and explicitly states Free to use under the Unsplash License. Source page and actual downloaded photograph independently reviewed on 2026-09-24.",
-        "verification": "Unsplash source uploaded by the Tampa Bay Estuary Program explicitly identifies Shell Key, Florida, and photographer Joe Whalen, with the free Unsplash License. Downloaded and visually inspected 1400px image: clear kayaks with rear-facing paddlers, calm blue water and dense green mangrove shore. Subject directly matches the guides\u2019 Shell Key paddle trip; no generic substitute or identifiable face."
+        "verification": "Unsplash source uploaded by the Tampa Bay Estuary Program explicitly identifies Shell Key, Florida, and photographer Joe Whalen, with the free Unsplash License. Downloaded and visually inspected 1400px image: clear kayaks with rear-facing paddlers, calm blue water and dense green mangrove shore. Subject directly matches the guides’ Shell Key paddle trip; no generic substitute or identifiable face."
       },
       "wayfind": {
         "credit": "Joe Whalen / Tampa Bay Estuary Program",
@@ -9255,7 +9255,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:C%C3%A0_d%27Zan_bayside_fa%C3%A7ade.jpg",
-        "title": "C\u00e0 d'Zan bayside fa\u00e7ade",
+        "title": "Cà d'Zan bayside façade",
         "author": "McGhiever",
         "dateTaken": "2013-03-28",
         "licence": "CC BY-SA 4.0",
@@ -9886,18 +9886,18 @@
         {
           "slug": "tampa-bay-rainy-day",
           "role": "pick",
-          "pick": "The Dal\u00ed Museum"
+          "pick": "The Dalí Museum"
         },
         {
           "slug": "things-to-do-st-petersburg-clearwater-summer-2026",
           "role": "pick",
-          "pick": "The Dal\u00ed Museum"
+          "pick": "The Dalí Museum"
         }
       ],
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG",
-        "title": "Salvador Dal\u00ed Museum",
+        "title": "Salvador Dalí Museum",
         "author": "Taty2007",
         "dateTaken": "Taken on 13 March 2011 (according to Exi",
         "licence": "CC BY 3.0",
@@ -10167,7 +10167,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Red_sky_over_the_boardwalk_at_Madeira_Beach%2C_florida._Quand_le_ciel_rougit_la_journ%C3%A9e_qui_ach%C3%A8ve..._-_panoramio.jpg",
-        "title": "Red sky over the boardwalk at Madeira Beach, florida. Quand le ciel rougit la journ\u00e9e qui ach\u00e8ve... - panoramio",
+        "title": "Red sky over the boardwalk at Madeira Beach, florida. Quand le ciel rougit la journée qui achève... - panoramio",
         "author": "Richard Mc Neil",
         "dateTaken": "Taken on 16 December 2012",
         "licence": "CC BY 3.0",
@@ -10373,7 +10373,7 @@
         {
           "slug": "tonights-move-tampa-september-12-2026",
           "role": "pick",
-          "pick": "Bruno Mars \u2014 The Romantic Tour"
+          "pick": "Bruno Mars — The Romantic Tour"
         }
       ],
       "source": {
@@ -10801,13 +10801,13 @@
         {
           "slug": "trending-in-florida-this-week-nov-2-2026",
           "role": "pick",
-          "pick": "Dal\u00ed: Disruption + Devotion panel discussion"
+          "pick": "Dalí: Disruption + Devotion panel discussion"
         }
       ],
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG",
-        "title": "Salvador Dal\u00ed Museum",
+        "title": "Salvador Dalí Museum",
         "author": "Taty2007",
         "dateTaken": "Taken on 13 March 2011 (according to Exi",
         "licence": "CC BY 3.0",
@@ -11346,8 +11346,8 @@
       ],
       "source": {
         "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Boutiques_color\u00e9es_du_Village_de_John's_Pass,_Madeira_Beach_-_panoramio.jpg",
-        "title": "Boutiques color\u00e9es du Village de John's Pass, Madeira Beach - panoramio",
+        "url": "https://commons.wikimedia.org/wiki/File:Boutiques_colorées_du_Village_de_John's_Pass,_Madeira_Beach_-_panoramio.jpg",
+        "title": "Boutiques colorées du Village de John's Pass, Madeira Beach - panoramio",
         "author": "Richard Mc Neil",
         "dateTaken": "Taken on 24 December 2012",
         "licence": "CC BY 3.0",
@@ -11355,7 +11355,7 @@
       },
       "wayfind": {
         "credit": "Richard Mc Neil",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Boutiques_color\u00e9es_du_Village_de_John's_Pass,_Madeira_Beach_-_panoramio.jpg",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Boutiques_colorées_du_Village_de_John's_Pass,_Madeira_Beach_-_panoramio.jpg",
         "license": "CC BY 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
         "modificationNotice": "Resized, cropped for display and converted to JPEG."
@@ -11394,6 +11394,128 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/universal-orlando-christmas-2026/citywalk.webp",
+      "usedBy": [
+        {
+          "slug": "universal-orlando-christmas-2026",
+          "role": "pick",
+          "pick": "Universal CityWalk"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg",
+        "title": "City Walk Orlando 04",
+        "author": "Miosotis Jade",
+        "dateTaken": "2016-05-29 21:18:33",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Miosotis Jade",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation retains the source license."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/universal-orlando-christmas-2026/nintendo-day.webp",
+      "usedBy": [
+        {
+          "slug": "universal-orlando-christmas-2026",
+          "role": "pick",
+          "pick": "Universal Epic Universe"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg",
+        "title": "Super Nintendo World, Epic Universe, Orlando, Flórida",
+        "author": "Brunnofernando",
+        "dateTaken": "2026-09-01 11:54:21",
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0"
+      },
+      "wayfind": {
+        "credit": "Brunnofernando",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation retains the source license."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/universal-orlando-christmas-2026/seuss-landing.webp",
+      "usedBy": [
+        {
+          "slug": "universal-orlando-christmas-2026",
+          "role": "pick",
+          "pick": "Universal Islands of Adventure"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg",
+        "title": "Seuss Landing",
+        "author": "David Bjorgen",
+        "dateTaken": "2004-08-30",
+        "licence": "CC BY-SA 2.5",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.5"
+      },
+      "wayfind": {
+        "credit": "David Bjorgen",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg",
+        "license": "CC BY-SA 2.5",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation retains the source license."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/universal-orlando-christmas-2026/universal-holiday-parade.webp",
+      "usedBy": [
+        {
+          "slug": "universal-orlando-christmas-2026",
+          "role": "pick",
+          "pick": "Universal Studios Florida"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/93283041@N00/6669301281",
+        "title": "Universal Orlando - Universal Studios - Macy's Holiday Parade - Balloon Heads",
+        "author": "Jared",
+        "displayName": "Jared",
+        "dateTaken": "2011-12-18 16:44:39",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "jared422_80",
+        "creditHref": "https://www.flickr.com/photos/93283041@N00/6669301281",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation retains the source license."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17",
+      "verificationNote": "Source licence verification carried forward from the existing reviewed use of the identical Flickr photograph; direct re-fetch on 2026-11-17 returned an incomplete page. No new licence or source identity inferred."
     },
     {
       "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-the-spring-fed-water-park.webp",
@@ -11681,7 +11803,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Long_corridor_de_commerces_sur_la_7i%C3%A8me_Avenue_Est_%C3%A0_Ybor_City,_Tampa,_Florida,_USA_-_panoramio.jpg",
-        "title": "Long corridor de commerces sur la 7i\u00e8me Avenue Est \u00e0 Ybor City, Tampa, Florida, USA - panoramio",
+        "title": "Long corridor de commerces sur la 7ième Avenue Est à Ybor City, Tampa, Florida, USA - panoramio",
         "author": "Richard Mc Neil",
         "dateTaken": "Taken on 1 January 2013",
         "licence": "CC BY 3.0",
