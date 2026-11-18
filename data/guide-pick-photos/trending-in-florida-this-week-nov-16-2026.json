@@ -60,21 +60,49 @@
       "verification": "Arch lettering reads Florida State Fairgrounds; Commons file from the Tampa fairgrounds. Live Commons licence checked: CC BY 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-17"
+    },
+    "Lightning home games": {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/lightning-home-game-ice.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Tampa Bay Lightning and Florida Panthers players facing off on the ice in front of a full crowd at the Lightning arena",
+      "caption": "A Lightning home game in Tampa.",
+      "credit": "Katy Warner from Orlando, FL, USA",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Panthers_at_Lightning_12_27_08.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Panthers_at_Lightning_12_27_08.jpg",
+      "author": "Katy Warner from Orlando, FL, USA",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file Panthers at Lightning 12 27 08, taken December 27, 2008. Viewed the full image: a Lightning home game on the ice at the Tampa arena now named Benchmark International Arena. Exact venue and event type. No overlay or watermark. Live Commons licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "Holidays at UTC": {
+      "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/utc-holiday-lights-purple.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Palm trees glowing in purple lights around a lit Christmas tree and a giant gift box facade at University Town Center in Sarasota at night",
+      "caption": "Holiday lights at University Town Center in Sarasota.",
+      "credit": "Carol VanHook",
+      "creditHref": "https://www.flickr.com/photos/97651299@N00/50697371126",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/97651299@N00/50697371126",
+      "author": "Carol VanHook",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "flickr",
+      "placeId": null,
+      "verification": "Flickr photo #31 Christmas 2020 Sarasota (Long Exposure) by Carol VanHook, taken December 8, 2020 at University Town Center, per the photographer's set description of the UTC holiday lights. Viewed the full image: lit palms and a Christmas tree outside the mall. Exact place and season. No overlay or watermark. Live Flickr licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     }
   },
   "gaps": {
-    "Holidays at UTC": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 16, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
-    },
-    "Lightning home games": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 16, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. Held for the Picture Scrapper under Gabe's November 4 image intent rule. The page ships with no photo for this pick."
-    },
     "The Holiday Promenade": {
       "reason": "no-verified-source",
       "placeId": null,

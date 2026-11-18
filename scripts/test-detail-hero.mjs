@@ -188,8 +188,8 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
   const images = nodes.filter(n => n.type === 'fixture-image');
   ok(images.length === photos.length, label + ': every available gallery photo renders');
   ok(images.every(n => n.props.fit === 'cover'), label + ': every detail image fills the frame without letterboxing');
-  const slideWidth = photos.length > 1 ? '78%' : '100%';
-  ok(images.every(n => n.props.style.width === slideWidth && n.props.style.height === '100%'), label + ': ' + (photos.length > 1 ? 'each photo peeks the next at 78% and still fills its slide' : 'a single photo fills the frame'));
+  // Owner 2026-11-18: no photo is cut off at the edge, so every slide is full width (no peek).
+  ok(images.every(n => n.props.style.width === '100%' && n.props.style.height === '100%'), label + ': ' + (photos.length > 1 ? 'each photo fills the whole frame, none cut off by a peek' : 'a single photo fills the frame'));
   for (const image of images) { image.props.onClick(); ok(openedPhoto === image.props.src, label + ': tapping keeps the original photo source for its full-size viewer'); }
   const media = nodes.find(n => 'data-detail-photo-media' in n.props);
   ok(!!media === expandedHero, label + ': full media exists only for a real photo or pending acquisition');
