@@ -1,0 +1,151 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-18T23:41:29.239Z",
+  "pack": "docs/editorial/card-lines-2026-11-18-b66/pack-01.json",
+  "reviewed_by": "claude.exe (Wayfind lane, Sonnet 5.5) agent research 2026-11-18 from official sources; owner review not recorded",
+  "researched_at": "2026-11-18",
+  "replaced": [
+    {
+      "place_id": "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
+      "name": "Shell Key Preserve",
+      "prior_row": {
+        "place_id": "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:hook:Gulf",
+          "unsourced-entity:why_here:September",
+          "unsourced-entity:best_time:August",
+          "unsourced-entity:best_time:September",
+          "unsourced-entity:best_time:October"
+        ],
+        "written_at": "2026-08-09T12:55:40.665244+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-09T12:55:40.665244+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJyRaIJPx654gRhAbigeu9AMg",
+      "name": "Orange County Regional History Center",
+      "prior_row": {
+        "place_id": "ChIJyRaIJPx654gRhAbigeu9AMg",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-12T00:55:37.99295+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-12T00:55:37.99295+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJXTeLe0XEwogR-wheRdFeKEY",
+      "name": "La Segunda Bakery and Cafe",
+      "prior_row": {
+        "place_id": "ChIJXTeLe0XEwogR-wheRdFeKEY",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-19T02:55:41.270614+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-19T02:55:41.270614+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJ8_xGlpFqw4gRpBDnt0x_mdg",
+      "name": "Café on St. Armands",
+      "prior_row": {
+        "place_id": "ChIJ8_xGlpFqw4gRpBDnt0x_mdg",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-18T19:55:52.031689+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-18T19:55:52.031689+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJk5xl2oZ_3YgRg7yR_vn87h4",
+      "name": "Chef Art Smith's Homecomin'",
+      "prior_row": {
+        "place_id": "ChIJk5xl2oZ_3YgRg7yR_vn87h4",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-06T15:55:30.864996+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-06T15:55:30.864996+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJh4m6DH7DwogRcwo9evYZIhg",
+      "name": "OLIVIA",
+      "prior_row": {
+        "place_id": "ChIJh4m6DH7DwogRcwo9evYZIhg",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-08T03:55:36.975666+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-08T03:55:36.975666+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+      "name": "On Swann",
+      "prior_row": {
+        "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:5 PM"
+        ],
+        "written_at": "2026-08-08T11:55:38.784788+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-08T11:55:38.784788+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJccEtMv5-54gR8KdmGMChKtk",
+      "name": "Titanic: The Artifact Exhibition",
+      "prior_row": {
+        "place_id": "ChIJccEtMv5-54gR8KdmGMChKtk",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-07T02:55:20.149932+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-07T02:55:20.149932+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    }
+  ]
+}
