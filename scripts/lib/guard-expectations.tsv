@@ -366,6 +366,7 @@ scripts/check-partner-collections.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	8f7
 scripts/check-partner-hook-collisions.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	32aa213b4ea79dfbfcf80fd852ad50cea20c1c6489299437d01c79313a13f5b3
 scripts/check-partner-offer-holds.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0	fbe48c0099555d7938633b541148fdb85cd30650c623d9a2336396006832c0d4
 scripts/check-partner-path-health.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	38	0	0	98b262b902029137f6ee4ce9227ad57a762fe0f0d98ab1ed63a03a99c6bac507
+scripts/check-partner-pitch.mjs	0	RENDER	blocks-ci-and-deploy	1	-	74	0	0	f4402d97eca6288287af505e885b823b930045d3bf4de83cdefee6cd564ae583
 scripts/check-photo-cache-liveness.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	7524ac283322640958de1cb88f6b9e00c8a8b84e848ead2c6bb3f44d7cbf6969
 scripts/check-photo-cap-parses.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	24ed6d53c226e2ab040a9fe0ab92e8b73eb03f0d513a6cd6a036e7118e92aa23
 scripts/check-photo-credit-under-headline.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	31	0	0	133759529563a4227124ba2bfc39c598ea841e3f55a8f96eee3a3342ae994a8a
