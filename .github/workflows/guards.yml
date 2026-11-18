@@ -60,8 +60,21 @@ jobs:
         run: npm ci --no-audit --no-fund
       # Build tooling also executes in trusted CI. Audit the whole lockfile,
       # not only production dependencies, before running the application checks.
+      # GHSA-fc5q-39xc-vjpf (picomatch ReDoS) has no patched release: npm 4.0.7
+      # is still inside the vulnerable range, and `npm audit fix --force` would
+      # downgrade @sentry/nextjs. scripts/audit-allowlist.mjs ignores that one
+      # advisory id. Every other moderate, high, or critical advisory still
+      # fails this step. Remove the exception when picomatch ships a fix.
       - name: Dependency security audit
-        run: npm audit --audit-level=moderate
+        run: |
+          set -o pipefail
+          audit_rc=0
+          npm audit --json > "$RUNNER_TEMP/npm-audit.json" || audit_rc=$?
+          if [ "$audit_rc" -gt 1 ]; then
+            echo "npm audit failed before a report was produced (exit $audit_rc)"
+            exit "$audit_rc"
+          fi
+          node scripts/audit-allowlist.mjs "$RUNNER_TEMP/npm-audit.json"
       # These guards measure real rendered cards. Without a browser they
       # explicitly skip, which is insufficient evidence for a merge review.
       # Cache the Playwright browser download (~/.cache/ms-playwright on
