@@ -78,7 +78,7 @@ export async function GET(req) {
   };
   if (!q) return toursJson([], "zero_candidates");
 
-  const ck = q.toLowerCase() + "|" + name.toLowerCase() + "|" + (kind || "") + "|" + count + "|" + regionTokens.join("+") + "|" + mode + "|" + destId + "|" + (Number.isFinite(destLat) ? destLat : "") + "|" + (Number.isFinite(destLng) ? destLng : "");
+  const ck = q.toLowerCase() + "|" + name.toLowerCase() + "|" + (kind || "") + "|" + count + "|" + regionTokens.join("+") + "|" + (mode === "city" ? "" : placeId) + "|" + mode + "|" + destId + "|" + (Number.isFinite(destLat) ? destLat : "") + "|" + (Number.isFinite(destLng) ? destLng : "");
   const hit = mem.get(ck);
   if (hit && hit.exp > Date.now()) {
     return toursJson(hit.items, hit.provider_state || (hit.items.length ? "success" : "zero_candidates"), { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
@@ -149,7 +149,7 @@ export async function GET(req) {
     // must not borrow eligibility from a place-specific product sitting
     // next to it in the same result set (see lib/bookingResolver.js).
     const fanoutByCode = {};
-    await Promise.all(candidates.map(async (r) => {
+    if (mode !== "city") await Promise.all(candidates.map(async (r) => {
       const key = r.productCode || r.productUrl;
       fanoutByCode[key] = await getFanoutCount("viator", r.productCode || r.productUrl);
     }));
@@ -196,13 +196,19 @@ export async function GET(req) {
     // Persist every verified (live) offer -- feeds fan-out scoring for
     // future queries and gives Phase 5 a durable record of what actually
     // rendered. Best-effort: persistOffer no-ops without a service key.
-    await Promise.all(verified.map((offer) => persistOffer(offer)));
+    // A destination proves city membership, never a canonical venue. City
+    // listings remain bookable without creating a false place association.
+    if (mode !== "city") {
+      const placeLookups = new Map();
+      await Promise.all(verified.map((offer) => persistOffer(offer, placeLookups)));
+    }
 
     try {
       console.log(JSON.stringify({
         tag: "booking_integrity_diag",
         q, name, regionTokens,
         rawCount: results.length,
+        skippedCityOffersWithoutVenue: mode === "city" ? verified.length : 0,
         candidateTitles: candidates.map((x) => x.title),
         keptTitles: items.map((x) => x.title),
         keptCodes: items.map((x) => x.code),

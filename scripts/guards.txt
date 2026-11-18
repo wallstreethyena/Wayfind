@@ -199,6 +199,7 @@ node scripts/test-command-center-feedback.mjs
 node scripts/test-cc-stale-cache-shape.mjs
 node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
+node scripts/test-rail-menu-reserve.mjs
 node scripts/test-lightbox-paging.mjs
 node scripts/test-brand-rail-dedupe.mjs
 node scripts/test-first-screen.mjs
