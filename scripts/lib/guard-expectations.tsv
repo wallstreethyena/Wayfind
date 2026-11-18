@@ -369,7 +369,7 @@ scripts/check-photo-cache-liveness.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	75
 scripts/check-photo-cap-parses.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	24ed6d53c226e2ab040a9fe0ab92e8b73eb03f0d513a6cd6a036e7118e92aa23
 scripts/check-photo-credit-under-headline.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	31	0	0	133759529563a4227124ba2bfc39c598ea841e3f55a8f96eee3a3342ae994a8a
 scripts/check-photo-outcome-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	94e684a594407efa3310a4775d949b69abca7bd5397e6cb19b28a9db202e9d7f
-scripts/check-photo-rail-swipe.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	549475e44d45c16397c167cf7e625c71c9fff5ee49475ea6692ed46efe823d84
+scripts/check-photo-rail-swipe.mjs	0	RENDER	blocks-ci-and-deploy	1	-	48	0	0	07c720f6f154f063f6dd841ab5bd4d9047923956f6ca96e47deaad3347dff3d8
 scripts/check-photo-surface-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	d0b807ac8a47aade8d3703d143d5765c85d9d9667a36599421a2288e1e6cd067
 scripts/check-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	0f42671f28fa7d2880c503f655e25bf018ec955eeb148042c6198f1853a5a85e
 scripts/check-pick-medallion.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	2	2	f76832d4b34fa0cb56455d18deba640e9ca9f1f6352afdb4755390b07ddf5ce0
@@ -985,7 +985,7 @@ scripts/test-photo-credits.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	d6035defb1
 scripts/test-photo-dedupe.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	02e82a143de5fe57dc7f8b092dcffc669cd58b9bf5e73b2af2aa633d1cb51f29
 scripts/test-photo-inventory-audit.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	5fc2268e550bef3ed47d73bb9b8c74a31cc30a429125d6abdd28124f7eb3cd90
 scripts/test-photo-liveness-sweep.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	58b0cad66f9e99a4d6555c67d7e7aafc09baee6043bed4217e8edd5383ab00ea
-scripts/test-photo-monitor-cold-rate.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	c16e4054be219bbc6c487400ad2f90c8e98e6e0328c1a00e54edea799697bdcb
+scripts/test-photo-monitor-cold-rate.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	eddbdc1fe2329d57bfda6ee9c3de7420fe7de2adfc3cd7d24e2f5987f82512ab
 scripts/test-photo-monitor-surface.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	35e291fbd4bdc3bde5189e775ec791c81f30881f3119e8cee343c54c740cb12d
 scripts/test-photo-not-place-id.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	a796ebea89182c640423b52344777bee43cc0344bf24ae0622e21cffbfd7015b
 scripts/test-photo-protection.mjs	0	CALL	blocks-ci-and-deploy	1	-	347	0	0	a43d45af5803e51982337a5d68394a2a00d2e6b9fd1a2f3100e876670468c5b8
