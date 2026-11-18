@@ -2423,6 +2423,11 @@ node scripts/test-guide-context-photos.mjs
 # and renders the real figures for all 24 picks; red-proven by mutation.
 node scripts/check-guide-neutral-fallback.mjs
 
+# 2026-11-17: every guide and blog place or event recommendation shows a verified
+# full street address and a Google Maps link. Partial lines and missing venues fail.
+node scripts/test-guide-place-addresses.mjs
+node scripts/check-guide-place-addresses.mjs
+
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
