@@ -490,6 +490,7 @@ scripts/check-trend-sources.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	1ee81cf65
 scripts/check-ttd-dedup.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	a83b28f7a3baebeeeb2570c78f72462690ae5955a9728c5a30c6a4bce2fe267f
 scripts/check-unbound-refs.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	769e72abe0976976c5701cec3b6a9b6b33a1ea3ebef8a75b7e9799b30d982c13
 scripts/check-unified-commerce-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	0	0	3ddf626c703e9afd0a9da25aa9ca4c327ce0822647f7567509d082ba3ce1a12c
+scripts/check-universal-holiday-guide.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	7d5d12a0a3f55da1688c5dc274e4876c5c11e9ddd8819e28cdb1bb12aaacacb6
 scripts/check-universal-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	5f35da9f4014f203f9a228913b91c08ffab5196e6e9ec8a2a4af558287744259
 scripts/check-untracked-affiliate-links.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	c03311510e3466de486b057db919182ae294377ceac623c40299db21942c8be4
 scripts/check-ut-crawler-clicks.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	18	1	2	6a88c30c40adf797bc10e983cd13e72d154bf865436838b5583c09a69b637b5a
@@ -1187,7 +1188,7 @@ scripts/test-viator-click-row-db-contract.mjs	1	CALL	blocks-ci-and-deploy	1	Reve
 scripts/test-viator-consent-basis.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	27	0	0	2ed4f35eb02b9f7450e10eb4472cc7b1293bd1517097808b4f10355acf9d6377
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
-scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	cc1d5644b9caf302bef30ccd99ac861eeaf81feec272273bdf29fda6bdd3aa16
+scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	88	0	0	dce0ae8e257685c4282ed9d18e4caaa7b192bf6baabb6c97020bd2ee4c3ac5a1
 scripts/test-viator-rail-fallback.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	26	0	0	7b6caec676534e80397b19c3804116794a32e751cdbc50ad3136ac1e44a136cc
 scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	45	0	0	d77554d6d755f9189e9914dcd1e4a8559c23763bfd3e0d41a0b99249f6dad54a
 scripts/test-viator-visitor-hash.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	10	0	0	7a37ff9b87109fa15474fe363781d6b4dda9f04b58467493c869839147ea45be

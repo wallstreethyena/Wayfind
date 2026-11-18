@@ -1,3 +1,7 @@
+## v8.64.1: keep city tour results out of the place offer ledger
+
+City searches can show local tours without attaching them to a specific Wayfind place. Only offers tied to a verified place belong in the ledger. The offer verification job now distinguishes database write failures from successful rechecks.
+
 ## v8.64.0: a missing script is not a crash; one slow query is not a failing source; the family-day audit is current
 
 Three Command Center emails from 2026-10-24, each traced to its cause and closed. Ledger: #1981 (this entry) and #1978.
