@@ -418,6 +418,7 @@ scripts/check-rail-drop-images.mjs	0	RENDER	blocks-ci-and-deploy	1	-	16	0	0	82c3
 scripts/check-rail-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	2ad1079d4905882631fd44b47e25b021a0a58a0980a5f7c72aa36992acc7d6c1
 scripts/check-rail-paging-contract.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	360d0d64298f32966217502a1828af603581ab1620935e47112ca4b5ecad075a
 scripts/check-rail-pool-waves.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0	bab8c5810d186da3f8b37b4b42c220ea751024beaf26b8b38d2e6b1e2fc6285a
+scripts/check-rail-position-counter.mjs	0	RENDER	blocks-ci-and-deploy	1	-	15	0	0	919c44c2459eb17efa263ba71ef82ba58954f95c41957318628553c86a5f2a3d
 scripts/check-rail-rank-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	35045775a14167e4a673697bae483f3767c96d6a1a13b1d13337ce6b75e61ce5
 scripts/check-rail-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	a6b6e5091ecddec868ebb275e660385ad717b9ca1709824773c518447e786c8d
 scripts/check-rail-scroll-reset.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	3f25f2d920b1fafb8b4221636b400a4372e1dfdffd26b5c1432c5913b71a1dc2
