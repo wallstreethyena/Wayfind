@@ -40,6 +40,26 @@
       "placeId": null,
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-09"
+    },
+    "Celebration Tree Lighting Ceremony": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/celebration-town-center-christmas-tree.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The lit Christmas tree and glowing shops of Celebration Town Center reflected in the lake at night",
+      "caption": "Celebration Town Center's Christmas tree on the first night of the Now Snowing season.",
+      "credit": "Brian Hart",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Downtown_waterfront_for_first_night_of_2011_\"Now_Snowing\"_event_in_Celebration.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Downtown_waterfront_for_first_night_of_2011_\"Now_Snowing\"_event_in_Celebration.jpg",
+      "author": "Brian Hart",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file Downtown waterfront for first night of 2011 Now Snowing event in Celebration, taken November 26, 2011. Viewed the full image: the lit Christmas tree on the Celebration Town Center lakefront at night during the holiday opening weekend. Exact place and season. No overlay or watermark. Live Commons licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     }
   },
   "gaps": {
@@ -72,12 +92,6 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "Image intent pass 2026-11-09: the previous photo (stuart-christmas-tree-lighting.webp) showed a daytime riverwalk with no tree, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
-    },
-    "Celebration Tree Lighting Ceremony": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Image intent pass 2026-11-09: the previous photo (celebration-tree-lighting-ceremony.webp) showed a daytime lakefront with no tree, so it did not match what this pick is about. No licensed photo of this exact event in season was found (Wikimedia Commons and Flickr checked 2026-11-09). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile until a verified photo is sourced."
     },
     "Life Time Turkey Trot Miami 5K/10K & Kids Race": {
       "reason": "no-verified-source",
