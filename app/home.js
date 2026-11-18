@@ -5961,7 +5961,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const galleryRef = useRef(null);
   function scrollGallery(dir) {
     const el = galleryRef.current;
-    if (el) el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.85), behavior: "smooth" });
+    if (el) el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" }); // one full-width photo per tap (owner 2026-11-18)
   }
 
   // ── Full-screen photo viewer paging (v6.43) ────────────────────────────────
@@ -6013,15 +6013,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     }
   }, [lightbox, lightboxIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Pinch to zoom (owner 2026-11-18): two fingers, or a page already zoomed in,
+  // belong to the browser's zoom, never to photo paging.
+  const lightboxZoomed = () => typeof window !== "undefined" && !!window.visualViewport && window.visualViewport.scale > 1.01;
   function lightboxTouchStart(e) {
     const t = e.touches && e.touches[0];
     if (!t) return;
+    if (e.touches.length > 1 || lightboxZoomed()) { lbTouch.current = null; setLbDrag(0); return; }
     lbTouch.current = { x: t.clientX, y: t.clientY, axis: null };
   }
   function lightboxTouchMove(e) {
     const g = lbTouch.current;
     const t = e.touches && e.touches[0];
     if (!g || !t) return;
+    if (e.touches.length > 1) { lbTouch.current = null; setLbDrag(0); return; }
     const dx = t.clientX - g.x;
     const dy = t.clientY - g.y;
     // Lock the axis once past the noise floor so a diagonal drag does not
@@ -12174,7 +12179,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             onTouchMove={lightboxTouchMove}
             onTouchEnd={lightboxTouchEnd}
             onTouchCancel={lightboxTouchEnd}
-            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, touchAction: "pan-y", overflow: "hidden" }}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, touchAction: "pan-y pinch-zoom", overflow: "hidden" }}
           >
             <img
               src={lightbox}
