@@ -136,7 +136,7 @@ export async function GET(req) {
   if (!status.ok) return jobFailed(JOB, status.error);
 
   const stale = status.rows;
-  const results = { checked: 0, stillLive: 0, suppressed: 0, upstreamError: 0, skippedNoName: 0 };
+  const results = { checked: 0, stillLive: 0, suppressed: 0, upstreamError: 0, writeError: 0, skippedNoName: 0 };
 
   if (stale.length === 0) {
     await recordPulse(JOB, { attempted: 0, succeeded: 0, note: "idle: no live offers past expiry" });
@@ -175,7 +175,7 @@ export async function GET(req) {
         currentFailureCount: Number(row.failure_count || 0),
         probeResult: { status: OFFER_HEALTH_STATUS.ACTIVE, evidence: EVIDENCE_STRENGTH.STRONG, reason: "reverified_live" },
       });
-      await persistOffer(offer);
+      if (!(await persistOffer(offer))) { results.writeError++; continue; }
       results.stillLive++;
       try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, confidence: offer.confidence, decision: "reverified_live", healthStatus: transition.nextStatus })); } catch (e) {}
     } else {
@@ -188,7 +188,7 @@ export async function GET(req) {
           reason: candidate ? "reverify_failed_threshold" : "product_no_longer_found",
         },
       });
-      await suppressOffer(row.place_id, row.product_provider, row.product_code);
+      if (!(await suppressOffer(row.place_id, row.product_provider, row.product_code))) { results.writeError++; continue; }
       results.suppressed++;
       try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: candidate ? "reverify_failed_threshold" : "product_no_longer_found", healthStatus: transition.nextStatus })); } catch (e) {}
     }
@@ -202,11 +202,11 @@ export async function GET(req) {
   await recordPulse(JOB, {
     attempted: results.checked,
     succeeded: results.stillLive + results.suppressed,
-    failed: results.upstreamError,
-    note: results.upstreamError ? `${results.upstreamError} upstream error(s) during re-verification` : null,
+    failed: results.upstreamError + results.writeError,
+    note: results.writeError ? `${results.writeError} write(s) not confirmed; ${results.upstreamError} upstream error(s)` : results.upstreamError ? `${results.upstreamError} upstream error(s) during re-verification` : null,
   });
 
-  return Response.json({ ok: true, job: JOB, ...results });
+  return Response.json({ ok: results.writeError === 0, job: JOB, ...results }, { status: results.writeError ? 500 : 200 });
 }
 
 export async function POST(req) {

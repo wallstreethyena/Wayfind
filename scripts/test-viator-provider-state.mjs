@@ -52,15 +52,81 @@ try {
   const cachedQuery = `healthy${qn++}`;
   const healthy = await (await get(cachedQuery)).json();
   assert.equal(healthy.provider_state, "success"); assert.equal(healthy.items.length, 1, "denylisted and search-as-book products remain absent");
-  assert.equal(globalThis.__viatorState.persists, 1); const previousCalls = globalThis.__viatorState.calls, previousGrants = globalThis.__viatorState.grants.length;
+  assert.equal(globalThis.__viatorState.persists, 0, "a city match has no place association"); const previousCalls = globalThis.__viatorState.calls, previousGrants = globalThis.__viatorState.grants.length;
   assert.deepEqual(await (await get(cachedQuery)).json(), healthy, "a healthy warm cache preserves classification");
   assert.equal(globalThis.__viatorState.calls, previousCalls); assert.equal(globalThis.__viatorState.grants.length, previousGrants);
+  reset({ results: [{ ...fixture(1), fixtureVerified: true }] });
+  assert.equal((await (await get(undefined, 3, "place")).json()).items.length, 1);
+  assert.equal(globalThis.__viatorState.persists, 1, "venue matches still reach the writer");
   // A pagination refusal preserves the already verified first page, obtains
   // no second provider call, and does not grant two requests from one debit.
   reset({ results: Array.from({ length: 50 }, (_, n) => fixture(n + 1)), decisions: [{ allow: true, reason: "granted" }, { allow: false, reason: "ledger_denied" }] });
   const paged = await (await get(undefined, 60)).json();
   assert.equal(paged.items.length, 50); assert.equal(paged.provider_state, "success");
   assert.equal(globalThis.__viatorState.calls, 1); assert.equal(globalThis.__viatorState.grants.length, 2);
+  // Exercise the actual PostgREST writer with a sanitized in-memory DB.
+  const { persistOffer } = await import("../lib/verifiedOfferStore.js");
+  const previousEnv = { SUPABASE_URL: process.env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY };
+  const oldWarn = console.warn;
+  const warnings = [], rows = new Map(), lookups = [];
+  let posts = 0;
+  try {
+    console.warn = (s) => warnings.push(JSON.parse(s));
+    process.env.SUPABASE_URL = "https://db.fixture.test";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = fixtureKey;
+    const canonical = "venue-fixture-1";
+    const sample = { ...fixture(1), placeId: canonical, placeName: "Fixture venue", region: "Florida", confidence: 0.9, status: "live", verifiedAt: "2026-11-12T09:00:00Z" };
+    globalThis.fetch = async (input, init) => {
+      const u = new URL(input);
+      assert.equal(u.origin, "https://db.fixture.test");
+      if (u.pathname === "/rest/v1/wf_inventory") {
+        const id = u.searchParams.get("place_id");
+        lookups.push(id);
+        if (id === "eq.db-unavailable") return new Response(null, {status:503});
+        return Response.json(id === "eq." + canonical ? [{ place_id: canonical }] : []);
+      }
+      assert.equal(u.pathname, "/rest/v1/verified_offers"); assert.equal(init.method, "POST");
+      assert.equal(u.searchParams.get("on_conflict"), "place_id,product_provider,product_code");
+      assert.match(init.headers.Prefer, /resolution=merge-duplicates/);
+      const row = JSON.parse(init.body);
+      assert.equal(row.place_id, canonical); assert.equal(row.confidence, 0.9);
+      posts++; rows.set([row.place_id,row.product_provider,row.product_code].join("|"), row);
+      return new Response(null, {status:201});
+    };
+    const cache = new Map();
+    assert.deepEqual(await Promise.all([persistOffer(sample, cache), persistOffer(sample, cache)]), [true, true]);
+    assert.equal(posts, 2); assert.equal(rows.size, 1); assert.equal(lookups.length, 1);
+    for (const placeId of [undefined, " ", "q:untrusted title", "unmapped-external-id", "db-unavailable"]) {
+      assert.equal(await persistOffer({ ...sample, placeId }), false);
+    }
+    assert.equal(posts, 2, "no POST for missing, unknown or unconfirmed venue");
+    assert.deepEqual(warnings.map(w => w.reason), ["unmapped_place","unmapped_place","unmapped_place","unmapped_place","lookup_failed"]);
+    assert(warnings.every(w => Object.keys(w).sort().join() === "outcome,reason,tag"));
+  } finally {
+    console.warn = oldWarn;
+    for (const [k,v] of Object.entries(previousEnv)) { if(v === undefined) delete process.env[k]; else process.env[k]=v; }
+  }
+  // A definitive score without a confirmed write must not make a green cron.
+  const originalCronSecret = process.env.CRON_SECRET;
+  try {
+    process.env.CRON_SECRET = "fixture-cron";
+    const cronSource = readFileSync("app/api/cron/verify-offers/route.js", "utf8").replace(/^import[^;]+;\n/gm, "");
+    const cron = await import("data:text/javascript," + encodeURIComponent(`
+      const getStaleLiveOffersStatus = async () => ({ ok: true, rows: ["match", "missing"].map(product_code => ({ place_name: "Venue", place_id: "fixture", product_code, region: "Florida" })) });
+      const credential = () => "fixture", getFanoutCount = async () => 1, resolveVerified = () => ({});
+      const evaluateOfferHealthTransition = () => ({}), OFFER_HEALTH_STATUS = {}, EVIDENCE_STRENGTH = {};
+      const persistOffer = async () => false, suppressOffer = async () => false;
+      const recordPulse = async (_job, pulse) => { globalThis.__viatorState.pulse = pulse; };
+      ${cronSource}
+    `));
+    globalThis.fetch = async () => Response.json({ products: { results: [{ productCode: "match", productUrl: "https://fixture.test/tour", title: "Fixture" }] } });
+    const response = await cron.GET(new Request("https://fixture.test/cron", { headers: { authorization: "Bearer fixture-cron" } }));
+    const result = await response.json();
+    assert.equal(response.status,500); assert.equal(result.checked,2); assert.equal(result.stillLive,0); assert.equal(result.suppressed,0);
+    assert.equal(result.writeError,2); assert.equal(globalThis.__viatorState.pulse.failed,2); assert.equal(globalThis.__viatorState.pulse.succeeded,0);
+  } finally {
+    if(originalCronSecret === undefined) delete process.env.CRON_SECRET; else process.env.CRON_SECRET = originalCronSecret;
+  }
   const stateLogs = logs.map((x) => { try { return JSON.parse(x); } catch { return null; } }).filter((x) => x?.tag === "viator_provider_state");
   assert(stateLogs.length >= VIATOR_PROVIDER_STATES.length);
   assert(stateLogs.every((x) => Object.keys(x).sort().join() === "item_count,provider_state,tag"), "diagnostic logs expose neither keys, caps nor balances");
