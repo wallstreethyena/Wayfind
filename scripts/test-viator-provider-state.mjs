@@ -65,18 +65,22 @@ try {
   assert.equal(paged.items.length, 50); assert.equal(paged.provider_state, "success");
   assert.equal(globalThis.__viatorState.calls, 1); assert.equal(globalThis.__viatorState.grants.length, 2);
   // Exercise the actual PostgREST writer with a sanitized in-memory DB.
-  const { persistOffer } = await import("../lib/verifiedOfferStore.js");
+  const { persistOffer, suppressOffer } = await import("../lib/verifiedOfferStore.js");
   // This standalone fixture runs in its own Node process. Set and clear
   // every credential it uses without importing values from the shell.
   const oldWarn = console.warn;
-  const warnings = [], rows = new Map(), lookups = [];
+  const warnings = [], lookups = [];
+  const { PGlite } = await import("@electric-sql/pglite");
+  const db = new PGlite();
   let posts = 0;
   try {
     console.warn = (s) => warnings.push(JSON.parse(s));
     process.env.SUPABASE_URL = "https://db.fixture.test";
     process.env.SUPABASE_SERVICE_ROLE_KEY = fixtureKey;
+    await db.exec("CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;");
+    await db.exec(readFileSync("supabase/migrations/20260909144500_wf_verified_offers.sql", "utf8"));
     const canonical = "venue-fixture-1";
-    const sample = { ...fixture(1), placeId: canonical, placeName: "Fixture venue", region: "Florida", confidence: 0.9, status: "live", verifiedAt: "2026-11-12T09:00:00Z" };
+    const sample = { ...fixture(1), placeId: canonical, placeName: " Fixture  VENUE ", region: "Florida", confidence: 0.9, status: "live", verifiedAt: "2026-11-12T09:00:00Z" };
     globalThis.fetch = async (input, init) => {
       const u = new URL(input);
       assert.equal(u.origin, "https://db.fixture.test");
@@ -84,26 +88,45 @@ try {
         const id = u.searchParams.get("place_id");
         lookups.push(id);
         if (id === "eq.db-unavailable") return new Response(null, {status:503});
-        return Response.json(id === "eq." + canonical ? [{ place_id: canonical }] : []);
+        assert.equal(u.searchParams.get("select"), "place_id,name");
+        return Response.json(id === "eq." + canonical ? [{ place_id: canonical, name: "Fixture venue" }] : []);
       }
-      assert.equal(u.pathname, "/rest/v1/verified_offers"); assert.equal(init.method, "POST");
+      assert.equal(u.pathname, "/rest/v1/verified_offers");
+      if (init.method === "PATCH") {
+        assert.equal(init.headers.Prefer, "return=representation");
+        assert.equal(u.searchParams.get("select"), "place_id,product_provider,product_code");
+        const key = ["place_id","product_provider","product_code"].map(k => u.searchParams.get(k).slice(3));
+        const changed = await db.query("update verified_offers set status=$4 where place_id=$1 and product_provider=$2 and product_code=$3 returning place_id,product_provider,product_code", [...key, JSON.parse(init.body).status]);
+        return Response.json(changed.rows);
+      }
+      assert.equal(init.method, "POST");
       assert.equal(u.searchParams.get("on_conflict"), "place_id,product_provider,product_code");
       assert.match(init.headers.Prefer, /resolution=merge-duplicates/);
       const row = JSON.parse(init.body);
       assert.equal(row.place_id, canonical); assert.equal(row.confidence, 0.9);
-      posts++; rows.set([row.place_id,row.product_provider,row.product_code].join("|"), row);
+      assert.equal(row.place_name, "Fixture venue");
+      const columns = ["place_id","place_name","region","kind","product_provider","product_code","product_url","commissionable","bookable_now","confidence","evidence","status","verified_at","expires_at"];
+      assert.deepEqual(Object.keys(row).sort(), [...columns].sort());
+      await db.query(`insert into verified_offers (${columns}) select ${columns} from jsonb_populate_record(null::verified_offers,$1::jsonb) on conflict(place_id,product_provider,product_code) do update set confidence=excluded.confidence`, [JSON.stringify(row)]);
+      posts++;
       return new Response(null, {status:201});
     };
     const cache = new Map();
     assert.deepEqual(await Promise.all([persistOffer(sample, cache), persistOffer(sample, cache)]), [true, true]);
-    assert.equal(posts, 2); assert.equal(rows.size, 1); assert.equal(lookups.length, 1);
+    assert.equal(posts, 2); assert.equal((await db.query("select count(*)::int n from verified_offers")).rows[0].n, 1); assert.equal(lookups.length, 1);
+    assert.equal(await persistOffer({ ...sample, placeName: "Different venue" }, cache), false, "a valid ID cannot borrow a match for another venue");
+    assert.equal(lookups.length, 1, "batch shares inventory only, not a name verdict");
+    assert.equal(await suppressOffer(canonical, "viator", "not-in-db"), false, "zero changed rows are not success");
+    assert.equal(await suppressOffer(canonical, "viator", sample.productCode), true);
+    assert.equal((await db.query("select status from verified_offers")).rows[0].status,"suppressed");
     for (const placeId of [undefined, " ", "q:untrusted title", "unmapped-external-id", "db-unavailable"]) {
       assert.equal(await persistOffer({ ...sample, placeId }), false);
     }
     assert.equal(posts, 2, "no POST for missing, unknown or unconfirmed venue");
-    assert.deepEqual(warnings.map(w => w.reason), ["unmapped_place","unmapped_place","unmapped_place","unmapped_place","lookup_failed"]);
+    assert.deepEqual(warnings.map(w => w.reason), ["venue_name_mismatch","unmapped_place","unmapped_place","unmapped_place","unmapped_place","lookup_failed"]);
     assert(warnings.every(w => Object.keys(w).sort().join() === "outcome,reason,tag"));
   } finally {
+    await db.close();
     console.warn = oldWarn;
     delete process.env.SUPABASE_URL; delete process.env.SUPABASE_SERVICE_ROLE_KEY;
   }
