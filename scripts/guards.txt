@@ -2718,3 +2718,6 @@ node scripts/check-rail-position-counter.mjs
 
 # Portrait photos show whole (contain over blurred fill) on event hero, place sheet, paid landing.
 node scripts/check-portrait-photo-fit.mjs
+
+# Metro photo coverage = servable photos (stored/free/owned lanes), never the placeholder photo_ref.
+node scripts/test-metro-photo-coverage.mjs

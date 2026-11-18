@@ -38,6 +38,7 @@ import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability } from "../li
 import { placeIdentityIssues } from "../lib/placeIdentity.js";
 import { bucketMetro, PROMOTE_METROS } from "../lib/promoteIndex.js";
 import { findAreaTwins } from "../lib/areaTwins.js";
+import { metroPhotoCoverage, overallCoverage, lowestCoverage, servablePlaceIds, zeroPhotoMetros } from "../lib/metroPhotoCoverage.js";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -238,16 +239,39 @@ ok(miscat.length === 0,
 
 // REPORTED, NOT FAILED: supply health. These are product problems, not regressions,
 // and a permanently-red guard is a guard people learn to ignore.
-const byMetro = new Map();
-for (const r of rows) {
-  const m = byMetro.get(r.metro) || { total: 0, photos: 0 };
-  m.total++; if (r.photo_ref) m.photos++;
-  byMetro.set(r.metro, m);
+// A photo is what a card can SERVE without spend (lib/metroPhotoCoverage.js), not
+// a non-null photo_ref: that column is the "wfplacediscovery" placeholder on 99.5%
+// of rows, so counting it reported "10 metros have zero photos" for nine one-row
+// research venues while whole large metros sat at ~20% real coverage unreported.
+async function readAll(path) {
+  const out = [];
+  for (let from = 0; ; from += 1000) {
+    const r = await fetch(`${URL_}/rest/v1/${path}`, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, Range: `${from}-${from + 999}` } });
+    if (!r.ok) { console.error(`check-inventory-integrity: FAIL — Supabase ${r.status} reading ${path.split("?")[0]}`); bad++; return null; }
+    const batch = await r.json();
+    out.push(...batch);
+    if (batch.length < 1000) break;
+  }
+  return out;
 }
-const noPhoto = [...byMetro].filter(([, m]) => m.photos === 0);
-const seedOnly = [...byMetro].filter(([, m]) => m.total <= 120);
-if (noPhoto.length) console.log(`check-inventory-integrity: NOTE — ${noPhoto.length} metros have ZERO photos (${noPhoto.slice(0, 6).map(([k]) => k).join(", ")}). Every card there is imageless.`);
-if (seedOnly.length) console.log(`check-inventory-integrity: NOTE — ${seedOnly.length}/${byMetro.size} metros hold <=120 places, i.e. cold-start seed depth, not real coverage.`);
+const storeRows = await readAll("wf_google_photo_store?select=place_id,state,storage_path&order=place_id");
+const freeRows = await readAll("wf_place_photo?select=place_id,status,license,attribution_text,attribution_url,image_url,storage_path&status=eq.active&order=place_id");
+const seedOnly = [];
+let metroCount = 0;
+if (storeRows && freeRows) {
+  const coverage = metroPhotoCoverage(rows, servablePlaceIds(storeRows, freeRows));
+  const all = overallCoverage(coverage);
+  const pct = (n) => (100 * n / all.total).toFixed(1) + "%";
+  console.log(`check-inventory-integrity: NOTE — ${all.servable}/${all.total} rows (${pct(all.servable)}) have a photo servable without spend; ${pct(all.placeholderRef)} carry a placeholder photo_ref, which is not a photo. Lowest large metros: ${lowestCoverage(coverage).map((m) => `${m.metro} ${m.pct.toFixed(0)}% of ${m.total}`).join(", ")}.`);
+  const zero = zeroPhotoMetros(coverage);
+  const fmt = (list) => list.slice(0, 12).map((m) => `${m.metro}(${m.total})`).join(", ");
+  if (zero.market.length) console.log(`check-inventory-integrity: NOTE — ${zero.market.length} market metros have ZERO servable photos (${fmt(zero.market)}). Every card there is imageless.`);
+  if (zero.intake.length) console.log(`check-inventory-integrity: NOTE — ${zero.intake.length} owner-intake research-venue keys have no photo (${fmt(zero.intake)}); one wfadd_ row each, not a market.`);
+  if (zero.stray.length) console.log(`check-inventory-integrity: NOTE — ${zero.stray.length} stray single-venue metro keys have no servable photo (${fmt(zero.stray)}); check the metro label against the metro the venue belongs to.`);
+  seedOnly.push(...coverage.filter((m) => m.total <= 120));
+  metroCount = coverage.length;
+}
+if (seedOnly.length) console.log(`check-inventory-integrity: NOTE — ${seedOnly.length}/${metroCount} metros hold <=120 places, i.e. cold-start seed depth, not real coverage.`);
 
 // Christmas twins (2026-11-12): the same event as a wf_events row AND its
 // research twin rendered as two cards 28 times. Weekly discovery inserts are
@@ -259,4 +283,4 @@ if (seedOnly.length) console.log(`check-inventory-integrity: NOTE — ${seedOnly
 }
 
 if (bad) { console.error(`check-inventory-integrity: ${bad} failure(s)`); process.exit(1); }
-console.log(`check-inventory-integrity: OK — ${checks} assertions over ${rows.length} live rows, ${byMetro.size} metros, and every founder-pinned Viator product verified present + not-proven-dead in wf_experiences (unknown counted as unknown, never as dead)`);
+console.log(`check-inventory-integrity: OK — ${checks} assertions over ${rows.length} live rows, ${new Set(rows.map((r) => r.metro)).size} metros, and every founder-pinned Viator product verified present + not-proven-dead in wf_experiences (unknown counted as unknown, never as dead)`);
