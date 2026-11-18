@@ -23,6 +23,9 @@ node scripts/check-response-imports.mjs
 # 2026-07-31 after 5c541b4 let `.env.production.local` decide whether a live
 # affiliate program was protected.
 node scripts/check-guard-hermeticity.mjs
+# The CI audit step ignores one picomatch advisory with no patched release.
+# This test locks that the exception cannot hide any other advisory.
+node scripts/test-npm-audit-allowlist.mjs
 # Vercel runs `npm run build` (postbuild → check-bundle). GitHub used to run
 # `npx next build` only, so a homepage JS overage shipped green and died on
 # deploy (#949, 2026-08-26). This lock is source-level and cheap.
@@ -2703,3 +2706,6 @@ node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
 node scripts/check-photo-rail-swipe.mjs
 node scripts/test-home-landing-thanksgiving.mjs
+
+# Universal holiday atlas: real targets and actual food media, not screenshot crops.
+node scripts/check-universal-holiday-guide.mjs
