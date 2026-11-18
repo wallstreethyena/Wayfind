@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 import {
   FALL_INTENT_RAIL_DEFS, FALL_MIN_RESULTS, FALL_NEAR_MI, FALL_RAIL_RADIUS_MI, fallEventRail, fallPhase,
   fallRailOrder, composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence,
+  thanksgivingDay,
 } from "../lib/fallIntentRails.js";
 import { FALL_FEATURED_FESTIVALS_2026, FALL_FEATURED_FESTIVAL_IDS } from "../lib/fallFeaturedFestivals2026.js";
 import { mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
@@ -40,7 +41,8 @@ const event = (over = {}) => ({
   uniqueness_score: 7, popularity_score: 7, last_verified_at: "2026-08-25T00:00:00Z", ...over,
 });
 
-const expected = ["food", "farms", "theme-parks", "haunts", "family", "oktoberfest", "date-night", "festivals", "photos", "day-trips"];
+// Eleven since the owner added the Thanksgiving rail to the fall poster (2026-11-16).
+const expected = ["food", "farms", "theme-parks", "haunts", "family", "oktoberfest", "date-night", "festivals", "photos", "day-trips", "thanksgiving"];
 const publication = JSON.parse(readFileSync(new URL("./fixtures/fall-sarasota-publication-2026-09-10.json", import.meta.url), "utf8"));
 const publicationIds = new Set([...publication.rows, ...publication.patches].map((row) => row.event_id));
 const publishedRows = [
@@ -80,9 +82,9 @@ ok(legacyDry.status === 0 && /INSERT gallaghers-pumpkins-2026/.test(legacyDry.st
 const staleOnly = spawnSync(process.execPath, [oldGulfSeed, "--dry", "--only=utc-night-market-tailgate-2026-09-17"], { encoding: "utf8" });
 ok(staleOnly.status !== 0 && /Superseded/.test(staleOnly.stderr), "an explicit stale UTC seed request fails before any database write");
 const sarasotaAudit = JSON.parse(readFileSync(new URL("./fixtures/fall-sarasota-audit-2026-09-08.json", import.meta.url), "utf8"));
-ok(FALL_INTENT_RAIL_DEFS.length === 10, "the collection has exactly ten rails");
-ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the ten approved base intents are present in order");
-ok(new Set(FALL_INTENT_RAIL_DEFS.map((rail) => rail.title)).size === 10, "every rail title is unique");
+ok(FALL_INTENT_RAIL_DEFS.length === 11, "the collection has exactly eleven rails");
+ok(FALL_INTENT_RAIL_DEFS.map((rail) => rail.id).join("|") === expected.join("|"), "the eleven approved base intents are present in order");
+ok(new Set(FALL_INTENT_RAIL_DEFS.map((rail) => rail.title)).size === 11, "every rail title is unique");
 ok(Object.keys(FALL_RAIL_RADIUS_MI).sort().join("|") === expected.slice().sort().join("|"), "every intent has an explicit radius law");
 ok(FALL_NEAR_MI === 27, "the nearby ring ends at 27 miles");
 ok(FALL_MIN_RESULTS === 8, "eight remains the target depth, never a reason to violate the radius");
@@ -97,13 +99,17 @@ ok(fallPhase("2026-10-28") === "lastMinute", "Halloween week promotes family and
 ok(fallPhase("2026-11-10") === "november", "November promotes festivals and day trips");
 for (const date of ["2026-09-01", "2026-09-30", "2026-10-15", "2026-10-28", "2026-11-10"]) {
   const order = fallRailOrder(date);
-  ok(order.length === 10 && new Set(order).size === 10, `${date} returns all ten intents exactly once`);
+  ok(order.length === 11 && new Set(order).size === 11, `${date} returns all eleven intents exactly once`);
 }
 ok(fallRailOrder("2026-09-01")[0] === "food", "early fall leads with seasonal food");
 ok(fallRailOrder("2026-09-30")[0] === "farms", "patch season leads with farms");
 ok(fallRailOrder("2026-10-15")[0] === "haunts", "mid-October leads with haunts");
 ok(fallRailOrder("2026-10-28")[0] === "family", "Halloween week leads with practical family intent");
-ok(fallRailOrder("2026-11-10")[0] === "festivals", "November leads with outdoor festivals");
+ok(fallRailOrder("2026-11-10")[0] === "thanksgiving" && fallRailOrder("2026-11-10")[1] === "festivals", "November before Thanksgiving leads with Thanksgiving, then outdoor festivals");
+ok(fallRailOrder("2026-11-29")[0] === "thanksgiving" && fallRailOrder("2026-11-30")[0] === "festivals" && fallRailOrder("2026-11-30").at(-1) === "thanksgiving", "after Thanksgiving Sunday the Thanksgiving rail drops to the end and festivals lead again");
+ok(fallRailOrder("2026-10-15")[0] === "haunts" && fallRailOrder("2026-10-15").at(-1) === "thanksgiving", "before November Thanksgiving waits at the end");
+ok(thanksgivingDay("2026-01-01") === "2026-11-26" && thanksgivingDay("2027-06-01") === "2027-11-25" && thanksgivingDay("2025-11-01") === "2025-11-27", "Thanksgiving is the fourth Thursday of November");
+ok(fallEventRail(event({ event_name: "Turkey Trot 5K", tags: ["thanksgiving", "running"] })) === "thanksgiving" && fallEventRail(event({ event_name: "Thanksgiving Dinner at Toro Toro", tags: ["fall", "date-night"] })) === "thanksgiving", "a Thanksgiving-tagged or Thanksgiving-named row is a Thanksgiving card first");
 
 ok(fallEventRail(event({ event_name: "Hunsader Pumpkin Festival", tags: ["fall", "pumpkins", "farm"], audience: ["families"] })) === "farms", "a real pumpkin farm enters the farm rail");
 ok(fallEventRail(event({ event_name: "Raprager October Haunted Nights", subcategory: "haunted-maze", tags: ["fall", "halloween", "scary", "haunt", "haunted-maze", "haunted-hayride", "farm"], audience: ["adults", "teens", "families"] })) === "haunts", "a scary farm haunt is a haunt, not swallowed by the generic farm rule");
@@ -131,7 +137,7 @@ const composed = composeFallIntentRails(duplicateSeries, [
   { kind: "place", id: "food-near", name: "Near Fall Cafe", lat: 27.96, lng: -82.46, fallRail: "food", wfScore: 9.4 },
   { kind: "place", id: "food-far", name: "Far Fall Cafe", lat: 25.76, lng: -80.19, fallRail: "food", wfScore: 9.9 },
 ], { lat: 27.95, lng: -82.46, today: "2026-09-01", now });
-ok(composed.rails.length === 10, "composition always returns all ten rails, including honest empties");
+ok(composed.rails.length === 11, "composition always returns all eleven rails, including honest empties");
 ok(composed.rails.find((rail) => rail.id === "farms").cards.length === 1, "one event series appears once");
 ok(composed.rails.find((rail) => rail.id === "food").cards.map((card) => card.id).join("|") === "food-near", "a thin local food rail stays local instead of padding with statewide inventory");
 ok(composed.rails.find((rail) => rail.id === "food").fallbackUsed === false, "there is no statewide fallback tier");
@@ -172,10 +178,19 @@ const capOrigin = { lat: 27.4989, lng: -82.5748, today: "2026-09-10", now };
 const capPlaces = [
   { id: "park-inside", name: "Inside Halloween Park", lat: 29.66, lng: -82.5748, fallRail: "theme-parks" },
   { id: "park-outside", name: "Outside Halloween Park", lat: 29.69, lng: -82.5748, fallRail: "theme-parks" },
-  ...expected.filter((id) => id !== "theme-parks").map((id) => ({ id: `${id}-orlando`, name: `${id} Orlando`, lat: 28.4749, lng: -81.4664, fallRail: id })),
+  // Thanksgiving is statewide by design (owner: "the best thanksgiving experiences in Florida"), asserted below.
+  ...expected.filter((id) => id !== "theme-parks" && id !== "thanksgiving").map((id) => ({ id: `${id}-orlando`, name: `${id} Orlando`, lat: 28.4749, lng: -81.4664, fallRail: id })),
 ];
 const capAnswer = composeFallIntentRails([], capPlaces, capOrigin);
 ok(capAnswer.rails.flatMap((rail) => rail.cards.map((card) => card.id)).join("|") === "park-inside", "a park just inside 150 miles qualifies; a park beyond 150 miles and every other distant seasonal intent remain excluded");
+{
+  const tg = composeFallIntentRails([], [
+    { id: "tg-orlando", name: "Orlando Thanksgiving", lat: 28.4749, lng: -81.4664, fallRail: "thanksgiving" },
+    { id: "tg-keys", name: "Key West Thanksgiving", lat: 24.5551, lng: -81.78, fallRail: "thanksgiving" },
+    { id: "tg-newyork", name: "New York Thanksgiving", lat: 40.7128, lng: -74.006, fallRail: "thanksgiving" },
+  ], capOrigin).rails.find((rail) => rail.id === "thanksgiving").cards.map((card) => card.id);
+  ok(tg.join("|") === "tg-orlando|tg-keys", "the Thanksgiving rail is statewide and nearest first, and still stops at the 650 mile line: " + tg.join("|"));
+}
 
 ok(Object.keys(FALL_PLACE_IDS).sort().join("|") === Object.keys(FALL_PLACE_RAIL).sort().join("|"), "every vetted fall place has exactly one primary intent assignment");
 ok(Object.values(FALL_PLACE_RAIL).every((rail) => expected.includes(rail)), "every fall place assignment targets an approved rail");
@@ -502,7 +517,7 @@ ok(/FallIntentRails = dynamic/.test(daypart), "the ten-rail component is lazy an
 ok(/selRail\.id === "augtober"/.test(daypart) && /<FallIntentRails/.test(daypart), "the Augtober poster opens the specialized collection");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "halloween" \|\| selRail\.id === "tonight"/.test(daypart), "generic place fallback is suppressed for Augtober, Halloween and Night Out");
 ok(!/fallEvents\.map|wf8-falltile/.test(daypart), "the old mixed inline fall strip is retired rather than duplicated");
-ok(/const expectedRailCount = collection === "halloween" \? 9 : 10/.test(component) && /result\.rails\.length !== expectedRailCount/.test(component), "the client fails closed on an incomplete rail contract");
+ok(/const expectedRailCount = collection === "halloween" \? 9 : 11/.test(component) && /result\.rails\.length !== expectedRailCount/.test(component), "the client fails closed on an incomplete rail contract");
 ok(/FALL_LOAD_TIMEOUT_MS = 10000/.test(component) && /fetchRailJson/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
 ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
 // WO11 (2026-09-02): the whole-blob "Load every verified fall option" button

@@ -287,6 +287,43 @@ export function checkRequiredCredentials(env) {
 // see rule 5) and its body deliberately carries no `name` field, so the
 // absence of migration bookkeeping is visible in the request shape itself,
 // not just in prose. ────────────────────────────────────────────────────────
+// ── LEASE (2026-11-14). One applier per project at a time.
+// supabase/migrations/20261114170000_wf_migration_lease.sql holds one row. The
+// acquire is a single atomic UPDATE ... RETURNING: it succeeds only when the
+// lease is free, expired, or already ours, so two concurrent appliers can never
+// both get it (proved against a real Postgres in test-migration-lease.mjs).
+// Holder and migration names are restricted to a safe charset and the TTL to a
+// bounded integer, so nothing user-shaped is spliced into SQL.
+export const LEASE_MIGRATION_FILE = "20261114170000_wf_migration_lease.sql";
+export const LEASE_TTL_SECONDS = 900;
+const LEASE_TOKEN = /^[A-Za-z0-9._:@-]{1,200}$/;
+
+export function buildLeaseAcquireSql({ holder, migration, ttlSeconds = LEASE_TTL_SECONDS }) {
+  if (!LEASE_TOKEN.test(String(holder || ""))) throw new Error("buildLeaseAcquireSql: unsafe holder");
+  if (!LEASE_TOKEN.test(String(migration || ""))) throw new Error("buildLeaseAcquireSql: unsafe migration name");
+  if (!Number.isInteger(ttlSeconds) || ttlSeconds < 60 || ttlSeconds > 3600) throw new Error("buildLeaseAcquireSql: ttl must be 60..3600 seconds");
+  return [
+    "update public.wf_migration_lease",
+    `   set holder = '${holder}', migration = '${migration}', acquired_at = now(), expires_at = now() + interval '${ttlSeconds} seconds'`,
+    ` where id = 1 and (holder is null or expires_at < now() or holder = '${holder}')`,
+    "returning holder;",
+  ].join("\n");
+}
+
+export function buildLeaseReleaseSql({ holder }) {
+  if (!LEASE_TOKEN.test(String(holder || ""))) throw new Error("buildLeaseReleaseSql: unsafe holder");
+  return `update public.wf_migration_lease set holder = null, migration = null, acquired_at = null, expires_at = null where id = 1 and holder = '${holder}' returning id;`;
+}
+
+// The query endpoint answers a JSON array of rows. Acquired only when exactly
+// one row comes back naming us; anything else (empty, error, other holder,
+// unparseable) is NOT acquired.
+export function leaseAcquired(bodyText, holder) {
+  let rows;
+  try { rows = JSON.parse(String(bodyText || "")); } catch { return false; }
+  return Array.isArray(rows) && rows.length === 1 && rows[0] && rows[0].holder === holder;
+}
+
 export function buildManagementApiRequest({ mode, projectRef, sql, migrationName }) {
   if (mode === "migration") {
     return {

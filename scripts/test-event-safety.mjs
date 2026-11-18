@@ -139,8 +139,27 @@ function checkFreshness(L) {
   ok(!L.isUsefulWorkPulse(zeroWorkIdle), "attempted=0 is NOT useful work");
   ok(!L.isUsefulWorkPulse({ ...useful, job: "event-truth-sla" }), "an SLA pulse is not event-truth-daily work");
   ok(L.isUsefulWorkPulse(useful), "succeeded>0 is useful work");
-  c = L.classifyFreshness(fresh(3), [zeroWorkAttempted, zeroWorkIdle, oldUseful], now);
-  ok(c.degraded && c.lastUseful.id === 4 && c.reasons.some((r) => r.includes("40.0h old")), "recent zero-work pulses do not mask a 40h-old useful pulse: " + c.reasons);
+  // With ONE imminent row past SLA, idle pulses never stand in for work.
+  c = L.classifyFreshness([...fresh(3), ...fresh(1, 30)], [zeroWorkAttempted, zeroWorkIdle, oldUseful], now);
+  ok(c.degraded && c.lastUseful.id === 4 && c.reasons.some((r) => r.includes("40.0h old")), "recent zero-work pulses do not mask a 40h-old useful pulse once data slips: " + c.reasons);
+  // Clean idle run ("due 0") + every imminent row inside SLA: fresh, not paged
+  // (2026-11-14..16 false page: truth-daily had nothing due for 2.3 days).
+  ok(L.isCleanIdlePulse(zeroWorkIdle), "attempted=0 failed=0 is a clean idle run");
+  ok(!L.isCleanIdlePulse(zeroWorkAttempted), "attempted>0 succeeded=0 is not idle");
+  ok(!L.isCleanIdlePulse({ ...zeroWorkIdle, note: "unavailable: wf_events read failed" }), "an unavailable: note is not idle");
+  ok(!L.isCleanIdlePulse({ ...zeroWorkIdle, note: "quota: usage limit" }), "a quota: note is not idle");
+  ok(!L.isCleanIdlePulse({ ...zeroWorkIdle, job: "event-truth-sla" }), "an SLA pulse is not a truth idle run");
+  c = L.classifyFreshness(fresh(3, 18), [zeroWorkIdle, oldUseful], now);
+  ok(!c.degraded && c.idleCovered && c.lastIdle.id === 3, "clean idle run + all imminent rows inside SLA: not degraded " + JSON.stringify(c.reasons));
+  ok(L.freshnessPulse(c).note.startsWith("fresh (truth idle"), "idle-covered pulse says so: " + L.freshnessPulse(c).note);
+  c = L.classifyFreshness(fresh(3, 18), [zeroWorkIdle], now);
+  ok(!c.degraded && c.lastUseful === null, "idle run covers even with no useful pulse in window while data is fully fresh");
+  c = L.classifyFreshness(fresh(3, 18), [{ ...zeroWorkIdle, ran_at: at(31) }, oldUseful], now);
+  ok(c.degraded && !c.idleCovered, "an idle run older than 30h does not cover: " + c.reasons);
+  c = L.classifyFreshness([ev({ id: "nv2", start_date: "2026-10-29", last_verified_at: null }), ...fresh(2)], [zeroWorkIdle, oldUseful], now);
+  ok(c.degraded && !c.idleCovered, "a never-verified imminent row voids idle cover");
+  c = L.classifyFreshness([...fresh(3), ...fresh(1, 25)], [zeroWorkIdle, oldUseful], now);
+  ok(c.degraded && c.reasons.some((r) => r.includes("40.0h old")), "one row past SLA (25h) voids idle cover even below the 10-row page threshold");
   c = L.classifyFreshness(fresh(3), [zeroWorkAttempted], now);
   ok(c.degraded && c.lastUseful === null && c.reasons.some((r) => r.startsWith("no useful")), "only zero-work pulses: degraded");
   c = L.classifyFreshness(fresh(3), [], now);

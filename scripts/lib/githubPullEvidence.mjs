@@ -16,6 +16,7 @@
 // any problem into a refusal. There is no default that could make a missing
 // piece of context look like evidence.
 import { readFileSync } from "node:fs";
+import { approvedCommitCandidates } from "./ownerApproval.mjs";
 
 export const MAX_COMMENT_PAGES = 20; // 2,000 comments
 export const MAX_FILE_PAGES = 30;    // 3,000 files: the most GitHub lists for one pull request
@@ -50,8 +51,8 @@ export function readPullContext(env, allowedEvents) {
  * mid-read this throws, rather than judging comments or files from one commit
  * against another. Throws on any API problem or incomplete answer.
  */
-export async function fetchPullEvidence(ctx, { withFiles = false, fetchImpl = globalThis.fetch } = {}) {
-  const call = async (path) => {
+function apiCaller(ctx, fetchImpl) {
+  return async (path) => {
     const response = await fetchImpl(`${ctx.api}/repos/${ctx.repo}${path}`, {
       headers: { Authorization: `Bearer ${ctx.token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
       signal: AbortSignal.timeout(15000),
@@ -59,6 +60,10 @@ export async function fetchPullEvidence(ctx, { withFiles = false, fetchImpl = gl
     if (!response || !response.ok) throw new Error(`GitHub API ${path.split("?")[0]} answered HTTP ${response ? response.status : "nothing"}`);
     return response.json();
   };
+}
+
+export async function fetchPullEvidence(ctx, { withFiles = false, fetchImpl = globalThis.fetch } = {}) {
+  const call = apiCaller(ctx, fetchImpl);
   const paged = async (path, maxPages, label) => {
     const all = [];
     for (let page = 1; ; page++) {
@@ -94,4 +99,54 @@ export async function fetchPullEvidence(ctx, { withFiles = false, fetchImpl = gl
     throw new Error(`the pull request head moved from ${headOf(first).slice(0, 12) || "nothing"} to ${headOf(second).slice(0, 12) || "nothing"} while its evidence was being read; the run for the new head decides`);
   }
   return { liveHeadSha: headOf(second), baseRef: String((second && second.base && second.base.ref) || ""), comments, files };
+}
+
+/**
+ * Carry-forward evidence (2026-11-12; the rule is compareApprovedChange in
+ * scripts/lib/ownerApproval.mjs). For each commit the owner approved on this pull
+ * request other than the live head (newest first, at most a few), read the
+ * pull request's own change as it was approved and as it is now:
+ *
+ *   GET /compare/<base branch>...<approved sha>   and   .../<live head>
+ *
+ * A three-dot compare runs from the merge base, so commits that came in from
+ * main are on neither side. Returns [{ sha, approvedFiles, approvedBaseSha,
+ * currentFiles, currentBaseSha }] or
+ * [{ sha, error }] per candidate; never invents a file list. Reads the head again
+ * at the end and throws if it moved, like fetchPullEvidence.
+ */
+export async function fetchCarryForward(ctx, live, { fetchImpl = globalThis.fetch } = {}) {
+  const candidates = approvedCommitCandidates(live && live.comments, live && live.liveHeadSha);
+  if (!candidates.length) return [];
+  const base = String((live && live.baseRef) || "");
+  if (!/^[A-Za-z0-9][\w./-]*$/.test(base) || base.includes("..")) {
+    return candidates.map((c) => ({ sha: c.sha, error: "the pull request's base branch is unknown" }));
+  }
+  const call = apiCaller(ctx, fetchImpl);
+  const changeAt = async (sha) => {
+    const body = await call(`/compare/${base}...${sha}`);
+    if (!body || !Array.isArray(body.files)) throw new Error(`GitHub returned no file list comparing ${base} with ${sha.slice(0, 12)}`);
+    const mergeBase = String((body.merge_base_commit && body.merge_base_commit.sha) || "") || null;
+    return { files: body.files, mergeBase };
+  };
+  let current;
+  try {
+    current = await changeAt(live.liveHeadSha);
+  } catch (e) {
+    const error = `the current change could not be read (${(e && e.message) || e})`;
+    return candidates.map((c) => ({ sha: c.sha, error }));
+  }
+  const out = [];
+  for (const c of candidates) {
+    try {
+      const approved = await changeAt(c.sha);
+      out.push({ sha: c.sha, approvedFiles: approved.files, approvedBaseSha: approved.mergeBase, currentFiles: current.files, currentBaseSha: current.mergeBase });
+    } catch (e) { out.push({ sha: c.sha, error: String((e && e.message) || e) }); }
+  }
+  const again = await call(`/pulls/${ctx.number}`);
+  const head = String((again && again.head && again.head.sha) || "");
+  if (head !== live.liveHeadSha) {
+    throw new Error(`the pull request head moved from ${live.liveHeadSha.slice(0, 12)} to ${head.slice(0, 12) || "nothing"} while the approved change was being compared; the run for the new head decides`);
+  }
+  return out;
 }

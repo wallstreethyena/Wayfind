@@ -18,6 +18,7 @@ Rows come from `wf_owned_social` (read 2026-11-14). Place IDs are live `wf_inven
 | reel/DdUinjYJEYr | Tampa Golf Cart Tour | ChIJmTBndrPFwogRQgwCuMP3myY | none |
 | reel/DdEkeo9Bkhk | Clear kayak, Shell Key Preserve | ChIJk04qcKEdw4gRHykY4WhCYBI (Get Up and Go Kayaking, Shell Key) | none |
 | reel/DfsjmNMycZd | Rreal Tacos Christmas decor, Downtown Tampa (ingested 2026-11-14) | rreal-tacos-downtown-tampa (existing entry, name + city) | none |
+| reel/DfuuG8_hPy5 | Christmas Town at Busch Gardens after dark (ingested 2026-11-14; added 2026-11-16 after owned-social-reconcile missing=1) | ChIJhRo4DU_GwogRUgjhMAj-pag (Busch Gardens Tampa Bay) | christmas-town-2026 |
 
 Live posts that feature one business but sit on no card, with the reason (lib/ownedSocialCards.js):
 

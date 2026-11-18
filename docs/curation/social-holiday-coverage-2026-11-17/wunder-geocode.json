@@ -1,0 +1,30 @@
+{
+  "source": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=27839+Saint+Joe+Rd%2C+Dade+City%2C+FL+33525&benchmark=Public_AR_Current&format=json",
+  "matches": [
+    {
+      "tigerLine": {
+        "side": "L",
+        "tigerLineId": "652509870"
+      },
+      "coordinates": {
+        "x": -82.355115906918,
+        "y": 28.375316698981
+      },
+      "addressComponents": {
+        "zip": "33525",
+        "streetName": "SAINT JOE",
+        "preType": "",
+        "city": "DADE CITY",
+        "preDirection": "",
+        "suffixDirection": "",
+        "fromAddress": "27801",
+        "state": "FL",
+        "suffixType": "RD",
+        "toAddress": "29385",
+        "suffixQualifier": "",
+        "preQualifier": ""
+      },
+      "matchedAddress": "27839 SAINT JOE RD, DADE CITY, FL, 33525"
+    }
+  ]
+}
