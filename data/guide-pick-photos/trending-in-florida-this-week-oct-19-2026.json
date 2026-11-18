@@ -1,13 +1,68 @@
 {
   "slug": "trending-in-florida-this-week-oct-19-2026",
-  "picks": {},
-  "gaps": {
-    "Rays win the AL pennant; World Series vs Brewers": {
-      "reason": "no-verified-source",
+  "picks": {
+    "Sophisticated Ladies": {
+      "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/westcoast-black-theatre-troupe.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Westcoast Black Theatre Troupe theater with its red awning in Sarasota",
+      "caption": "Westcoast Black Theatre Troupe, Sarasota.",
+      "credit": "Kimberli Mäkäräinen",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Westcoast_Black_Theatre_Troupe_04.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Westcoast_Black_Theatre_Troupe_04.jpg",
+      "author": "Kimberli Mäkäräinen",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 20, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
+      "verification": "Building sign reads WBTT; Commons file titled Westcoast Black Theatre Troupe. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     },
+    "Rays win the AL pennant; World Series vs Brewers": {
+      "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/tropicana-field-game-day.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The diamond and outfield at Tropicana Field under the dome lights on a Rays game day",
+      "caption": "Tropicana Field, home of the Rays.",
+      "credit": "EaglesFanInTampa",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_Playing_Field_Opening_Day_2010.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tropicana_Field_Playing_Field_Opening_Day_2010.JPG",
+      "author": "EaglesFanInTampa",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file Tropicana Field Playing Field Opening Day 2010, taken April 6, 2010. Viewed the full image: the infield, stands and scoreboards inside Tropicana Field on a Rays game day. Exact venue. No overlay or watermark. Live Commons licence checked: CC BY-SA 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "45th John's Pass Seafood Festival": {
+      "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/johns-pass-village-boardwalk.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Bright green and turquoise shop fronts along the boardwalk at John's Pass Village in Madeira Beach",
+      "caption": "The boardwalk shops at John's Pass Village, home of the seafood festival.",
+      "credit": "Richard Mc Neil",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Boutiques_colorées_du_Village_de_John's_Pass,_Madeira_Beach_-_panoramio.jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Boutiques_colorées_du_Village_de_John's_Pass,_Madeira_Beach_-_panoramio.jpg",
+      "author": "Richard Mc Neil",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file Boutiques colorees du Village de John's Pass, Madeira Beach, from Panoramio. Viewed the full image: the painted boardwalk shop fronts of John's Pass Village where the festival is held. Exact place. No overlay or watermark. Live Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
+  "gaps": {
     "World Series Games 3–5 at the Trop, plus watch parties": {
       "reason": "no-verified-source",
       "placeId": null,
@@ -39,12 +94,6 @@
       "note": "October 21, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     },
     "Frenchy's 42nd Stone Crab Weekend": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 21, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
-    },
-    "45th John's Pass Seafood Festival": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
@@ -129,12 +178,6 @@
       "note": "October 19, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     },
     "Dracula (The Players)": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "October 19, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
-    },
-    "Sophisticated Ladies": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,

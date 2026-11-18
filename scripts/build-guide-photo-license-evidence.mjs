@@ -120,13 +120,20 @@ for (const url of new Set([...files.values()].filter((f) => f.stored.sourceKind 
   // licence problem, and a real missing licence still fails after retries.
   let res, html = "";
   for (let attempt = 0; attempt < 3; attempt++) {
-    res = await fetch(url, { headers: { "user-agent": UA } });
+    res = await fetch(url, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(30000) });
     html = await res.text();
-    if (res.status === 200 && /"license": "https:\/\/creativecommons\.org\//.test(html) && /og:title/.test(html)) break;
+    if (res.status === 200 && /"license": ?"https:\/\/creativecommons\.org\//.test(html) && /og:title/.test(html)) break;
     await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)));
   }
-  const owner = /"owner":\{"pathAlias":"?([^",]*)"?,"username":"([^"]*)","realname":"([^"]*)","displayname":"([^"]*)","nsid":"([^"]*)"/.exec(html);
-  const lic = /"license": "(https:\/\/creativecommons\.org\/[^"]+)"/.exec(html);
+  // Flickr serves two page formats: the older one with an owner object, and
+  // the newer one where the owner sits in the JSON-LD author block (profile
+  // URL holds the path alias, the buddy icon fragment holds the nsid).
+  let owner = /"owner":\{"pathAlias":"?([^",]*)"?,"username":"([^"]*)","realname":"([^"]*)","displayname":"([^"]*)","nsid":"([^"]*)"/.exec(html);
+  if (!owner) {
+    const ld = /"author":\{"@type":"Person","name":"([^"]*)","url":"https:\/\/www\.flickr\.com\/photos\/([^"/]+)\/?","image":"[^"#]*#([^"]*)"/.exec(html);
+    if (ld) owner = [ld[0], ld[2], "", ld[1], ld[1], ld[3]];
+  }
+  const lic = /"license": ?"(https:\/\/creativecommons\.org\/[^"]+)"/.exec(html);
   const title = /<meta property="og:title" content="([^"]*)"/.exec(html);
   const taken = /"dateTaken":"([^"]*)"/.exec(html);
   const urlOwner = new URL(url).pathname.split("/")[2];
