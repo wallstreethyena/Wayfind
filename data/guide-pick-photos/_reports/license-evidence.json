@@ -3,22 +3,22 @@
   "verifiedAt": "2026-11-17",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 361,
-    "usages": 387,
-    "verified": 361,
+    "files": 365,
+    "usages": 391,
+    "verified": 365,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 86,
-      "CC BY-SA 3.0": 79,
-      "CC BY 4.0": 21,
+      "CC BY 2.0": 92,
       "CC BY 3.0": 20,
-      "CC BY 2.0": 91,
-      "CC0 1.0 Universal": 25,
+      "CC BY 4.0": 22,
       "CC BY-SA 2.0": 31,
-      "Unsplash License": 4,
+      "CC BY-SA 2.5": 2,
+      "CC BY-SA 3.0": 79,
+      "CC BY-SA 4.0": 87,
+      "CC0 1.0 Universal": 25,
       "Public domain": 3,
-      "CC BY-SA 2.5": 1
+      "Unsplash License": 4
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -10728,6 +10728,128 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/universal-orlando-christmas-2026/citywalk.webp",
+      "usedBy": [
+        {
+          "slug": "universal-orlando-christmas-2026",
+          "role": "pick",
+          "pick": "Universal CityWalk"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg",
+        "title": "City Walk Orlando 04",
+        "author": "Miosotis Jade",
+        "dateTaken": "2016-05-29 21:18:33",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Miosotis Jade",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation retains the source license."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/universal-orlando-christmas-2026/nintendo-day.webp",
+      "usedBy": [
+        {
+          "slug": "universal-orlando-christmas-2026",
+          "role": "pick",
+          "pick": "Universal Epic Universe"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg",
+        "title": "Super Nintendo World, Epic Universe, Orlando, Flórida",
+        "author": "Brunnofernando",
+        "dateTaken": "2026-09-01 11:54:21",
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0"
+      },
+      "wayfind": {
+        "credit": "Brunnofernando",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation retains the source license."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/universal-orlando-christmas-2026/seuss-landing.webp",
+      "usedBy": [
+        {
+          "slug": "universal-orlando-christmas-2026",
+          "role": "pick",
+          "pick": "Universal Islands of Adventure"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg",
+        "title": "Seuss Landing",
+        "author": "David Bjorgen",
+        "dateTaken": "2004-08-30",
+        "licence": "CC BY-SA 2.5",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.5"
+      },
+      "wayfind": {
+        "credit": "David Bjorgen",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg",
+        "license": "CC BY-SA 2.5",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.5/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation retains the source license."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/universal-orlando-christmas-2026/universal-holiday-parade.webp",
+      "usedBy": [
+        {
+          "slug": "universal-orlando-christmas-2026",
+          "role": "pick",
+          "pick": "Universal Studios Florida"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/93283041@N00/6669301281",
+        "title": "Universal Orlando - Universal Studios - Macy's Holiday Parade - Balloon Heads",
+        "author": "Jared",
+        "displayName": "Jared",
+        "dateTaken": "2011-12-18 16:44:39",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "jared422_80",
+        "creditHref": "https://www.flickr.com/photos/93283041@N00/6669301281",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation retains the source license."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-17",
+      "verificationNote": "Source licence verification carried forward from the existing reviewed use of the identical Flickr photograph; direct re-fetch on 2026-11-17 returned an incomplete page. No new licence or source identity inferred."
     },
     {
       "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-the-spring-fed-water-park.webp",
