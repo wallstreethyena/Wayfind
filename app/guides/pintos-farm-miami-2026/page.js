@@ -6,6 +6,7 @@ import PintosFarmMap from "./PintosFarmMap";
 import { guideHero } from "../../../lib/guideHero";
 import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 import styles from "./page.module.css";
+import { GuidePickWhere, guidePickWhere } from "../[slug]/GuidePickWhere";
 
 const SLUG = "pintos-farm-miami-2026";
 const OFFICIAL_TICKETS = "https://pintosfarm.ticketspice.com/pintos-farm-2026";
@@ -181,6 +182,7 @@ export default function PintosFarmGuidePage() {
         <section className={styles.lead}>
           <p className={styles.kicker}>The useful answer</p>
           <h2>A full young-family fall day, not just a pumpkin stop.</h2>
+          <GuidePickWhere where={guidePickWhere({ name: "Pinto's Farm", placeId: "ChIJUczTK5XC2YgRRt4Jp6N3B70" }, SLUG)} />
           <p>
             Pinto's Farm runs Fall at the Farm from <strong>September 19 through November 8, 2026</strong>.
             Regular admission includes the boat ride, tractor ride, race track, petting zoo, bounce pad,

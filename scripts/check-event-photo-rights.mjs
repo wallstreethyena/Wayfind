@@ -151,8 +151,8 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
   // Hero geometry (owner report 2026-11-16): bounded height, every photo the same
   // width with the next one peeking in, and a lone photo still filling the card.
   // The old full-width FIRST photo hid every other photo and broke snapping.
-  ok(css.includes(".wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px);flex:0 0 86%;width:86%") && css.includes(".wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}") && !css.includes(".wf-event-hero .wf-event-photo:first-child{flex:0 0 100%"),
-    `${CSS_PATH}: the event hero fills its card with bounded height, uniform peeking photos, and a full-width lone photo`);
+  ok(css.includes(".wf-event-hero .wf-event-photo{height:auto;aspect-ratio:3/2;max-height:min(72vh,660px);flex:0 0 100%;width:100%") && css.includes(".wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}") && !css.includes(".wf-event-hero .wf-event-photo:first-child{flex:0 0 100%"),
+    `${CSS_PATH}: the event hero fills its card with bounded height, every photo full width (none cut off at the edge)`);
   ok(/overflow:hidden/.test(box), `${CSS_PATH}: the shared photo wrapper must clip its image`);
   ok(/width:100%/.test(shot) && /height:100%/.test(shot) && /object-fit:cover/.test(shot),
     `${CSS_PATH}: the image fills its wrapper (100%/100% + object-fit:cover)`);
@@ -160,7 +160,7 @@ ok(/shots\.credit/.test(code), `${PAGE} must render the photo credit alongside t
     `${CSS_PATH}: base mobile gallery wrappers have explicit 216x384 portrait geometry`);
   ok(/className="wf-event-photo-rail"/.test(shell) && /\{media\}/.test(shell),
     `${SHELL_PATH}: both event routes place supplied media inside the shared rail`);
-  ok(/<img[^>]*width="640"[^>]*height="640"/.test(photo),
+  ok(/<(?:img|PortraitAwareImg)\b[^>]*width="640"[^>]*height="640"/.test(photo),
     `${PHOTO_PATH}: rendered images carry explicit dimensions while the shared wrapper controls display geometry`);
 }
 

@@ -13,7 +13,7 @@ let checks = 0;
 const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 
 const railIds = ["food", "farms", "theme-parks", "haunts", "family",
-  "oktoberfest", "date-night", "festivals", "photos", "day-trips"];
+  "oktoberfest", "date-night", "festivals", "photos", "day-trips", "thanksgiving"];
 
 async function routeHarness({ dealError = null, pendingFailed = false, photoFailed = false, cachedValue, wallTime = "2026-09-10T12:00" } = {}) {
   const observed = { usable: null, loaded: false };
@@ -43,6 +43,7 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
     "../../../../lib/fallFoodGap20261008.js": { FALL_FOOD_GAP_2026_10_08: [] },
     "../../../../lib/fallTampaPicks20261008.js": { FALL_TAMPA_PICKS_2026_10_08: [] },
     "../../../../lib/fallLiveArea20261019.js": { FALL_LIVE_AREA_2026_10_19: [] },
+    "../../../../lib/fallThanksgiving2026.js": { FALL_THANKSGIVING_2026: [] },
     "../../../../lib/seasonalLiveAreaResolve.js": { resolveSeasonalLiveArea: () => ({ fall: [], christmas: [] }) },
     "../../../../lib/seasonalLiveAreaInventory.js": { readSeasonalPendingInventory: async () => ({ rows: [], failed: pendingFailed }) },
     "../../../../lib/fallPhotoDestinations2026.js": fallPhotoDestinations,
@@ -80,6 +81,7 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
     },
     "../../../../lib/fallIntentRails.js": {
       nextFallOccurrence: () => null, hasUpcomingFallOccurrence: () => true,
+      FALL_INTENT_RAIL_DEFS: railIds.map((id) => ({ id, title: id })),
       composeFallIntentRails: (_events, places) => ({
         phase: "fall", rails: railIds.map((id, index) => ({ id, title: id, cards: index ? [] : places })),
       }),
@@ -122,8 +124,8 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
   const h = await routeHarness();
   const response = await h.GET(new Request("https://wayfind.test/api/events/fall?lat=27.95&lng=-82.46"));
   const body = await response.json();
-  ok(h.observed.loaded && h.observed.usable === true, "healthy ten-rail answer is admitted to FastCache");
-  ok(body.sourceFailures === 0 && body.rails.length === 10, "healthy response preserves its output and explicit source health");
+  ok(h.observed.loaded && h.observed.usable === true, "healthy eleven-rail answer is admitted to FastCache");
+  ok(body.sourceFailures === 0 && body.rails.length === 11, "healthy response preserves its output and explicit source health");
   ok(windowRailAnswer(body).sourceFailures === 0, "the real wire serializer preserves health evidence for browser reuse");
   ok(response.headers.get("cache-control") === "public, s-maxage=900, stale-while-revalidate=0",
     "a healthy noon answer keeps its fifteen-minute CDN lifetime without stale replay");
@@ -179,7 +181,7 @@ for (const [wallTime, expectedPolicy] of [
   const response = await h.GET(new Request("https://wayfind.test/api/events/fall?lat=27.95&lng=-82.46"));
   const body = await response.json();
   ok(h.observed.loaded && h.observed.usable === false, "a failed photo lookup cannot enter healthy FastCache even with other populated rails");
-  ok(body.sourceFailures === 1 && body.rails.length === 10 && body.rails[0].cards.length > 0,
+  ok(body.sourceFailures === 1 && body.rails.length === 11 && body.rails[0].cards.length > 0,
     "photo lookup failure remains visible alongside usable existing Fall cards");
   ok(response.headers.get("cache-control") === "no-store", "an incomplete photo source cannot be cached as a complete CDN answer");
 }

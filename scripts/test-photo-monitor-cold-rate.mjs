@@ -43,4 +43,7 @@ const src = fs.readFileSync(new URL("./photo-monitor.mjs", import.meta.url), "ut
 ok(/readerPlaceholderRate\(summary,\s*\{\s*headroom:\s*allowance\.headroom\s*\}\)/.test(src), "monitor computes the reader rate from the measured headroom");
 ok(/computeBreach\(\{\s*placeholderRate:\s*reader\.rate,/.test(src), "computeBreach receives reader.rate, not summary.placeholderRate");
 
+// 2026-11-16: an exhausted ledger is the cause of a real rate, so the pulse names it.
+ok(/allowance\.phase === "exhausted"\)\s*noteBits\.push\(`ledger=exhausted \$\{allowance\.used\}\/\$\{allowance\.cap\}`\)/.test(src), "pulse note names an exhausted ledger with used/cap");
+
 console.log(`test-photo-monitor-cold-rate: ok (${pass} checks)`);

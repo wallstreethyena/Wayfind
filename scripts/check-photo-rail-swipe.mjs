@@ -112,7 +112,7 @@ const railRule = rule(".wf-event-photo-rail");
 ok(/scroll-snap-type:x mandatory/.test(railRule) && !/proximity/.test(railRule), "rail snaps one photo per swipe (mandatory, not proximity)");
 ok(/scrollbar-width:none/.test(railRule) && css.includes(".wf-event-photo-rail::-webkit-scrollbar{display:none}"), "rail hides the desktop scrollbar strip");
 ok(/scroll-snap-stop:always/.test(rule(".wf-event-photo")), "a fast flick stops at the next photo instead of skipping several");
-ok(css.includes(".wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px);flex:0 0 86%;width:86%"), "hero photos share one width with the next photo peeking in");
+ok(css.includes(".wf-event-hero .wf-event-photo-rail{padding:0;gap:0;") && css.includes(".wf-event-hero .wf-event-photo{height:auto;aspect-ratio:3/2;max-height:min(72vh,660px);flex:0 0 100%;width:100%"), "every hero photo fills the card on its own: no photo is cut off at the edge (owner follow-up 2026-11-16)");
 ok(css.includes(".wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}"), "a lone hero photo still fills the card");
 ok(!/\.wf-event-hero \.wf-event-photo:first-child\{flex:0 0 100%/.test(css), "no full-width FIRST photo that hides the rest");
 ok(css.includes(".wf-event-hero .wf-event-photo-rail:has(>.wf-event-photo+.wf-event-photo){margin-bottom:26px}"), "multi-photo rail reserves the dots strip (no layout shift)");
@@ -127,10 +127,23 @@ ok(railAt > 0 && ctlAt > railAt && ctlAt < shell.indexOf("{credit}"), "shell mou
 const ctl = strip(read("app/components/EventPhotoRailControls.js"));
 ok(/^"use client"/.test(read("app/components/EventPhotoRailControls.js")), "controls are a client component");
 ok(/<PhotoLightbox[\s/>]/.test(ctl) && /addEventListener\("click"/.test(ctl), "tapping a rail photo opens the full-screen viewer");
-ok(/<RailCount[\s/>]/.test(ctl) && /<RailDots[\s/>]/.test(ctl) && /usePeekNudge\(/.test(ctl), "event rail shows counter, dots and the peek nudge");
+ok(/<RailCount[\s/>]/.test(ctl) && /<RailDots[\s/>]/.test(ctl), "event rail shows counter and dots");
+ok(/subtree:\s*true/.test(strip(read("app/components/PhotoRailIndicators.js"))) && /shown\s*>\s*0/.test(ctl), "the expand badge appears even when the photo mounts after a pending tile (watches the whole rail, not just its direct children)");
+ok(!/usePeekNudge|scrollSnapType\s*=\s*"none"/.test(ctl + strip(read("app/components/PhotoRailIndicators.js"))), "no photo moves on its own (owner disliked the auto peek, 2026-11-16)");
 const place = strip(read("app/components/PlaceDetailPhotoHeader.js"));
 ok(/\{multi && viewer \? <PhotoLightbox[\s/>]/.test(place), "place detail multi-photo rail opens the swipeable viewer");
 ok(/<RailCount[\s/>]/.test(place) && /<RailDots[\s/>]/.test(place), "place detail rail shows counter and dots");
+// Owner 2026-11-18 "fix it globally": the in-app place sheet gallery is full width too,
+// its arrow moves one whole photo, its viewer allows pinch to zoom, and photo
+// views are measured (analytics only).
+const sheet = strip(read("app/components/sheets/Detail.js"));
+const galleryRail = sheet.match(/ref=\{galleryRef\}[^\n]*/)?.[0] || "";
+ok(/gap:\s*0[,\s]/.test(galleryRail), "in-app gallery has no gap between photos");
+ok(/<FallbackImg[^\n]*style=\{\{\s*width:\s*"100%",\s*flexShrink:\s*0,\s*height:\s*"100%"/.test(sheet) && !/"78%"/.test(sheet), "in-app gallery photos are full width, none cut off by a peek");
+const home = strip(read("app/home.js"));
+ok(/el\.scrollBy\(\{\s*left:\s*dir\s*\*\s*el\.clientWidth,/.test(home), "in-app gallery arrow moves exactly one photo");
+ok(/touchAction:\s*"pan-y pinch-zoom"/.test(home) && /e\.touches\.length\s*>\s*1/.test(home), "in-app full-screen viewer allows pinch to zoom and two fingers never page");
+ok(/track\("photo_viewer_open"/.test(ctl) && /track\("photo_gallery_swipe"/.test(ctl) && /logEvent\("photo_viewer_open"/.test(sheet), "photo views and swipes are measured on event pages and the in-app sheet");
 const lb = strip(read("app/components/PhotoLightbox.js"));
 ok(/showModal\(\)/.test(lb) && /onCancel=/.test(lb) && /aria-label="Close photos"/.test(lb), "viewer is a real modal that closes with Escape and a labelled button");
 ok(/scrollSnapType:\s*"x mandatory"/.test(lb) && /ArrowRight/.test(lb), "viewer swipes photo by photo and supports arrow keys");

@@ -1,0 +1,72 @@
+[
+  {
+    "input": "14 St George St, St Augustine, FL 32084",
+    "source": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=14+St+George+St%2C+St+Augustine%2C+FL+32084&benchmark=Public_AR_Current&format=json",
+    "matches": [
+      {
+        "address": "14 SAINT GEORGE ST, ST AUGUSTINE, FL, 32084",
+        "coordinates": {
+          "x": -81.313524532084,
+          "y": 29.897238647596
+        }
+      }
+    ]
+  },
+  {
+    "input": "1600 E 8th Ave, Tampa, FL 33605",
+    "source": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=1600+E+8th+Ave%2C+Tampa%2C+FL+33605&benchmark=Public_AR_Current&format=json",
+    "matches": [
+      {
+        "address": "1600 E 8TH AVE, TAMPA, FL, 33605",
+        "coordinates": {
+          "x": -82.441669709383,
+          "y": 27.961049947139
+        }
+      }
+    ]
+  },
+  {
+    "input": "5995 Brough Rd, Elkton, FL",
+    "source": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=5995+Brough+Rd%2C+Elkton%2C+FL&benchmark=Public_AR_Current&format=json",
+    "matches": [
+      {
+        "address": "5995 BROUGH RD, ELKTON, FL, 32033",
+        "coordinates": {
+          "x": -81.442449212285,
+          "y": 29.779554063835
+        }
+      }
+    ]
+  },
+  {
+    "input": "7263 Solomon Rd, Jacksonville, FL 32234",
+    "source": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=7263+Solomon+Rd%2C+Jacksonville%2C+FL+32234&benchmark=Public_AR_Current&format=json",
+    "matches": []
+  },
+  {
+    "input": "2497 State Road 16, Green Cove Springs, FL 32043",
+    "source": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=2497+State+Road+16%2C+Green+Cove+Springs%2C+FL+32043&benchmark=Public_AR_Current&format=json",
+    "matches": [
+      {
+        "address": "2497 STATE HWY 16, GREEN COVE SPRINGS, FL, 32043",
+        "coordinates": {
+          "x": -81.743656605017,
+          "y": 29.983377176722
+        }
+      }
+    ]
+  },
+  {
+    "input": "718 Riverside Ave, Jacksonville, FL 32204",
+    "source": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=718+Riverside+Ave%2C+Jacksonville%2C+FL+32204&benchmark=Public_AR_Current&format=json",
+    "matches": [
+      {
+        "address": "718 RIVERSIDE AVE, JACKSONVILLE, FL, 32204",
+        "coordinates": {
+          "x": -81.677605334141,
+          "y": 30.31419363047
+        }
+      }
+    ]
+  }
+]

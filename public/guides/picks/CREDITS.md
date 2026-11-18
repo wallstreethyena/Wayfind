@@ -61,6 +61,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## florida-christmas-boat-parades-2026
 
 - `/guides/picks/florida-christmas-boat-parades-2026/jacksonville-light-boat-parade-fireworks.jpg` — florida-christmas-boat-parades-2026: Jacksonville Light Boat Parade. [Rob Bixby](https://www.flickr.com/photos/14580956@N08/11150969186); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/florida-christmas-boat-parades-2026/winterfest-boat-parade-lit-yacht-new-river.jpg` — florida-christmas-boat-parades-2026: Seminole Hard Rock Winterfest Boat Parade. [Bob B. Brown](https://www.flickr.com/photos/14363418@N00/5313581597); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
 ## florida-christmas-markets-and-towns-2026
 
@@ -497,7 +498,6 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 - `/guides/picks/things-to-do-sarasota/lido-mangrove-tunnel.webp` — things-to-do-sarasota: Kayak Lido's mangrove tunnels. [Fred Hsu](https://commons.wikimedia.org/wiki/File:2017_Sarasota_Red_Mangrove_Tunnels_2_FRD_9456.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-sarasota/selby-gardens-banyan.webp` — things-to-do-sarasota: Marie Selby Botanical Gardens. [Daderot](https://commons.wikimedia.org/wiki/File:Banyan_-_Marie_Selby_Botanical_Gardens_-_Sarasota,_Florida_-_DSC01239.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
-- `/guides/picks/things-to-do-sarasota/mote-marine-laboratory.webp` — things-to-do-sarasota: Mote Marine Laboratory. [Ebyabe](https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-sarasota/myakka-alligators.webp` — things-to-do-sarasota: Myakka River State Park. [Mx. Granger](https://commons.wikimedia.org/wiki/File:Alligators_in_Myakka_River_State_Park.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - `/guides/picks/things-to-do-sarasota/pinecraft-post-office.webp` — things-to-do-sarasota: Pinecraft. [Witherpshins](https://commons.wikimedia.org/wiki/File:Pinecraft_Florida_Post_Office,_1240_Yoder_Avenue,_Pinecraft_Florida_34278.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-sarasota/legacy-trail.webp` — things-to-do-sarasota: Ride the Legacy Trail. [Sanibel sun](https://commons.wikimedia.org/wiki/File:Legacy_Trail_in_Sarasota.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -551,6 +551,11 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/tonights-move-tampa-september-12-2026/ruth-eckerd-hall.webp` — tonights-move-tampa-september-12-2026: The Mavericks. [PalauanReich](https://commons.wikimedia.org/wiki/File:RuthEckerdHall_03.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/tonights-move-tampa-september-12-2026/amalie-arena.webp` — tonights-move-tampa-september-12-2026: The Strokes. [Miosotis Jade](https://commons.wikimedia.org/wiki/File:Amalie_Arena,_Tampa.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## trending-in-florida-this-week-nov-16-2026
+
+- `/guides/picks/trending-in-florida-this-week-nov-16-2026/gene-simmons-band-with-lita-ford.jpg` — trending-in-florida-this-week-nov-16-2026: Gene Simmons Band with Lita Ford. [V-spectrum](https://commons.wikimedia.org/wiki/File:VSpectrum-Gene_Simmons-0204.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/trending-in-florida-this-week-nov-16-2026/symphony-in-lights.jpg` — trending-in-florida-this-week-nov-16-2026: Symphony in Lights. [Christopher Hollis](https://commons.wikimedia.org/wiki/File:The_Shops_at_Wiregrass_(Christmas_2008).jpg); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
+
 ## trending-in-florida-this-week-nov-2-2026
 
 - `/guides/picks/trending-in-florida-this-week-nov-2-2026/christone-kingfish-ingram.jpg` — trending-in-florida-this-week-nov-2-2026: Christone Kingfish Ingram. [Paul Natkin](https://commons.wikimedia.org/wiki/File:Kingfish_Ingram_BuddyGuy.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -571,6 +576,13 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/usf-bulls-vs-memphis.webp` — trending-in-florida-this-week-nov-9-2026: USF Bulls vs. Memphis. [Sebastian Brinkenfeldt](https://commons.wikimedia.org/wiki/File:South_Florida_Bulls_vs_Pittsburgh_Panthers,_20_November_2010_-_IMG_2264_(5208544283).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/usf-mens-basketball.webp` — trending-in-florida-this-week-nov-9-2026: USF men's basketball vs. Coppin State. [TheCustomOfLife](https://commons.wikimedia.org/wiki/File:Sundomecloseup.JPG); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
 - `/guides/picks/trending-in-florida-this-week-nov-9-2026/wynonna-judd.webp` — trending-in-florida-this-week-nov-9-2026: Wynonna Judd and Troubadour Blue. [Fred W. Baker III](https://commons.wikimedia.org/wiki/File:Wynonna_Judd_is_performing.jpg); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
+
+## universal-orlando-christmas-2026
+
+- `/guides/picks/universal-orlando-christmas-2026/citywalk.webp` — universal-orlando-christmas-2026: Universal CityWalk. [Miosotis Jade](https://commons.wikimedia.org/wiki/File:City_Walk_Orlando_04.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/universal-orlando-christmas-2026/nintendo-day.webp` — universal-orlando-christmas-2026: Universal Epic Universe. [Brunnofernando](https://commons.wikimedia.org/wiki/File:Super_Nintendo_World,_Epic_Universe,_Orlando,_Fl%C3%B3rida.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/universal-orlando-christmas-2026/seuss-landing.webp` — universal-orlando-christmas-2026: Universal Islands of Adventure. [David Bjorgen](https://commons.wikimedia.org/wiki/File:Seuss_Landing.jpg); [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/universal-orlando-christmas-2026/universal-holiday-parade.webp` — universal-orlando-christmas-2026: Universal Studios Florida. [jared422_80](https://www.flickr.com/photos/93283041@N00/6669301281); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
 ## weeki-wachee-kayak-mermaids-guide
 

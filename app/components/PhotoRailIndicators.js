@@ -1,7 +1,6 @@
 "use client";
 // Shared "there are more photos" signals for any horizontal photo rail:
-// which photo is showing ("3 / 10"), dots, desktop arrows, and a one-time
-// peek nudge on phones. Owner report 2026-11-16: a 10-photo event rail looked
+// which photo is showing ("3 / 10") and dots. No auto motion (owner, 2026-11-16). Owner report 2026-11-16: a 10-photo event rail looked
 // like a single picture, so nobody knew they could swipe.
 import { useEffect, useState } from "react";
 
@@ -33,23 +32,25 @@ export function scrollRailTo(rail, i) {
   rail.scrollTo({ left: k.offsetLeft - kids[0].offsetLeft, behavior: prefersReducedMotion() ? "auto" : "smooth" });
 }
 
-/** Live { count, index } for a rail element (null-safe). */
+/** Live { count, index, shown } for a rail element (null-safe); shown = slides holding an <img> right now. */
 export function useRailIndex(rail) {
-  const [state, setState] = useState({ count: 0, index: 0 });
+  const [state, setState] = useState({ count: 0, index: 0, shown: 0 });
   useEffect(() => {
     if (!rail) return undefined;
     let frame = 0;
     const update = () => {
       frame = 0;
-      const count = slidesOf(rail).length;
+      const kids = slidesOf(rail);
+      const count = kids.length;
       const index = railIndex(rail);
-      setState((s) => (s.count === count && s.index === index ? s : { count, index }));
+      const shown = kids.filter((k) => k.querySelector?.("img")).length; // photos can mount after a pending tile
+      setState((s) => (s.count === count && s.index === index && s.shown === shown ? s : { count, index, shown }));
     };
     const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
     update();
     rail.addEventListener("scroll", onScroll, { passive: true });
     const mo = typeof MutationObserver !== "undefined" ? new MutationObserver(onScroll) : null;
-    mo?.observe(rail, { childList: true });
+    mo?.observe(rail, { childList: true, subtree: true });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onScroll) : null;
     ro?.observe(rail);
     return () => {
@@ -60,45 +61,6 @@ export function useRailIndex(rail) {
     };
   }, [rail]);
   return state;
-}
-
-/**
- * One gentle peek (slide ~56px and back) the first time a multi-photo rail is
- * on screen on a touch device. Skipped for reduced motion and once the person
- * has touched the rail themselves.
- */
-export function usePeekNudge(rail, count) {
-  useEffect(() => {
-    if (!rail || count < 2 || typeof IntersectionObserver === "undefined") return undefined;
-    if (prefersReducedMotion() || !window.matchMedia?.("(pointer: coarse)").matches) return undefined;
-    let touched = false;
-    let timers = [];
-    const stop = () => { touched = true; };
-    rail.addEventListener("pointerdown", stop, { passive: true, once: true });
-    rail.addEventListener("touchstart", stop, { passive: true, once: true });
-    const io = new IntersectionObserver((entries) => {
-      if (!entries.some((e) => e.isIntersecting && e.intersectionRatio >= 0.6)) return;
-      io.disconnect();
-      timers.push(setTimeout(() => {
-        if (touched || rail.scrollLeft > 4) return;
-        const snap = rail.style.scrollSnapType;
-        rail.style.scrollSnapType = "none"; // a mandatory snap would swallow a partial programmatic scroll
-        rail.scrollTo({ left: 56, behavior: "smooth" });
-        timers.push(setTimeout(() => {
-          if (!touched) rail.scrollTo({ left: 0, behavior: "smooth" });
-          timers.push(setTimeout(() => { rail.style.scrollSnapType = snap; }, 450));
-        }, 520));
-      }, 700));
-    }, { threshold: [0.6] });
-    io.observe(rail);
-    return () => {
-      io.disconnect();
-      timers.forEach(clearTimeout);
-      timers = [];
-      rail.removeEventListener("pointerdown", stop);
-      rail.removeEventListener("touchstart", stop);
-    };
-  }, [rail, count]);
 }
 
 const pill = { display: "inline-flex", alignItems: "center", gap: 6, minHeight: 32, padding: "0 12px", borderRadius: 16, border: "1px solid rgba(255,255,255,.22)", background: "rgba(8,11,16,.72)", color: "#fff", font: "700 13px/1 var(--wf-sans, system-ui)", fontVariantNumeric: "tabular-nums", letterSpacing: ".02em", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", cursor: "pointer" };

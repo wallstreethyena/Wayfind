@@ -93,6 +93,17 @@ ok(/backdrop-filter:blur\(18px\) saturate\(140%\)/.test(home), "the panel is not
 ok(/const open = !!\(activeCat && subs\.length > 1\)/.test(home), "the subfilter row is not conditional on a selected category");
 ok(/\{open \?/.test(home), "the subfilter row renders unconditionally — it must MOUNT, not just hide");
 ok(/setCat\(id\); setSub\("all"\)/.test(map), "switching category does not reset the sub-filter — a stale filter would carry across");
+ok(/panelCollapsed = false/.test(home) && /Filters \\u25BE/.test(home) && /onExpandPanel/.test(home),
+  "the compact bar can collapse to a slim pill that reopens from Filters");
+ok(/if \(id === cat && !allCategories\) setFiltersExpanded\(\(v\) => !v\)/.test(map),
+  "tapping the active category tab collapses or reopens sub-filters");
+ok(/if \(subsVisible\) setFiltersExpanded\(false\)/.test(map) && /else setFilterBarCollapsed\(true\)/.test(map) && /Hide \\u25B4/.test(map),
+  "Less collapses sub-filters, and Hide collapses the whole bar into the slim pill");
+// The lens row is in normal flow under the category panel. The score button is
+// absolutely placed at the collapsed-panel slot (164). On a phone that slot
+// sits on the lens row once sub-filters open, so the button has to drop.
+ok(/data-wf-all-places/.test(map) && /top: subsVisible \? 220 : 164/.test(map),
+  "All places · 9.2+ stays at 164 until sub-filters open, then drops to 220 so it clears the lens row");
 
 // ── ticket 2c: the seventh 'Search' tile is gone ─────────────────────────
 ok(!/aria-label="Search"/.test(map), "the Search tile is back in the category row — there is a search bar directly above it");

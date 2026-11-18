@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import PhotoFallbackTile from "./PhotoFallbackTile.js";
+import PortraitAwareImg from "./PortraitAwareImg.js";
 import { useEventHeroPhoto } from "./EventHeroPhotoContext.js";
 import { isApiPhotoSrc, photoPlaceIdFromSrc } from "../../lib/cardPhotoRequest.js";
 import { fetchLivePhoto } from "../../lib/livePhoto.js";
@@ -75,7 +76,7 @@ export default function EventPlacePhoto({ src, name = "Place", priority = false,
   }, [report, status, visible, photo]);
 
   return visible ? (
-    <img ref={ref} src={imgSrc} alt={name} width="640" height="640" loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : undefined} decoding="async" onError={() => setFailed(imgSrc)} />
+    <PortraitAwareImg imgRef={ref} src={imgSrc} alt={name} width="640" height="640" loading={priority ? "eager" : "lazy"} fetchpriority={priority ? "high" : undefined} decoding="async" onError={() => setFailed(imgSrc)} />
   ) : (
     <PhotoFallbackTile name={name} pending={pending} />
   );

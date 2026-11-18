@@ -23,6 +23,9 @@ node scripts/check-response-imports.mjs
 # 2026-07-31 after 5c541b4 let `.env.production.local` decide whether a live
 # affiliate program was protected.
 node scripts/check-guard-hermeticity.mjs
+# The CI audit step ignores one picomatch advisory with no patched release.
+# This test locks that the exception cannot hide any other advisory.
+node scripts/test-npm-audit-allowlist.mjs
 # Vercel runs `npm run build` (postbuild → check-bundle). GitHub used to run
 # `npx next build` only, so a homepage JS overage shipped green and died on
 # deploy (#949, 2026-08-26). This lock is source-level and cheap.
@@ -122,6 +125,8 @@ node scripts/check-cron-post-nostore.mjs
 node scripts/test-sentry-lazy.mjs
 node scripts/test-client-buffer-scan.mjs
 node scripts/test-sentry-meta-iab.mjs
+node scripts/test-sentry-webkit-bridge.mjs
+node scripts/test-sentry-mapkit-nan-weather.mjs
 node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
 node scripts/test-editorial.mjs
@@ -194,6 +199,7 @@ node scripts/test-command-center-feedback.mjs
 node scripts/test-cc-stale-cache-shape.mjs
 node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
+node scripts/test-rail-menu-reserve.mjs
 node scripts/test-lightbox-paging.mjs
 node scripts/test-brand-rail-dedupe.mjs
 node scripts/test-first-screen.mjs
@@ -1242,6 +1248,9 @@ node scripts/check-partner-collections.mjs
 # so the advertiser can see what they bought). Plus the bundle wall: home.js
 # must reach both the registry and the card lazily.
 node scripts/check-sponsored-places.mjs
+# Flag off /partners must stay today's page. Flag on is the pitch, with the
+# audience numbers only in lib/partnerProof.js.
+node scripts/check-partner-pitch.mjs
 node scripts/check-no-third-party-rating-schema.mjs
 node scripts/check-rail-drop-images.mjs
 
@@ -2417,6 +2426,11 @@ node scripts/test-guide-context-photos.mjs
 # and renders the real figures for all 24 picks; red-proven by mutation.
 node scripts/check-guide-neutral-fallback.mjs
 
+# 2026-11-17: every guide and blog place or event recommendation shows a verified
+# full street address and a Google Maps link. Partial lines and missing venues fail.
+node scripts/test-guide-place-addresses.mjs
+node scripts/check-guide-place-addresses.mjs
+
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
@@ -2689,6 +2703,8 @@ node scripts/test-nervous-system-health.mjs
 node scripts/test-owned-hours-cohort.mjs
 # 2026-11-13: Wayfind Self-Healing "Should I Go?" Truth Engine (truth provenance, commerce health quarantine, owned hours persistence, 7-state cold location, event temporal eligibility, and actionability coverage).
 node scripts/test-self-healing-truth-engine.mjs
+# 2026-11-14: production migration lease — apply-migration takes public.wf_migration_lease before any migration SQL (atomic acquire, injection-safe tokens, bounded TTL, fail-closed reply parsing, lease-before-SQL wiring). Real-Postgres race proof: scripts/prove-migration-lease-race.sh.
+node scripts/test-migration-lease.mjs
 # 2026-11-13: Closed-place guide/rail/index exclusion, inline card golf_course/duplicate-chip/false-Brazilian/Star-Fish fixes, Santa family outing classification, screen-reader flex-span spacing, and CardPhoto eager/monogram behavior.
 node scripts/test-closed-places-and-inline-cards.mjs
 node scripts/test-santa-local-dates.mjs
@@ -2696,3 +2712,12 @@ node scripts/test-santa-local-dates.mjs
 node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
 node scripts/check-photo-rail-swipe.mjs
+node scripts/test-home-landing-thanksgiving.mjs
+
+# Universal holiday atlas: real targets and actual food media, not screenshot crops.
+node scripts/check-universal-holiday-guide.mjs
+node scripts/check-creator-video-rules.mjs
+node scripts/check-rail-position-counter.mjs
+
+# Portrait photos show whole (contain over blurred fill) on event hero, place sheet, paid landing.
+node scripts/check-portrait-photo-fit.mjs

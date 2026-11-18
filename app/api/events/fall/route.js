@@ -22,7 +22,7 @@ import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { CURATED_OWNED_PLACE_PHOTOS } from "../../../../lib/curatedOwnedPlacePhotos.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
-import { composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence } from "../../../../lib/fallIntentRails.js";
+import { composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence, FALL_INTENT_RAIL_DEFS } from "../../../../lib/fallIntentRails.js";
 import { composeHalloweenRails } from "../../../../lib/halloweenIntentRails.js";
 import { fileScopedPosters } from "../../../../lib/seasonalPosterFiling.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
@@ -35,6 +35,7 @@ import { FALL_GAP_FILL_2026_10_07 } from "../../../../lib/fallGapFill20261007.js
 import { FALL_FOOD_GAP_2026_10_08 } from "../../../../lib/fallFoodGap20261008.js";
 import { FALL_TAMPA_PICKS_2026_10_08 } from "../../../../lib/fallTampaPicks20261008.js";
 import { FALL_LIVE_AREA_2026_10_19 } from "../../../../lib/fallLiveArea20261019.js";
+import { FALL_THANKSGIVING_2026 } from "../../../../lib/fallThanksgiving2026.js";
 import { resolveSeasonalLiveArea } from "../../../../lib/seasonalLiveAreaResolve.js";
 import { readSeasonalPendingInventory } from "../../../../lib/seasonalLiveAreaInventory.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
@@ -147,7 +148,9 @@ export async function GET(request) {
     // v47 publishes the seven Halloween venues imported 2026-10-30 (Hard Rock Cafe
     // Orlando, World of Beer Coconut Creek, Kings Doral, Jake's, Swizzle, Thirsty
     // Fish, Wonderland at the National Hotel); a warm v46 rail predates them.
-    const key = `fall-intents:v47:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v48 (2026-11-16, owner) adds the Thanksgiving rail (eleven rails); a warm v47 payload has ten.
+    // v49 drops four Thanksgiving picks whose venues have no stored photo; a warm v48 payload still shows them.
+    const key = `fall-intents:v49:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -156,7 +159,7 @@ export async function GET(request) {
         ...seasonalHospitalityIds("halloween", today, undefined, now),
         ...FALL_PHOTO_PLACE_IDS,
         ...fallPhotoKnownPlaceIds(today),
-        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19].map((row) => row.place_id).filter(Boolean),
+        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19, ...FALL_THANKSGIVING_2026].map((row) => row.place_id).filter(Boolean),
         ...Object.values(FALL_EVENT_VENUE_PLACE_IDS),
       ])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
@@ -207,7 +210,7 @@ export async function GET(request) {
       // place_id-less row, and the image filter below keeps it off the poster
       // until Crystal River Heritage Village resolves.
       const resolved = resolveSeasonalLiveArea([...inventoryById.values()], { today });
-      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19, ...resolved.fall]);
+      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19, ...FALL_THANKSGIVING_2026, ...resolved.fall]);
       // /florida-events/<slug> is served from wf_events by slug. A registry row
       // whose database seed is lagging has no page yet, so it gets no
       // detailHref — the card falls back to the venue sheet / official page
@@ -467,7 +470,7 @@ export async function GET(request) {
     }, {
       name: "fall-intent-rails",
       usable: (value) => value?.sourceFailures === 0
-        && value?.rails?.length === 10 && Number(value?.sourceCount || 0) > 0,
+        && value?.rails?.length === FALL_INTENT_RAIL_DEFS.length && Number(value?.sourceCount || 0) > 0,
     });
     // Regroup the full trusted answer before either response window or paging.
     // Copy instead of mutating the shared Fall cache, including warm entries.

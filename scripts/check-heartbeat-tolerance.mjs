@@ -31,6 +31,12 @@ const read = (p) => readFileSync(new URL(p, ROOT), "utf8");
 // Worst gap between consecutive scheduled runs, 2026-09-16..30, across
 // photo-monitor (516.3), canary (510.9) and synthetic-monitor (514.1).
 export const MEASURED_WORST_GAP_MIN = 517;
+// Per-job measurements where a workflow's own cadence makes its gap larger
+// than the */30 and hourly monitors above. guide-visual-monitor declares
+// "35 */6 * * *"; its last 40 scheduled runs (to 2026-11-16) were 754-935
+// minutes apart at the worst, so 720 paged OVERDUE on ordinary scheduling.
+export const MEASURED_WORST_GAP_BY_JOB = Object.freeze({ "guide-visual-monitor": 935 });
+const requiredGap = (job) => Math.max(MEASURED_WORST_GAP_MIN, MEASURED_WORST_GAP_BY_JOB[job] || 0);
 
 // Quote-aware: splits on `;` and drops `--` / `/* */` comments only OUTSIDE
 // '...' literals, so a note like 'hourly at :50; */30' survives intact.
@@ -140,8 +146,15 @@ ok(jobs.has("canary") && jobs.has("synthetic-monitor") && jobs.has("photo-monito
 for (const job of jobs) {
   const mins = table.get(job);
   ok(mins != null, `${job} beats from a scheduled GitHub workflow but has no wf_heartbeat_expected row — its silence would never page`);
-  ok(mins == null || mins >= MEASURED_WORST_GAP_MIN,
-    `${job} tolerance ${mins}min is below GitHub's measured worst gap (${MEASURED_WORST_GAP_MIN}min) — heartbeat-watch will page on ordinary scheduling`);
+  ok(mins == null || mins >= requiredGap(job),
+    `${job} tolerance ${mins}min is below GitHub's measured worst gap (${requiredGap(job)}min) — heartbeat-watch will page on ordinary scheduling`);
+}
+// Negative control for the per-job gap: before 20261116220000 the table held
+// guide-visual-monitor at 720 (the value that paged 2026-11-16) and must fail.
+{
+  const prior = replayMigrations(files.filter((f) => f.name < "20261116220000"));
+  ok(prior.get("guide-visual-monitor") === 720 && prior.get("guide-visual-monitor") < requiredGap("guide-visual-monitor"),
+    `control: pre-fix guide-visual-monitor must replay at 720, below its measured gap, got ${prior.get("guide-visual-monitor")}`);
 }
 // The Vercel-scheduled rows are not this file's business, but a GitHub fix must
 // not have loosened them by accident.
