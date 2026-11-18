@@ -1941,7 +1941,7 @@ export default function DaypartRail({
         </div>
       </section>
 
-      <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
+      <section className={"wf8-menusec" + (railOwnsItsOwnAnswer ? " is-composed" : "")} ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
         <div className="wf8-in">
           <div className="wf8-mbar">
             <p className="wf8-mhd">{selThumb ? <picture aria-hidden="true">
