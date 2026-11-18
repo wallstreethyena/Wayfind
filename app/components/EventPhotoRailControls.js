@@ -7,6 +7,7 @@
 // so a multi-photo rail never reads as a single picture (owner, 2026-11-16).
 import { useCallback, useEffect, useRef, useState } from "react";
 import PhotoLightbox from "./PhotoLightbox.js";
+import { track } from "../../lib/track";
 import { RailCount, RailDots, railIndex, scrollRailTo, useRailIndex } from "./PhotoRailIndicators.js";
 
 function photoImg(slide) {
@@ -38,6 +39,13 @@ export default function EventPhotoRailControls() {
   const [box, setBox] = useState(null);
   const [viewer, setViewer] = useState(null);
   const { count, index, shown } = useRailIndex(rail);
+  const swiped = useRef(false);
+  useEffect(() => {
+    // One event per page view, the first time someone moves past photo 1.
+    if (swiped.current || index < 1) return;
+    swiped.current = true;
+    try { track("photo_gallery_swipe", { surface: "event_page", photo_count: count, path: window.location.pathname }); } catch {}
+  }, [index, count]);
 
   const openAt = useCallback((slide) => {
     if (!rail) return;
@@ -45,7 +53,11 @@ export default function EventPhotoRailControls() {
     if (!photos.length) return;
     const at = slide ? photos.findIndex((p) => p.slide === slide) : -1;
     const fallback = photos.findIndex((p) => p.slide === rail.children[railIndex(rail)]);
-    setViewer({ photos: photos.map(({ src, alt, credit }) => ({ src, alt, credit })), start: Math.max(0, at >= 0 ? at : fallback) });
+    const start = Math.max(0, at >= 0 ? at : fallback);
+    setViewer({ photos: photos.map(({ src, alt, credit }) => ({ src, alt, credit })), start });
+    // Analytics only (owner 2026-11-18: learn whether photo lookers book more).
+    // Not an ad conversion: the name is in no Google/Meta/intent list.
+    try { track("photo_viewer_open", { surface: "event_page", photo_index: start + 1, photo_count: photos.length, path: window.location.pathname }); } catch {}
   }, [rail]);
 
   useEffect(() => {

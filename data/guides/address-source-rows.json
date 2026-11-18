@@ -1,0 +1,830 @@
+[
+  {
+    "id": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw",
+    "name": "Armature Works",
+    "card": "1910 N Ola Ave, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJ-6lKAInEwogRVnf5NBtjZss",
+    "name": "Glazer Children's Museum",
+    "card": "110 W Gasparilla Plaza, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJIwZqEutAw4gR-1cOUgiln24",
+    "name": "Yoder's Restaurant",
+    "card": "3434 Bahia Vista St, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJo2bql5B654gR_ITN9PGhBbU",
+    "name": "Orlando Science Center",
+    "card": "777 E. Princeton St., Orlando, FL 32803",
+    "official": null
+  },
+  {
+    "id": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
+    "name": "Fort Hamer Park",
+    "card": "1605 Ft Hamer Rd, Parrish",
+    "official": null
+  },
+  {
+    "id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+    "name": "Van Wezel Performing Arts Hall",
+    "card": "777 N Tamiami Trl, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJ9RHZGx6H3YgRnWVYIWsHNPM",
+    "name": "Gatorland",
+    "card": "14501 S. Orange Blossom Trail, Orlando, Florida 32837",
+    "official": null
+  },
+  {
+    "id": "ChIJr7ec9tEXw4gRwicCx3wfH2w",
+    "name": "The Bishop Museum of Science and Nature",
+    "card": "201 10th Street West, Bradenton",
+    "official": null
+  },
+  {
+    "id": "ChIJyyWN_lrEwogRP7gRxR2d19U",
+    "name": "Parque Amigos de Jos\u00e9 Mart\u00ed",
+    "card": "1303 E 8th Ave, Ybor City, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJBQ5SjLHGwogRL4X19g4J5tI",
+    "name": "ZooTampa at Lowry Park",
+    "card": "1101 W Sligh Ave, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJrYGdKBJAw4gRafewzUWWYnk",
+    "name": "Florida Studio Theatre",
+    "card": "1241 N Palm Avenue, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJSxtyZcBAw4gRrgOGwbkWXIU",
+    "name": "Der Dutchman",
+    "card": "3713 Bahia Vista St, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJCZgnUKHcwogRbPR7qCWl-UA",
+    "name": "Ballast Point Park",
+    "card": "5300 Interbay Blvd, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJf5M5VmBZw4gRVHX-dcX1dBk",
+    "name": "Fins At Sharky's",
+    "card": "1600 Harbor Dr S, Venice",
+    "official": null
+  },
+  {
+    "id": "ChIJaTQEjpFqw4gRnHJU2Klfw0o",
+    "name": "Columbia Restaurant",
+    "card": "411 St. Armands Cir, Sarasota",
+    "official": null
+  },
+  {
+    "id": "wfadd_snowcat_ridge_dade_city",
+    "name": "Snowcat Ridge Alpine Snow Park",
+    "card": null,
+    "official": "27839 Saint Joe Rd, Dade City, FL 33525"
+  },
+  {
+    "id": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
+    "name": "Gaylord Palms Resort & Convention Center",
+    "card": null,
+    "official": "6000 W Osceola Pkwy, Kissimmee, FL 34746"
+  },
+  {
+    "id": "ChIJCRCYGrx654gR3G9qoVbWlpY",
+    "name": "Harry P Leu Gardens",
+    "card": "1920 North Forest Avenue, Orlando, Florida 32803",
+    "official": null
+  },
+  {
+    "id": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+    "name": "Siesta Beach",
+    "card": "948 Beach Rd, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJJboiAY3EwogRJCLbox7T-70",
+    "name": "Tampa Bay History Center",
+    "card": "801 Old Water St, Tampa",
+    "official": null
+  },
+  {
+    "id": "wfadd_centro_ybor_tampa",
+    "name": "Centro Ybor",
+    "card": null,
+    "official": "1600 E 8th Ave, Tampa, FL 33605"
+  },
+  {
+    "id": "wfadd_oldest_wooden_school_house_st_augustine",
+    "name": "Oldest Wooden School House Historic Museum & Gardens",
+    "card": null,
+    "official": "14 St. George St, St. Augustine, FL 32084"
+  },
+  {
+    "id": "wfadd_wunder_glow_dade_city",
+    "name": "Wunder Glow",
+    "card": null,
+    "official": "27839 Saint Joe Rd, Dade City, FL 33525"
+  },
+  {
+    "id": "ChIJ_37IauQ_w4gRz03lc0QInIE",
+    "name": "Sarasota Jungle Gardens",
+    "card": "3701 Bay Shore Rd, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJLZ2vzRxBw4gRMOtW0ArhBhw",
+    "name": "The Bay Park",
+    "card": "1055 Blvd of the Arts, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJCXAq5_DEwogRjTPE2xlsZtE",
+    "name": "The Florida Aquarium",
+    "card": "701 Channelside Dr, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+    "name": "Tampa Theatre",
+    "card": "711 N Franklin St, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJ______8sw4gRMudh58gsGMU",
+    "name": "Florida Railroad Museum",
+    "card": "12210 83rd Street East, Parrish",
+    "official": null
+  },
+  {
+    "id": "ChIJieaBrMgQw4gR5Bwyah-XE_U",
+    "name": "Palma Sola Botanical Park",
+    "card": "9800 17th Ave NW, Bradenton",
+    "official": null
+  },
+  {
+    "id": "ChIJ5ab4TmtAw4gROiDA30SjNWY",
+    "name": "Owens Fish Camp",
+    "card": "516 Burns Court, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJKRTWX9g_w4gRk2YMbJtyfi4",
+    "name": "Tibbals Learning Center & Circus Museum at The Ringling",
+    "card": "5401 Bay Shore Rd, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJs8HMPKxDw4gR8rXHdqdvpmE",
+    "name": "Ophelia's on the Bay",
+    "card": "9105 Midnight Pass Rd, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJhRo4DU_GwogRUgjhMAj-pag",
+    "name": "Busch Gardens Tampa Bay",
+    "card": "10165 N Malcolm McKinley Dr, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
+    "name": "The John and Mable Ringling Museum of Art",
+    "card": "5401 Bay Shore Rd, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJu73by6Rbw4gR857K3YRfLQo",
+    "name": "Centennial Park",
+    "card": "211-299 Tampa Ave W, Venice",
+    "official": null
+  },
+  {
+    "id": "ChIJE0_XXFVJw4gRroRqJ-TSTXg",
+    "name": "Myakka Canopy Walkway and Observation Tower",
+    "card": "13207 State Road 72, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4",
+    "name": "Sarasota Art Museum",
+    "card": "1001 South Tamiami Trail, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJB_GKfW81w4gRsCQHi5hjasA",
+    "name": "Dakin Dairy Farm Market & Cafe",
+    "card": "30771 Betts Rd, Myakka City",
+    "official": null
+  },
+  {
+    "id": "ChIJEUM6S7JOw4gRSeCj4mQQrQ0",
+    "name": "Myakka Outpost Inc",
+    "card": "13208 State Road 72, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
+    "name": "Scenic Boat Tour",
+    "card": "312 East Morse Blvd. Winter Park, FL 32789",
+    "official": null
+  },
+  {
+    "id": "ChIJKQXHdmfDwogRJFCLuT7eJ6I",
+    "name": "Bern's Steak House",
+    "card": "1208 S Howard Ave, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJSZyKtGVaw4gRkKUbiPqvOVI",
+    "name": "Original Word of Mouth - Venice",
+    "card": "1740 E Venice Ave, Venice",
+    "official": null
+  },
+  {
+    "id": "ChIJlR-NjATIwogRoSE1MsVTpmA",
+    "name": "Lettuce Lake Park",
+    "card": "6920 E Fletcher Ave, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJy6ESWITDwogReu72OLauRMM",
+    "name": "Tampa Museum of Art",
+    "card": "120 W Gasparilla Plaza, Tampa",
+    "official": null
+  },
+  {
+    "id": "ChIJRzUAPopDw4gR8YbL_V5iSWo",
+    "name": "Legacy Trail",
+    "card": "7905 McIntosh Rd, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJVcqB2MUQw4gRbN_T0WF8QEw",
+    "name": "De Soto National Memorial",
+    "card": "8300 De Soto Memorial Hwy, Bradenton",
+    "official": null
+  },
+  {
+    "id": "ChIJi43QGNE5w4gRgxvO7rqqJfE",
+    "name": "Waterside Place",
+    "card": "7500 Island Cove Ter, Lakewood Ranch",
+    "official": null
+  },
+  {
+    "id": "ChIJJ1O7nANrw4gRH8y1qHMjpRs",
+    "name": "Arcade Monsters",
+    "card": "326 John Ringling Blvd, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJJWCbj5kRw4gRYkZ7QJ-L91s",
+    "name": "Gulf Drive Cafe",
+    "card": "900 Gulf Dr N, Bradenton Beach",
+    "official": null
+  },
+  {
+    "id": "ChIJz6wmd_5Kw4gR1PNqMrYU_RY",
+    "name": "Myakka River State Park North Entrance",
+    "card": "13208 State Road 72, Sarasota",
+    "official": null
+  },
+  {
+    "id": "ChIJg1HuP9xbw4gRs9PHCFmC4VU",
+    "name": "Maxine Barritt Park",
+    "card": "1800 Harbor Drive S., Venice",
+    "official": null
+  },
+  {
+    "id": "ChIJjZhUvSU9w4gRCuTRgyrctZA",
+    "name": "Gamble Plantation Historic State Park",
+    "card": "3708 US-301, Ellenton",
+    "official": null
+  },
+  {
+    "id": "ChIJB_GKfW81w4gRsCQHi5hjasA",
+    "name": "Dakin Dairy Farms",
+    "card": null,
+    "official": "30771 Betts Rd, Myakka City, FL 34251"
+  },
+  {
+    "id": "ChIJ38rlfogN3YgRGic46M9dbLw",
+    "name": "LEGOLAND Florida Resort",
+    "card": null,
+    "official": "1 Legoland Way, Winter Haven, FL 33884"
+  },
+  {
+    "id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+    "name": "Tampa Theatre (meeting point)",
+    "card": null,
+    "official": "711 N Franklin St, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
+    "name": "Curtis Hixon Waterfront Park",
+    "card": null,
+    "official": "600 N Ashley Drive, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJX-E766nhwogR8u_Re6nJTyk",
+    "name": "St. Pete Pier",
+    "card": null,
+    "official": "600 2nd Ave NE, St. Petersburg, FL 33701"
+  },
+  {
+    "id": "ChIJLZ2vzRxBw4gRMOtW0ArhBhw",
+    "name": "The Oval at The Bay",
+    "card": null,
+    "official": "1055 Boulevard of the Arts, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+    "name": "Van Wezel Performing Arts Hall",
+    "card": null,
+    "official": "777 N Tamiami Trl, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJaXSQbL4n5IgR41hDG9udv2o",
+    "name": "Colonial Quarter",
+    "card": null,
+    "official": "33 St George St, St. Augustine, FL 32084"
+  },
+  {
+    "id": "ChIJ73yw37J954gRDwQad4ih7Wk",
+    "name": "Crayola Experience Orlando",
+    "card": null,
+    "official": "8001 S Orange Blossom Trl, Orlando, FL 32809"
+  },
+  {
+    "id": "ChIJy6ESWITDwogReu72OLauRMM",
+    "name": "Tampa Museum of Art",
+    "card": null,
+    "official": "120 W Gasparilla Plaza, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+    "name": "Van Wezel Performing Arts Hall",
+    "card": null,
+    "official": "777 N. Tamiami Trail, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJX-E766nhwogR8u_Re6nJTyk",
+    "name": "St. Pete Pier (Spa Beach Park)",
+    "card": null,
+    "official": "600 2nd Ave NE, St. Petersburg, FL 33701"
+  },
+  {
+    "id": "ChIJcxJRMYe42YgRDSlj6Z_CDxk",
+    "name": "Tropical Park",
+    "card": null,
+    "official": "7900 SW 40th St, Miami, FL 33155"
+  },
+  {
+    "id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+    "name": "Van Wezel Performing Arts Hall",
+    "card": null,
+    "official": "777 N. Tamiami Trail, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJU7bqHVV-54gRJAwZAp5qCpk",
+    "name": "The Orlando Eye (ICON Park)",
+    "card": null,
+    "official": "8449 International Drive, Orlando, FL 32819"
+  },
+  {
+    "id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+    "name": "Van Wezel Performing Arts Hall",
+    "card": null,
+    "official": "777 N Tamiami Trl, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+    "name": "Tampa Theatre \u2014 Historic Duncan Auditorium",
+    "card": null,
+    "official": "711 N Franklin St, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
+    "name": "Curtis Hixon Waterfront Park",
+    "card": null,
+    "official": "600 N Ashley Dr, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJJQVMQuJXw4gRhD0CpEOETGo",
+    "name": "Downtown Wellen Park, Solis Hall and Wellen Park Boulevard",
+    "card": null,
+    "official": "19745 Wellen Park Blvd, Venice, FL 34293"
+  },
+  {
+    "id": "ChIJg1HuP9xbw4gRs9PHCFmC4VU",
+    "name": "Maxine Barritt Park",
+    "card": null,
+    "official": "1800 Harbor Dr S, Venice, FL 34285"
+  },
+  {
+    "id": "ChIJu73by6Rbw4gR857K3YRfLQo",
+    "name": "Centennial Park",
+    "card": null,
+    "official": "200 W Venice Ave, Venice, FL 34285"
+  },
+  {
+    "id": "ChIJ______8sw4gRMudh58gsGMU",
+    "name": "Florida Railroad Museum",
+    "card": null,
+    "official": "12210 83rd St E, Parrish, FL, Parrish, FL"
+  },
+  {
+    "id": "ChIJX-E766nhwogR8u_Re6nJTyk",
+    "name": "Spa Beach Park at St. Pete Pier",
+    "card": null,
+    "official": "600 2nd Ave NE, St. Petersburg, FL 33701"
+  },
+  {
+    "id": "ChIJhWqZvoVHw4gRehUSFsbZARo",
+    "name": "Fruitville Grove",
+    "card": null,
+    "official": "7410 Fruitville Rd, Sarasota, FL 34240"
+  },
+  {
+    "id": "ChIJfyPWjCh-54gR1SvWozmef5k",
+    "name": "SeaWorld Orlando",
+    "card": null,
+    "official": "7007 Sea World Dr, Orlando, FL 32821, USA"
+  },
+  {
+    "id": "ChIJmy7U4VJ-54gRi1LoS6wwFj0",
+    "name": "SEA LIFE Orlando Aquarium",
+    "card": null,
+    "official": "8449 International Drive, Orlando, FL 32819"
+  },
+  {
+    "id": "ChIJJboiAY3EwogRJCLbox7T-70",
+    "name": "Tampa Bay History Center",
+    "card": null,
+    "official": "801 Water Street, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJLZ2vzRxBw4gRMOtW0ArhBhw",
+    "name": "The Bay Park",
+    "card": null,
+    "official": "1055 Boulevard of the Arts, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJczkDFL04w4gRwfowcSv8Tro",
+    "name": "Nathan Benderson Park",
+    "card": null,
+    "official": "5851 Nathan Benderson Cir, Sarasota, FL 34235"
+  },
+  {
+    "id": "ChIJUczTK5XC2YgRRt4Jp6N3B70",
+    "name": "Pinto's Farm",
+    "card": null,
+    "official": "14890 SW 216 St, Miami, FL 33170"
+  },
+  {
+    "id": "ChIJJQVMQuJXw4gRhD0CpEOETGo",
+    "name": "Downtown Wellen Park",
+    "card": null,
+    "official": "19745 Wellen Park Blvd, Venice, FL 34293"
+  },
+  {
+    "id": "ChIJ8SekLo9Gw4gR81Gftma1QvU",
+    "name": "UF/IFAS Extension, Twin Lakes Park",
+    "card": null,
+    "official": "6600 Clark Road, Sarasota, FL 34241"
+  },
+  {
+    "id": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+    "name": "Brevard Zoo",
+    "card": null,
+    "official": "8225 N Wickham Rd, Melbourne, FL 32940"
+  },
+  {
+    "id": "ChIJ9RHZGx6H3YgRnWVYIWsHNPM",
+    "name": "Gatorland",
+    "card": null,
+    "official": "14501 S Orange Blossom Trl, Orlando, FL 32837, USA"
+  },
+  {
+    "id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+    "name": "Van Wezel Performing Arts Hall",
+    "card": null,
+    "official": "777 N Tamiami Trl, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw",
+    "name": "Armature Works",
+    "card": null,
+    "official": "1910 N Ola Ave, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+    "name": "Van Wezel Performing Arts Hall",
+    "card": null,
+    "official": "777 N Tamiami Trl, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJ5UOOwKux5YgRAmO1YNbhTc0",
+    "name": "Jacksonville Zoo and Gardens",
+    "card": null,
+    "official": "370 Zoo Pkwy, Jacksonville, FL 32218"
+  },
+  {
+    "id": "ChIJOcKapod_3YgR90H_S_UKiMA",
+    "name": "Raglan Road Irish Pub (Disney Springs)",
+    "card": null,
+    "official": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830"
+  },
+  {
+    "id": "ChIJzyHjx5LEwogRuGs9V-RMHrA",
+    "name": "American Social",
+    "card": null,
+    "official": "601 South Harbour Island Boulevard, #107, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
+    "name": "Curtis Hixon Waterfront Park",
+    "card": null,
+    "official": "600 North Ashley Drive, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJm-1TQ1N-54gRtKSCx6hQ8SU",
+    "name": "Madame Tussauds Orlando",
+    "card": null,
+    "official": "8387 International Drive, Orlando, FL 32819"
+  },
+  {
+    "id": "ChIJRyOEfAo5w4gR664aD_YYBLU",
+    "name": "Exploration Hall at Mote Science Education Aquarium (Mote SEA)",
+    "card": null,
+    "official": "225 University Town Center Drive, Sarasota, FL 34243"
+  },
+  {
+    "id": "ChIJhWqZvoVHw4gRehUSFsbZARo",
+    "name": "Fruitville Grove",
+    "card": null,
+    "official": "5829 Fruitville Rd, Sarasota, FL 34240"
+  },
+  {
+    "id": "ChIJHcu6u2BHw4gRDKuRC9sow20",
+    "name": "The Green at University Town Center",
+    "card": null,
+    "official": "125 N Cattlemen Road, Sarasota, FL 34243"
+  },
+  {
+    "id": "ChIJ_5yVrBY13YgRwSgyH1hrRjg",
+    "name": "Keel Farms",
+    "card": null,
+    "official": "5202 Thonotosassa Rd, Plant City, FL 33565"
+  },
+  {
+    "id": "ChIJo2bql5B654gR_ITN9PGhBbU",
+    "name": "Orlando Science Center",
+    "card": null,
+    "official": "777 E Princeton St, Orlando, FL 32803"
+  },
+  {
+    "id": "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8",
+    "name": "St. Armands Circle",
+    "card": null,
+    "official": "1 St. Armands Circle, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJtcnZQU9Bw4gROmYnVLnl0hE",
+    "name": "Sage Restaurant & Venue Space",
+    "card": null,
+    "official": "1216 1st Street, Sarasota, FL 34236"
+  },
+  {
+    "id": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+    "name": "Brevard Zoo",
+    "card": null,
+    "official": "8225 N Wickham Rd, Melbourne, FL 32940"
+  },
+  {
+    "id": "ChIJBQ5SjLHGwogRL4X19g4J5tI",
+    "name": "ZooTampa at Lowry Park",
+    "card": null,
+    "official": "1101 W Sligh Ave, Tampa, FL 33604"
+  },
+  {
+    "id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+    "name": "Tampa Theatre",
+    "card": null,
+    "official": "711 North Franklin Street, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJczkDFL04w4gRwfowcSv8Tro",
+    "name": "Regatta Island, Nathan Benderson Park",
+    "card": null,
+    "official": "5851 Nathan Benderson Circle, Sarasota, FL 34235"
+  },
+  {
+    "id": "ChIJce6XFIjEwogRaNJA6ZKu31c",
+    "name": "Ferguson Hall, Straz Center",
+    "card": null,
+    "official": "1010 N MacInnes Place, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJuSnFvF8xw4gRt0WOWL_cqRc",
+    "name": "Hunsader Farms",
+    "card": null,
+    "official": "5500 C.R. 675, Bradenton, FL 34211"
+  },
+  {
+    "id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+    "name": "Tampa Theatre \u2014 Historic Duncan Auditorium",
+    "card": null,
+    "official": "711 N Franklin St, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJk5xl2oZ_3YgRg7yR_vn87h4",
+    "name": "Chef Art Smith's Homecomin' (Disney Springs)",
+    "card": null,
+    "official": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830"
+  },
+  {
+    "id": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+    "name": "Siesta Beach",
+    "card": null,
+    "official": "948 Beach Road, Siesta Key, FL 34242"
+  },
+  {
+    "id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+    "name": "Tampa Theatre \u2014 Historic Duncan Auditorium",
+    "card": null,
+    "official": "711 N Franklin St, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+    "name": "Tampa Theatre \u2014 Historic Duncan Auditorium",
+    "card": null,
+    "official": "711 N Franklin St, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+    "name": "Tampa Theatre",
+    "card": null,
+    "official": "711 N Franklin St, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJJQVMQuJXw4gRhD0CpEOETGo",
+    "name": "Downtown Wellen Park",
+    "card": null,
+    "official": "19745 Wellen Park Blvd, Venice, FL 34293"
+  },
+  {
+    "id": "ChIJ5UOOwKux5YgRAmO1YNbhTc0",
+    "name": "Jacksonville Zoo and Gardens",
+    "card": null,
+    "official": "370 Zoo Pkwy, Jacksonville, FL 32218"
+  },
+  {
+    "id": "ChIJvwS00mgn5IgRdR5IlMxNUp0",
+    "name": "Anastasia State Park",
+    "card": null,
+    "official": "300 Anastasia Park Rd, St. Augustine, FL 32080"
+  },
+  {
+    "id": "ChIJczkDFL04w4gRwfowcSv8Tro",
+    "name": "Nathan Benderson Park",
+    "card": null,
+    "official": "5851 Nathan Benderson Circle, Sarasota, FL 34235"
+  },
+  {
+    "id": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
+    "name": "The Ringling Museum, Museum of Art Courtyard",
+    "card": null,
+    "official": "5401 Bay Shore Rd, Sarasota, FL 34243"
+  },
+  {
+    "id": "ChIJu3hNU-N654gR0x0I9_3iNvc",
+    "name": "Lake Eola Park",
+    "card": null,
+    "official": "195 N Rosalind Ave, Orlando, FL 32801"
+  },
+  {
+    "id": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw",
+    "name": "Armature Works",
+    "card": null,
+    "official": "1910 N Ola Ave, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+    "name": "St. Augustine Coffee House",
+    "card": null,
+    "official": "6 St. George St, Suite 107, St. Augustine, FL 32084"
+  },
+  {
+    "id": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+    "name": "Brevard Zoo",
+    "card": null,
+    "official": "8225 N Wickham Rd, Melbourne, FL 32940"
+  },
+  {
+    "id": "ChIJfyPWjCh-54gR1SvWozmef5k",
+    "name": "SeaWorld Orlando",
+    "card": null,
+    "official": "7007 Sea World Dr, Orlando, FL 32821"
+  },
+  {
+    "id": "ChIJa9H7lA4n5IgRViVY0j2H7bY",
+    "name": "Auggie's Draft Room",
+    "card": null,
+    "official": "3 St. George St, St. Augustine, FL 32084"
+  },
+  {
+    "id": "ChIJ9d2y1ivFwogRU2MFLQrwqsc",
+    "name": "Blooming Floral Cafe holiday menu",
+    "card": null,
+    "official": "4408 N Florida Ave, Tampa, FL 33603"
+  },
+  {
+    "id": "ChIJWSFAm9XE54gRynJk-W1qRFA",
+    "name": "Brown's Adventure Farm & Country Store",
+    "card": null,
+    "official": "13940 US-301, Oxford, FL 34484"
+  },
+  {
+    "id": "wfadd_centro_ybor_tampa",
+    "name": "Centro Ybor",
+    "card": null,
+    "official": "1600 E 8th Ave, Tampa, FL 33605"
+  },
+  {
+    "id": "ChIJu3hNU-N654gR0x0I9_3iNvc",
+    "name": "Lake Eola Amphitheater",
+    "card": null,
+    "official": "101 North Rosalind Avenue, Orlando, FL 32801"
+  },
+  {
+    "id": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
+    "name": "Forgotten Tonic",
+    "card": null,
+    "official": "6 Aviles St, St. Augustine, FL 32084"
+  },
+  {
+    "id": "ChIJ71KjTtzF5YgRvlsJJQkcNdU",
+    "name": "Clarke House Park",
+    "card": null,
+    "official": "1039 Kingsley Ave, Orange Park, FL 32073"
+  },
+  {
+    "id": "wfadd_oldest_wooden_school_house_st_augustine",
+    "name": "Oldest Wooden School House Historic Museum & Gardens",
+    "card": null,
+    "official": "14 St. George St, St. Augustine, FL 32084"
+  },
+  {
+    "id": "ChIJw5jVAVN-54gRScNxiRF16j4",
+    "name": "Sky Lounge at The Orlando Eye, ICON Park",
+    "card": null,
+    "official": "8375 International Dr, Orlando, FL32819"
+  },
+  {
+    "id": "wfadd_wunder_glow_dade_city",
+    "name": "Wunder Glow",
+    "card": null,
+    "official": "27839 Saint Joe Rd, Dade City, FL 33525"
+  },
+  {
+    "id": "wfadd_snowcat_ridge_dade_city",
+    "name": "Snowcat Ridge",
+    "card": null,
+    "official": "27839 Saint Joe Rd, Dade City, FL 33525"
+  },
+  {
+    "id": "ChIJw5jVAVN-54gRScNxiRF16j4",
+    "name": "ICON Park",
+    "card": null,
+    "official": "8375 International Dr, Orlando, FL 32819"
+  },
+  {
+    "id": "ChIJFfcS4GT17IgRqFA1iDnCdzs",
+    "name": "The Adderley Amphitheater at Cascades Park",
+    "card": null,
+    "official": "1001 S Gadsden St, Tallahassee, FL 32301"
+  },
+  {
+    "id": "ChIJce6XFIjEwogRaNJA6ZKu31c",
+    "name": "Straz Center for the Performing Arts (Carol Morsani Hall)",
+    "card": null,
+    "official": "1010 N MacInnes Pl, Tampa, FL 33602"
+  },
+  {
+    "id": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+    "name": "Brevard Zoo",
+    "card": null,
+    "official": "8225 N Wickham Rd, Melbourne, FL 32940"
+  }
+]

@@ -310,7 +310,7 @@ export function checkSocialAttachments(repo) {
   const social = readFileSync(path.join(repo, "app/components/sheets/SocialFind.js"), "utf8");
   ensure(/hydratedFindForSpot\(spot, videoHeroPlaces\)/.test(social) && !/find\(\(o\) => o\.video\.url === spot\.video\.url\)/.test(social), "roundup cards must hydrate by place identity");
   ensure((social.match(/setSocialFind\(\{ place: local\.place, video: spot\.video \}\)/g) || []).length === 2, "both browse surfaces must retain the selected post");
-  ensure(/!curatedSpot && \(/.test(social) && /<VideoFacade platform=\{video\.platform\}/.test(social), "registry previews must embed the native post without a full-place CTA");
+  ensure(/!curatedSpot && \(/.test(social) && /<(?:VideoFacade|CreatorCoverFacade)\b[^>]*\bplatform=\{video\.platform\}/.test(social), "registry previews must embed the native post without a full-place CTA");
 
   const eventPage = readFileSync(path.join(repo, "app/florida-events/[slug]/page.js"), "utf8");
   ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<CreatorVideoRail/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the shared premium rail and click-to-load facade");

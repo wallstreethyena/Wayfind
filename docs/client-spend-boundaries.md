@@ -24,11 +24,14 @@ gate is closed, `AUTOCOMPLETE_MONTH_CAP` is absent or invalid, or the ledger
 denies the request. Only a successful provider response can be a normal HTTP
 200 empty suggestion list. A missing server key retains its HTTP 501 response.
 
-The required GitHub `guards` job runs `npm audit --audit-level=moderate` over
-the entire lockfile, including build and native development tooling, before
-the application guards and production build. A known moderate-or-higher
-advisory or an unavailable audit service blocks that job; do not bypass it by
-excluding development dependencies.
+The required GitHub `guards` job audits the entire lockfile, including build
+and native development tooling, before the application guards and production
+build. A moderate, high, or critical advisory blocks that job, except
+GHSA-fc5q-39xc-vjpf (picomatch ReDoS). That advisory has no patched release,
+and removing it by force would downgrade Sentry. Remove the exception in
+`scripts/lib/npmAuditAllowlist.mjs` when picomatch ships a fix. An unavailable
+audit service still blocks the job. Do not bypass the audit by excluding
+development dependencies.
 
 Production confirmation settings were checked on September 7, 2026: email
 signup is enabled and automatic email confirmation is disabled. The spending

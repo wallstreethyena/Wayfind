@@ -26,6 +26,7 @@ import { withPageParam } from "../../../lib/commerce";
 import GuideConversion from "./GuideConversion";
 import GuideStays from "../../components/GuideStays";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
+import { GuidePickWhere, guidePickWhere } from "./GuidePickWhere";
 // Verified, credited pick photos (data/guide-pick-photos/<slug>.json via
 // scripts/build-guide-pick-photos.mjs's generated lib/guidePickPhotoManifest.js).
 // Imported HERE, not inside GuideEditorial.js: that file is transpiled and
@@ -1174,6 +1175,7 @@ export default async function GuidePage({ params }) {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
+              <GuidePickWhere where={guidePickWhere(pick, params.slug)} />
               {neutralPickFigures[i] ? <GuideNeutralFigure name={pick.name} className="wf-guide-pick-figure" /> : null}
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
@@ -1229,6 +1231,7 @@ export default async function GuidePage({ params }) {
                       {market.places.map((place) => (
                         <li key={place.id}>
                           <h3><a href={guidePlacePath(place.id)}>{place.name}</a></h3>
+                          <GuidePickWhere where={guidePickWhere({ name: place.name, placeId: place.id }, params.slug)} />
                           <GuideFigure role="pick" image={editorialImages.get(place.id)} />
                           <a className="wf-guide-photo-link" href={guidePlacePath(place.id)}>Explore {place.name}</a>
                         </li>

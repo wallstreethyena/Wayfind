@@ -5846,6 +5846,87 @@
       }
     },
     {
+      "slug": "universal-orlando-christmas-2026",
+      "url": "https://www.gowayfind.com/guides/universal-orlando-christmas-2026",
+      "primary_query": "Universal Orlando Christmas 2026",
+      "geography": "Orlando",
+      "decision": "An illustrated interactive Universal Orlando holiday map, food photos, Grinchmas, the Macy’s parade, Epic Universe and practical park plans.",
+      "checks": {
+        "source_route": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_metadata": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_canonical": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_robots": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "article_schema": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "breadcrumb_schema": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "social_metadata": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/universal-orlando-christmas-2026/nintendo-night.webp; 1600x900; Jeremy Thompson; CC BY 4.0."
+        },
+        "representative_image": {
+          "status": "unknown",
+          "evidence": "Reviewed art exists, but dedicated-route rendering needs its own verification."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Reviewed asset: 1600x900. Dedicated-route social delivery and crop are not certified by this source audit."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "Dedicated-route internal links need their own verification."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Dedicated-route shortcut targets need their own verification."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
       "slug": "disney-world-holiday-food-guide-2026",
       "url": "https://www.gowayfind.com/guides/disney-world-holiday-food-guide-2026",
       "primary_query": "Disney World holiday food guide 2026",

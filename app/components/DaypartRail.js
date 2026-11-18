@@ -1865,6 +1865,7 @@ export default function DaypartRail({
                     />
                 ) : (
                     <>
+                    {i === 0 && <link rel="preload" as="image" type="image/avif" imageSrcSet={railArtSrcSet(base, "avif")} imageSizes={RAIL_ART_SIZES} fetchPriority="high" />}
                     <picture>
                       <source type="image/avif" srcSet={railArtSrcSet(base, "avif")} sizes={RAIL_ART_SIZES} />
                       <source type="image/webp" srcSet={railArtSrcSet(base, "webp")} sizes={RAIL_ART_SIZES} />
@@ -1940,10 +1941,14 @@ export default function DaypartRail({
         </div>
       </section>
 
-      <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
+      <section className={"wf8-menusec" + (railOwnsItsOwnAnswer ? " is-composed" : "")} ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
         <div className="wf8-in">
           <div className="wf8-mbar">
-            <p className="wf8-mhd">{selThumb ? <img className="wf8-mthumb" src={selThumb} alt="" width="24" height="24" decoding="async" aria-hidden="true" /> : null}<span>Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" && selRail.id !== "halloween" && selRail.id !== "christmas" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</span></p>
+            <p className="wf8-mhd">{selThumb ? <picture aria-hidden="true">
+              {selArtBase && <source type="image/avif" srcSet={railArtSrcSet(selArtBase, "avif")} sizes={RAIL_ART_SIZES} />}
+              {selArtBase && <source type="image/webp" srcSet={railArtSrcSet(selArtBase, "webp")} sizes={RAIL_ART_SIZES} />}
+              <img className="wf8-mthumb" src={selThumb} alt="" width="24" height="24" loading="lazy" decoding="async" />
+            </picture> : null}<span>Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" && selRail.id !== "halloween" && selRail.id !== "christmas" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</span></p>
             <button type="button" className="wf8-mclose" onClick={close}>✕ Close</button>
           </div>
 
