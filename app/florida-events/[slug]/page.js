@@ -1,4 +1,5 @@
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
+import { creatorCoversFor } from "../../../lib/creatorCovers.js";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
@@ -211,7 +212,9 @@ export default async function CuratedEventPage({ params }) {
   // SERVER-resolved, never window.location — on a preview deploy that is a host
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
-  const shareText = `${e.event_name}, ${eventDatesLabel(e, dateRangeLabel(e))}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
+  const datesLabel = eventDatesLabel(e, dateRangeLabel(e));
+  const dateYearSuffix = e.when_label || /\b\d{4}\b/.test(datesLabel) ? "" : `, ${e.year}`;
+  const shareText = `${e.event_name}, ${datesLabel}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
   // v8.88 — WHERE IT IS, AND HOW TO GET THERE (owner, 2026-08-29, on this very
   // page): "how are people gonna be able to find it?"
   //
@@ -259,7 +262,13 @@ export default async function CuratedEventPage({ params }) {
   // event's already-cleared hero as the click-to-load cover so that promise is
   // visible before Instagram's third-party iframe is requested.
   // A Google venue photo (/api/photo) cannot be a bare <img> cover (credited lane only), so it is not the creator-post cover.
-  const socialPoster = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
+  // Owner 2026-11-18: no creator tile without a picture. When the hero is a
+  // Google photo (not allowed as a bare cover), use our own credited photo of
+  // the venue instead (lib/creatorCovers.js).
+  const heroCover = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
+  const venueCover = !heroCover && socialPosts.length && e.place_id ? (await creatorCoversFor([e.place_id]))[e.place_id] || null : null;
+  const socialPoster = heroCover || venueCover?.src || null;
+  const socialPosterCredit = heroCover ? null : venueCover?.credit || null;
   const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
   const socialDetails = (post) => <>
     <div style={{ padding: "18px 16px 14px" }}>
@@ -316,7 +325,7 @@ export default async function CuratedEventPage({ params }) {
       <EventDetailShell
         title={eventTitleWithYear(e.event_name, e.year)}
         facts={[
-          { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}${e.when_label ? "" : `, ${e.year}`}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },
+          { label: "When", value: `${datesLabel}${dateYearSuffix}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },
           { label: "Where", value: <>{e.viewing_label || e.venue ? <div>{e.viewing_label || e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
           { label: "Cost", value: e.christmas_price_line || eventCostSummary(e) },
           { label: "Who it is for", value: e.audience_label || null },
@@ -482,7 +491,9 @@ export default async function CuratedEventPage({ params }) {
                     url={post.url}
                     label={`@${post.creator}'s post about ${e.event_name}`}
                     poster={socialPoster}
+                    posterCredit={socialPosterCredit}
                     fallbackPoster={socialPosterFallback}
+                    placeId={socialPosterFallback ? null : e.place_id}
                     coverTitle={e.event_name}
                     coverCity={e.city}
                     coverEyebrow={`THE @${post.creator} EDIT`}

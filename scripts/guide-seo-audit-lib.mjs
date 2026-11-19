@@ -3,6 +3,7 @@ import { GUIDES } from "../lib/guides.js";
 import { guideHero } from "../lib/guideHero.js";
 import { GUIDE_CONTEXT_LINKS, GUIDE_QUICK_CHOICES } from "../lib/guideSeo.js";
 import { SITE_URL } from "../lib/site.js";
+import { DEDICATED_GUIDE_ROUTES } from "../lib/guideDedicatedRoutes.js";
 
 const result = (status, evidence) => ({ status, evidence });
 
@@ -41,6 +42,10 @@ export function buildGuideSeoAudit(sourceInput) {
     const largeCandidate = hasArt && art.width >= 1200 && art.width * art.height > 300000;
     const hasRealPublished = Boolean(guide.published);
     const hasDatePublished = Boolean(guide.published || guide.updated);
+    const dedicated = DEDICATED_GUIDE_ROUTES.has(slug);
+    const dedicatedSource = Object.fromEntries(Object.entries(source).map(([key, value]) => [key,
+      key === "source_sitemap" ? value : result("unknown", `Dedicated route app/guides/${slug}/page.js is not certified by the shared-template source check. See this guide's dated verification receipt.`),
+    ]));
     return {
       slug,
       url: `${SITE_URL}/guides/${slug}`,
@@ -66,13 +71,23 @@ export function buildGuideSeoAudit(sourceInput) {
         google_indexing: result("unknown", "Crawlability and sitemap presence do not prove Google indexing."),
         search_console_performance: result("unknown", "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."),
         firsthand_evidence: result("unknown", "No author visit notes were supplied; source review is not firsthand experience."),
+        // Asset inventory and shared-template wiring cannot certify a different
+        // route. Preserve its registry sitemap proof and honest image record;
+        // runtime/metadata/crop evidence belongs to the dedicated page receipt.
+        ...(dedicated ? {
+          ...dedicatedSource,
+          representative_image: result("unknown", "Reviewed art exists, but dedicated-route rendering needs its own verification."),
+          large_image_candidate: result("unknown", `Reviewed asset: ${art.width}x${art.height}. Dedicated-route social delivery and crop are not certified by this source audit.`),
+          contextual_guide_links: result("unknown", "Dedicated-route internal links need their own verification."),
+          comparison_shortcut: result("unknown", "Dedicated-route shortcut targets need their own verification."),
+        } : {}),
       },
     };
   });
 
   return {
     audit_date: "2026-09-23",
-    scope: "All current Wayfind /guides/[slug] entries on the audited source branch.",
+    scope: "Rolling source snapshot of the Wayfind guide registry. The historical filename is retained; per-guide research dates are recorded in guide data. Dedicated routes require their own dated verification receipt.",
     status_vocabulary: ["pass", "fail", "unknown"],
     interpretation: "Pass means the cited source contract was verified. Unknown is never a pass. This artifact does not certify indexing, rankings, Discover eligibility, production uptime, or factual freshness beyond the recorded evidence.",
     baseline: { search_console: "unknown", production_http: "unknown", organic_analytics: "unknown" },

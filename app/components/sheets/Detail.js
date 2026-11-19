@@ -53,6 +53,7 @@ import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, detailHeroLayout } from "../../../lib/detailHero";
 import { PLACE_DETAIL_PHOTO_STANDARD } from "../../../lib/placeDetailPhotoStandard.js";
 import { railPhotoSrc } from "../../../lib/cardPhotoRequest.js";
+import CreatorPlaceCover from "../CreatorPlaceCover.js";
 import { acquireDetailPhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
 import PhotoCredit from "../PhotoCredit";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
@@ -1268,9 +1269,9 @@ export default function DetailSheet({ ctx }) {
               {expandedHero ? (
                 <div data-detail-photo-gallery style={{ position: "relative", paddingTop: "calc(52px + env(safe-area-inset-top))" }}>
                   <div data-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: C.bg }}>
-                    {showHero ? <div ref={galleryRef} onScroll={onGalleryScroll} style={{ position: "absolute", inset: 0, display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                    {showHero ? <div ref={galleryRef} onScroll={onGalleryScroll} style={{ position: "absolute", inset: 0, display: "flex", gap: 0, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                     {galleryPhotos.map((src, i) => (
-                      <FallbackImg defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: galleryPhotos.length > 1 ? "78%" : "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", scrollSnapStop: "always", cursor: "zoom-in" }} />
+                      <FallbackImg portraitFit defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => { setLightbox(src); try { logEvent("photo_viewer_open", detail, { surface: "place_sheet", photo_index: i + 1, photo_count: galleryPhotos.length }); } catch (e) {} }} style={{ width: "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", scrollSnapStop: "always", cursor: "zoom-in" }} />
                     ))}
                     </div> : <div data-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: C.muted, fontSize: 12 }}>Loading photo…</div>}
                   </div>
@@ -1677,7 +1678,8 @@ export default function DetailSheet({ ctx }) {
                            className="wf-social-glow"
                            style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, "--glow-rgb": PLATFORM_RGB[v.platform] || PLATFORM_RGB.tiktok }}>
                           <div style={{ position: "relative", flexShrink: 0, width: 88, height: 88, borderRadius: 11, overflow: "hidden", background: `linear-gradient(135deg, ${p.color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            {v.thumbnail && <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+                            {v.thumbnail ? <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                              : <CreatorPlaceCover placeId={detail.id} alt={detail.name || ""} compact />}
                             <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span>
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>

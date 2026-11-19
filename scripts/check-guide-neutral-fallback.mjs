@@ -27,7 +27,7 @@ import { fileURLToPath } from "node:url";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { GUIDES } from "../lib/guides.js";
-import { guidePickPhoto, guidePhotoForPlace } from "../lib/guidePickPhotos.js";
+import { guidePickPhoto, guidePhotoForPlace, placePhotoReuseAllowed } from "../lib/guidePickPhotos.js";
 import { guideFinalRung, guideUsesNeutralFallback } from "../lib/guideNeutralFallback.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
@@ -52,7 +52,7 @@ for (const slug of SLUGS) {
   ok(guideUsesNeutralFallback(guide), `${slug}: opted into the neutral fallback`);
   const gaps = JSON.parse(readFileSync(path.join(REPO, "data/guide-pick-photos", slug + ".json"), "utf8")).gaps || {};
   for (const pick of guide.picks) {
-    const own = guidePickPhoto(slug, pick.name) || guidePhotoForPlace(pick.placeId);
+    const own = guidePickPhoto(slug, pick.name) || (placePhotoReuseAllowed(pick) ? guidePhotoForPlace(pick.placeId) : null);
     // 5. photographed XOR recorded gap
     ok(Boolean(own) !== Boolean(gaps[pick.name]), `${slug} / ${pick.name}: exactly one of photographed or recorded gap`);
     if (own) {
@@ -82,6 +82,16 @@ ok(exact + neutral === total && total >= 24 + 74, `all ${total} picks classified
 // left the snow, Thanksgiving and free lights guides, so the floor is 18.
 ok(holidayExact >= 21, `the holiday guides keep their 21 exact, in season photos (found ${holidayExact})`);
 ok(exact >= 9, "the nine photographed picks from the earlier pass are still photographed");
+{
+  const slug = "jacksonville-christmas-by-area-budget-2026";
+  const pick = GUIDES[slug].picks.find((p) => p.name === "Forgotten Tonic Miracle pop-up: current announcement needed");
+  ok(pick?.declinePlacePhotoReuse === true && placePhotoReuseAllowed(pick) === false, "Forgotten Tonic Miracle gap declines the Aviles Street photograph");
+  ok(guidePickPhoto(slug, pick.name) == null && guidePhotoForPlace(pick.placeId)?.src, "the Aviles Street photograph still exists for its own pick and is not this gap's photograph");
+  const rung = guideFinalRung(slug, pick, GUIDES[slug], { usedSrc: new Set() });
+  ok(rung.kind === "neutral" && rung.media.src === null, "Forgotten Tonic Miracle gap stays on the neutral tile");
+  const walk = guidePickPhoto("st-augustine-christmas-coffee-snow-walk-2026", "Optional Aviles Street extension: Forgotten Tonic");
+  ok(walk?.src?.endsWith("/aviles-street-st-augustine.jpg"), "the Aviles Street pick keeps its own photograph");
+}
 
 // Controls: a guide that did not opt into the neutral tile still gets a
 // labelled context photo when a reviewed photo matches the pick. The image

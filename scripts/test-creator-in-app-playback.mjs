@@ -90,7 +90,7 @@ assert.match(ttdHtml, /Selling fast/);
 assert.match(ttdHtml, /wf-place-card-award/, "attached tour keeps its earned rank award");
 assert.doesNotMatch(ttdHtml, /<a\b[^>]*>[\s\S]*?<button[\s\S]*?<\/a>/, "video button must not be nested in booking link");
 assert.doesNotMatch(render(TtdCard, { r: { ...ttdFixture, id: "another-tour" }, rank: 1 }), /data-experience-video=/);
-const action = harness("app/components/CreatorVideoAction.js", { "./CreatorVideoPlayer": { default: PlayerStub }, "../../lib/links": { safeUrl: s => s.startsWith("https://") ? s : null } }, { showModal() { opens++; }, close() { closes++; } });
+const action = harness("app/components/CreatorVideoAction.js", { "./CreatorVideoPlayer": { default: PlayerStub }, "../../lib/links": { safeUrl: s => s.startsWith("https://") ? s : null }, "../../lib/videoEmbed": { isEmbeddable: (p, u) => !!embedSrc(p, u) } }, { showModal() { opens++; }, close() { closes++; } });
 const props = { ...operatorTree.props, onClick: () => logs++ };
 let tree = action(props);
 let all = nodes(tree);
@@ -142,6 +142,7 @@ for (const [platform, url, video] of [
     "../../lib/creatorPlatforms": { PLATFORM: {} },
     "../../lib/cardPhotoRequest.js": { isApiPhotoSrc: () => false },
     "./CreatorPlaybackDetails": { usePlaybackDetails: () => () => collapsed++ },
+    "./CreatorPlaceCover.js": { default: () => null, creatorPlaceCoverSrc: () => null },
   });
   const coverProps = { platform, url, label: "Video fixture", ...(premium ? { coverTitle: "Venue", coverCity: "Sarasota" } : {}) };
   const cover = facade(coverProps);

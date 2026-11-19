@@ -1,0 +1,50 @@
+.explorer { max-width: 900px; margin: 0 auto; scroll-margin-top: 20px; }
+.menu { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 22px; }
+.choice { position: relative; cursor: pointer; }
+.choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.choice span { display: flex; align-items: center; min-height: 44px; padding: 0 15px; color: #f7f2e8; border: 1px solid #546158; border-radius: 24px; font-size: 14px; }
+.choice input:focus-visible + span { outline: 3px solid #ffc294; outline-offset: 2px; }
+.choice input:checked + span { background: #f6e4bd; color: #1b2d22; border-color: #f6e4bd; font-weight: 700; }
+.panel { display: none; scroll-margin-top: 20px; }
+.explorer:has(input[value="magic-kingdom"]:checked) .panel[data-park="magic-kingdom"],
+.explorer:has(input[value="epcot"]:checked) .panel[data-park="epcot"],
+.explorer:has(input[value="animal-kingdom"]:checked) .panel[data-park="animal-kingdom"],
+.explorer:has(input[value="hollywood-studios"]:checked) .panel[data-park="hollywood-studios"],
+.explorer:has(input[value="disney-springs"]:checked) .panel[data-park="disney-springs"] { display: block; }
+.mapFrame { position: relative; height: clamp(330px, 53vh, 540px); overflow: hidden; border-radius: 12px; background: #162423; }
+.mapNote { display: block; font-size: 13px; color: #bbc7c0; }
+.keyList { margin: 0 0 24px; padding-left: 25px; }
+.keyList li { padding: 4px 0; color: #ffe1b8; }
+.keyList a { display: inline-flex; justify-content:center; flex-direction:column; min-height:44px; text-decoration:none; }
+.keyList small { display:block; color:#c1cbbf; }
+@media (max-width: 600px) { .menu { gap:6px; } .choice span { padding:0 12px; font-size:13px; } }
+
+/* A restrained holiday atlas: real paths, forest/cream details, matching index. */
+.eyebrow { color:#d7bb85; text-transform:uppercase; letter-spacing:.18em; font-size:11px; font-weight:700; margin-bottom:8px!important; }
+.intro { max-width:650px; color:#bbc7c0; font-size:16px; }
+.mapHeading { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:14px 18px; border:1px solid #556456; border-bottom:0; background:#203b30; }
+.mapHeading h3 { margin:0!important; color:#fff4dc; }
+.mapHeading>span { color:#e3cf9f; font-size:12px; white-space:nowrap; letter-spacing:.05em; }
+.mapFrame { height:clamp(380px,58vh,560px); border:1px solid #556456; border-top:0; border-radius:0; background:#f1eddf; }
+.mapHost { position:absolute; inset:0; }
+.mapStatus { position:absolute; inset:0; display:grid; place-content:center; padding:28px; text-align:center; background:#203b30; color:#f8eddb; }
+.mapStatus button { min-height:44px; padding:8px 20px; cursor:pointer; }
+.fitButton { position:absolute; left:14px; top:14px; z-index:2; min-height:44px; padding:9px 14px; background:#fff8e9; color:#203b30; border:1px solid #9caa92; border-radius:4px; box-shadow:0 2px 8px #10261926; cursor:pointer; font:600 12px system-ui; }
+.foodPin { position:relative; width:48px; height:58px; padding:0; border:0; background:transparent; display:flex; align-items:flex-end; justify-content:center; cursor:pointer; overflow:visible; touch-action:manipulation; }
+.foodPin img { width:34px; height:46px; pointer-events:none; filter:drop-shadow(0 3px 3px #263b3444); }
+.foodPin span { position:absolute; top:0; right:0; width:23px; height:23px; display:grid; place-items:center; border-radius:50%; background:#203b30; color:#fff5dd; border:2px solid #fff5dd; font:800 12px system-ui; box-shadow:0 2px 4px #263b3444; pointer-events:none; }
+.foodPin[aria-pressed="true"] span { background:#a9452d; }
+.foodPin[aria-pressed="true"] img { filter:drop-shadow(0 0 5px #fff) drop-shadow(0 3px 4px #263b3466); }
+.foodPin:focus-visible { outline:3px solid #203b30; outline-offset:3px; border-radius:5px; }
+.keyList { list-style:none; margin:0 0 28px; padding:0; background:#101d18; border:1px solid #556456; border-top:0; }
+.keyList li { padding:0; border-top:1px solid #34473c; }
+.keyList li:first-child { border-top:0; }
+.keyList li[data-selected="true"] { background:#203b30; }
+.keyList a { display:grid; grid-template-columns:30px minmax(0,1fr) 18px; gap:12px; align-items:center; min-height:62px; padding:12px 16px; color:#fff0d5; }
+.stopNumber { display:grid; place-items:center; width:26px; height:26px; border:1px solid #b59d6e; border-radius:50%; color:#e9cf96; font:700 12px system-ui; }
+.keyList strong { font-size:14px; }
+.keyList small { font-size:13px; line-height:1.5; margin-top:2px; }
+.mapNote { padding:0 16px 12px 58px; font-size:12px; }
+@media(max-width:600px) { .mapHeading { padding:12px; }.mapHeading h3 { font-size:22px; }.intro { font-size:14px; }.keyList a { padding:10px 12px; gap:10px; }.mapNote { padding-left:52px; }.mapFrame { height:430px; } }
+
+.geographicFrame{position:relative;min-width:0;border:1px solid #556456;border-top:0;background:#f5f0e5}

@@ -242,11 +242,15 @@ const MODULES = {
   styleHtml: "lib/styleHtml.js", imageHostPolicy: "lib/imageHostPolicy.js", placePhoto: "lib/placePhoto.js", photoAnswers: "lib/photoAnswers.js", cardPhotoRequest: "lib/cardPhotoRequest.js", livePhoto: "lib/livePhoto.js",
   EventDetailShell: "app/components/EventDetailShell.js", EventExperienceStyles: "app/components/EventExperienceStyles.js",
   // The shell mounts its real photo-rail controls (counter, dots, tap-to-enlarge viewer) since 2026-11-16.
+  PortraitAwareImg: "app/components/PortraitAwareImg.js", portraitPhoto: "lib/portraitPhoto.js",
   EventPhotoRailControls: "app/components/EventPhotoRailControls.js", PhotoRailIndicators: "app/components/PhotoRailIndicators.js", PhotoLightbox: "app/components/PhotoLightbox.js",
   PhotoCreditLink: "app/components/PhotoCreditLink.js", PhotoFallbackTile: "app/components/PhotoFallbackTile.js",
   EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js", CardPhoto: "app/components/CardPhoto.js", cardPhotoRecovery: "app/components/cardPhotoRecovery.js",
 };
-const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.stringify(k) + ":function(exports,module,require){" + compile(f) + "\n}").join(",") + "};"
+// lib/track (analytics) is stubbed: this harness proves photo rendering, and the
+// real tracker would pull the whole analytics stack (and send nothing here anyway).
+const STUBS = { track: "exports.track=function(){return {posthog:false,google:null,session:[]};};" };
+const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.stringify(k) + ":function(exports,module,require){" + compile(f) + "\n}").concat(Object.entries(STUBS).map(([k, code]) => JSON.stringify(k) + ":function(exports,module,require){" + code + "\n}")).join(",") + "};"
   // Model the legal browser observation window between passive-effect waves.
   // Every useEffect keeps React's real dependency/cleanup registration; only
   // when enabled does the host release effect bodies in ordered batches.

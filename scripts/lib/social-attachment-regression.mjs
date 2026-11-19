@@ -134,9 +134,10 @@ export function checkSocialAttachments(repo) {
   // and Holly Bluff (DeLand boat parade) + Old Citrus Estate (Whoville) owner posts 2026-11-01.
   // and the Florida Coffee Festival organizer countdown reel (owner intake 2026-11-02),
   // and eight owner Christmas reels (docs/curation/christmas-reels-2026-11-12.md),
-  // and nine of Wayfind's own posts on the business they feature (docs/curation/owned-reels-on-cards-2026-11-14.md).
-  ensure(audit.records.length === 99, `expected 99 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 99, "shortcodes must be unique");
+  // and nine of Wayfind's own posts on the business they feature (docs/curation/owned-reels-on-cards-2026-11-14.md),
+  // and Wayfind's Christmas Town at Busch Gardens Reel (DfuuG8_hPy5, same ledger, 2026-11-16).
+  ensure(audit.records.length === 101, `expected 101 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 101, "shortcodes must be unique");
   ensure(unresolved.length === 0, `the four historical identities are now resolved; got ${unresolved.length} still marked unresolved`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
@@ -188,7 +189,7 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 99, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 101, "mapped source coverage drifted");
   ensure(audit.summary.source_total === audit.records.length, "audited source total drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
@@ -309,7 +310,7 @@ export function checkSocialAttachments(repo) {
   const social = readFileSync(path.join(repo, "app/components/sheets/SocialFind.js"), "utf8");
   ensure(/hydratedFindForSpot\(spot, videoHeroPlaces\)/.test(social) && !/find\(\(o\) => o\.video\.url === spot\.video\.url\)/.test(social), "roundup cards must hydrate by place identity");
   ensure((social.match(/setSocialFind\(\{ place: local\.place, video: spot\.video \}\)/g) || []).length === 2, "both browse surfaces must retain the selected post");
-  ensure(/!curatedSpot && \(/.test(social) && /<VideoFacade platform=\{video\.platform\}/.test(social), "registry previews must embed the native post without a full-place CTA");
+  ensure(/!curatedSpot && \(/.test(social) && /<(?:VideoFacade|CreatorCoverFacade)\b[^>]*\bplatform=\{video\.platform\}/.test(social), "registry previews must embed the native post without a full-place CTA");
 
   const eventPage = readFileSync(path.join(repo, "app/florida-events/[slug]/page.js"), "utf8");
   ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<CreatorVideoRail/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the shared premium rail and click-to-load facade");

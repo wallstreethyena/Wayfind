@@ -2,101 +2,26 @@
   "schema_version": 1,
   "generated_at": "2026-11-13T15:00:00.000Z",
   "affects_wayfind_score": false,
-  "total_items": 233,
+  "total_items": 229,
+  "classification_summary": {
+    "UNPOSTED_OR_NO_CARD": 43,
+    "AMBIGUOUS_PROSE": 10,
+    "PARTIAL_WEEK_OR_MISSING_CLOSE": 7,
+    "STRUCTURED_HOURS_RESOLVED_ACTION_GAP": 54,
+    "DAYLIGHT_BOUND": 32,
+    "SEASONAL_VARIABLE": 11,
+    "VARIABLE_OR_UNPOSTED": 31,
+    "SUBFACILITY_OR_BOX_OFFICE_ONLY": 14,
+    "LODGING_CHECKIN_ONLY": 24,
+    "CONFLICTING_OFFICIAL_CLOCKS": 3
+  },
   "items": [
-    {
-      "place_id": "ChIJ0ZQFl2Bj54gRNGUh-uvNoM4",
-      "name": "Pisco Peruvian Gastrobar - Orlando",
-      "locality": "Orlando",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ1T2OiMEp34gRcRQOutyc6j8",
-      "name": "Guanabanas Restaurant",
-      "locality": "Jupiter",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ40f7rFQ_24gRHy2uNMDhi2M",
-      "name": "Back Streets Sports Bar",
-      "locality": "Cape Coral",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ4y3uJwAT54gRoKZ0xpPqeZ8",
-      "name": "Ace Cafe Sanford",
-      "locality": "Sanford",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
     {
       "place_id": "ChIJ5d9yNNEXw4gRm2kGIGmpfT4",
       "name": "Riverwalk Splash Park",
       "locality": "Bradenton",
       "gap_class": "MUNICIPAL_SPLASH_PARK",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0,
       "missing_fields": [
         "canGoNow",
@@ -119,116 +44,7 @@
       "name": "Welcome To The Farm",
       "locality": "St. Petersburg",
       "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ6_hQr4AXw4gRwfUFqlfdRfA",
-      "name": "Bellabean",
-      "locality": "South Bradenton",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ68KQvyDd5ogRp5BhQ62tEfA",
-      "name": "Twin Peaks",
-      "locality": "Daytona Beach",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ6cPIn0fiwogRklWu_EbSja0",
-      "name": "Rose's at St. Pete Athletic",
-      "locality": "St. Petersburg",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJAdipByc9w4gR2lYv8gezcWM",
-      "name": "Shake Station",
-      "locality": "Ellenton",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJe_sgCQTFwogRzB1ctERShiI",
-      "name": "Ro Hyde Park Sushi Bar & Asian Restaurant",
-      "locality": "Tampa",
-      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0,
       "missing_fields": [
         "canGoNow",
@@ -251,6 +67,7 @@
       "name": "Charlie's Bakery & Creamery",
       "locality": "Orlando",
       "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0,
       "missing_fields": [
         "canGoNow",
@@ -273,314 +90,7 @@
       "name": "Café Soleil",
       "locality": "St. Pete Beach",
       "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJeRyi7D5p54gRyScetdt6y6c",
-      "name": "Teapioca Lounge",
-      "locality": "Oviedo",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
-      "name": "St. Augustine Coffee House",
-      "locality": "St. Augustine",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
-      "name": "Dracula's Legacy Wine Bar & Bistro Tampa",
-      "locality": "Tampa",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJJeuujrDFwogRZWZ69psQAa4",
-      "name": "SORSI Waterfront",
-      "locality": "Tampa",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJjwUZ8htHw4gR6-xAgrevYLM",
-      "name": "Twin Peaks",
-      "locality": "Fruitville",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJjYZbT6_HwogRWy7ZriWtKEg",
-      "name": "Arwa Coffee",
-      "locality": "Temple Terrace",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJJzZWD1PX2IgREC3NijoLNd8",
-      "name": "Skinny Louie",
-      "locality": "West Palm Beach",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJK6b43nXhwogRCV39bMyGJGo",
-      "name": "Juno & The Peacock",
-      "locality": "St. Petersburg",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJkTDP2OLFwogR9W0EjRYIL-0",
-      "name": "Naked Farmer",
-      "locality": "Tampa",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJMTpK3B-q2YgRsI58IHDJFHo",
-      "name": "The Field Irish Pub & Eatery",
-      "locality": "Dania Beach",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
-      "name": "Ryan's Coffee House",
-      "locality": "Sarasota",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJOdY8qlHEwogRXPbXY1cq2xo",
-      "name": "Coyote Ugly Saloon",
-      "locality": "Tampa",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJPd6UAfJ_3YgRP-V0GS5jS8I",
-      "name": "Gideon's Bakehouse",
-      "locality": "Lake Buena Vista",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJq2_lAFHEwogRRCeJJ77fHgg",
-      "name": "Bad Monkey Ybor",
-      "locality": "Tampa",
-      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0,
       "missing_fields": [
         "canGoNow",
@@ -603,226 +113,7 @@
       "name": "Freaky Tiki Boat Charters",
       "locality": "Fort Lauderdale",
       "gap_class": "D",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJqwo10S3dwogRnC3CEXFQNwI",
-      "name": "Green Iguana Bar & Grill",
-      "locality": "Tampa",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJrZufuCg5w4gRXu8owbAhZss",
-      "name": "Kaizen Japanese Kitchen",
-      "locality": "Sarasota",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJS0fk0SviwogRVpPveF0qH9w",
-      "name": "Hawkers Asian Street Food",
-      "locality": "St. Petersburg",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJs8X39n07w4gR0NEp6j5PNdc",
-      "name": "Cracker Barrel Old Country Store",
-      "locality": "Sarasota",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJSaQDBuNB24gR9p9LdqtWEe0",
-      "name": "Downtown House of Pizza",
-      "locality": "Fort Myers",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJUcSOQap_3YgRzKLq5rYIdYI",
-      "name": "The Cake Bake Shop by Gwendolyn Rogers",
-      "locality": "Lake Buena Vista",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJv4dyuXnPwogRMK5yN-Ke2Iw",
-      "name": "Hammered Harry's Tampa",
-      "locality": "Tampa",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJww1nz5VBw4gRl0xv985c9E4",
-      "name": "Cedar Fox Coffee",
-      "locality": "Sarasota",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJXze1LS_FwogRIeQKUSTt268",
-      "name": "Ichiban Sushi & Ramen",
-      "locality": "Tampa",
-      "gap_class": "E",
-      "actionability_score": 0,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJy6vf9_dBw4gRGg1sXR5UTGU",
-      "name": "Project Coffee",
-      "locality": "Sarasota",
-      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0,
       "missing_fields": [
         "canGoNow",
@@ -845,6 +136,7 @@
       "name": "The Stein & Vine",
       "locality": "Bloomingdale",
       "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0,
       "missing_fields": [
         "canGoNow",
@@ -867,6 +159,7 @@
       "name": "East End Market",
       "locality": "Orlando",
       "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0,
       "missing_fields": [
         "canGoNow",
@@ -889,6 +182,7 @@
       "name": "Nueva Cantina - Brandon",
       "locality": "Brandon",
       "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0,
       "missing_fields": [
         "canGoNow",
@@ -907,11 +201,518 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJ0ZQFl2Bj54gRNGUh-uvNoM4",
+      "name": "Pisco Peruvian Gastrobar - Orlando",
+      "locality": "Orlando",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ1T2OiMEp34gRcRQOutyc6j8",
+      "name": "Guanabanas Restaurant",
+      "locality": "Jupiter",
+      "gap_class": "E",
+      "schedule_classification": "AMBIGUOUS_PROSE",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Guanabanas opens at 11:30am, seven days a week, so plan arrival accordingly.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ40f7rFQ_24gRHy2uNMDhi2M",
+      "name": "Back Streets Sports Bar",
+      "locality": "Cape Coral",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ4y3uJwAT54gRoKZ0xpPqeZ8",
+      "name": "Ace Cafe Sanford",
+      "locality": "Sanford",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ6_hQr4AXw4gRwfUFqlfdRfA",
+      "name": "Bellabean",
+      "locality": "South Bradenton",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ68KQvyDd5ogRp5BhQ62tEfA",
+      "name": "Twin Peaks",
+      "locality": "Daytona Beach",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ6cPIn0fiwogRklWu_EbSja0",
+      "name": "Rose's at St. Pete Athletic",
+      "locality": "St. Petersburg",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "whatToKnow",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJe_sgCQTFwogRzB1ctERShiI",
+      "name": "Ro Hyde Park Sushi Bar & Asian Restaurant",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJeRyi7D5p54gRyScetdt6y6c",
+      "name": "Teapioca Lounge",
+      "locality": "Oviedo",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+      "name": "St. Augustine Coffee House",
+      "locality": "St. Augustine",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJJeuujrDFwogRZWZ69psQAa4",
+      "name": "SORSI Waterfront",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJjYZbT6_HwogRWy7ZriWtKEg",
+      "name": "Arwa Coffee",
+      "locality": "Temple Terrace",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJK6b43nXhwogRCV39bMyGJGo",
+      "name": "Juno & The Peacock",
+      "locality": "St. Petersburg",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJMTpK3B-q2YgRsI58IHDJFHo",
+      "name": "The Field Irish Pub & Eatery",
+      "locality": "Dania Beach",
+      "gap_class": "E",
+      "schedule_classification": "AMBIGUOUS_PROSE",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "The Full Irish Breakfast is available Saturday & Sunday 11am - 2pm.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+      "name": "Ryan's Coffee House",
+      "locality": "Sarasota",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJrZufuCg5w4gRXu8owbAhZss",
+      "name": "Kaizen Japanese Kitchen",
+      "locality": "Sarasota",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJS0fk0SviwogRVpPveF0qH9w",
+      "name": "Hawkers Asian Street Food",
+      "locality": "St. Petersburg",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJs8X39n07w4gR0NEp6j5PNdc",
+      "name": "Cracker Barrel Old Country Store",
+      "locality": "Sarasota",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJSaQDBuNB24gR9p9LdqtWEe0",
+      "name": "Downtown House of Pizza",
+      "locality": "Fort Myers",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJUcSOQap_3YgRzKLq5rYIdYI",
+      "name": "The Cake Bake Shop by Gwendolyn Rogers",
+      "locality": "Lake Buena Vista",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJww1nz5VBw4gRl0xv985c9E4",
+      "name": "Cedar Fox Coffee",
+      "locality": "Sarasota",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJXze1LS_FwogRIeQKUSTt268",
+      "name": "Ichiban Sushi & Ramen",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJy6vf9_dBw4gRGg1sXR5UTGU",
+      "name": "Project Coffee",
+      "locality": "Sarasota",
+      "gap_class": "E",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.13,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJ_1EOeJrFwogR3FwZdANqM_w",
       "name": "Escapology Escape Rooms Tampa",
       "locality": "Tampa",
       "gap_class": "D",
-      "actionability_score": 0.13,
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
         "whenToGo",
@@ -919,7 +720,6 @@
         "whereToGetTickets",
         "duration",
         "parking",
-        "whatToKnow",
         "structured_hours"
       ],
       "hours_prose": null,
@@ -932,7 +732,8 @@
       "name": "Escapology Escape Rooms Doral",
       "locality": "Doral",
       "gap_class": "D",
-      "actionability_score": 0.13,
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
         "whenToGo",
@@ -940,49 +741,6 @@
         "whereToGetTickets",
         "duration",
         "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJbWcxKEO15YgRXIOwyi6J7Wg",
-      "name": "Prototype Escape Games Jacksonville",
-      "locality": "Jacksonville",
-      "gap_class": "D",
-      "actionability_score": 0.13,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
-      "name": "The Floridian Social",
-      "locality": "St. Petersburg",
-      "gap_class": "D",
-      "actionability_score": 0.13,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "whatToKnow",
         "structured_hours"
       ],
       "hours_prose": null,
@@ -995,6 +753,7 @@
       "name": "Owens Fish Camp",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "PARTIAL_WEEK_OR_MISSING_CLOSE",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
@@ -1011,63 +770,125 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
-      "name": "ATRIA Cafe",
-      "locality": "Lakewood Ranch",
+      "place_id": "ChIJAdipByc9w4gR2lYv8gezcWM",
+      "name": "Shake Station",
+      "locality": "Ellenton",
       "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.25,
       "missing_fields": [
-        "canGoNow",
         "cost",
         "needsTickets",
         "whereToGetTickets",
         "duration",
         "parking",
-        "structured_hours"
+        "whatToKnow"
       ],
-      "hours_prose": "Café daily 8am to 2:30pm, pizza and wine bar Tue to Sat 5pm to 8pm",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "hours_prose": "Hours are 11:00 AM – 9:00 PM daily",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
-      "name": "Hashtag Café",
-      "locality": "Southgate",
-      "gap_class": "E",
+      "place_id": "ChIJbWcxKEO15YgRXIOwyi6J7Wg",
+      "name": "Prototype Escape Games Jacksonville",
+      "locality": "Jacksonville",
+      "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
-        "cost",
+        "whenToGo",
         "needsTickets",
         "whereToGetTickets",
         "duration",
         "parking",
         "structured_hours"
       ],
-      "hours_prose": "Mon, Tue, Thu, Fri 7am to 3pm, Sat and Sun 8am to 3pm, closed Wed",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJf5M5VmBZw4gRVHX-dcX1dBk",
-      "name": "Fins At Sharky's",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
+      "place_id": "ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
+      "name": "Dracula's Legacy Wine Bar & Bistro Tampa",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.25,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "Hours are Mon-Thu 5:00 PM-12:30 AM, Fri 5:00 PM-2:30 AM, Sat 3:00 PM-2:30 AM, and Sun 2:00 PM-12:30 AM.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJjwUZ8htHw4gR6-xAgrevYLM",
+      "name": "Twin Peaks",
+      "locality": "Fruitville",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.25,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "The Sarasota location's official page lists hours of 11 a.m.-midnight Sunday-Thursday and 11 a.m.-1 a.m. Friday-Saturday.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
+      "name": "The Floridian Social",
+      "locality": "St. Petersburg",
+      "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
-        "cost",
+        "whenToGo",
         "needsTickets",
         "whereToGetTickets",
         "duration",
         "parking",
         "structured_hours"
       ],
-      "hours_prose": "Lunch 11:45am–3:30pm; dinner 3:30–10pm; sushi & cocktails 11:45am–10pm",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJkTDP2OLFwogR9W0EjRYIL-0",
+      "name": "Naked Farmer",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.25,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "Open Mon–Thu 11 AM–9:30 PM, Fri–Sat 11 AM–10:30 PM, Sun 11:30 AM–9 PM.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
       "affects_wayfind_score": false
     },
     {
@@ -1075,6 +896,7 @@
       "name": "Bob Gardner Community Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
@@ -1091,10 +913,31 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJOdY8qlHEwogRXPbXY1cq2xo",
+      "name": "Coyote Ugly Saloon",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.25,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "Hours are Sunday 4pm-3am, Monday-Tuesday closed, Wednesday-Thursday 7pm-3am, Friday 6pm-3am, and Saturday 4pm-3am.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJozoB105Tw4gRzglopArkt1w",
       "name": "Butler Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "SEASONAL_VARIABLE",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
@@ -1111,10 +954,31 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJPd6UAfJ_3YgRP-V0GS5jS8I",
+      "name": "Gideon's Bakehouse",
+      "locality": "Lake Buena Vista",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.25,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "Open 10 AM–11 PM Monday–Thursday, 10 AM–11:30 PM Friday–Saturday, 10 AM–11 PM Sunday.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJPSh7g6-s3IgROUqupmIgQ8M",
       "name": "Blue Ridge Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
@@ -1131,10 +995,52 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJq2_lAFHEwogRRCeJJ77fHgg",
+      "name": "Bad Monkey Ybor",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.25,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "Bad Monkey is a sports bar in Ybor City at 1717 E 7th Ave, Tampa, FL 33605, open daily noon to 3 AM.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJqdXkLDEQw4gRY9A4zDFkRMA",
+      "name": "Anna Maria Island Beach Cafe",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "SEASONAL_VARIABLE",
+      "actionability_score": 0.25,
+      "missing_fields": [
+        "canGoNow",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily ~8am–8pm (seasonal); breakfast to 11am weekdays, noon weekends",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJqQsqj80Xw4gRev0L3y4_-lM",
       "name": "O'bricks Irish Pub & Martini Bar",
       "locality": "Bradenton",
       "gap_class": "E",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
@@ -1151,10 +1057,31 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJv4dyuXnPwogRMK5yN-Ke2Iw",
+      "name": "Hammered Harry's Tampa",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.25,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "Hours are Monday-Friday 5 p.m.-3 a.m. and Saturday-Sunday 7 p.m.-3 a.m.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJx-UjxpU2w4gRdU-iwVM6HW4",
       "name": "TreeUmph! Adventure Course",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "SEASONAL_VARIABLE",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
@@ -1175,6 +1102,7 @@
       "name": "The Gator Club",
       "locality": "Sarasota",
       "gap_class": "E",
+      "schedule_classification": "AMBIGUOUS_PROSE",
       "actionability_score": 0.25,
       "missing_fields": [
         "canGoNow",
@@ -1195,6 +1123,7 @@
       "name": "Sarasota Jungle Gardens",
       "locality": "Sarasota",
       "gap_class": "B",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1214,6 +1143,7 @@
       "name": "Max's Table",
       "locality": "Osprey",
       "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1232,6 +1162,7 @@
       "name": "Bee Ridge Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1250,6 +1181,7 @@
       "name": "Caspersen Beach Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "AMBIGUOUS_PROSE",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1269,6 +1201,7 @@
       "name": "Coquina Beach Cafe",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1287,6 +1220,7 @@
       "name": "Siesta Key Watersports",
       "locality": "South Sarasota",
       "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1306,6 +1240,7 @@
       "name": "Tide Tables Restaurant and Marina",
       "locality": "Cortez",
       "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1320,29 +1255,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
-      "name": "The John and Mable Ringling Museum of Art",
-      "locality": "Sarasota",
-      "gap_class": "D",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJ70O3wxY5w4gRNF6OmOiNvNc",
       "name": "Rocco’s Tacos",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1361,6 +1278,7 @@
       "name": "Agave Bandido",
       "locality": "Lakewood Ranch",
       "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1379,6 +1297,7 @@
       "name": "Anna Maria Oyster Bar",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1393,10 +1312,30 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+      "name": "ATRIA Cafe",
+      "locality": "Lakewood Ranch",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.38,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Café daily 8am to 2:30pm, pizza and wine bar Tue to Sat 5pm to 8pm",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJA4OSg7Rbw4gRM9CT-uJJIwg",
       "name": "Mi Pueblo El Restaurante Mexicano & Cantina",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1415,6 +1354,7 @@
       "name": "Sandbox VR",
       "locality": "Sarasota",
       "gap_class": "D",
+      "schedule_classification": "PARTIAL_WEEK_OR_MISSING_CLOSE",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1424,28 +1364,47 @@
         "whatToKnow",
         "structured_hours"
       ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "hours_prose": "Hours are listed as 11 a.m. to 11 p.m. Monday to Thursday.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJd_yTxUh054gR9cGD0gI_yHw",
-      "name": "Wekiwa Springs State Park",
-      "locality": "Sarasota",
-      "gap_class": "D",
+      "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+      "name": "Hashtag Café",
+      "locality": "Southgate",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
-        "canGoNow",
-        "whenToGo",
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
         "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
+        "parking"
       ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "hours_prose": "Mon, Tue, Thu, Fri 7am to 3pm, Sat and Sun 8am to 3pm, closed Wed",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJf5M5VmBZw4gRVHX-dcX1dBk",
+      "name": "Fins At Sharky's",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.38,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Lunch 11:45am–3:30pm; dinner 3:30–10pm; sushi & cocktails 11:45am–10pm",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
       "affects_wayfind_score": false
     },
     {
@@ -1453,6 +1412,7 @@
       "name": "Captain Curt's Crab & Oyster Bar",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1471,6 +1431,7 @@
       "name": "Gecko's Grill & Pub — SR-64 Bradenton",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1489,6 +1450,7 @@
       "name": "Braden River Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1504,48 +1466,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJhcub0Rs_w4gRCEvPuk8tBok",
-      "name": "Escape Reality",
-      "locality": "Sarasota",
-      "gap_class": "D",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJHZo0qDhA24gR1ifSPvqF-Ag",
-      "name": "Broadway Palm Dinner Theatre",
-      "locality": "Fort Myers",
-      "gap_class": "D",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJJWCbj5kRw4gRYkZ7QJ-L91s",
       "name": "Gulf Drive Cafe",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1560,10 +1485,30 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJJzZWD1PX2IgREC3NijoLNd8",
+      "name": "Skinny Louie",
+      "locality": "West Palm Beach",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.38,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Store hours are Sunday to Thursday from 11:00 a.m. to 2:00 a.m. and Friday and Saturday from 11:00 a.m. to 4:00 a.m.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJKSZuXtQVw4gRZRqrR4H9HyQ",
       "name": "Mean Deans Local Kitchen",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1578,29 +1523,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJL0bExYvEwogRWA4X9n0d7MA",
-      "name": "The Great Escape Room Tampa",
-      "locality": "Tampa",
-      "gap_class": "D",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
       "name": "Gaylord Palms Resort & Convention Center",
       "locality": "Sarasota",
       "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1620,6 +1547,7 @@
       "name": "Naples Botanical Garden",
       "locality": "Sarasota",
       "gap_class": "A",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1639,6 +1567,7 @@
       "name": "Asolo Repertory Theatre",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1658,6 +1587,7 @@
       "name": "Art Ovation Hotel, Autograph Collection",
       "locality": "Sarasota",
       "gap_class": "D",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1673,29 +1603,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJQ_3WRVN-54gR2mMdWDLIJ2s",
-      "name": "Lockbusters Escape Game",
-      "locality": "Sarasota",
-      "gap_class": "D",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJqdXkLDEQw4gRY9A4zDFkRMA",
-      "name": "Anna Maria Island Beach Cafe",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
+      "place_id": "ChIJqwo10S3dwogRnC3CEXFQNwI",
+      "name": "Green Iguana Bar & Grill",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1704,8 +1616,8 @@
         "duration",
         "parking"
       ],
-      "hours_prose": "Daily ~8am–8pm (seasonal); breakfast to 11am weekdays, noon weekends",
-      "hours_confidence": "HIGH_CONFIDENCE",
+      "hours_prose": "Green Iguana bar is open daily from 11 a.m. to 3 a.m.",
+      "hours_confidence": "EXACT",
       "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
       "affects_wayfind_score": false
     },
@@ -1714,6 +1626,7 @@
       "name": "Gecko's Grill & Pub — Fruitville Sarasota",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1732,6 +1645,7 @@
       "name": "Beer Can Island",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "AMBIGUOUS_PROSE",
       "actionability_score": 0.38,
       "missing_fields": [
         "canGoNow",
@@ -1747,29 +1661,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJRyOEfAo5w4gR664aD_YYBLU",
-      "name": "Mote Science Education Aquarium (SEA)",
-      "locality": "Sarasota",
-      "gap_class": "D",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJs8HMPKxDw4gR8rXHdqdvpmE",
       "name": "Ophelia's on the Bay",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1788,6 +1684,7 @@
       "name": "Der Dutchman",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1806,6 +1703,7 @@
       "name": "Original Word of Mouth",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1824,6 +1722,7 @@
       "name": "First Watch",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1842,6 +1741,7 @@
       "name": "Smugglers Cove Adventure Golf",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1856,29 +1756,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJVVUNg8JB24gRo5VjblNO_c8",
-      "name": "Edison & Ford Winter Estates",
-      "locality": "Fort Myers",
-      "gap_class": "D",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJx-U-VRFAw4gRUUDwK8ht44s",
       "name": "Marina Jack",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.38,
       "missing_fields": [
         "cost",
@@ -1893,29 +1775,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJx4O9VBdw54gRcQ8akxK7nkc",
-      "name": "The Charles Hosmer Morse Museum of American Art",
-      "locality": "Winter Park",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "whenToGo",
-        "duration",
-        "parking",
-        "whatToKnow",
-        "structured_hours"
-      ],
-      "hours_prose": null,
-      "hours_confidence": "UNKNOWN",
-      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJaTQEjpFqw4gRnHJU2Klfw0o",
       "name": "Columbia Restaurant",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
       "actionability_score": 0.5,
       "missing_fields": [
         "cost",
@@ -1929,10 +1793,49 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJd_yTxUh054gR9cGD0gI_yHw",
+      "name": "Wekiwa Springs State Park",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.5,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJHZo0qDhA24gR1ifSPvqF-Ag",
+      "name": "Broadway Palm Dinner Theatre",
+      "locality": "Fort Myers",
+      "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.5,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJjZhUvSU9w4gRCuTRgyrctZA",
       "name": "Gamble Plantation Historic State Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.5,
       "missing_fields": [
         "canGoNow",
@@ -1951,6 +1854,45 @@
       "name": "Get Up and Go Kayaking - Shell Key Preserve",
       "locality": "Tierra Verde",
       "gap_class": "C",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.5,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJL0bExYvEwogRWA4X9n0d7MA",
+      "name": "The Great Escape Room Tampa",
+      "locality": "Tampa",
+      "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.5,
+      "missing_fields": [
+        "canGoNow",
+        "whenToGo",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJQ_3WRVN-54gR2mMdWDLIJ2s",
+      "name": "Lockbusters Escape Game",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
       "actionability_score": 0.5,
       "missing_fields": [
         "canGoNow",
@@ -1969,6 +1911,7 @@
       "name": "Florida Railroad Museum",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -1983,6 +1926,7 @@
       "name": "Sarasota Sailing Squadron",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -1997,6 +1941,7 @@
       "name": "Island Time Bar And Grill",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2011,6 +1956,7 @@
       "name": "Island Discount Tackle",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2025,6 +1971,7 @@
       "name": "Mead Botanical Garden",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2035,24 +1982,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJ0wVCGeHW54gRNAxvOilMJYY",
-      "name": "Don Garlits Museum of Drag Racing",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Daily, 9 AM to 5 PM, closed Thanksgiving and Christmas",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily, 9 AM to 5 PM, closed Thanksgiving and Christmas\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJ11G8j3tbw4gRoPyXlmEh7mQ",
       "name": "Suntan Terrace",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2067,6 +2001,7 @@
       "name": "Red Bug Slough",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2077,24 +2012,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
-      "name": "Joy Coffee",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Tue to Sat 7am to 4pm, closed Sun and Mon",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Tue to Sat 7am to 4pm, closed Sun and Mon\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJ1xoFMTYQw4gRmslQtAXM8A4",
       "name": "Keyes Marina",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_VARIABLE",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2109,6 +2031,7 @@
       "name": "Turtle Crawl Inn",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2123,6 +2046,7 @@
       "name": "Kaya",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_VARIABLE",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2137,6 +2061,7 @@
       "name": "St. Armands Circle",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "AMBIGUOUS_PROSE",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2151,6 +2076,7 @@
       "name": "Sarasota Opera House",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2165,6 +2091,7 @@
       "name": "Captiva Beach Resort",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2179,6 +2106,7 @@
       "name": "Evie's at Spanish Point",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_VARIABLE",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2193,6 +2121,7 @@
       "name": "Neal Preserve",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2207,6 +2136,7 @@
       "name": "Orlando Museum of Art",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "PARTIAL_WEEK_OR_MISSING_CLOSE",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2221,6 +2151,7 @@
       "name": "Cedar Cove Resort & Cottages",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2235,6 +2166,7 @@
       "name": "Greenbrook Adventure Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2249,6 +2181,7 @@
       "name": "Golden Host Resort",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2263,6 +2196,7 @@
       "name": "Clasico",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2277,6 +2211,7 @@
       "name": "Waterfrontoo",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2291,6 +2226,7 @@
       "name": "Gulf Harbor Marina",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2305,6 +2241,7 @@
       "name": "Sunrise Inn",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2319,6 +2256,7 @@
       "name": "Palma Sola Causeway",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2333,6 +2271,7 @@
       "name": "Island Sun Inn",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2343,24 +2282,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJbW0DuCra0IgRW-jZTHa3lqs",
-      "name": "Florida Keys Aquarium Encounters",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Daily, 9 AM to 5 PM",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily, 9 AM to 5 PM\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJD0ckhqNUw4gRAvHrRaqP-po",
       "name": "Dallas White Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2375,6 +2301,7 @@
       "name": "Lake Manatee fish camp",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2389,6 +2316,7 @@
       "name": "Green Turtle Shell & Gift Shop",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2403,6 +2331,7 @@
       "name": "Casa Del Mar",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2417,6 +2346,7 @@
       "name": "Pie-licious Bake Shoppe",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2431,6 +2361,7 @@
       "name": "Whitney’s Bodega & Bar",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "CONFLICTING_OFFICIAL_CLOCKS",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2445,6 +2376,7 @@
       "name": "Calini Beach Club",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2459,6 +2391,7 @@
       "name": "Wolveshead Pizza & Wings",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2473,6 +2406,7 @@
       "name": "Cocoplum village shops",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2487,6 +2421,7 @@
       "name": "Brohard Paw Park/Beach",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2497,24 +2432,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJG2-9xp222YgRJ_Dqby74tmg",
-      "name": "Café Bastille Downtown Miami",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Monday to Friday 8:00am to 4:00pm, Saturday and Sunday 8:00am to 5:00pm",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Monday to Friday 8:00am to 4:00pm, Saturday and Sunday 8:00am to 5:00pm\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJg2IFCAE5w4gRjoL2et_wuBw",
       "name": "Main Street at Lakewood Ranch",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2529,6 +2451,7 @@
       "name": "Palmetto Riverside Bed & Breakfast",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2543,6 +2466,7 @@
       "name": "Deer Prairie Creek Preserve",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2557,6 +2481,7 @@
       "name": "Epiphany Cathedral",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2571,6 +2496,7 @@
       "name": "BrewBurgers Back Porch",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2585,6 +2511,7 @@
       "name": "Island Breeze",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2599,6 +2526,7 @@
       "name": "Sea Club V",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2613,6 +2541,7 @@
       "name": "G.T. Bray Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2627,6 +2556,7 @@
       "name": "Waterside Place",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2641,6 +2571,7 @@
       "name": "Palma Sola Botanical Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2651,24 +2582,11 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJIwZqEutAw4gR-1cOUgiln24",
-      "name": "Yoder's Restaurant",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Breakfast Mon–Fri 7–10:30am, Sat 7–11:15am; lunch & dinner Mon–Fri 11am–8pm, Sat noon–8pm; closed Sun",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Breakfast Mon–Fri 7–10:30am, Sat 7–11:15am; lunch & dinner Mon–Fri 11am–8pm, Sat noon–8pm; closed Sun\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJJ2DbfIc9w4gRM-UmRpZNBeM",
       "name": "Red Barn Flea Market",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_VARIABLE",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2683,6 +2601,7 @@
       "name": "Anna Maria Island Inn",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2697,6 +2616,7 @@
       "name": "Five Nine Grill & Tavern",
       "locality": "Sarasota",
       "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
       "actionability_score": 0.6,
       "missing_fields": [
         "structured_hours"
@@ -2704,6 +2624,1401 @@
       "hours_prose": "Standing weekly open/close not posted",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Clarify ambiguous/variable hours prose (\"Standing weekly open/close not posted\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJkasGmR0Rw4gROhuiN0N8Zdo",
+      "name": "Perico Preserve",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Sunrise to sunset, 365 days",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Sunrise to sunset, 365 days\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJKxTlAQcww4gRNUXvlac64vc",
+      "name": "Ray's Canoe Hideaway",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Dawn to dusk. Closed Wednesdays except holidays, weather, or by arrangement.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Dawn to dusk. Closed Wednesdays except holidays, weather, or by arrangement.\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJl7bsJGE9w4gROHoQ8-OZGaU",
+      "name": "Riviera Dunes Marina",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Office Mon–Fri 9am–5pm; fuel dock daily 7:30am–6pm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Office Mon–Fri 9am–5pm; fuel dock daily 7:30am–6pm\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJlSiAUbERw4gRQUSsRutg2FI",
+      "name": "Island Bazaar",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Open 7 days; clock not posted",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Open 7 days; clock not posted\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJLWQ9xoZx54gRgT08_-0eAM4",
+      "name": "AVA MediterrAegean",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Golden Hour at the bar Sun–Thu 5–7pm; prix-fixe brunch Sat–Sun 11:30am–2:30pm; dinner clock not posted on Winter Park pages",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Golden Hour at the bar Sun–Thu 5–7pm; prix-fixe brunch Sat–Sun 11:30am–2:30pm; dinner clock not posted on Winter Park pages\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJlxmvm6hDw4gRqN5ExwCJfbU",
+      "name": "Neville Marine Preserve",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 6am–sunset",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily 6am–sunset\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJm1f5sGdBw4gRKr5LjqNJuYo",
+      "name": "The Parrot Patio Bar & Grill",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "CONFLICTING_OFFICIAL_CLOCKS",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Mon–Thu 11:30am–11pm, Fri–Sat 11:30am–midnight; homepage also says daily from 11:30am; kitchen closes one hour earlier",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Mon–Thu 11:30am–11pm, Fri–Sat 11:30am–midnight; homepage also says daily from 11:30am; kitchen closes one hour earlier\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJm3mgIqYkw4gR-7sq0vNGiMQ",
+      "name": "Beef 'O' Brady's",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Hours aren't posted online; call to confirm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Hours aren't posted online; call to confirm\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJn61r9WVAw4gRXOJtD8DSQt4",
+      "name": "Payne Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Restrooms 8 a.m.–10 p.m. Skate park daily 10 a.m.–10 p.m. Tennis hours vary; reservations required.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Restrooms 8 a.m.–10 p.m. Skate park daily 10 a.m.–10 p.m. Tennis hours vary; reservations required.\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJnft8hIBQw4gRJIBTOREb15o",
+      "name": "BrewBurgers",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Standing weekly open/close not posted",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Standing weekly open/close not posted\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJNx_mOHxUw4gRW_dbjdLGEJg",
+      "name": "Warm Mineral Springs Motel",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Breakfast 7:30–10am; pool 8am–9pm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Breakfast 7:30–10am; pool 8am–9pm\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJo1plTJdbw4gR0h9pszhsTzU",
+      "name": "Inn at the Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Continental breakfast 7–10am; check-in not posted",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Continental breakfast 7–10am; check-in not posted\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJObkCSmIWw4gRQDAhWKrjxxU",
+      "name": "Bowlero",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Vary by day (recent example: Sat 11am–12am; Sun 11am–11pm; Mon 11am–11pm; Tue 9:30am–11pm; Wed 11am–11pm; Thu 11am–11pm; Fri 10am–12am) — confirm the current week online",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Vary by day (recent example: Sat 11am–12am; Sun 11am–11pm; Mon 11am–11pm; Tue 9:30am–11pm; Wed 11am–11pm; Thu 11am–11pm; Fri 10am–12am) — confirm the current week online\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJoTIjN65bw4gRDOEwKSfIDs8",
+      "name": "Venice Train Depot",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "PARTIAL_WEEK_OR_MISSING_CLOSE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Free Saturday docent tours ~10am–1pm (check VAHS calendar)",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Free Saturday docent tours ~10am–1pm (check VAHS calendar)\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJOVlxm71bw4gRExkYoPxW28c",
+      "name": "Tropical Villas Of Venice Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Check-in 3pm; check-out 10am; quiet hours 9pm–9am",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in 3pm; check-out 10am; quiet hours 9pm–9am\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJoYj5rttbw4gRWgQu8UrF_7w",
+      "name": "Shark Frenzy",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Open 7 days; clock not posted",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Open 7 days; clock not posted\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJOYShpHFDw4gRUEvjMqj0m0M",
+      "name": "mad moe's",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "PARTIAL_WEEK_OR_MISSING_CLOSE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 11am; kitchen closes 10pm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily 11am; kitchen closes 10pm\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJq_OdjK4-w4gRHDtAsN8WP34",
+      "name": "Jiggs Landing",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Preserve sunrise to sunset, 365 days. Night ramp access by $30 gate card from G.T. Bray.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Preserve sunrise to sunset, 365 days. Night ramp access by $30 gate card from G.T. Bray.\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJQW1jN71bw4gRgw6bv5lW_dA",
+      "name": "Venice Beach Villas",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Check-in not posted; confirm with the office",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in not posted; confirm with the office\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJR0-AwqdAw4gR6McIzffF4BA",
+      "name": "Bobby Jones Golf Club",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Nature park dawn to dusk; closed when the golf course is closed. Golf by tee time.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Nature park dawn to dusk; closed when the golf course is closed. Golf by tee time.\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJrWytXbkXw4gRh8xq_NK9Bk8",
+      "name": "Riviera Dunes Dockside",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "PARTIAL_WEEK_OR_MISSING_CLOSE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily from 11am; brunch Sat–Sun 10am–3pm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily from 11am; brunch Sat–Sun 10am–3pm\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJrYGdKBJAw4gRafewzUWWYnk",
+      "name": "Florida Studio Theatre",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Box office Monday 9 a.m.–6 p.m.; Tuesday–Saturday 9 a.m.–9 p.m.; Sunday 11 a.m.–9 p.m.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Box office Monday 9 a.m.–6 p.m.; Tuesday–Saturday 9 a.m.–9 p.m.; Sunday 11 a.m.–9 p.m.\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJRZoddZARw4gRdRyp78_nAHg",
+      "name": "Safe Harbor Pier 77",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Fuel dock and ship's store daily 8am–5pm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Fuel dock and ship's store daily 8am–5pm\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJS14Lh5xbw4gR_v6gQXj951s",
+      "name": "Roberts Bay Marina",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Office clock not posted",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Office clock not posted\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJs1EQjXYXw4gR6e_D1g6-lFU",
+      "name": "Cut's Edge Harbor Marina",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "AMBIGUOUS_PROSE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Call; trailer members 24/7",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Call; trailer members 24/7\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJSanPezYQw4gRQ_J4ZhPSxsE",
+      "name": "Freckled Fin Irish Pub",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Roughly daily 11am–11pm (later Fri–Sat); confirm before a late visit",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Roughly daily 11am–11pm (later Fri–Sat); confirm before a late visit\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJT-zI8upbw4gRMmQKdV_HLLs",
+      "name": "Beachcomber In Venice",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Check-in 3pm; check-out 10am",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in 3pm; check-out 10am\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJT1AHehWA3YgRkYNkOPfOHJw",
+      "name": "Basilica of the National Shrine of Mary, Queen of the Universe",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "AMBIGUOUS_PROSE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily; check the shrine schedule for Mass times",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily; check the shrine schedule for Mass times\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJt5P_hCRCw4gRg6Y5hsctM2w",
+      "name": "Siesta Sands Beach Resort",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Check-in not posted; 3-night off-season / 7-night peak minimum",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in not posted; 3-night off-season / 7-night peak minimum\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJTcMq_VlDw4gRjlox_ETtFr4",
+      "name": "Casey Key Resort",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Cabanas 9am–8pm; check-in clock not posted",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Cabanas 9am–8pm; check-in clock not posted\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJTXee71MRw4gRpMU2A5Nf1jg",
+      "name": "Bungalow Beach Resort",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Office 9am–6pm; check-in 3pm, check-out 11am",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Office 9am–6pm; check-in 3pm, check-out 11am\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJtZv7F5gRw4gRQygwlwjeArE",
+      "name": "Tortuga Inn Beach Resort",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Office 9am–6pm; check-in not posted",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Office 9am–6pm; check-in not posted\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJU_04bl1Dw4gRSYE5S9XhKkk",
+      "name": "Tervis Store",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Mon–Sat 10am–6pm; Sun 12–5pm (call to confirm)",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Mon–Sat 10am–6pm; Sun 12–5pm (call to confirm)\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
+      "name": "Fort Hamer Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Sunrise to sunset, unless posted or permitted.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Sunrise to sunset, unless posted or permitted.\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJV1EQn5wRw4gRL9F20zVGaG4",
+      "name": "Bridge Tender Inn",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "CONFLICTING_OFFICIAL_CLOCKS",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 11am–11:30pm (FAQ still says 11:30am start); no reservations",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily 11am–11:30pm (FAQ still says 11:30am start); no reservations\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJVf156NEXw4gReHNCLW9VBF4",
+      "name": "Twin Dolphin Marina",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Clock not posted; call the dock",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Clock not posted; call the dock\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJVTHzC7QRw4gRTqoG4Rljw6s",
+      "name": "Alvin's Island",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Call to confirm (beach-store hours; not posted online)",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Call to confirm (beach-store hours; not posted online)\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJvyVmwUBDw4gRGvlxymudmOk",
+      "name": "Casey Key Fish House",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_VARIABLE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily from 11:30am; close time seasonal",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily from 11:30am; close time seasonal\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJw5GR_mev3IgR71o87IQ58xQ",
+      "name": "Keys Huka Dive",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Call; on site only for a charter",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Call; on site only for a charter\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJw5jVAVN-54gRScNxiRF16j4",
+      "name": "ICON Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "AMBIGUOUS_PROSE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Free to walk; attractions separately ticketed — The Orlando Eye from $29.99, SEA LIFE and Madame Tussauds from $33.99 each",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Free to walk; attractions separately ticketed — The Orlando Eye from $29.99, SEA LIFE and Madame Tussauds from $33.99 each\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJw8sn-INHw4gR06G2jufK8DI",
+      "name": "Stottlemyer's Smokehouse",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_VARIABLE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Tue–Thu 11:30am–9pm; Fri–Sat 11:30am–10pm; Sun 11:30am–8pm; Mon closed (seasonal)",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Tue–Thu 11:30am–9pm; Fri–Sat 11:30am–10pm; Sun 11:30am–8pm; Mon closed (seasonal)\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJWaZHn75qw4gR-H0nesdVwDA",
+      "name": "Sarasota Ski-A-Rees",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Free Sunday shows at 2 p.m. in season. Confirm the current calendar.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Free Sunday shows at 2 p.m. in season. Confirm the current calendar.\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJWUyEEXojw4gRsFy9QmBgWq4",
+      "name": "Buffalo Creek Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily, sunrise to sunset; lit basketball and football fields stay playable until 10pm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily, sunrise to sunset; lit basketball and football fields stay playable until 10pm\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJWX9OfIQTw4gRx1EvEznuHaQ",
+      "name": "The Lazy Lobster Of Longboat Key",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_VARIABLE",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Summer: Mon–Sat 4–8:30pm, closed Sunday and closed for lunch",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Summer: Mon–Sat 4–8:30pm, closed Sunday and closed for lunch\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJX_DsOjNaw4gRPVqG9dnZ8iU",
+      "name": "Kon Tiki Inn",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Check-in not posted; Friday-night BBQ named",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in not posted; Friday-night BBQ named\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJyQjYthQRw4gROh_14rTOmd8",
+      "name": "Parrot Cove Marina",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Clock not posted; call for slips",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Clock not posted; call for slips\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJZ-qKNKxDw4gRAhsMoqYD19s",
+      "name": "Turtle Beach Resort",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Check-in 3pm; after 5pm call the office",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in 3pm; after 5pm call the office\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJz5QbcSRCw4gRSXDrF9QQGB4",
+      "name": "Beach Club At Siesta Key",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Office/front desk daily 9am–5pm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Office/front desk daily 9am–5pm\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJz5TQ0pYTw4gR83K9EyRe80k",
+      "name": "Silver Sands Gulf Beach Resort",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "LODGING_CHECKIN_ONLY",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Check-in not posted; on-site office named",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in not posted; on-site office named\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJz7YUx3lZw4gRJeIPONRtRbg",
+      "name": "Shamrock Park Nature Center",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Park 6 a.m. to sunset. Nature Center Saturdays 9 a.m.–1 p.m.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Park 6 a.m. to sunset. Nature Center Saturdays 9 a.m.–1 p.m.\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJzzanZcVDw4gR-toGS9h8PBI",
+      "name": "Hidden Harbor Marina",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.6,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Clock not posted; call ahead for launch",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Clarify ambiguous/variable hours prose (\"Clock not posted; call ahead for launch\") with exact weekday clock ranges if posted by venue",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ6y2dx9g_w4gRWoZIRhLk-JI",
+      "name": "The John and Mable Ringling Museum of Art",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "The museum is open daily 10am-5pm, with general admission free on Mondays; it is closed Thanksgiving, Christmas Day, and New Year's Day.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ7-I5X4tHw4gRAK6g4JEha7M",
+      "name": "Celery Fields",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 6am–sunset; free entry",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJB-QyVtEXw4gRk5F8bn3YV28",
+      "name": "Manatee Performing Arts Center",
+      "locality": "Bradenton",
+      "gap_class": "D",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Box office phone Mon–Fri 9am–5pm; doors 60 min before shows vary",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJCRCYGrx654gR3G9qoVbWlpY",
+      "name": "Harry P Leu Gardens",
+      "locality": "Orlando",
+      "gap_class": "D",
+      "schedule_classification": "SEASONAL_VARIABLE",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Summer Hours: 9 a.m. - 6 p.m., Thursdays: 9 a.m. - 8 p.m.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJE0_XXFVJw4gRroRqJ-TSTXg",
+      "name": "Myakka Canopy Walkway and Observation Tower",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Park 8 a.m.–sunset daily. North Gate Sat, Sun, and state holidays 8 a.m.–5 p.m.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJezvwN98-w4gR9LoM9TPNCuQ",
+      "name": "Conservatory Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Sunrise–sunset; free",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJMWVTQaQxw4gRJDnxrO5ER-A",
+      "name": "Hunsader Farms",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "whereToGetTickets",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Closed for summer; reopens Oct 1 (in season: Mon–Sat 8am–5pm, Sun 10am–4pm)",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJNwQxUnFDw4gRlEruVgcCmu0",
+      "name": "Historic Spanish Point",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "whereToGetTickets",
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Open daily 10am–5pm",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJo2bql5B654gR_ITN9PGhBbU",
+      "name": "Orlando Science Center",
+      "locality": "Orlando",
+      "gap_class": "D",
+      "schedule_classification": "PARTIAL_WEEK_OR_MISSING_CLOSE",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Late-night hours on Fridays and Saturdays for laser light shows",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJpSsncQ5Fw4gRPwZCzCeVvgU",
+      "name": "Oscar Scherer State Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 8am–sundown (365 days); $5 per vehicle",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJPXlTqYFTw4gRveHTZWG55DY",
+      "name": "Warm Mineral Springs",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "whereToGetTickets",
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Daily 9am–5pm",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJRyOEfAo5w4gR664aD_YYBLU",
+      "name": "Mote Science Education Aquarium (SEA)",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "duration",
+        "parking",
+        "whatToKnow"
+      ],
+      "hours_prose": "Open daily 9:30am to 5pm",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJw39QsBpXw4gRt1QugbY5miM",
+      "name": "CoolToday Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "VARIABLE_OR_UNPOSTED",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Event-based (Braves spring training late Feb–Mar; free FCL games May–Jul)",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJyYEUav8P54gRatuv_zQzm20",
+      "name": "Blue Spring State Park",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.63,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Open every day of the year, from 8 a.m. until sundown.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ19i72bBbw4gRbAZaOOPhzKE",
+      "name": "Venice Performing Arts Center",
+      "locality": "Venice",
+      "gap_class": "D",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Box office Monday–Friday 10 a.m.–2 p.m.; summer Monday–Thursday 10 a.m.–2 p.m.",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
+      "name": "Scenic Boat Tour",
+      "locality": "Winter Park",
+      "gap_class": "D",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Monday–Sunday 10:00 a.m.–4:00 p.m.; tours leave every hour, last tour 4:00 p.m.; closed Christmas Day. Adults $20.00, children 2-11 $10.00",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ9RsHDcVDw4gRg3ftHUNMwco",
+      "name": "Turtle Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Daily 6am–10pm; free entry",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+      "name": "Van Wezel Performing Arts Hall",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "SUBFACILITY_OR_BOX_OFFICE_ONLY",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Box office Mon–Fri 10am–6pm, Sat 10am–4pm (summer Mon–Fri 10am–4pm); opens 2 hours before performances",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJh6_HnNcRw4gR2SpbLik_gEk",
+      "name": "Manatee Public Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily sunrise–10pm",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJhcub0Rs_w4gRCEvPuk8tBok",
+      "name": "Escape Reality",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Open Monday to Friday 12pm to 9:30pm, and Saturday to Sunday 10:30am to 9:30pm",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJmToCpQ4J3YgRof6hhxcoTIM",
+      "name": "Bok Tower Gardens",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Daily 8 a.m. to 6 p.m., with last admission at 5 p.m.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJNxf8h55Hw4gRSaBE_mEdfxo",
+      "name": "Big Cat Habitat & Gulf Coast Sanctuary",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "whereToGetTickets",
+        "duration"
+      ],
+      "hours_prose": "Wed–Sun 12–4pm (closed Mon–Tue); admission $25 adult, $10 child, under 3 & military free",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJnXtixd5bw4gRrKDqLZC8Dlk",
+      "name": "Venice Fishing Pier",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Open 24/7; free (no fishing license needed)",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJOeE5xFR-54gR0waxD2npG4M",
+      "name": "The Escape Game Orlando",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "UNPOSTED_OR_NO_CARD",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": null,
+      "hours_confidence": "UNKNOWN",
+      "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJpY1xybu6woARL9_iGplujMI",
+      "name": "Venice Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "AMBIGUOUS_PROSE",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily; free parking",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJRzUAPopDw4gR8YbL_V5iSWo",
+      "name": "The Legacy Trail - McIntosh Parking Lot",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 6am–sunset; free",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJVVUNg8JB24gRo5VjblNO_c8",
+      "name": "Edison & Ford Winter Estates",
+      "locality": "Fort Myers",
+      "gap_class": "D",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Edison and Ford Winter Estates is open daily 9 a.m. to 5:30 p.m., with last admission at 4:30 p.m.",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJx4O9VBdw54gRcQ8akxK7nkc",
+      "name": "The Charles Hosmer Morse Museum of American Art",
+      "locality": "Winter Park",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking"
+      ],
+      "hours_prose": "Museum hours are Tuesday–Saturday, 9:30 a.m.–4 p.m.; Museum hours are Sunday, 1–4 p.m.; The museum is closed Monday",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJzzGPjSkRw4gRfecn6X09ufk",
+      "name": "Coquina Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_BOUND",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "canGoNow",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily sunrise–sunset; free entry",
+      "hours_confidence": "PROSE_ONLY",
+      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ93GmrXxbw4gRwpdoUmSQPO8",
+      "name": "Nokomis Public Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration"
+      ],
+      "hours_prose": "Daily 6am–10pm; boat ramp 24/7",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJaW-sUB9rw4gRrQvxVM94nOY",
+      "name": "Lido Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration"
+      ],
+      "hours_prose": "Beach park 5am–11pm; restrooms 7am–11pm; pool currently closed for maintenance",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJD7cZSFBDw4gRsEpfMoip9BE",
+      "name": "Blackburn Point Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration"
+      ],
+      "hours_prose": "Daily 6am–10pm; free entry",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJjfu2YPBBw4gRo41o9hwHfmg",
+      "name": "Siesta Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration"
+      ],
+      "hours_prose": "Daily 6am–10pm; free entry",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJLZ2vzRxBw4gRMOtW0ArhBhw",
+      "name": "The Bay Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration"
+      ],
+      "hours_prose": "Daily 5am–11pm; free entry",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJPTvxtmpAw4gReToYD5mTNwE",
+      "name": "Marie Selby Botanical Gardens Downtown Sarasota",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration"
+      ],
+      "hours_prose": "Daily 10am–5pm (closed Christmas); Downtown admission $28 adult, $12 ages 5–17, under 4 free",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJpXGK53VC24gRWMneFVtK6hY",
+      "name": "Ca' d'Zan",
+      "locality": "Sarasota",
+      "gap_class": "B",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "parking"
+      ],
+      "hours_prose": "Daily 10am–5pm (Thu to 8pm; Ca'd'Zan closes at 5pm); closed Thanksgiving, Christmas & New Year's",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJr7ec9tEXw4gRwicCx3wfH2w",
+      "name": "The Bishop Museum of Science and Nature",
+      "locality": "Bradenton",
+      "gap_class": "D",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration"
+      ],
+      "hours_prose": "Tue–Sat 10 a.m.–5 p.m.; Sun noon–5 p.m.; closed Monday",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJVcqB2MUQw4gRbN_T0WF8QEw",
+      "name": "De Soto National Memorial",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "STRUCTURED_HOURS_RESOLVED_ACTION_GAP",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration"
+      ],
+      "hours_prose": "Visitor area daily 9am–4:45pm; grounds dawn–dusk (gate closes 5pm); free",
+      "hours_confidence": "EXACT",
+      "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
       "affects_wayfind_score": false
     }
   ]

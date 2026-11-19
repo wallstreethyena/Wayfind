@@ -28,7 +28,9 @@
  *   2. every gap record has an allowed reason and a real note (>= 40 chars)
  *   3. no gap note promises a fallback that no longer exists (STALE_PROMISE),
  *      and every gap record matches what renders: it names a real pick, that
- *      pick has no photo of its own, and a reused same-place photo is said so
+ *      pick has no photo of its own, and a reused same-place photo is said so.
+ *      declinePlacePhotoReuse on both the pick and the gap record refuses
+ *      that reuse, so the recommendation stays on its placeholder.
  *   4. every guide has a reviewed hero photo
  *   5. a context photo is never presented as the place: its caption must say
  *      "Illustrative" and its alt "not a photograph of"
@@ -42,7 +44,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { GUIDES } from "../lib/guides.js";
 import { GUIDE_PICK_PHOTOS } from "../lib/guidePickPhotoManifest.js";
-import { buildPlacePhotoIndex } from "../lib/guidePickPhotos.js";
+import { buildPlacePhotoIndex, placePhotoReuseAllowed } from "../lib/guidePickPhotos.js";
 import { guideContextPhoto } from "../lib/guideContextPhotos.js";
 import { guideHero } from "../lib/guideHero.js";
 
@@ -58,7 +60,7 @@ export function classifyPick(slug, pick, { manifest, placeIndex, contextFor, gui
   if (pick && pick.image && slug !== "orlando-halloween-food-2026") return { cls: "curated" };
   if (manifest?.[slug]?.picks?.[pick.name]) return { cls: "curated" };
   const pid = typeof pick.placeId === "string" && PLACE_ID_RX.test(pick.placeId) ? pick.placeId : null;
-  if (pid && placeIndex.has(pid)) return { cls: "reuse" };
+  if (pid && placePhotoReuseAllowed(pick) && placeIndex.has(pid)) return { cls: "reuse" };
   try {
     const img = contextFor(slug, pick, guide);
     if (img && img.src) return { cls: "context", img };
@@ -95,6 +97,13 @@ export function checkGuides(guides, { manifest, placeIndex, contextFor, gapsFor,
       if (!cls) failures.push(`${g.slug}: gap "${name}" names no pick in the guide; remove the stale record`);
       else if (cls === "curated") failures.push(`${g.slug}: gap "${name}" is documented as a gap but the pick has its own photo; remove the record`);
       else if (cls === "reuse" && !/same place/i.test(String(gap?.note || ""))) failures.push(`${g.slug}: gap "${name}" renders the reused photo of the same place; its note must say so`);
+      const pick = (g.picks || []).find((p) => p.name === name);
+      const declined = pick?.declinePlacePhotoReuse === true || gap?.declinePlacePhotoReuse === true;
+      if (declined && (pick?.declinePlacePhotoReuse !== true || gap?.declinePlacePhotoReuse !== true)) {
+        failures.push(`${g.slug}: gap "${name}" declines a reused place photograph on only one of the pick and the gap record`);
+      } else if (pick?.declinePlacePhotoReuse === true && (cls === "reuse" || cls === "curated")) {
+        failures.push(`${g.slug}: gap "${name}" declines place photograph reuse but a photograph still resolves`);
+      }
       if (!GAP_REASONS.has(gap?.reason)) failures.push(`${g.slug}: gap "${name}" reason ${JSON.stringify(gap?.reason)} is not one of ${[...GAP_REASONS].join("/")}`);
       const note = String(gap?.note || "").trim();
       if (note.length < 40) failures.push(`${g.slug}: gap "${name}" needs a real note (what was searched, why nothing qualified), got ${note.length} chars`);
@@ -123,6 +132,7 @@ function redProofs() {
     ["no hero", one, { heroFor: () => null }, /no reviewed hero/],
     ["gap for a pick that no longer exists", one, { gapsFor: () => ({ Z: { reason: "google-only", note: goodNote } }) }, /names no pick/],
     ["reuse gap note says nothing renders", one, { placeIndex: new Map([[pid, { src: "/x.webp" }]]), gapsFor: () => ({ A: { reason: "google-only", note: goodNote } }) }, /must say so/],
+    ["declined reuse on the gap only", one, { placeIndex: new Map([[pid, { src: "/x.webp" }]]), gapsFor: () => ({ A: { reason: "google-only", note: goodNote, declinePlacePhotoReuse: true } }) }, /only one of the pick and the gap record/],
     ["text-only promise", one, { gapsFor: () => ({ A: { reason: "google-only", note: "Nothing licensed; with no live photo it stays text only on the page." } }) }, /no longer exists/],
   ];
   let n = 0;
@@ -135,7 +145,14 @@ function redProofs() {
   const idx = new Map([[pid, { src: "/x.webp" }]]);
   const green = checkGuides([{ slug: "t", picks: [{ name: "A", placeId: pid }, { name: "B" }] }], { ...base, placeIndex: idx });
   if (green.failures.length || green.census.reuse !== 1 || green.census.context !== 1) throw new Error("green control failed: " + JSON.stringify(green));
-  return n + 1;
+  const declined = checkGuides(
+    [{ slug: "t", picks: [{ name: "A", placeId: pid, declinePlacePhotoReuse: true }] }],
+    { ...base, placeIndex: idx, contextFor: () => null, gapsFor: () => ({ A: { reason: "google-only", note: goodNote, declinePlacePhotoReuse: true } }) },
+  );
+  if (declined.failures.length || declined.census.reuse !== 0 || declined.census.held !== 1) {
+    throw new Error("declined reuse control failed: " + JSON.stringify(declined));
+  }
+  return n + 2;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

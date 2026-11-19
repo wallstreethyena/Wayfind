@@ -51,12 +51,12 @@ let pass = 0;
 const failures = [];
 const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
 
-// ── the four guide entry points this guard covers, by name (task facts:
-// 43 guides through [slug], 2 dedicated) ───────────────────────────────────
+// Guide entry points that must keep the shared editorial header.
 const ENTRY_POINTS = [
   "app/guides/page.js",
   "app/guides/[slug]/page.js",
   "app/guides/pintos-farm-miami-2026/page.js",
+  "app/guides/disney-world-holiday-food-guide-2026/page.js",
   "app/guides/florida-fall-festivals-2026/page.js",
 ];
 
@@ -303,7 +303,7 @@ for (const rel of ENTRY_POINTS) {
 // (executed against the real registry, not read) ──────────────────────────
 {
   const { GUIDES } = await import(path.join(REPO, "lib/guides.js"));
-  const { guidePickPhoto, guidePhotoForPlace } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
+  const { guidePickPhoto, guidePhotoForPlace, placePhotoReuseAllowed } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
   const { guideContextPhoto } = await import(path.join(REPO, "lib/guideContextPhotos.js"));
   const editorialCode = ts.transpileModule(read("app/guides/[slug]/GuideEditorial.js"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020 },
@@ -318,7 +318,7 @@ for (const rel of ENTRY_POINTS) {
     for (const pick of guide.picks || []) {
       picksChecked++;
       const media = guidePickFigureImage(slug, pick) || guidePickPhoto(slug, pick.name)
-        || guidePhotoForPlace(pick.placeId) || guideContextPhoto(slug, pick, guide);
+        || (placePhotoReuseAllowed(pick) ? guidePhotoForPlace(pick.placeId) : null) || guideContextPhoto(slug, pick, guide);
       // Image intent rule (owner, 2026-11-04): a pick with no intent-matching
       // photo renders the photo-less layout and is Picture Scrapper backlog.
       if (!media) continue;

@@ -131,7 +131,7 @@ for (const handle of slugs) {
 }
 const trendingMod = await loadComponent(path.join(REPO, "lib/trending.js"), REPO);
 for (const slug of trendingMod.trendingCitySlugs()) {
-  const markup = renderToStaticMarkup(trendingMod.TrendingCityPage({ slug }));
+  const markup = renderToStaticMarkup(await trendingMod.TrendingCityPage({ slug }));
   const expected = trendingMod.TRENDING[slug].places.flatMap(p => videosByKey(p.key)).filter(v => isEmbeddable(v.platform, v.url)).length;
   ok(auditVideoCovers(markup, `/trending/${slug}`) === expected, `${slug}: every embeddable post has a rendered cover (${expected})`);
 }

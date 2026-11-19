@@ -88,7 +88,7 @@ const {
 const { fallEventCardImageSrc, withFallVenueIdentity } = await import(path.join(REPO, "lib/fallEventImage.js"));
 const { guidePlaceFigureImage } = await import(path.join(REPO, "lib/guidePlaceFigureImage.js"));
 const { findFreePhoto, findSamePlaceCachedPhoto } = await import(path.join(REPO, "lib/freePhoto.js"));
-const { guidePickPhoto, guidePhotoForPlace } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
+const { guidePickPhoto, guidePhotoForPlace, placePhotoReuseAllowed } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
 const { guideContextPhoto } = await import(path.join(REPO, "lib/guideContextPhotos.js"));
 const { guideFinalRung, guideUsesNeutralFallback } = await import(path.join(REPO, "lib/guideNeutralFallback.js"));
 const { readStoredGooglePhotoBytes } = await import(path.join(REPO, "lib/googlePhotoStore.js"));
@@ -546,7 +546,7 @@ for (const slug of guideSlugs) {
   rememberMedia(guideHero(slug));
   picks.forEach((pick, i) => {
     if (curatedPickImages[i] || editorialImages.get(pickPlaceIds[i])) return;
-    const reused = guidePhotoForPlace(pickPlaceIds[i], { avoidSrc: usedSrc });
+    const reused = placePhotoReuseAllowed(pick) ? guidePhotoForPlace(pickPlaceIds[i], { avoidSrc: usedSrc }) : null;
     if (reused) {
       curatedPickImages[i] = reused;
       reusedIndices.add(i);

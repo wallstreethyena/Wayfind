@@ -1,0 +1,1153 @@
+{
+  "schema_version": "owned-editorial-review-v1",
+  "researched_at": "2026-11-18",
+  "scope_note": "Card-pool editorial batch 66. 8 places exposed on current guides (Shell Key Preserve, Orange County Regional History Center, La Segunda, Auggie's Draft Room, Cafe on St. Armands, Homecomin', OLIVIA, On Swann) plus 6 long-tail museums and nature venues in Orlando, Miami-Dade, Broward, Palm Beach, the Keys and Polk, none with a verified line. Researched from official venue/DMO/government sources only; no paid APIs.",
+  "paid_provider_calls": 0,
+  "paid_provider_cost_usd": 0,
+  "candidates": [
+    {
+      "place_id": "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
+      "name": "Shell Key Preserve",
+      "category": "attractions",
+      "metro": "st-pete",
+      "primary_type": "nature_preserve",
+      "inventory_snapshot": {
+        "wf_editorial_present": true,
+        "inventory_editorial_present": true,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false,
+        "wf_editorial_prior": {
+          "place_id": "ChIJ5_NkHLUcw4gRndvLQGe_Ox8",
+          "hook": null,
+          "why_here": null,
+          "know_before": null,
+          "best_time": null,
+          "local_tip": null,
+          "facts": [],
+          "verified": false,
+          "issues": [
+            "FAILED VERIFICATION",
+            "unsourced-entity:hook:Gulf",
+            "unsourced-entity:why_here:September",
+            "unsourced-entity:best_time:August",
+            "unsourced-entity:best_time:September",
+            "unsourced-entity:best_time:October"
+          ],
+          "standard_version": "atlas-590-v1",
+          "written_at": "2026-08-09T12:55:40.665244+00:00",
+          "attempt_count": 2,
+          "last_attempted_at": "2026-08-09T12:55:40.665244+00:00"
+        }
+      },
+      "evidence": [
+        {
+          "source": "https://www.pinellas.gov/parks/shell-key-preserve/",
+          "source_name": "Pinellas County - Shell Key Preserve (government)",
+          "source_class": "government",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "This 1,800-acre preserve protects sensitive marine habitats.",
+            "It includes one of the County's largest undeveloped barrier islands (Shell Key) as well as numerous mangrove islands and expansive seagrass beds.",
+            "Shell Key is one of the state's most important areas for shorebird nesting and wintering and serves as an important study area for these species.",
+            "No restroom facilities are provided.",
+            "Preserve is accessible only by boat.",
+            "Dogs and alcohol are not allowed anywhere in the preserve.",
+            "The closest boat ramps, trailer parking and restroom facilities are at Fort De Soto Park",
+            "Ferry Service from Fort De Soto Boat Ramp to Shell Key"
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "An undeveloped barrier island, a key shorebird nesting and wintering area, reached only by boat.",
+        "why_here": "Shell Key is one of the County's largest undeveloped barrier islands, ringed by mangrove islands and seagrass beds inside a 1,800-acre preserve. The state counts it among its most important areas for shorebird nesting and wintering.",
+        "know_before": "Boat access only, with a ferry from the Fort De Soto boat ramp. No restrooms, and no dogs or alcohol anywhere in the preserve.",
+        "local_tip": "The closest boat ramps, trailer parking and restrooms are at Fort De Soto Park, so plan your restroom stop before you launch.",
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.pinellas.gov/parks/shell-key-preserve/"
+          ],
+          "why_here": [
+            "https://www.pinellas.gov/parks/shell-key-preserve/"
+          ],
+          "know_before": [
+            "https://www.pinellas.gov/parks/shell-key-preserve/"
+          ],
+          "local_tip": [
+            "https://www.pinellas.gov/parks/shell-key-preserve/"
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "It includes one of the County's largest undeveloped barrier islands (Shell Key) as well as numerous mangrove islands and expansive seagrass beds.",
+            "source": "https://www.pinellas.gov/parks/shell-key-preserve/"
+          },
+          {
+            "claim": "Shell Key is one of the state's most important areas for shorebird nesting and wintering and serves as an important study area for these species.",
+            "source": "https://www.pinellas.gov/parks/shell-key-preserve/"
+          },
+          {
+            "claim": "Preserve is accessible only by boat.",
+            "source": "https://www.pinellas.gov/parks/shell-key-preserve/"
+          },
+          {
+            "claim": "Dogs and alcohol are not allowed anywhere in the preserve.",
+            "source": "https://www.pinellas.gov/parks/shell-key-preserve/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJyRaIJPx654gRhAbigeu9AMg",
+      "name": "Orange County Regional History Center",
+      "category": "attractions",
+      "metro": "orlando",
+      "primary_type": "history_museum",
+      "inventory_snapshot": {
+        "wf_editorial_present": true,
+        "inventory_editorial_present": true,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false,
+        "wf_editorial_prior": {
+          "place_id": "ChIJyRaIJPx654gRhAbigeu9AMg",
+          "hook": null,
+          "why_here": null,
+          "know_before": null,
+          "best_time": null,
+          "local_tip": null,
+          "facts": [],
+          "verified": false,
+          "issues": [
+            "empty-published-row"
+          ],
+          "standard_version": "atlas-590-v1",
+          "written_at": "2026-08-12T00:55:37.99295+00:00",
+          "attempt_count": 2,
+          "last_attempted_at": "2026-08-12T00:55:37.99295+00:00"
+        }
+      },
+      "evidence": [
+        {
+          "source": "https://www.thehistorycenter.org/",
+          "source_name": "Orange County Regional History Center - home (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "The Orange County Regional History Center, housed in a historic courthouse in the heart of downtown Orlando, offers four floors of exhibits exploring 14,000 years of Central Florida’s rich heritage.",
+            "As an affiliate of the Smithsonian Institution, the History Center presents limited-run exhibitions of great depth and insight.",
+            "Convenient parking options include the Central Boulevard garage across from the Orlando Public Library, the History Center’s neighbor.",
+            "Mon-Sat: 10am - 5pm Sun: 12pm - 5pm"
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "Four floors in a historic downtown courthouse covering 14,000 years of Central Florida, from a Smithsonian affiliate.",
+        "why_here": "The museum fills a historic courthouse in downtown Orlando with four floors of exhibits on 14,000 years of Central Florida heritage. As a Smithsonian affiliate it also presents limited-run exhibitions.",
+        "know_before": "Hours are Mon-Sat 10am to 5pm and Sun 12pm to 5pm. Park in the Central Boulevard garage across from the Orlando Public Library.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.thehistorycenter.org/"
+          ],
+          "why_here": [
+            "https://www.thehistorycenter.org/"
+          ],
+          "know_before": [
+            "https://www.thehistorycenter.org/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "The Orange County Regional History Center, housed in a historic courthouse in the heart of downtown Orlando, offers four floors of exhibits exploring 14,000 years of Central Florida’s rich heritage.",
+            "source": "https://www.thehistorycenter.org/"
+          },
+          {
+            "claim": "As an affiliate of the Smithsonian Institution, the History Center presents limited-run exhibitions of great depth and insight.",
+            "source": "https://www.thehistorycenter.org/"
+          },
+          {
+            "claim": "Convenient parking options include the Central Boulevard garage across from the Orlando Public Library, the History Center’s neighbor.",
+            "source": "https://www.thehistorycenter.org/"
+          },
+          {
+            "claim": "Mon-Sat: 10am - 5pm Sun: 12pm - 5pm",
+            "source": "https://www.thehistorycenter.org/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJXTeLe0XEwogR-wheRdFeKEY",
+      "name": "La Segunda Bakery and Cafe",
+      "category": "food",
+      "metro": "tampa",
+      "primary_type": "bakery",
+      "inventory_snapshot": {
+        "wf_editorial_present": true,
+        "inventory_editorial_present": true,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false,
+        "wf_editorial_prior": {
+          "place_id": "ChIJXTeLe0XEwogR-wheRdFeKEY",
+          "hook": null,
+          "why_here": null,
+          "know_before": null,
+          "best_time": null,
+          "local_tip": null,
+          "facts": [],
+          "verified": false,
+          "issues": [
+            "PENDING SOURCE"
+          ],
+          "standard_version": "atlas-590-v1",
+          "written_at": "2026-08-19T02:55:41.270614+00:00",
+          "attempt_count": 1,
+          "last_attempted_at": "2026-08-19T02:55:41.270614+00:00"
+        }
+      },
+      "evidence": [
+        {
+          "source": "https://www.lasegundabakery.com/our-story",
+          "source_name": "La Segunda Bakery - Our Story (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "Juan More’ established La Segunda Central Bakery in 1915.",
+            "One of our most important time-honored customs is placing a freshly cut palmetto leaf across the top of each loaf to create the signature split down the middle.",
+            "Each loaf is individually hand-placed into the hearth and left to bake for 45 minutes.",
+            "La Segunda is one of the very few bakeries to uphold this labor intensive tradition.",
+            "locals stopping in for their daily café con leche and Cuban toast",
+            "La Segunda Central Bakery from his partners, which stands today as one of Ybor’s coveted landmark buildings representing the Cuban-American era."
+          ]
+        },
+        {
+          "source": "https://www.lasegundabakery.com/",
+          "source_name": "La Segunda Bakery - home (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "Skip the line and get your La Segunda favorites fast with online ordering.",
+            "La Segunda Bakery, 2512 North 15th Street, Tampa, FL, 33605"
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "Cuban bread baked since 1915 in an Ybor landmark, every loaf split by a fresh palmetto leaf.",
+        "why_here": "The bakery has stood in Ybor since 1915, and every loaf is hand-placed into the hearth for 45 minutes. The signature split down the middle comes from a freshly cut palmetto leaf laid across the top, a labor intensive tradition very few bakeries still keep.",
+        "know_before": "Online ordering lets you skip the line.",
+        "local_tip": "Stop in the way locals do, for a daily café con leche and Cuban toast.",
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.lasegundabakery.com/our-story"
+          ],
+          "why_here": [
+            "https://www.lasegundabakery.com/our-story"
+          ],
+          "know_before": [
+            "https://www.lasegundabakery.com/",
+            "https://www.lasegundabakery.com/our-story"
+          ],
+          "local_tip": [
+            "https://www.lasegundabakery.com/our-story"
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Juan More’ established La Segunda Central Bakery in 1915.",
+            "source": "https://www.lasegundabakery.com/our-story"
+          },
+          {
+            "claim": "One of our most important time-honored customs is placing a freshly cut palmetto leaf across the top of each loaf to create the signature split down the middle.",
+            "source": "https://www.lasegundabakery.com/our-story"
+          },
+          {
+            "claim": "Each loaf is individually hand-placed into the hearth and left to bake for 45 minutes.",
+            "source": "https://www.lasegundabakery.com/our-story"
+          },
+          {
+            "claim": "La Segunda Central Bakery from his partners, which stands today as one of Ybor’s coveted landmark buildings representing the Cuban-American era.",
+            "source": "https://www.lasegundabakery.com/our-story"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJa9H7lA4n5IgRViVY0j2H7bY",
+      "name": "Auggie's Draft Room",
+      "category": "nightlife",
+      "metro": "st-augustine-fl",
+      "primary_type": "sports_bar",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.visitstaugustine.com/restaurant/auggies-draft-room",
+          "source_name": "Visit St. Augustine - Auggie's Draft Room (tourism DMO)",
+          "source_class": "tourism_dmo",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "St. Augustine's only self-serve tap house, Auggie's Draft Room has 24 beer taps offering a changing menu of well-known international brands such as Guinness and Corona to domestic beers and local craft brews as well.",
+            "Unlike other tap rooms, at Auggie's Draft Room, you exchange your credit card for a special draft room card that records all the beer you drink every time it's inserted into an empty slot above a tap.",
+            "Before you leave, exchange your draft card for your credit card and pay your bill.",
+            "For those who come with their friends, but don't have a taste for beer, there are ciders and a selection of wines.",
+            "Auggie's kitchen serves hot and cold sandwiches, fries, shrimp, wings, and salads.",
+            "Auggie's is open for breakfast on Saturdays, Sundays, and holidays, from 8:00 a.m. to 11:00 a.m.",
+            "3 St. George Street"
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "St. Augustine's only self-serve tap house: 24 taps and a draft card that logs every pour.",
+        "why_here": "Swap your credit card for a draft card and pour your own from 24 taps. Guinness and Corona sit beside domestic and local craft brews, with ciders and wines for friends who skip beer. The card logs every pour, and you settle up before you leave.",
+        "know_before": "The kitchen serves sandwiches, fries, shrimp, wings and salads, with breakfast on Saturdays, Sundays and holidays from 8:00 a.m. to 11:00 a.m.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.visitstaugustine.com/restaurant/auggies-draft-room"
+          ],
+          "why_here": [
+            "https://www.visitstaugustine.com/restaurant/auggies-draft-room"
+          ],
+          "know_before": [
+            "https://www.visitstaugustine.com/restaurant/auggies-draft-room"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "St. Augustine's only self-serve tap house, Auggie's Draft Room has 24 beer taps offering a changing menu of well-known international brands such as Guinness and Corona to domestic beers and local craft brews as well.",
+            "source": "https://www.visitstaugustine.com/restaurant/auggies-draft-room"
+          },
+          {
+            "claim": "Unlike other tap rooms, at Auggie's Draft Room, you exchange your credit card for a special draft room card that records all the beer you drink every time it's inserted into an empty slot above a tap.",
+            "source": "https://www.visitstaugustine.com/restaurant/auggies-draft-room"
+          },
+          {
+            "claim": "Before you leave, exchange your draft card for your credit card and pay your bill.",
+            "source": "https://www.visitstaugustine.com/restaurant/auggies-draft-room"
+          },
+          {
+            "claim": "Auggie's kitchen serves hot and cold sandwiches, fries, shrimp, wings, and salads.",
+            "source": "https://www.visitstaugustine.com/restaurant/auggies-draft-room"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ8_xGlpFqw4gRpBDnt0x_mdg",
+      "name": "Café on St. Armands",
+      "category": "food",
+      "metro": "manatee-sarasota",
+      "primary_type": "mediterranean_restaurant",
+      "inventory_snapshot": {
+        "wf_editorial_present": true,
+        "inventory_editorial_present": true,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false,
+        "wf_editorial_prior": {
+          "place_id": "ChIJ8_xGlpFqw4gRpBDnt0x_mdg",
+          "hook": null,
+          "why_here": null,
+          "know_before": null,
+          "best_time": null,
+          "local_tip": null,
+          "facts": [],
+          "verified": false,
+          "issues": [
+            "PENDING SOURCE"
+          ],
+          "standard_version": "atlas-590-v1",
+          "written_at": "2026-08-18T19:55:52.031689+00:00",
+          "attempt_count": 1,
+          "last_attempted_at": "2026-08-18T19:55:52.031689+00:00"
+        }
+      },
+      "evidence": [
+        {
+          "source": "https://cafeonstarmands.com/",
+          "source_name": "Cafe on St. Armands - home (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "Once the office of circus legend John Ringling — and later home to the beloved Café L'Europe — our wet bar has been reimagined as St. Armands' most spirited gathering place.",
+            "Espresso martinis, craft cocktails, and bar bites served nightly from 8PM to close.",
+            "Take it outside. Our patio puts you right in the heart of St. Armands Circle — open air, warm light, and the kind of people-watching you can't find anywhere else in Sarasota.",
+            "Join us for drink specials, $10 flatbreads, and bar bites every day during Happy Hour.",
+            "Before the day gets away from you, there's Soleil. Specialty lattes, seasonal drinks, freshly baked pastries, and grab-and-go bites"
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "The wet bar was once circus legend John Ringling's office; the patio sits in the heart of St. Armands Circle.",
+        "why_here": "The wet bar space was once John Ringling's office, then home to Café L'Europe, and it now serves espresso martinis and craft cocktails nightly from 8PM to close. Out front, the patio puts you in the heart of St. Armands Circle for open-air people-watching.",
+        "know_before": "Morning lattes and pastries come from Soleil, and Happy Hour runs every day with drink specials and bar bites.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://cafeonstarmands.com/"
+          ],
+          "why_here": [
+            "https://cafeonstarmands.com/"
+          ],
+          "know_before": [
+            "https://cafeonstarmands.com/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Once the office of circus legend John Ringling — and later home to the beloved Café L'Europe — our wet bar has been reimagined as St. Armands' most spirited gathering place.",
+            "source": "https://cafeonstarmands.com/"
+          },
+          {
+            "claim": "Espresso martinis, craft cocktails, and bar bites served nightly from 8PM to close.",
+            "source": "https://cafeonstarmands.com/"
+          },
+          {
+            "claim": "Take it outside. Our patio puts you right in the heart of St. Armands Circle — open air, warm light, and the kind of people-watching you can't find anywhere else in Sarasota.",
+            "source": "https://cafeonstarmands.com/"
+          },
+          {
+            "claim": "Before the day gets away from you, there's Soleil. Specialty lattes, seasonal drinks, freshly baked pastries, and grab-and-go bites",
+            "source": "https://cafeonstarmands.com/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJk5xl2oZ_3YgRg7yR_vn87h4",
+      "name": "Chef Art Smith's Homecomin'",
+      "category": "food",
+      "metro": "orlando",
+      "primary_type": "american_restaurant",
+      "inventory_snapshot": {
+        "wf_editorial_present": true,
+        "inventory_editorial_present": true,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false,
+        "wf_editorial_prior": {
+          "place_id": "ChIJk5xl2oZ_3YgRg7yR_vn87h4",
+          "hook": null,
+          "why_here": null,
+          "know_before": null,
+          "best_time": null,
+          "local_tip": null,
+          "facts": [],
+          "verified": false,
+          "issues": [
+            "empty-published-row"
+          ],
+          "standard_version": "atlas-590-v1",
+          "written_at": "2026-08-06T15:55:30.864996+00:00",
+          "attempt_count": 2,
+          "last_attempted_at": "2026-08-06T15:55:30.864996+00:00"
+        }
+      },
+      "evidence": [
+        {
+          "source": "https://www.homecominkitchen.com/",
+          "source_name": "Homecomin' Florida Kitchen (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "The name Homecomin' Florida Kitchen is a nod to Chef Art’s return to Walt Disney World after his first cast role in The Magic Kingdom College Program in 1981 – now known as the Walt Disney World College Program.",
+            "We’re serving Southern favorites such as Chef Art's signature fried chicken, shrimp and grits and our legendary Shine Cake.",
+            "So come over, sip a handcrafted moonshine cocktail on our back porch and enjoy the bubbling springs backdrop.",
+            "When you browse our menu, know that ingredients are Florida farm sourced and served at the peak of freshness, changing here and there with the seasons.",
+            "Special discounts are available to Cast Members and First Responders / Military. Ask your server for details."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "Chef Art Smith's Southern fried chicken and moonshine cocktails, sipped on a back porch by bubbling springs.",
+        "why_here": "The name nods to Chef Art's return to Walt Disney World after his first cast role in the College Program in 1981. The menu leans Southern, with fried chicken, shrimp and grits and Shine Cake, on Florida farm sourced ingredients that change with the seasons.",
+        "know_before": "Special discounts are available to Cast Members and First Responders / Military; ask your server for details.",
+        "local_tip": "Ask for the back porch to sip a moonshine cocktail with the bubbling springs as your backdrop.",
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.homecominkitchen.com/"
+          ],
+          "why_here": [
+            "https://www.homecominkitchen.com/"
+          ],
+          "know_before": [
+            "https://www.homecominkitchen.com/"
+          ],
+          "local_tip": [
+            "https://www.homecominkitchen.com/"
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "The name Homecomin' Florida Kitchen is a nod to Chef Art’s return to Walt Disney World after his first cast role in The Magic Kingdom College Program in 1981 – now known as the Walt Disney World College Program.",
+            "source": "https://www.homecominkitchen.com/"
+          },
+          {
+            "claim": "We’re serving Southern favorites such as Chef Art's signature fried chicken, shrimp and grits and our legendary Shine Cake.",
+            "source": "https://www.homecominkitchen.com/"
+          },
+          {
+            "claim": "So come over, sip a handcrafted moonshine cocktail on our back porch and enjoy the bubbling springs backdrop.",
+            "source": "https://www.homecominkitchen.com/"
+          },
+          {
+            "claim": "When you browse our menu, know that ingredients are Florida farm sourced and served at the peak of freshness, changing here and there with the seasons.",
+            "source": "https://www.homecominkitchen.com/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJh4m6DH7DwogRcwo9evYZIhg",
+      "name": "OLIVIA",
+      "category": "food",
+      "metro": "tampa",
+      "primary_type": "italian_restaurant",
+      "inventory_snapshot": {
+        "wf_editorial_present": true,
+        "inventory_editorial_present": true,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false,
+        "wf_editorial_prior": {
+          "place_id": "ChIJh4m6DH7DwogRcwo9evYZIhg",
+          "hook": null,
+          "why_here": null,
+          "know_before": null,
+          "best_time": null,
+          "local_tip": null,
+          "facts": [],
+          "verified": false,
+          "issues": [
+            "empty-published-row"
+          ],
+          "standard_version": "atlas-590-v1",
+          "written_at": "2026-08-08T03:55:36.975666+00:00",
+          "attempt_count": 1,
+          "last_attempted_at": "2026-08-08T03:55:36.975666+00:00"
+        }
+      },
+      "evidence": [
+        {
+          "source": "https://www.oliviafl.com/",
+          "source_name": "OLIVIA - home (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "Watch as you dine while our team makes authentic Italian pizza dough, fresh mozzarella, pasta & ravioli in our working dough room.",
+            "OLIVIA is a modern Italian restaurant with locations in Tampa and St. Pete, FL, offering the authentic flavors of a traditional trattoria combined with the creative flair of a chef-inspired menu.",
+            "OLIVIA features a full open bar and lounge as well as an on-display temperature controlled wine wall. We have a sommelier on site to help guide you through our American and Italian wines.",
+            "For parties made up of 7 or more guests, please call us directly to book your reservation.",
+            "3601 W. Swann Ave. Tampa, FL 33609"
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "Pizza dough, fresh mozzarella and pasta made in a working dough room you can watch from your table.",
+        "why_here": "A working dough room turns out pizza dough, fresh mozzarella, pasta and ravioli while you dine. The menu pairs a traditional trattoria with a chef's creative flair, and a sommelier on site guides you through an on-display wine wall of American and Italian wines.",
+        "know_before": "Parties of 7 or more need to call the restaurant directly to book.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.oliviafl.com/"
+          ],
+          "why_here": [
+            "https://www.oliviafl.com/"
+          ],
+          "know_before": [
+            "https://www.oliviafl.com/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Watch as you dine while our team makes authentic Italian pizza dough, fresh mozzarella, pasta & ravioli in our working dough room.",
+            "source": "https://www.oliviafl.com/"
+          },
+          {
+            "claim": "OLIVIA is a modern Italian restaurant with locations in Tampa and St. Pete, FL, offering the authentic flavors of a traditional trattoria combined with the creative flair of a chef-inspired menu.",
+            "source": "https://www.oliviafl.com/"
+          },
+          {
+            "claim": "OLIVIA features a full open bar and lounge as well as an on-display temperature controlled wine wall. We have a sommelier on site to help guide you through our American and Italian wines.",
+            "source": "https://www.oliviafl.com/"
+          },
+          {
+            "claim": "For parties made up of 7 or more guests, please call us directly to book your reservation.",
+            "source": "https://www.oliviafl.com/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+      "name": "On Swann",
+      "category": "food",
+      "metro": "tampa",
+      "primary_type": "american_restaurant",
+      "inventory_snapshot": {
+        "wf_editorial_present": true,
+        "inventory_editorial_present": true,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false,
+        "wf_editorial_prior": {
+          "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+          "hook": null,
+          "why_here": null,
+          "know_before": null,
+          "best_time": null,
+          "local_tip": null,
+          "facts": [],
+          "verified": false,
+          "issues": [
+            "FAILED VERIFICATION",
+            "unsourced-number:best_time:5 PM"
+          ],
+          "standard_version": "atlas-590-v1",
+          "written_at": "2026-08-08T11:55:38.784788+00:00",
+          "attempt_count": 1,
+          "last_attempted_at": "2026-08-08T11:55:38.784788+00:00"
+        }
+      },
+      "evidence": [
+        {
+          "source": "https://www.onswann.com/",
+          "source_name": "On Swann - home (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "a destination for Contemporary American cuisine that features a seasonal menu with local flair",
+            "opened May 29, 2016 located in the Hyde Park Village, Tampa FL.",
+            "The interior reflects the hip sensibilities of the surrounding area while also paying tribute to Tampa's storied past.",
+            "The Bar & Restaurant offers the choice to observe the art of cooking as it occurs in the open-kitchen dining room."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "Seasonal Contemporary American in Hyde Park Village, with an open-kitchen dining room where you can watch the cooking.",
+        "why_here": "On Swann opened May 29, 2016 in Hyde Park Village, pairing a seasonal Contemporary American menu with local flair and an open-kitchen dining room where you can observe the cooking. The interior pays tribute to Tampa's storied past.",
+        "know_before": "The menu is seasonal, and the open-kitchen dining room is where you can observe the cooking.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.onswann.com/"
+          ],
+          "why_here": [
+            "https://www.onswann.com/"
+          ],
+          "know_before": [
+            "https://www.onswann.com/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "a destination for Contemporary American cuisine that features a seasonal menu with local flair",
+            "source": "https://www.onswann.com/"
+          },
+          {
+            "claim": "opened May 29, 2016 located in the Hyde Park Village, Tampa FL.",
+            "source": "https://www.onswann.com/"
+          },
+          {
+            "claim": "The interior reflects the hip sensibilities of the surrounding area while also paying tribute to Tampa's storied past.",
+            "source": "https://www.onswann.com/"
+          },
+          {
+            "claim": "The Bar & Restaurant offers the choice to observe the art of cooking as it occurs in the open-kitchen dining room.",
+            "source": "https://www.onswann.com/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJccEtMv5-54gR8KdmGMChKtk",
+      "name": "Titanic: The Artifact Exhibition",
+      "category": "attractions",
+      "metro": "orlando",
+      "primary_type": "museum",
+      "inventory_snapshot": {
+        "wf_editorial_present": true,
+        "inventory_editorial_present": true,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false,
+        "wf_editorial_prior": {
+          "place_id": "ChIJccEtMv5-54gR8KdmGMChKtk",
+          "hook": null,
+          "why_here": null,
+          "know_before": null,
+          "best_time": null,
+          "local_tip": null,
+          "facts": [],
+          "verified": false,
+          "issues": [
+            "PENDING SOURCE"
+          ],
+          "standard_version": "atlas-590-v1",
+          "written_at": "2026-08-07T02:55:20.149932+00:00",
+          "attempt_count": 2,
+          "last_attempted_at": "2026-08-07T02:55:20.149932+00:00"
+        }
+      },
+      "evidence": [
+        {
+          "source": "https://rmstitanicinc.com/exhibitions/titanic-orlando/",
+          "source_name": "TITANIC: The Artifact Exhibition - Orlando (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "Encounter hundreds of authentic artifacts recovered from the ocean floor.",
+            "Stand in awe of Little Piece, a 2-ton section of Titanic ’s hull—the second-largest artifact ever recovered.",
+            "Feel the freezing temperatures of the Atlantic as you touch an iceberg chilled to match the water on the night Titanic sank.",
+            "Imagine life on the Ship as you walk through full-scale re-creations of iconic spaces like the Grand Staircase, First Class Suite, and Promenade Deck.",
+            "Guided tours are offered daily and led by costumed storytellers who share little-known details and personal accounts from Titanic ’s passengers and crew.",
+            "Most visitors spend 1.5 to 2 hours exploring the Exhibition, though you’re welcome to go at your own pace."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "A 2-ton section of Titanic's hull, an iceberg chilled so you can touch it, and a full-scale Grand Staircase.",
+        "why_here": "Little Piece, a 2-ton section of Titanic's hull, is the second-largest artifact ever recovered, and you can stand beside it. Walk through full-scale re-creations of the Grand Staircase, First Class Suite and Promenade Deck, then touch an iceberg chilled to match the Atlantic on the night Titanic sank.",
+        "know_before": "Most visitors spend 1.5 to 2 hours. Guided tours are offered daily, led by costumed storytellers.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://rmstitanicinc.com/exhibitions/titanic-orlando/"
+          ],
+          "why_here": [
+            "https://rmstitanicinc.com/exhibitions/titanic-orlando/"
+          ],
+          "know_before": [
+            "https://rmstitanicinc.com/exhibitions/titanic-orlando/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Encounter hundreds of authentic artifacts recovered from the ocean floor.",
+            "source": "https://rmstitanicinc.com/exhibitions/titanic-orlando/"
+          },
+          {
+            "claim": "Stand in awe of Little Piece, a 2-ton section of Titanic ’s hull—the second-largest artifact ever recovered.",
+            "source": "https://rmstitanicinc.com/exhibitions/titanic-orlando/"
+          },
+          {
+            "claim": "Feel the freezing temperatures of the Atlantic as you touch an iceberg chilled to match the water on the night Titanic sank.",
+            "source": "https://rmstitanicinc.com/exhibitions/titanic-orlando/"
+          },
+          {
+            "claim": "Imagine life on the Ship as you walk through full-scale re-creations of iconic spaces like the Grand Staircase, First Class Suite, and Promenade Deck.",
+            "source": "https://rmstitanicinc.com/exhibitions/titanic-orlando/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ_fPLlNHD2YgRs1uJWWnkfyM",
+      "name": "Gold Coast Railroad Museum",
+      "category": "attractions",
+      "metro": "miami-dade",
+      "primary_type": "museum",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.goldcoastrailroadmuseum.org/",
+          "source_name": "Gold Coast Railroad Museum (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "It houses over 40 historic rail cars including Presidential Rail Car 'Ferdinand Magellan,' and Florida East Coast Steam Locomotive #153.",
+            "Founded in 1957, GCRM was built on the former Naval Air Station Richmond (NASR), the second largest WWII airship base in the United States.",
+            "The Gold Coast Railroad Museum became one of the three official Florida State Railroad Museums in 1984.",
+            "Besides its rail cars, the museum includes a model railroad room, a Naval Air Station Richmond exhibit, Thomas play tables, and multiple displays of rail equipment."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "Over 40 historic rail cars, including Presidential Rail Car Ferdinand Magellan, on a former WWII airship base.",
+        "why_here": "The museum houses over 40 historic rail cars, including Presidential Rail Car Ferdinand Magellan and Florida East Coast Steam Locomotive #153. It was built on the former Naval Air Station Richmond, the second largest WWII airship base in the United States.",
+        "know_before": "Besides the rail cars there is a model railroad room, a Naval Air Station Richmond exhibit and Thomas play tables.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.goldcoastrailroadmuseum.org/"
+          ],
+          "why_here": [
+            "https://www.goldcoastrailroadmuseum.org/"
+          ],
+          "know_before": [
+            "https://www.goldcoastrailroadmuseum.org/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "It houses over 40 historic rail cars including Presidential Rail Car 'Ferdinand Magellan,' and Florida East Coast Steam Locomotive #153.",
+            "source": "https://www.goldcoastrailroadmuseum.org/"
+          },
+          {
+            "claim": "Founded in 1957, GCRM was built on the former Naval Air Station Richmond (NASR), the second largest WWII airship base in the United States.",
+            "source": "https://www.goldcoastrailroadmuseum.org/"
+          },
+          {
+            "claim": "The Gold Coast Railroad Museum became one of the three official Florida State Railroad Museums in 1984.",
+            "source": "https://www.goldcoastrailroadmuseum.org/"
+          },
+          {
+            "claim": "Besides its rail cars, the museum includes a model railroad room, a Naval Air Station Richmond exhibit, Thomas play tables, and multiple displays of rail equipment.",
+            "source": "https://www.goldcoastrailroadmuseum.org/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJgczE70v92IgR-KLXw-vhnS8",
+      "name": "Hillsboro Inlet Lighthouse",
+      "category": "attractions",
+      "metro": "broward",
+      "primary_type": "historical_landmark",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.hillsborolighthouse.org/",
+          "source_name": "Hillsboro Lighthouse Preservation Society (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "Boat tours to the Hillsboro Inlet Light Station, lit since 1907 and cared for by the volunteers of the Hillsboro Lighthouse Preservation Society.",
+            "Boats leave from South FL Diving HQ",
+            "Join online before you come, or at the dock on the day. Seats are first come, first served, so arrive 30 minutes early.",
+            "the HLPS restored the station's original Fresnel lens (pronounced: fray-nel) and returned it to the beacon, and opened the lighthouse and its grounds to the public.",
+            "Hillsboro Inlet · Pompano Beach, Florida"
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "Volunteer-run boat tours to a light station lit since 1907, with its original Fresnel lens back in the beacon.",
+        "why_here": "You reach the Hillsboro Inlet Light Station by boat, on tours run by the volunteers of the Hillsboro Lighthouse Preservation Society. The station has been lit since 1907, and the society restored its original Fresnel lens and returned it to the beacon.",
+        "know_before": "Boats leave from South FL Diving HQ. Seats are first come, first served, so arrive 30 minutes early.",
+        "local_tip": "Join online before you come, or at the dock on the day.",
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.hillsborolighthouse.org/"
+          ],
+          "why_here": [
+            "https://www.hillsborolighthouse.org/"
+          ],
+          "know_before": [
+            "https://www.hillsborolighthouse.org/"
+          ],
+          "local_tip": [
+            "https://www.hillsborolighthouse.org/"
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Boat tours to the Hillsboro Inlet Light Station, lit since 1907 and cared for by the volunteers of the Hillsboro Lighthouse Preservation Society.",
+            "source": "https://www.hillsborolighthouse.org/"
+          },
+          {
+            "claim": "Boats leave from South FL Diving HQ",
+            "source": "https://www.hillsborolighthouse.org/"
+          },
+          {
+            "claim": "Join online before you come, or at the dock on the day. Seats are first come, first served, so arrive 30 minutes early.",
+            "source": "https://www.hillsborolighthouse.org/"
+          },
+          {
+            "claim": "the HLPS restored the station's original Fresnel lens (pronounced: fray-nel) and returned it to the beacon, and opened the lighthouse and its grounds to the public.",
+            "source": "https://www.hillsborolighthouse.org/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ-2uEf9Hf2IgR8CzHvuPge5I",
+      "name": "Sandoway Discovery Center",
+      "category": "attractions",
+      "metro": "palm-beach",
+      "primary_type": "museum",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://sandoway.org/",
+          "source_name": "Sandoway Discovery Center (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "Housed in a historic oceanfront Florida home, Sandoway is now an award-winning nature center in Delray Beach.",
+            "Overlooking the Atlantic Ocean, Sandoway offers hands-on exhibits and engaging educational programs",
+            "Watch our sharks and rays get fed while discovering what makes them so unique!",
+            "Come experience the excitement as we feed the fish in our indoor coral reef tanks!",
+            "Sandoway is closed until 12pm on weekdays to better accommodate school groups."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "A nature center in a historic oceanfront Delray Beach home, with shark and ray feedings and indoor coral reef tanks.",
+        "why_here": "Sandoway sits in a historic oceanfront Florida home in Delray Beach, overlooking the Atlantic Ocean, with hands-on exhibits and indoor coral reef tanks. Visitors can watch the sharks and rays get fed.",
+        "know_before": "Sandoway is closed until 12pm on weekdays to better accommodate school groups, so plan weekday visits for the afternoon.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://sandoway.org/"
+          ],
+          "why_here": [
+            "https://sandoway.org/"
+          ],
+          "know_before": [
+            "https://sandoway.org/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "Housed in a historic oceanfront Florida home, Sandoway is now an award-winning nature center in Delray Beach.",
+            "source": "https://sandoway.org/"
+          },
+          {
+            "claim": "Overlooking the Atlantic Ocean, Sandoway offers hands-on exhibits and engaging educational programs",
+            "source": "https://sandoway.org/"
+          },
+          {
+            "claim": "Watch our sharks and rays get fed while discovering what makes them so unique!",
+            "source": "https://sandoway.org/"
+          },
+          {
+            "claim": "Sandoway is closed until 12pm on weekdays to better accommodate school groups.",
+            "source": "https://sandoway.org/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJEWH5pMs514gR4v1h7Ob5i-k",
+      "name": "History of Diving Museum",
+      "category": "attractions",
+      "metro": "keys",
+      "primary_type": "history_museum",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://divingmuseum.org/",
+          "source_name": "History of Diving Museum, Islamorada (official)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "The Museum is dedicated to the preservation, education and exhibition of the History of Diving, with emphasis on the contributions of South Florida and the Florida Keys.",
+            "Join us the 3rd Wednesday of every month at 7pm for our FREE Immerse Yourself! presentation series!",
+            "Extended Museum hours are offered on every Immerse Yourself! night, with the last admission sold at 6:45 PM.",
+            "Each month we feature a guest speaker covering topics from all aspects of the diving industry and the marine environment."
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "A museum devoted to the history of diving, with a free guest-speaker night every 3rd Wednesday.",
+        "why_here": "The museum is dedicated to the preservation, education and exhibition of the History of Diving, with emphasis on South Florida and the Florida Keys. Each month a guest speaker covers the diving industry and the marine environment in the free Immerse Yourself! series.",
+        "know_before": "Immerse Yourself! runs the 3rd Wednesday of every month at 7pm, with extended museum hours and last admission sold at 6:45 PM.",
+        "local_tip": null,
+        "best_time": "Go on the 3rd Wednesday of the month for extended hours and the free Immerse Yourself! talk at 7pm.",
+        "citations": {
+          "hook": [
+            "https://divingmuseum.org/"
+          ],
+          "why_here": [
+            "https://divingmuseum.org/"
+          ],
+          "know_before": [
+            "https://divingmuseum.org/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            "https://divingmuseum.org/"
+          ]
+        },
+        "facts": [
+          {
+            "claim": "The Museum is dedicated to the preservation, education and exhibition of the History of Diving, with emphasis on the contributions of South Florida and the Florida Keys.",
+            "source": "https://divingmuseum.org/"
+          },
+          {
+            "claim": "Join us the 3rd Wednesday of every month at 7pm for our FREE Immerse Yourself! presentation series!",
+            "source": "https://divingmuseum.org/"
+          },
+          {
+            "claim": "Extended Museum hours are offered on every Immerse Yourself! night, with the last admission sold at 6:45 PM.",
+            "source": "https://divingmuseum.org/"
+          },
+          {
+            "claim": "Each month we feature a guest speaker covering topics from all aspects of the diving industry and the marine environment.",
+            "source": "https://divingmuseum.org/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJzzOGOCQ-3YgRxydnt629qY4",
+      "name": "Polk's Nature Discovery Center",
+      "category": "attractions",
+      "metro": "orlando",
+      "primary_type": "wildlife_refuge",
+      "inventory_snapshot": {
+        "wf_editorial_present": false,
+        "inventory_editorial_present": false,
+        "inventory_editorial_disposition": "owner-row-supersedes",
+        "inventory_editorial_card_present": false
+      },
+      "evidence": [
+        {
+          "source": "https://www.polkfl.gov/park/circle-b-bar-reserve-nature-center/",
+          "source_name": "Polk County Government - Circle B Bar Reserve Nature Center",
+          "source_class": "government",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "One of the greatest features of the Circle B Bar Reserve is the Polk Nature Discovery Center.",
+            "This educational building is the perfect place to start your adventure before trekking into the woods.",
+            "Here, you are filled with information on Central Florida’s ecosystem with interactive exhibits"
+          ]
+        },
+        {
+          "source": "https://www.polkfl.gov/things-to-do/parks-and-recreation/environmental-reserves/",
+          "source_name": "Polk County Government - Environmental Reserves",
+          "source_class": "government",
+          "checked_at": "2026-11-18",
+          "supports": [
+            "Please take note that there are no pets allowed at Circle B Bar Reserve.",
+            "Binoculars and telephoto lenses can provide close-up views of a variety of wildlife"
+          ]
+        }
+      ],
+      "editorial": {
+        "hook": "Interactive exhibits on Central Florida's ecosystem, the place to start before trekking into Circle B Bar Reserve.",
+        "why_here": "One of the greatest features of the Circle B Bar Reserve, this educational building fills you in on Central Florida's ecosystem with interactive exhibits. It is the place to start your adventure before trekking into the woods.",
+        "know_before": "No pets are allowed at Circle B Bar Reserve. Bring binoculars or a telephoto lens for close-up views of wildlife.",
+        "local_tip": null,
+        "best_time": null,
+        "citations": {
+          "hook": [
+            "https://www.polkfl.gov/park/circle-b-bar-reserve-nature-center/"
+          ],
+          "why_here": [
+            "https://www.polkfl.gov/park/circle-b-bar-reserve-nature-center/"
+          ],
+          "know_before": [
+            "https://www.polkfl.gov/things-to-do/parks-and-recreation/environmental-reserves/"
+          ],
+          "local_tip": [
+            null
+          ],
+          "best_time": [
+            null
+          ]
+        },
+        "facts": [
+          {
+            "claim": "One of the greatest features of the Circle B Bar Reserve is the Polk Nature Discovery Center.",
+            "source": "https://www.polkfl.gov/park/circle-b-bar-reserve-nature-center/"
+          },
+          {
+            "claim": "This educational building is the perfect place to start your adventure before trekking into the woods.",
+            "source": "https://www.polkfl.gov/park/circle-b-bar-reserve-nature-center/"
+          },
+          {
+            "claim": "Please take note that there are no pets allowed at Circle B Bar Reserve.",
+            "source": "https://www.polkfl.gov/things-to-do/parks-and-recreation/environmental-reserves/"
+          },
+          {
+            "claim": "Binoculars and telephoto lenses can provide close-up views of a variety of wildlife",
+            "source": "https://www.polkfl.gov/things-to-do/parks-and-recreation/environmental-reserves/"
+          }
+        ]
+      }
+    }
+  ]
+}
