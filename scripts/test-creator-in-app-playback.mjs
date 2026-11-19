@@ -18,6 +18,7 @@ const component = (file, mocks) => {
   new Function("require", "module", "exports", "React", code)((id) => mocks[id] || require(id), module, module.exports, React);
   return module.exports.default;
 };
+const signal = await import("../lib/instagramEmbedSignal.js");
 function harness(file, mocks, ref = {}) {
   const states = []; let cursor = 0;
   const hooks = { ...React, useEffect: () => {}, useRef: () => ({ current: ref }), useState: initial => {
@@ -112,7 +113,7 @@ for (const [platform, url, expected] of [
   ["tiktok", "https://www.tiktok.com/@creator/video/6718335390845095173", "https://www.tiktok.com/player/v1/6718335390845095173"],
   ["youtube", "https://youtu.be/abcdefghijk", "https://www.youtube-nocookie.com/embed/abcdefghijk"],
 ]) {
-  const player = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": { embedSrc } });
+  const player = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": { embedSrc }, "../../lib/instagramEmbedSignal.js": signal });
   let rendered = nodes(player({ platform, url, label: "Fixture" }));
   const frame = rendered.find(n => n.type === "iframe");
   assert.ok(frame.props.src.startsWith(expected)); assert.ok(frame.props.allow.includes("fullscreen"));
@@ -123,7 +124,7 @@ for (const [platform, url, expected] of [
   rendered.find(n => n.type === "button").props.onClick();
   assert.ok(nodes(player({ platform, url, label: "Fixture" })).some(n => n.type === "iframe"), "retry restores official player");
 }
-const unavailable = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": { embedSrc } });
+const unavailable = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": { embedSrc }, "../../lib/instagramEmbedSignal.js": signal });
 assert.ok(!nodes(unavailable({ platform: "facebook", url: "https://www.facebook.com/share/r/test/", label: "Unavailable" })).some(n => n.type === "iframe" || n.type === "a"), "unsupported post stays in app without redirect");
 // Exercise the real cover across every supported video URL format and layout.
 // A loaded iframe is intentionally absent until a reader activates the cover.

@@ -66,8 +66,17 @@ for(const park of parks){
  assert.ok(host.querySelector(`img[src="/guides/disney-food-2026/maps/${park}-whole.svg"]`));
  assert.ok(host.querySelector('[style*="100%"]'),'area switch resets zoom');
  assert.equal(host.querySelectorAll('[data-food-pin]').length,places.length);
+ // Basemap failure: the reader gets the plain message, no broken-image box,
+ // no dead pins and no zoom on a map that is not there.
+ const basemap=host.querySelector('img[data-guide-map-canvas]');assert.ok(basemap,'positive control: basemap present before failure');
+ await act(()=>{basemap.dispatchEvent(new dom.window.Event('error'));});
+ assert.ok(!host.querySelector('img[data-guide-map-canvas]'),'a failed basemap is removed, not shown as a broken image');
+ assert.match(host.querySelector('[role="status"]')?.textContent||'',/could not load.*numbered list/,'failure points to the numbered stop list');
+ assert.equal(host.querySelectorAll('[data-food-pin]').length,0,'no pins float over a missing map');
+ assert.ok(host.querySelector('[aria-label="Zoom in"]').disabled&&host.querySelector('[aria-label="Zoom out"]').disabled,'zoom is off when there is no map');
+ assert.ok(!/aspect-ratio/.test(host.querySelector('[role="status"]').parentElement.getAttribute('style')||''),'no empty map-sized box is reserved');
 }
 const bad=project({lat:NaN,lng:0},viewports[parks[0]]);assert.ok(!Number.isFinite(bad.top),'negative coordinate control cannot look valid');
 await act(()=>root.unmount());
 delete globalThis.window;delete globalThis.document;delete globalThis.IS_REACT_ACT_ENVIRONMENT;
-console.log('PASS: five actual map component renders, all seven geographic anchors, ten source SVGs, source hashes/ODbL links, repeated pin activation and core/whole/zoom controls. Live phone browser remains separate.');
+console.log('PASS: five actual map component renders, all seven geographic anchors, ten source SVGs, source hashes/ODbL links, repeated pin activation, core/whole/zoom controls and the basemap-failure state. Live phone browser remains separate.');
