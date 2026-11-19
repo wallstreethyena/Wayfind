@@ -390,6 +390,21 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 
 import { isNotPublicPlace } from "../../../lib/notPublicPlaces.js";
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
+import { unstable_cache } from "next/cache.js";
+
+// Editorial figure lookup reads wf_place_photo / the stored-photo RPC with
+// cache:"no-store" (freshness for the visitor photo paths that share those
+// modules). Inside a guide render that no-store read bails the whole route
+// out of ISR — the big city guides served private/no-cache while every
+// other guide prerendered (2026-11-19 audit). Wrap the RESULT in a Data
+// Cache boundary on the guide route's own 900s cadence, the same pattern
+// lib/guideProductResolveCache.js uses for the spend-gated product read.
+// The underlying modules keep their no-store default everywhere else.
+const cachedGuideFigureImage = unstable_cache(
+  async (place) => guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }),
+  ["guide-place-figure-image-v1"],
+  { revalidate: 900 },
+);
 import { guidePickFacts } from "../../../lib/guidePickFacts.js";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
@@ -657,7 +672,7 @@ export default async function GuidePage({ params }) {
     .map((p, idx) => (!curatedPickImages[idx] && pickPlaceIds[idx]) ? (pickPlaces[idx] || { id: pickPlaceIds[idx], name: p.name }) : null)
     .filter(Boolean);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
-    editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
+    editorialImages.set(place.id, await cachedGuideFigureImage(place));
   }));
   // Reuse an already licensed photo of this exact place before asking the
   // browser for another answer. The hero and other picks keep their own images.
