@@ -24,6 +24,7 @@ import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta, ctaProofSco
 import { guidePickTicket } from "../../../lib/guidePickTicket";
 import { withPageParam } from "../../../lib/commerce";
 import GuideConversion from "./GuideConversion";
+import { noSaleEvents, unavailableDestination } from "../../../lib/ticketAvailability.js";
 import GuideStays from "../../components/GuideStays";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
 import { GuidePickWhere, guidePickWhere } from "./GuidePickWhere";
@@ -547,7 +548,12 @@ export default async function GuidePage({ params }) {
   // at its URL as an archive, but it must not sell tickets to a night that is
   // over, and its next steps must point at guides that are still current.
   const past = isGuidePast(g);
-  let primaryCta = guidePrimaryCta(past ? { ...g, eventTicket: undefined } : g);
+  // SOLD OUT (owner rule 2026-11-04, enforced live 2026-11-19): the picks and the
+  // primary button below were built from a fixed list, so check the live status
+  // before offering a ticket. Mickey's party sold out while this guide still sold it.
+  const unavailable = await noSaleEvents();
+  const unavailableFor = (id) => (id ? unavailable.get(String(id)) || null : null);
+  let primaryCta = guidePrimaryCta(past || unavailableFor(g.eventTicket) ? { ...g, eventTicket: undefined } : g);
   const vacationRental = past ? null : guideVacationRentalCta(params.slug);
   const liveGuides = currentGuides(GUIDES);
   const continueTo = guideContinue(g, params.slug, liveGuides);
@@ -1192,7 +1198,8 @@ export default async function GuidePage({ params }) {
       ) : null}
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];
-        const ticket = guidePickTicket(pick.ticket);
+        const noSale = unavailableFor(pick.eventSlug);
+        const ticket = noSale ? null : guidePickTicket(pick.ticket);
         // One editorial photograph per recommendation. Curated images win;
         // otherwise use the same venue-owned source as discovery cards.
         const pickImage = curatedPickImages[i] || editorialImages.get(pickPlaceIds[i]);
@@ -1231,7 +1238,7 @@ export default async function GuidePage({ params }) {
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}
-                {pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
+                {noSale ? <a href={unavailableDestination(noSale)} style={{ ...S.btnGhost, marginLeft: 0 }} data-wf-unavailable={noSale.kind}>{noSale.kind === "sold_out" ? "Sold out: see dates and alternatives" : "Not on sale: see details"}</a> : pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
                 {ticket ? (
                   <a
                     href={ticket.href}

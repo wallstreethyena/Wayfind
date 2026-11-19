@@ -37,7 +37,7 @@ ok(!/Open in Wayfind/.test(page), "guide conversion copy must not pitch Wayfind 
 // 2026-09-23: a past guide resolves its CTA without its own event ticket
 // (lib/guideLifecycle.js), still through the ONE guidePrimaryCta call. The
 // count makes "exactly one" literal; the old substring only proved "at least one".
-ok(/guidePrimaryCta\((?:g|past \? \{ \.\.\.g, eventTicket: undefined \} : g)\)/.test(page)
+ok(/guidePrimaryCta\((?:g|past(?: \|\| unavailableFor\(g\.eventTicket\))? \? \{ \.\.\.g, eventTicket: undefined \} : g)\)/.test(page)
   && (page.match(/guidePrimaryCta\(/g) || []).length === 1, "exactly one CTA is resolved per guide");
 ok(/guideContinue\(/.test(page), "one continue card, not a four-link 'More guides' wall");
 ok(!/More Wayfind guides/.test(page), "the old four-link list is removed");

@@ -88,7 +88,8 @@ ok(!GUIDES.past, "\"past\" is not a guide slug, so /guides/past can never shadow
 const article = strip(read("app/guides/[slug]/page.js"));
 ok(/const past = isGuidePast\(g\)/.test(article), "guide article knows when it already happened");
 ok((article.match(/guidePrimaryCta\(/g) || []).length === 1, "the article resolves exactly one primary CTA");
-ok(/guidePrimaryCta\(past \? \{ \.\.\.g, eventTicket: undefined \} : g\)/.test(article), "a past guide never sells tickets to its own ended event");
+ok(/guidePrimaryCta\(past(?: \|\| unavailableFor\(g\.eventTicket\))? \? \{ \.\.\.g, eventTicket: undefined \} : g\)/.test(article), "a past guide never sells tickets to its own ended event");
+ok(/guidePrimaryCta\(past \|\| unavailableFor\(g\.eventTicket\) \?/.test(article) && /const ticket = noSale \? null : guidePickTicket\(pick\.ticket\)/.test(article), "a sold out guide event sells no tickets, primary or per pick (2026-11-19)");
 ok((article.match(/<GuideConversion[\s/>]/g) || []).length === 1, "the article renders the primary-button component exactly once");
 ok(/guideContinue\(g, params\.slug, liveGuides\)/.test(article) && /guideContextLinks\(params\.slug, liveGuides\)/.test(article), "a guide's next steps point at current guides");
 // The already-happened notice: exactly the two intended links, nothing else.

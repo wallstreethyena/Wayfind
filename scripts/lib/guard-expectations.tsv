@@ -220,7 +220,7 @@ scripts/check-guide-deal-cards.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	05909d
 scripts/check-guide-dedicated-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	5c90164b5b286ae09f7b1594f7d76a80d5c636b824175e7d82fec57842553b85
 scripts/check-guide-editorial.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	10bafd234698135469a5705a203c1dc342466f7a7d60e6dd113cd59b4bb69f5a
 scripts/check-guide-in-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	91696b60122c8301e8a7a19a89c054d41be5cda46702f40a6a7b3851c64f7fbd
-scripts/check-guide-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	819a21371b9ba799c53f53e2db53d1814eaaedb5e04ffd3a5737c2690e7278c9
+scripts/check-guide-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	88416cfd553ce289ddb39078b1fb2306b198582e7ec3c132db7df36999563cde
 scripts/check-guide-neutral-fallback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0	40e61e73a2b916e22f79e0a5c26fd454dc7e1c67c8927d253b905127f3790305
 scripts/check-guide-pick-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	108	0	0	ee1df2540a04861f80b8da4e2d4cecc5c004af2ddb68d83be69be51d95eb8135
 scripts/check-guide-place-addresses.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	d18344a3d1aea5d1584bae30bac4fde1a5e5d4d5d2eb2c30988f1ec2c6be82f0
@@ -1155,6 +1155,7 @@ scripts/test-site-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	e25164f0
 scripts/test-site-fixes-20261019.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	50	0	0	aacd0520f12a518b38e1967e259a560c292abb8e3ea0effaa85d44dcab6b05f6
 scripts/test-site-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	1	0e3112c1683fd967704d6bbda5a029df3e5b952533e319b0c8cc6090da62bdec
 scripts/test-snowcat-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	d140470f7bf14995d892c522c0c63ca2653124614e32b78c8b4f61b2cf1d3409
+scripts/test-sold-out-handoffs.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	e3800467569a050000d8ad61066774768f193a7be21bb8261295884941ef3b18
 scripts/test-sort-modes.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	0016368f6700aa5f04378532f0dddbbd17c00d4fbfee345eae5e4bbbbf26876f
 scripts/test-sparse-category.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	0f7c4d415efec36680b9357ee540ab5d0f6333736087ee9107aa1963779fc10f
 scripts/test-spend-bypass-regression.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	59	0	0	fb0b9d3ab8902a3336ed26382e9e65ce8b9bf5a4c420d971c7b95fc032f555ab
