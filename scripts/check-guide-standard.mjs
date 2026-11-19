@@ -113,10 +113,8 @@ export function shellViolation(pageSrc, combinedSrc, cssSrc) {
 // SHRINKING baseline (GVS "Changing this standard": slugs may leave, never
 // join). Only for a route another lane is actively rebuilding, so this PR
 // does not collide with it; its own migration lands right behind that PR.
-const SHELL_MIGRATION_BASELINE = {
-  "disney-world-holiday-food-guide-2026": "being rebuilt in PR #2622 (Disney lane); its shell migration is stacked on that branch",
-};
-const MAX_BASELINE = 1;
+const SHELL_MIGRATION_BASELINE = {};
+const MAX_BASELINE = 0;
 if (Object.keys(SHELL_MIGRATION_BASELINE).length > MAX_BASELINE) fail("SHELL_MIGRATION_BASELINE grew — it may only shrink (lower MAX_BASELINE as entries leave)");
 
 // No second publishing surface. Guides and blog articles live under /guides

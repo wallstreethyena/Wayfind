@@ -17,3 +17,6 @@
 .foodPostLoading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;background:#111a24;color:#c8d3de}.foodPostLoading p{margin:0!important;font-size:14px}
 .foodPostLoading a,.foodPostCard a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:999px;background:#f97316;color:#140a02!important;font-weight:700;font-size:14px;text-decoration:none}
 .foodPostCard{padding:16px;background:#111a24;color:#c8d3de}.foodPostCard p{font-size:14px!important;line-height:1.6;margin:0 0 12px!important}.foodPostCard strong{color:#f1f5f9}.foodPostCard div{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.foodPostCard button{min-height:44px;padding:0 14px;border:1px solid #3a4a5c;border-radius:999px;background:transparent;color:#e2e8f0;font:600 14px var(--wf-sans),sans-serif;cursor:pointer}
+||||||| 66b3c6ff3
+/* Standard-shell body: same reading rules the old .article wrapper gave, now inside GuideStandardShell. */
+.body{font:400 17px/1.75 var(--wf-sans),Arial,sans-serif;color:#eef1f5}.body p{margin:0 0 18px}.body a{color:#ffc294;text-underline-offset:4px}.body a:focus-visible,.body button:focus-visible{outline:2px solid #ffc294;outline-offset:5px}.body h3{font:400 25px/1.3 var(--wf-display),Georgia,serif;margin:10px 0 16px}
