@@ -5,19 +5,19 @@
   "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home \u2192 select Creators Pick \u2192 Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
-    "source_total": 100,
-    "retrievable_reported_source_total": 100,
-    "retrievable_reported_sources_mapped": 100,
-    "sources_with_place_association": 85,
-    "sources_with_event_association": 32,
-    "sources_with_any_association": 100,
+    "source_total": 101,
+    "retrievable_reported_source_total": 101,
+    "retrievable_reported_sources_mapped": 101,
+    "sources_with_place_association": 86,
+    "sources_with_event_association": 33,
+    "sources_with_any_association": 101,
     "event_only_sources": 15,
     "remaining_unmapped_sources": 0,
-    "place_association_count": 106,
+    "place_association_count": 107,
     "unique_place_association_count": 92,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
-    "exact_event_association_count": 32,
+    "exact_event_association_count": 33,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
@@ -2765,6 +2765,38 @@
       "public_navigation": "/florida-events/snowcat-ridge-alpine-snow-park-2026",
       "native_link_renderable": true,
       "evidence": "Wayfind's own carousel (@gowayfind.app, 2026-11-02). Single venue guide to Snowcat Ridge; linked to /florida-events/snowcat-ridge-alpine-snow-park-2026 (event_id snowcat-ridge-2026)."
+    },
+    {
+      "shortcode": "Df2AyPHtNtK",
+      "creator_handle": "gowayfind.app",
+      "native_url": "https://www.instagram.com/reel/Df2AyPHtNtK/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Dade City"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "snowcat-ridge-dade-city",
+          "place_id": "ChIJF05ORfWpwogRI74PwJotNf4",
+          "name": "Snowcat Ridge",
+          "city": "Dade City",
+          "address": "27839 Saint Joe Rd, Dade City, FL 33525",
+          "native_wayfind_surface": "/p/ChIJF05ORfWpwogRI74PwJotNf4",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [
+        {
+          "event_id": "snowcat-ridge-2026",
+          "native_wayfind_surface": "/florida-events/snowcat-ridge-alpine-snow-park-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/snowcat-ridge-alpine-snow-park-2026",
+      "native_link_renderable": true,
+      "evidence": "Wayfind's own Reel (@gowayfind.app, 2026-11-17). Single venue visit to Snowcat Ridge (snow tubing, ice skating, food); wf_owned_social links /florida-events/snowcat-ridge-alpine-snow-park-2026 (event_id snowcat-ridge-2026). Attached 2026-11-18 by the owned-social-reconcile fix."
     },
     {
       "shortcode": "DfdbJ10Jzgy",

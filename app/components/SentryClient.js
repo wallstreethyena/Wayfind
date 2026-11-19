@@ -41,6 +41,10 @@ export default function SentryClient() {
           window.__wfSentryReady = 1;
           for (const item of q) {
             if (shared.shouldDropBrowserNoise(item, null, true)) continue;
+            // WAYFIND-1Y: a parse error has no stack, so keep its source on the
+            // event and drop the ones from extension / third party scripts.
+            const ctx = shared.earlyErrorContext(item);
+            if (ctx.denied) continue;
             const err =
               item && item.error instanceof Error
                 ? item.error
@@ -50,7 +54,7 @@ export default function SentryClient() {
                     (item && (item.message || (item.reason && String(item.reason)))) ||
                       "Early error (captured before Sentry loaded)"
                   );
-            Sentry.captureException(err, { tags: { early_buffer: true } });
+            Sentry.captureException(err, { tags: ctx.tags, extra: ctx.extra });
           }
         } catch (e) {
           /* buffer replay is best-effort */
