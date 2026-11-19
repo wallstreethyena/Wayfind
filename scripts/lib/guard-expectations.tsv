@@ -971,7 +971,7 @@ scripts/test-owned-editorial-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	e5
 scripts/test-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	154	0	0	fff474ccbd0856c5aece1b1ec561b8a5effadc3491838e11f57b0815b69f5388
 scripts/test-owned-hours-cohort.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	962d642a76ce7c2886363432c53d3aa882689388edfafe85288f0eaf0040922d
 scripts/test-owned-place-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	06e086f70e7d6f962693b1111f1d28b37fcb9653321441e4a8b0362f37047e36
-scripts/test-owned-place-truth-frontier.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	303f9b1d8834013a363edad037f3e1fe7a6581aea733bc7969eab028317c3fbc
+scripts/test-owned-place-truth-frontier.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	43	0	0	05b4f1c1b35237cf2b3c226dddd34cb8e1f65b9605b432753302c6e0b5c788ad
 scripts/test-owned-social-reconcile.mjs	0	RENDER	blocks-ci-and-deploy	1	-	88	0	0	e5c0ed0a869a91228aa911f59a94359b648dc0246f7b6386572e792389fea3a5
 scripts/test-owner-approval-carry-forward.mjs	0	CALL	blocks-ci-and-deploy	1	-	101	0	0	9c5c43214556025ed309d39637c43f8c5e4ba8abe4067cac505d9cf806263e80
 scripts/test-owner-approval-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	556f0a6cd9755ffca03b40f1e7ba4c45ce378e77bf24d00668cfd0e11ff65f8e
