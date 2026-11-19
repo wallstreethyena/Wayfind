@@ -142,6 +142,7 @@ for (const [platform, url, video] of [
     "../../lib/creatorPlatforms": { PLATFORM: {} },
     "../../lib/cardPhotoRequest.js": { isApiPhotoSrc: () => false },
     "./CreatorPlaybackDetails": { usePlaybackDetails: () => () => collapsed++ },
+    "./CreatorPlaceCover.js": { default: () => null, creatorPlaceCoverSrc: () => null },
   });
   const coverProps = { platform, url, label: "Video fixture", ...(premium ? { coverTitle: "Venue", coverCity: "Sarasota" } : {}) };
   const cover = facade(coverProps);
