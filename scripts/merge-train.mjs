@@ -59,6 +59,16 @@ async function latestChecks(sha) {
       .sort((a, b) => String(b.started_at || "").localeCompare(String(a.started_at || "")));
     if (mine[0]) out[name] = { status: mine[0].status, conclusion: mine[0].conclusion };
   }
+  // A guards run dispatched a moment ago may not have created its check run yet.
+  // Count a queued or running guards workflow run for this commit as running, so
+  // two passes close together never dispatch (and so cancel) each other.
+  const g = out.guards;
+  if (!g || g.status === "completed" && g.conclusion === "cancelled") {
+    for (const state of ["queued", "in_progress"]) {
+      const r = await must("GET", `/actions/workflows/guards.yml/runs?head_sha=${sha}&status=${state}&per_page=1`);
+      if (r && r.total_count > 0) { out.guards = { status: state, conclusion: null }; break; }
+    }
+  }
   return out;
 }
 
