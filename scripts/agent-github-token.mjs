@@ -7,9 +7,7 @@
  *     export GH_TOKEN="$(node scripts/agent-github-token.mjs)"   # gh uses it
  *
  * Reads WAYFIND_AGENT_APP_ID and the private key at WAYFIND_AGENT_APP_KEY
- * (default ~/.config/wayfind-agents/app.pem). This is the AGENTS' App. The Owner
- * Gate App's key never lives on any machine an agent can read; it lives only in
- * the owner-gate environment on GitHub. See docs/OWNER_APPROVAL.md.
+ * (default ~/.config/wayfind-agents/app.pem). This is the AGENTS' App.
  */
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";

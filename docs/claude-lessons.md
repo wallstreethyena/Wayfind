@@ -708,6 +708,15 @@ mobile 390 renders; reel playback; links; pagination; analytics events).
 
 ---
 
+## Owner comment gate removed (2026-11-18)
+
+The `/owner-approve <sha>` gate (owner-approval workflows, ownerApproval.mjs and its
+guards) cost the owner a pasted comment on every rebase, and agents kept proposing
+heavier versions (GitHub review fingerprints, hardware-key signatures, #2607). Owner
+decision 2026-11-18: remove it entirely. No file is owner-only. Never rebuild, propose
+or ask for an approval ritual; safety comes from the guard suite, branch protection's
+required "guards" check, and the hard-stop list in CLAUDE.md.
+
 ## Recent state (for context, not instructions)
 
 - Two audits complete (recent-release surfaces + full-site sweep). 14 fixes shipped

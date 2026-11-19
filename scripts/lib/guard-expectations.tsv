@@ -16,7 +16,7 @@
 # This file is committed; neither the checker nor the generator writes it.
 # blastRadius, criticalReasons, honesty details, and any future schema fields.
 # entry_sha256 locks EVERY canonical per-entry field, including full wiring, protects,
-# registry-meta-sha256: a3df4dac554232de3e0786b6c81554c3eb1a072a25592a97d6f92e6d70a841c2
+# registry-meta-sha256: b4719d310801e2844cc38b8368f5b941b3527c5c2ffeaf96ba911cfa1519798d
 path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven	entry_sha256
 npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-	c08a4641e40e3558f5dcbd0d7128cc1d7d16000dabef02e0e85fb503bec2526a
 scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	109	0	0	12fded97a8f44e52c270b82bcdb056d2a4b6ff1c1a68177cd2c8b820aac96a10
@@ -138,7 +138,6 @@ scripts/check-destination-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	470a1
 scripts/check-detail-plan-add-only.mjs	0	RENDER	blocks-ci-and-deploy	1	-	10	0	0	468c9d8c5d8b3bd9282c476007970679d7383876f27ea0c127f908d493e6e4a0
 scripts/check-direct-affiliate-urls.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	0	1	0	e56b416928f08767849ec96fd419c8152269c844dd3510efcc7835dbc28bc3d8
 scripts/check-district-not-a-meal.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	2c38bf2e87230036e668f0eb7237bbecfc7f98d7a499d19f196c4039c6de2376
-scripts/check-doc-ownership.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	4	1	0	9ef6ffabeab0b543543f8fe68fd3e0f7f0a5eb8a9bc1f8023848ef511c8d107f
 scripts/check-drop-photo-window.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	33	1	0	1e47d104f6b3c5dea5a76510585f581a32a8f7a65b0ab1c6cc14291bc858ff28
 scripts/check-dupes.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	d31ca083d0beff58efc7929c7c9e4b987c27e9225aeedb5a222d8414f5d563f9
 scripts/check-earning-integrations.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	33	0	0	4569299ec307b765b408f9a4658a4bdb060f007c33b06f94e8d4f67ecd8bade4
@@ -357,7 +356,6 @@ scripts/check-overscroll-containment.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6
 scripts/check-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	3450a304c275db713dfd12544b9a8f9e439712ee8ddaf05e8ae1f435365fcd81
 scripts/check-owned-library-no-rebuy.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	a25684d0c850d31c481cb77c8d12958e6b3d0b0d20e6388c65330bfb6a42aea1
 scripts/check-owned-pool-fallback-scope.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	314e3fed0880d514b6ef37d4eac9cc625aaf74662e74101344b2ca908009ffcd
-scripts/check-owner-approval-pr.mjs	0	CALL	scheduled-monitoring-only	0	-	0	0	0	3ecb387969e7d2600c5b43f6c7b69565809a83d1a1616df5aa89ca2827e8bba6
 scripts/check-owner-batch-schema.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	1	0	6b5bfd9a159c60fab05c378cbc9b34e64c91300c05c32eaa12b5ae8b5f02e669
 scripts/check-owner-bump.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	26e58483922e6de164ac2e531c08f203a796c09ce5845876427eedf32d4c345f
 scripts/check-owner-curation-one-path.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	1	08045fa175b0f1d74ea9fa354875a056585d2d2cbfec03e735424d6476a67e82
@@ -700,7 +698,6 @@ scripts/test-detail-take.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	3878d57
 scripts/test-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	76	0	0	87daa2e91ce4f32b6924b8681f9769b95b19570e7bcf6859a5aa884567f72cff
 scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3b8c36e3e9fb01312d7d1a9cf9a6f856606ebda509f5a76eb640b136e
 scripts/test-direct-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	73	0	0	cb69c1cbdc990de5a00073c73413a8d2db011d0800d4c96c9081356f7fce831c
-scripts/test-doc-ownership-shallow.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	a7fc950b33e73074eaf31d622c2dfe3e06f022191fde062f489e4de4160f576c
 scripts/test-document-position.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	9d3cf23d98d16e3a52711f8e129fa02eee755e9f1a897ad918f29070e874b47e
 scripts/test-drop-rail-parity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0	6a3be0dc03e54b92bc6459e828eb53211503e5f1a8a84e616e8d229fdec49a78
 scripts/test-dupes-imports.mjs	1	CALL	blocks-ci-and-deploy	1	Qwen (Engineering)	19	0	0	96d65057b070b3f6b3e1c65866c047d84fa0399df45f6b58246c987ace11ed9e
@@ -967,9 +964,6 @@ scripts/test-owned-hours-cohort.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	962d6
 scripts/test-owned-place-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	06e086f70e7d6f962693b1111f1d28b37fcb9653321441e4a8b0362f37047e36
 scripts/test-owned-place-truth-frontier.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	303f9b1d8834013a363edad037f3e1fe7a6581aea733bc7969eab028317c3fbc
 scripts/test-owned-social-reconcile.mjs	0	RENDER	blocks-ci-and-deploy	1	-	88	0	0	e5c0ed0a869a91228aa911f59a94359b648dc0246f7b6386572e792389fea3a5
-scripts/test-owner-approval-carry-forward.mjs	0	CALL	blocks-ci-and-deploy	1	-	101	0	0	9c5c43214556025ed309d39637c43f8c5e4ba8abe4067cac505d9cf806263e80
-scripts/test-owner-approval-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	556f0a6cd9755ffca03b40f1e7ba4c45ce378e77bf24d00668cfd0e11ff65f8e
-scripts/test-owner-approval.mjs	0	CALL	blocks-ci-and-deploy	1	-	131	0	0	f2d5d8af4ad4043935b34e3ec1ed360e0b2d625b7a922bdaf820cb7576595aa0
 scripts/test-owner-places-2026-08-29.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	8d037d63978afbe976cf9d526610cf8f31c27f49ed26cda4fce1b5a459682237
 scripts/test-owner-places-2026-08-29b.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	a830a738c92e0065ac4f025e80eb1cc7e440b6e06e645c872e4d2f801dc5d44e
 scripts/test-owner-places-2026-08-29c.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0	08fc2404ffeb8b9401fdefe7b94e29a139e38db5e150e76dffc7fb487f1548a6

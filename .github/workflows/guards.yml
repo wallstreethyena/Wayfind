@@ -27,8 +27,7 @@
 # the partition from the same checkout (run-guards --verify-shards) and fails unless
 # every shard 1..4 ran exactly its assigned guards and the counts sum to
 # scripts/guards.txt. A missing, cancelled, skipped or duplicated shard is red.
-# The runner and its imports are owner-only (scripts/lib/ownerApproval.mjs), and
-# install must not touch a tracked file, so a PR cannot swap the verifier.
+# Install must not touch a tracked file, so an install hook cannot swap the verifier.
 name: guards
 on:
   # Recovery path when the normal pull_request event cannot produce a runnable
@@ -44,8 +43,7 @@ on:
 concurrency:
   group: guards-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || 'latest' }}
   cancel-in-progress: true
-# Read-only token. check-doc-ownership reads the pull request and its comments to
-# verify owner approval (see docs/OWNER_APPROVAL.md).
+# Read-only token for guards that read the pull request.
 permissions:
   contents: read
   pull-requests: read
@@ -77,7 +75,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # 2026-09-09: depth 1 made origin/main unreadable for check-doc-ownership.
+          # Full history: several guards diff against origin/main.
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
@@ -113,7 +111,7 @@ jobs:
         id: run
         env:
           GUARD_SHARD: ${{ matrix.shard }}/4
-          # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
+          # Read-only (see permissions above).
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           test -z "${NODE_OPTIONS:-}"
