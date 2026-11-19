@@ -10,6 +10,9 @@
 //   4. With inventory OPERATIONAL, a closed Google status still flows through
 //      (either source reporting closure wins over an "open" claim).
 
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { mergePlacePage } from "../lib/atlasPlaceAllowlist.js";
 
 let n = 0, bad = 0;
@@ -27,6 +30,12 @@ ok(base(null, "CLOSED_TEMPORARILY")?.businessStatus === "CLOSED_TEMPORARILY", "d
 ok(base("OPERATIONAL", "CLOSED_PERMANENTLY")?.businessStatus === "CLOSED_PERMANENTLY", "details CLOSED_PERMANENTLY flows when inventory OPERATIONAL");
 ok(base("OPERATIONAL", "OPERATIONAL")?.businessStatus === "OPERATIONAL", "both OPERATIONAL stays OPERATIONAL");
 ok(base(null, null)?.businessStatus === null, "no status anywhere stays null");
+
+// The durable page must consult wf_inventory status even when the
+// wf_place_ids skeleton (which carries no status) opened the page.
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const placeDataSrc = readFileSync(join(root, "lib/placeData.js"), "utf8");
+ok(placeDataSrc.includes('if (row.status && row.status !== "OPERATIONAL") page.businessStatus = row.status;'), "loadPlace applies wf_inventory closure over the merged page");
 
 console.log(`test-closed-place-pages: ${bad ? "FAIL" : "OK"} — ${n} assertions`);
 if (bad) process.exit(1);
