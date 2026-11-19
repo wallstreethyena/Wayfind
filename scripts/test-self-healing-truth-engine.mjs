@@ -1049,8 +1049,6 @@ const eq = (a, b, msg) => {
     "/api/offers/health reports auditExpired: true, serveable: false, activeCount: 0 at 2026-11-24T05:00:00.000Z"
   );
 
-  const prevTestNow = process.env.WF_COMMERCE_TEST_NOW;
-  const prevSuppressAnalytics = process.env.WF_SUPPRESS_ANALYTICS;
   try {
     process.env.WF_SUPPRESS_ANALYTICS = "1";
     process.env.WF_COMMERCE_TEST_NOW = justBeforeExpiryUtc;
@@ -1077,10 +1075,7 @@ const eq = (a, b, msg) => {
       "/api/commerce/go fails closed to https://wayfind.test/ at 2026-11-24T05:00:00.000Z"
     );
   } finally {
-    if (prevTestNow === undefined) delete process.env.WF_COMMERCE_TEST_NOW;
-    else process.env.WF_COMMERCE_TEST_NOW = prevTestNow;
-    if (prevSuppressAnalytics === undefined) delete process.env.WF_SUPPRESS_ANALYTICS;
-    else process.env.WF_SUPPRESS_ANALYTICS = prevSuppressAnalytics;
+    delete process.env.WF_COMMERCE_TEST_NOW;
   }
 
   // 3. Defect #4: 200 HTML missing purchase CTAs ("Add to Cart" / "Buy Now") -> INCONCLUSIVE, never ACTIVE
@@ -1114,7 +1109,6 @@ const eq = (a, b, msg) => {
   );
 
   // 4. Defect #4: Fresh observedAt preserved + Stale snapshot rejected + Fixture payload rejected
-  const prevCronSecret = process.env.CRON_SECRET;
   const tmpC3Store = path.join(os.tmpdir(), `wf-c3-readiness-store-${Date.now()}.json`);
   try {
     process.env.CRON_SECRET = "c3-readiness-secret";
@@ -1250,10 +1244,7 @@ const eq = (a, b, msg) => {
     );
   } finally {
     resetClippRuntimeEvidence();
-    if (prevCronSecret === undefined) delete process.env.CRON_SECRET;
-    else process.env.CRON_SECRET = prevCronSecret;
-    if (prevSuppressAnalytics === undefined) delete process.env.WF_SUPPRESS_ANALYTICS;
-    else process.env.WF_SUPPRESS_ANALYTICS = prevSuppressAnalytics;
+    delete process.env.CRON_SECRET;
     try { if (fs.existsSync(tmpC3Store)) fs.unlinkSync(tmpC3Store); } catch {}
   }
 
