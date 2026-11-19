@@ -272,6 +272,10 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     <p className="xm-count" role="status" aria-live="polite">
       {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "Christmas plan" : "Christmas plans"}${summary ? " · " + summary : ""}`}
     </p>
+    {/* 2026-11-19 (owner, ads): a filtered link (an ad's ?category=theme-parks&when=tonight)
+        always shows the way back to every plan, so a broader search never dead ends. */}
+    {anyFilter && !loading && !failed && Number.isFinite(initial?.total) && initial.total > data.total
+      ? <button type="button" className="xm-see-all" data-christmas-see-all="" onClick={clearAll}>See all {initial.total} Florida Christmas plans &rarr;</button> : null}
     <div className="xm-grid" data-browse-total={data.total} data-browse-shown={shownCards}>
       {cards.map((card, i) => <ChristmasBrowseCard key={card.id} card={card} rank={i + 1} today={today} />)}
     </div>
