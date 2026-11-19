@@ -1,0 +1,1776 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-18T23:00:00Z",
+ "scope_note": "Sarasota and Orlando expansion: source-grounded why-go lines for popular independent tours, bars, restaurants and attractions with no existing editorial. Official venue, government and tourism sources only; chains, gyms, plazas and Disney property excluded; needs_review rows held. Owner directed 2026-11-18.",
+ "candidates": [
+  {
+   "place_id": "ChIJSS5yDyBHw4gR7g1aVe5Dbu4",
+   "name": "Evasive Escape Rooms",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://evasiveescaperooms.com/",
+     "source_name": "Evasive Escape Rooms, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Evasive Escape Rooms in Sarasota offers three rooms: Exterminated, The Family Fallout Shelter and Factory Heist.",
+      "Exterminated is a horror room called Terror at the Junkyard.",
+      "The Family Fallout Shelter is a family-friendly retro survival room.",
+      "Factory Heist is a 90 minute room called Operation Green Bean.",
+      "Every booking is private, so teams play without strangers.",
+      "The sets combine live actors and real special effects.",
+      "Booking is online, and guests complete a waiver through an online check-in page."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Live actors and real special effects in private horror, retro survival and heist rooms.",
+    "why_here": "Three private escape rooms in Sarasota: Exterminated, a horror room called Terror at the Junkyard, The Family Fallout Shelter, a family-friendly retro survival room, and Factory Heist, a 90 minute room called Operation Green Bean. Sets use live actors and real special effects.",
+    "know_before": "Every booking is private, so teams play without strangers. Booking is online, and guests complete a waiver through an online check-in page.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://evasiveescaperooms.com/"
+     ],
+     "why_here": [
+      "https://evasiveescaperooms.com/"
+     ],
+     "know_before": [
+      "https://evasiveescaperooms.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Evasive Escape Rooms in Sarasota offers three rooms: Exterminated, The Family Fallout Shelter and Factory Heist.",
+      "source": "https://evasiveescaperooms.com/"
+     },
+     {
+      "claim": "Exterminated is a horror room called Terror at the Junkyard.",
+      "source": "https://evasiveescaperooms.com/"
+     },
+     {
+      "claim": "Every booking is private, so teams play without strangers.",
+      "source": "https://evasiveescaperooms.com/"
+     },
+     {
+      "claim": "The sets combine live actors and real special effects.",
+      "source": "https://evasiveescaperooms.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbapxdm07w4gRzDJ0mWnut7I",
+   "name": "Premier Escape Adventures",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://premierescapeadventures.com/",
+     "source_name": "Premier Escape Adventures, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Premier Escape Adventures is a Bradenton escape room business with five games: City of Chaos, Elves on Strike, Shadows in the Night, Murder on the Manatee and The Curse.",
+      "Teams have 60 minutes to solve the puzzles and escape.",
+      "The business offers unlimited clues.",
+      "Most games fit up to 8 players.",
+      "For groups larger than 8, The Curse and Shadows in the Night are recommended because they are more forgiving.",
+      "There is no age limit, but children under 12 need a paying adult.",
+      "Games are booked by appointment only."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Unlimited clues across five escape games, with no age limit and room for up to 8 players per team.",
+    "why_here": "A Bradenton escape room business with five games: City of Chaos, Elves on Strike, Shadows in the Night, Murder on the Manatee and The Curse. Teams get 60 minutes to solve the puzzles and escape, and clues are unlimited.",
+    "know_before": "Games are booked by appointment only. There is no age limit, but children under 12 need a paying adult. For groups larger than 8, The Curse and Shadows in the Night are more forgiving.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://premierescapeadventures.com/"
+     ],
+     "why_here": [
+      "https://premierescapeadventures.com/"
+     ],
+     "know_before": [
+      "https://premierescapeadventures.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Premier Escape Adventures is a Bradenton escape room business with five games: City of Chaos, Elves on Strike, Shadows in the Night, Murder on the Manatee and The Curse.",
+      "source": "https://premierescapeadventures.com/"
+     },
+     {
+      "claim": "The business offers unlimited clues.",
+      "source": "https://premierescapeadventures.com/"
+     },
+     {
+      "claim": "There is no age limit, but children under 12 need a paying adult.",
+      "source": "https://premierescapeadventures.com/"
+     },
+     {
+      "claim": "Games are booked by appointment only.",
+      "source": "https://premierescapeadventures.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJyAe2c9Bw4gRTon9cLv_dZo",
+   "name": "Capo Pazzo Pizzeria + Kitchen",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ordercapopazzo.com/",
+     "source_name": "Capo Pazzo Pizzeria + Kitchen, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Capo Pazzo Pizzeria + Kitchen is a family-owned Sarasota pizzeria that bills itself as authentic New York pizza.",
+      "The restaurant combines Italian cooking methods with a New York background.",
+      "The menu covers handmade pizza, antipasti, salads, pasta and imported beer and wine.",
+      "Most ingredients are imported from Italy, including burrata, spices and olive oil.",
+      "The website has a reservations page, and catering is handled through ezCater."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "New York pizza with Italian roots, built on imported burrata, spices and olive oil.",
+    "why_here": "A family-owned Sarasota pizzeria that pairs Italian cooking methods with a New York background. The menu covers handmade pizza, antipasti, salads and pasta, with imported beer and wine, and most ingredients come from Italy.",
+    "know_before": "Reservations are taken, and catering is handled through ezCater.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://www.ordercapopazzo.com/"
+     ],
+     "why_here": [
+      "https://www.ordercapopazzo.com/"
+     ],
+     "know_before": [
+      "https://www.ordercapopazzo.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Capo Pazzo Pizzeria + Kitchen is a family-owned Sarasota pizzeria that bills itself as authentic New York pizza.",
+      "source": "https://www.ordercapopazzo.com/"
+     },
+     {
+      "claim": "The menu covers handmade pizza, antipasti, salads, pasta and imported beer and wine.",
+      "source": "https://www.ordercapopazzo.com/"
+     },
+     {
+      "claim": "Most ingredients are imported from Italy, including burrata, spices and olive oil.",
+      "source": "https://www.ordercapopazzo.com/"
+     },
+     {
+      "claim": "The website has a reservations page, and catering is handled through ezCater.",
+      "source": "https://www.ordercapopazzo.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkRy9FIw5w4gRbg7zGEOnqio",
+   "name": "Takos Cantina Ranch Lake Blvd",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://takoscantina.com/",
+     "source_name": "Takos Cantina, Ranch Lake Blvd",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The Ranch Lake Blvd branch of Takos Cantina is in Bradenton.",
+      "Guest favorites include birria tacos, queso dip and ribeye steak.",
+      "Signature dishes include enchiladas de espinacas and pollo chipotle.",
+      "The menu has categories for tacos, carnitas, ceviche, flautas, molcajetes, seafood and chimichangas, plus a vegetarian category.",
+      "The restaurant describes its food as authentic Mexican flavors with an extensive menu.",
+      "The restaurant accepts reservations and offers takeout and delivery."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Birria tacos, queso dip and molcajetes on an extensive Mexican menu with a vegetarian section.",
+    "why_here": "A Bradenton Mexican restaurant on Ranch Lake Blvd with an extensive menu. Guest favorites include birria tacos, queso dip and ribeye steak, and signature dishes include enchiladas de espinacas and pollo chipotle, with a vegetarian category too.",
+    "know_before": "Reservations are accepted, and takeout and delivery are available.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://takoscantina.com/"
+     ],
+     "why_here": [
+      "https://takoscantina.com/"
+     ],
+     "know_before": [
+      "https://takoscantina.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Guest favorites include birria tacos, queso dip and ribeye steak.",
+      "source": "https://takoscantina.com/"
+     },
+     {
+      "claim": "Signature dishes include enchiladas de espinacas and pollo chipotle.",
+      "source": "https://takoscantina.com/"
+     },
+     {
+      "claim": "The menu has categories for tacos, carnitas, ceviche, flautas, molcajetes, seafood and chimichangas, plus a vegetarian category.",
+      "source": "https://takoscantina.com/"
+     },
+     {
+      "claim": "The restaurant accepts reservations and offers takeout and delivery.",
+      "source": "https://takoscantina.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFUjnJNsRw4gRVflsz2MNAeg",
+   "name": "Shore Thing Tiki Cruises",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shorethingtikicruises.com/",
+     "source_name": "Shore Thing Tiki Cruises, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Shore Thing Tiki Cruises is based in Bradenton Beach and cruises around Anna Maria Island.",
+      "The boat is a custom-built floating tiki bar and lounge.",
+      "The boats accommodate groups from 1 to 44 guests, and each has an onboard bathroom.",
+      "Options include daily public cruises, private cruises and a public dolphin tour.",
+      "The cruises cover sunsets, sandbar gatherings, and dolphins and exotic birds.",
+      "Captain Frank is a U.S. Coast Guard certified Master Captain who has lived on Anna Maria Island for over 40 years.",
+      "The business is locally owned and family operated.",
+      "Reservations are booked online, and gift cards are available."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A custom-built floating tiki bar that cruises Anna Maria Island for sunsets, sandbars and dolphins.",
+    "why_here": "A locally owned, family operated outfit based in Bradenton Beach that cruises around Anna Maria Island on a custom-built floating tiki bar and lounge. Choose a daily public cruise, a public dolphin tour or a private cruise, with sunsets, sandbars and exotic birds along the way.",
+    "know_before": "The boats accommodate groups from 1 to 44 guests, and each has an onboard bathroom. Reservations are booked online, and gift cards are available.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://shorethingtikicruises.com/"
+     ],
+     "why_here": [
+      "https://shorethingtikicruises.com/"
+     ],
+     "know_before": [
+      "https://shorethingtikicruises.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The boat is a custom-built floating tiki bar and lounge.",
+      "source": "https://shorethingtikicruises.com/"
+     },
+     {
+      "claim": "The boats accommodate groups from 1 to 44 guests, and each has an onboard bathroom.",
+      "source": "https://shorethingtikicruises.com/"
+     },
+     {
+      "claim": "Options include daily public cruises, private cruises and a public dolphin tour.",
+      "source": "https://shorethingtikicruises.com/"
+     },
+     {
+      "claim": "Captain Frank is a U.S. Coast Guard certified Master Captain who has lived on Anna Maria Island for over 40 years.",
+      "source": "https://shorethingtikicruises.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx-U-VRFAw4gRs2F9lqOsXtY",
+   "name": "LeBarge Tropical Cruises",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lebargetropicalcruises.com/",
+     "source_name": "LeBarge Tropical Cruises, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "LeBarge Tropical Cruises departs from Marina Plaza in Sarasota.",
+      "The vessel is billed as Sarasota's Floating Island Experience, with four real palm trees aboard.",
+      "Cruises include a Tropical Sunset Cruise, a Sightseeing & Nature Cruise and a Dolphin & Manatee Watch Cruise.",
+      "Each of these cruises lasts 2 hours.",
+      "Cruises show Sarasota Bay sunsets, dolphins and seasonal manatees.",
+      "The boat has two full bars and a light food menu.",
+      "Frozen and signature tropical drinks are served aboard.",
+      "Guests should arrive at least 30 minutes before departure.",
+      "Outside food and beverages are not allowed, and proper attire is required.",
+      "Wildlife sightings are not guaranteed."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A floating island with four real palm trees that cruises Sarasota Bay for dolphins, sunsets and tropical drinks.",
+    "why_here": "LeBarge Tropical Cruises departs from Marina Plaza in Sarasota on a floating island with four real palm trees. Pick a Tropical Sunset Cruise, a Sightseeing & Nature Cruise or a Dolphin & Manatee Watch Cruise, each 2 hours, with two full bars and a light food menu aboard.",
+    "know_before": "Arrive at least 30 minutes before departure. Outside food and beverages are not allowed, proper attire is required, and wildlife sightings are not guaranteed.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://lebargetropicalcruises.com/"
+     ],
+     "why_here": [
+      "https://lebargetropicalcruises.com/"
+     ],
+     "know_before": [
+      "https://lebargetropicalcruises.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The vessel is billed as Sarasota's Floating Island Experience, with four real palm trees aboard.",
+      "source": "https://lebargetropicalcruises.com/"
+     },
+     {
+      "claim": "Cruises include a Tropical Sunset Cruise, a Sightseeing & Nature Cruise and a Dolphin & Manatee Watch Cruise.",
+      "source": "https://lebargetropicalcruises.com/"
+     },
+     {
+      "claim": "Cruises show Sarasota Bay sunsets, dolphins and seasonal manatees.",
+      "source": "https://lebargetropicalcruises.com/"
+     },
+     {
+      "claim": "The boat has two full bars and a light food menu.",
+      "source": "https://lebargetropicalcruises.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHSMgAGMo2Y0RNnoDmNJD8Hw",
+   "name": "Calusa Brewing",
+   "category": "nightlife",
+   "metro": "manatee-sarasota",
+   "primary_type": "brewery",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.calusabrewing.com/",
+     "source_name": "Calusa Brewing, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Calusa Brewing has a taproom on McIntosh Road in Sarasota.",
+      "Zote IPA is the flagship, a hazy IPA that showcases Citra and Mosaic hops.",
+      "Zote IPA earned the Best Florida Beer 2024 gold medal in the Hazy IPA category.",
+      "Siesta Squeeze is a wheat ale brewed with real tangerine.",
+      "A new beer is released each week and is only available in the taproom.",
+      "PigFish runs the taproom kitchen.",
+      "Taproom events include live music, trivia, run club and featured sports games.",
+      "Beer can be ordered to go through Toast."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A Best Florida Beer gold medal hazy IPA, a tangerine wheat ale and new taproom-only beers every week.",
+    "why_here": "A Sarasota brewery taproom on McIntosh Road. The flagship Zote IPA is a hazy IPA with Citra and Mosaic hops, and it earned the Best Florida Beer 2024 gold medal. Siesta Squeeze is a wheat ale brewed with real tangerine. PigFish runs the kitchen.",
+    "know_before": "A new beer is released each week and is only available in the taproom. Events include live music, trivia, run club and featured sports games. Beer can be ordered to go through Toast.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://www.calusabrewing.com/"
+     ],
+     "why_here": [
+      "https://www.calusabrewing.com/"
+     ],
+     "know_before": [
+      "https://www.calusabrewing.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Zote IPA is the flagship, a hazy IPA that showcases Citra and Mosaic hops.",
+      "source": "https://www.calusabrewing.com/"
+     },
+     {
+      "claim": "Zote IPA earned the Best Florida Beer 2024 gold medal in the Hazy IPA category.",
+      "source": "https://www.calusabrewing.com/"
+     },
+     {
+      "claim": "Siesta Squeeze is a wheat ale brewed with real tangerine.",
+      "source": "https://www.calusabrewing.com/"
+     },
+     {
+      "claim": "PigFish runs the taproom kitchen.",
+      "source": "https://www.calusabrewing.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo2wUhY9Aw4gRNMp0mQwG3ac",
+   "name": "Robarts Arena",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "arena",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sarasotafair.com/p/getinvolved/robards-arena",
+     "source_name": "Sarasota County Fair, Robarts Arena",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Robarts Arena sits on the Sarasota County Agricultural Fair grounds.",
+      "The arena holds up to 4,845 people depending on floor configuration, including 2,696 chair seats.",
+      "The main floor covers 15,000 square feet.",
+      "The arena hosts sporting events, home shows, banquets, gun shows, concerts and graduations.",
+      "Chair seating was newly renovated, and the building has renovated concessions and two renovated locker rooms.",
+      "The site has ample parking and a box office."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A 15,000 square foot floor that flexes from sporting events and concerts to home shows and graduations.",
+    "why_here": "An arena on the Sarasota County Agricultural Fair grounds that holds up to 4,845 people depending on the floor setup, including 2,696 chair seats. Recent renovations touched the seating, concessions and locker rooms, and events range from sporting events and concerts to home shows and banquets.",
+    "know_before": "The site has ample parking and a box office. Capacity changes with the floor configuration for each event.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://sarasotafair.com/p/getinvolved/robards-arena"
+     ],
+     "why_here": [
+      "https://sarasotafair.com/p/getinvolved/robards-arena"
+     ],
+     "know_before": [
+      "https://sarasotafair.com/p/getinvolved/robards-arena"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The arena holds up to 4,845 people depending on floor configuration, including 2,696 chair seats.",
+      "source": "https://sarasotafair.com/p/getinvolved/robards-arena"
+     },
+     {
+      "claim": "The main floor covers 15,000 square feet.",
+      "source": "https://sarasotafair.com/p/getinvolved/robards-arena"
+     },
+     {
+      "claim": "The arena hosts sporting events, home shows, banquets, gun shows, concerts and graduations.",
+      "source": "https://sarasotafair.com/p/getinvolved/robards-arena"
+     },
+     {
+      "claim": "The site has ample parking and a box office.",
+      "source": "https://sarasotafair.com/p/getinvolved/robards-arena"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-1BSWChTw4gRMHlGPNVGODo",
+   "name": "North Port Aquatic Center",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "sports_complex",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.northportfl.gov/Community-Recreation/North-Port-Aquatic-Center",
+     "source_name": "City of North Port, North Port Aquatic Center",
+     "source_class": "government",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The North Port Aquatic Center has a heated competition pool.",
+      "The waterpark includes the Relaxahatchee Lazy River, the Barracuda Blast drop slide and the Pelican Playground for young children.",
+      "The Sand Dollar Snack Shack sells concessions on site.",
+      "Swimming lessons are taught by American Red Cross certified staff, and the center offers hydro fitness classes.",
+      "Hours vary by season, and the waterpark closes for winter.",
+      "Groups of 15 or more must submit a reservation form at least 72 hours in advance.",
+      "Lifeguards clear the area and direct guests indoors for 30 minutes when lightning is nearby."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A lazy river, a drop slide and a heated competition pool, all at one North Port city aquatic center.",
+    "why_here": "The North Port city aquatic center pairs a heated competition pool with a waterpark that has the Relaxahatchee Lazy River, the Barracuda Blast drop slide and the Pelican Playground for young children. Swimming lessons, hydro fitness classes and the Sand Dollar Snack Shack are on site.",
+    "know_before": "Hours vary by season, and the waterpark closes for winter. Groups of 15 or more must submit a reservation form at least 72 hours in advance.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://www.northportfl.gov/Community-Recreation/North-Port-Aquatic-Center"
+     ],
+     "why_here": [
+      "https://www.northportfl.gov/Community-Recreation/North-Port-Aquatic-Center"
+     ],
+     "know_before": [
+      "https://www.northportfl.gov/Community-Recreation/North-Port-Aquatic-Center"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The North Port Aquatic Center has a heated competition pool.",
+      "source": "https://www.northportfl.gov/Community-Recreation/North-Port-Aquatic-Center"
+     },
+     {
+      "claim": "The waterpark includes the Relaxahatchee Lazy River, the Barracuda Blast drop slide and the Pelican Playground for young children.",
+      "source": "https://www.northportfl.gov/Community-Recreation/North-Port-Aquatic-Center"
+     },
+     {
+      "claim": "Hours vary by season, and the waterpark closes for winter.",
+      "source": "https://www.northportfl.gov/Community-Recreation/North-Port-Aquatic-Center"
+     },
+     {
+      "claim": "Groups of 15 or more must submit a reservation form at least 72 hours in advance.",
+      "source": "https://www.northportfl.gov/Community-Recreation/North-Port-Aquatic-Center"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIw1i7-0Rw4gRWBMhwHRuTD0",
+   "name": "Get Up and Go Kayaking - Robinson Preserve",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://getupandgokayaking.com/locations/florida/robinson-preserve/",
+     "source_name": "Get Up And Go Kayaking, Robinson Preserve Clear Kayak Tour",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The Robinson Preserve tour is a guided clear kayak ecotour through mangrove estuaries toward Tampa Bay.",
+      "Guides are certified Guardian Guides with the Save the Manatee Club.",
+      "Paddlers may see fish, turtles, birds, spotted eagle rays and occasionally dolphins and manatees.",
+      "The route includes a stop at a 5-story observation tower with views of Tampa Bay, Anna Maria Island and the Sunshine Skyway.",
+      "Public tours are limited to 10 paddlers.",
+      "Public tours accept children ages 3 and up, with one adult per child aged 14 and under.",
+      "Tours are booked ahead online or by phone.",
+      "Guests should bring sunscreen, a hat and a towel."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Clear kayaks through the mangroves of Robinson Preserve, with a stop at a 5-story tower overlooking Tampa Bay.",
+    "why_here": "A guided ecotour in clear kayaks through the mangrove estuaries of Robinson Preserve, paddling toward Tampa Bay. Guides are certified Guardian Guides with the Save the Manatee Club. You may see fish, turtles, birds and spotted eagle rays, and the route stops at an observation tower with views of Tampa Bay and Anna Maria Island.",
+    "know_before": "Book ahead online or by phone. Public tours take up to 10 paddlers and children ages 3 and up, with one adult per child aged 14 and under. Bring sunscreen, a hat and a towel.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://getupandgokayaking.com/locations/florida/robinson-preserve/"
+     ],
+     "why_here": [
+      "https://getupandgokayaking.com/locations/florida/robinson-preserve/"
+     ],
+     "know_before": [
+      "https://getupandgokayaking.com/locations/florida/robinson-preserve/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Robinson Preserve tour is a guided clear kayak ecotour through mangrove estuaries toward Tampa Bay.",
+      "source": "https://getupandgokayaking.com/locations/florida/robinson-preserve/"
+     },
+     {
+      "claim": "Guides are certified Guardian Guides with the Save the Manatee Club.",
+      "source": "https://getupandgokayaking.com/locations/florida/robinson-preserve/"
+     },
+     {
+      "claim": "The route includes a stop at a 5-story observation tower with views of Tampa Bay, Anna Maria Island and the Sunshine Skyway.",
+      "source": "https://getupandgokayaking.com/locations/florida/robinson-preserve/"
+     },
+     {
+      "claim": "Public tours are limited to 10 paddlers.",
+      "source": "https://getupandgokayaking.com/locations/florida/robinson-preserve/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ8WChFPpDw4gRlTk4BsAZG-Y",
+   "name": "Low Tide Tours Tiki Boat",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lowtidetours.com",
+     "source_name": "Low Tide Tours, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Low Tide Tours is a locally owned watersports company in the Sarasota area.",
+      "Low Tide Tours runs captained floating tiki boat cruises from Siesta Key, Bradenton Beach, Lido Key, Longboat Key, Venice and Sarasota.",
+      "Guests cruise scenic waterways on a floating tiki bar and often encounter dolphins, manatees and birds.",
+      "The tiki boat cruises are listed as fun for all ages and BYOB.",
+      "The company operates seven days a week and takes bookings online through FareHarbor."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A floating tiki bar on the water, with dolphins, manatees and birds often spotted along the route.",
+    "why_here": "Low Tide Tours is a locally owned watersports company that runs captained floating tiki boat cruises from Siesta Key, Bradenton Beach, Lido Key, Longboat Key, Venice and Sarasota. Guests cruise scenic waterways on a floating tiki bar, often meeting dolphins, manatees and birds.",
+    "know_before": "The tiki boat cruises are BYOB and listed as fun for all ages. Booking is online through FareHarbor, and the company operates seven days a week.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://lowtidetours.com"
+     ],
+     "why_here": [
+      "https://lowtidetours.com"
+     ],
+     "know_before": [
+      "https://lowtidetours.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Low Tide Tours runs captained floating tiki boat cruises from Siesta Key, Bradenton Beach, Lido Key, Longboat Key, Venice and Sarasota.",
+      "source": "https://lowtidetours.com"
+     },
+     {
+      "claim": "Guests cruise scenic waterways on a floating tiki bar and often encounter dolphins, manatees and birds.",
+      "source": "https://lowtidetours.com"
+     },
+     {
+      "claim": "The tiki boat cruises are listed as fun for all ages and BYOB.",
+      "source": "https://lowtidetours.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeVCWeJet3IgRfU5xlyHe4aI",
+   "name": "Savor 100x35",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "caribbean_restaurant",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://savor100x35.com",
+     "source_name": "Savor 100 x 35, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Savor 100 x 35 is a Caribbean restaurant in North Port, founded in 2020.",
+      "The restaurant describes itself as a celebration of Caribbean food and culture.",
+      "The menu highlights jerk chicken, curry dishes, plantain dishes and seafood specialties.",
+      "Dining in and takeout are both offered, and online ordering is available."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    },
+    {
+     "source": "https://savor100x35.com/menu",
+     "source_name": "Savor 100 x 35, Menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The menu includes mofongo bowls such as the Pernil Mofongo Bowl and the Shrimp En Salsa Mofongo Bowl.",
+      "The menu also lists a Savor Cuban sandwich, empanadas, tres leches and churros.",
+      "The menu includes a kids section."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Mofongo bowls, a Savor Cuban and jerk chicken make up a Caribbean menu in North Port, founded in 2020.",
+    "why_here": "A Caribbean restaurant in North Port, founded in 2020 as a celebration of Caribbean food and culture. The menu runs from jerk chicken, curry dishes and plantain dishes to seafood, empanadas and mofongo bowls, with tres leches and churros for dessert.",
+    "know_before": "Dining in and takeout are both offered, and online ordering is available. The menu includes a kids section.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://savor100x35.com",
+      "https://savor100x35.com/menu"
+     ],
+     "why_here": [
+      "https://savor100x35.com",
+      "https://savor100x35.com/menu"
+     ],
+     "know_before": [
+      "https://savor100x35.com",
+      "https://savor100x35.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Savor 100 x 35 is a Caribbean restaurant in North Port, founded in 2020.",
+      "source": "https://savor100x35.com"
+     },
+     {
+      "claim": "The menu highlights jerk chicken, curry dishes, plantain dishes and seafood specialties.",
+      "source": "https://savor100x35.com"
+     },
+     {
+      "claim": "The menu includes mofongo bowls such as the Pernil Mofongo Bowl and the Shrimp En Salsa Mofongo Bowl.",
+      "source": "https://savor100x35.com/menu"
+     },
+     {
+      "claim": "The menu also lists a Savor Cuban sandwich, empanadas, tres leches and churros.",
+      "source": "https://savor100x35.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvfUH1QEXw4gRmIeamrrAd-s",
+   "name": "Happy Paddler Kayak Tours & EcoVentures",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://happypaddler.com",
+     "source_name": "Happy Paddler Kayak Tours & EcoVentures, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Happy Paddler Kayak Tours & EcoVentures offers guided kayak tours and rentals around Anna Maria Island, Longboat Key, Lido Key and Sarasota.",
+      "The company describes its team as naturalists and certified paddling instructors.",
+      "The Coastal Island Kayak Tour focuses on manatees and dolphins.",
+      "The Mangrove Tunnels Kayak Tour paddles through mangrove tunnels at Ted Sperling Nature Park on Lido Key.",
+      "The company says prior kayaking experience is not required and all ages and abilities are welcome.",
+      "Tours and rentals book up quickly, so the site recommends reserving ahead through its online booking system."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Guided paddles through mangrove tunnels and past manatees and dolphins, led by naturalists and certified instructors.",
+    "why_here": "Happy Paddler guides kayak tours around Anna Maria Island, Longboat Key, Lido Key and Sarasota. The Coastal Island tour focuses on manatees and dolphins, while the Mangrove Tunnels tour paddles through mangroves at Ted Sperling Nature Park on Lido Key. Rentals are offered too.",
+    "know_before": "Prior kayaking experience is not required, and all ages and abilities are welcome. Tours and rentals book up quickly, so reserve ahead through the online booking system.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://happypaddler.com"
+     ],
+     "why_here": [
+      "https://happypaddler.com"
+     ],
+     "know_before": [
+      "https://happypaddler.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The company describes its team as naturalists and certified paddling instructors.",
+      "source": "https://happypaddler.com"
+     },
+     {
+      "claim": "The Coastal Island Kayak Tour focuses on manatees and dolphins.",
+      "source": "https://happypaddler.com"
+     },
+     {
+      "claim": "The Mangrove Tunnels Kayak Tour paddles through mangrove tunnels at Ted Sperling Nature Park on Lido Key.",
+      "source": "https://happypaddler.com"
+     },
+     {
+      "claim": "The company says prior kayaking experience is not required and all ages and abilities are welcome.",
+      "source": "https://happypaddler.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcfUhw6M_w4gRgn3v8Yxn4fY",
+   "name": "Siesta Key Rum",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "manufacturer",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://siestakeyrum.com",
+     "source_name": "Siesta Key Rum, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Siesta Key Rum is a handcrafted rum made in Sarasota by Drum Circle Distilling, LLC.",
+      "Free rum samples are available during regular business hours."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    },
+    {
+     "source": "https://siestakeyrum.com/tours",
+     "source_name": "Siesta Key Rum, Tours",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The guided tour of Drum Circle Distilling covers the distillery's history and the steps of mashing, fermentation, distillation, barrel aging and bottling.",
+      "Guests on the tour receive a Siesta Key Rum cocktail.",
+      "The tour lasts about 40 minutes.",
+      "Guided tours require a reservation.",
+      "Groups of more than 10 must call to arrange scheduling.",
+      "Complimentary tastings need no reservation during regular business hours.",
+      "Guests can stay after the tour to order cocktails at the Tiki Bar and browse the gift shop.",
+      "The site recommends arriving 15 minutes early."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A Sarasota distillery tour that walks from mashing to bottling and ends with a rum cocktail and a Tiki Bar.",
+    "why_here": "Siesta Key Rum is handcrafted in Sarasota by Drum Circle Distilling. The 40 minute guided tour covers the distillery's history and each step from mashing and fermentation to distillation, barrel aging and bottling, with a cocktail included. Stay afterward for the Tiki Bar and gift shop.",
+    "know_before": "Guided tours require a reservation, and groups of more than 10 must call to arrange scheduling. Complimentary tastings need no reservation during regular business hours. Arrive 15 minutes early.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://siestakeyrum.com",
+      "https://siestakeyrum.com/tours"
+     ],
+     "why_here": [
+      "https://siestakeyrum.com",
+      "https://siestakeyrum.com/tours"
+     ],
+     "know_before": [
+      "https://siestakeyrum.com/tours"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Siesta Key Rum is a handcrafted rum made in Sarasota by Drum Circle Distilling, LLC.",
+      "source": "https://siestakeyrum.com"
+     },
+     {
+      "claim": "The guided tour of Drum Circle Distilling covers the distillery's history and the steps of mashing, fermentation, distillation, barrel aging and bottling.",
+      "source": "https://siestakeyrum.com/tours"
+     },
+     {
+      "claim": "Guests on the tour receive a Siesta Key Rum cocktail.",
+      "source": "https://siestakeyrum.com/tours"
+     },
+     {
+      "claim": "Guests can stay after the tour to order cocktails at the Tiki Bar and browse the gift shop.",
+      "source": "https://siestakeyrum.com/tours"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLQWJ7WARw4gRrIUgGRRED-M",
+   "name": "Pirate Adventures of Cortez",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pirateadventuresofcortez.com",
+     "source_name": "Pirate Adventures of Cortez, Pirate Boat Adventure",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Pirate Adventures of Cortez offers an interactive pirate cruise for kids and families aboard the Sea Gypsy IV.",
+      "The cruise sails just off Anna Maria Island.",
+      "Kids can dress up as a pirate or mermaid, with face painting or tattoos available.",
+      "Kids follow a treasure map to sunken treasure and face Pirate Pete.",
+      "The Sea Gypsy IV has water cannons.",
+      "The cruise lasts about 1.25 hours, carries up to 38 people and is listed for all ages.",
+      "Booking is online through FareHarbor, which shows live availability."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A kid-centered pirate cruise with treasure maps, Pirate Pete and water cannons, sailing just off Anna Maria Island.",
+    "why_here": "Kids dress up as a pirate or mermaid, follow a treasure map to sunken treasure and face Pirate Pete aboard the Sea Gypsy IV. The interactive cruise lasts about 1.25 hours and sails just off Anna Maria Island.",
+    "know_before": "The cruise is listed for all ages and carries up to 38 people. Book online through FareHarbor, which shows live availability.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://pirateadventuresofcortez.com"
+     ],
+     "why_here": [
+      "https://pirateadventuresofcortez.com"
+     ],
+     "know_before": [
+      "https://pirateadventuresofcortez.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pirate Adventures of Cortez offers an interactive pirate cruise for kids and families aboard the Sea Gypsy IV.",
+      "source": "https://pirateadventuresofcortez.com"
+     },
+     {
+      "claim": "Kids can dress up as a pirate or mermaid, with face painting or tattoos available.",
+      "source": "https://pirateadventuresofcortez.com"
+     },
+     {
+      "claim": "Kids follow a treasure map to sunken treasure and face Pirate Pete.",
+      "source": "https://pirateadventuresofcortez.com"
+     },
+     {
+      "claim": "The cruise lasts about 1.25 hours, carries up to 38 people and is listed for all ages.",
+      "source": "https://pirateadventuresofcortez.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSzFosAERw4gRdoKp0B-JmGY",
+   "name": "AMI Paddleboard & Kayak Adventures",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://amipaddleboard.com",
+     "source_name": "AMI Paddleboard & Kayak Adventures, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "AMI Paddleboard & Kayak Adventures offers a Mangrove Kayak & Paddleboard Eco Tour, a guided trip through the mangroves to look for Florida wildlife.",
+      "The Happy Hour Dolphin & Manatee Tour is an evening paddle into the sunset, with an option to swim in shallow water by the mangroves or have a floating picnic.",
+      "Kayak and paddleboard rentals are self-guided, with delivery to a spot you choose on Anna Maria Island or Longboat Key.",
+      "The boards are 10 to 12 feet long and suit riders from 50 to 350 lb.",
+      "The company says it has taught people aged 6 to 85 to paddleboard.",
+      "Booking is through Peek."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Guided mangrove paddles and sunset dolphin and manatee tours, plus rentals delivered to a spot you choose.",
+    "why_here": "The guided mangrove tour looks for Florida wildlife, and the Happy Hour Dolphin & Manatee Tour is an evening paddle into the sunset with an option for a floating picnic. Self-guided kayak and paddleboard rentals can be delivered on Anna Maria Island or Longboat Key.",
+    "know_before": "Boards are 10 to 12 feet long and suit riders from 50 to 350 lb. The company has taught people aged 6 to 85. Booking is through Peek.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://amipaddleboard.com"
+     ],
+     "why_here": [
+      "https://amipaddleboard.com"
+     ],
+     "know_before": [
+      "https://amipaddleboard.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "AMI Paddleboard & Kayak Adventures offers a Mangrove Kayak & Paddleboard Eco Tour, a guided trip through the mangroves to look for Florida wildlife.",
+      "source": "https://amipaddleboard.com"
+     },
+     {
+      "claim": "The Happy Hour Dolphin & Manatee Tour is an evening paddle into the sunset, with an option to swim in shallow water by the mangroves or have a floating picnic.",
+      "source": "https://amipaddleboard.com"
+     },
+     {
+      "claim": "Kayak and paddleboard rentals are self-guided, with delivery to a spot you choose on Anna Maria Island or Longboat Key.",
+      "source": "https://amipaddleboard.com"
+     },
+     {
+      "claim": "The boards are 10 to 12 feet long and suit riders from 50 to 350 lb.",
+      "source": "https://amipaddleboard.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQBQ2s04w4gRdRGWAkZdgoY",
+   "name": "Siesta Key Aqua Adventures",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://siestakeyaquaadventures.com",
+     "source_name": "Siesta Key Aqua Adventures, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Siesta Key Aqua Adventures offers banana boat rides pulled from Siesta Key Beach, bumper boat rentals, dolphin tours and parasailing.",
+      "Dolphin tour options include sunset, Dolphins, Drinks & Sandbar, morning mimosa and private charter.",
+      "Jet ski rentals run 1, 2, 3 or 4 hours on Yamaha VX110 Deluxe units, with gas and life jackets included.",
+      "Each jet ski holds 1 to 3 riders, with a 450 lb maximum.",
+      "Parasailing takes up to 12 people on the boat and up to three riders per parasail.",
+      "Booking is online through FareHarbor, and the site says spaces fill up quickly."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Banana boats from Siesta Key Beach, jet skis, parasailing and sunset dolphin tours, all from one operator.",
+    "why_here": "Siesta Key Aqua Adventures offers banana boat rides from Siesta Key Beach, bumper boats, parasailing and dolphin tours, including sunset and morning mimosa options. Jet ski rentals run 1, 2, 3 or 4 hours, with gas and life jackets included.",
+    "know_before": "Book online through FareHarbor, as spaces fill up quickly. Jet skis hold 1 to 3 riders with a 450 lb maximum. Parasailing takes up to 12 people on the boat.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://siestakeyaquaadventures.com"
+     ],
+     "why_here": [
+      "https://siestakeyaquaadventures.com"
+     ],
+     "know_before": [
+      "https://siestakeyaquaadventures.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Siesta Key Aqua Adventures offers banana boat rides pulled from Siesta Key Beach, bumper boat rentals, dolphin tours and parasailing.",
+      "source": "https://siestakeyaquaadventures.com"
+     },
+     {
+      "claim": "Dolphin tour options include sunset, Dolphins, Drinks & Sandbar, morning mimosa and private charter.",
+      "source": "https://siestakeyaquaadventures.com"
+     },
+     {
+      "claim": "Jet ski rentals run 1, 2, 3 or 4 hours on Yamaha VX110 Deluxe units, with gas and life jackets included.",
+      "source": "https://siestakeyaquaadventures.com"
+     },
+     {
+      "claim": "Each jet ski holds 1 to 3 riders, with a 450 lb maximum.",
+      "source": "https://siestakeyaquaadventures.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6YpF2v1-54gRsRHgt2ucZVo",
+   "name": "Mr. Cool Ice Cream & Boba Tea",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mrcoolorlando.wixsite.com/orlando",
+     "source_name": "Mr Cool Ice Cream & Boba Tea, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Mr Cool Ice Cream & Boba Tea serves hand-rolled ice cream and boba tea, with dairy-free options available.",
+      "The shop sits on International Drive near Universal.",
+      "The menu also includes milkshakes and smoothies, and guests can build their own ice cream.",
+      "Delivery is available through DoorDash and Uber Eats."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    },
+    {
+     "source": "https://www.internationaldriveorlando.com/things-to-do/orlando-dining/mr-cool-ice-cream.html",
+     "source_name": "International Drive Orlando, Mr. Cool Ice Cream listing",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Take-out dining is offered at the shop.",
+      "Self-parking at the shop is free.",
+      "The shop is wheelchair accessible."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Ice cream rolled by hand and boba tea with dairy-free options, on International Drive near Universal.",
+    "why_here": "The shop sits on International Drive near Universal and serves hand-rolled ice cream, boba tea, milkshakes and smoothies, and you can build your own ice cream, with dairy-free options available.",
+    "know_before": "Take-out is offered, self-parking is free and the shop is wheelchair accessible. Delivery is available through DoorDash and Uber Eats.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://mrcoolorlando.wixsite.com/orlando"
+     ],
+     "why_here": [
+      "https://mrcoolorlando.wixsite.com/orlando"
+     ],
+     "know_before": [
+      "https://www.internationaldriveorlando.com/things-to-do/orlando-dining/mr-cool-ice-cream.html",
+      "https://mrcoolorlando.wixsite.com/orlando"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mr Cool Ice Cream & Boba Tea serves hand-rolled ice cream and boba tea, with dairy-free options available.",
+      "source": "https://mrcoolorlando.wixsite.com/orlando"
+     },
+     {
+      "claim": "The shop sits on International Drive near Universal.",
+      "source": "https://mrcoolorlando.wixsite.com/orlando"
+     },
+     {
+      "claim": "Self-parking at the shop is free.",
+      "source": "https://www.internationaldriveorlando.com/things-to-do/orlando-dining/mr-cool-ice-cream.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt6956IKL3YgRyFoS33AQ4nU",
+   "name": "Talkin' Tacos Lake Nona",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://talkintacos.net/talkinlakenona",
+     "source_name": "Talkin' Tacos, Lake Nona",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Menu items at Talkin' Tacos include Mexican food such as birria burritos, carne asada, shrimp, tacos, quesadillas, nachos, salads and soup.",
+      "The Talkin' Tacos Lake Nona page lists Lake Nona Central, Lake Nona South, Lake Nona Estates and Northlake Park at Lake Nona among the areas it serves.",
+      "Talkin' Tacos offers catering for corporate and private events.",
+      "Talkin' Tacos sells gift cards for use at the restaurant.",
+      "The brand lists vegetarian options and tagline Less Talkin' More Tacos."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Menu built on birria burritos, carne asada and shrimp, plus quesadillas, nachos and soup.",
+    "why_here": "Talkin' Tacos serves Lake Nona and nearby neighborhoods with a menu built around tacos and birria burritos, plus carne asada, shrimp, quesadillas, nachos, salads, soup and vegetarian options.",
+    "know_before": "Talkin' Tacos also offers catering for corporate and private events, and gift cards for use at the restaurant.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://talkintacos.net/talkinlakenona"
+     ],
+     "why_here": [
+      "https://talkintacos.net/talkinlakenona"
+     ],
+     "know_before": [
+      "https://talkintacos.net/talkinlakenona"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Menu items at Talkin' Tacos include Mexican food such as birria burritos, carne asada, shrimp, tacos, quesadillas, nachos, salads and soup.",
+      "source": "https://talkintacos.net/talkinlakenona"
+     },
+     {
+      "claim": "Talkin' Tacos offers catering for corporate and private events.",
+      "source": "https://talkintacos.net/talkinlakenona"
+     },
+     {
+      "claim": "Talkin' Tacos sells gift cards for use at the restaurant.",
+      "source": "https://talkintacos.net/talkinlakenona"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq_nyioWA3YgRUuvfB-ygx1w",
+   "name": "The Escape Effect | Escape Room Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theescapeeffect.com/orlando",
+     "source_name": "The Escape Effect, Orlando",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The Escape Effect is a small, family-run escape room business with one location in Orlando.",
+      "A Knight To Escape is a medieval game lasting 2 hours, billed as Florida's only 2 hour escape room.",
+      "The other games are Sherlock Studies, Fright Before Your Eyes and At Odds With The Gods, a Greek mythology quest.",
+      "Hosts offer unlimited hints with no penalties.",
+      "The entry door stays unlocked and guests can leave at any time.",
+      "Orlando Magazine voted the venue number one for seven years running."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    },
+    {
+     "source": "https://theescapeeffect.com/faq",
+     "source_name": "The Escape Effect, FAQ",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Guests should arrive 10 minutes before game time to register.",
+      "Anyone under 16 must be accompanied by an adult.",
+      "Reservations guarantee a game and time, while walk-ins are welcome but not guaranteed.",
+      "All games are private, so only your own group takes part.",
+      "The venue is fully ADA accessible."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Private rooms, including a 2 hour medieval quest, with unlimited hints and an unlocked door.",
+    "why_here": "A small, family-run escape room business with one location in Orlando. Games range from a medieval quest to Fright Before Your Eyes and At Odds With The Gods, a Greek mythology quest, all private to your own group.",
+    "know_before": "Arrive 10 minutes before game time. Anyone under 16 must be with an adult. Reservations guarantee your slot, walk-ins are not guaranteed, and the venue is fully ADA accessible.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://theescapeeffect.com/orlando"
+     ],
+     "why_here": [
+      "https://theescapeeffect.com/orlando",
+      "https://theescapeeffect.com/faq"
+     ],
+     "know_before": [
+      "https://theescapeeffect.com/faq"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Escape Effect is a small, family-run escape room business with one location in Orlando.",
+      "source": "https://theescapeeffect.com/orlando"
+     },
+     {
+      "claim": "A Knight To Escape is a medieval game lasting 2 hours, billed as Florida's only 2 hour escape room.",
+      "source": "https://theescapeeffect.com/orlando"
+     },
+     {
+      "claim": "Hosts offer unlimited hints with no penalties.",
+      "source": "https://theescapeeffect.com/orlando"
+     },
+     {
+      "claim": "Guests should arrive 10 minutes before game time to register.",
+      "source": "https://theescapeeffect.com/faq"
+     },
+     {
+      "claim": "The venue is fully ADA accessible.",
+      "source": "https://theescapeeffect.com/faq"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyUY_vd1n54gR9D0zwVfgc80",
+   "name": "The Original Rainbow Cone",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rainbowcone.com/our-story",
+     "source_name": "The Original Rainbow Cone, Our Story",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The Original Rainbow Cone opened its first shop in Chicago in 1926, started by Joe and Katherine Sapp.",
+      "The signature cone stacks Chocolate, Strawberry, Palmer House, Pistachio and Orange Sherbet.",
+      "The flavors are sliced rather than scooped and combined into one cone.",
+      "The brand describes itself as locally owned and family-run."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    },
+    {
+     "source": "https://rainbowcone.com/locations/orlando",
+     "source_name": "Rainbow Cone Orlando",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The Orlando shop is on North Alafaya Trail.",
+      "The Orlando menu includes Signature Cones, Ice Cream Cakes, Old Fashioned Mini Donuts and Super Sundaes.",
+      "The Orlando page offers online ordering through Toast."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A five-flavor cone, sliced rather than scooped, from a Chicago family shop that began in 1926.",
+    "why_here": "The Orlando shop serves the Chicago brand's signature cone, layering Chocolate, Strawberry, Palmer House, Pistachio and Orange Sherbet. The menu also includes ice cream cakes, mini donuts and super sundaes.",
+    "know_before": "The Orlando shop sits on North Alafaya Trail and offers online ordering through Toast.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://rainbowcone.com/our-story"
+     ],
+     "why_here": [
+      "https://rainbowcone.com/our-story",
+      "https://rainbowcone.com/locations/orlando"
+     ],
+     "know_before": [
+      "https://rainbowcone.com/locations/orlando"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Original Rainbow Cone opened its first shop in Chicago in 1926, started by Joe and Katherine Sapp.",
+      "source": "https://rainbowcone.com/our-story"
+     },
+     {
+      "claim": "The signature cone stacks Chocolate, Strawberry, Palmer House, Pistachio and Orange Sherbet.",
+      "source": "https://rainbowcone.com/our-story"
+     },
+     {
+      "claim": "The flavors are sliced rather than scooped and combined into one cone.",
+      "source": "https://rainbowcone.com/our-story"
+     },
+     {
+      "claim": "The Orlando menu includes Signature Cones, Ice Cream Cakes, Old Fashioned Mini Donuts and Super Sundaes.",
+      "source": "https://rainbowcone.com/locations/orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ78Om41hx54gRjdD1nnvA_Kw",
+   "name": "Get Up And Go Kayaking - Winter Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://getupandgokayaking.com/locations/florida/winter-park/",
+     "source_name": "Get Up And Go Kayaking, Winter Park",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Get Up And Go Kayaking runs guided tours in 100 percent clear kayaks through the Winter Park Chain of Lakes and Venetian-style canals.",
+      "Scenery includes waterfront estates and wildlife such as birds, turtles and fish.",
+      "Tour groups are capped at 10 paddlers.",
+      "Day tours, sunset tours, glow-in-the-dark tours with LED lights and private tours are offered.",
+      "Sunset tours paddle at golden hour, when the water reflects the evening sky.",
+      "Tours are booked online through FareHarbor.",
+      "The guides are local and have operated at this location for over 10 years."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Paddle a clear kayak through the Winter Park Chain of Lakes and canals, past waterfront estates.",
+    "why_here": "Guided paddles in clear kayaks wind through the Winter Park Chain of Lakes and Venetian-style canals. Waterfront estates, birds, turtles and fish line the route, with day, sunset, glow-in-the-dark and private tours offered.",
+    "know_before": "Groups are capped at 10 paddlers. Tours are booked online through FareHarbor.",
+    "best_time": "Sunset tours paddle at golden hour, when the water reflects the evening sky.",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://getupandgokayaking.com/locations/florida/winter-park/"
+     ],
+     "why_here": [
+      "https://getupandgokayaking.com/locations/florida/winter-park/"
+     ],
+     "know_before": [
+      "https://getupandgokayaking.com/locations/florida/winter-park/"
+     ],
+     "best_time": [
+      "https://getupandgokayaking.com/locations/florida/winter-park/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Get Up And Go Kayaking runs guided tours in 100 percent clear kayaks through the Winter Park Chain of Lakes and Venetian-style canals.",
+      "source": "https://getupandgokayaking.com/locations/florida/winter-park/"
+     },
+     {
+      "claim": "Scenery includes waterfront estates and wildlife such as birds, turtles and fish.",
+      "source": "https://getupandgokayaking.com/locations/florida/winter-park/"
+     },
+     {
+      "claim": "Tour groups are capped at 10 paddlers.",
+      "source": "https://getupandgokayaking.com/locations/florida/winter-park/"
+     },
+     {
+      "claim": "Sunset tours paddle at golden hour, when the water reflects the evening sky.",
+      "source": "https://getupandgokayaking.com/locations/florida/winter-park/"
+     },
+     {
+      "claim": "Tours are booked online through FareHarbor.",
+      "source": "https://getupandgokayaking.com/locations/florida/winter-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQzMAmVd_54gRd08qFru8Idk",
+   "name": "Arcade Time Entertainment",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://arcadetimeusa.com/locations/orlando",
+     "source_name": "Arcade Time Entertainment, Orlando",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Arcade Time Entertainment Orlando on International Drive advertises 320+ modern and retro arcade games.",
+      "The location includes Pinball Alley, duckpin bowling, Krazy Darts, billiards and ping pong.",
+      "It has a full-service restaurant and two full-liquor bars.",
+      "The Orlando location is open late every night."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    },
+    {
+     "source": "https://www.arcadetimeusa.com",
+     "source_name": "Arcade Time USA, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Arcade Time was voted Best New Arcade in the United States.",
+      "Birthdays, celebrations, team building and corporate outings can be arranged."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    },
+    {
+     "source": "https://www.experiencekissimmee.com/things-to-do/attractions/arcade-time-entertainment",
+     "source_name": "Experience Kissimmee, Arcade Time Entertainment",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Fun Card credit packages and All-You-Can-Play passes are offered."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "320+ arcade games, a pinball alley and duckpin bowling, plus a full restaurant, open late on International Drive.",
+    "why_here": "A big arcade on International Drive with 320+ modern and retro games, Pinball Alley, duckpin bowling and Krazy Darts. A full-service restaurant and two full-liquor bars let you eat and drink between rounds. Arcade Time was voted Best New Arcade in the United States.",
+    "know_before": "Open late every night. Birthdays, team building and corporate outings can be arranged, and Fun Card credit packages and All-You-Can-Play passes are offered.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://arcadetimeusa.com/locations/orlando"
+     ],
+     "why_here": [
+      "https://arcadetimeusa.com/locations/orlando",
+      "https://www.arcadetimeusa.com"
+     ],
+     "know_before": [
+      "https://arcadetimeusa.com/locations/orlando",
+      "https://www.arcadetimeusa.com",
+      "https://www.experiencekissimmee.com/things-to-do/attractions/arcade-time-entertainment"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Arcade Time Entertainment Orlando on International Drive advertises 320+ modern and retro arcade games.",
+      "source": "https://arcadetimeusa.com/locations/orlando"
+     },
+     {
+      "claim": "The location includes Pinball Alley, duckpin bowling, Krazy Darts, billiards and ping pong.",
+      "source": "https://arcadetimeusa.com/locations/orlando"
+     },
+     {
+      "claim": "It has a full-service restaurant and two full-liquor bars.",
+      "source": "https://arcadetimeusa.com/locations/orlando"
+     },
+     {
+      "claim": "Arcade Time was voted Best New Arcade in the United States.",
+      "source": "https://www.arcadetimeusa.com"
+     },
+     {
+      "claim": "Fun Card credit packages and All-You-Can-Play passes are offered.",
+      "source": "https://www.experiencekissimmee.com/things-to-do/attractions/arcade-time-entertainment"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlS1Xi3xn54gR3jIil5_i3ac",
+   "name": "Zen Dumpling",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.zendumplings.com/",
+     "source_name": "Zen Dumpling, Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Zen Dumpling serves pork soup dumplings, an XLB sampler, pan-fried baos and Zen Chili Wontons.",
+      "The restaurant advertises authentic steaming dumplings, fresh every day.",
+      "Other menu items include Dan Dan Noodles, Braised Beef Noodle Soup, Beef Pancake Roll and Chicken Karaage.",
+      "The restaurant has multiple Florida locations and offers online ordering and a PDF menu."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    },
+    {
+     "source": "https://www.zendumplings.com/about",
+     "source_name": "Zen Dumpling, About",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Xiao Long Bao originated in the Jiangnan region of China, particularly Shanghai, and is usually filled with seasoned pork.",
+      "The broth in Xiao Long Bao comes from gelatinized meat stock that melts when steamed."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "Pork soup dumplings, chili wontons and pan-fried baos, with dumplings advertised as steamed fresh every day.",
+    "why_here": "A dumpling-focused menu built around pork soup dumplings, an XLB sampler and Zen Chili Wontons, plus Dan Dan Noodles, Braised Beef Noodle Soup and Chicken Karaage. The broth in each Xiao Long Bao comes from meat stock that melts when steamed.",
+    "know_before": "The restaurant has multiple Florida locations and offers online ordering.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://www.zendumplings.com/"
+     ],
+     "why_here": [
+      "https://www.zendumplings.com/",
+      "https://www.zendumplings.com/about"
+     ],
+     "know_before": [
+      "https://www.zendumplings.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Zen Dumpling serves pork soup dumplings, an XLB sampler, pan-fried baos and Zen Chili Wontons.",
+      "source": "https://www.zendumplings.com/"
+     },
+     {
+      "claim": "The restaurant advertises authentic steaming dumplings, fresh every day.",
+      "source": "https://www.zendumplings.com/"
+     },
+     {
+      "claim": "Other menu items include Dan Dan Noodles, Braised Beef Noodle Soup, Beef Pancake Roll and Chicken Karaage.",
+      "source": "https://www.zendumplings.com/"
+     },
+     {
+      "claim": "The restaurant has multiple Florida locations and offers online ordering and a PDF menu.",
+      "source": "https://www.zendumplings.com/"
+     },
+     {
+      "claim": "Xiao Long Bao originated in the Jiangnan region of China, particularly Shanghai, and is usually filled with seasoned pork.",
+      "source": "https://www.zendumplings.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ83YToXx654gRY7kc1uZmWnY",
+   "name": "RusTeak Thornton Park",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "checked_at": "2026-11-18",
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rusteakwinebar.com/",
+     "source_name": "RusTeak Wine Bar, Locations",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "RusTeak is a rustic new American restaurant and wine bar with a chef-driven menu.",
+      "It offers a curated wine list, craft cocktails and hyper-local draft beer.",
+      "RusTeak was established in 2012 and is owned and operated by Culinary Institute of America graduates.",
+      "The Orlando location is on S. Eola Drive.",
+      "Menus vary by location and the wine list is posted as a PDF."
+     ],
+     "rights_note": "Original factual paraphrases only; no source prose or images republished. Raw-source redistribution and commercial resale rights are not established."
+    }
+   ],
+   "editorial": {
+    "hook": "A chef-driven new American menu and curated wine list from Culinary Institute of America graduates since 2012.",
+    "why_here": "A rustic new American restaurant and wine bar with a chef-driven menu, craft cocktails and hyper-local draft beer. The Orlando location is on S. Eola Drive, and the owners are Culinary Institute of America graduates.",
+    "know_before": "Menus vary by location, so check the Orlando menu before you go.",
+    "best_time": "",
+    "local_tip": "",
+    "citations": {
+     "hook": [
+      "https://www.rusteakwinebar.com/"
+     ],
+     "why_here": [
+      "https://www.rusteakwinebar.com/"
+     ],
+     "know_before": [
+      "https://www.rusteakwinebar.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "RusTeak is a rustic new American restaurant and wine bar with a chef-driven menu.",
+      "source": "https://www.rusteakwinebar.com/"
+     },
+     {
+      "claim": "It offers a curated wine list, craft cocktails and hyper-local draft beer.",
+      "source": "https://www.rusteakwinebar.com/"
+     },
+     {
+      "claim": "RusTeak was established in 2012 and is owned and operated by Culinary Institute of America graduates.",
+      "source": "https://www.rusteakwinebar.com/"
+     },
+     {
+      "claim": "The Orlando location is on S. Eola Drive.",
+      "source": "https://www.rusteakwinebar.com/"
+     },
+     {
+      "claim": "Menus vary by location and the wine list is posted as a PDF.",
+      "source": "https://www.rusteakwinebar.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
