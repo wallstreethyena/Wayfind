@@ -238,7 +238,7 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
     const recordPulse = async () => {}; const budgetGateNote = () => "gate"; const budgetLimitNote = () => "limit"; const budgetDailyReserveNote = () => "daily";
     // 2026-11-12: the route now also asks the Google daily counter and the refresh tier budget; this fixture answers "open, everything affordable" so the executed assertions below are unchanged.
     const runWithBackgroundPriority = (_p, run) => run(); const BACKGROUND_PRIORITY = { NEW_OR_CHANGED: "new-or-changed", SCHEDULED: "scheduled-refresh" };
-    const backgroundDailyStatus = async () => ({ blocked: false, used: 0, line: 400, unreadable: false }); const refreshRichAffordable = async () => ({ enterprise: true, pro: true });
+    const backgroundDailyStatus = async () => ({ blocked: false, used: 0, line: 400, unreadable: false }); const refreshRichAffordable = async () => ({ enterprise: true, pro: true }); const refreshTiersAffordable = async () => ({ enterprise: true, pro: true, essentials: true, unreadable: false });
     const jobCannotRun = (j, m) => Response.json({ cannot: m }, { status: 503 });
     const jobFailed = (j, m) => Response.json({ failed: m }, { status: 500 });
     const normalizeDetails = (p) => ({ id: p.id, name: "x", lat: p.location.latitude, lng: p.location.longitude, types: ["cafe"], businessStatus: p.businessStatus || null, photoRef: null });
