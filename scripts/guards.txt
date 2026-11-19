@@ -2714,6 +2714,10 @@ node scripts/test-santa-local-dates.mjs
 # 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
 node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
+# 2026-11-17: supervised OpenTable booking agent. Dark unless three switches are on. Local fixtures only.
+node scripts/check-booking-agent.mjs
+node scripts/test-booking-agent.mjs
+node scripts/test-booking-agent-browser.mjs
 node scripts/check-photo-rail-swipe.mjs
 node scripts/test-home-landing-thanksgiving.mjs
 
