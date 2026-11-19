@@ -50,7 +50,7 @@ export function scrollToCrowd(pins, widthPx, viewW, viewH, aspect, zoom) {
   if (!a) return { left: 0, top: 0 };
   const w = widthPx * zoom, h = w * aspect;
   const cx = (a.left + b.left) / 200 * w;
-  const cy = (a.top + b.top) / 200 * h - 29; // pins hang above their tip
+  const cy = (a.top + b.top) / 200 * h - 29 + 18; // pins hang above their tip; 18px headroom above the art (CSS)
   return { left: Math.max(0, Math.min(w - viewW, cx - viewW / 2)), top: Math.max(0, Math.min(h - viewH, cy - viewH / 2)) };
 }
 

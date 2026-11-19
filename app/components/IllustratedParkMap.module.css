@@ -4,7 +4,7 @@
 .zoom{display:flex;gap:6px;flex-shrink:0}
 .zoom button{width:44px;height:44px;border:1px solid #c2bfa9;background:#fffdf6;color:#254a3d;border-radius:8px;font-size:24px;line-height:1;cursor:pointer}
 .zoom button:disabled{opacity:.4;cursor:default}
-.scroll{overflow:auto;max-height:720px;background:#efe6d1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.scroll{overflow:auto;max-height:720px;padding-top:18px;background:#efe6d1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .canvas{position:relative;min-width:100%}
 .art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
 .pin{position:absolute;width:48px;height:58px;transform:translate(-50%,-100%);display:flex;align-items:flex-end;justify-content:center;padding:0;border:0;background:transparent;cursor:pointer;z-index:1;text-decoration:none;-webkit-tap-highlight-color:transparent}
