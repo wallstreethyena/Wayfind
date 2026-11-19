@@ -35,7 +35,7 @@ ok(base(null, null)?.businessStatus === null, "no status anywhere stays null");
 // wf_place_ids skeleton (which carries no status) opened the page.
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const placeDataSrc = readFileSync(join(root, "lib/placeData.js"), "utf8");
-ok(placeDataSrc.includes('if (row.status && row.status !== "OPERATIONAL") page.businessStatus = row.status;'), "loadPlace applies wf_inventory closure over the merged page");
+ok(placeDataSrc.includes('if (row && row.status && row.status !== "OPERATIONAL") page.businessStatus = row.status;'), "loadPlace applies wf_inventory closure over the merged page");
 
 console.log(`test-closed-place-pages: ${bad ? "FAIL" : "OK"} — ${n} assertions`);
 if (bad) process.exit(1);
