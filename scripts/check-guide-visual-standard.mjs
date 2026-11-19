@@ -51,12 +51,12 @@ let pass = 0;
 const failures = [];
 const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
 
-// ── the four guide entry points this guard covers, by name (task facts:
-// 43 guides through [slug], 2 dedicated) ───────────────────────────────────
+// Guide entry points that must keep the shared editorial header.
 const ENTRY_POINTS = [
   "app/guides/page.js",
   "app/guides/[slug]/page.js",
   "app/guides/pintos-farm-miami-2026/page.js",
+  "app/guides/disney-world-holiday-food-guide-2026/page.js",
   "app/guides/florida-fall-festivals-2026/page.js",
 ];
 

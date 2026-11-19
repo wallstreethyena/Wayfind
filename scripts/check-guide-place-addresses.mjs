@@ -34,6 +34,13 @@ if (!/https:\/\/www\.google\.com\/maps\/search\/\?api=1&query=/.test(readFileSyn
 }
 if (!fall.includes("<GuidePickWhere")) fail("fall guide cards do not render the address line");
 if (!fall.includes("where.mapsUrl")) fail("fall guide lists do not link the address to maps");
+// 2026-11-18 live check at 390x844: the browse list Directions links measured 37px and 42px tall.
+{
+  const fallCss = readFileSync(new URL("../app/guides/florida-fall-festivals-2026/page.module.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  const rowLink = /\.bucketRow a\s*\{([^}]*)\}/.exec(fallCss);
+  if (!rowLink) fail("fall guide browse rows have no link rule (positive control)");
+  else if (!/min-height:\s*44px/.test(rowLink[1])) fail("fall guide browse row links (Directions included) are not 44px tap targets");
+}
 if (!pintos.includes("<GuidePickWhere")) fail("Pinto's Farm guide does not render the address line");
 if (DEDICATED_GUIDE_ROUTES.size < 1) fail("dedicated guide route set is empty");
 
