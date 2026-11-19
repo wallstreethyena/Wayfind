@@ -76,6 +76,7 @@ const {
   classifyWriteTarget,
   validateProductionWritePayload,
   evaluateProductionWrite,
+  scheduledPulseRefusalAnnotation,
   installProductionWriteFetchGuard,
   getFirewallTelemetry,
   resetFirewallTelemetryForTests,
@@ -433,6 +434,85 @@ function mutatingSocketLeaks() {
     argv: prodArgv,
   });
   ok(cleanVerdict.allowed === true, "legitimate human customer click in VERCEL_ENV=production is permitted");
+}
+
+// ── 7. Scheduled-job allowlist is exact, and a refused heartbeat is LOUD ──────
+{
+  const schedEnv = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main" };
+  const idOf = (script) => classifyExecutionIdentity({ env: schedEnv, argv: ["node", script] });
+
+  // 2026-11-18 audit: every scheduled script that writes wf_job_pulse is listed
+  // (record-workflow-pulse for canary + synthetic-monitor, photo-monitor,
+  // guide-visual-monitor). The read-only scheduled scripts below never write, so
+  // they must NOT be listed: a similar-looking unlisted name stays blocked.
+  for (const listed of ["scripts/guide-visual-monitor.mjs", "scripts/photo-monitor.mjs", "scripts/record-workflow-pulse.mjs"]) {
+    ok(idOf(listed).allowLiveWrites === true, `allowlisted scheduled writer is permitted: ${listed}`);
+  }
+  for (const unlisted of [
+    "scripts/photo-monitor-extra.mjs",
+    "scripts/photo-monitor.mjs.bak",
+    "scripts/guide-visual-monitor2.mjs",
+    "scripts/record-workflow-pulse-v2.mjs",
+    "scripts/fall-discovery/run.mjs",
+    "scripts/probe-partner-offer-registry.mjs",
+    "tools/photo-monitor.mjs",
+  ]) {
+    ok(idOf(unlisted).allowLiveWrites === false, `similar-but-unlisted script stays blocked: ${unlisted}`);
+  }
+  ok(idOf("scripts/watchdog-affiliate-links.mjs").mode === "TEST_OR_GUARD_SCRIPT", "watchdog-* stays vetoed as a guard-class script");
+
+  // Pure annotation: only a refused wf_job_pulse write from a scheduled/dispatched Actions run is loud.
+  const note = scheduledPulseRefusalAnnotation({
+    env: schedEnv,
+    argv: ["node", "/work/Wayfind/scripts/new-monitor.mjs"],
+    table: "wf_job_pulse",
+    reason: "execution-identity:missing-production-execution-identity",
+  });
+  ok(typeof note === "string" && note.startsWith("::error title="), "refused scheduled pulse emits a ::error annotation");
+  ok(!/[\r\n]/.test(note), "annotation is a single line");
+  ok(note.includes("scripts/new-monitor.mjs") && note.includes("ALLOWLISTED_SCHEDULED_WRITER_RX"), "annotation names the script and the fix");
+  ok(scheduledPulseRefusalAnnotation({ env: { ...schedEnv, GITHUB_EVENT_NAME: "workflow_dispatch" }, argv: ["node", "scripts/x.mjs"], table: "wf_job_pulse" }) !== null, "workflow_dispatch pulse refusal is loud too");
+  ok(scheduledPulseRefusalAnnotation({ env: schedEnv, argv: ["node", "scripts/x.mjs"], table: "wf_events" }) === null, "non-pulse table refusal stays quiet");
+  ok(scheduledPulseRefusalAnnotation({ env: { ...schedEnv, GITHUB_EVENT_NAME: "pull_request" }, argv: ["node", "scripts/x.mjs"], table: "wf_job_pulse" }) === null, "PR CI stays quiet (blocking is expected there)");
+  ok(scheduledPulseRefusalAnnotation({ env: {}, argv: ["node", "scripts/x.mjs"], table: "wf_job_pulse" }) === null, "local run stays quiet");
+  ok(scheduledPulseRefusalAnnotation({ env: { VERCEL_ENV: "preview" }, argv: ["node", "scripts/x.mjs"], table: "wf_job_pulse" }) === null, "preview runtime stays quiet");
+
+  // End to end, in a REAL child process: an unlisted scheduled script posting a
+  // heartbeat gets the firewall 403 (no socket opened), prints ::error and exits 1.
+  // Controls: a non-pulse write is blocked but quiet and exits 0; a pull_request
+  // run is blocked, quiet, exit 0 — so the red/green difference is the rule, not noise.
+  const { spawnSync } = await import("node:child_process");
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const pathMod = await import("node:path");
+  const { pathToFileURL } = await import("node:url");
+  const fwUrl = pathToFileURL(pathMod.resolve("lib/productionWriteFirewall.js")).href;
+  const dir = mkdtempSync(pathMod.join(tmpdir(), "wf-fw-"));
+  try {
+    mkdirSync(pathMod.join(dir, "scripts"));
+    const child = pathMod.join(dir, "scripts", "unlisted-monitor.mjs");
+    writeFileSync(
+      child,
+      `await import(${JSON.stringify(fwUrl)});\n` +
+        `const r = await fetch(process.env.SUPABASE_URL + "/rest/v1/" + process.env.TARGET_TABLE, { method: "POST", body: "{}" });\n` +
+        `console.log("STATUS " + r.status + " " + (r.headers.get("x-wayfind-write-firewall") || ""));\n`,
+    );
+    const run = (extra) => {
+      // Fully explicit child env (no shell inheritance): process.execPath is absolute, so no PATH is needed.
+      const env = { SUPABASE_URL: SIMULATED_PROD_SB_URL, SUPABASE_SERVICE_ROLE_KEY: SIMULATED_PROD_KEY, ...extra };
+      return spawnSync(process.execPath, [child], { env, encoding: "utf8", timeout: 30000 });
+    };
+    const loud = run({ ...schedEnv, TARGET_TABLE: "wf_job_pulse" });
+    ok(/STATUS 403 blocked/.test(loud.stdout), `unlisted scheduled script's pulse write is refused by the firewall (got: ${loud.stdout.trim().slice(0, 120)} ${String(loud.stderr).slice(0, 120)})`);
+    ok(/^::error title=wf_job_pulse write refused/m.test(loud.stdout), "child prints the ::error annotation on its own line");
+    ok(loud.status === 1, `child exits non-zero so the workflow goes red (exit ${loud.status})`);
+    const quietTable = run({ ...schedEnv, TARGET_TABLE: "wf_events" });
+    ok(/STATUS 403 blocked/.test(quietTable.stdout) && !/::error/.test(quietTable.stdout) && quietTable.status === 0, "control: non-pulse refusal is blocked, quiet, exit 0");
+    const quietPr = run({ GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "pull_request", TARGET_TABLE: "wf_job_pulse" });
+    ok(/STATUS 403 blocked/.test(quietPr.stdout) && !/::error/.test(quietPr.stdout) && quietPr.status === 0, "control: PR-CI pulse refusal is blocked, quiet, exit 0");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 if (process.argv.includes("--red-prove")) {
