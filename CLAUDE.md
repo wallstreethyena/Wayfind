@@ -123,7 +123,10 @@ it ready and report one real blocker.
 crons and debugging automation each need an explicit cleanup condition and are removed when
 the mission ends or the durable fix exists. Gabriel's Mac is not production infrastructure.
 If repeated rebases or watchers are needed because of how the repo is set up, fix that class
-of problem (merge queue, approval carry-forward) instead of babysitting it.
+of problem (merge queue, approval carry-forward) instead of babysitting it. GitHub's merge queue
+is not offered to personal-account repos, so `.github/workflows/merge-train.yml` is ours: to get a
+PR merged, turn on auto-merge and let the train bring it up to date and test it; never run your
+own update or rebase loop.
 
 ### Rigor that matches the risk
 
