@@ -4,8 +4,15 @@ import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import vm from 'node:vm';
 import ts from 'typescript';
-import React, {act} from 'react';
-import {createRoot} from 'react-dom/client';
+// React must load its development build for act(): the production build
+// throws "act(...) is not supported" by design, and this guard runs inside
+// `npm run build` (prebuild) where NODE_ENV=production — which blocked every
+// production deploy while CI (no NODE_ENV) stayed green. Pin the env BEFORE
+// React is imported (dynamic imports below), strength unchanged.
+process.env.NODE_ENV = 'test';
+const React = (await import('react')).default;
+const {act} = await import('react');
+const {createRoot} = await import('react-dom/client');
 import {JSDOM} from 'jsdom';
 import {DISNEY_FOOD_STOPS} from '../lib/guidesDisneyHolidayFood2026.js';
 import {mapPinUrl} from '../lib/mapPinStandard.js';
