@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import DisneyFoodGeographicMap from "./DisneyFoodGeographicMap";
+import { useEffect, useState } from "react";
+import DisneyIllustratedMap from "./DisneyIllustratedMap";
 import { revealFoodDestination } from "../../../lib/disneyFoodMapController.js";
 import locations from "../../../lib/disneyChristmasFoodLocations2026.json";
 import styles from "./DisneyFoodMap.module.css";
@@ -13,16 +13,6 @@ export default function DisneyFoodMap({ parks, stops, panels }) {
   const [parkId, setParkId] = useState(initialPark);
 
   const [selectedId, setSelectedId] = useState(null);
-  const places = useMemo(() => stops
-    .filter((stop) => stop.parkId === parkId && locations[stop.id])
-    .map((stop) => ({
-      id: stop.id,
-      lat: locations[stop.id].lat,
-      lng: locations[stop.id].lng,
-      name: locations[stop.id].label,
-      city: stop.title,
-      category: "food",
-    })), [parkId, stops]);
 
   function openStop(id) {
     if (!id) return;
@@ -76,7 +66,7 @@ export default function DisneyFoodMap({ parks, stops, panels }) {
       return <div className={styles.panel} key={park.id} data-park={park.id} id={"park-" + park.id}>
         <div className={styles.mapHeading}><h3>{park.shortName}</h3><span>{parkStops.length} food {parkStops.length === 1 ? "stop" : "stops"}</span></div>
         {park.id === parkId && <div className={styles.geographicFrame} aria-label={"Food locations in " + park.name}>
-          <DisneyFoodGeographicMap parkId={parkId} places={places} selectedId={selectedId} onSelect={openStop} />
+          <DisneyIllustratedMap parkId={parkId} parkName={park.name} stops={parkStops} selectedId={selectedId} onSelect={openStop} />
         </div>}
         <ol className={styles.keyList}>{parkStops.map((stop, index) => <li key={stop.id} data-selected={selectedId === stop.id}>
           <a href={"#" + stop.id} onClick={event => { event.preventDefault(); openStop(stop.id); }}><span className={styles.stopNumber} aria-hidden="true">{index + 1}</span><span><strong>{stop.venue}</strong><small>{stop.title}</small></span><span aria-hidden="true">↗</span></a>

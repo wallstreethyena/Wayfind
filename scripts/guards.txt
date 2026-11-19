@@ -2735,5 +2735,7 @@ node scripts/test-disney-food-map.mjs
 node scripts/test-disney-geographic-map.mjs
 
 node scripts/test-disney-food-posts.mjs
+node scripts/test-park-maps-2026.mjs
+node scripts/test-park-maps-2026.mjs --red-prove
 # 2026-11-18: Homepage INP / slow-phone main-thread guard (offscreen containment, tracked horizontal snapshots, IO/rAF/2-card pitch rail observer, AffiliateCard/ThemeParkRail/suggestedView memoization, shared two-pass creator index).
 node scripts/test-home-inp-perf.mjs
