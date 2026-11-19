@@ -3,6 +3,7 @@ import { christmasCreatorPoster } from "../../lib/christmasCreatorPosters.js";
 import { creatorCoversFor } from "../../lib/creatorCovers.js";
 import SeasonalSearchHub, { seasonalSearchMetadata } from "../components/SeasonalSearchHub";
 import ChristmasBrowse from "../components/ChristmasBrowse";
+import ChristmasCityGuides from "../components/ChristmasCityGuides";
 import ChristmasTickets from "../components/ChristmasTickets";
 import FieldVitals from "../components/FieldVitals";
 import ShareButton from "../components/ShareButton";
@@ -29,21 +30,26 @@ import { christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, parse
 export const revalidate = 300;
 export const dynamic = "force-static";
 const seasonal = seasonalSearchMetadata("christmas-in-florida");
-const title = "Florida Christmas Lights, Shows and Event Tickets | Wayfind";
-const description = "Compare Florida Christmas light shows, theme park nights, parades and parties with prices, dates and hours. Book tickets from the organizer or a partner.";
+// 2026-11-19 (owner, SEO): the title leads with the query people type,
+// "christmas in florida", plus the year. No listing count in the title: the
+// count changes daily and a cached title would go stale.
+const title = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events | Wayfind";
+const description = "Plan Christmas in Florida 2026: light shows, theme park parties, boat parades, snow and holiday shows, with dates, hours and tickets across Orlando, Tampa Bay, Sarasota, St. Augustine and more.";
+const ogTitle = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events";
 export const metadata = {
   ...seasonal,
   title,
   description,
   alternates: { canonical: SITE_URL + "/christmas-in-florida" },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   openGraph: {
-    title,
+    title: ogTitle,
     description,
     url: SITE_URL + "/christmas-in-florida",
     siteName: "Wayfind",
-    images: [{ url: SITE_URL + "/api/og?t=" + encodeURIComponent("Florida Christmas Lights, Shows and Parties"), width: 1200, height: 630 }],
+    images: [{ url: SITE_URL + "/api/og?t=" + encodeURIComponent("Christmas in Florida 2026"), width: 1200, height: 630 }],
   },
-  twitter: { ...seasonal.twitter, title, description },
+  twitter: { ...seasonal.twitter, title: ogTitle, description, images: [SITE_URL + "/api/og?t=" + encodeURIComponent("Christmas in Florida 2026")] },
 };
 
 // 2026-11-03 (owner, "Fix it") — creator videos tagged with the christmas
@@ -118,6 +124,7 @@ export default async function Page() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
       <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} weekend={weekend} />
       <ChristmasCreatorPosts posts={creatorPosts} covers={creatorCovers} />
+      <ChristmasCityGuides today={today} />
 
     </>} />
     <SeasonalSearchHub slug="christmas-in-florida" today={today} seoOnly />

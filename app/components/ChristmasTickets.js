@@ -166,7 +166,7 @@ const CSS = XM_CARD_CSS + `
 .xm-pick-via{margin:0;font-size:11px;line-height:1.3;color:#E9C3B0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #xm-tickets{margin-top:22px;scroll-margin-top:12px}
 .xm-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-bottom:16px;border-bottom:1px solid rgba(232,180,138,.22)}
-.xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
+.xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}.xm-see-all{display:flex;align-items:center;width:100%;min-height:44px;margin:10px 0 0;padding:10px 14px;border:1px solid #E8B48A;border-radius:12px;background:#2a1a14;color:#FFE9C8;cursor:pointer;font:inherit;font-size:15px;font-weight:700;text-align:left}.xm-see-all:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xm-count{margin:14px 0 0;font-size:14px;color:var(--muted)}
 .xm-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
 @media(min-width:720px){.xm-main{max-width:960px}.xm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
