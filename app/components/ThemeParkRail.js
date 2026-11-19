@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import RailHeading from "./RailHeading";
 import { RailDots, RailNav } from "./RailCard";
 import IconicPlaceCard from "./IconicPlaceCard";
@@ -37,7 +37,10 @@ export default function ThemeParkRail({ stagedCards = false, mode = "flagship", 
       .then((body) => setLoaded(Array.isArray(body.items) ? body.items : []), () => { if (!seeded) setLoaded([]); });
     return () => controller.abort();
   }, [mode, query, items]);
-  const rows = orderThemeParks(filterFamilyThemeParks(loaded.filter((place) => { if (!themeParkForPlace(place)) return false; const pick = placePartnerPick(place, pinQ); return !!pick && !(excludeOfferIds && excludeOfferIds.includes(pick.offerId)); }), familyContext));
+  const rows = useMemo(
+    () => orderThemeParks(filterFamilyThemeParks(loaded.filter((place) => { if (!themeParkForPlace(place)) return false; const pick = placePartnerPick(place, pinQ); return !!pick && !(excludeOfferIds && excludeOfferIds.includes(pick.offerId)); }), familyContext)),
+    [loaded, pinQ, excludeOfferIds, familyContext],
+  );
   // THE EDITORIAL LINE (owner, 2026-10-31): this was the one IconicPlaceCard
   // surface that never asked for the place's verified line, so the flagship
   // park cards said nothing about why to go while 15 of 17 parks already had
