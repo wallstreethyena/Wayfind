@@ -64,9 +64,9 @@ export default function PlaceDealOffer({ deal, showBusiness = false }) {
         href={href}
         style={btn}
         onClick={onClick}
-        {...(deal.commerce
-          ? { rel: "sponsored noreferrer", "data-commerce-owner": "PlaceDealOffer" }
-          : { target: deal.external ? "_blank" : undefined, rel: deal.external ? "noopener noreferrer" : undefined })}
+        data-commerce-owner="PlaceDealOffer"
+        rel={deal.commerce ? "sponsored noreferrer" : deal.external ? "noopener noreferrer" : undefined}
+        target={!deal.commerce && deal.external ? "_blank" : undefined}
       >
         {deal.cta}{deal.external ? " ↗" : ""}
       </a>

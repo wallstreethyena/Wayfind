@@ -88,7 +88,7 @@ ok(/<PlaceDealOffer deal=\{pickDeals\[i\]\}/.test(guide), "guide picks render Pl
 ok(/<PlaceDealOffer deal=\{railDeals\.get\(place\.id\)\}/.test(guide), "guide place rail renders PlaceDealOffer");
 ok(!/placeDealFor\([^)]*\.name/.test(guide + place), "no caller passes a name");
 const island = src("app/components/PlaceDealOffer.js");
-ok(/"data-commerce-owner": "PlaceDealOffer"/.test(island), "the island owns its commerce click (no double count)");
+ok(/\sdata-commerce-owner="PlaceDealOffer"/.test(island), "the island owns its commerce click (no double count)");
 ok(/deal\.expires < siteTodayStr\(\)/.test(island), "the island hides a deal that expired after the cached page was built");
 ok(/useCommerceImpression\(/.test(island), "the island emits a viewable impression");
 
