@@ -167,8 +167,8 @@ function resolveCronSecret() {
     return { secret: String(process.env.CRON_SECRET).trim(), source: "env" };
   }
   if (process.platform === "darwin") {
-    const service = process.env.CLIPP_KEYCHAIN_SERVICE || "com.gowayfind.clipp-evidence-producer";
-    const account = process.env.CLIPP_KEYCHAIN_ACCOUNT || "CRON_SECRET";
+    const service = "com.gowayfind.clipp-evidence-producer";
+    const account = "CRON_SECRET";
     try {
       const out = execFileSync(
         "/usr/bin/security",
