@@ -268,7 +268,14 @@ export default async function CuratedEventPage({ params }) {
   const heroCover = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
   const venueCover = !heroCover && socialPosts.length && e.place_id ? (await creatorCoversFor([e.place_id]))[e.place_id] || null : null;
   const socialPoster = heroCover || venueCover?.src || null;
-  const socialPosterCredit = heroCover ? null : venueCover?.credit || null;
+  // Live check 2026-11-19: tiles covered by the event hero printed no credit. The hero's own
+  // credit (rail photo, registry shot or the event row's attribution) rides on the tile too.
+  const heroCoverCredit = heroCover ? (
+    (detailPhotos[0] && detailPhotos[0].src === heroCover && eventRailPhotoCredit(detailPhotos[0])?.text)
+    || (shots && shots.hero && shots.hero.src === heroCover && shots.credit ? "Photo: " + String(shots.credit).replace(/^photos?\s*(?:by|from|:)\s*/i, "") : null)
+    || (e.photoAttr && heroCover === e.hero_image ? "Photo: " + String(e.photoAttr).replace(/^photos?\s*(?:by|from|:)\s*/i, "") : null)
+    || null) : null;
+  const socialPosterCredit = heroCover ? heroCoverCredit : venueCover?.credit || null;
   const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
   const socialDetails = (post) => <>
     <div style={{ padding: "18px 16px 14px" }}>
