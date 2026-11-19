@@ -110,8 +110,11 @@ ok(!/—|–| - /.test(unavailableNote(mv, true) + alternativeLabel({ name: "A",
 // 6. Map and cards agree on the same evidence. The map now uses the shared
 // mainScheduleClause like the cards and the day strip (#2646). Measured
 // 2026-11-19: no note shape found where the old map flag changed a result
-// (a daily/nightly note already parses as seven weekdays). The add-on words
-// are read from the main clause only (verifier finding D1).
+// (a daily/nightly note already parses as seven weekdays). Known latent gap
+// (verifier D1): scheduleWeekdays still reads the whole note, so an add-on
+// clause like "fireworks nightly on select nights" can still mark a span
+// nightly. 0 of 508 live notes hit it; the fix belongs in the shared
+// lib/scheduleNoteDays.js rule (follow-up, not this release).
 const { compactDayRule, compactRuleAllows } = await import("../lib/scheduleNoteDays.js");
 const tonight = Date.parse("2026-11-20T00:30:00Z"); // Nov 19, 7:30 PM ET
 for (const note of [
