@@ -1,0 +1,152 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-18T23:34:16.601Z",
+  "pack": "docs/editorial/card-lines-2026-11-18-b65/pack-01.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-11-18",
+  "researched_at": "2026-11-18",
+  "replaced": [
+    {
+      "place_id": "ChIJiRy3pRdj54gRL5mIENus5LI",
+      "name": "Kidiverse",
+      "prior_row": {
+        "place_id": "ChIJiRy3pRdj54gRL5mIENus5LI",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-10T23:55:24.320357+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-10T23:55:24.320357+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJf7PUWy7FwogRU7CrN8rdncg",
+      "name": "Babushka's - Hyde Park",
+      "prior_row": {
+        "place_id": "ChIJf7PUWy7FwogRU7CrN8rdncg",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:11:30 AM"
+        ],
+        "written_at": "2026-08-11T01:55:30.992172+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-11T01:55:30.992172+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJNTCHeFRbw4gRTUqtjPnIBNQ",
+      "name": "The Breakfast Cottage",
+      "prior_row": {
+        "place_id": "ChIJNTCHeFRbw4gRTUqtjPnIBNQ",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-18T02:55:22.234042+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-18T02:55:22.234042+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJAaUq3kp-54gRTByNtizR980",
+      "name": "The Oceanaire Seafood Room",
+      "prior_row": {
+        "place_id": "ChIJAaUq3kp-54gRTByNtizR980",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:know_before:Suite",
+          "unsourced-number:best_time:7 PM",
+          "unsourced-number:local_tip:$50"
+        ],
+        "written_at": "2026-08-24T20:55:34.354583+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-24T20:55:34.354583+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJK7Bi5l5p54gRKyccehMBozA",
+      "name": "District Eat & Play",
+      "prior_row": {
+        "place_id": "ChIJK7Bi5l5p54gRKyccehMBozA",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-18T02:55:22.573548+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-18T02:55:22.573548+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJiXUmxf3pwogR_Ru5j9NdtUQ",
+      "name": "K-Hwa Ro Gui",
+      "prior_row": {
+        "place_id": "ChIJiXUmxf3pwogR_Ru5j9NdtUQ",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:local_tip:6 PM",
+          "unsourced-number:local_tip:8:30 PM"
+        ],
+        "written_at": "2026-08-22T16:55:19.923803+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-22T16:55:19.923803+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJEb01-yF83YgRvPIlfu-cp0c",
+      "name": "GameTime Kissimmee",
+      "prior_row": {
+        "place_id": "ChIJEb01-yF83YgRvPIlfu-cp0c",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:9 PM"
+        ],
+        "written_at": "2026-08-11T02:55:30.99732+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-11T02:55:30.99732+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJk0J1GkZw54gRxygjCHtw_dI",
+      "name": "Jazz Tastings",
+      "prior_row": {
+        "place_id": "ChIJk0J1GkZw54gRxygjCHtw_dI",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-24T22:55:35.019845+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-24T22:55:35.019845+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    }
+  ]
+}
