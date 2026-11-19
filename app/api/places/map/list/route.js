@@ -16,6 +16,7 @@ import { fetchDeadline, DB_DEADLINE_MS } from "../../../../../lib/fetchDeadline.
 import { loadOwnerPickIds } from "../../../../../lib/curatorPicksServer.js";
 import { readMapPlacesByIds, mapListIds } from "../../../../../lib/mapAreaData.js";
 import { readApplePlaceIds } from "../../../../../lib/applePlaceIds.js";
+import { enrichMapPlacesWithRepoOwnedHours } from "../../../../../lib/ownedHours.js";
 
 export const dynamic = "force-dynamic";
 const NO_STORE = { "Cache-Control": "private, no-store" };
@@ -33,6 +34,9 @@ export async function POST(request) {
     const fetcher = (url, init) => fetchDeadline(url, init, DB_DEADLINE_MS);
     const owner = await loadOwnerPickIds({ fresh: true, fetchImpl: fetcher }).catch(() => null);
     const result = await readMapPlacesByIds({ ids, origin, config, fetcher, ownerPickIds: owner ? new Set(owner.map(String)) : null });
+    if (result && Array.isArray(result.places)) {
+      result.places = enrichMapPlacesWithRepoOwnedHours(result.places);
+    }
     const drawn = new Set(result.places.map((p) => p.id));
     const apple = await readApplePlaceIds(ids.filter((id) => !drawn.has(id)), { env: config });
     return NextResponse.json({ ...result, appleIds: Object.fromEntries(apple) }, { headers: NO_STORE });
@@ -41,3 +45,4 @@ export async function POST(request) {
     return NextResponse.json({ error: "The place library is unavailable. Retry the map." }, { status: 503, headers: NO_STORE });
   }
 }
+

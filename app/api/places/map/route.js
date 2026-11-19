@@ -3,6 +3,7 @@ import { sbEnv } from '../../../../lib/serverCache';
 import { fetchDeadline, DB_DEADLINE_MS } from '../../../../lib/fetchDeadline';
 import { loadOwnerPickIds } from '../../../../lib/curatorPicksServer.js';
 import { readMapAreaPage, validMapBounds } from '../../../../lib/mapAreaData';
+import { enrichMapPlacesWithRepoOwnedHours } from '../../../../lib/ownedHours.js';
 
 export async function GET(request) {
   const query = new URL(request.url).searchParams;
@@ -17,9 +18,13 @@ export async function GET(request) {
     const ids = await loadOwnerPickIds({ fresh: true, fetchImpl: (url, init) => fetchDeadline(url, init, DB_DEADLINE_MS) }).catch(() => null);
     const ownerPickIds = ids ? new Set(ids.map(String)) : null;
     const result = await readMapAreaPage({ bounds, origin, cursor, ownerPickIds, config, fetcher: (url, init) => fetchDeadline(url, init, DB_DEADLINE_MS) });
+    if (result && Array.isArray(result.places)) {
+      result.places = enrichMapPlacesWithRepoOwnedHours(result.places);
+    }
     return NextResponse.json(result, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     console.error('[places/map]', error.message);
     return NextResponse.json({ error: 'The place library is unavailable. Retry this area.' }, { status: 503, headers: { 'Cache-Control': 'private, no-store' } });
   }
 }
+
