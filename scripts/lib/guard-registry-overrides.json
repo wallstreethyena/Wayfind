@@ -152,14 +152,6 @@
   },
   "owner": "Qwen (Engineering)"
  },
- "scripts/check-doc-ownership.mjs": {
-  "protects": "Rule-defining coordination files (CLAUDE.md, AGENTS.md, etc.) are owner-only edits \u2014 11 of 29 branch-vs-main conflicts (38%, measured 2026-07-31) were on these files, not code.",
-  "blastRadius": {
-   "category": "correctness",
-   "detail": "Top-20 finding #18: flagged DECORATIVE by the automated analyzer but judged a FALSE POSITIVE on manual read (18 real execFileSync('git', ...) calls, branches via a wrapper the analyzer's single-hop tracer can't see through) \u2014 kept critical because it protects a real, high-conflict-rate invariant regardless of the analyzer's own limitation."
-  },
-  "owner": "owner (Gabriel)"
- },
  "scripts/check-guide-share.mjs": {
   "protects": "Every published guide has a working share button \u2014 the owner's 2026-08-19 finding that 39 live guides had none.",
   "blastRadius": {

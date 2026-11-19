@@ -38,10 +38,8 @@ approval forward. Fresh approval only for a material change: new product behavio
 scope, more production mutation, destructive behavior, more spend, a new vendor or
 integration, auth/privacy/security changes, a weakened safety control, new sensitive data
 use, or materially different risk. Never weaken owner protection to avoid an approval, and
-keep an auditable trail. (For owner-only files the live gate is still an
-`/owner-approve <full head sha>` comment on the current head, in
-`scripts/lib/ownerApproval.mjs`. That comment does not carry to a new head until a
-merged persistence mechanism says it does.)
+keep an auditable trail. There is no owner comment gate: no file needs an
+`/owner-approve` comment, and agents never ask Gabriel for one (owner decision 2026-11-18).
 
 **Hardware-key / YubiKey approval is rejected (owner decision, 2026-11-18).** Never propose, build, or add hardware-key, YubiKey, or commit-signature requirements to the owner-approval flow — the `/owner-approve <full head sha>` comment is the owner gate, permanently. PR #2607 was closed and its branch deleted for this reason.
 
@@ -71,7 +69,7 @@ surfaced as the exact manual action needed, never routed around.
 9. send external communication he has not authorized;
 10. technically require his own identity or account (ask for only that action, as above).
 Everything else is execution. This section never relaxes any other rule in this file
-(owner-only files still need `/owner-approve <head sha>`; full prebuild green before merge).
+(full prebuild green before merge).
 
 **Blocked does not mean stop.** Name the blocker and decide whether it really blocks the
 mission. Continue every independent part, try safe lawful alternatives, leave the blocked step
@@ -197,15 +195,8 @@ Gabriel approves a defined scope, behavior and risk envelope, not merely a trans
   privacy, security or production data mutation.
 - If a platform physically requires Gabriel's account to perform an action, request ONLY
   that action.
-- How it is enforced: `scripts/lib/ownerApproval.mjs` ("APPROVAL CARRY-FORWARD") carries an
-  `/owner-approve <sha>` forward when the pull request's own change (GitHub's three-dot diff
-  from the merge base) is the same change; anything it cannot prove identical, apart from
-  moved guard-registry rows and receipts for approved migrations, needs a fresh approval,
-  and the check names what changed. A comment an App posted with the owner's token
-  (`performed_via_github_app` set) is never an approval, including for carry-forward.
-  Every compared approval is logged as an
-  `approval-audit` record (PR, approved and current head and base, fingerprints, files,
-  actor, time, why). Tests: `scripts/test-owner-approval-carry-forward.mjs`.
+- The owner comment gate was removed (owner decision 2026-11-18). Never build, propose or ask for
+  a replacement approval ritual (comments, signatures, hardware keys).
 
 ## Wayfind Brand Assets
 
@@ -265,10 +256,9 @@ Gabriel approves a defined scope, behavior and risk envelope, not merely a trans
    touch the same anchor (rebuild the 2nd on the merged 1st).
 2. Assertion-guarded splice + a lock test wired into `npm run prebuild`.
 3. Full `npm run prebuild` green before commit. Anything red → report-only, do not merge.
-4. Squash-merge + delete branch. **Merges are owner-gated.** Owner-only files (AGENTS.md,
-   `.github/**`, the gate scripts, … see `scripts/lib/ownerApproval.mjs`) need an
-   `/owner-approve <head sha>` comment by the owner. CLAUDE.md is NOT owner-only
-   (owner decision 2026-11-14): rule edits ship as normal PRs, green guards, squash-merge.
+4. Squash-merge + delete branch. No file is owner-only and no owner comment is needed
+   (owner decision 2026-11-18): every change, including CLAUDE.md, AGENTS.md and `.github/**`,
+   ships as a normal PR with green guards, then squash-merge.
 5. After merge: confirm the merged union is prebuild-green and the Vercel deploy is green.
 
 `gh`/merge traps:
