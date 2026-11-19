@@ -41,7 +41,7 @@ use, or materially different risk. Never weaken owner protection to avoid an app
 keep an auditable trail. There is no owner comment gate: no file needs an
 `/owner-approve` comment, and agents never ask Gabriel for one (owner decision 2026-11-18).
 
-**Hardware-key / YubiKey approval is rejected (owner decision, 2026-11-18).** Never propose, build, or add hardware-key, YubiKey, or commit-signature requirements to the owner-approval flow — the `/owner-approve <full head sha>` comment is the owner gate, permanently. PR #2607 was closed and its branch deleted for this reason.
+**Hardware-key / YubiKey approval is rejected (owner decision, 2026-11-18).** Never propose, build, or add hardware-key, YubiKey, commit-signature or comment requirements for owner approval; the owner approval gate itself was removed the same day.
 
 **A tool confirmation dialog is not a new decision.** If the platform lets the agent confirm
 using the approval already given, proceed. Before asking Gabriel to do anything, check in
