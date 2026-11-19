@@ -53,6 +53,8 @@ import GuideEmailCapture from "./GuideEmailCapture";
 import GuidePickDecision from "./GuidePickDecision";
 import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import GuidePickOffer from "./GuidePickOffer";
+import PlaceDealOffer from "../../components/PlaceDealOffer";
+import { placeDealFor, GUIDE_PICK_DEAL_SURFACE } from "../../../lib/placeDeal";
 import { guidePickOffers, replacesCityStrip } from "../../../lib/guidePickOffers";
 import { orlandoExactTiqetsEntry } from "../../../lib/orlandoGuideTickets";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
@@ -721,6 +723,17 @@ export default async function GuidePage({ params }) {
   const mapExplorerSpots = g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3
     ? await withAttributableSpotPhotos(g.mapExplorer.spots, { findFreePhoto })
     : null;
+  // The named business's own verified deal (Clipp certificate or venue offer)
+  // under the pick that names it — owner ask 2026-11-19. Keyed by the pick's
+  // RESOLVED, deduped Place ID only (never its name), so a chain pick can never
+  // carry another branch's certificate. A deal already shown in the guide's
+  // "Live right now" block is not repeated under the pick (dealCards below).
+  const pickDealFor = (placeId, idx) => placeDealFor(placeId, {
+    surface: GUIDE_PICK_DEAL_SURFACE,
+    contentId: params.slug + ":" + (idx == null ? placeId : "pick-" + (idx + 1)),
+  });
+  // Editorial briefs carry no deals (chrome.liveDeals false), same as the block.
+  const pickDeals = g.picks.map((_, i) => (chrome.liveDeals ? pickDealFor(pickPlaceIds[i], i) : null));
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -778,6 +791,17 @@ export default async function GuidePage({ params }) {
       external: !String(c.url || "").startsWith("/"),
       ends: couponEndsLabel(c) || null,
     }));
+  // One deal, one place on the page: a deal in the "Live right now" block or
+  // already under a pick is not printed again further down.
+  const dealCardIds = new Set(chrome.liveDeals ? dealCards.map((d) => d.id) : []);
+  const railDeals = new Map();
+  if (chrome.liveDeals) {
+    const shown = new Set([...dealCardIds, ...pickDeals.filter(Boolean).map((d) => d.id)]);
+    for (const place of (placeRail && placeRail.places) || []) {
+      const d = place && place.id ? pickDealFor(place.id, null) : null;
+      if (d && !shown.has(d.id)) { railDeals.set(place.id, d); shown.add(d.id); }
+    }
+  }
 
   // Social proof adjacent to the CTA — review count + rating, ONLY where the data
   // actually exists. rankedFor() is the same ranked local inventory the landing
@@ -1203,6 +1227,7 @@ export default async function GuidePage({ params }) {
               {inlineBookConfig(params.slug, i) && !replacesCityStrip(params.slug) ? <GuidePickDecision slug={params.slug} pickIndex={i} /> : null}
               {/* Focused offers attach by the pick's stable id, never its number. */}
               <GuidePickOffer entry={guidePickOffers(params.slug, pick)} slug={params.slug} />
+              {pickDeals[i] && !dealCardIds.has(pickDeals[i].id) ? <PlaceDealOffer deal={pickDeals[i]} /> : null}
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}
@@ -1236,6 +1261,7 @@ export default async function GuidePage({ params }) {
                           <h3><a href={guidePlacePath(place.id)}>{place.name}</a></h3>
                           <GuidePickWhere where={guidePickWhere({ name: place.name, placeId: place.id }, params.slug)} />
                           <GuideFigure role="pick" image={editorialImages.get(place.id)} />
+                          {railDeals.get(place.id) ? <PlaceDealOffer deal={railDeals.get(place.id)} /> : null}
                           <a className="wf-guide-photo-link" href={guidePlacePath(place.id)}>Explore {place.name}</a>
                         </li>
                       ))}

@@ -354,6 +354,10 @@ function extractCardView(place) {
     PlaceParkingMap: placeholder,
     placeLocalBusinessLd: () => ({ "@context": "https://schema.org", "@type": "LocalBusiness" }),
     PlaceDetailPhotoHeader: () => React.createElement("h1", null, fixturePlace.name),
+    // The business deal box (lib/placeDeal.js) has its own guard, check-place-deal.
+    PlaceDealOffer: placeholder,
+    placeDealFor: () => null,
+    PLACE_PAGE_DEAL_SURFACE: "place_page_deal",
   };
   const { PlacePage, PlacesIndexPage } = new Function(
     ...Object.keys(deps),
