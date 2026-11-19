@@ -4,8 +4,11 @@ import {createHash} from 'node:crypto';
 import {createRequire} from 'node:module';
 import vm from 'node:vm';
 import ts from 'typescript';
-import React, {act} from 'react';
-import {createRoot} from 'react-dom/client';
+// React's act is a test-only API. Vercel invokes prebuild with NODE_ENV=production;
+// select the test runtime before importing React, without skipping any assertions.
+process.env.NODE_ENV = 'test';
+const {default: React, act} = await import('react');
+const {createRoot} = await import('react-dom/client');
 import {JSDOM} from 'jsdom';
 import {DISNEY_FOOD_STOPS} from '../lib/guidesDisneyHolidayFood2026.js';
 import {mapPinUrl} from '../lib/mapPinStandard.js';
