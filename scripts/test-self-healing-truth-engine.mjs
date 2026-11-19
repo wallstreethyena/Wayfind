@@ -1304,6 +1304,136 @@ const eq = (a, b, msg) => {
     try { if (fs.existsSync(tmpLockFile)) fs.unlinkSync(tmpLockFile); } catch {}
     try { if (fs.existsSync(tmpFixtureForLock)) fs.unlinkSync(tmpFixtureForLock); } catch {}
   }
+
+  // 6. Multi-process cold restart + client applyOfferHealthSnapshot precedence after subsequent 403 and 200 challenge probes
+  const tmpPrecedenceStore = path.join(os.tmpdir(), `wf-c3-precedence-store-${Date.now()}.json`);
+  try {
+    const writeProcCode = `
+      import assert from "node:assert/strict";
+      import { POST } from "./app/api/cron/verify-offers/route.js";
+
+      // Step 1: Conclusive batch quarantines chez-leon (SOLD_OUT) and updates blind-goat (PRICE_CHANGED $12)
+      const res1 = await POST(new Request("https://wayfind.test/api/cron/verify-offers", {
+        method: "POST",
+        headers: { authorization: "Bearer c3-prec-secret", "content-type": "application/json" },
+        body: JSON.stringify({
+          now: "2026-11-19T13:00:00.000Z",
+          observedAt: "2026-11-19T12:55:00.000Z",
+          verificationMode: "automated_chrome_producer",
+          storePath: process.env.WF_CLIPP_EVIDENCE_STORE_PATH,
+          clippEvidence: [
+            {
+              offerId: "clipp-m-chez-leon",
+              httpStatus: 200,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
+              html: "<title>Chez Leon Tampa, FL</title><div>THIS DEAL IS SOLD OUT</div>",
+            },
+            {
+              offerId: "clipp-m-blind-goat",
+              httpStatus: 200,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+              html: "<title>The Blind Goat Tampa, FL</title><div>Add to Cart Buy Now $12 for $30</div>",
+            },
+          ],
+        }),
+      }));
+      assert.equal(res1.status, 200);
+
+      // Step 2: Subsequent probe returns HTTP 403 and 200 challenge-without-CTA on both offers
+      const res2 = await POST(new Request("https://wayfind.test/api/cron/verify-offers", {
+        method: "POST",
+        headers: { authorization: "Bearer c3-prec-secret", "content-type": "application/json" },
+        body: JSON.stringify({
+          now: "2026-11-19T14:00:00.000Z",
+          observedAt: "2026-11-19T13:55:00.000Z",
+          verificationMode: "automated_http_probe",
+          storePath: process.env.WF_CLIPP_EVIDENCE_STORE_PATH,
+          clippEvidence: [
+            {
+              offerId: "clipp-m-chez-leon",
+              httpStatus: 403,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
+              html: "Access Denied",
+            },
+            {
+              offerId: "clipp-m-blind-goat",
+              httpStatus: 200,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+              html: "<title>The Blind Goat Tampa, FL</title><body>Please verify you are a human</body>",
+            },
+          ],
+        }),
+      }));
+      assert.equal(res2.status, 200);
+      console.log(JSON.stringify({ ok: true }));
+    `;
+    execFileSync(process.execPath, ["--input-type=module", "-e", writeProcCode], {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        CRON_SECRET: "c3-prec-secret",
+        WF_CLIPP_EVIDENCE_STORE_PATH: tmpPrecedenceStore,
+        WF_SUPPRESS_ANALYTICS: "1",
+      },
+      encoding: "utf8",
+    });
+
+    const readProcCode = `
+      import assert from "node:assert/strict";
+      import { clippOfferById } from "./lib/clippOffers.js";
+      import { COUPONS, applyOfferHealthSnapshot, couponIsLive, resolveLiveCoupon } from "./lib/coupons.js";
+      import { GET as getHealth } from "./app/api/offers/health/route.js";
+      import { GET as getRedirect } from "./app/api/commerce/go/route.js";
+
+      // Cold server process hydration check
+      assert.equal(clippOfferById("clipp-m-chez-leon"), null, "chez-leon remains quarantined after 403 on cold restart");
+      const bg = clippOfferById("clipp-m-blind-goat");
+      assert.ok(bg !== null, "blind-goat remains serveable after 200 challenge on cold restart");
+      assert.equal(bg.status, "PRICE_CHANGED");
+      assert.equal(bg.livePrice, 12);
+      assert.equal(bg.runtimeVerifiedAt, "2026-11-19T12:55:00.000Z");
+
+      const goChez = await getRedirect(new Request("https://wayfind.test/api/commerce/go?provider=clipp&offer=clipp-m-chez-leon", {
+        headers: { "user-agent": "WayfindVerify/1.0" },
+      }));
+      assert.equal(goChez.headers.get("location"), "https://wayfind.test/");
+
+      // Client applyOfferHealthSnapshot hydration check
+      const healthRes = await getHealth(new Request("https://wayfind.test/api/offers/health?now=2026-11-19T14:05:00.000Z"));
+      const healthJson = await healthRes.json();
+      assert.equal(applyOfferHealthSnapshot(healthJson), true);
+
+      const chezCpn = COUPONS.find((c) => c.id === "cpn-clipp-m-chez-leon");
+      const bgCpn = COUPONS.find((c) => c.id === "cpn-clipp-m-blind-goat");
+      assert.equal(couponIsLive(chezCpn, "2026-11-19"), false, "client couponIsLive keeps chez-leon hidden after subsequent 403");
+      assert.equal(resolveLiveCoupon(chezCpn, { now: "2026-11-19T14:05:00.000Z" }), null);
+
+      const resolvedBg = resolveLiveCoupon(bgCpn, { now: "2026-11-19T14:05:00.000Z" });
+      assert.ok(resolvedBg !== null, "client resolveLiveCoupon keeps blind-goat live after subsequent challenge");
+      assert.equal(resolvedBg.status, "PRICE_CHANGED");
+      assert.equal(resolvedBg.livePrice, 12);
+      assert.equal(resolvedBg.verifiedAt, "2026-11-19T12:55:00.000Z");
+
+      console.log(JSON.stringify({ ok: true }));
+    `;
+    const readProcOut = JSON.parse(
+      execFileSync(process.execPath, ["--input-type=module", "-e", readProcCode], {
+        cwd: ROOT,
+        env: {
+          ...process.env,
+          WF_CLIPP_EVIDENCE_STORE_PATH: tmpPrecedenceStore,
+          WF_SUPPRESS_ANALYTICS: "1",
+        },
+        encoding: "utf8",
+      })
+    );
+    ok(
+      readProcOut && readProcOut.ok === true,
+      "cold server restart and client applyOfferHealthSnapshot preserve SOLD_OUT quarantine and PRICE_CHANGED runtimeVerifiedAt after subsequent 403 and 200 challenge probes"
+    );
+  } finally {
+    try { if (fs.existsSync(tmpPrecedenceStore)) fs.unlinkSync(tmpPrecedenceStore); } catch {}
+  }
 }
 
 console.log(`test-self-healing-truth-engine: OK — ${assertions} assertions passed`);
