@@ -54,7 +54,7 @@ export default function DisneyFoodMap({ parks, stops, panels }) {
   return <section id="disney-food-map" className={styles.explorer} aria-labelledby="disney-food-map-title">
     <p className={styles.eyebrow}>Your holiday food atlas</p>
     <h2 id="disney-food-map-title">A little magic. A real place.</h2>
-    <p className={styles.intro}>Choose your park, then tap a numbered pin for the treat, price and details. Paths and landmarks stay on the map, so you can find your way.</p>
+    <p className={styles.intro}>Choose your park, then tap a numbered pin for the treat, price and details. The illustrated maps show roughly where each counter is; follow park signs on the day.</p>
     <div role="group" aria-label="Choose your park" className={styles.menu}>
       {parks.map((park) => <label className={styles.choice} key={park.id}>
         <input type="radio" name="disney-food-park" value={park.id} checked={parkId === park.id} onChange={() => changePark(park.id)} />

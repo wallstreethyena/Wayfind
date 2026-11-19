@@ -7,7 +7,7 @@
 import { useState } from "react";
 import IllustratedParkMap from "../../components/IllustratedParkMap";
 import { DISNEY_PARK_VIEWS, DISNEY_FOOD_PINS, parkMapImage } from "../../../lib/parkMaps2026.js";
-import styles from "./DisneyFoodGeographicMap.module.css";
+import styles from "./DisneyIllustratedMap.module.css";
 
 export default function DisneyIllustratedMap({ parkId, parkName, stops, selectedId, onSelect }) {
   // Keyed so a park change resets the view.

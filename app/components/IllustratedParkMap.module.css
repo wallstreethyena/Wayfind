@@ -17,3 +17,4 @@
 .credit{font-size:11px;line-height:1.5;margin:8px 12px 12px!important;color:#4d5c4d}
 .credit a{color:#254a3d!important;text-decoration:underline}
 @media(max-width:480px){.scroll{max-height:560px}.toolbar{gap:8px;padding:8px 10px}}
+.pin:hover,.pin:focus-visible{z-index:2}

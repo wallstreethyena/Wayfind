@@ -10,10 +10,11 @@ import styles from "./page.module.css";
 // An iframe "load" event is not proof a visitor can see the post: a blocked,
 // failed or logged-out embed still loads a blank frame, which painted a large
 // black box (owner report, 2026-11-18). Instagram's embed posts MOUNTED (and
-// MEASURE with a height) to the parent once the post is actually drawn, so the
-// player is shown only after that signal from THIS post's frame. Until then a
-// loading panel carries the source link; without the signal in time the post
-// collapses to a compact source card. A late signal still reveals the post.
+// MEASURE with a height) to the parent once it has drawn, so the player is
+// revealed only after that signal from THIS post's frame. Until then a compact
+// loading panel carries the source link (the hidden player still loads but is
+// inert and takes no space, so nothing jumps); without the signal in time the
+// post becomes a compact source card. A late signal still reveals the post.
 const IG_ORIGIN = "https://www.instagram.com";
 export const FOOD_POST_TIMEOUT_MS = 9000;
 
@@ -25,14 +26,16 @@ export function isInstagramRendered(data) {
 
 export default function FoodPost({ post }) {
   const host = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const loadingLink = useRef(null);
   const [state, setState] = useState("idle"); // idle | loading | ready | unavailable
   const [attempt, setAttempt] = useState(0);
+  const [focusAfter, setFocusAfter] = useState(false);
+  const visible = state !== "idle";
   useEffect(() => {
-    if (!host.current || typeof IntersectionObserver === "undefined") return;
+    if (!host.current || typeof IntersectionObserver === "undefined") return undefined;
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) {
-        setVisible(true);
+        setState((now) => (now === "idle" ? "loading" : now));
         observer.disconnect();
       }
     }, { rootMargin: "180px" });
@@ -41,7 +44,6 @@ export default function FoodPost({ post }) {
   }, []);
   useEffect(() => {
     if (!visible) return undefined;
-    setState("loading");
     const onMessage = (event) => {
       if (event.origin !== IG_ORIGIN) return;
       const frame = host.current?.querySelector("iframe");
@@ -52,7 +54,12 @@ export default function FoodPost({ post }) {
     const timer = setTimeout(() => setState((now) => (now === "ready" ? now : "unavailable")), FOOD_POST_TIMEOUT_MS);
     return () => { window.removeEventListener("message", onMessage); clearTimeout(timer); };
   }, [visible, attempt]);
+  useEffect(() => {
+    if (focusAfter && state === "loading") { loadingLink.current?.focus(); setFocusAfter(false); }
+  }, [focusAfter, state]);
+  const retry = () => { setState("loading"); setAttempt((n) => n + 1); setFocusAfter(true); };
   const kind = post.kind === "carousel" ? "food photos" : "food reel";
+  const hidden = state !== "ready";
   return <figure ref={host} className={styles.foodPost} data-food-post={post.url} data-food-post-state={state}>
     <figcaption className={styles.foodPostCaption}>
       <span>{post.kind === "carousel" ? "Food photos" : "Food reel"}</span>
@@ -60,22 +67,23 @@ export default function FoodPost({ post }) {
       <a href={post.url} target="_blank" rel="noopener noreferrer">@{post.creator} · Original post ↗</a>
     </figcaption>
     {visible ? <div className={styles.foodPostShell}>
-      <div className={styles.foodPostPlayer} aria-hidden={state === "unavailable" ? true : undefined}>
+      <div className={styles.foodPostPlayer} aria-hidden={hidden ? true : undefined} inert={hidden ? "" : undefined}>
         <CreatorVideoPlayer key={attempt} platform="instagram" url={post.url} label={post.label} />
       </div>
+      {state === "ready" ? <button type="button" className={styles.foodPostReload} onClick={retry}>Reload post</button> : null}
       {state === "loading" ? <div className={styles.foodPostLoading} role="status">
         <p>Loading the {kind} from Instagram…</p>
-        <a href={post.url} target="_blank" rel="noopener noreferrer">Watch on Instagram ↗</a>
+        <a ref={loadingLink} href={post.url} target="_blank" rel="noopener noreferrer">Watch on Instagram ↗</a>
       </div> : null}
       {state === "unavailable" ? <div className={styles.foodPostCard} role="status">
         <p><strong>The post didn’t load here.</strong> Instagram may block embeds on some browsers and networks. The {kind} is still on @{post.creator}’s post.</p>
         <div>
           <a href={post.url} target="_blank" rel="noopener noreferrer">Watch on Instagram ↗</a>
-          <button type="button" onClick={() => setAttempt((n) => n + 1)}>Try again</button>
+          <button type="button" onClick={retry}>Try again</button>
         </div>
       </div> : null}
     </div> :
-      <button type="button" className={styles.loadFoodPost} onClick={() => setVisible(true)}>Show {kind} from @{post.creator}</button>}
+      <button type="button" className={styles.loadFoodPost} onClick={() => setState("loading")}>Show {kind} from @{post.creator}</button>}
     <p className={styles.foodPostNote}>Original food post. Instagram controls playback.</p>
   </figure>;
 }

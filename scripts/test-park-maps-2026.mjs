@@ -30,6 +30,11 @@ function webpSize(file) {
   throw new Error("unknown WebP chunk " + kind);
 }
 
+export function sizeProblem(key, meta) {
+  const actual = webpSize("public" + parkMapImage(key).src);
+  return actual.width === meta.width && actual.height === meta.height ? null : `${key}: declared ${meta.width}x${meta.height}, file is ${actual.width}x${actual.height}`;
+}
+
 export function pinProblems(parks, stops, views, pins) {
   const problems = [];
   for (const park of parks) {
@@ -53,8 +58,7 @@ if (red) {
   assert.ok(pinProblems(DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, DISNEY_PARK_VIEWS, broken).some((p) => p.includes("flame-tree")), "red-prove: missing pin must be caught");
   const off = { ...DISNEY_FOOD_PINS, "magic-kingdom": { "main-street-popcorn": [120, 50] } };
   assert.ok(pinProblems(DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, DISNEY_PARK_VIEWS, off).some((p) => p.includes("outside")), "red-prove: off-map pin must be caught");
-  const size = webpSize("public" + parkMapImage("epcot").src);
-  assert.notDeepEqual({ width: size.width + 1, height: size.height }, size, "red-prove: a wrong declared width differs from the decoded size");
+  assert.ok(sizeProblem("epcot", { ...PARK_MAPS.epcot, width: PARK_MAPS.epcot.width + 1 }), "red-prove: a wrong declared width must be caught");
   console.log("test-park-maps-2026 --red-prove: OK — missing pin, off-map pin and size mismatch are all detected");
   process.exit(0);
 }
@@ -63,7 +67,7 @@ let images = 0;
 for (const [key, meta] of Object.entries(PARK_MAPS)) {
   const file = "public" + parkMapImage(key).src;
   assert.ok(existsSync(file), file);
-  assert.deepEqual(webpSize(file), { width: meta.width, height: meta.height }, "declared size matches the file: " + key);
+  assert.equal(sizeProblem(key, meta), null, "declared size matches the file: " + key);
   assert.ok(meta.alt && meta.alt.length > 40, "descriptive alt: " + key);
   images++;
 }
@@ -79,11 +83,26 @@ assert.ok(html.includes('<button') && html.includes('href="#b"'), "button pins a
 assert.ok(html.includes("openstreetmap.org/copyright"), "OpenStreetMap credit next to the map");
 // Crowded pins must not cover each other on a phone (Islands of Adventure's
 // four Seuss Landing stops at a ~340px map width): the map opens zoomed.
-const { zoomToSeparate } = await loadComponent(path.resolve("app/components/IllustratedParkMap.js"), process.cwd());
+const { zoomToSeparate, scrollToCrowd, PIN_GAP } = await loadComponent(path.resolve("app/components/IllustratedParkMap.js"), process.cwd());
 const { UNIVERSAL_STOPS } = await loadComponent(path.resolve("app/guides/universal-orlando-christmas-2026/UniversalHolidayMap.js"), process.cwd());
 const islands = UNIVERSAL_STOPS.filter((s) => s.park === "islands").map((s) => ({ left: s.x, top: s.y }));
 const ioa = PARK_MAPS["islands-of-adventure"];
-assert.ok(zoomToSeparate(islands, 340, ioa.height / ioa.width) >= 2, "crowded Islands pins open zoomed on a phone");
+const aspect = ioa.height / ioa.width;
+for (const width of [330, 350, 366, 398]) {
+  const zoom = zoomToSeparate(islands, width, aspect);
+  assert.ok(zoom >= 2, "crowded Islands pins open zoomed on a phone at " + width);
+  let closest = Infinity;
+  for (const a of islands) for (const b of islands) if (a !== b) closest = Math.min(closest, Math.hypot((a.left - b.left) / 100 * width * zoom, (a.top - b.top) / 100 * width * zoom * aspect));
+  assert.ok(closest >= PIN_GAP, `the chosen zoom ${zoom} really separates the pins at ${width}px (${Math.round(closest)}px)`);
+  // The first paint is scrolled so the crowded Seuss Landing pins are on screen.
+  const view = scrollToCrowd(islands, width, width, 520, aspect, zoom);
+  const w = width * zoom, h = w * aspect;
+  const seuss = islands.filter((p) => p.left > 70);
+  for (const p of seuss) {
+    const x = p.left / 100 * w - view.left, y = p.top / 100 * h - view.top;
+    assert.ok(x > 10 && x < width - 10 && y > 40 && y < 520, `Seuss pin at ${p.left}% is visible on first paint at ${width}px (x=${Math.round(x)}, y=${Math.round(y)})`);
+  }
+}
 assert.equal(zoomToSeparate(islands, 2400, ioa.height / ioa.width), 1, "a wide desktop map needs no zoom");
 assert.equal(zoomToSeparate([{ left: 10, top: 10 }, { left: 90, top: 90 }], 340, 1), 1, "well-spaced pins stay at 1x");
 console.log(`test-park-maps-2026: OK — ${images} illustrated maps match their declared sizes, ${DISNEY_FOOD_STOPS.length} Disney stops pinned on every view of their park, component renders canvas, pins and credit`);
