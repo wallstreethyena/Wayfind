@@ -107,7 +107,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
 import { setLocal, sweepLocal } from "../lib/localStore";
-import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
+import { browsePosition, horizontalPositions, restoreBrowsePosition, trackHorizontalScrolls } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIdsSafe } from "../lib/syncReconcile";
 import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange, likeEventSuppressed } from "../lib/likeSignal";
@@ -264,7 +264,6 @@ import { nowContext, siteHourFloat, tzForPoint, bucketForHour, mealForHour, gree
 import { condCtxFromNow } from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import { resolveMetro, CULTURE_TITLES } from "../lib/culture";
-import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
@@ -6446,7 +6445,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // Same law as the holiday card, same module — "Where to watch near {loc}"
     // is the same promise and needs the same evidence. See lib/promoLocation.js.
     if (!locationPromoAllowed({ coverage: railsCoverage })) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
-                      <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                      <div className="wf-hol-cv" style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_w)} aria-label={_wct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
                       <style dangerouslySetInnerHTML={styleHtml("@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}")} />
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
@@ -6626,16 +6625,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // restore branch never once ran. A fallback that cannot fire is not
   // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
   // fails the build on any new window.scroll* in the shell.
+  const posStateRef = useRef(null);
+  posStateRef.current = { center, locName, query, intent, sortBy, searchRadius, quickFilter,
+    searchLabel, visibleCount, activeBadge, moodPick, eventCat, eventDate, places };
+  useEffect(() => (scrollRef.current ? trackHorizontalScrolls(scrollRef.current) : undefined), []);
   useEffect(() => {
     if (initialPlaceId) return undefined;
-    const write = (entryOverride) => {
+    const write = (entryOverride, preSnap) => {
       if (writingPosition.current || posRestore.current || !scrollRef.current) return;
       writingPosition.current = true;
       try {
-        const p = { screen, cat, browseCat, sub, vibe, ...browsePosition(scrollRef.current),
-          horizontal: horizontalPositions(scrollRef.current), center, locName, query, intent, sortBy,
-          searchRadius, quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick,
-          eventCat, eventDate, searchPlaces: searchMode ? places : undefined, browseReturn: browseReturn.current,
+        const { places, ...rest } = posStateRef.current;
+        const p = { screen, cat, browseCat, sub, vibe, searchMode, ...rest,
+          ...(preSnap || browsePosition(scrollRef.current)),
+          horizontal: preSnap?.horizontal || horizontalPositions(scrollRef.current),
+          searchPlaces: searchMode ? places : undefined, browseReturn: browseReturn.current,
           poster: JSON.parse(sessionStorage.getItem("wf_poster_position") || "null"), ts: Date.now() };
         sessionStorage.setItem("wf_pos", JSON.stringify(p));
         sessionStorage.setItem("wf_pos_entry_" + (typeof entryOverride === "string" ? entryOverride : positionEntryKey()), JSON.stringify(p));
@@ -6644,10 +6648,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     positionWriter.current = write;
     const frame = requestAnimationFrame(() => write());
     let timer;
-    const onScroll = () => { clearTimeout(timer); timer = setTimeout(write, 150); };
-    const capture = () => {
-      if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
-      write();
+    const onScroll = () => { clearTimeout(timer); timer = setTimeout(() => write(), 150); };
+    const capture = (ev) => {
+      const t = ev && ev.target;
+      if (t && typeof t.closest === "function" && (t.closest(".wf-navtabs,.wf-dests") || !t.closest("a[href],.wf-place-card-open,.wf-holiday-open"))) return;
+      if (!scrollRef.current) { write(); return; }
+      const snap = browsePosition(scrollRef.current);
+      if (!browseCat) browseReturn.current = snap;
+      write(undefined, snap);
     };
     document.addEventListener("click", capture, true);
     document.addEventListener("scroll", onScroll, { capture: true, passive: true });
@@ -6658,8 +6666,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       document.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("pagehide", write);
     };
-  }, [screen, cat, browseCat, sub, vibe, center, locName, query, intent, sortBy, searchRadius,
-      quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick, eventCat, eventDate, restoreVersion, places]);
+  }, [screen, cat, browseCat, sub, vibe, searchMode, restoreVersion]);
   function closeBrowse() {
     posRestore.current = browseReturn.current || { top: 0, horizontal: [] };
     setBrowseCat(null); setMoodPick(null); setSub("all");
@@ -7097,7 +7104,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (detailRequest !== detailOpenRequestRef.current) return;
     try { if (detailOpenGateRef.current.shouldEmit(p && p.id)) { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null, ...(p?._searchId ? { search_id: p._searchId } : {}) }); } } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
-    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
+    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) }; } } catch (e) {}
     setDetail(p);
     setDetail(attachOfficialScoreReceipt({ ...p }, locName));
     // /p/{id} and any card that skipped withMemberSignal still show the raw
@@ -10688,6 +10695,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // drives -- no separate location state, no independent geolocation.
   const livePosterTiles = useLivePosterTiles({ center: railCenter || center, city: locName });
 
+  const suggestedView = useMemo(() => {
+    const list = suggested || [];
+    const affinities = computeAffinities(signals);
+    // Phase 2: fold the DURABLE per-user taste vector into the category
+    // weights so preference persists across sessions, not just this one.
+    const _vec = tasteVecRef.current || tasteVecState || {};
+    if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
+    affinities.tagW = { ..._vec.tag };
+    const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
+    const hasTaste = hasLearnedTaste(_vec, activeSignals.length);
+    const personalized = personalize === "on" && hasTaste;
+    const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
+    return { personalized, displayList };
+  }, [suggested, signals, personalize, tasteVecState]);
+
   const railMenuBand = railMenu ? (
     <div className="wf-fullbleed">
       <DaypartRail
@@ -11310,29 +11332,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
               </div>
             );
           }
-          const list = suggested || [];
-          const affinities = computeAffinities(signals);
-          // Phase 2: fold the DURABLE per-user taste vector into the category
-          // weights so preference persists across sessions, not just this one.
-          // (category namespace matches catW; the visible Score is untouched.)
-          const _vec = tasteVecRef.current || {};
-          if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
-          // 2026-08-07: the durable TAG dims ride along too — they are the
-          // discriminating signal within a category and were previously
-          // learned-but-never-applied (the dead-toggle root cause).
-          affinities.tagW = { ..._vec.tag };
-          const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
-          // Personalize only after explicit opt-in or an explicit reaction.
-          // Without that, the feed is pure moment/Score order. The gate lives
-          // in lib/taste.js (hasLearnedTaste) so the test suite can CALL it —
-          // and it counts every dimension applyAffinity consumes, not just
-          // category (the mismatch that made the toggle read as dead).
-          const hasTaste = hasLearnedTaste(_vec, activeSignals.length);
-          // The setting and reset controls are available in Favorites before
-          // sign-in. Signing in syncs the same private vector; it is not a
-          // prerequisite for on-device recommendations.
-          const personalized = personalize === "on" && hasTaste;
-          const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
+          const { personalized, displayList } = suggestedView;
           const likeCount = Object.keys(liked).length;
           const h = siteHourFloat();
           const part = BUCKET_PHRASE[bucketForHour(h)];
@@ -11912,7 +11912,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                            definition in lib/promoLocation.js. */
                         if (!locationPromoAllowed({ coverage: railsCoverage })) return null;
                         const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
-                        <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                        <div className="wf-hol-cv" style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
                           <style dangerouslySetInnerHTML={styleHtml("@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}")} />
                           <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useEffect, useRef, useState } from 'react';
-import RailCard from './RailCard';
+import RailCard, { attachRailObserver } from './RailCard';
 import TrackedOfferLink from './TrackedOfferLink';
 import { guideCardPhoto } from '../../lib/guideCardPhoto.js';
 
@@ -40,24 +40,23 @@ function useTeaserFit(ref, initial, hasTeaser) {
   useIsoLayout(() => {
     const card = ref.current;
     if (!card || !hasTeaser) return undefined;
+    let w = -1;
     const run = () => {
+      const nw = card.getBoundingClientRect().width;
+      if (w >= 0 && Math.abs(nw - w) <= 1) return;
+      w = nw;
       let pick = 0;
       for (const n of [2, 1, 0]) {
-        card.classList.remove('wf-guide-teaser-0', 'wf-guide-teaser-1', 'wf-guide-teaser-2');
-        card.classList.add(`wf-guide-teaser-${n}`);
+        const cls = `wf-guide-teaser-${n}`;
+        if (!card.classList.contains(cls)) {
+          card.classList.remove('wf-guide-teaser-0', 'wf-guide-teaser-1', 'wf-guide-teaser-2');
+          card.classList.add(cls);
+        }
         if (n === 0 || fits(card)) { pick = n; break; }
       }
       setLines(pick);
     };
-    run();
-    if (typeof ResizeObserver === 'undefined') return undefined;
-    let w = card.getBoundingClientRect().width;
-    const ro = new ResizeObserver(() => {
-      const nw = card.getBoundingClientRect().width;
-      if (Math.abs(nw - w) > 1) { w = nw; run(); }
-    });
-    ro.observe(card);
-    return () => ro.disconnect();
+    return attachRailObserver({ target: card, active: true, onMeasure: run });
   }, [hasTeaser]);
   return lines;
 }
