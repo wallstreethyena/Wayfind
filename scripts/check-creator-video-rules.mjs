@@ -13,7 +13,11 @@
 //      below by exact key and URL; it renders with no watch button.
 //   2. COVER: lib/creatorCovers.pickOwnedCover returns only our own credited
 //      /place-photos/ assets (never Google, never a hotlink, never uncredited),
-//      and every VideoFacade call site passes a cover (poster=) or a place id.
+//      and every creator video tile, in app/ AND in the server page modules
+//      under lib/ (creatorPages, trending), passes a place id (placeId=) so a
+//      tile with no owned cover falls back to that place's stored, credited
+//      photo (CreatorPlaceCover: linked-card lane, nospend, credit outside the
+//      play button). An owned poster= wins when present.
 //   3. STAY ON SITE: the watch action has no outbound link and renders nothing
 //      for a post it cannot play; no creator video surface links to a post URL.
 import { readFileSync, readdirSync, statSync } from "node:fs";
@@ -77,7 +81,7 @@ function jsFiles(dir) {
   }
   return out;
 }
-const appFiles = jsFiles("app");
+const appFiles = [...jsFiles("app"), "lib/creatorPages.js", "lib/trending.js"];
 const facadeSites = [];
 for (const f of appFiles) {
   if (f.endsWith("VideoFacade.js") || f.endsWith("CreatorCoverFacade.js")) continue;
@@ -87,7 +91,29 @@ for (const f of appFiles) {
 }
 ok(facadeSites.length >= 3, `found the creator video tiles (${facadeSites.length})`);
 for (const s of facadeSites) {
-  ok(s.cover ? /\bplaceId=\{/.test(s.tag) : /\bposter=\{/.test(s.tag), `${s.f}: every creator video tile is given a cover (poster= or placeId=)`);
+  ok(/\bplaceId=\{/.test(s.tag) && !/\bposter=\{[^}]*\/api\/photo/.test(s.tag), `${s.f}: every creator video tile carries its place id (placeId=) for the credited cover fallback, and no raw /api/photo poster`);
+}
+ok(facadeSites.some((s) => s.f === "lib/creatorPages.js") && facadeSites.some((s) => s.f === "lib/trending.js"), "positive control: the creator and trending page tiles are in the scan");
+
+// Place-cover fallback: the real VideoFacade source wires CreatorPlaceCover, and the
+// cover component asks the linked-card lane (inLink = nospend + stored copy + credit
+// portaled outside the button) and removes itself on a miss (no grey box).
+{
+  const facade = strip(read("app/components/VideoFacade.js"));
+  ok(/const placeCover = poster \? null : creatorPlaceCoverSrc\(placeId\)/.test(facade) && /<CreatorPlaceCover\b[^>]*placeId=\{placeId\}/.test(facade), "VideoFacade falls back to the place's own credited photo when it has no owned cover");
+  const pc = strip(read("app/components/CreatorPlaceCover.js"));
+  ok(/<CardPhoto inLink\b/.test(pc), "the place cover uses the linked-card lane (CardPhoto inLink)");
+  ok(/if \(!src \|\| miss === src\) return null;/.test(pc), "a place cover miss removes the layer so the branded cover shows");
+  const { creatorPlaceCoverSrc } = await import(path.join(REPO, "lib/creatorPlaceCover.js"));
+  ok(creatorPlaceCoverSrc("ChIJM605C43EwogRiqZSZufgi_8") === "/api/photo?place=ChIJM605C43EwogRiqZSZufgi_8", "a Google place id becomes that place's own photo request");
+  ok(creatorPlaceCoverSrc("wfadd_spirit_christmas_clearwater") === null && creatorPlaceCoverSrc("") === null && creatorPlaceCoverSrc("../x") === null, "a non-Google id asks for no photo");
+  ok(/import \{ creatorPlaceCoverSrc \} from "\.\.\/\.\.\/lib\/creatorPlaceCover\.js"/.test(pc), "the cover component uses that same request builder");
+  const detail = strip(read("app/components/sheets/Detail.js"));
+  ok(/<CreatorPlaceCover placeId=\{detail\.id\}[^>]*compact/.test(detail), "the in-app place sheet's creator video rows show the place cover");
+  const surf = strip(read("lib/photoSurfaces.js"));
+  const trendingKeys = [...strip(read("lib/trending.js")).matchAll(/^  ("?)([a-z-]+)\1: \{\n    name:/gm)].map((m) => m[2]).sort().join();
+  const regKeys = (/const TRENDING_KEYS = \{([^}]*)\}/.exec(surf) || [, ""])[1].match(/[a-z-]+(?=["']?:)/g)?.sort().join();
+  ok(trendingKeys.length > 0 && trendingKeys === regKeys, `the photo warm crawls every trending city page (${trendingKeys} vs ${regKeys})`);
 }
 const xmas = strip(read("app/christmas-in-florida/page.js"));
 ok(/creatorCoversFor\(/.test(xmas) && /covers\[post\.placeId\]/.test(xmas), "Christmas creator rail falls back to our own photo of the place");

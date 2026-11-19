@@ -493,6 +493,7 @@ export default async function CuratedEventPage({ params }) {
                     poster={socialPoster}
                     posterCredit={socialPosterCredit}
                     fallbackPoster={socialPosterFallback}
+                    placeId={socialPosterFallback ? null : e.place_id}
                     coverTitle={e.event_name}
                     coverCity={e.city}
                     coverEyebrow={`THE @${post.creator} EDIT`}
