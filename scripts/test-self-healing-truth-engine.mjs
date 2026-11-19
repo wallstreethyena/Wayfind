@@ -168,9 +168,17 @@ const eq = (a, b, msg) => {
   ok(!activeCoupons.some((c) => c.id === "cpn-clipp-m-pizza-kitchen" || /Pizza Kitchen/i.test(c.business)), "liveCoupons excludes sold-out Pizza Kitchen");
   ok(!activeCoupons.some((c) => c.id === "cpn-clipp-m-marcos-riverview" || /Riverview/i.test(c.business)), "liveCoupons excludes sold-out Marco's Pizza - Riverview");
 
-  // Almost Gone Clipp merchant carries ALMOST_GONE status and scarcity badge
-  const fourthM = clippOfferById("clipp-m-4th-street-pizza");
-  ok(fourthM && fourthM.status === OFFER_HEALTH_STATUS.ALMOST_GONE, "clipp-m-4th-street-pizza carries ALMOST_GONE status");
+  // Almost Gone Clipp merchant carries ALMOST_GONE status and scarcity badge.
+  // Evaluated at a FIXED time inside the 24h scarcity window after the last
+  // manual audit (2026-11-18T23:19:12Z). Reading it at wall-clock time made this
+  // a clock bomb: at 2026-11-19T23:19Z the claim correctly expired and every
+  // build failed (production deploys of unrelated PRs errored).
+  const SCARCITY_AUDIT_MS = Date.parse("2026-11-18T23:19:12.000Z");
+  const fourthM = clippOfferById("clipp-m-4th-street-pizza", { now: new Date(SCARCITY_AUDIT_MS + 3600000) });
+  ok(fourthM && fourthM.status === OFFER_HEALTH_STATUS.ALMOST_GONE, "clipp-m-4th-street-pizza carries ALMOST_GONE status within 24h of its audit");
+  // Control: the same claim is NOT shown once 24h have passed (stale scarcity is never served).
+  const fourthLate = clippOfferById("clipp-m-4th-street-pizza", { now: new Date(SCARCITY_AUDIT_MS + 25 * 3600000) });
+  ok(fourthLate && fourthLate.status === OFFER_HEALTH_STATUS.ACTIVE && fourthLate.scarcityExpired === true, "ALMOST_GONE reverts to ACTIVE after the 24h scarcity window");
   const fourthStCoupon = COUPONS.find((c) => c.id === "cpn-clipp-m-4th-street-pizza");
   ok(fourthStCoupon && fourthStCoupon.status === "ALMOST_GONE", "4th Street Pizza coupon exposes ALMOST_GONE status");
 
