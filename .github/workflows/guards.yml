@@ -34,7 +34,14 @@ on:
   # Recovery path when the normal pull_request event cannot produce a runnable
   # check (for example a bot-written head commit or a previously blocked run).
   # This executes the same sharded jobs below; it is not a bypass.
+  # The merge train (.github/workflows/merge-train.yml) also dispatches it on a
+  # queued branch it just brought up to date, naming the pull request in "pr".
   workflow_dispatch:
+    inputs:
+      pr:
+        description: "Pull request number this branch belongs to (merge train)"
+        required: false
+        default: ""
   pull_request:
   push:
     branches: [main]
@@ -115,7 +122,17 @@ jobs:
           GUARD_SHARD: ${{ matrix.shard }}/4
           # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
           GITHUB_TOKEN: ${{ github.token }}
+          TRAIN_PR: ${{ github.event_name == 'workflow_dispatch' && inputs.pr || '' }}
+          TRAIN_HEAD: ${{ github.sha }}
         run: |
+          if [ -n "$TRAIN_PR" ]; then
+            # Merge train dispatch: judge this commit as that pull request. The
+            # owner-approval guard re-reads the pull request from GitHub and refuses
+            # unless this commit is its live head, so naming another number fails.
+            case "$TRAIN_PR" in *[!0-9]*) echo "bad pr input"; exit 1;; esac
+            printf '{"pull_request":{"number":%s,"head":{"sha":"%s"}}}' "$TRAIN_PR" "$TRAIN_HEAD" > "$RUNNER_TEMP/train-pr-event.json"
+            export GITHUB_EVENT_NAME=pull_request GITHUB_EVENT_PATH="$RUNNER_TEMP/train-pr-event.json"
+          fi
           test -z "${NODE_OPTIONS:-}"
           node scripts/run-guards.mjs
 
