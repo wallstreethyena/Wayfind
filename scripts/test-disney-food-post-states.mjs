@@ -11,7 +11,7 @@ import React from "react";
 import { flushSync } from "react-dom";
 import { JSDOM } from "jsdom";
 import { loadComponent } from "./lib/jsxLoad.mjs";
-import { readFileSync, writeFileSync, unlinkSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { DISNEY_FOOD_STOPS } from "../lib/guidesDisneyHolidayFood2026.js";
 
 const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: "https://www.gowayfind.com/guides/disney-world-holiday-food-guide-2026", pretendToBeVisual: true });
@@ -74,12 +74,17 @@ if (process.argv.includes("--red-prove")) {
   };
   for (const [name, code] of Object.entries(mutants)) {
     assert.notEqual(code, src, "mutation applied: " + name);
-    const file = dir + "FoodPost.redprove-" + name.split(" ")[0] + ".js";
-    writeFileSync(file, code);
+    // Loaded in memory (jsxLoad sourceOverrides): nothing is written to the repo.
+    const real = path.resolve(dir + "FoodPost.js");
+    const { default: Mutant } = await loadComponent(real, process.cwd(), { sourceOverrides: new Map([[real, code]]) });
     let caught = false;
-    try { const { default: Mutant } = await loadComponent(path.resolve(file), process.cwd()); run("on-time", Mutant); } catch { caught = true; } finally { unlinkSync(file); }
+    try { run("on-time", Mutant); } catch { caught = true; }
     assert.ok(caught, "red-prove: mutant with " + name + " must fail");
   }
+  // Control: the unmutated source through the same override path passes.
+  const real = path.resolve(dir + "FoodPost.js");
+  const { default: Same } = await loadComponent(real, process.cwd(), { sourceOverrides: new Map([[real, src]]) });
+  run("on-time", Same);
   console.log("test-disney-food-post-states --red-prove: OK — FoodPost without its origin check or its frame check fails the test");
   process.exit(0);
 }
