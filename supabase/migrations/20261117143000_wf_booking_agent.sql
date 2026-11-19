@@ -16,7 +16,7 @@ create table if not exists public.wf_booking_agent_runs (
   idempotency_key text not null,
   status text not null check (
     status in (
-      'queued', 'opening', 'form_ready', 'filling', 'review', 'submitting', 'confirmed',
+      'queued', 'opening', 'selecting_slot', 'form_ready', 'filling', 'review', 'submitting', 'awaiting_sms_code', 'confirmed',
       'unknown_after_submit', 'cancelled_by_user', 'refused_flag_off', 'refused_kill_switch'
     )
     or status ~ '^handback:(challenge|login_required|payment_required|phone_verification|slot_unavailable|unrecognized_page|timeout)$'
@@ -29,6 +29,7 @@ create table if not exists public.wf_booking_agent_runs (
   parsed_summary jsonb,
   selector_map_version text not null check (char_length(selector_map_version) between 1 and 40),
   sms_consent boolean not null default false,
+  sms_code text check (sms_code is null or sms_code ~ '^[0-9]{4,8}$'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint wf_booking_agent_runs_idem unique (idempotency_key)

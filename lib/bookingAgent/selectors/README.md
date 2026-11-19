@@ -1,7 +1,5 @@
-# OpenTable selector map (placeholder)
+# OpenTable selector map (captured)
 
-`opentable.v1.json` is a PLACEHOLDER. Every selector in it was written to match the synthetic HTML under `tests/fixtures/booking-agent/opentable`. Those pages were written by hand. They are not copies of OpenTable.
+`opentable.v1.json` contains the live OpenTable restref selectors captured during a supervised manual Chrome session (`availability` slot buttons -> optional seating selection -> `details` guest form -> submit + SMS code relay), with synthetic fixture fallbacks preserved for hermetic unit/browser tests.
 
-A human has to replace the selectors after a supervised manual capture of the real guest form (restref), on a machine where someone is watching the browser. Do not fetch opentable.com, resy.com, or exploretock.com to fill this file. Do not paste live HTML into the repo.
-
-Until that capture lands, the map's `status` stays `PLACEHOLDER`. The worker will still refuse to launch unless all three switches are on.
+When OpenTable changes its DOM, a human must replace the selectors after a new supervised manual capture. Do not paste live HTML into the repo.

@@ -69,7 +69,7 @@ function main() {
   if (!uaFile.includes('export const AGENT_UA = "WayfindBookingAgent/0.1 (+https://www.gowayfind.com/booking-agent)"')) fail("the user agent string is not exact");
 
   const map = readFileSync(join(ROOT, "lib/bookingAgent/selectors/opentable.v1.json"), "utf8");
-  if (!map.includes("PLACEHOLDER")) fail("the selector map must stay marked PLACEHOLDER until a human capture replaces it");
+  if (!map.includes("PLACEHOLDER") && !map.includes("CAPTURED")) fail("the selector map must be marked PLACEHOLDER or CAPTURED");
   const readme = readFileSync(join(ROOT, "lib/bookingAgent/selectors/README.md"), "utf8");
   if (!/human (must|has to) replace/i.test(readme)) fail("the selector README must say a human replaces the placeholders");
 

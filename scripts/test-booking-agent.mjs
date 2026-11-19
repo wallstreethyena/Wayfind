@@ -334,5 +334,113 @@ const confirmed = { html: html("confirmation.html") };
   count++;
 }
 
+// ---- live OpenTable shape: invisible recaptcha v3, 2-step slot picker, human confirmation, SMS code relay ----
+{
+  const otSlotsHtml = `<html><body><h1>Find a table</h1><button data-test="slot-button">7:00 PM</button><textarea name="g-recaptcha-response" id="g-recaptcha-response-100000"></textarea></body></html>`;
+  const otFormHtml = `<html><body><form><input id="firstName" name="firstName"><input id="lastName" name="lastName"><select id="phoneNumberCountryCode"><option>+1</option></select><input id="phoneNumber" type="tel"><input id="email" name="email"><button id="complete-reservation" type="submit">Complete reservation</button></form><textarea name="g-recaptcha-response" id="g-recaptcha-response-100000"></textarea></body></html>`;
+  const otSmsHtml = `<html><body><h1>Enter verification code</h1><p>We texted you a code.</p><input autocomplete="one-time-code"><button type="submit">Verify</button><textarea name="g-recaptcha-response" id="g-recaptcha-response-100000"></textarea></body></html>`;
+  const otConfirmHtml = `<html><body><h1>Thanks, Ada! Your reservation is confirmed.</h1><p>Confirmation #84920194</p><p>Reservation at Ulele</p><p>Fri, Nov 20</p><p>7:00 PM</p><p>4 people (Standard seating)</p><textarea name="g-recaptcha-response" id="g-recaptcha-response-100000"></textarea></body></html>`;
+
+  ok(classifyPage({ html: otSlotsHtml }) === "slots", "OpenTable Step 1 slots page with invisible recaptcha v3 classifies as slots (not challenge)");
+  ok(classifyPage({ html: otFormHtml }) === "form", "OpenTable Step 2 details form with invisible recaptcha v3 classifies as form");
+  ok(classifyPage({ html: otConfirmHtml }) === "confirmation", "OpenTable confirmation page classifies as confirmation");
+
+  const parsedOt = parseConfirmation(otConfirmHtml, { fallbackYear: "2026" });
+  ok(parsedOt && parsedOt.confirmationNumber === "84920194" && parsedOt.date === "2026-11-20" && parsedOt.time === "19:00" && parsedOt.party === 4 && parsedOt.restaurant === "Ulele", "parses live OpenTable human date/12h time/confirmation #");
+  ok(confirmationMatches(parsedOt, { date: "2026-11-20", time: "19:00", party: 4 }), "live OpenTable confirmation matches request");
+
+  // Full 2-step flow + SMS code relay via HTTP submitCode handler
+  const store = createMemoryStore({ status: "on" });
+  const run = await seedRun(store, { status: "queued" });
+  const filled = [];
+  let stage = "slots";
+  const liveFake = {
+    async launch({ userAgent }) {
+      return {
+        userAgent,
+        async open() {
+          return {
+            async snapshot() {
+              const html = stage === "slots" ? otSlotsHtml : stage === "form" ? otFormHtml : stage === "sms" ? otSmsHtml : otConfirmHtml;
+              return { html, httpStatus: 200, url: "https://www.opentable.com/booking/restref/" + stage, title: "OpenTable" };
+            },
+            async clickSlot(_sel, label) {
+              ok(label === "7:00 PM", "slot picker requests exact 12-hour time label: " + label);
+              stage = "form";
+              return true;
+            },
+            async clickOptional() { return true; },
+            async waitForSettled() {},
+            async fill(sel, val) { filled.push([sel, val]); },
+            async click() {
+              if (stage === "form") stage = "sms";
+              else if (stage === "sms") stage = "confirm";
+            },
+          };
+        },
+        async close() {},
+      };
+    },
+  };
+
+  const handlers = createBookingAgentHandlers({
+    env: ON, store, now: () => NOW,
+    registry: { forPlace: async () => ({ id: "opentable_handoff", link: { rid: "139954" } }) },
+    readProfile: async () => PROFILE,
+    placeName: async () => "Ulele",
+    verifyUser: async () => ({ id: USER }),
+  });
+
+  // Start worker run in parallel; once it enters awaiting_sms_code, submit code via HTTP handler
+  const runPromise = runNext({
+    store, env: ON, now: () => NOW, launch: liveFake.launch,
+    loadProfile: async () => PROFILE, placeName: async () => "Ulele",
+    smsPollMs: 10, smsTimeoutMs: 2000,
+  });
+
+  for (let i = 0; i < 50; i++) {
+    const cur = await store.getRun(run.id);
+    if (cur && cur.status === "awaiting_sms_code") break;
+    await new Promise((r) => setTimeout(r, 15));
+  }
+  const waiting = await store.getRun(run.id);
+  ok(waiting && waiting.status === "awaiting_sms_code", "run pauses in awaiting_sms_code after post-submit phone prompt");
+
+  const codeReq = new Request("https://www.gowayfind.com/api/reserve/agent/code", {
+    method: "POST",
+    headers: { origin: "https://www.gowayfind.com", "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ id: run.id, code: "482910" }),
+  });
+  const codeRes = await handlers.submitCode(codeReq);
+  ok(codeRes.status === 200, "POST /api/reserve/agent/code accepts 6-digit code");
+
+  const finished = await runPromise;
+  const saved = await store.getRun(run.id);
+  ok(finished.status === "confirmed" && saved.confirmation_number === "84920194", "SMS code relay completes reservation to confirmed");
+  ok(saved.sms_code === null, "ephemeral sms_code is cleared immediately after consumption");
+  ok(filled.some(([, v]) => v === "9415550198"), "strips +1 country prefix when OpenTable country selector is present");
+  ok(filled.some(([, v]) => v === "482910"), "enters the relayed SMS code into the OpenTable verification input");
+
+  // Slot unavailable on Step 1
+  const store2 = createMemoryStore({ status: "on" });
+  await seedRun(store2, { status: "queued" });
+  const noSlotRes = await runNext({
+    store: store2, env: ON, now: () => NOW,
+    launch: async ({ userAgent }) => ({
+      userAgent,
+      async open() {
+        return {
+          async snapshot() { return { html: otSlotsHtml, httpStatus: 200, url: "https://www.opentable.com/booking/restref/availability", title: "OpenTable" }; },
+          async clickSlot() { return false; },
+          async fill() {}, async click() {},
+        };
+      },
+      async close() {},
+    }),
+    loadProfile: async () => PROFILE, placeName: async () => "Ulele",
+  });
+  ok(noSlotRes.status === "handback:slot_unavailable", "missing exact time slot on Step 1 hands back slot_unavailable");
+}
+
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }
 console.log(`test-booking-agent: OK - ${count} assertions (local fixtures, no live site)`);

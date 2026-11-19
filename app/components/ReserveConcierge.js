@@ -13,7 +13,7 @@ import ReservePicks from "./ReservePicks.js";
 import {
   RESERVE_LIMITS, conciergeTurn, bookTable, cancelBooking, saveProfile, profileBody, cleanPhoneInput, newIdempotencyKey,
   addToItinerary, directionsUrl, addHandoff, downloadIcs, timeLabel, dateLabel, weekdayLabel,
-  startBookingAgent, bookingAgentStatus, cancelBookingAgent,
+  startBookingAgent, bookingAgentStatus, cancelBookingAgent, submitBookingAgentCode,
 } from "../../lib/reserveClientApi.js";
 import { consentParagraph } from "../../lib/bookingAgent/copy.js";
 import { trackReserve, savePendingReserve, clearPendingReserve } from "../../lib/reserveOpen.js";
@@ -263,6 +263,10 @@ export function AgentOfferCard({ card, state, place, busy, sms, onStart }) {
 export function AgentProgressCard({ card }) {
   const [view, setView] = useState(null);
   const [gone, setGone] = useState(false);
+  const [smsCode, setSmsCode] = useState("");
+  const [codeBusy, setCodeBusy] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [codeErr, setCodeErr] = useState("");
   useEffect(() => {
     let dead = false;
     let timer = null;
@@ -272,7 +276,7 @@ export function AgentProgressCard({ card }) {
       const run = r && r.run;
       if (run) setView(run);
       const status = run && run.status;
-      const done = status && !["queued", "opening", "form_ready", "filling", "review", "submitting"].includes(status);
+      const done = status && !["queued", "opening", "selecting_slot", "form_ready", "filling", "review", "submitting", "awaiting_sms_code"].includes(status);
       if (!done) timer = setTimeout(tick, 2000);
     };
     tick();
@@ -299,6 +303,32 @@ export function AgentProgressCard({ card }) {
     );
   }
   if (gone) return <div data-reserve-card="agent_cancelled" style={box}><div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>Cancelled. Nothing was submitted to OpenTable.</div></div>;
+  if (run && run.status === "awaiting_sms_code") {
+    const sendCode = async (e) => {
+      e.preventDefault();
+      if (codeBusy) return;
+      const digits = smsCode.replace(/\D/g, "");
+      if (digits.length < 4 || digits.length > 8) { setCodeErr("Enter the 4 to 8 digit code from your text."); return; }
+      setCodeBusy(true); setCodeErr("");
+      const r = await submitBookingAgentCode(card.runId, digits);
+      setCodeBusy(false);
+      if (r && r.ok) { setCodeSent(true); return; }
+      setCodeErr((r && r.message) || "Could not send that code. Please try again.");
+    };
+    return (
+      <form data-reserve-card="agent_sms_code" style={box} onSubmit={sendCode} noValidate>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{sentence}</div>
+        {codeSent ? <Note>Code sent. Finishing your reservation on OpenTable...</Note> : (
+          <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+            <input data-booking-agent-sms-code="1" inputMode="numeric" autoComplete="one-time-code" placeholder="Verification code" maxLength={8} value={smsCode} onChange={(e) => setSmsCode(e.target.value)} onFocus={keepVisible} style={field} />
+            {codeErr ? <div role="alert" style={errStyle}>{codeErr}</div> : null}
+            <button type="submit" data-booking-agent-sms-submit="1" style={{ ...mainBtn, opacity: codeBusy ? 0.7 : 1 }} disabled={codeBusy}>Submit code</button>
+          </div>
+        )}
+        {run.cancellable ? <button type="button" data-booking-agent-cancel="1" style={{ ...quietBtn, marginTop: 8 }} onClick={async () => { const r = await cancelBookingAgent(card.runId); if (r && r.ok) setGone(true); }}>Cancel</button> : null}
+      </form>
+    );
+  }
   return (
     <div data-reserve-card="agent_progress" style={box}>
       <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{sentence}</div>

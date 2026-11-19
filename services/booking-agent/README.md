@@ -1,9 +1,24 @@
 # Booking agent worker
 
-This folder is a separate Node process that claims queued rows and runs `runNext` in `lib/bookingAgent/run.js`. The same function is what a Vercel Sandbox would call.
+This folder is a separate Node process that claims queued rows and runs `runNext` in `lib/bookingAgent/run.js`.
 
-Neither host is configured. There is no Vercel project, cron, or start script that launches it. The Next.js app does not import this folder.
+## Running the worker
 
-The only runtime dependency is `playwright-core`. The browser uses the user agent `WayfindBookingAgent/0.1 (+https://www.gowayfind.com/booking-agent)`.
+Install dependencies once inside this folder:
+```bash
+cd services/booking-agent && npm install
+```
 
-Do not point it at a live booking site until the switches, the migration, and a human selector capture are all done. See the pull request for that list.
+Start the continuous polling daemon (requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BOOKING_AGENT_ENABLED=1`, `BOOKING_AGENT_SITE_OPENTABLE=1`, and the `wf_booking_agent_sites` row for `opentable` set to `on`):
+```bash
+node services/booking-agent/runner.js
+```
+
+Run a single queued job and exit:
+```bash
+node services/booking-agent/runner.js --once
+```
+
+On macOS/Windows, real Chrome (`channel: "chrome"`) is launched directly. On a headless Linux server, run under `xvfb-run -a node services/booking-agent/runner.js` so OpenTable serves the live availability and guest form pages cleanly.
+
+The only runtime dependency is `playwright-core`. The Next.js app does not import this folder.

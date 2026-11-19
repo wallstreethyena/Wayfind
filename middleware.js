@@ -126,6 +126,7 @@ export const config = {
     "/api/reserve/agent/start",
     "/api/reserve/agent/status",
     "/api/reserve/agent/cancel",
+    "/api/reserve/agent/code",
     "/api/viator/tours",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
@@ -235,7 +236,7 @@ const IMAGE_ROUTES = new Set(["/api/photo", "/api/creator-avatar"]);
 // Unmetered routes for Reserve a table (book, cancel, proposal, manage, slots): per-IP rate limit, no middleware
 // same-origin block (the routes check the exact Origin themselves; a restaurant
 // opening an emailed link may arrive with stripped browser headers).
-const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/slots", "/api/reserve/book", "/api/reserve/cancel", "/api/reserve/proposal", "/api/reserve/manage", "/api/reserve/path", "/api/reserve/find", "/api/reserve/profile", "/api/reserve/history", "/api/reserve/go", "/api/reserve/agent/start", "/api/reserve/agent/status", "/api/reserve/agent/cancel"]);
+const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/slots", "/api/reserve/book", "/api/reserve/cancel", "/api/reserve/proposal", "/api/reserve/manage", "/api/reserve/path", "/api/reserve/find", "/api/reserve/profile", "/api/reserve/history", "/api/reserve/go", "/api/reserve/agent/start", "/api/reserve/agent/status", "/api/reserve/agent/cancel", "/api/reserve/agent/code"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;
