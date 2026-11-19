@@ -1,0 +1,20 @@
+.explorer { max-width: 900px; margin: 0 auto; scroll-margin-top: 20px; }
+.menu { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 22px; }
+.choice { position: relative; cursor: pointer; }
+.choice input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.choice span { display: flex; align-items: center; min-height: 44px; padding: 0 15px; color: #f7f2e8; border: 1px solid #546158; border-radius: 24px; font-size: 14px; }
+.choice input:focus-visible + span { outline: 3px solid #ffc294; outline-offset: 2px; }
+.choice input:checked + span { background: #f6e4bd; color: #1b2d22; border-color: #f6e4bd; font-weight: 700; }
+.panel { display: none; scroll-margin-top: 20px; }
+.explorer:has(input[value="magic-kingdom"]:checked) .panel[data-park="magic-kingdom"],
+.explorer:has(input[value="epcot"]:checked) .panel[data-park="epcot"],
+.explorer:has(input[value="animal-kingdom"]:checked) .panel[data-park="animal-kingdom"],
+.explorer:has(input[value="hollywood-studios"]:checked) .panel[data-park="hollywood-studios"],
+.explorer:has(input[value="disney-springs"]:checked) .panel[data-park="disney-springs"] { display: block; }
+.mapFrame { position: relative; height: clamp(330px, 53vh, 540px); overflow: hidden; border-radius: 12px; background: #162423; }
+.mapNote { display: block; font-size: 13px; color: #bbc7c0; }
+.keyList { margin: 0 0 24px; padding-left: 25px; }
+.keyList li { padding: 4px 0; color: #ffe1b8; }
+.keyList a { display: inline-flex; justify-content:center; flex-direction:column; min-height:44px; text-decoration:none; }
+.keyList small { display:block; color:#c1cbbf; }
+@media (max-width: 600px) { .menu { gap:6px; } .choice span { padding:0 12px; font-size:13px; } }
