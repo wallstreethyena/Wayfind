@@ -918,6 +918,9 @@
 }
 .bucketRow a {
   background: transparent;
+  /* Every link in a row, the Directions link included, is a 44px tap target. */
+  min-height: 44px;
+  align-items: center;
 }
 .bucketList a,
 .regionLinks a {
