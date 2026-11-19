@@ -43,9 +43,11 @@ for (const [slug, city] of markets) {
   ok(COVERED_CITIES[slug] === city, `${slug} is in COVERED_CITIES`);
 }
 for (const slug of Object.keys(LANDING_CITIES)) ok(COVERED_CITIES[slug] === LANDING_CITIES[slug], `published ${slug} stays covered`);
-// Held 2026-10-01 because their real feed was (near) empty — see the table's
-// header comment. Re-adding one must come with a fresh feed measurement.
-for (const slug of ["gainesville", "port-st-lucie", "key-west"]) ok(!COVERED_CITIES[slug], `${slug} stays held until its feed fills (measured thin 2026-10-01)`);
+// Held because their real feed was (near) empty — see the table's header
+// comment. Re-adding one must come with a fresh feed measurement. Key West
+// was promoted 2026-11-18 on a fresh measurement (71 distinct, 13 breakfast).
+for (const slug of ["gainesville", "port-st-lucie", "vero-beach", "stuart", "sebring"]) ok(!COVERED_CITIES[slug], `${slug} stays held until its feed fills (measured thin 2026-11-18)`);
+for (const slug of ["port-charlotte", "homestead", "the-villages", "key-west", "spring-hill"]) ok(!!MARKET_CITIES[slug], `${slug} is a covered market (measured full 2026-11-18)`);
 for (const slug of Object.keys(CITY_ALIASES)) ok(!!COVERED_CITIES[slug], `alias owner ${slug} is a covered city`);
 
 // 2. Search suggestions — the reported query first.

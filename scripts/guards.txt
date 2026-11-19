@@ -53,12 +53,14 @@ node scripts/test-landing-why-fits.mjs
 node scripts/test-landing-card-cue.mjs
 node scripts/test-score-band.mjs
 node scripts/test-business-status.mjs
+node scripts/test-closed-place-pages.mjs
 node scripts/test-closed-policy.mjs
 npm run check:seo
 npm run check:events
 node scripts/check-business-events.mjs
 node scripts/check-guides.mjs
 node scripts/check-guide-standard.mjs
+node scripts/check-guide-standard.mjs --red-prove
 # 2026-09-23 (owner): guides that already happened move to /guides/past via
 # endsOn (lib/guideLifecycle.js); never deleted, never promoted as current.
 node scripts/check-guide-lifecycle.mjs
@@ -2727,3 +2729,8 @@ node scripts/check-portrait-photo-fit.mjs
 
 # Metro photo coverage = servable photos (stored/free/owned lanes), never the placeholder photo_ref.
 node scripts/test-metro-photo-coverage.mjs
+
+node scripts/test-disney-food-map.mjs
+node scripts/test-disney-geographic-map.mjs
+
+node scripts/test-disney-food-posts.mjs
