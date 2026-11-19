@@ -140,12 +140,12 @@ async function fetchOverpassElementsForRegion({ lat, lng, radiusM }) {
       if (!txt.startsWith("{")) continue;
       const j = JSON.parse(txt);
       if (typeof j?.remark === "string" && /runtime error|timed out|out of memory/i.test(j.remark)) continue;
-      if (Array.isArray(j?.elements)) return j.elements;
+      if (Array.isArray(j?.elements)) return { ok: true, elements: j.elements };
     } catch {
       // try next mirror
     }
   }
-  return [];
+  return { ok: false, elements: [], error: "all_overpass_mirrors_unavailable" };
 }
 
 /**
@@ -506,7 +506,7 @@ async function main() {
   const invRows = await fetchAllPostgrest(
     rawUrl,
     key,
-    "wf_inventory?status=eq.OPERATIONAL&excluded=not.is.true&select=place_id,name,lat,lng,signals,locked",
+    "wf_inventory?status=eq.OPERATIONAL&excluded=not.is.true&select=place_id,name,metro,locality,lat,lng,signals,locked",
   );
 
   const byId = new Map();
@@ -562,23 +562,34 @@ async function main() {
     }
   }
 
-  // ── Source 1: Fresh (<29d) pd1|* rows in wf_places_cache ──
+  // ── Source 1: Fresh (<29d) pd1|* rows in wf_places_cache (KEPT STRICTLY SEPARATE from owned_hours) ──
   const cacheRows = await fetchAllPostgrest(
     rawUrl,
     key,
     `wf_places_cache?k=like.pd1%25&wrote_at=gte.${encodeURIComponent(cutoffIso)}&select=k,v,wrote_at`,
   );
+  let separateFreshGoogleCacheCount = 0;
   for (const cr of cacheRows) {
     if (!cr?.k || !cr?.v || !cr?.wrote_at) continue;
     const wroteMs = Date.parse(cr.wrote_at);
     if (!Number.isFinite(wroteMs) || nowMs - wroteMs < 0 || nowMs - wroteMs >= 29 * DAY_MS) continue;
     const placeId = String(cr.k).replace(/^pdd?1\|/, "");
-    tryStagePlaceHours(placeId, cr.v, wroteMs, "wf_places_cache_detail");
+    const inv = byId.get(placeId);
+    if (inv) {
+      const rawPeriods = cr.v?.regularOpeningHours?.periods || null;
+      const rawLines = cr.v?.regularOpeningHours?.weekdayDescriptions || cr.v?.hours || null;
+      if (rawPeriods || (Array.isArray(rawLines) && rawLines.length)) {
+        separateFreshGoogleCacheCount++;
+      }
+    }
   }
 
-  // ── Source 2: OpenStreetMap Overpass Florida `opening_hours` facts ($0 spend) ──
+  // ── Source 2: OpenStreetMap Overpass Florida `opening_hours` facts ($0 spend) with polite rate-limiting ──
   let fromOsm = 0;
   let osmElementsTotal = 0;
+  const regionDiagnostics = [];
+  const OVERPASS_DELAY_MS = 1200;
+
   if (!SKIP_OSM) {
     const grid = new Map();
     const cellKey = (lat, lng) => `${Math.floor(lat * 100)}:${Math.floor(lng * 100)}`;
@@ -591,9 +602,24 @@ async function main() {
       grid.set(ck, list);
     }
 
-    for (const region of FLORIDA_METROS) {
-      const elements = await fetchOverpassElementsForRegion(region);
+    for (let i = 0; i < FLORIDA_METROS.length; i++) {
+      const region = FLORIDA_METROS[i];
+      if (i > 0) {
+        await new Promise((r) => setTimeout(r, OVERPASS_DELAY_MS));
+      }
+      let elements = [];
+      let okRegion = false;
+      try {
+        const res = await fetchOverpassElementsForRegion(region);
+        okRegion = res.ok;
+        elements = res.elements || [];
+      } catch {
+        okRegion = false;
+        elements = [];
+      }
+      regionDiagnostics.push({ region: region.name, elements: elements.length, ok: okRegion });
       osmElementsTotal += elements.length;
+
       for (const el of elements) {
         const elLat = Number.isFinite(el.lat) ? el.lat : el.center?.lat;
         const elLng = Number.isFinite(el.lon) ? el.lon : el.center?.lon;
@@ -615,6 +641,7 @@ async function main() {
             if (!bucket) continue;
             for (const cand of bucket) {
               if (planned.has(cand.place_id)) continue;
+              if (isUsableOwnedHours(cand?.signals?.owned_hours, nowMs) && !shouldReplaceOwnedHours(cand.signals.owned_hours, null, nowMs)) continue;
               const dist = haversineM(elLat, elLng, cand.lat, cand.lng);
               if (dist <= bestDist && nameMatchesConservatively(cand.name, osmName)) {
                 bestDist = dist;
@@ -634,6 +661,9 @@ async function main() {
             verifiedAt: new Date(nowMs).toISOString(),
           });
           if (rec && isUsableOwnedHours(rec, nowMs)) {
+            if (isUsableOwnedHours(bestInv?.signals?.owned_hours, nowMs) && !shouldReplaceOwnedHours(bestInv.signals.owned_hours, rec, nowMs)) {
+              continue;
+            }
             planned.set(bestInv.place_id, { record: rec, via: `osm:${region.name}` });
             fromOsm++;
           }
@@ -672,6 +702,63 @@ async function main() {
     afterOwnedCount = postRows.filter((r) => isUsableOwnedHours(r?.signals?.owned_hours, nowMs)).length;
   }
 
+  // Compute real byMetro integer breakdown matching exact invRows total
+  const metroMap = new Map();
+  for (const inv of invRows) {
+    const rawMetro = String(inv.metro || inv.locality || "").toLowerCase();
+    const lat = Number(inv.lat);
+    const lng = Number(inv.lng);
+
+    let mKey = "other";
+    if (/sarasota|bradenton|venice/i.test(rawMetro)) mKey = "sarasota";
+    else if (/tampa|ybor|clearwater/i.test(rawMetro)) mKey = "tampa";
+    else if (/st\.? petersburg|st petersburg|st\.? pete/i.test(rawMetro)) mKey = "st-pete";
+    else if (/orlando|kissimmee/i.test(rawMetro)) mKey = "orlando";
+    else if (/miami|coral gables|key biscayne/i.test(rawMetro)) mKey = "miami";
+    else if (/fort lauderdale|hollywood|pompano/i.test(rawMetro)) mKey = "broward";
+    else if (/palm beach|boca raton|delray/i.test(rawMetro)) mKey = "palm-beach";
+    else if (/jacksonville/i.test(rawMetro)) mKey = "jacksonville";
+    else if (/naples|marco island|fort myers|sanibel/i.test(rawMetro)) mKey = "swfl";
+    else if (/key west|islamorada|marathon|key largo/i.test(rawMetro)) mKey = "keys";
+    else if (/pensacola|destin|panama city/i.test(rawMetro)) mKey = "panhandle";
+    else if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      if (lat >= 26.9 && lat <= 27.6 && lng >= -82.8 && lng <= -82.1) mKey = "sarasota";
+      else if (lat >= 27.82 && lat <= 28.25 && lng >= -82.60 && lng <= -82.20) mKey = "tampa";
+      else if (lat >= 27.60 && lat <= 28.18 && lng >= -82.86 && lng <= -82.60) mKey = "st-pete";
+      else if (lat >= 28.20 && lat <= 28.80 && lng >= -81.70 && lng <= -81.10) mKey = "orlando";
+      else if (lat >= 25.40 && lat <= 25.98 && lng >= -80.50 && lng <= -80.05) mKey = "miami";
+      else if (lat >= 25.98 && lat <= 26.35 && lng >= -80.45 && lng <= -80.05) mKey = "broward";
+      else if (lat >= 26.35 && lat <= 27.00 && lng >= -80.35 && lng <= -79.95) mKey = "palm-beach";
+      else if (lat >= 30.05 && lat <= 30.60 && lng >= -81.95 && lng <= -81.35) mKey = "jacksonville";
+      else if (lat >= 25.90 && lat <= 26.75 && lng >= -82.25 && lng <= -81.60) mKey = "swfl";
+      else if (lat >= 24.50 && lat <= 25.35 && lng >= -81.90 && lng <= -80.30) mKey = "keys";
+      else if (lng < -84.0) mKey = "panhandle";
+    }
+
+    let stats = metroMap.get(mKey);
+    if (!stats) {
+      stats = { totalOperational: 0, beforeDbOwnedHours: 0, afterRepoProjection: 0, stagedFromRepo: 0, stagedFromOsm: 0, afterFullBackfill: 0, separateFreshGoogleSignalsOh: 0 };
+      metroMap.set(mKey, stats);
+    }
+    stats.totalOperational++;
+    const hasBefore = isUsableOwnedHours(inv?.signals?.owned_hours, nowMs);
+    if (hasBefore) stats.beforeDbOwnedHours++;
+
+    const snap = resolveOwnedHoursSnapshot(inv.place_id, { lat: inv.lat, lng: inv.lng, placeName: inv.name, nowMs });
+    const hasRepo = snap && isUsableOwnedHours(snap, nowMs);
+    if (hasBefore || hasRepo) stats.afterRepoProjection++;
+
+    const planItem = planned.get(inv.place_id);
+    if (planItem) {
+      if (planItem.via.startsWith("repo:")) stats.stagedFromRepo++;
+      else if (planItem.via.startsWith("osm:")) stats.stagedFromOsm++;
+    }
+    const hasAfterFull = hasBefore || Boolean(planItem) || hasRepo;
+    if (hasAfterFull) stats.afterFullBackfill++;
+  }
+
+  const byMetro = Object.fromEntries([...metroMap.entries()]);
+
   const summary = {
     mode: APPLY ? "apply" : "dry-run",
     googleApiCalls: 0,
@@ -682,16 +769,19 @@ async function main() {
     candidatesHydrated: {
       total: planned.size,
       fromWayfindOwnedRepo: fromRepo,
-      fromFreshPlacesCache: fromCache,
+      fromFreshPlacesCacheStagedIntoOwnedHours: 0,
+      separateFreshGoogleCacheCount,
       fromOpenStreetMapOverpass: fromOsm,
       osmElementsScanned: osmElementsTotal,
     },
+    regionDiagnostics,
     persisted,
     failed,
     afterOwnedHoursCount: APPLY ? afterOwnedCount : beforeOwnedCount + planned.size,
     afterOwnedHoursPct: Number(
       (((APPLY ? afterOwnedCount : beforeOwnedCount + planned.size) / Math.max(1, invRows.length)) * 100).toFixed(2),
     ),
+    byMetro,
   };
 
   console.log(JSON.stringify(summary, null, 2));
