@@ -663,9 +663,50 @@ const confirmed = { html: html("confirmation.html") };
   });
   const rStart = await hOff.start(postOff("/api/reserve/agent/start", { placeId: PLACE }));
   const rStatus = await hOff.status(new Request(ORIGIN + "/api/reserve/agent/status?id=" + USER, { headers: { origin: ORIGIN } }));
+  const rStatusBare = await hOff.status(new Request(ORIGIN + "/api/reserve/agent/status?id=" + USER));
   const rCancel = await hOff.cancel(postOff("/api/reserve/agent/cancel", { id: USER }));
   const rCode = await hOff.submitCode(postOff("/api/reserve/agent/code", { id: USER, code: "123456" }));
-  ok(rStart.status === 404 && rStatus.status === 404 && rCancel.status === 404 && rCode.status === 404, "all 4 disabled endpoints return 404 before touching store/migration");
+  ok(rStart.status === 404 && rStatus.status === 404 && rStatusBare.status === 404 && rCancel.status === 404 && rCode.status === 404, "all 4 disabled endpoints return 404 before origin or store/migration");
+}
+
+// ---- Verifier follow-ups: sameOriginRead for real browser GETs & clean mid-flight concurrent cancel ----
+{
+  const store = createMemoryStore({ status: "on" });
+  const run = await seedRun(store);
+  const h = createBookingAgentHandlers({
+    env: ON, store, now: () => NOW,
+    registry: { forPlace: async () => ({ id: "opentable_handoff", link: { rid: "100001" } }) },
+    readProfile: async () => PROFILE, placeName: async () => "Synthetic Grill", verifyUser: async () => ({ id: USER }),
+  });
+  const url = ORIGIN + "/api/reserve/agent/status?id=" + run.id;
+  const sSameSite = await h.status(new Request(url, { headers: { "sec-fetch-site": "same-origin" } }));
+  ok(sSameSite.status === 200, "GET status succeeds with sec-fetch-site: same-origin and no Origin header");
+  const sReferer = await h.status(new Request(url, { headers: { referer: ORIGIN + "/reserve" } }));
+  ok(sReferer.status === 200, "GET status succeeds with same-origin Referer and no Origin header");
+  const sCross = await h.status(new Request(url, { headers: { "sec-fetch-site": "cross-site" } }));
+  ok(sCross.status === 403, "GET status rejects sec-fetch-site: cross-site with 403");
+  const sBadOrigin = await h.status(new Request(url, { headers: { origin: "https://evil.example", "sec-fetch-site": "same-origin" } }));
+  ok(sBadOrigin.status === 403, "GET status rejects mismatched Origin with 403");
+
+  // Concurrent user cancellation mid-flight during filling exits cleanly as cancelled_by_user without throwing
+  const cStore = createMemoryStore({ status: "on" });
+  const cRun = await seedRun(cStore);
+  let cancelledOnce = false;
+  const cBrowser = scripted([form, confirmed], {
+    onFill: async () => {
+      if (cancelledOnce) return;
+      cancelledOnce = true;
+      await cStore.updateRun(cRun.id, { status: "cancelled_by_user", reason: "guest", sms_code: null, sms_code_expires_at: null }, { expect: "filling" });
+    },
+  });
+  let threw = false;
+  let cOut = null;
+  try {
+    ({ out: cOut } = await go(cStore, cBrowser));
+  } catch {
+    threw = true;
+  }
+  ok(!threw && cOut && cOut.status === "cancelled_by_user" && cBrowser.log.clicks.length === 0 && cBrowser.log.closed === 1, "mid-flight user cancellation returns cancelled_by_user cleanly without throwing or submitting");
 }
 
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }
