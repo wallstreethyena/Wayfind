@@ -1551,8 +1551,8 @@ let mapComponentMod = null;
     makeMockMapkit([{ id: "cast-lot", name: "Contemporary Resort Cast Parking Lot", lat: 28.4195, lng: -81.5750, distanceMeters: 300 }]),
     { id: "mk", name: "Magic Kingdom Park", lat: 28.4188, lng: -81.5818 }
   );
-  assert.equal(castRes.status, "fallback", "Disney Cast Member lot must never be recommended as visitor parking");
-  assert.equal(castRes.items.length, 0);
+  assert.equal(castRes.restrictedExcludedCount, 1, "Disney Cast Member lot must be excluded as restricted");
+  assert.equal(castRes.items.some((i) => /cast/i.test(i.name)), false, "Disney Cast Member lot must never be recommended as visitor parking");
 
   const hotelMismatchRes = await searchDestinationParking(
     makeMockMapkit([{ id: "marriott-gar", name: "Marriott Hotel Parking Garage", lat: 27.9480, lng: -82.4390, distanceMeters: 150 }]),
