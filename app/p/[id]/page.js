@@ -1,4 +1,6 @@
 import Home from "../../home";
+import { preload } from "react-dom";
+import { placeHeroPreloadSrc } from "../../../lib/inventoryDetailGallery.js";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
@@ -118,6 +120,10 @@ export default async function PlaceSharePage({ params, searchParams }) {
   // BEHIND the overlay has to be the real homepage — closing the detail is the
   // most common next move a share-link visitor makes, and landing them on an
   // empty shell is how a shared place became a dead end.
-  const { railMenu, localEditGuides } = await homeShellData();
+  // Desktop LCP (2026-11-18): start the detail hero with the HTML instead of
+  // after details -> photo lane -> image on the client. Same gallery the panel
+  // renders (lib/inventoryDetailGallery.js); bounded at 350ms, never a guess.
+  const [{ railMenu, localEditGuides }, heroSrc] = await Promise.all([homeShellData(), placeHeroPreloadSrc(id, { placeParam: s(searchParams.place) })]);
+  if (heroSrc) preload(heroSrc, { as: "image", fetchPriority: "high" });
   return <Home initialPlaceId={id} initialPlaceAction={action || null} railMenu={railMenu} localEditGuides={localEditGuides} />;
 }
