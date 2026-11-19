@@ -3,7 +3,8 @@
 import { useState } from "react";
 import GuidePhoto from "./GuidePhoto.js";
 import PhotoCreditLink from "./PhotoCreditLink.js";
-import { emitCommerce } from "../../lib/commerce.js";
+import { emitCommerce, mintClickId } from "../../lib/commerce.js";
+import { planRowOrganizerClick } from "../../lib/partnerClick.js";
 import { secondaryTicketPrimaryMatches } from "../../lib/secondaryTicketPrimary.js";
 import { useContentCardActions } from "../../lib/contentCardActions.js";
 import { openShareFlow } from "../../lib/shareFlow.js";
@@ -88,9 +89,12 @@ const SURFACE = "christmas_tickets";
 // Organizer links (no affiliate, not one of our /go routes) are invisible to
 // CommerceClickBeacon, so the card records its own single tap. Our /go links
 // are recorded once by the beacon and never here.
+// Shared shape (lib/partnerClick.js planRowOrganizerClick): click_id, clean
+// merchant and canonical slug (2026-11-19 measurement audit).
 export function organizerTap(row) {
   try {
-    emitCommerce("commerce_cta_clicked", { surface: SURFACE, provider: "organizer", merchant: new URL(row.cta.href).hostname, content_id: row.id });
+    const plan = planRowOrganizerClick(row, SURFACE, { locationHost: typeof location !== "undefined" ? location.host : undefined, mint: mintClickId });
+    if (plan) emitCommerce("commerce_cta_clicked", plan.ctx);
   } catch { /* ignore */ }
 }
 
