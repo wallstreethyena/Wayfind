@@ -269,6 +269,19 @@ function CITIES() {
   const n = parseSelectNights("Select nights: Nov 19 to 22, 27 to 29; Dec 3 to 6; Jan 3, 5, 2027 at 7 PM", "2026-11-19", "2027-01-05");
   ok(n && n.length === 13 && n[0] === "2026-11-19" && n.at(-1) === "2027-01-05" && !n.includes("2026-12-07"), `select nights parse to dated nights with January in 2027 and no clock or year digits (${n && n.length})`);
   ok(parseSelectNights("Nightly", "2026-11-20", "2027-01-03") === null, "a nightly run has no night list");
+  // 2026-11-19: a later clause about an add-on ("Holiday Tour select dates") is
+  // not the event's own nights. Universal read "Next night Jan 2" while the
+  // celebration ran every night of Nov 14 to Jan 3.
+  ok(parseSelectNights("Nov 14, 2026 to Jan 3, 2027; Holiday Tour select dates Nov 14 to Jan 2", "2026-11-14", "2027-01-03") === null, "an add-on's select dates never become the event's night list");
+  const addOn = researchEvent({ id: "x-addon", state: "confirmed_dated", start_date: "2026-11-14", end_date: "2027-01-03", schedule: "Nov 14, 2026 to Jan 3, 2027; Holiday Tour select dates Nov 14 to Jan 2", times: "unannounced", price: "Included with park admission", event_name: "Z", city: "Orlando", primary_rail: "theme-parks" });
+  ok(addOn.select_nights === false && addOn.occurrence_dates === undefined, "an add-on clause leaves a continuous run continuous");
+  const music = researchEvent({ id: "x-music", state: "confirmed_dated", start_date: "2026-11-14", end_date: "2027-01-03", schedule: "Daily; nightly snowfall in Town Center; live music on select nights", times: "unannounced", price: "Free", event_name: "W", city: "Orlando", primary_rail: "lights" });
+  ok(music.select_nights === false, "a daily run with select-night music stays daily");
+  const real = researchEvent({ id: "x-select", state: "confirmed_dated", start_date: "2026-11-19", end_date: "2027-01-05", schedule: "Select nights: Nov 19 to 22, 27 to 29; Dec 3 to 6; Jan 3, 5", times: "7 PM", price: "unannounced", event_name: "V", city: "Orlando", primary_rail: "lights" });
+  ok(real.select_nights === true && real.occurrence_dates && real.occurrence_dates.length === 13, "a real select-nights schedule keeps every listed night");
+  const uniRow = RAW.find((r) => r.id === "universal-holidays-2026");
+  const uniEvent = uniRow ? researchEvent(uniRow) : null;
+  ok(!!uniEvent && uniEvent.select_nights === false && !uniEvent.occurrence_dates, "the real Universal Holidays row reads as nightly, not select nights");
   const t = parseResearchTimes("5:30 PM to 9:30 PM CT");
   ok(t.start_time === "17:30:00" && t.end_time === "21:30:00" && t.timezone === "America/Chicago", "times parse, and a Central Time row keeps its zone");
   const jan = cards.find((c) => c.end_date && c.end_date >= "2027-01-01");

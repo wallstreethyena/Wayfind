@@ -1,0 +1,350 @@
+{
+  "schema_version": "owned-hours-source-pack-v1",
+  "researched_at": "2026-11-19",
+  "scope_note": "Wave 3 bounded 12-venue Tampa & Fort Lauderdale T1 official hours verification. 11 venues verified on official primary websites (2026-11-19); 1 venue (ZooTampa at Lowry Park, ChIJBQ5SjLHGwogRL4X19g4J5tI) skipped because zootampa.org blocks automated read-only fetches (403/HTTP2 error/empty reply) and notes seasonal event variations. Of the 11 verified venues, 5 hour-exact schedules parse with ok === true via existing parseOfficialEditorialFactsToHours; 6 venues with :30 opening/closing minutes are recorded faithfully without rounding and await a parser fix for lib/editorialHoursParser.js:108 colon stripping.",
+  "paid_provider_calls": 0,
+  "paid_provider_cost_usd": 0,
+  "candidates": [
+    {
+      "place_id": "ChIJz8e7TVLEwogRBeybvscHnD4",
+      "name": "Columbia Restaurant",
+      "category": "food",
+      "metro": "tampa",
+      "locality": "Tampa",
+      "address": "2117 E. 7th Ave., Tampa, FL 33605",
+      "exceptions": "Open Thanksgiving Day (Thanksgiving Dinner menu alongside regular dinner menu); no holiday closures posted",
+      "evidence": [
+        {
+          "source": "https://www.columbiarestaurant.com/ybor-city-tampa",
+          "source_name": "Columbia Restaurant — Ybor City, Tampa (official site)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Columbia Restaurant Ybor City location is at 2117 E. 7th Ave., Tampa, FL 33605.",
+            "Columbia Restaurant hours are Sun-Thu 11 am to 9 pm, Fri-Sat 11 am to 10 pm.",
+            "Official site posts: Hours Of Operation: 11 a.m. - 9 p.m. Sunday through Thursday; 11 a.m. - 10 p.m. Friday & Saturday."
+          ]
+        },
+        {
+          "source": "https://www.columbiarestaurant.com/thanksgiving",
+          "source_name": "Columbia Restaurant — Thanksgiving 2026 (official site)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Columbia Restaurant Ybor City serves Thanksgiving Dinner in 2026 alongside the regular dinner menu."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Columbia Restaurant hours are Sun-Thu 11 am to 9 pm, Fri-Sat 11 am to 10 pm.",
+            "source": "https://www.columbiarestaurant.com/ybor-city-tampa"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJYWj9iZ_PwogRQebjN7pJ_Nw",
+      "name": "Armature Works",
+      "category": "food",
+      "metro": "tampa",
+      "locality": "Tampa",
+      "address": "1910 N Ola Ave, Tampa, FL",
+      "exceptions": "none_posted",
+      "evidence": [
+        {
+          "source": "https://armatureworks.com/location/armature-works/",
+          "source_name": "Armature Works — Hours & Location (official site)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Armature Works location is at 1910 N Ola Ave, Tampa, FL.",
+            "Armature Works hours are Mon-Thu 7:30 am to 10 pm, Fri 7:30 am to 12 am, Sat 8 am to 12 am, Sun 9 am to 10 pm.",
+            "Official site posts: Hours of Operation: Monday – Thursday: 7:30am – 10pm; Friday: 7:30am – 12am; Saturday: 8am – 12am; Sunday: 9am – 10pm."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Armature Works hours are Mon-Thu 7:30 am to 10 pm, Fri 7:30 am to 12 am, Sat 8 am to 12 am, Sun 9 am to 10 pm.",
+            "source": "https://armatureworks.com/location/armature-works/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ3Vyq7WTEwogRA-WDC7Mze2E",
+      "name": "Ulele",
+      "category": "food",
+      "metro": "tampa",
+      "locality": "Tampa",
+      "address": "1810 North Highland Avenue, Tampa, FL 33602",
+      "exceptions": "none_posted",
+      "evidence": [
+        {
+          "source": "https://ulele.com/",
+          "source_name": "Ulele — Official Website",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Ulele location is at 1810 North Highland Avenue, Tampa, FL 33602.",
+            "Ulele hours are Sun-Thu 11 am to 10 pm, Fri-Sat 11 am to 11 pm.",
+            "Official site posts: OPEN FOR LUNCH AND DINNER: Sunday – Thursday 11 a.m. – 10 p.m.; Friday & Saturday 11 a.m. – 11 p.m."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Ulele hours are Sun-Thu 11 am to 10 pm, Fri-Sat 11 am to 11 pm.",
+            "source": "https://ulele.com/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ11hsiYXEwogRjDBv39F04J8",
+      "name": "Oxford Exchange",
+      "category": "food",
+      "metro": "tampa",
+      "locality": "Tampa",
+      "address": "420 W. Kennedy Blvd., Tampa, FL 33606",
+      "exceptions": "none_posted",
+      "evidence": [
+        {
+          "source": "https://oxfordexchange.com/pages/visit-us",
+          "source_name": "Oxford Exchange — Visit Us (official site)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Oxford Exchange location is at 420 W. Kennedy Blvd. Tampa, FL 33606.",
+            "Oxford Exchange hours are Mon-Fri 7:30 am to 5:30 pm, Sat-Sun 8 am to 5:30 pm.",
+            "Official site posts: Monday - Friday 7:30 am - 5:30 pm; Saturday & Sunday 8:00 am - 5:30 pm."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Oxford Exchange hours are Mon-Fri 7:30 am to 5:30 pm, Sat-Sun 8 am to 5:30 pm.",
+            "source": "https://oxfordexchange.com/pages/visit-us"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJzXMD72bDwogRUmY0GaY63xI",
+      "name": "Bulla Gastrobar Tampa",
+      "category": "food",
+      "metro": "tampa",
+      "locality": "Tampa",
+      "address": "930 S. Howard Ave, Tampa, FL 33606",
+      "exceptions": "none_posted",
+      "evidence": [
+        {
+          "source": "https://bullagastrobar.com/locations/tampa/",
+          "source_name": "Bulla Gastrobar — Tampa Location (official site)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Bulla Gastrobar Tampa location is at 930 S. Howard Ave, Tampa, FL 33606.",
+            "Bulla Gastrobar Tampa hours are Mon-Wed 11:30 am to 10 pm, Thu-Fri 11:30 am to 11 pm, Sat 11 am to 11 pm, Sun 11 am to 10 pm.",
+            "Official site posts: MON-WED: 11:30 AM – 10 PM; THU-FRI: 11:30 AM – 11 PM; SAT: 11:00 AM – 11 PM; SUN: 11 AM – 10 PM."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Bulla Gastrobar Tampa hours are Mon-Wed 11:30 am to 10 pm, Thu-Fri 11:30 am to 11 pm, Sat 11 am to 11 pm, Sun 11 am to 10 pm.",
+            "source": "https://bullagastrobar.com/locations/tampa/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJH9758boB2YgRrs8O7f55ATA",
+      "name": "Café Bastille Fort Lauderdale",
+      "category": "food",
+      "metro": "broward",
+      "locality": "Fort Lauderdale",
+      "address": "704 SE 1st Street, Fort Lauderdale, FL 33301",
+      "exceptions": "none_posted",
+      "evidence": [
+        {
+          "source": "https://cafebastilledowntown.com/",
+          "source_name": "Café Bastille — Official Website",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Café Bastille Fort Lauderdale location is at 704 SE 1st Street, Fort Lauderdale, FL 33301.",
+            "Café Bastille Fort Lauderdale hours are Mon-Fri 8 am to 4 pm, Sat-Sun 8 am to 5 pm.",
+            "Official site posts: OPERATION HOURS: Monday to Friday 8:00am - 4:00pm; Saturday & Sunday 8:00 am - 5:00pm."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Café Bastille Fort Lauderdale hours are Mon-Fri 8 am to 4 pm, Sat-Sun 8 am to 5 pm.",
+            "source": "https://cafebastilledowntown.com/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ44sC7V4B2YgRY7AoBR2t48I",
+      "name": "Earls Kitchen + Bar",
+      "category": "food",
+      "metro": "broward",
+      "locality": "Fort Lauderdale",
+      "address": "1002 East Las Olas Blvd., Fort Lauderdale, FL",
+      "exceptions": "none_posted",
+      "evidence": [
+        {
+          "source": "https://earls.ca/locations/las-olas/",
+          "source_name": "Earls Kitchen + Bar — Las Olas (Fort Lauderdale) (official site)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Earls Las Olas (Fort Lauderdale) location is at 1002 East Las Olas Blvd., Fort Lauderdale, FL.",
+            "Earls Kitchen + Bar hours are Mon-Tue 11:30 am to 12 am, Wed-Thu 11:30 am to 1 am, Fri 11:30 am to 2 am, Sat 10 am to 2 am, Sun 10 am to 12 am.",
+            "Official site posts: Restaurant Hours: Mon 11:30 AM - 12:00 AM; Tue 11:30 AM - 12:00 AM; Wed 11:30 AM - 01:00 AM; Thur 11:30 AM - 01:00 AM; Fri 11:30 AM - 02:00 AM; Sat 10:00 AM - 02:00 AM; Sun 10:00 AM - 12:00 AM."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Earls Kitchen + Bar hours are Mon-Tue 11:30 am to 12 am, Wed-Thu 11:30 am to 1 am, Fri 11:30 am to 2 am, Sat 10 am to 2 am, Sun 10 am to 12 am.",
+            "source": "https://earls.ca/locations/las-olas/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJx-Y0oZAB2YgRCjB0K5pdPfI",
+      "name": "Colombian Mountains Cafe",
+      "category": "food",
+      "metro": "broward",
+      "locality": "Fort Lauderdale",
+      "address": "3330 NE 33rd St, Fort Lauderdale, FL 33308",
+      "exceptions": "none_posted",
+      "evidence": [
+        {
+          "source": "https://colombianmountainscafe.com/",
+          "source_name": "Colombian Mountains Cafe — Official Website",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Colombian Mountains Cafe location is at 3330 NE 33rd St, Fort Lauderdale, FL 33308.",
+            "Colombian Mountains Cafe hours are Mon-Thu 8:30 am to 10 pm, Fri-Sat 8:30 am to 11 pm, Sun 9 am to 10 pm.",
+            "Official site posts: Timing: Monday-Thursday : 8:30 am-10:00pm; Friday-Saturday: 8:30 am-11:00pm; Sunday Everyday 9:00 am-10:00pm."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Colombian Mountains Cafe hours are Mon-Thu 8:30 am to 10 pm, Fri-Sat 8:30 am to 11 pm, Sun 9 am to 10 pm.",
+            "source": "https://colombianmountainscafe.com/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJi6K8mAwB2YgRuOxEAQPCaKQ",
+      "name": "Hatch",
+      "category": "food",
+      "metro": "broward",
+      "locality": "Fort Lauderdale",
+      "address": "715 North Federal Highway, Fort Lauderdale, FL 33304",
+      "exceptions": "Thanksgiving Day: 7 AM – 1 PM; Christmas Eve: Open Regular Hours; Christmas Day: CLOSED; New Year's Eve: Open Regular Hours; New Year's Day: Open Regular Hours",
+      "evidence": [
+        {
+          "source": "https://www.hatchbrunch.com/location/ft-lauderdale/",
+          "source_name": "Hatch — Fort Lauderdale Hours & Location (official site)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Hatch Fort Lauderdale location is at 715 North Federal Highway, Fort Lauderdale, FL 33304.",
+            "Hatch hours are Mon-Fri 7 am to 3 pm, Sat-Sun 7 am to 4 pm.",
+            "Official site posts: Monday - Friday 7am - 3pm; Saturday & Sunday 7am - 4pm.",
+            "Official site posts Holiday Hours: Thanksgiving Day: 7 AM – 1 PM; Christmas Eve: Open Regular Hours; Christmas Day: CLOSED; New Year's Eve: Open Regular Hours; New Year's Day: Open Regular Hours."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Hatch hours are Mon-Fri 7 am to 3 pm, Sat-Sun 7 am to 4 pm.",
+            "source": "https://www.hatchbrunch.com/location/ft-lauderdale/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJFwgu6SUB2YgR0DCYTC7nHYc",
+      "name": "Voodoo Bayou",
+      "category": "food",
+      "metro": "broward",
+      "locality": "Fort Lauderdale",
+      "address": "715 E Las Olas Blvd, Fort Lauderdale, FL 33301",
+      "exceptions": "Closed Thanksgiving and Christmas Day; New Year's Eve 11:00AM to 1:30AM",
+      "evidence": [
+        {
+          "source": "https://voodoobayou.com/las-olas/",
+          "source_name": "Voodoo Bayou — Las Olas Blvd., Ft. Lauderdale (official site)",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Voodoo Bayou Fort Lauderdale location is at 715 E Las Olas Blvd, Fort Lauderdale, FL 33301.",
+            "Voodoo Bayou hours are Mon-Thu 11:30 am to 12 am, Fri 11:30 am to 1 am, Sat 11 am to 1 am, Sun 11 am to 10 pm.",
+            "Official site posts: Hours of Operation: Monday – Wednesday 11:30AM to 12:00AM; Thursday 11:30AM to 12:00AM; Friday 11:30AM to 1:00AM; Saturday 11:00AM to 1:00AM; Sunday 11:00AM to 10:00 PM.",
+            "Official site posts: Closed Thanksgiving and Christmas Day; New Year's Eve 11:00AM to 1:30AM."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Voodoo Bayou hours are Mon-Thu 11:30 am to 12 am, Fri 11:30 am to 1 am, Sat 11 am to 1 am, Sun 11 am to 10 pm.",
+            "source": "https://voodoobayou.com/las-olas/"
+          }
+        ]
+      }
+    },
+    {
+      "place_id": "ChIJ4V0TH_kA2YgRxgaQuq3qeV4",
+      "name": "Glitch Bar",
+      "category": "nightlife",
+      "metro": "broward",
+      "locality": "Fort Lauderdale",
+      "address": "905 NE 5th Ave, Fort Lauderdale, FL 33304",
+      "exceptions": "none_posted",
+      "evidence": [
+        {
+          "source": "https://www.glitchbar.com/",
+          "source_name": "Glitch Bar & Arcade — Official Website",
+          "source_class": "official_venue",
+          "checked_at": "2026-11-19",
+          "supports": [
+            "Glitch Bar location is at 905 NE 5th Ave, Fort Lauderdale, FL 33304.",
+            "Glitch Bar hours are Mon-Thu 5 pm to 2 am, Fri 5 pm to 3 am, Sat 12 pm to 3 am, Sun 12 pm to 2 am.",
+            "Official site posts: Monday-Thursday 5PM-2AM Friday 5PM-3AM Saturday Noon-3AM Sunday Noon-2AM."
+          ]
+        }
+      ],
+      "editorial": {
+        "facts": [
+          {
+            "claim": "Glitch Bar hours are Mon-Thu 5 pm to 2 am, Fri 5 pm to 3 am, Sat 12 pm to 3 am, Sun 12 pm to 2 am.",
+            "source": "https://www.glitchbar.com/"
+          }
+        ]
+      }
+    }
+  ]
+}
