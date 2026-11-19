@@ -80,6 +80,7 @@ const STANDARD = {
   "app/guides/[slug]/page.js": "app/guides/[slug]/page.js",
   "app/guides/florida-fall-festivals-2026/page.js": "app/guides/florida-fall-festivals-2026/page.js",
   "app/guides/pintos-farm-miami-2026/page.js": "app/guides/pintos-farm-miami-2026/page.js",
+  "app/guides/disney-world-holiday-food-guide-2026/page.js": "app/guides/disney-world-holiday-food-guide-2026/page.js",
   "app/things-to-do/[city]/page.js": "lib/landingShare.js#landingShareAction",
   "app/restaurants/[city]/page.js": "lib/landingShare.js#landingShareAction",
   "app/beaches/[city]/page.js": "lib/landingShare.js#landingShareAction",

@@ -1,0 +1,32 @@
+{
+  "terra-treats-sundae": {
+    "lat": 28.35799, "lng": -81.59155, "label": "Terra Treats",
+    "source": "https://mapcarta.com/W398388842"
+  },
+  "santas-holiday-grove": {
+    "lat": 28.35724, "lng": -81.58714, "label": "Theater in the Wild",
+    "landmark": "Santa’s Holiday Grove is nearby. Follow the seasonal signs to the food counter.",
+    "source": "https://mapcarta.com/W296060954"
+  },
+  "flame-tree-cheesecake-pop": {
+    "lat": 28.35735, "lng": -81.58938, "label": "Flame Tree Barbecue",
+    "source": "https://mapcarta.com/W295765626"
+  },
+  "epic-eats-beignets": {
+    "lat": 28.356594, "lng": -81.558887, "label": "Epic Eats",
+    "source": "https://touringplans.com/hollywood-studios/dining/epic-eats"
+  },
+  "main-street-popcorn": {
+    "lat": 28.417102, "lng": -81.581072, "label": "Main Street Confectionery",
+    "source": "https://www.waze.com/live-map/directions/us/fl/lake-buena-vista/main-street-confectionery?to=place.ChIJBVIDXZ-A54gRbNhylAVgWYo"
+  },
+  "san-angel-margarita": {
+    "lat": 28.37172, "lng": -81.54706, "label": "San Angel Inn Restaurante",
+    "source": "https://aroundus.com/p/172291068-san-angel-inn-restaurante"
+  },
+  "cookie-bar-sundae": {
+    "lat": 28.370444, "lng": -81.520676, "label": "Summer House on the Lake",
+    "landmark": "The Cookie Bar is inside the restaurant.",
+    "source": "https://www.gowayfind.com/p/ChIJb6B8uZx_3YgRjEUVK2NK1wE"
+  }
+}
