@@ -25,9 +25,17 @@ assert.equal(doc.querySelectorAll('[data-universal-photo]').length,19); // 18 lo
 assert.ok(doc.querySelector('[data-universal-photo="holiday-food-selection"] img'));
 assert.ok(doc.querySelector('[data-universal-photo="holiday-sweets-drinks"] img'));
 assert.equal(doc.querySelectorAll('[data-food-photo]').length,0,'creator screenshots must not publish');
-const schemas=JSON.parse(doc.querySelector('script[type="application/ld+json"]').textContent);
-assert.equal(schemas[0].mainEntityOfPage,'https://www.gowayfind.com/guides/universal-orlando-christmas-2026');
-assert.equal(schemas[0].image.url,'https://www.gowayfind.com/guides/universal-orlando-christmas-2026/nintendo-night.webp');
+// The page renders through GuideStandardShell, which emits the standard
+// Article + BreadcrumbList pair (one script each).
+const schemas=[...doc.querySelectorAll('script[type="application/ld+json"]')].map(s=>JSON.parse(s.textContent));
+const article=schemas.find(s=>s['@type']==='Article');
+assert.ok(article,'Article schema');
+assert.ok(schemas.some(s=>s['@type']==='BreadcrumbList'),'BreadcrumbList schema');
+assert.equal(article.mainEntityOfPage,'https://www.gowayfind.com/guides/universal-orlando-christmas-2026');
+assert.equal(article.image.url,'https://www.gowayfind.com/guides/universal-orlando-christmas-2026/nintendo-night.webp');
+assert.ok(doc.querySelector('nav[aria-label="Breadcrumb"]'),'standard Back to Wayfind breadcrumb');
+assert.ok(doc.querySelector('.wf-guide-outline nav.wf-guide-contents'),'standard In this guide contents');
+assert.ok(doc.querySelectorAll('section.wf-guide-pick .wf-guide-number').length>=10,'numbered standard sections');
 }
 verifyGuide(doc);
 const broken = new JSDOM(markup);
