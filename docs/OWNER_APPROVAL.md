@@ -41,8 +41,12 @@ purpose. An **edited** comment does not count either: anyone with write access
 counts only as first posted. To change one, post a new comment.
 
 GitHub authenticates who posted a comment, so it can't be faked by editing a
-commit. The command names one exact commit. Pushing anything new changes the
-head, so the old approval stops matching and the owner has to approve again.
+commit. The command names one exact commit, but it is not tied to that commit
+forever: when the pull request gets a new head whose own change is the same
+change (it caught up with main, or a rebase that edits nothing), the approval
+carries forward (#2558; see "Catching up with main does not void an approval"
+below). Only a change to what the pull request itself changes needs a fresh
+approval, and the failing check names exactly what changed.
 
 **What does not count:** commit author or committer names (anyone can type
 "Gabriel Pereira" into a commit), labels, a green local run, and a comment an
@@ -88,8 +92,10 @@ Tests: `scripts/test-owner-approval-carry-forward.mjs`.
 Only by GitHub Actions, twice:
 
 1. **`guards`** runs `scripts/check-doc-ownership.mjs` inside the full guard
-   suite. It runs on `pull_request`, so it uses the pull request's own copy of
-   the rule.
+   suite. Since #2602 the suite runs as four parallel shard jobs and the
+   required `guards` job passes only when every part passed; the ownership
+   check runs in whichever shard holds it. It runs on `pull_request`, so it uses
+   the pull request's own copy of the rule.
 2. **`owner-approval`** runs `scripts/check-owner-approval-pr.mjs` on
    `pull_request_target`. GitHub runs that workflow and script from the base
    branch (`main`), never from the pull request, and the script reads the pull
@@ -105,7 +111,9 @@ A local run fails whenever an owner-only file changed, because it can't see
 approvals. That is on purpose: a local pass must never look like approval.
 
 After the owner comments, re-run both checks on the pull request (the
-"Re-run jobs" button on each), or push again and approve the new head.
+"Re-run jobs" button on each). Pushing again is also fine: a new head with the
+same change keeps the approval, so the owner is asked again only when the pull
+request's own change is different.
 
 ## The Owner Gate App (the check a pull request cannot fake)
 
@@ -135,7 +143,14 @@ GitHub App the owner owns (the "Owner Gate App"):
 `scripts/test-owner-approval-gate.mjs` proves all of this without network access,
 and `scripts/owner-gate-setup-check.mjs` checks the live settings.
 
-## Agents get their own GitHub identity
+## Agents get their own GitHub identity (planned, NOT live)
+
+**Status 2026-11-18: not in effect.** Agents still work through the owner's
+account (`wallstreethyena`). A comment an App posts is refused
+(`performed_via_github_app`), but an agent session signed in as the owner could
+post a comment GitHub cannot tell apart from the owner's own. Until the switch
+below happens, that boundary is a rule agents follow: **only the owner posts
+`/owner-approve`**. Everything below describes the intended setup.
 
 GitHub cannot tell the owner apart from a tool that is signed in as the owner. So
 the approval only means "the owner" once agents stop using the owner's account.
