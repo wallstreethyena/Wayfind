@@ -2728,5 +2728,6 @@ node scripts/check-portrait-photo-fit.mjs
 node scripts/test-metro-photo-coverage.mjs
 
 node scripts/test-disney-food-map.mjs
+node scripts/test-disney-geographic-map.mjs
 
 node scripts/test-disney-food-posts.mjs

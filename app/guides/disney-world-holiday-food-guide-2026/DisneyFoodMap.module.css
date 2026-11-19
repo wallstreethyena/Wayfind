@@ -46,3 +46,5 @@
 .keyList small { font-size:13px; line-height:1.5; margin-top:2px; }
 .mapNote { padding:0 16px 12px 58px; font-size:12px; }
 @media(max-width:600px) { .mapHeading { padding:12px; }.mapHeading h3 { font-size:22px; }.intro { font-size:14px; }.keyList a { padding:10px 12px; gap:10px; }.mapNote { padding-left:52px; }.mapFrame { height:430px; } }
+
+.geographicFrame{position:relative;min-width:0;border:1px solid #556456;border-top:0;background:#f5f0e5}

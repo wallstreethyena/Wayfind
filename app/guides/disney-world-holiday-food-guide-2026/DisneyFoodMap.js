@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import DisneyParkMap from "./DisneyParkMap";
+import DisneyFoodGeographicMap from "./DisneyFoodGeographicMap";
 import { revealFoodDestination } from "../../../lib/disneyFoodMapController.js";
 import locations from "../../../lib/disneyChristmasFoodLocations2026.json";
 import styles from "./DisneyFoodMap.module.css";
@@ -75,8 +75,8 @@ export default function DisneyFoodMap({ parks, stops, panels }) {
       const parkStops = stops.filter((stop) => stop.parkId === park.id);
       return <div className={styles.panel} key={park.id} data-park={park.id} id={"park-" + park.id}>
         <div className={styles.mapHeading}><h3>{park.shortName}</h3><span>{parkStops.length} food {parkStops.length === 1 ? "stop" : "stops"}</span></div>
-        {park.id === parkId && <div className={styles.mapFrame} aria-label={"Food locations in " + park.name}>
-          <DisneyParkMap places={places} selectedId={selectedId} onSelect={openStop} />
+        {park.id === parkId && <div className={styles.geographicFrame} aria-label={"Food locations in " + park.name}>
+          <DisneyFoodGeographicMap parkId={parkId} places={places} selectedId={selectedId} onSelect={openStop} />
         </div>}
         <ol className={styles.keyList}>{parkStops.map((stop, index) => <li key={stop.id} data-selected={selectedId === stop.id}>
           <a href={"#" + stop.id} onClick={event => { event.preventDefault(); openStop(stop.id); }}><span className={styles.stopNumber} aria-hidden="true">{index + 1}</span><span><strong>{stop.venue}</strong><small>{stop.title}</small></span><span aria-hidden="true">↗</span></a>
