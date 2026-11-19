@@ -87,11 +87,9 @@ export default function PintosFarmMap() {
   };
 
   return (
-    <section className={styles.mapSection} aria-labelledby="farm-map-title">
+    <div className={styles.mapSection}>
       <div className={styles.mapHeading}>
         <div>
-          <p className={styles.kicker}>Plan the farm</p>
-          <h2 id="farm-map-title">Pinto's Farm map</h2>
           <p>Where everything is, from the parking lot to the petting zoo. Pick a spot to see what is there.</p>
         </div>
         <div className={styles.mapProof}>
@@ -201,6 +199,6 @@ export default function PintosFarmMap() {
           </a>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

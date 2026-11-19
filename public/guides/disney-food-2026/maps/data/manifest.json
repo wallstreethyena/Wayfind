@@ -1,0 +1,174 @@
+{
+  "fetched_utc": "2026-11-19T02:02:36.469472+00:00",
+  "license": "ODbL-1.0",
+  "attribution": "\u00a9 OpenStreetMap contributors",
+  "copyright_url": "https://www.openstreetmap.org/copyright",
+  "scope": "Static geographic reference, not verified routing, accessible paths, closures or operating conditions",
+  "extracts": {
+    "magic-kingdom": {
+      "bbox": [
+        -81.592,
+        28.415,
+        -81.575,
+        28.426
+      ],
+      "source_url": "https://api.openstreetmap.org/api/0.6/map?bbox=-81.592,28.415,-81.575,28.426",
+      "bytes": 7498049
+    },
+    "epcot": {
+      "bbox": [
+        -81.558,
+        28.363,
+        -81.541,
+        28.379
+      ],
+      "source_url": "https://api.openstreetmap.org/api/0.6/map?bbox=-81.558,28.363,-81.541,28.379",
+      "bytes": 10471963
+    },
+    "hollywood-studios": {
+      "bbox": [
+        -81.568,
+        28.349,
+        -81.554,
+        28.362
+      ],
+      "source_url": "https://api.openstreetmap.org/api/0.6/map?bbox=-81.568,28.349,-81.554,28.362",
+      "bytes": 4368288
+    },
+    "animal-kingdom": {
+      "bbox": [
+        -81.599,
+        28.351,
+        -81.583,
+        28.367
+      ],
+      "source_url": "https://api.openstreetmap.org/api/0.6/map?bbox=-81.599,28.351,-81.583,28.367",
+      "bytes": 4567236
+    },
+    "disney-springs": {
+      "bbox": [
+        -81.525,
+        28.366,
+        -81.509,
+        28.377
+      ],
+      "source_url": "https://api.openstreetmap.org/api/0.6/map?bbox=-81.525,28.366,-81.509,28.377",
+      "bytes": 6885947
+    }
+  },
+  "crs": "RFC7946 WGS84 longitude,latitude",
+  "transform": "No projection or coordinate simplification applied. Complete way coordinates, relation ring polygonization, outer union minus inner holes. Invalid relation topology omitted rather than fabricated.",
+  "relation_sources": [
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/1104149/full",
+      "sha256": "e37ec9f7649ff7b22927cf6760a5dfcdefba19ea4adc65baa7c1bb7b470c90f0"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/1104151/full",
+      "sha256": "adb34cdffb3316c1f6e12bde6c8bfe6acc178155fa501b26a0d17432f682cf67"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/1104153/full",
+      "sha256": "8b496f7da17d76db77703d68fc438acd635005b11159b94c916dc1fdc1f314ca"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/1105075/full",
+      "sha256": "4dfbcbc21da568be6f495f0b78cacb92397d7e2fe636dffdf54907457137864f"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/1105078/full",
+      "sha256": "1bd8dff23964c1f473bc4e9e0ad16d5368a88415dfb218a7bdf0239bd44d924c"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/14338474/full",
+      "sha256": "4705d72954ce25fe9cd887eccb10130125b3e96025b7734f19e85b3e0296c151"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/19166912/full",
+      "sha256": "7670937b7150292c895bd1305d70aee0cb04b1420713c13d72146f1fa7b9f888"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/1981646/full",
+      "sha256": "ae5e755977d684064bae7ec3340e5b5e5425c64dec30bf2da49006d5071d4681"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/1981648/full",
+      "sha256": "ad91b9ac3704cab114d06952bb2af77847f1f7fd375be007ce74a689d5b710f7"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/326673/full",
+      "sha256": "de9f6c5b8178ee8b60011a14521898c7f23dbf6c3af4be1b772d21a8615fee8c"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/331393/full",
+      "sha256": "a66b5f56080ac4f7c77582df73ed59500fd99add01a2316ad2fe2e07ac4d269c"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/360248/full",
+      "sha256": "1c0115d38a0a7394f7ff06559b03082ee0c9109aff70510fdb15883cf0ba4ff0"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/3923874/full",
+      "sha256": "fe637af61c634974a9554ec2d6c60ecdae0fe69c182f27764f3ab785daea879c"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/52621/full",
+      "sha256": "c24db14bd6125e1eff22af27acaa18aa9e6d906a108abca45152ef9b75beaccd"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/5481106/full",
+      "sha256": "987ce19712f9ab86b47aa43ff2a62568971e787f188545c2002fa0286b2a6c9d"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/7932662/full",
+      "sha256": "c1b73dca5e4cc6e50fd62a81ee36c59f21f03276f44d3410edf19ceedea17f29"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/7989222/full",
+      "sha256": "4419614ddf162935d19adc1c587f5af4f899177b220ec3991b49dd114cd603e2"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/7989250/full",
+      "sha256": "d9ac0af01086d861b09c8738eea9da59364eaa283ce087ff74f516256b6902b2"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/7995692/full",
+      "sha256": "cf57b6b7dfeef27b13e06c451038cc02644ca40e431a640f163cb40b174ca826"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/7995693/full",
+      "sha256": "ccf3743533785d053dbf271c5334d8e31833c1fce99eec8ba23046cf239e5903"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/9085337/full",
+      "sha256": "83017c298eef0f58512180e730e82f0b66c2a7f3c2d57b6bac550558348909e4"
+    },
+    {
+      "url": "https://api.openstreetmap.org/api/0.6/relation/9575905/full",
+      "sha256": "6a1119ad838b194ddc2d58b20639d455d88abf7d60e35cab78b040b592cc7712"
+    }
+  ],
+  "audit_notice": "All emitted geometries pass Shapely/GEOS is_valid; no missing referenced nodes or relevant relation member downloads remain. Six malformed source relations omitted; see audit.json. OSM community completeness/current accessibility not guaranteed. Not a routing graph.",
+  "outputs": {
+    "disney-springs.geojson": {
+      "bytes": 1184731,
+      "sha256": "2c2d5b3e6cfdf5de6650bdb77db040b132e15f1f12f53ea1935b258a53d28e9e"
+    },
+    "epcot.geojson": {
+      "bytes": 1942443,
+      "sha256": "85e532d6628136cf4caa4f388fca1bf799922b22f70cf828417561d8b943541b"
+    },
+    "animal-kingdom.geojson": {
+      "bytes": 745863,
+      "sha256": "88bcb26f43648b7530a94c35e3c9ea0076c6de76b179321935610bb83557e07d"
+    },
+    "hollywood-studios.geojson": {
+      "bytes": 784809,
+      "sha256": "98d2437d98a2ef36d63cee96f6e3bdbee204840c88da8609cd2f0c2c795a03fd"
+    },
+    "magic-kingdom.geojson": {
+      "bytes": 1234737,
+      "sha256": "d9e695fa161fa307a8b2dcd8a167394bbdb8a72a13b641ab7dcdf2bc47d3e165"
+    }
+  }
+}
