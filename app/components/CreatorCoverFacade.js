@@ -17,5 +17,6 @@ export default function CreatorCoverFacade({ placeId, poster = null, posterCredi
       .catch(() => {});
     return () => { live = false; };
   }, [placeId, poster]);
-  return <VideoFacade {...props} poster={poster || cover?.src || null} posterCredit={poster ? posterCredit : cover?.credit || null} />;
+  // No owned cover: VideoFacade falls back to this place's stored, credited photo by placeId.
+  return <VideoFacade {...props} placeId={placeId} poster={poster || cover?.src || null} posterCredit={poster ? posterCredit : cover?.credit || null} />;
 }
