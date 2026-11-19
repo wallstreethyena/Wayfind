@@ -1,0 +1,20 @@
+.map{color:#243f34;background:#f6efdf;border:1px solid #dcd2bb;border-radius:12px;overflow:hidden}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px}
+.hint{font-size:12px;line-height:1.5;margin:0!important;color:#4d5c4d;max-width:360px}
+.zoom{display:flex;gap:6px;flex-shrink:0}
+.zoom button{width:44px;height:44px;border:1px solid #c2bfa9;background:#fffdf6;color:#254a3d;border-radius:8px;font-size:24px;line-height:1;cursor:pointer}
+.zoom button:disabled{opacity:.4;cursor:default}
+.scroll{overflow:auto;max-height:720px;padding-top:18px;background:#efe6d1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.canvas{position:relative;min-width:100%}
+.art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
+.pin{position:absolute;width:48px;height:58px;transform:translate(-50%,-100%);display:flex;align-items:flex-end;justify-content:center;padding:0;border:0;background:transparent;cursor:pointer;z-index:1;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.pin img{width:32px!important;height:44px!important;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(21,56,44,.45))}
+.pin span{position:absolute;top:0;right:2px;width:23px;height:23px;display:grid;place-items:center;border-radius:50%;background:#254a3d;color:#fff;border:2px solid #fffef7;font:700 12px/1 system-ui,sans-serif;pointer-events:none}
+.pin[data-selected="true"]{z-index:3}
+.pin[data-selected="true"] span{background:#934d2c;outline:2px solid #934d2c;outline-offset:2px}
+.pin:focus-visible,.scroll:focus-visible,.map a:focus-visible,.zoom button:focus-visible{outline:3px solid #9b542d;outline-offset:2px}
+.failure{position:absolute;inset:0;margin:0;padding:24px;display:grid;place-items:center;text-align:center;color:#254a3d;background:#f6efdf;font-size:15px}
+.credit{font-size:11px;line-height:1.5;margin:8px 12px 12px!important;color:#4d5c4d}
+.credit a{color:#254a3d!important;text-decoration:underline}
+@media(max-width:480px){.scroll{max-height:560px}.toolbar{gap:8px;padding:8px 10px}}
+.pin:hover,.pin:focus-visible{z-index:2}

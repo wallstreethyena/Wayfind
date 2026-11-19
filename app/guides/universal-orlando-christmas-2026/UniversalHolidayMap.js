@@ -1,29 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import IllustratedParkMap from "../../components/IllustratedParkMap";
+import { UNIVERSAL_VIEW_MAPS, parkMapImage } from "../../../lib/parkMaps2026.js";
 import styles from "./page.module.css";
 
+// Pin TIPS in percent of each park's owner-supplied illustration
+// (lib/parkMaps2026.js, UNIVERSAL_VIEW_MAPS). Stops sit on the illustration's
+// own land pin where it has one; Circus McGurkus (the circus tent in Seuss
+// Landing), Frosty Moon, the Celestial Park fountain and the CityWalk parking
+// marker are placed on the illustrated building or symbol itself.
 export const UNIVERSAL_STOPS = [
-  { n: 1, title: "Grinchmas", park: "islands", family: "shows", x: 21.94, y: 43.95, target: "grinchmas-seuss-landing" },
-  { n: 2, title: "Grinch sandwich", park: "islands", family: "treats", x: 22.53, y: 52.34, target: "hop-on-pop" },
-  { n: 3, title: "Savory tots", park: "islands", family: "food", x: 31.84, y: 50.88, target: "green-eggs-and-ham" },
-  { n: 4, title: "Grinch breakfast", park: "islands", family: "characters", x: 26.95, y: 46.39, target: "grinch-character-breakfast" },
-  { n: 5, title: "Hogsmeade", park: "islands", family: "photos", x: 29.04, y: 25.20, target: "hogsmeade-christmas" },
-  { n: 6, title: "Holiday parade", park: "studios", family: "shows", x: 40.82, y: 26.37, target: "studios-holiday-parade" },
-  { n: 7, title: "Holiday kiosks", park: "studios", family: "food", x: 44.14, y: 25.39, target: "new-york-holiday-kiosks" },
-  { n: 8, title: "Diagon Alley", park: "studios", family: "photos", x: 62.76, y: 25.20, target: "diagon-alley-christmas" },
-  { n: 9, title: "Gingy cake", park: "studios", family: "treats", x: 62.76, y: 49.41, target: "gingy-gingerbread-cake" },
-  { n: 10, title: "Mario cake", park: "epic", family: "treats", x: 77.47, y: 46.97, target: "toadstool-cafe" },
-  { n: 11, title: "Owl sundae", park: "epic", family: "treats", x: 81.25, y: 28.71, target: "frosty-moon" },
-  { n: 12, title: "Snoggletog cone", park: "epic", family: "food", x: 94.47, y: 45.80, target: "hooligans-grog-and-gruel" },
-  { n: 13, title: "Noir Holiday Supper", park: "epic", family: "food", x: 94.66, y: 31.35, target: "le-gobelet-noir" },
-  { n: 14, title: "Burning Blade", park: "epic", family: "food", x: 76.37, y: 29.98, target: "burning-blade-tavern" },
-  { n: 15, title: "Celestial Park lights", park: "epic", family: "photos", x: 84.83, y: 42.77, target: "celestial-park-after-dark" },
-  { n: 16, title: "Coconut Club", park: "citywalk", family: "food", x: 40.10, y: 63.28, target: "green-red-coconut-club" },
-  { n: 17, title: "Arrival & parking", park: "citywalk", family: "parking", x: 78.65, y: 74.70, target: "parking-and-arrival" },
+  { n: 1, title: "Grinchmas", park: "islands", family: "shows", x: 81.47, y: 34.62, target: "grinchmas-seuss-landing" },
+  { n: 2, title: "Grinch sandwich", park: "islands", family: "treats", x: 80.42, y: 45.97, target: "hop-on-pop" },
+  { n: 3, title: "Savory tots", park: "islands", family: "food", x: 85.71, y: 27.58, target: "green-eggs-and-ham" },
+  { n: 4, title: "Grinch breakfast", park: "islands", family: "characters", x: 74.5, y: 47.0, target: "grinch-character-breakfast" },
+  { n: 5, title: "Hogsmeade", park: "islands", family: "photos", x: 26.82, y: 30.76, target: "hogsmeade-christmas" },
+  { n: 6, title: "Holiday parade", park: "studios", family: "shows", x: 32.91, y: 71.59, target: "studios-holiday-parade" },
+  { n: 7, title: "Holiday kiosks", park: "studios", family: "food", x: 32.74, y: 35.99, target: "new-york-holiday-kiosks" },
+  { n: 8, title: "Diagon Alley", park: "studios", family: "photos", x: 60.54, y: 46.36, target: "diagon-alley-christmas" },
+  { n: 9, title: "Gingy cake", park: "studios", family: "treats", x: 18.88, y: 88.62, target: "gingy-gingerbread-cake" },
+  { n: 10, title: "Mario cake", park: "epic", family: "treats", x: 36.14, y: 61.31, target: "toadstool-cafe" },
+  { n: 11, title: "Owl sundae", park: "epic", family: "treats", x: 53.5, y: 62.0, target: "frosty-moon" },
+  { n: 12, title: "Snoggletog cone", park: "epic", family: "food", x: 59.74, y: 70.12, target: "hooligans-grog-and-gruel" },
+  { n: 13, title: "Noir Holiday Supper", park: "epic", family: "food", x: 55.7, y: 55.37, target: "le-gobelet-noir" },
+  { n: 14, title: "Burning Blade", park: "epic", family: "food", x: 38.14, y: 50.97, target: "burning-blade-tavern" },
+  { n: 15, title: "Celestial Park lights", park: "epic", family: "photos", x: 45.0, y: 55.0, target: "celestial-park-after-dark" },
+  { n: 16, title: "Coconut Club", park: "citywalk", family: "food", x: 73.5, y: 30.54, target: "green-red-coconut-club" },
+  { n: 17, title: "Arrival & parking", park: "citywalk", family: "parking", x: 64.0, y: 72.0, target: "parking-and-arrival" },
 ];
 
-const VIEWS = [{ id: "all", title: "Whole map", x: 50, y: 44 }, { id: "islands", title: "Islands", x: 21, y: 36 }, { id: "studios", title: "Studios", x: 52, y: 33 }, { id: "epic", title: "Epic", x: 85, y: 38 }, { id: "citywalk", title: "CityWalk", x: 48, y: 67 }];
+const VIEWS = [{ id: "islands", title: "Islands" }, { id: "studios", title: "Studios" }, { id: "epic", title: "Epic" }, { id: "citywalk", title: "CityWalk" }];
+const PIN_FAMILY = { food: "food", treats: "cafe", shows: "shows", characters: "shows", photos: "culture", parking: "parking" };
 
 function StopIcon({ family }) {
   const paths = {
@@ -39,24 +47,7 @@ function StopIcon({ family }) {
 
 export default function UniversalHolidayMap() {
   const [selected, setSelected] = useState(null);
-  const [view, setView] = useState("all");
-  const [zoom, setZoom] = useState(false);
-  const scroller = useRef(null);
-  function focusView(next) {
-    setView(next.id);
-    setZoom(next.id !== "all");
-    requestAnimationFrame(() => {
-      const node = scroller.current;
-      if (!node) return;
-      const canvas = node.firstElementChild;
-      const left = next.id === "all" ? 0 : Math.max(0, canvas.clientWidth * next.x / 100 - node.clientWidth / 2);
-      const top = next.id === "all" ? 0 : Math.max(0, canvas.clientHeight * next.y / 100 - node.clientHeight / 2);
-      node.scrollTo({ left, top, behavior: "auto" });
-    });
-  }
-  useEffect(() => {
-    if (window.matchMedia("(max-width: 760px)").matches) focusView(VIEWS[1]);
-  }, []);
+  const [view, setView] = useState("islands");
   function choose(stop) {
     setSelected(stop.n);
     const target = document.getElementById(stop.target);
@@ -65,22 +56,22 @@ export default function UniversalHolidayMap() {
     target.setAttribute("tabindex", "-1");
     target.focus({ preventScroll: true });
   }
-  const visible = view === "all" ? UNIVERSAL_STOPS : UNIVERSAL_STOPS.filter(stop => stop.park === view);
+  const visible = UNIVERSAL_STOPS.filter(stop => stop.park === view);
+  const byTarget = Object.fromEntries(UNIVERSAL_STOPS.map(stop => [stop.target, stop]));
+  const selectedTarget = UNIVERSAL_STOPS.find(stop => stop.n === selected)?.target || null;
+  const pins = visible.map(stop => ({ id: stop.target, number: stop.n, label: stop.title + ": read guide", left: stop.x, top: stop.y, href: "#" + stop.target, family: PIN_FAMILY[stop.family] }));
   return <section className={styles.mapSection} aria-labelledby="explore-the-park" data-universal-map>
     <p className={styles.kicker}>Your park, your next stop</p>
     <h2 id="explore-the-park" tabIndex={-1}>Explore Universal</h2>
-    <p>Tap a marker to open its guide entry. Choose a park for a closer look, then pan around the illustration.</p>
+    <p>Choose a park, then tap a numbered pin to open its guide entry. Zoom in to explore the illustration.</p>
     <div className={styles.mapViews} aria-label="Map view">
-      {VIEWS.map(item => <button key={item.id} type="button" aria-pressed={view === item.id} onClick={() => focusView(item)}>{item.title}</button>)}
-      <button type="button" onClick={() => { const next = !zoom; setZoom(next); }} aria-pressed={zoom} aria-label={zoom ? "Zoom out" : "Zoom in"}>{zoom ? "−" : "+"}</button>
+      {VIEWS.map(item => <button key={item.id} type="button" aria-pressed={view === item.id} onClick={() => setView(item.id)}>{item.title}</button>)}
     </div>
-    <div ref={scroller} className={styles.mapScroller} tabIndex={0} role="region" aria-label="Illustrated Universal map. Scroll to pan; named guide links follow below.">
-      <div className={styles.universalMapCanvas} data-zoomed={zoom ? "true" : "false"}>
-        <img data-guide-map-canvas src="/guides/universal-orlando-christmas-2026/universal-illustrated-map.webp" width={1536} height={1024} alt="Illustrated Universal Orlando holiday atlas with Islands of Adventure and Studios above CityWalk, and Epic Universe in a separate panel. Seventeen numbered markers match the guide links below." loading="lazy" decoding="async" draggable={false} />
-        {UNIVERSAL_STOPS.map(stop => <a key={stop.n} className={styles.mapHotspot} data-selected={selected === stop.n} data-map-stop={stop.target} href={"#" + stop.target} aria-label={stop.n + ". " + stop.title + ": read guide"} style={{ left: stop.x + "%", top: stop.y + "%" }} onClick={() => choose(stop)}><span>{stop.n}</span></a>)}
-      </div>
-    </div>
-    <p className={styles.mapNote}>Illustrated guide, approximate layout. <a href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps" target="_blank" rel="noopener noreferrer">Official maps for walking directions</a>.</p>
+    <IllustratedParkMap key={view} image={parkMapImage(UNIVERSAL_VIEW_MAPS[view])} pins={pins} selectedId={selectedTarget} onSelect={(target) => byTarget[target] && choose(byTarget[target])}
+      label={"Illustrated " + VIEWS.find(item => item.id === view).title + " map"}
+      hint="Tap a number to open that stop in the guide. Zoom in, then scroll to explore."
+      note={<>Illustrated guide, approximate layout. <a href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps" target="_blank" rel="noopener noreferrer">Official maps for walking directions</a></>}
+      fallback="The park map could not load. Every stop is in the numbered list below." />
     <div className={styles.mapStops} aria-label="Guide stops">
       {visible.map(stop => <a key={stop.n} href={"#" + stop.target} data-map-stop={stop.target} onClick={() => choose(stop)} aria-current={selected === stop.n ? "location" : undefined}><b>{stop.n}</b><StopIcon family={stop.family} /><span>{stop.title}</span><i aria-hidden="true">↗</i></a>)}
     </div>
