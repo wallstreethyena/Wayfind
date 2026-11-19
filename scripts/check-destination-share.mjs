@@ -154,6 +154,7 @@ const EXEMPT = {
   "app/privacy/page.js": { kind: "policy", why: "legal page (privacy policy), not a destination" },
   "app/terms/page.js": { kind: "policy", why: "legal page (terms of use), not a destination" },
   "app/editorial-policy/page.js": { kind: "policy", why: "editorial policy page, not a destination" },
+  "app/booking-agent/page.js": { kind: "policy", why: "notice describing the supervised booking agent and how a site can ask us to stop; noindex and not in the nav, not a destination to share" },
   "app/how-wayfind-ranks/page.js": { kind: "policy", why: "methodology page" },
   "app/command-center/page.js": { kind: "internal", why: "owner-only operations console" },
   "app/badge/[id]/page.js": { kind: "internal", why: "noindex owner tool that hands a business its Top Rated badge embed code; the badge itself links to the shareable place page" },
