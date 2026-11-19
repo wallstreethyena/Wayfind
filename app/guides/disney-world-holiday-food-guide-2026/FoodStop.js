@@ -1,30 +1,22 @@
 import locations from "../../../lib/disneyChristmasFoodLocations2026.json";
-import CreatorCoverFacade from "../../components/CreatorCoverFacade";
-import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails";
+import FoodPost from "./FoodPost";
 import styles from "./page.module.css";
 
-export default function FoodStop({ stop, destination, placeId = null }) {
+export default function FoodStop({ stop }) {
   const point = locations[stop.id];
-  return <section id={stop.id} className={styles.stop} aria-labelledby={stop.id + "-heading"}>
+  return <section id={stop.id} tabIndex={-1} className={styles.stop} aria-labelledby={stop.id + "-heading"}>
     <p className={styles.kicker}>{stop.venue}</p>
     <h2 id={stop.id + "-heading"}>{stop.title}</h2>
     <p className={styles.summary}>{stop.summary}</p>
+    <div className={styles.foodMedia}>{stop.posts.map((post) =>
+      <FoodPost key={post.url} post={post} />
+    )}</div>
     <dl className={styles.stopFacts}>
       <div><dt>Find it</dt><dd>{stop.location}</dd></div>
       <div><dt>Reported price</dt><dd><strong>{stop.postedPrice}</strong> · {stop.priceDetail}</dd></div>
       <div><dt>Admission</dt><dd>{stop.admission}</dd></div>
       <div><dt>Availability</dt><dd>{stop.availability}</dd></div>
     </dl>
-    <div className={styles.foodMedia}>{(placeId ? stop.posts : []).map((post) => {
-      return <CreatorPlaybackDetails key={post.url} details={<p className={styles.mediaCredit}>
-        {post.kind === "carousel" ? "Post" : "Reel"} by <a href={post.url} target="_blank" rel="noopener noreferrer">@{post.creator}</a>
-      </p>}>
-        {/* The cover is Wayfind's own credited photo of the park where this food is sold (never an
-            illustration and never creator media). A stop with no park row shows no video tile. */}
-        <CreatorCoverFacade placeId={placeId} platform="instagram" url={post.url} label={post.label}
-          coverCity={destination} coverTitle={post.coverTitle || stop.title} coverEyebrow={"@" + post.creator} />
-      </CreatorPlaybackDetails>;
-    })}</div>
     {stop.planning && <p>{stop.planning}</p>}
     {stop.tip && <aside className={styles.tip}><strong>Plan it well</strong><p>{stop.tip}</p></aside>}
     {stop.address && <p>{stop.address}</p>}
