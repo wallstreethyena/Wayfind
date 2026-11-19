@@ -382,6 +382,7 @@ scripts/check-place-card-no-directions.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0
 scripts/check-place-card-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	104	0	0	88989f5ae0d02525f08909f8d4a489132235015464be66a9c9cf243844b42841
 scripts/check-place-city.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8b501fdb89dbf973a84953aa47357b3b49888e2d305b90ac68e16595c82fa0dc
 scripts/check-place-classification.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	22f374da4912b35b0827396bc59e106eafa5376e7bd04991932d2c16e2109adc
+scripts/check-place-deal.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	d51c05e46c4c3b4c8e47f6440a318bb8c186b39550d55d25bd784b3d5b1c997e
 scripts/check-place-detail-honest.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	c3abfda36f27e96a3c25e4d526a7b7f055d35cd1b4e7c1a78aecd6be251cbb61
 scripts/check-place-featured-in.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a2a0ffc66e9428b724d0d974c9d0c2aac6881ca1407d49a32996c119e361bba6
 scripts/check-place-identity-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	5924c97eee419dda2be1b160f1a0f1314175dc4b54fc8a6d877a25a09125f5cf
