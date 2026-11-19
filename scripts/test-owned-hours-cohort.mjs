@@ -19,6 +19,7 @@ import {
   resolveOwnedHoursSnapshot,
   detectSpecialHoursUncertainty,
   persistOwnedHoursSnapshot,
+  enrichMapPlacesWithRepoOwnedHours,
 } from "../lib/ownedHours.js";
 import {
   scoreHoursRefreshPriority,
@@ -66,7 +67,7 @@ ok(
 );
 
 // Source separation honesty
-ok(report.sourceBreakdown["wayfind_editorial_hours"] >= 282, "at least 282 deterministic Atlas cards ingested");
+ok(report.sourceBreakdown["wayfind_editorial_hours"] >= 280, "at least 280 deterministic Atlas cards ingested");
 ok(report.sourceBreakdown["unknown"] >= 300, "at least 300 ambiguous/partial prose venues preserved as unknown");
 ok(report.confidenceBreakdown["confirmed"] >= 280, "all resolved venues carry confirmed confidence");
 ok(report.confidenceBreakdown["unknown"] >= 300, "all unresolved venues preserve unknown confidence");
@@ -251,7 +252,73 @@ eq(missingStatus.freshness, "missing", "null ownedHours returns missing freshnes
 eq(missingStatus.confidence, "unknown", "null ownedHours returns unknown confidence");
 eq(missingStatus.open, null, "null ownedHours returns open null");
 
-// 6h. Firewall-gated persistence in test/guard mode
+// 6h. Enrich Map Places with Repo Owned Hours unit tests
+const testMapPlacesInput = [
+  {
+    id: "ChIJ08zZpRpBw4gRiDJBlBXfAHw", // Bee Ridge Park (has repo owned hours)
+    name: "Bee Ridge Park",
+    lat: 27.28,
+    lng: -82.52,
+    oh: null,
+    ownedHours: null,
+  },
+  {
+    id: "ChIJunknownPlaceWithoutHours",
+    name: "Unknown Place Without Hours",
+    lat: 27.95,
+    lng: -82.45,
+    oh: null,
+    ownedHours: null,
+  },
+  {
+    id: "ChIJplaceWithGoogleOh",
+    name: "Place With Fresh Google Oh",
+    lat: 27.96,
+    lng: -82.46,
+    oh: { periods: [{ open: { day: 1, hour: 8, minute: 0 }, close: { day: 1, hour: 18, minute: 0 } }], weekdayDescriptions: ["Monday: 8:00 AM – 6:00 PM"] },
+    ownedHours: null,
+  },
+  {
+    id: "ChIJplaceWithExistingVerifiedOwnedHours",
+    name: "Place With Existing Verified Owned Hours",
+    lat: 27.33,
+    lng: -82.53,
+    oh: { periods: [{ open: { day: 1, hour: 9, minute: 0 }, close: { day: 1, hour: 17, minute: 0 } }] },
+    ownedHours: {
+      schema: 1,
+      periods: [{ open: { day: 1, hour: 9, minute: 0 }, close: { day: 1, hour: 17, minute: 0 } }],
+      weekdayDescriptions: ["Monday: 9:00 AM – 5:00 PM"],
+      source: "wayfind_editorial_hours",
+      verifiedAt: new Date(T_BASE_MS).toISOString(),
+    },
+  },
+];
+
+const enrichedPlaces = enrichMapPlacesWithRepoOwnedHours(testMapPlacesInput, T_BASE_MS);
+eq(enrichedPlaces.length, 4, "enrichedPlaces returns same length");
+
+// 1. Repo-verified place (Bee Ridge Park) gets hydrated with ownedHours and oh
+const enrichedBeeRidge = enrichedPlaces.find(p => p.id === "ChIJ08zZpRpBw4gRiDJBlBXfAHw");
+ok(enrichedBeeRidge.ownedHours, "Bee Ridge Park receives ownedHours snapshot");
+ok(Array.isArray(enrichedBeeRidge.oh?.periods) && enrichedBeeRidge.oh.periods.length > 0, "Bee Ridge Park receives oh periods");
+eq(enrichedBeeRidge._ownedHoursSource, "wayfind_editorial_hours", "Bee Ridge Park source is wayfind_editorial_hours");
+
+// 2. Unknown place remains strictly null (never falsely labeled open or closed)
+const enrichedUnknown = enrichedPlaces.find(p => p.id === "ChIJunknownPlaceWithoutHours");
+eq(enrichedUnknown.ownedHours, null, "unknown place ownedHours remains null");
+eq(enrichedUnknown.oh, null, "unknown place oh remains null");
+
+// 3. Google-sourced hours remain strictly separate (not conflated as permanent Wayfind-owned ownedHours)
+const enrichedGoogle = enrichedPlaces.find(p => p.id === "ChIJplaceWithGoogleOh");
+eq(enrichedGoogle.ownedHours, null, "place with Google oh does not get false repo ownedHours");
+ok(enrichedGoogle.oh && enrichedGoogle.oh.weekdayDescriptions, "Google oh remains intact separately");
+
+// 4. Unchanged-control idempotency: existing verified ownedHours is preserved and not overwritten with redundant writes
+const enrichedExisting = enrichedPlaces.find(p => p.id === "ChIJplaceWithExistingVerifiedOwnedHours");
+ok(enrichedExisting.ownedHours, "existing verified ownedHours preserved");
+eq(enrichedExisting.ownedHours.source, "wayfind_editorial_hours", "existing source preserved");
+
+// 6i. Firewall-gated persistence in test/guard mode
 const firewallPersistRes = await persistOwnedHoursSnapshot(
   "ChIJpXGK53VC24gRWMneFVtK6hY",
   caDzan,

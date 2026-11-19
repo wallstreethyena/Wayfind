@@ -58,7 +58,7 @@ function runChild(spec) {
       lat: 27.5, lng: -82.4, anchor: !!r.anchor, independent_coords: null,
       signals: Object.assign({ reviews: r.reviews || 0 }, r.checkedDays == null ? {} : { google_checked_at: iso(realNow - r.checkedDays * DAY), google_check_tier: r.tier }),
     }));
-    const log = { google: [], pulses: [], selects: 0, patches: 0, runs: [], dailyAfter: null };
+    const log = { google: [], pulses: [], selects: 0, patches: 0, ledgerTakes: [], ledgerRefunds: [], runs: [], dailyAfter: null };
     const val = (row, f) => {
       if (f.startsWith("signals->>")) { const v = row.signals ? row.signals[f.slice(10)] : undefined; return v == null ? null : String(v); }
       const v = row[f]; return v == null ? null : v;
@@ -121,11 +121,11 @@ function runChild(spec) {
       }
       if (p === "/rest/v1/rpc/wf_spend_take") {
         if (spec.ledgerStatus) return new Response("down", { status: spec.ledgerStatus });
-        const b = JSON.parse(init.body); const n = ledger.get(b.p_sku) || 0;
+        const b = JSON.parse(init.body); log.ledgerTakes.push(b.p_sku); const n = ledger.get(b.p_sku) || 0;
         if (n + 1 <= b.p_cap) { ledger.set(b.p_sku, n + 1); return Response.json(true); }
         return Response.json(false);
       }
-      if (p === "/rest/v1/rpc/wf_spend_refund") { const b = JSON.parse(init.body); ledger.set(b.p_sku, Math.max(0, (ledger.get(b.p_sku) || 0) - b.p_n)); return Response.json(true); }
+      if (p === "/rest/v1/rpc/wf_spend_refund") { const b = JSON.parse(init.body); log.ledgerRefunds.push(b.p_sku); ledger.set(b.p_sku, Math.max(0, (ledger.get(b.p_sku) || 0) - b.p_n)); return Response.json(true); }
       if (p === "/rest/v1/wf_job_pulse") { log.pulses.push(JSON.parse(init.body)); return new Response(null, { status: 201 }); }
       if (u.hostname === "places.googleapis.com") {
         const id = decodeURIComponent(p.split("/").pop());
@@ -136,11 +136,11 @@ function runChild(spec) {
     };
     const { GET } = await import(${JSON.stringify(ROUTE)});
     for (const run of spec.runs) {
-      const g0 = log.google.length, s0 = log.selects, pl0 = log.pulses.length;
+      const g0 = log.google.length, s0 = log.selects, pl0 = log.pulses.length, lt0 = log.ledgerTakes.length, lr0 = log.ledgerRefunds.length;
       const hour = Math.floor(realNow / 3600000) + (run.slotPlus || 0);
       const realDateNow = Date.now; Date.now = () => hour * 3600000 + 1000; // only the hourly rotation slot is steered
       let res; try { res = await GET(new Request("https://x.test/api/cron/inventory-refresh?limit=" + (run.limit || 40), { headers: { authorization: "Bearer s" } })); } finally { Date.now = realDateNow; }
-      log.runs.push({ status: res.status, body: await res.json(), google: log.google.slice(g0), selects: log.selects - s0, pulses: log.pulses.slice(pl0) });
+      log.runs.push({ status: res.status, body: await res.json(), google: log.google.slice(g0), selects: log.selects - s0, pulses: log.pulses.slice(pl0), ledgerTakes: log.ledgerTakes.slice(lt0), ledgerRefunds: log.ledgerRefunds.slice(lr0) });
     }
     log.dailyAfter = ledger.get(gate.backgroundDailySku()) ?? null;
     log.final = Object.fromEntries(db.map((r) => [r.place_id, r.signals.google_check_tier || null]));
@@ -298,5 +298,24 @@ eq(tiersToTry({ ...recent("essentials"), locked: true }, CUT), [], "S6: a locked
 eq(tiersToTry({ refreshed_at: "2026-08-25T00:00:00Z", signals: { google_checked_at: "2026-09-01T00:00:00Z", google_check_tier: "essentials" } }, CUT), ["enterprise", "pro", "essentials"], "S6 control: a check older than the window keeps every tier");
 ok(neverChecked({ signals: {} }) && !neverChecked(recent("essentials")), "S6: neverChecked tells new inventory from checked");
 
+// ── S7: zero futile take/refund churn on exhausted refresh tiers ─────────
+// With enterprise+pro spent and essentials open, checkOne must NOT touch refresh_details_enterprise/pro.
+if (s1) {
+  const churnTakes = s1.runs[0].ledgerTakes.filter((k) => k === "refresh_details_enterprise" || k === "refresh_details_pro" || k === "details_enterprise" || k === "details_pro");
+  eq(churnTakes, [], "S7a: exhausted rich tiers never trigger futile take/refund cycles on refresh_details_enterprise/pro");
+}
+// With ALL refresh tiers exhausted (production post-Nov-14 state: essentials 8000/8000), exit before querying wf_inventory or taking/refunding any ledger row.
+const ALL_SPENT = { ...SPENT, refresh_details_essentials: 8000, details_essentials: 8403 };
+const s7 = runChild({ ledger: ALL_SPENT, dailyUsed: 10, rows: dayRows, runs: [{}] });
+ok(!!s7, "S7b: the real route ran when all refresh tiers are exhausted");
+if (s7) {
+  eq(s7.runs[0].selects, 0, "S7b: all refresh tiers spent -> zero wf_inventory queries");
+  eq(s7.runs[0].google.length, 0, "S7b: ...zero Google calls");
+  eq(s7.runs[0].ledgerTakes, [], "S7b: ...zero wf_spend_take mutations");
+  eq(s7.runs[0].ledgerRefunds, [], "S7b: ...zero wf_spend_refund mutations");
+  const pl = s7.runs[0].pulses[0];
+  ok(!!pl && pl.attempted === 0 && pl.succeeded === 0 && pl.failed === 0 && /budget limit reached: refresh/.test(pl.note), `S7b: pulses expected budget-limit idle state (got ${JSON.stringify(pl)})`);
+}
+
 if (failures) { console.error(`refresh-dedup: ${failures} failure(s), ${passes} passed`); process.exit(1); }
-console.log(`refresh-dedup: OK - ${passes} assertions (the real refresh route over a fake PostgREST + ledger + Google: no place is bought twice inside its window, #1893 escalation kept, new inventory before re-checks, daily line pauses with an expected pulse and fails closed)`);
+console.log(`refresh-dedup: OK - ${passes} assertions (the real refresh route over a fake PostgREST + ledger + Google: no place is bought twice inside its window, #1893 escalation kept, new inventory before re-checks, daily line pauses with an expected pulse and fails closed, zero futile ledger churn)`);

@@ -1,6 +1,16 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import { createParkingSearch, hasParkingCoordinate, parkingDirectionsUrl, parkingMapsUrl, parkingMapRegion } from "../lib/appleParking.js";
+import {
+  classifyParkingAccess,
+  createParkingSearch,
+  hasParkingCoordinate,
+  parkingDirectionsUrl,
+  parkingMapsUrl,
+  parkingMapRegion,
+  resolveVerifiedVisitorParking,
+  VERIFIED_VISITOR_PARKING_ENTRANCES,
+} from "../lib/appleParking.js";
+import { searchDestinationParking } from "../lib/mapRouting.js";
 import { mapFailureReason } from "../lib/mapDiagnostics.js";
 
 let assertions = 0;
@@ -310,4 +320,110 @@ check.equal(destroyed.requests[0].signal.aborted, true, "destroy cancels native 
 service.destroy();
 await check.rejects(service.search(), { name: "AbortError" }, "destroy also clears cached results");
 
+// ── Wave 2: Verified Visitor Parking Entrances & Destination Routing ──────────
+check.ok(VERIFIED_VISITOR_PARKING_ENTRANCES.length >= 9, "registry covers major Florida gated destination campuses");
+
+// Direct classifyParkingAccess checks
+check.equal(classifyParkingAccess({ name: "Contemporary Resort Cast Parking Lot", distanceMeters: 480 }, { name: "Magic Kingdom Park" }).accessStatus, "restricted", "cast resort lot is rejected");
+check.equal(classifyParkingAccess({ name: "Westclock Cast Parking", distanceMeters: 700 }, { name: "Magic Kingdom Park" }).accessStatus, "restricted", "Westclock backstage cast parking is rejected");
+check.equal(classifyParkingAccess({ name: "Team Disney Orlando Parking", distanceMeters: 300 }, { name: "Disney Springs" }).accessStatus, "restricted", "Team Disney administrative parking is rejected");
+check.equal(classifyParkingAccess({ name: "Vendor & Contractor Security Lot", distanceMeters: 200 }, { name: "EPCOT" }).accessStatus, "restricted", "vendor/contractor/security lots are rejected");
+const ttcClassified = classifyParkingAccess({ name: "Transportation and Ticket Center", distanceMeters: 1520 }, { name: "Magic Kingdom Park" });
+check.equal(ttcClassified.accessStatus, "public_verified", "TTC at >900m is verified visitor parking for Magic Kingdom");
+check.equal(ttcClassified.walkableDirect, false, "TTC across Seven Seas Lagoon never fabricates direct walking distance");
+
+// 1. Magic Kingdom Park with cast/resort perimeter trap
+const mkVenue = { id: "ChIJgUulalN-3YgRGoTaWM2LawY", name: "Magic Kingdom Park", lat: 28.4188163, lng: -81.5817689 };
+const mkPoiKit = fakeMapkit([{
+  places: [
+    { id: "cast-1", name: "Contemporary Resort Cast Parking Lot", coordinate: { latitude: 28.4188163 + 480 / 111195.0802335, longitude: -81.5817689 } },
+    { id: "cast-2", name: "Westclock Cast Parking", coordinate: { latitude: 28.4188163 + 650 / 111195.0802335, longitude: -81.5817689 } },
+    { id: "resort-1", name: "Contemporary Resort Parking", coordinate: { latitude: 28.4188163 + 520 / 111195.0802335, longitude: -81.5817689 } },
+  ],
+}]);
+const mkRes = await searchDestinationParking(mkPoiKit.mapkit, mkVenue);
+check.equal(mkRes.status, "ready", "Magic Kingdom resolves ready via verified TTC visitor hub");
+check.equal(mkRes.restrictedExcludedCount, 3, "all three cast/resort perimeter lots are excluded");
+check.equal(mkRes.items.length, 1, "only verified TTC visitor parking is recommended");
+check.ok(mkRes.items[0].name.includes("Transportation and Ticket Center"), "TTC is prioritized for Magic Kingdom");
+check.equal(mkRes.items[0].accessStatus, "public_verified", "TTC is marked public_verified");
+check.equal(mkRes.items[0].accessReason, "verified_venue_visitor_entrance", "TTC carries verified entrance reason");
+check.equal(mkRes.items[0].verificationKind, "verified_entrance", "TTC carries verified_entrance verificationKind");
+check.equal(mkRes.items[0].distanceLabel, null, "non-walkable lagoon crossing never fabricates a walking distance");
+check.equal(mkRes.items[0].walkHref, null, "non-walkable lagoon crossing omits walking directions link");
+check.equal(new URL(mkRes.items[0].driveHref).searchParams.get("daddr"), "28.405308,-81.579211", "driveHref targets verified OSM TTC coordinates");
+
+// Deterministic $0 resolution without mapkit for other Florida campuses
+for (const [campusVenue, expectedFragment, expectedWalkable] of [
+  [{ id: "ChIJGzFs3q9_3YgRvZd1y2NSJOo", name: "EPCOT", lat: 28.37647, lng: -81.5494 }, "EPCOT Visitor Parking", false],
+  [{ id: "ChIJRx6CYyd83YgRD_HjNqPO_7s", name: "Disney's Hollywood Studios", lat: 28.35806, lng: -81.5591 }, "Hollywood Studios Visitor Parking", false],
+  [{ id: "ChIJ_eH9PaOB3YgRuz8jIkYEODQ", name: "Disney's Animal Kingdom", lat: 28.360784, lng: -81.590776 }, "Animal Kingdom Visitor Parking", false],
+  [{ id: "ChIJ-0qgNoF_3YgRg3Lh7xHDooU", name: "Disney Springs", lat: 28.37057, lng: -81.51936 }, "Disney Springs", true],
+  [{ id: "ChIJEyMWSOd-54gR-QBrGagmCHw", name: "Universal CityWalk Orlando", lat: 28.473381, lng: -81.466559 }, "Universal Orlando Visitor Parking Garages", false],
+  [{ id: "ChIJhRo4DU_GwogRUgjhMAj-pag", name: "Busch Gardens Tampa Bay", lat: 28.03707, lng: -82.41946 }, "Busch Gardens Visitor Parking", false],
+  [{ id: "ChIJfyPWjCh-54gR1SvWozmef5k", name: "SeaWorld Orlando", lat: 28.41104, lng: -81.46123 }, "SeaWorld Orlando Visitor Parking", false],
+]) {
+  const campusRes = await searchDestinationParking(null, campusVenue);
+  check.equal(campusRes.status, "ready", `${campusVenue.name} resolves deterministically even without mapkit`);
+  check.ok(campusRes.items[0].name.includes(expectedFragment), `${campusVenue.name} returns ${expectedFragment}`);
+  check.equal(campusRes.items[0].walkableDirect, expectedWalkable, `${campusVenue.name} walkableDirect matches campus transfer truth`);
+}
+
+// 2. Restricted-only venue without verified entrance
+const restrictedOnlyKit = fakeMapkit([{
+  places: [
+    { id: "r1", name: "Contemporary Resort Cast Parking Lot", coordinate: { latitude: 27.3 + 150 / 111195.0802335, longitude: -82.5 } },
+    { id: "r2", name: "Staff Permit Lot", coordinate: { latitude: 27.3 + 220 / 111195.0802335, longitude: -82.5 } },
+    { id: "r3", name: "Employee Lot C", coordinate: { latitude: 27.3 + 300 / 111195.0802335, longitude: -82.5 } },
+  ],
+}]);
+const restrictedOnlyRes = await searchDestinationParking(restrictedOnlyKit.mapkit, { id: "non-campus-1", name: "Downtown Venue", ...venue });
+check.equal(restrictedOnlyRes.status, "fallback", "restricted-only non-campus venue falls back honestly");
+check.equal(restrictedOnlyRes.items.length, 0, "restricted-only fallback returns zero recommended lots");
+check.equal(restrictedOnlyRes.restrictedExcludedCount, 3, "restricted-only counts all excluded lots");
+check.equal(restrictedOnlyRes.reason, "restricted_only", "restricted-only reports restricted_only reason");
+check.ok(restrictedOnlyRes.fallbackHref.includes("maps.apple.com"), "restricted-only retains Apple Maps search suggestion");
+
+// 3. Unknown-access-only venue
+const unknownOnlyKit = fakeMapkit([{
+  places: [
+    { id: "u1", name: "Lot 4", coordinate: { latitude: 27.3 + 120 / 111195.0802335, longitude: -82.5 } },
+    { id: "u2", name: "Office Tower Garage", coordinate: { latitude: 27.3 + 210 / 111195.0802335, longitude: -82.5 } },
+    { id: "u3", name: "Commerce Deck", coordinate: { latitude: 27.3 + 310 / 111195.0802335, longitude: -82.5 } },
+  ],
+}]);
+const unknownOnlyRes = await searchDestinationParking(unknownOnlyKit.mapkit, { id: "non-campus-2", name: "Sarasota Gallery", ...venue });
+check.equal(unknownOnlyRes.status, "fallback", "unknown-access-only venue falls back honestly");
+check.equal(unknownOnlyRes.items.length, 0, "unknown-access-only returns zero recommended lots");
+check.equal(unknownOnlyRes.reason, "visitor_access_unverified", "unknown-access-only reports visitor_access_unverified");
+
+// 4. Verified Downtown Sarasota public parking control
+const sarasotaVenue = { id: "state-street-sarasota", name: "State Street Eating House + Cocktails", lat: 27.3357, lng: -82.5419 };
+const sarasotaKit = fakeMapkit([{
+  places: [
+    { id: "srq-pub", name: "Public Parking", coordinate: { latitude: sarasotaVenue.lat + 128 / 111195.0802335, longitude: sarasotaVenue.lng } },
+    { id: "srq-b", name: "Palm Avenue Public Parking Garage", coordinate: { latitude: sarasotaVenue.lat + 260 / 111195.0802335, longitude: sarasotaVenue.lng } },
+    { id: "srq-c", name: "City Lot 2", coordinate: { latitude: sarasotaVenue.lat + 400 / 111195.0802335, longitude: sarasotaVenue.lng } },
+  ],
+}]);
+const sarasotaRes = await searchDestinationParking(sarasotaKit.mapkit, sarasotaVenue);
+check.equal(sarasotaRes.status, "ready", "Downtown Sarasota control resolves ready");
+check.equal(sarasotaRes.items[0].name, "Public Parking", "Sarasota control picks closest Public Parking POI");
+check.equal(sarasotaRes.items[0].distanceLabel, "420 ft walk", "Sarasota 128m control preserves 420 ft walk label");
+check.equal(sarasotaRes.items[0].accessStatus, "public_verified", "Sarasota control is public_verified");
+check.equal(sarasotaRes.items[0].verificationKind, "verified_public_poi", "Sarasota control carries verified_public_poi");
+
+// 5. Wrong-city homonym guard
+check.deepEqual(resolveVerifiedVisitorParking({ name: "Magic Kingdom", lat: 25.7617, lng: -80.1918 }), [], "Miami homonym for Magic Kingdom never matches Orlando TTC");
+check.deepEqual(resolveVerifiedVisitorParking({ name: "Busch Gardens", lat: 25.7617, lng: -80.1918 }), [], "Miami homonym for Busch Gardens never matches Tampa lot");
+check.deepEqual(resolveVerifiedVisitorParking({ place_id: "ChIJgUulalN-3YgRGoTaWM2LawY", name: "Magic Kingdom Park", lat: 25.7617, lng: -80.1918 }), [], "distant coordinates reject even a matching place_id");
+
+// 6. Approximate venue coordinates guard
+check.deepEqual(resolveVerifiedVisitorParking({ ...mkVenue, approx: true }), [], "approx venue never resolves verified entrance");
+const approxRes = await searchDestinationParking(mkPoiKit.mapkit, { ...mkVenue, approx: true });
+check.equal(approxRes.status, "unavailable", "approx venue returns unavailable");
+check.equal(approxRes.items.length, 0, "approx venue recommends no parking");
+check.equal(approxRes.fallbackHref, null, "approx venue produces no misleading fallback link");
+
 console.log(`Apple parking: ${assertions} assertions passed`);
+

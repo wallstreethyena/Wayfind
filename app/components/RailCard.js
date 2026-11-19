@@ -47,7 +47,7 @@ import { formatDistanceMiles } from "../../lib/deviceDistance.js";
 import { useReserveEntry } from "../../lib/reserveClient.js";
 import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CardPhoto from "./CardPhoto";
 import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
@@ -183,6 +183,44 @@ function EventPlaceholderTile({ tile }) {
   );
 }
 
+export function attachRailObserver({ target, railId, active, onMeasure, onScroll }) {
+  if (typeof document === "undefined" || !active) return undefined;
+  const rail = target || document.querySelector(`[data-rail="${railId}"]`);
+  if (!rail) return undefined;
+  const hasIo = typeof IntersectionObserver === "function";
+  let near = !hasIo, rafId = 0, dirty = !hasIo;
+  const raf = typeof requestAnimationFrame === "function" ? requestAnimationFrame : (cb) => setTimeout(cb, 0);
+  const schedule = (needsMeasure) => {
+    if (needsMeasure && !near) return;
+    if (needsMeasure) dirty = true;
+    if (rafId) return;
+    rafId = raf(() => {
+      rafId = 0;
+      const m = dirty; dirty = false;
+      if (m) onMeasure(rail); else if (!onScroll || !onScroll(rail)) { near = true; onMeasure(rail); }
+    });
+  };
+  const onScr = () => schedule(false);
+  const onRes = () => schedule(true);
+  if (onScroll) rail.addEventListener("scroll", onScr, { passive: true });
+  const io = hasIo ? new IntersectionObserver((es) => {
+    if (es?.some((e) => e.isIntersecting)) { near = true; io.disconnect(); schedule(true); }
+  }, { rootMargin: "350px 0px" }) : null;
+  io?.observe(rail);
+  const hasRo = typeof ResizeObserver === "function";
+  const ro = hasRo ? new ResizeObserver(onRes) : null;
+  ro?.observe(rail);
+  if (!hasRo && typeof window !== "undefined") window.addEventListener("resize", onRes);
+  if (near) schedule(true);
+  return () => {
+    if (rafId) (typeof cancelAnimationFrame === "function" ? cancelAnimationFrame : clearTimeout)(rafId);
+    io?.disconnect();
+    if (onScroll) rail.removeEventListener("scroll", onScr);
+    if (ro) ro.disconnect();
+    else if (typeof window !== "undefined") window.removeEventListener("resize", onRes);
+  };
+}
+
 export function RailNav({ railId, count, unit, total, loaded }) {
   // v8.39 — `total` is how many CARDS the rail holds; `count` is the number the
   // hint is allowed to claim, which is not always the same thing (the trending
@@ -195,28 +233,40 @@ export function RailNav({ railId, count, unit, total, loaded }) {
   // rail's scroll the same way RailDots reads its page. It used to print the
   // LOADED count ("28 of 28" on card 1). SSR and first paint say 1.
   const [pos, setPos] = useState(1);
+  const geoRef = useRef({ clientWidth: 0, scrollWidth: 0, cardOffsets: null, rawCount: 0 });
   useEffect(() => {
-    if (typeof document === "undefined" || !cards || cards < 2) return;
-    const rail = document.querySelector(`[data-rail="${railId}"]`);
-    if (!rail) return;
-    const read = () => {
-      // Cards are the rail's boxes; a display:contents wrapper (the guide slot)
-      // has no box of its own, so its children stand in for it.
-      const kids = [];
-      for (const k of Array.from(rail.children)) {
-        if (k.firstElementChild && getComputedStyle(k).display === "contents") kids.push(...Array.from(k.children));
-        else kids.push(k);
-      }
-      if (!kids.length) return;
-      const first = kids[0].getBoundingClientRect().left;
-      const cardOffsets = kids.map((k) => k.getBoundingClientRect().left - first);
-      setPos(railPosition({ scrollLeft: rail.scrollLeft, clientWidth: rail.clientWidth, scrollWidth: rail.scrollWidth, cardOffsets }));
-    };
-    rail.addEventListener("scroll", read, { passive: true });
-    let ro = null;
-    if (typeof ResizeObserver === "function") { ro = new ResizeObserver(read); ro.observe(rail); }
-    read();
-    return () => { rail.removeEventListener("scroll", read); if (ro) ro.disconnect(); };
+    geoRef.current.cardOffsets = null;
+    geoRef.current.rawCount = 0;
+    return attachRailObserver({
+      railId,
+      active: !!cards && cards >= 2,
+      onMeasure: (rail) => {
+        const kids = [];
+        for (const k of rail.children) {
+          if (k.firstElementChild && !k.classList?.contains?.("wf-place-card") && getComputedStyle(k).display === "contents") {
+            kids.push(...k.children);
+          } else kids.push(k);
+        }
+        if (!kids.length) return;
+        const r0 = kids[0].getBoundingClientRect();
+        let cardOffsets = null;
+        if (kids.length >= 2 && kids.every((k) => !k.className || /wf-(?:place|rail)-card|wf8-guide-insert/.test(k.className))) {
+          const r1 = kids[1].getBoundingClientRect();
+          const pitch = r1.left - r0.left;
+          if (r0.width > 0 && Math.abs(r1.width - r0.width) < 1 && pitch > 0) cardOffsets = Array.from({ length: kids.length }, (_, i) => i * pitch);
+        }
+        if (!cardOffsets) cardOffsets = kids.map((k) => k.getBoundingClientRect().left - r0.left);
+        const clientWidth = rail.clientWidth, scrollWidth = rail.scrollWidth;
+        geoRef.current = { clientWidth, scrollWidth, cardOffsets, rawCount: rail.children.length };
+        setPos(railPosition({ scrollLeft: rail.scrollLeft, clientWidth, scrollWidth, cardOffsets }));
+      },
+      onScroll: (rail) => {
+        const g = geoRef.current;
+        if (!g.cardOffsets?.length || rail.children.length !== g.rawCount) return false;
+        setPos(railPosition({ scrollLeft: rail.scrollLeft, clientWidth: g.clientWidth, scrollWidth: g.scrollWidth, cardOffsets: g.cardOffsets }));
+        return true;
+      },
+    });
   }, [railId, cards, loaded]);
   if (!cards || cards < 2) return null;
   const move = (dir) => {
@@ -277,28 +327,26 @@ export function RailDots({ railId, count, layoutKey = 0 }) {
   // honest fallback for the first paint (before layout, scrollWidth is 0) and
   // the ceiling: there is never more than one page per card.
   const [pages, setPages] = useState(count);
+  const geoRef = useRef({ w: 0, n: count });
   useEffect(() => {
-    if (typeof document === "undefined" || !count || count < 2) return;
-    const rail = document.querySelector(`[data-rail="${railId}"]`);
-    if (!rail) return;
-    const read = () => {
-      const w = rail.clientWidth || 1;
-      const n = Math.max(1, Math.min(count, Math.ceil((rail.scrollWidth || w) / w)));
-      setPages(n);
-      setPage(Math.max(0, Math.min(n - 1, Math.round(rail.scrollLeft / w))));
-    };
-    rail.addEventListener("scroll", read, { passive: true });
-    // ResizeObserver over a window listener: the rail's width changes with the
-    // drop opening and closing too, not only with the viewport.
-    let ro = null;
-    if (typeof ResizeObserver === "function") { ro = new ResizeObserver(read); ro.observe(rail); }
-    else if (typeof window !== "undefined") window.addEventListener("resize", read);
-    read();
-    return () => {
-      rail.removeEventListener("scroll", read);
-      if (ro) ro.disconnect();
-      else if (typeof window !== "undefined") window.removeEventListener("resize", read);
-    };
+    geoRef.current.w = 0;
+    return attachRailObserver({
+      railId,
+      active: !!count && count >= 2,
+      onMeasure: (rail) => {
+        const w = rail.clientWidth || 1;
+        const n = Math.max(1, Math.min(count, Math.ceil((rail.scrollWidth || w) / w)));
+        geoRef.current = { w, n };
+        setPages(n);
+        setPage(Math.max(0, Math.min(n - 1, Math.round(rail.scrollLeft / w))));
+      },
+      onScroll: (rail) => {
+        const g = geoRef.current;
+        if (!g.w) return false;
+        setPage(Math.max(0, Math.min(g.n - 1, Math.round(rail.scrollLeft / g.w))));
+        return true;
+      },
+    });
   }, [railId, count, layoutKey]);
   if (!count || count < 2 || pages < 2) return null;
   // The sliding window. Clamped at both ends so the strip never shows blanks:

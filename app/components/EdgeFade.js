@@ -36,25 +36,22 @@ export function useEdgeFade(ref) {
       const next = edgeFadeState(row);
       if (row.getAttribute("data-fade") !== next) row.setAttribute("data-fade", next);
     };
+    const schedule = () => {
+      if (typeof requestAnimationFrame !== "function") { update(); return; }
+      if (!frame.current) frame.current = requestAnimationFrame(() => { frame.current = 0; update(); });
+    };
     if (bound.current.el !== el) {
       if (bound.current.off) bound.current.off();
       bound.current = { el, off: null };
       if (el) {
-        el.addEventListener("scroll", update, { passive: true });
-        const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+        el.addEventListener("scroll", schedule, { passive: true });
+        const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(schedule) : null;
         if (ro) ro.observe(el);
-        window.addEventListener("resize", update);
-        bound.current.off = () => { el.removeEventListener("scroll", update); if (ro) ro.disconnect(); window.removeEventListener("resize", update); };
+        window.addEventListener("resize", schedule);
+        bound.current.off = () => { el.removeEventListener("scroll", schedule); if (ro) ro.disconnect(); window.removeEventListener("resize", schedule); };
       }
     }
-    // Re-check after every render, but ONCE per frame and inside the frame, not here.
-    // Reading scrollWidth in this effect forced a full layout of the page right after a
-    // commit, and a burst of commits in one task (the home page makes several back to
-    // back) laid the ~14,000-element page out again for each of them (2.9 s of forced
-    // layout in one phone profile). requestAnimationFrame runs just before the frame's own
-    // layout, so the read shares that layout instead of adding one.
-    if (typeof requestAnimationFrame !== "function") { update(); return undefined; }
-    if (!frame.current) frame.current = requestAnimationFrame(() => { frame.current = 0; update(); });
+    schedule();
     return undefined;
   });
   useEffect(() => () => {

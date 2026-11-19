@@ -1,0 +1,2116 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-19",
+ "scope_note": "Card-pool editorial batch 67. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJAQDAd2T92IgRGM7rYLHqJYA",
+   "name": "Lola's on the Water",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lolasonthewater.com/",
+     "source_name": "Lola's On The Water | Official Website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "savor refreshing American-Mediterranean cuisine",
+      "Our full-service marina welcomes boaters right on the Intracoastal waterway, with nearby ocean access via the Hillsboro Inlet.",
+      "Guests are welcome to dock at Lola's to drink and dine."
+     ]
+    },
+    {
+     "source": "https://www.lolasonthewater.com/pompano-beach-restaurants-on-the-water",
+     "source_name": "Lola's On The Water | Pompano Beach Restaurants on the Water",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Havenly Chicken Crispy chicken decked out in cajun spices with a beurre blanc sauce, paired with mixed greens and fries."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront Mediterranean dining, dock-and-dine marina",
+    "why_here": "Lola's pairs refreshing American-Mediterranean cuisine with waterfront seating on the Intracoastal. Boaters can use its full-service marina, with nearby ocean access via the Hillsboro Inlet, and dock to drink and dine. A featured dish is Havenly Chicken with cajun spices and beurre blanc.",
+    "know_before": "Dock-and-dine is welcomed at the full-service Intracoastal marina; ocean access is nearby via the Hillsboro Inlet.",
+    "local_tip": "Arrive by boat and dock at Lola's to drink and dine on the Intracoastal.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lolasonthewater.com/"
+     ],
+     "why_here": [
+      "https://www.lolasonthewater.com/",
+      "https://www.lolasonthewater.com/pompano-beach-restaurants-on-the-water"
+     ],
+     "know_before": [
+      "https://www.lolasonthewater.com/",
+      "https://www.lolasonthewater.com/pompano-beach-restaurants-on-the-water"
+     ],
+     "local_tip": [
+      "https://www.lolasonthewater.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "savor refreshing American-Mediterranean cuisine",
+      "source": "https://www.lolasonthewater.com/"
+     },
+     {
+      "claim": "Our full-service marina welcomes boaters right on the Intracoastal waterway, with nearby ocean access via the Hillsboro Inlet.",
+      "source": "https://www.lolasonthewater.com/"
+     },
+     {
+      "claim": "Guests are welcome to dock at Lola's to drink and dine.",
+      "source": "https://www.lolasonthewater.com/"
+     },
+     {
+      "claim": "Havenly Chicken Crispy chicken decked out in cajun spices with a beurre blanc sauce, paired with mixed greens and fries.",
+      "source": "https://www.lolasonthewater.com/pompano-beach-restaurants-on-the-water"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgXU9mdyF3YgRvNMAyVEPvQ0",
+   "name": "Osceola County Fair",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.osceolacountyfair.com/p/about",
+     "source_name": "Osceola County Fair | The Fair (Official Website)",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Each year the 200 plus members of our association host the annual Osceola County Fair, a 10-day event beginning the second Friday of February.",
+      "The Kissimmee Valley Livestock Show is a 501c3 Non-Profit organization committed to promoting agriculture, the education and development of area youth and the Osceola County community.",
+      "This annual fundraiser allows KVLS to award multiple educational scholarships, produce the annual Market Annual Auction, and award more than $50,000 in awards and premiums"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "10-day February fair of livestock and youth agriculture",
+    "why_here": "The Osceola County Fair is a 10-day event hosted each year by more than 200 association members. Run by a nonprofit promoting agriculture and youth development, it funds educational scholarships, a Market Annual Auction and more than $50,000 in awards and premiums.",
+    "know_before": "The fair runs for 10 days beginning the second Friday of February, so check the annual schedule before travelling.",
+    "local_tip": null,
+    "best_time": "10-day event beginning the second Friday of February",
+    "citations": {
+     "hook": [
+      "https://www.osceolacountyfair.com/p/about"
+     ],
+     "why_here": [
+      "https://www.osceolacountyfair.com/p/about"
+     ],
+     "know_before": [
+      "https://www.osceolacountyfair.com/p/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.osceolacountyfair.com/p/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Each year the 200 plus members of our association host the annual Osceola County Fair, a 10-day event beginning the second Friday of February.",
+      "source": "https://www.osceolacountyfair.com/p/about"
+     },
+     {
+      "claim": "The Kissimmee Valley Livestock Show is a 501c3 Non-Profit organization committed to promoting agriculture, the education and development of area youth and the Osceola County community.",
+      "source": "https://www.osceolacountyfair.com/p/about"
+     },
+     {
+      "claim": "This annual fundraiser allows KVLS to award multiple educational scholarships, produce the annual Market Annual Auction, and award more than $50,000 in awards and premiums",
+      "source": "https://www.osceolacountyfair.com/p/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdR_OXS4A2YgRtzq7jla_nZM",
+   "name": "NSU Art Museum Fort Lauderdale",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "art_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nsuartmuseum.org/museum/about-the-museum/",
+     "source_name": "NSU Art Museum Fort Lauderdale | About the Museum",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Founded in 1958, NSU Art Museum Fort Lauderdale is a premier destination for exhibitions and programs encompassing many facets of civilization\u2019s visual history.",
+      "In 2024 it became the permanent home of Christo and Jeanne-Claude\u2019s Surrounded Islands documentation exhibition, the epic public art project the artist duo created for Miami\u2019s Biscayne Bay in 1983.",
+      "Sunny Days/Starry Nights: Free admission and extended hours the first Thursday of every month, 11 am \u2013 7 pm.",
+      "Closed: Mondays"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Founded 1958; home of Christo Surrounded Islands show",
+    "why_here": "Founded in 1958, NSU Art Museum is a premier destination for exhibitions spanning civilization's visual history. Since 2024 it has been the permanent home of Christo and Jeanne-Claude's Surrounded Islands documentation exhibition, about their 1983 Biscayne Bay project.",
+    "know_before": "The museum is closed Mondays; free admission runs the first Thursday monthly from 11 am to 7 pm.",
+    "local_tip": "Visit on the first Thursday for free admission and extended hours until 7 pm.",
+    "best_time": "Free admission and extended hours the first Thursday of every month, 11 am \u2013 7 pm",
+    "citations": {
+     "hook": [
+      "https://nsuartmuseum.org/museum/about-the-museum/"
+     ],
+     "why_here": [
+      "https://nsuartmuseum.org/museum/about-the-museum/"
+     ],
+     "know_before": [
+      "https://nsuartmuseum.org/museum/about-the-museum/"
+     ],
+     "local_tip": [
+      "https://nsuartmuseum.org/museum/about-the-museum/"
+     ],
+     "best_time": [
+      "https://nsuartmuseum.org/museum/about-the-museum/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Founded in 1958, NSU Art Museum Fort Lauderdale is a premier destination for exhibitions and programs encompassing many facets of civilization\u2019s visual history.",
+      "source": "https://nsuartmuseum.org/museum/about-the-museum/"
+     },
+     {
+      "claim": "In 2024 it became the permanent home of Christo and Jeanne-Claude\u2019s Surrounded Islands documentation exhibition, the epic public art project the artist duo created for Miami\u2019s Biscayne Bay in 1983.",
+      "source": "https://nsuartmuseum.org/museum/about-the-museum/"
+     },
+     {
+      "claim": "Sunny Days/Starry Nights: Free admission and extended hours the first Thursday of every month, 11 am \u2013 7 pm.",
+      "source": "https://nsuartmuseum.org/museum/about-the-museum/"
+     },
+     {
+      "claim": "Closed: Mondays",
+      "source": "https://nsuartmuseum.org/museum/about-the-museum/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsQ566r_jwogRvRRo0T_w2NE",
+   "name": "Linking Heights",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://linkingheights.weebly.com/",
+     "source_name": "Linking Heights St. Petersburg | Official Website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Established 2024 in the beautiful St. Pete Heights neighborhood of St. Petersburg, FL.",
+      "Formally Johnny's Restaurant and Pizza, owners Bobby Schaech and Kali Brodt invite you to join them at the new neighborhood watering hole.",
+      "Linking Heights has a newly designed, 35-foot full liquor bar.",
+      "make our own signature cocktails- home of the \"Orange Crush\".",
+      "Trivia Tuesdays continue. Come join us 7-9pm!"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "2024 neighborhood spot, home of the Orange Crush cocktail",
+    "why_here": "Established in 2024 in St. Pete Heights, Linking Heights took over the former Johnny's Restaurant and Pizza as a new neighborhood watering hole. It has a newly designed 35-foot full liquor bar and makes signature cocktails, billing itself as home of the Orange Crush.",
+    "know_before": "Trivia Tuesdays run 7-9pm; the venue was formerly Johnny's Restaurant and Pizza under owners Bobby Schaech and Kali Brodt.",
+    "local_tip": "Come for Trivia Tuesdays, 7-9pm, and try the signature Orange Crush.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://linkingheights.weebly.com/"
+     ],
+     "why_here": [
+      "https://linkingheights.weebly.com/"
+     ],
+     "know_before": [
+      "https://linkingheights.weebly.com/"
+     ],
+     "local_tip": [
+      "https://linkingheights.weebly.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Established 2024 in the beautiful St. Pete Heights neighborhood of St. Petersburg, FL.",
+      "source": "https://linkingheights.weebly.com/"
+     },
+     {
+      "claim": "Formally Johnny's Restaurant and Pizza, owners Bobby Schaech and Kali Brodt invite you to join them at the new neighborhood watering hole.",
+      "source": "https://linkingheights.weebly.com/"
+     },
+     {
+      "claim": "Linking Heights has a newly designed, 35-foot full liquor bar.",
+      "source": "https://linkingheights.weebly.com/"
+     },
+     {
+      "claim": "make our own signature cocktails- home of the \"Orange Crush\".",
+      "source": "https://linkingheights.weebly.com/"
+     },
+     {
+      "claim": "Trivia Tuesdays continue. Come join us 7-9pm!",
+      "source": "https://linkingheights.weebly.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA0eGsZ-12YgR0Z4Dm5b1J6I",
+   "name": "Abbal\u00e9 Modern Mediterranean Kitchen - South Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://abbaletlv.com/",
+     "source_name": "Abbal\u00e9 | Modern Mediterranean Kitchen (Official Website)",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "It's a modern mediterranean kitchen where every dish is made from scratch in a seed oil-free kitchen, with thoughtfully sourced ingredients that honor both flavor and integrity.",
+      "We finish every dish with premium extra virgin olive oil and use avocado oil for our sauces and marinades."
+     ]
+    },
+    {
+     "source": "https://abbaletlv.com/about/",
+     "source_name": "Abbal\u00e9 | About Us",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Founded by Executive Chef Samuel Gorenstein and Omer Horev, Abbal\u00e9 is a chef-driven restaurant inspired by the flavors and traditions of the Mediterranean and Middle East",
+      "Our name is rooted in the Hebrew word Abba , meaning \u201cfather\u201d, a reflection of the warmth, hospitality, and sense of home we want every guest to feel."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch, seed oil-free Mediterranean kitchen, South Beach",
+    "why_here": "Abbal\u00e9 is a chef-driven kitchen inspired by the flavors and traditions of the Mediterranean and Middle East, founded by Executive Chef Samuel Gorenstein and Omer Horev. Every dish is made from scratch in a seed oil-free kitchen, finished with premium extra virgin olive oil and avocado oil in sauces and marinades.",
+    "know_before": "The South Beach kitchen cooks seed oil-free, finishing dishes with premium extra virgin olive oil.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://abbaletlv.com/"
+     ],
+     "why_here": [
+      "https://abbaletlv.com/",
+      "https://abbaletlv.com/about/"
+     ],
+     "know_before": [
+      "https://abbaletlv.com/",
+      "https://abbaletlv.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "It's a modern mediterranean kitchen where every dish is made from scratch in a seed oil-free kitchen, with thoughtfully sourced ingredients that honor both flavor and integrity.",
+      "source": "https://abbaletlv.com/"
+     },
+     {
+      "claim": "We finish every dish with premium extra virgin olive oil and use avocado oil for our sauces and marinades.",
+      "source": "https://abbaletlv.com/"
+     },
+     {
+      "claim": "Founded by Executive Chef Samuel Gorenstein and Omer Horev, Abbal\u00e9 is a chef-driven restaurant inspired by the flavors and traditions of the Mediterranean and Middle East",
+      "source": "https://abbaletlv.com/about/"
+     },
+     {
+      "claim": "Our name is rooted in the Hebrew word Abba , meaning \u201cfather\u201d, a reflection of the warmth, hospitality, and sense of home we want every guest to feel.",
+      "source": "https://abbaletlv.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJN4jbrHWX5ogRlIITRZsd3bQ",
+   "name": "River to Sea Preserve",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/River-to-Sea-Preserve",
+     "source_name": "Flagler County",
+     "source_class": "government",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "The River to Sea Preserve is located on both sides of highway A1A at Marineland and is owned jointly by Flagler County and the Town of Marineland.",
+      "The 90-acre preserve offers walking trails, nature vistas, and ecological education opportunities, as well as public access to the beach.",
+      "Amenities are still under development and restoration."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "90-acre preserve with trails and beach access at Marineland",
+    "why_here": "Straddling A1A at Marineland, this 90-acre preserve owned jointly by Flagler County and the Town of Marineland pairs walking trails and nature vistas with public access to the beach, so one stop covers both river and ocean.",
+    "know_before": "Amenities are still under development and restoration, so plan for walking trails and beach access rather than built facilities.",
+    "local_tip": "Use the preserve for both sides of A1A: nature vistas inland and public beach access across the road.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/River-to-Sea-Preserve"
+     ],
+     "why_here": [
+      "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/River-to-Sea-Preserve"
+     ],
+     "know_before": [
+      "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/River-to-Sea-Preserve"
+     ],
+     "local_tip": [
+      "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/River-to-Sea-Preserve"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The River to Sea Preserve is located on both sides of highway A1A at Marineland and is owned jointly by Flagler County and the Town of Marineland.",
+      "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/River-to-Sea-Preserve"
+     },
+     {
+      "claim": "The 90-acre preserve offers walking trails, nature vistas, and ecological education opportunities, as well as public access to the beach.",
+      "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/River-to-Sea-Preserve"
+     },
+     {
+      "claim": "Amenities are still under development and restoration.",
+      "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/River-to-Sea-Preserve"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAxFiBycnkYgRyiOz3sLxZ4s",
+   "name": "Sound Side Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993",
+     "source_name": "Santa Rosa County",
+     "source_class": "government",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Two ADA-accessible boardwalks connecting to existing parking/pavilion areas on the east and west ends of the sound side recreation areas.",
+      "An ADA accessible kayak launch with access boardwalk located in the center of the sound side park.",
+      "Signage to alert kayakers and paddle boarders to avoid shorebird habitats",
+      "An additional acre of planted dune vegetation."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "ADA boardwalks and a kayak launch on the sound side",
+    "why_here": "On the sound side recreation areas, two ADA-accessible boardwalks link the parking and pavilion areas, while a central ADA-accessible kayak launch with its own access boardwalk puts paddlers straight onto the calmer sound water.",
+    "know_before": "Use the ADA-accessible boardwalks to reach the pavilions, and follow signage to avoid shorebird habitats when kayaking or paddle boarding.",
+    "local_tip": "Head to the center of the sound side park for the ADA-accessible kayak launch and its access boardwalk.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993"
+     ],
+     "why_here": [
+      "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993"
+     ],
+     "know_before": [
+      "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993"
+     ],
+     "local_tip": [
+      "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Two ADA-accessible boardwalks connecting to existing parking/pavilion areas on the east and west ends of the sound side recreation areas.",
+      "source": "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993"
+     },
+     {
+      "claim": "An ADA accessible kayak launch with access boardwalk located in the center of the sound side park.",
+      "source": "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993"
+     },
+     {
+      "claim": "Signage to alert kayakers and paddle boarders to avoid shorebird habitats",
+      "source": "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993"
+     },
+     {
+      "claim": "An additional acre of planted dune vegetation.",
+      "source": "https://santarosa.fl.gov/CivicSend/ViewMessage/message/80993"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwYNdFzyv2YgR8q73mVjiQ5Q",
+   "name": "Miramar Pineland Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://webapps6.broward.org/newsrelease/View.aspx?intMessageID=4338",
+     "source_name": "Broward County Parks and Recreation Division",
+     "source_class": "government",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "The public is now able to enjoy the Pineland Trail (approximately 3,700 feet of walkway that is a combination of concrete trail and elevated boardwalk with overlook)",
+      "the Wetland Trail and Boardwalk (a trail combining concrete path and aluminum boardwalk that runs approximately 2,400 feet along and through the park\u2019s wetland mitigation project)",
+      "the Division\u2019s first interactive children\u2019s water-play splash pad"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pineland boardwalk, wetland trail and a splash pad",
+    "why_here": "Miramar Pineland pairs two distinct walks: the roughly 3,700-foot Pineland Trail of concrete path and elevated boardwalk with overlook, and the roughly 2,400-foot Wetland Trail and Boardwalk running through the park\u2019s wetland mitigation project.",
+    "know_before": "Choose between the Pineland Trail and the Wetland Trail and Boardwalk; the park also has the Division\u2019s first interactive children\u2019s water-play splash pad.",
+    "local_tip": "Take the elevated boardwalk section of the Pineland Trail for the overlook view over the pineland.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://webapps6.broward.org/newsrelease/View.aspx?intMessageID=4338"
+     ],
+     "why_here": [
+      "https://webapps6.broward.org/newsrelease/View.aspx?intMessageID=4338"
+     ],
+     "know_before": [
+      "https://webapps6.broward.org/newsrelease/View.aspx?intMessageID=4338"
+     ],
+     "local_tip": [
+      "https://webapps6.broward.org/newsrelease/View.aspx?intMessageID=4338"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The public is now able to enjoy the Pineland Trail (approximately 3,700 feet of walkway that is a combination of concrete trail and elevated boardwalk with overlook)",
+      "source": "https://webapps6.broward.org/newsrelease/View.aspx?intMessageID=4338"
+     },
+     {
+      "claim": "the Wetland Trail and Boardwalk (a trail combining concrete path and aluminum boardwalk that runs approximately 2,400 feet along and through the park\u2019s wetland mitigation project)",
+      "source": "https://webapps6.broward.org/newsrelease/View.aspx?intMessageID=4338"
+     },
+     {
+      "claim": "the Division\u2019s first interactive children\u2019s water-play splash pad",
+      "source": "https://webapps6.broward.org/newsrelease/View.aspx?intMessageID=4338"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ202QquC12YgR6r9XPspeqFQ",
+   "name": "Esm\u00e9 Miami Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.esmehotel.com/",
+     "source_name": "Esm\u00e9 Miami Beach",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Esm\u00e9 exists as a village within the city. Rooms, restaurants, rooftops, and secluded corners connect organically with Espa\u00f1ola Way, allowing guests to move freely between hotel and street.",
+      "The hotel also offers beach access with two beach chairs daily, making it easy to move from the village to the sand without interrupting the rhythm of the stay.",
+      "Esm\u00e9 offers a collection of amenities woven into the guest experience, including a rooftop pool and lounge deck exclusive to hotel guests during the day, a 24-hour gym, complimentary high-speed Wi-Fi, room service, valet parking, transportation services, bikes, beach access with two daily beach chairs, and a 24-hour front desk and concierge team."
+     ]
+    },
+    {
+     "source": "https://www.esmehotel.com/amenities",
+     "source_name": "Esm\u00e9 Miami Beach",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Set above the village, the pool moves at its own pace.",
+      "Bikes are available to take you through Miami Beach at street level"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A village within the city on historic Espa\u00f1ola Way",
+    "why_here": "Esm\u00e9 is designed as a village within the city on historic Espa\u00f1ola Way, where rooms, restaurants, rooftops and secluded corners connect organically with the street, and beach access with two beach chairs daily links the village to the sand.",
+    "know_before": "Amenities include a rooftop pool and lounge deck exclusive to hotel guests during the day, a 24-hour gym, bikes and beach access with two daily beach chairs.",
+    "local_tip": "Take the hotel bikes to move through Miami Beach at street level beyond Espa\u00f1ola Way.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.esmehotel.com/"
+     ],
+     "why_here": [
+      "https://www.esmehotel.com/"
+     ],
+     "know_before": [
+      "https://www.esmehotel.com/"
+     ],
+     "local_tip": [
+      "https://www.esmehotel.com/amenities"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Esm\u00e9 exists as a village within the city. Rooms, restaurants, rooftops, and secluded corners connect organically with Espa\u00f1ola Way, allowing guests to move freely between hotel and street.",
+      "source": "https://www.esmehotel.com/"
+     },
+     {
+      "claim": "The hotel also offers beach access with two beach chairs daily, making it easy to move from the village to the sand without interrupting the rhythm of the stay.",
+      "source": "https://www.esmehotel.com/"
+     },
+     {
+      "claim": "Esm\u00e9 offers a collection of amenities woven into the guest experience, including a rooftop pool and lounge deck exclusive to hotel guests during the day, a 24-hour gym, complimentary high-speed Wi-Fi, room service, valet parking, transportation services, bikes, beach access with two daily beach chairs, and a 24-hour front desk and concierge team.",
+      "source": "https://www.esmehotel.com/"
+     },
+     {
+      "claim": "Set above the village, the pool moves at its own pace.",
+      "source": "https://www.esmehotel.com/amenities"
+     },
+     {
+      "claim": "Bikes are available to take you through Miami Beach at street level",
+      "source": "https://www.esmehotel.com/amenities"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2UkCqd0_w4gRDra_JVdWrsc",
+   "name": "Sunnyside Cafe",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ2UkCqd0_w4gRDra_JVdWrsc",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "FAILED VERIFICATION",
+      "unsourced-entity:why_here:European",
+      "unsourced-entity:why_here:American"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-24T22:55:35.64387+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-24T22:55:35.64387+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://sunnysidesrq.com/",
+     "source_name": "Sunnyside Caf\u00e9 official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Owners Eva Katz and Chef Tamas Benkovics welcome you to Sunnyside Caf\u00e9!",
+      "Greek Lamb Burger with homemade yogurt dressing on the side",
+      "We recommend making a reservation ahead of time."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chef-led cafe known for its Greek Lamb Burger",
+    "why_here": "Owners Eva Katz and Chef Tamas Benkovics welcome guests to Sunnyside Caf\u00e9 in Sarasota. The menu spotlight includes a Greek Lamb Burger with homemade yogurt dressing on the side, giving this chef-led cafe a clear signature to order.",
+    "know_before": "The cafe recommends making a reservation ahead of time to ensure a table.",
+    "local_tip": "Book ahead \u2014 the cafe recommends a reservation to ensure a great table.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunnysidesrq.com/"
+     ],
+     "why_here": [
+      "https://sunnysidesrq.com/"
+     ],
+     "know_before": [
+      "https://sunnysidesrq.com/"
+     ],
+     "local_tip": [
+      "https://sunnysidesrq.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Owners Eva Katz and Chef Tamas Benkovics welcome you to Sunnyside Caf\u00e9!",
+      "source": "https://sunnysidesrq.com/"
+     },
+     {
+      "claim": "Greek Lamb Burger with homemade yogurt dressing on the side",
+      "source": "https://sunnysidesrq.com/"
+     },
+     {
+      "claim": "We recommend making a reservation ahead of time.",
+      "source": "https://sunnysidesrq.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd0LZoaRUw4gRZOABpnN7FdM",
+   "name": "Sharks Fish House Restaurant",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sharksfishhousenp.org/about",
+     "source_name": "Sharks Fish House official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Sharks Fish House is an award winning local, family owned restaurant that has been serving the community for 23 years.",
+      "We take pride in offering the freshest seafood and a unique dining experience that keeps our customers coming back for more.",
+      "Our team is dedicated to providing exceptional service and creating a welcoming atmosphere for everyone who walks through our doors."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned seafood house serving the community for 23 years",
+    "why_here": "Sharks Fish House is an award-winning, family-owned restaurant that has been serving the community for 23 years. It takes pride in the freshest seafood and a unique dining experience, with a team focused on exceptional service and a welcoming atmosphere for everyone.",
+    "know_before": "Come for fresh seafood at a family-owned spot that has served the community for 23 years.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sharksfishhousenp.org/about"
+     ],
+     "why_here": [
+      "https://www.sharksfishhousenp.org/about"
+     ],
+     "know_before": [
+      "https://www.sharksfishhousenp.org/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sharks Fish House is an award winning local, family owned restaurant that has been serving the community for 23 years.",
+      "source": "https://www.sharksfishhousenp.org/about"
+     },
+     {
+      "claim": "We take pride in offering the freshest seafood and a unique dining experience that keeps our customers coming back for more.",
+      "source": "https://www.sharksfishhousenp.org/about"
+     },
+     {
+      "claim": "Our team is dedicated to providing exceptional service and creating a welcoming atmosphere for everyone who walks through our doors.",
+      "source": "https://www.sharksfishhousenp.org/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyXmxHj-B3YgRW-F-tBJN7Qg",
+   "name": "Orlando Helicopter Adventures",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "transportation_service",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJyXmxHj-B3YgRW-F-tBJN7Qg",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "PENDING SOURCE"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-11T03:55:31.710489+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-11T03:55:31.710489+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.orlandohelicopteradventures.com/",
+     "source_name": "Orlando Helicopter Adventures official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Experience unforgettable helicopter rides over Orlando's world-famous attractions.",
+      "Our helicopter tours, take you and your loved ones gliding above the Orlando skies to see Walt Disney World Theme Parks, Universal Studios, SeaWorld Orlando, Downtown Disney, World-Class Resorts, Wet n\u2019 Wild, Discovery Cove, and Aquatica.",
+      "Take a journey in one of our Robinson R44 or R66 helicopters and experience the excitement for yourself.",
+      "The best helicopter ride in Orlando is our Disney & SeaWorld Combo Tour, offering incredible aerial views of Walt Disney World, EPCOT, Hollywood Studios, and SeaWorld all in one flight."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Helicopter rides over Orlando's world-famous attractions",
+    "why_here": "Experience unforgettable helicopter rides over Orlando's world-famous attractions, gliding above Walt Disney World, Universal Studios, SeaWorld Orlando, Discovery Cove and Aquatica. Flights use Robinson R44 or R66 helicopters, giving every rider an aerial view of the theme-park corridor.",
+    "know_before": "Flights use Robinson R44 or R66 helicopters and glide above Walt Disney World, SeaWorld Orlando and Discovery Cove.",
+    "local_tip": "Pick the Disney and SeaWorld combo route for the broadest park views in one flight.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.orlandohelicopteradventures.com/"
+     ],
+     "why_here": [
+      "https://www.orlandohelicopteradventures.com/"
+     ],
+     "know_before": [
+      "https://www.orlandohelicopteradventures.com/"
+     ],
+     "local_tip": [
+      "https://www.orlandohelicopteradventures.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Experience unforgettable helicopter rides over Orlando's world-famous attractions.",
+      "source": "https://www.orlandohelicopteradventures.com/"
+     },
+     {
+      "claim": "Our helicopter tours, take you and your loved ones gliding above the Orlando skies to see Walt Disney World Theme Parks, Universal Studios, SeaWorld Orlando, Downtown Disney, World-Class Resorts, Wet n\u2019 Wild, Discovery Cove, and Aquatica.",
+      "source": "https://www.orlandohelicopteradventures.com/"
+     },
+     {
+      "claim": "Take a journey in one of our Robinson R44 or R66 helicopters and experience the excitement for yourself.",
+      "source": "https://www.orlandohelicopteradventures.com/"
+     },
+     {
+      "claim": "The best helicopter ride in Orlando is our Disney & SeaWorld Combo Tour, offering incredible aerial views of Walt Disney World, EPCOT, Hollywood Studios, and SeaWorld all in one flight.",
+      "source": "https://www.orlandohelicopteradventures.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKYka48u32YgRf_i5mqV5VaU",
+   "name": "The Ritz-Carlton Coconut Grove, Miami",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/",
+     "source_name": "The Ritz-Carlton Coconut Grove, Miami official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "The Ritz-Carlton Coconut Grove, Miami, brings to life the independent and artistic spirit of Miami\u2019s original neighborhood through genuine hospitality with a bohemian flair.",
+      "guests can experience 115 guest rooms and suites, each with a private balcony and floor-to-ceiling windows.",
+      "From sea to table\u2014begin with a sail on Biscayne Bay and conclude with a chef-curated dining experience at Isabelle\u2019s Coconut Grove, featuring your own catch.",
+      "Named after Coconut Grove\u2019s Ralph Middleton Munroe, The Commodore is a classic cocktail bar with live music and craft cocktails that tell a story."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boutique hideaway in Miami's original neighborhood",
+    "why_here": "This Coconut Grove hotel brings to life the independent, artistic spirit of Miami's original neighborhood with a bohemian flair. Its 115 rooms and suites each have a private balcony and floor-to-ceiling windows, and a signature experience sails Biscayne Bay before a chef-curated dinner featuring your own catch.",
+    "know_before": "Signature experiences include a Biscayne Bay sail ending with a chef-curated dinner at Isabelle's Coconut Grove.",
+    "local_tip": "Try The Commodore for live music and craft cocktails that tell a story.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/"
+     ],
+     "why_here": [
+      "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/"
+     ],
+     "know_before": [
+      "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/"
+     ],
+     "local_tip": [
+      "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Ritz-Carlton Coconut Grove, Miami, brings to life the independent and artistic spirit of Miami\u2019s original neighborhood through genuine hospitality with a bohemian flair.",
+      "source": "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/"
+     },
+     {
+      "claim": "guests can experience 115 guest rooms and suites, each with a private balcony and floor-to-ceiling windows.",
+      "source": "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/"
+     },
+     {
+      "claim": "From sea to table\u2014begin with a sail on Biscayne Bay and conclude with a chef-curated dining experience at Isabelle\u2019s Coconut Grove, featuring your own catch.",
+      "source": "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/"
+     },
+     {
+      "claim": "Named after Coconut Grove\u2019s Ralph Middleton Munroe, The Commodore is a classic cocktail bar with live music and craft cocktails that tell a story.",
+      "source": "https://www.ritzcarlton.com/en/hotels/miarz-the-ritz-carlton-coconut-grove-miami/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1dWvvDwc24gR9yIR-YKLBFM",
+   "name": "The Ritz-Carlton Naples, Tibur\u00f3n",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ritzcarlton.com/en/hotels/rswgr-the-ritz-carlton-naples-tiburon/overview/",
+     "source_name": "The Ritz-Carlton Naples, Tibur\u00f3n official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "With two Greg Norman-designed golf courses, the Mouratoglou Tennis Center, miles of walking paths and biking trails, and The Reservoir waterpark, The Ritz-Carlton Naples, Tibur\u00f3n invites guests to move through the day at their own leisure.",
+      "Championship golf and Mouratoglou tennis meet family adventures at the waterpark or on bike rides around the bird-filled grounds.",
+      "Daily shuttle service connects The Ritz-Carlton Naples, Tibur\u00f3n and The Ritz-Carlton, Naples, creating an effortless link from our Florida golf resort to beaches on the Gulf."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Greg Norman golf, tennis and a waterpark in Naples",
+    "why_here": "In Naples, this resort pairs two Greg Norman-designed golf courses and the Mouratoglou Tennis Center with miles of walking and biking trails. Families get The Reservoir waterpark and bike rides around bird-filled grounds, balancing championship sport with relaxed play.",
+    "know_before": "A daily shuttle links the resort to The Ritz-Carlton, Naples and Gulf beaches.",
+    "local_tip": "Use the daily shuttle to reach Gulf beaches from the golf resort.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ritzcarlton.com/en/hotels/rswgr-the-ritz-carlton-naples-tiburon/overview/"
+     ],
+     "why_here": [
+      "https://www.ritzcarlton.com/en/hotels/rswgr-the-ritz-carlton-naples-tiburon/overview/"
+     ],
+     "know_before": [
+      "https://www.ritzcarlton.com/en/hotels/rswgr-the-ritz-carlton-naples-tiburon/overview/"
+     ],
+     "local_tip": [
+      "https://www.ritzcarlton.com/en/hotels/rswgr-the-ritz-carlton-naples-tiburon/overview/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "With two Greg Norman-designed golf courses, the Mouratoglou Tennis Center, miles of walking paths and biking trails, and The Reservoir waterpark, The Ritz-Carlton Naples, Tibur\u00f3n invites guests to move through the day at their own leisure.",
+      "source": "https://www.ritzcarlton.com/en/hotels/rswgr-the-ritz-carlton-naples-tiburon/overview/"
+     },
+     {
+      "claim": "Championship golf and Mouratoglou tennis meet family adventures at the waterpark or on bike rides around the bird-filled grounds.",
+      "source": "https://www.ritzcarlton.com/en/hotels/rswgr-the-ritz-carlton-naples-tiburon/overview/"
+     },
+     {
+      "claim": "Daily shuttle service connects The Ritz-Carlton Naples, Tibur\u00f3n and The Ritz-Carlton, Naples, creating an effortless link from our Florida golf resort to beaches on the Gulf.",
+      "source": "https://www.ritzcarlton.com/en/hotels/rswgr-the-ritz-carlton-naples-tiburon/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrXgxk4rmwogRV5UyKfoFEWY",
+   "name": "Kahuna's Bar and Grill",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kahunasbarandgrill.com/",
+     "source_name": "Kahunas Bar and Grill official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Welcome to Kahunas Bar and Grill, your favorite spot on Gandy Blvd since 1994!",
+      "making us go-to destination for the best wings, fajitas, and grouper sandwiches in St. Petersburg.",
+      "Join us for live music, trivia nights, open mic jams, karaoke, and DJ nights, plus enjoy our three pool tables and dart boards for endless fun!",
+      "Kitchen open 11am-11pm daily Friday & Saturdays 11am-1am"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gandy Blvd favorite since 1994 for wings and grouper",
+    "why_here": "A St. Petersburg favorite on Gandy Boulevard since 1994, Kahuna's is billed as the go-to for wings, fajitas and grouper sandwiches. Nights bring live music, trivia, open mic jams, karaoke and DJ sets, plus three pool tables and dart boards.",
+    "know_before": "Kitchen stays open late, until 1am on Friday and Saturday nights.",
+    "local_tip": "Come for wings, fajitas or a grouper sandwich, then stay for karaoke or trivia.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kahunasbarandgrill.com/"
+     ],
+     "why_here": [
+      "https://www.kahunasbarandgrill.com/"
+     ],
+     "know_before": [
+      "https://www.kahunasbarandgrill.com/"
+     ],
+     "local_tip": [
+      "https://www.kahunasbarandgrill.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Welcome to Kahunas Bar and Grill, your favorite spot on Gandy Blvd since 1994!",
+      "source": "https://www.kahunasbarandgrill.com/"
+     },
+     {
+      "claim": "making us go-to destination for the best wings, fajitas, and grouper sandwiches in St. Petersburg.",
+      "source": "https://www.kahunasbarandgrill.com/"
+     },
+     {
+      "claim": "Join us for live music, trivia nights, open mic jams, karaoke, and DJ nights, plus enjoy our three pool tables and dart boards for endless fun!",
+      "source": "https://www.kahunasbarandgrill.com/"
+     },
+     {
+      "claim": "Kitchen open 11am-11pm daily Friday & Saturdays 11am-1am",
+      "source": "https://www.kahunasbarandgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHzpHPlL6wogRp52cviLwjZg",
+   "name": "Niagara Tap",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://niagaratap.com/",
+     "source_name": "Niagara Tap official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Niagara Tap is a Fun, Neighborhood Restaurant and Bar in Largo, Florida serving the greater Largo-Seminole area",
+      "Our menu covers everything from Classic Bar Fare, featuring our award-winning Chicken Wings, to 8 oz. mouthwatering Black Angus Burgers, to Boar's Head Sandwiches, also hand tossed Pizzas, as well as homemade Daily Specials.",
+      "Our kitchen is open until 2 am, 7 days a week, for dine in or carry out.",
+      "We feature Live Music and Karaoke daily, with an amazing sound system.",
+      "We have a beautiful deck, with covered or uncovered seating, many TVs, plus fans and misters to keep our guests comfortable year-round."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Award-winning wings and live music in Largo",
+    "why_here": "Niagara Tap is a neighborhood restaurant and bar in Largo serving the greater Largo-Seminole area near St. Pete. It features award-winning chicken wings, Black Angus burgers and hand-tossed pizzas, with live music and karaoke daily and a kitchen open until 2am.",
+    "know_before": "Kitchen is open until 2am seven days a week for dine-in or carry out.",
+    "local_tip": "Sit on the deck with covered seating, fans and misters to stay comfortable year-round.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://niagaratap.com/"
+     ],
+     "why_here": [
+      "https://niagaratap.com/"
+     ],
+     "know_before": [
+      "https://niagaratap.com/"
+     ],
+     "local_tip": [
+      "https://niagaratap.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Niagara Tap is a Fun, Neighborhood Restaurant and Bar in Largo, Florida serving the greater Largo-Seminole area",
+      "source": "https://niagaratap.com/"
+     },
+     {
+      "claim": "Our menu covers everything from Classic Bar Fare, featuring our award-winning Chicken Wings, to 8 oz. mouthwatering Black Angus Burgers, to Boar's Head Sandwiches, also hand tossed Pizzas, as well as homemade Daily Specials.",
+      "source": "https://niagaratap.com/"
+     },
+     {
+      "claim": "Our kitchen is open until 2 am, 7 days a week, for dine in or carry out.",
+      "source": "https://niagaratap.com/"
+     },
+     {
+      "claim": "We feature Live Music and Karaoke daily, with an amazing sound system.",
+      "source": "https://niagaratap.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_7KuLDEXw4gRZQjfVJIXiNc",
+   "name": "Hong BBQ & Hot Pot Bradenton",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ_7KuLDEXw4gRZQjfVJIXiNc",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "FAILED VERIFICATION",
+      "unsourced-number:know_before:90"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-25T00:55:35.512913+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-25T00:55:35.512913+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://honghotpot.com/about-us/",
+     "source_name": "Hong BBQ & Hot Pot About Us",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Welcome to our endless Chinese Hot Pot Korean Style BBQ experience.",
+      "All you can eat Korean BBQ, choose from our vast selection of beef, pork, chicken, seafood, and various vegetables",
+      "Our Korean BBQ experience begins by firing up the grill at your table."
+     ]
+    },
+    {
+     "source": "https://honghotpot.com/",
+     "source_name": "Hong BBQ & Hot Pot Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Bradenton 445 Cortez Rd. w, Bradenton, FL 34207"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Endless hot pot meets table-grill Korean BBQ",
+    "why_here": "Hong pairs endless Chinese hot pot with Korean-style barbecue in one sitting. You grill at your table and choose from beef, pork, chicken, seafood and vegetables, or simmer proteins, noodles and tofu in bubbling broth.",
+    "know_before": "Bradenton spot pairs hot pot with tabletop Korean BBQ; come ready to cook at the table with a group.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://honghotpot.com/",
+      "https://honghotpot.com/about-us/"
+     ],
+     "why_here": [
+      "https://honghotpot.com/",
+      "https://honghotpot.com/about-us/"
+     ],
+     "know_before": [
+      "https://honghotpot.com/",
+      "https://honghotpot.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Welcome to our endless Chinese Hot Pot Korean Style BBQ experience.",
+      "source": "https://honghotpot.com/about-us/"
+     },
+     {
+      "claim": "All you can eat Korean BBQ, choose from our vast selection of beef, pork, chicken, seafood, and various vegetables",
+      "source": "https://honghotpot.com/about-us/"
+     },
+     {
+      "claim": "Our Korean BBQ experience begins by firing up the grill at your table.",
+      "source": "https://honghotpot.com/about-us/"
+     },
+     {
+      "claim": "Bradenton 445 Cortez Rd. w, Bradenton, FL 34207",
+      "source": "https://honghotpot.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAR8q54BBw4gReIjAP3JR06A",
+   "name": "Aji Ceviche Bar Sarasota \u2013 Peruvian Restaurant",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJAR8q54BBw4gReIjAP3JR06A",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "empty-published-row"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-24T23:55:35.233717+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-24T23:55:35.233717+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://ajicevichebarorlando.com/sarasota/",
+     "source_name": "AJI Ceviche Bar Sarasota",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "4141 S Tamiami Trail suite 16, Sarasota, FL 34231, United States",
+      "Exclusive Recipe Ceviche Frito",
+      "ENJOY DELICIOUS DISHES TIRADITO TRICOLOR"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian ceviches and tiradito in Sarasota",
+    "why_here": "Aj\u00ed Ceviche Bar Sarasota serves Peruvian ceviches alongside dishes like tiradito tricolor and an exclusive-recipe ceviche frito. The menu spans ceviches, causas and saltados, giving Sarasota a dedicated Peruvian seafood stop on Tamiami Trail.",
+    "know_before": "Sarasota location serves ceviches, tiradito and Peruvian classics; check the online menu before ordering pickup.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ajicevichebarorlando.com/sarasota/"
+     ],
+     "why_here": [
+      "https://ajicevichebarorlando.com/sarasota/"
+     ],
+     "know_before": [
+      "https://ajicevichebarorlando.com/sarasota/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "4141 S Tamiami Trail suite 16, Sarasota, FL 34231, United States",
+      "source": "https://ajicevichebarorlando.com/sarasota/"
+     },
+     {
+      "claim": "Exclusive Recipe Ceviche Frito",
+      "source": "https://ajicevichebarorlando.com/sarasota/"
+     },
+     {
+      "claim": "ENJOY DELICIOUS DISHES TIRADITO TRICOLOR",
+      "source": "https://ajicevichebarorlando.com/sarasota/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3djVGtXh2IgRQMGp-7bo5oE",
+   "name": "Phat Boy Sushi, Kitchen & Bar - Delray",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://phatboysushi.com/",
+     "source_name": "Phat Boy Sushi Kitchen & Bar Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Delray Beach 1720 S Federal Hwy, Delray Beach, FL 33483"
+     ]
+    },
+    {
+     "source": "https://phatboysushi.com/menu/",
+     "source_name": "Phat Boy Sushi Menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Flaming Lobster Roll 26 Tempura Lobster, Cucumber, Avocado and Cilantro Topped with Seared Tuna and Spicy House Sauce",
+      "The Bling Bling Roll* 31 Whole Lobster Tail Tempura, Cucumber and Avocado with Red Tobiko Topped with Spicy Mayo and Eel Sauce",
+      "Hamachi Jalape\u00f1o* 18 Hamachi Topped with Jalape\u00f1os, Ponzu, Scallion and Black Tobiko"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lobster rolls and hamachi jalape\u00f1o in Delray",
+    "why_here": "Phat Boy Sushi in Delray Beach goes beyond basic rolls with a Flaming Lobster Roll topped with seared tuna and a Bling Bling Roll built on whole lobster tail tempura. Hamachi jalape\u00f1o with ponzu adds a bright, spicy raw-fish option.",
+    "know_before": "Delray menu runs from basic rolls to whole-lobster specials; expect raw fish \u2014 check current menu before you go.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://phatboysushi.com/",
+      "https://phatboysushi.com/menu/"
+     ],
+     "why_here": [
+      "https://phatboysushi.com/",
+      "https://phatboysushi.com/menu/"
+     ],
+     "know_before": [
+      "https://phatboysushi.com/",
+      "https://phatboysushi.com/menu/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Delray Beach 1720 S Federal Hwy, Delray Beach, FL 33483",
+      "source": "https://phatboysushi.com/"
+     },
+     {
+      "claim": "Flaming Lobster Roll 26 Tempura Lobster, Cucumber, Avocado and Cilantro Topped with Seared Tuna and Spicy House Sauce",
+      "source": "https://phatboysushi.com/menu/"
+     },
+     {
+      "claim": "The Bling Bling Roll* 31 Whole Lobster Tail Tempura, Cucumber and Avocado with Red Tobiko Topped with Spicy Mayo and Eel Sauce",
+      "source": "https://phatboysushi.com/menu/"
+     },
+     {
+      "claim": "Hamachi Jalape\u00f1o* 18 Hamachi Topped with Jalape\u00f1os, Ponzu, Scallion and Black Tobiko",
+      "source": "https://phatboysushi.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGXv4HwmB3YgRBsR6adNI1u4",
+   "name": "Hungry Crab Juicy Seafood and Bar Lake Buena Vista All You Can Eat",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hungrycrabseafood.com/",
+     "source_name": "Hungry Crab Juicy Seafood & Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Lake Buena Vista Location (Now Open) 12204 S Apopka Vineland Rd, Orlando, FL 32836",
+      "Hungry Crab Juicy Seafood offers a diverse range of juicy seafood, including King Crab,shrimp, blue crab, snow crab, crawfish, clams,oysters,mussels, Dungeness crab, and lobster!",
+      "All cooked with our unique blend of spices!"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "King crab to crawfish in signature spices",
+    "why_here": "Hungry Crab's Lake Buena Vista location serves a wide boil lineup \u2014 King Crab, blue crab, snow crab, crawfish, clams, oysters, mussels, Dungeness crab and lobster \u2014 all cooked in the house blend of spices near the Orlando parks corridor.",
+    "know_before": "Lake Buena Vista boil spot lists nine seafoods in a house spice blend; confirm today's selection before ordering.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hungrycrabseafood.com/"
+     ],
+     "why_here": [
+      "https://www.hungrycrabseafood.com/"
+     ],
+     "know_before": [
+      "https://www.hungrycrabseafood.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lake Buena Vista Location (Now Open) 12204 S Apopka Vineland Rd, Orlando, FL 32836",
+      "source": "https://www.hungrycrabseafood.com/"
+     },
+     {
+      "claim": "Hungry Crab Juicy Seafood offers a diverse range of juicy seafood, including King Crab,shrimp, blue crab, snow crab, crawfish, clams,oysters,mussels, Dungeness crab, and lobster!",
+      "source": "https://www.hungrycrabseafood.com/"
+     },
+     {
+      "claim": "All cooked with our unique blend of spices!",
+      "source": "https://www.hungrycrabseafood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi98-LBDiwogRM-NnaCTJ9rg",
+   "name": "Dell Holmes Park",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJi98-LBDiwogRM-NnaCTJ9rg",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "empty-published-row"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-11T04:55:31.919894+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-11T04:55:31.919894+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.stpeteparksrec.org/business_detail_T11_R98.php",
+     "source_name": "St. Petersburg Parks & Recreation",
+     "source_class": "government",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "With accessible, lighted recreation trails, a fishing pier, shelters with grills, golf driving range and putting green, playgrounds, kayak and canoe launch, a splash pad water playground, climbing boulders and exercise zones, Dell Holmes Park, located beside Lake Maggiore, is a great place for all ages.",
+      "Splash Pad opens for the season on April 1 through September 30.",
+      "Splash Pad Open April 1 - September 30 from 9 AM - 8 PM",
+      "Shelters are also available for rent, making it a perfect spot to host an event.",
+      "Opens 30 minutes before sunrise and 30 minutes after sunset"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beside Lake Maggiore, trails, pier and splash pad",
+    "why_here": "Beside Lake Maggiore, this park packs accessible, lighted recreation trails, a fishing pier and a kayak and canoe launch into one stop. Families also get playgrounds, climbing boulders, a splash pad water playground and a golf driving range and putting green.",
+    "know_before": "Splash pad runs April 1 through September 30, 9 AM to 8 PM; park opens 30 minutes before sunrise and closes 30 minutes after sunset.",
+    "local_tip": "Shelters are available for rent if you are planning a group event by the lake.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stpeteparksrec.org/business_detail_T11_R98.php"
+     ],
+     "why_here": [
+      "https://www.stpeteparksrec.org/business_detail_T11_R98.php"
+     ],
+     "know_before": [
+      "https://www.stpeteparksrec.org/business_detail_T11_R98.php"
+     ],
+     "local_tip": [
+      "https://www.stpeteparksrec.org/business_detail_T11_R98.php"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "With accessible, lighted recreation trails, a fishing pier, shelters with grills, golf driving range and putting green, playgrounds, kayak and canoe launch, a splash pad water playground, climbing boulders and exercise zones, Dell Holmes Park, located beside Lake Maggiore, is a great place for all ages.",
+      "source": "https://www.stpeteparksrec.org/business_detail_T11_R98.php"
+     },
+     {
+      "claim": "Splash Pad opens for the season on April 1 through September 30.",
+      "source": "https://www.stpeteparksrec.org/business_detail_T11_R98.php"
+     },
+     {
+      "claim": "Shelters are also available for rent, making it a perfect spot to host an event.",
+      "source": "https://www.stpeteparksrec.org/business_detail_T11_R98.php"
+     },
+     {
+      "claim": "Opens 30 minutes before sunrise and 30 minutes after sunset",
+      "source": "https://www.stpeteparksrec.org/business_detail_T11_R98.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCdp87Zd754gR6gvk4yp1M8s",
+   "name": "St. James Catholic Cathedral",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "church",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJCdp87Zd754gR6gvk4yp1M8s",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "FAILED VERIFICATION",
+      "unsourced-entity:hook:Gothic",
+      "unsourced-entity:best_time:Mass"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-11T04:55:32.49413+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-11T04:55:32.49413+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://stjamesorlando.org/?p=1272",
+     "source_name": "Cathedral of St. James - About The Cathedral",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "there is only one bishop's seat in the Diocese of Orlando and it is at St. James.",
+      "Located in the nave and eastern transept of the cathedral, there are 20 stained glass windows depicting the 20 mysteries of the rosary.",
+      "Above the Altar, six murals were hand painted and depict important scenes in the life of Jesus and the apostles.",
+      "Tours are scheduled for groups by appointment.",
+      "An image of the Paschal Lamb is engraved onto the front of the altar which symbolizes Christ's passion, death and resurrection for the redemption of the world."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando's bishop's seat, with 20 rosary windows",
+    "why_here": "This is the only bishop's seat in the Diocese of Orlando, making St. James the diocese's cathedral church. Inside, look for 20 stained glass windows depicting the 20 mysteries of the rosary and six hand-painted murals above the altar showing scenes from the life of Jesus and the apostles.",
+    "know_before": "Group tours are scheduled by appointment; call the parish office ahead rather than expecting a walk-in tour.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://stjamesorlando.org/?p=1272"
+     ],
+     "why_here": [
+      "https://stjamesorlando.org/?p=1272"
+     ],
+     "know_before": [
+      "https://stjamesorlando.org/?p=1272"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "there is only one bishop's seat in the Diocese of Orlando and it is at St. James.",
+      "source": "https://stjamesorlando.org/?p=1272"
+     },
+     {
+      "claim": "Located in the nave and eastern transept of the cathedral, there are 20 stained glass windows depicting the 20 mysteries of the rosary.",
+      "source": "https://stjamesorlando.org/?p=1272"
+     },
+     {
+      "claim": "Above the Altar, six murals were hand painted and depict important scenes in the life of Jesus and the apostles.",
+      "source": "https://stjamesorlando.org/?p=1272"
+     },
+     {
+      "claim": "Tours are scheduled for groups by appointment.",
+      "source": "https://stjamesorlando.org/?p=1272"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA9o0oHEb54gRsGNrR0HRjfI",
+   "name": "Bake Chop",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bakechopco.com/about",
+     "source_name": "BakeChop Co. - About",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "A family of four culinary concepts in DeLand, Florida, bonded by a love for scratch-made food, artisanal sweets, and deep local roots.",
+      "The name BakeChop is a combination of culinary pursuits: baking and chopping.",
+      "All BakeChop Co. locations highlight fresh crafted eats and homemade bakery goods.",
+      "For the last 10 years, BakeChop has offered high quality, handcrafted food and baked goods winning much local recognition and awards such as several Best of the West over the years."
+     ]
+    },
+    {
+     "source": "https://www.bakechopco.com/",
+     "source_name": "BakeChop Co. - Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "A scratch kitchen with a whole lot of love, serving breakfast, lunch, and dinner."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch kitchen for breakfast, lunch and dinner",
+    "why_here": "BakeChop is a scratch kitchen serving breakfast, lunch and dinner in DeLand, built around scratch-made food and homemade bakery goods. Its name combines its two pursuits, baking and chopping, and after 10 years it has earned local recognition including several Best of the West awards.",
+    "know_before": "It is one of four BakeChop Co. culinary concepts in DeLand, so confirm you are ordering from BakeChop itself, not a sister concept.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bakechopco.com/"
+     ],
+     "why_here": [
+      "https://www.bakechopco.com/about",
+      "https://www.bakechopco.com/"
+     ],
+     "know_before": [
+      "https://www.bakechopco.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A family of four culinary concepts in DeLand, Florida, bonded by a love for scratch-made food, artisanal sweets, and deep local roots.",
+      "source": "https://www.bakechopco.com/about"
+     },
+     {
+      "claim": "The name BakeChop is a combination of culinary pursuits: baking and chopping.",
+      "source": "https://www.bakechopco.com/about"
+     },
+     {
+      "claim": "For the last 10 years, BakeChop has offered high quality, handcrafted food and baked goods winning much local recognition and awards such as several Best of the West over the years.",
+      "source": "https://www.bakechopco.com/about"
+     },
+     {
+      "claim": "A scratch kitchen with a whole lot of love, serving breakfast, lunch, and dinner.",
+      "source": "https://www.bakechopco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr3cKEJgRw4gRT2ZKsFwbiyk",
+   "name": "Smoqehouse",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "sandwich_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://smoqehouse.com/?page_id=27",
+     "source_name": "SMOQEHOUSE - Our Story",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "SMOQEHOUSE is a fast casual eatery featuring hand crafted sandwiches, salads, soups, fries and whatever else our creatives have up their sleeves that day.",
+      "we are a from scratch kitchen and we get our influences from other countries and how they use fire & smoke to season food.",
+      "No, we are not traditional bbq!",
+      "We started with our first location in our hometown of Faribault, MN in 2016",
+      "Our Anna Maria Island, fl- location opened just a mere 5 months later.",
+      "We are a husband and wife team along with the help of our 3 kiddos."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "From-scratch, fire-and-smoke craft sandwiches",
+    "why_here": "Smoqehouse is a fast casual, from-scratch kitchen built around hand crafted sandwiches, salads, soups and fries. Instead of traditional barbecue, it draws on how other countries use fire and smoke to season food, and the family-run concept that began in Faribault, Minnesota in 2016 expanded to Anna Maria Island.",
+    "know_before": "Do not expect traditional barbecue; the kitchen calls itself BBQ fusion and cooks from scratch, with daily creative specials.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://smoqehouse.com/?page_id=27"
+     ],
+     "why_here": [
+      "https://smoqehouse.com/?page_id=27"
+     ],
+     "know_before": [
+      "https://smoqehouse.com/?page_id=27"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "SMOQEHOUSE is a fast casual eatery featuring hand crafted sandwiches, salads, soups, fries and whatever else our creatives have up their sleeves that day.",
+      "source": "https://smoqehouse.com/?page_id=27"
+     },
+     {
+      "claim": "we are a from scratch kitchen and we get our influences from other countries and how they use fire & smoke to season food.",
+      "source": "https://smoqehouse.com/?page_id=27"
+     },
+     {
+      "claim": "No, we are not traditional bbq!",
+      "source": "https://smoqehouse.com/?page_id=27"
+     },
+     {
+      "claim": "We started with our first location in our hometown of Faribault, MN in 2016",
+      "source": "https://smoqehouse.com/?page_id=27"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvzTv7ziX5ogRkS625xga-yk",
+   "name": "Princess Place Preserve",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/Princess-Place-Preserve",
+     "source_name": "Flagler County - Princess Place Preserve",
+     "source_class": "government",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Princess Place Preserve, with its rich history and 1500 pristine acres, attracts nature enthusiasts from near and far.",
+      "This beautiful 1,500-acre preserve is situated in the northern part of Flagler County.",
+      "The original lodge, built by Henry Cutting, stills stands as Flagler County's oldest intact structure.",
+      "Visitors can take in its splendor while on one of the many hiking trails, fishing the salt marshes along the Matanzas River and Pellicer Creek, or camping out under the stars."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1,500 acres and Flagler's oldest intact lodge",
+    "why_here": "This 1,500-acre preserve in northern Flagler County pairs rich history with salt-marsh scenery on the Matanzas River and Pellicer Creek. Its original lodge, built by Henry Cutting, still stands as Flagler County's oldest intact structure, while hiking trails, fishing and camping fill the grounds.",
+    "know_before": "Plan for outdoor time on hiking trails and salt marshes; camping under the stars is among the preserve's stated activities.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/Princess-Place-Preserve"
+     ],
+     "why_here": [
+      "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/Princess-Place-Preserve"
+     ],
+     "know_before": [
+      "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/Princess-Place-Preserve"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Princess Place Preserve, with its rich history and 1500 pristine acres, attracts nature enthusiasts from near and far.",
+      "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/Princess-Place-Preserve"
+     },
+     {
+      "claim": "This beautiful 1,500-acre preserve is situated in the northern part of Flagler County.",
+      "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/Princess-Place-Preserve"
+     },
+     {
+      "claim": "The original lodge, built by Henry Cutting, stills stands as Flagler County's oldest intact structure.",
+      "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/Princess-Place-Preserve"
+     },
+     {
+      "claim": "Visitors can take in its splendor while on one of the many hiking trails, fishing the salt marshes along the Matanzas River and Pellicer Creek, or camping out under the stars.",
+      "source": "https://www.flaglercounty.gov/Things-to-Do/Find-a-Park/Princess-Place-Preserve"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0f9k2au22YgRTu6RXB5wgaA",
+   "name": "Bunbury Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bunburymiami.com/",
+     "source_name": "Bunbury Miami official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "At Bunbury, you're not just dining out; you're coming home.",
+      "As an Argentine restaurant and wine bar celebrated for being on Yelp's top 100 list for three consecutive years, we blend the rich culinary traditions of Argentina with the warmth of grandma's kitchen",
+      "Inspired by the creative spirit of Oscar Wilde, Bunbury is more than a meal",
+      "Celebrating 10 years in Miami, we offer an exceptional fusion of top-tier gastronomy and a unique, eclectic ambiance",
+      "Street parking available or third party valet services located at Square Station Apartments 1420 NE Miami Pl, at a rate of $10 for the first 4 hours upon validation stamp."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Argentine wine bar inspired by Oscar Wilde",
+    "why_here": "Bunbury blends the rich culinary traditions of Argentina with the warmth of grandma's kitchen as an Argentine restaurant and wine bar in Miami. Inspired by the creative spirit of Oscar Wilde and celebrating 10 years in Miami, it pairs top-tier gastronomy with a unique, eclectic ambiance.",
+    "know_before": "Street parking is available, or use third-party valet at Square Station Apartments with a validation stamp.",
+    "local_tip": "Get a validation stamp for $10 valet parking for the first 4 hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bunburymiami.com/"
+     ],
+     "why_here": [
+      "https://bunburymiami.com/"
+     ],
+     "know_before": [
+      "https://bunburymiami.com/"
+     ],
+     "local_tip": [
+      "https://bunburymiami.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "As an Argentine restaurant and wine bar celebrated for being on Yelp's top 100 list for three consecutive years, we blend the rich culinary traditions of Argentina with the warmth of grandma's kitchen",
+      "source": "https://bunburymiami.com/"
+     },
+     {
+      "claim": "Inspired by the creative spirit of Oscar Wilde, Bunbury is more than a meal",
+      "source": "https://bunburymiami.com/"
+     },
+     {
+      "claim": "Celebrating 10 years in Miami, we offer an exceptional fusion of top-tier gastronomy and a unique, eclectic ambiance",
+      "source": "https://bunburymiami.com/"
+     },
+     {
+      "claim": "Street parking available or third party valet services located at Square Station Apartments 1420 NE Miami Pl, at a rate of $10 for the first 4 hours upon validation stamp.",
+      "source": "https://bunburymiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqWIQ-F-q2YgRfa7h2StaZAA",
+   "name": "3 Sons Brewing Co",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "brewery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.3sonsbrewingco.com/about",
+     "source_name": "3 Sons Brewing Co official About page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "It all started in 2011 when Corey began brewing in his kitchen, fueled by a desire to create something special.",
+      "We're a family-owned business built on a shared love for pushing boundaries and crafting unique, flavorful beers.",
+      "Not afraid to experiment, we believe in pushing the boundaries of traditional brewing, resulting in beers that are anything but ordinary.",
+      "Kitchen Closes 1 Hour Before Closing Every Night"
+     ]
+    },
+    {
+     "source": "https://www.3sonsbrewingco.com/beer",
+     "source_name": "3 Sons Brewing Co official Our Beers page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "DOPEALICIOUS Our house Hazy New England-style IPA Double dry-hopped with Citra and Mosaic hops. 7.2% ABV",
+      "OCEAN PARK PILS The Pride of Dania Beach. Our core Pilsner dry-hopped with Saaz and Perle hops. A crushable \"Crispy Boi\" named after our hometown pier. 5% ABV"
+     ]
+    },
+    {
+     "source": "https://www.3sonsbrewingco.com/",
+     "source_name": "3 Sons Brewing Co official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "standout dishes like Dashi butter wings featured on Guy Fieri's Diners, Drive-Ins and Dives"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned brewery born in a kitchen in 2011",
+    "why_here": "Founded as a family-owned business after Corey began brewing in his kitchen in 2011, 3 Sons pushes the boundaries of traditional brewing in Dania Beach. Order the house Dopealicious hazy IPA or Ocean Park Pils, and try the Dashi butter wings featured on Diners, Drive-Ins and Dives.",
+    "know_before": "Kitchen closes 1 hour before closing every night, so order food before the final pours.",
+    "local_tip": "Try Ocean Park Pils, the core pilsner named after our hometown pier.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.3sonsbrewingco.com/about"
+     ],
+     "why_here": [
+      "https://www.3sonsbrewingco.com/about",
+      "https://www.3sonsbrewingco.com/beer",
+      "https://www.3sonsbrewingco.com/"
+     ],
+     "know_before": [
+      "https://www.3sonsbrewingco.com/about"
+     ],
+     "local_tip": [
+      "https://www.3sonsbrewingco.com/beer"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "It all started in 2011 when Corey began brewing in his kitchen, fueled by a desire to create something special.",
+      "source": "https://www.3sonsbrewingco.com/about"
+     },
+     {
+      "claim": "We're a family-owned business built on a shared love for pushing boundaries and crafting unique, flavorful beers.",
+      "source": "https://www.3sonsbrewingco.com/about"
+     },
+     {
+      "claim": "DOPEALICIOUS Our house Hazy New England-style IPA Double dry-hopped with Citra and Mosaic hops. 7.2% ABV",
+      "source": "https://www.3sonsbrewingco.com/beer"
+     },
+     {
+      "claim": "OCEAN PARK PILS The Pride of Dania Beach. Our core Pilsner dry-hopped with Saaz and Perle hops. A crushable \"Crispy Boi\" named after our hometown pier. 5% ABV",
+      "source": "https://www.3sonsbrewingco.com/beer"
+     },
+     {
+      "claim": "standout dishes like Dashi butter wings featured on Guy Fieri's Diners, Drive-Ins and Dives",
+      "source": "https://www.3sonsbrewingco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeTeAInn92IgRSeqHyTWs7cU",
+   "name": "Deep Oceanfront Restaurant and Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.deepoceanfront.com/",
+     "source_name": "Deep Oceanfront Restaurant and Bar official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-19",
+     "supports": [
+      "Experience the finest seafood and steak dining, as well as inventive cocktails, at Deep Restaurant and Bar located at Beachcomber Resort and Villas in Pompano Beach, FL.",
+      "Restaurant, Bars & Coffee Shop Open To The Public & Resort Guests",
+      "$5 Valet Parking During Our Hours of Operation With Validation",
+      "Happy Hour 3 - 6 PM Mon-Fri",
+      "POMPANO CONCH SALAD Cucumbers, peppers, onions, tomatoes, scotch bonnet, chips"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront seafood and steak at Beachcomber Resort",
+    "why_here": "Deep serves seafood and steak dining with inventive cocktails at Beachcomber Resort and Villas in Pompano Beach. The restaurant, bars and coffee shop are open to the public and resort guests, with dishes like Pompano conch salad on the menu.",
+    "know_before": "Valet parking is $5 during hours of operation with validation, so bring your ticket to validate.",
+    "local_tip": "Come for Happy Hour 3 - 6 PM Mon-Fri for drinks and apps.",
+    "best_time": "Happy Hour 3 - 6 PM Mon-Fri",
+    "citations": {
+     "hook": [
+      "https://www.deepoceanfront.com/"
+     ],
+     "why_here": [
+      "https://www.deepoceanfront.com/"
+     ],
+     "know_before": [
+      "https://www.deepoceanfront.com/"
+     ],
+     "local_tip": [
+      "https://www.deepoceanfront.com/"
+     ],
+     "best_time": [
+      "https://www.deepoceanfront.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Experience the finest seafood and steak dining, as well as inventive cocktails, at Deep Restaurant and Bar located at Beachcomber Resort and Villas in Pompano Beach, FL.",
+      "source": "https://www.deepoceanfront.com/"
+     },
+     {
+      "claim": "Restaurant, Bars & Coffee Shop Open To The Public & Resort Guests",
+      "source": "https://www.deepoceanfront.com/"
+     },
+     {
+      "claim": "$5 Valet Parking During Our Hours of Operation With Validation",
+      "source": "https://www.deepoceanfront.com/"
+     },
+     {
+      "claim": "Happy Hour 3 - 6 PM Mon-Fri",
+      "source": "https://www.deepoceanfront.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

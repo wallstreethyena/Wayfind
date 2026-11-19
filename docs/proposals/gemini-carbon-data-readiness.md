@@ -111,12 +111,12 @@ Between `2026-11-13T16:53Z` and `17:53Z`, coordinator evidence proved that `wf_v
 | :---: | :--- | :--- | :---: | :---: | :--- |
 | **2508** | `claude/planner-imessage-santa` | `743dafa3` | **False** (Post-firewall) | No | Safe to run / merge |
 | **2502** | `feat/partner-revenue-engine` | `a0347e29` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
-| **2499** | `ci/owner-approval-fingerprint` | `c6b95fc1` | **False** (Post-firewall) | No | Safe to run / merge |
+| **2499** | `ci/owner-approval-fingerprint` | `c6b95fc1` | **False** (Post-firewall) | No | **SUPERSEDED, closed (2026-11-18 update).** Shipped instead as #2558 (approval carry-forward) and #2602 (four guard shards + guard-runner protection). Do not rebase, reopen or re-request approval; the owner's comments on it need no repeat. |
 | **2498** | `feat/self-healing-truth-engine` | `64957d97` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2494** | `claude/owner-approval-v2` | `9c79bb4b` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2491** | `claude/expected-state-notify-rule` | `6a16ba9f` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2490** | `lane/claude/ad-consent-region-gate` | `539f4476` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` (Carries canonical migration for `20261113105510`) |
-| **2478** | `infra/merge-train` | `7c35879c` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
+| **2478** | `infra/merge-train` | `7c35879c` | **True** (Pre-firewall) | Yes | **SUPERSEDED, closed (2026-11-18 update).** Approval part shipped as #2558; the merge train is deferred by owner decision. Do not rebase, reopen or re-request approval; the owner's comments on it need no repeat. |
 | **2477** | `content/card-lines-batch62` | `99c48c31` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2475** | `fix/known-for-join-clean` | `57a75cc4` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |
 | **2473** | `fix/guide-sarasota-hours-clean` | `130293ec` | **True** (Pre-firewall) | Yes | **Mandatory Rebase** on `origin/main` |

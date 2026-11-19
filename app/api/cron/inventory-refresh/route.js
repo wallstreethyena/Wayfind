@@ -1,4 +1,4 @@
-import { gateShut, spendAllowRefresh, refundToLedger, refreshCounterSku, runWithTraffic, TRAFFIC, runWithBackgroundPriority, BACKGROUND_PRIORITY, backgroundDailyStatus, refreshRichAffordable } from "../../../../lib/spendGate";
+import { gateShut, spendAllowRefresh, refundToLedger, refreshCounterSku, runWithTraffic, TRAFFIC, runWithBackgroundPriority, BACKGROUND_PRIORITY, backgroundDailyStatus, refreshTiersAffordable } from "../../../../lib/spendGate";
 // app/api/cron/inventory-refresh/route.js — keep wf_inventory checked against
 // Google at $0 EXTRA cost, a few rows at a time, and NEVER lose anything.
 //
@@ -102,10 +102,21 @@ async function runInventoryRefresh(req) {
     return Response.json({ ok: true, skipped: "daily-line", used: dailyNew.used, line: dailyNew.line, unreadable: dailyNew.unreadable });
   }
   const newOnly = (await backgroundDailyStatus(BACKGROUND_PRIORITY.SCHEDULED, nowD)).blocked;
-  // Which RICHER tiers can still be granted this month. A row that a cheap tier checked inside the
+  // Which refresh tiers can still be granted this month. A row that a cheap tier checked inside the
   // window is only selected again when a richer tier is affordable (a repeat of the same cheap tier
-  // re-dates nothing: 2026-11-12, 7,402 essentials lookups on ~670 places in 11 days).
-  const richNow = await refreshRichAffordable(nowD);
+  // re-dates nothing: 2026-11-12, 7,402 essentials lookups on ~670 places in 11 days). When ALL three
+  // refresh tiers are spent (or unreadable), pause BEFORE selecting rows or touching any ledger counter.
+  const tierAvail = await refreshTiersAffordable(nowD);
+  const richNow = { enterprise: tierAvail.enterprise, pro: tierAvail.pro };
+  if (!tierAvail.enterprise && !tierAvail.pro && !tierAvail.essentials) {
+    await recordPulse("inventory-refresh", {
+      attempted: 0,
+      succeeded: 0,
+      failed: 0,
+      note: budgetLimitNote("refresh", null, null, tierAvail.unreadable ? "refresh ledger unreadable (paused fail-closed)" : "free-tier refresh grants used up for this month"),
+    });
+    return Response.json({ ok: true, checked: 0, note: "refresh grants used up", unreadable: tierAvail.unreadable });
+  }
 
   // Rows whose Google content is older than the cutoff AND that no ENTERPRISE
   // check has re-dated within it. excluded rows are never served;
@@ -187,6 +198,7 @@ async function runInventoryRefresh(req) {
     for (const tier of tiers) {
       const exKey = tier + "|" + priority; // a refusal at the scheduled line must not stop a new row that ranks above it
       if (exhausted.has(exKey)) continue;
+      if (!tierAvail[tier]) { exhausted.add(exKey); continue; }
       const sku = TIER_SKU[tier];
       if (!(await spendAllowRefresh(sku))) { exhausted.add(exKey); continue; }
       const mask = tier === "enterprise" ? PLACE_DETAILS_FIELDS : tier === "pro" ? PRO_MASK : ESSENTIALS_MASK;

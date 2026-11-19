@@ -366,15 +366,17 @@ ok(nearestOwnedCityName(NaN, NaN) === "", "invalid coords stay empty");
 // only the fallback when no city is stored. Ranking still uses the coverage key.
 const beyond = { name: "Beyond Borders Outfitters", locality: "Punta Gorda", lat: 26.9298, lng: -82.0454 };
 const jazz = { name: "All That Jazz Cafe", locality: "Sunrise", lat: 26.1707764, lng: -80.2968915 };
-ok(nearestOwnedCityName(beyond.lat, beyond.lng) === "Fort Myers, FL", "PROBE: Beyond Borders sits in the Fort Myers coverage market");
+// Port Charlotte became a covered market 2026-11-18, so a Punta Gorda point now
+// resolves to it (3 mi) instead of Fort Myers (25 mi).
+ok(nearestOwnedCityName(beyond.lat, beyond.lng) === "Port Charlotte, FL", "PROBE: Beyond Borders sits in the Port Charlotte coverage market");
 ok(nearestOwnedCityName(jazz.lat, jazz.lng) === "Fort Lauderdale, FL", "PROBE: All That Jazz sits in the Fort Lauderdale coverage market");
 ok(storedPlaceHeader(beyond) === "Punta Gorda, FL" && placeHeaderLabel(beyond) === "Punta Gorda, FL" && detailLocationLine(beyond) === "Punta Gorda, FL",
   "a stored Punta Gorda city is the header, not Fort Myers");
 ok(storedPlaceHeader(jazz) === "Sunrise, FL" && detailLocationLine(jazz) === "Sunrise, FL",
   "a stored Sunrise city is the header, not Fort Lauderdale");
-ok(storedPlaceHeader({ lat: beyond.lat, lng: beyond.lng }) === "" && placeHeaderLabel({ lat: beyond.lat, lng: beyond.lng }) === "Fort Myers, FL",
+ok(storedPlaceHeader({ lat: beyond.lat, lng: beyond.lng }) === "" && placeHeaderLabel({ lat: beyond.lat, lng: beyond.lng }) === "Port Charlotte, FL",
   "no stored city falls back to the nearest covered city, and the card header stays blank");
-ok(placeHeaderLabel({ city: "florida", lat: beyond.lat, lng: beyond.lng }) === "Fort Myers, FL",
+ok(placeHeaderLabel({ city: "florida", lat: beyond.lat, lng: beyond.lng }) === "Port Charlotte, FL",
   "a coverage slug is not a stored city");
 ok(storedPlaceHeader({ locality: "Honolulu", state: "HI", lat: beyond.lat, lng: beyond.lng }) === "Honolulu, HI",
   "an explicit stored state is not replaced by the nearest market's state");

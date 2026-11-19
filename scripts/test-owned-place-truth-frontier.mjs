@@ -491,4 +491,99 @@ function eq(a, b, msg) {
   eq(trace.fields.regular_hours.verified_at, null, "Unverified hours field never fabricates verified_at timestamp");
 }
 
+// ── 9. Queue Reconciliation: Newly Parsed Schedules, Negative Controls & Review Queue Classifications ──
+{
+  const ledger = JSON.parse(readFileSync(path.join(ROOT, "data/owned-place-truth.json"), "utf8"));
+  const queue = JSON.parse(readFileSync(path.join(ROOT, "data/place-truth-review-queue.json"), "utf8"));
+
+  // Newly parsed deterministic Atlas schedules
+  const newlyParsedAtlasSamples = [
+    ["Daily, 9 AM to 5 PM", 7],
+    ["Daily, 9 AM to 5 PM, closed Thanksgiving and Christmas", 7],
+    ["Monday to Friday 8:00am to 4:00pm, Saturday and Sunday 8:00am to 5:00pm", 7],
+    ["Mon, Tue, Thu, Fri 7am to 3pm, Sat and Sun 8am to 3pm, closed Wed", 6],
+    ["Tue to Sat 7am to 4pm, closed Sun and Mon", 5],
+    ["Café daily 8am to 2:30pm, pizza and wine bar Tue to Sat 5pm to 8pm", 12],
+    ["Beach park 5am–11pm; restrooms 7am–11pm; pool currently closed for maintenance", 7],
+    ["Park 6am–10pm; recreation building Monday–Friday 9am–5pm", 7],
+    ["Mon, Wed–Sun 12pm–9pm; closed Tuesday", 6],
+    ["Mon, Wed–Sat 11am–8pm; Sun noon–8pm; closed Tue", 6],
+  ];
+  for (const [sample, expectedPeriods] of newlyParsedAtlasSamples) {
+    const parsed = parseEditorialHoursString(sample, [2026]);
+    eq(parsed.ok, true, `Deterministic Atlas schedule parses: "${sample}"`);
+    eq(parsed.periods.length, expectedPeriods, `Expected ${expectedPeriods} periods for "${sample}"`);
+  }
+
+  // Negative controls: seasonal, sub-facility, conflicting, lodging check-in, and daylight-bound strings MUST remain PROSE_ONLY
+  const negativeControls = [
+    ["Summer Hours: 9 a.m. - 6 p.m., Thursdays: 9 a.m. - 8 p.m.", "seasonal-hours-require-verification"],
+    ["Daily 9:30am–5pm (extended to 6pm or 8pm seasonally)", "seasonal-hours-require-verification"],
+    ["Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31", "seasonal-hours-require-verification"],
+    ["Summer: Mon–Sat 4–8:30pm, closed Sunday and closed for lunch", "seasonal-hours-require-verification"],
+    ["Rooftop bar daily 11am–11pm", "subfacility-not-venue-hours"],
+    ["Office/front desk daily 9am–9pm; check-in 2pm, check-out 11am", "lodging-checkin-not-operating-hours"],
+    ["Ticket office & gift shop Wed–Sun 10am–4pm; train rides weekends only", "ambiguous-or-unposted-hours"],
+    ["Daily 10am–3pm on the main site (visitor info page still says 10am–4pm)", "ambiguous-or-unposted-hours"],
+    ["Day-use areas sunrise–sunset; Primitive camping 24/7 with permit; Headquarters Mon–Fri 8am–4:30pm", "daylight-bound-prose-hours"],
+  ];
+  for (const [sample, expectedReason] of negativeControls) {
+    const parsed = parseEditorialHoursString(sample, [2026]);
+    eq(parsed.ok, false, `Negative control rejected as PROSE_ONLY: "${sample}"`);
+    eq(parsed.periods.length, 0, `Negative control emits 0 periods: "${sample}"`);
+    eq(parsed.reason, expectedReason, `Negative control reason matches for "${sample}"`);
+  }
+
+  // Reconciled high-intent records in data/owned-place-truth.json
+  const reconciledPlaceIds = [
+    ["ChIJ6y2dx9g_w4gRWoZIRhLk-JI", 7], // The Ringling
+    ["ChIJRyOEfAo5w4gR664aD_YYBLU", 7], // Mote Science Education Aquarium (SEA)
+    ["ChIJhcub0Rs_w4gRCEvPuk8tBok", 7], // Escape Reality
+    ["ChIJJzZWD1PX2IgREC3NijoLNd8", 7], // Skinny Louie
+    ["ChIJVVUNg8JB24gRo5VjblNO_c8", 7], // Edison & Ford Winter Estates
+    ["ChIJqwo10S3dwogRnC3CEXFQNwI", 7], // Green Iguana Bar & Grill
+    ["ChIJx4O9VBdw54gRcQ8akxK7nkc", 6], // The Charles Hosmer Morse Museum of American Art
+    ["ChIJAdipByc9w4gR2lYv8gezcWM", 7], // Shake Station
+    ["ChIJIZt3d7DFwogRQ5Lg2tPMXyk", 7], // Dracula's Legacy Wine Bar & Bistro Tampa
+    ["ChIJOdY8qlHEwogRXPbXY1cq2xo", 5], // Coyote Ugly Saloon
+    ["ChIJPd6UAfJ_3YgRP-V0GS5jS8I", 7], // Gideon's Bakehouse
+    ["ChIJjwUZ8htHw4gR6-xAgrevYLM", 7], // Twin Peaks
+    ["ChIJkTDP2OLFwogR9W0EjRYIL-0", 7], // Naked Farmer
+    ["ChIJq2_lAFHEwogRRCeJJ77fHgg", 7], // Bad Monkey Ybor
+    ["ChIJv4dyuXnPwogRMK5yN-Ke2Iw", 7], // Hammered Harry's Tampa
+    ["ChIJf5M5VmBZw4gRVHX-dcX1dBk", 14], // Fins At Sharky's
+  ];
+  for (const [pid, expectedCount] of reconciledPlaceIds) {
+    const entry = ledger.places[pid];
+    ok(Boolean(entry), `Reconciled place ${pid} exists in owned-place-truth.json`);
+    eq(entry.owned_hours.ok, true, `Reconciled place ${pid} (${entry.name}) has owned_hours.ok === true`);
+    eq(entry.owned_hours.periods_count, expectedCount, `Reconciled place ${pid} (${entry.name}) has ${expectedCount} periods`);
+    eq(entry.owned_hours.verified_at, null, `Reconciled place ${pid} never fabricates verified_at`);
+  }
+
+  // Honest non-fabrication controls:
+  // - Sarasota Jungle Gardens (official clocks disagree: 10am–3pm vs 10am–4pm)
+  // - Naples Botanical Garden (event-only hours in Christmas research)
+  // - Nueva Cantina - Brandon (menu note only)
+  eq(ledger.places["ChIJ_37IauQ_w4gRz03lc0QInIE"].owned_hours.ok, false, "Sarasota Jungle Gardens with conflicting official clocks remains owned_hours.ok === false");
+  eq(ledger.places["ChIJlcQil-Pj2ogRZXbB55ldZcQ"].owned_hours.ok, false, "Naples Botanical Garden never inherits seasonal Night Lights event hours as venue hours");
+  eq(ledger.places["wfadd_nueva_cantina_brandon"].owned_hours.ok, false, "Nueva Cantina - Brandon without standing venue hours remains owned_hours.ok === false");
+
+  // Ledger & Review Queue summary invariants
+  ok(ledger.summary.after.structured_hours_count >= 50, `High-intent structured_hours_count >= 50 (${ledger.summary.after.structured_hours_count})`);
+  ok(ledger.summary.atlas_wide.deterministic_structured_hours_count >= 290, `Atlas deterministic_structured_hours_count >= 290 (${ledger.summary.atlas_wide.deterministic_structured_hours_count})`);
+  eq(queue.items.length, queue.total_items, "Review queue outputs all items without truncation");
+  ok(queue.classification_summary && typeof queue.classification_summary === "object", "Review queue includes classification_summary");
+  for (const item of queue.items) {
+    ok(Boolean(item.schedule_classification), `Queue item ${item.place_id} has schedule_classification`);
+  }
+
+  // Safari <16.4 safety: zero regex lookbehinds in lib/editorialHoursParser.js and lib/ownedPlaceTruth.js
+  for (const relFile of ["lib/editorialHoursParser.js", "lib/ownedPlaceTruth.js"]) {
+    const src = readFileSync(path.join(ROOT, relFile), "utf8");
+    const strippedComments = src.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+    ok(!/\(\?<=|\(\?<!/.test(strippedComments), `${relFile} contains zero regex lookbehinds`);
+  }
+}
+
 console.log(`test-owned-place-truth-frontier: ${assertions} assertions OK`);

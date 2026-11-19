@@ -390,12 +390,28 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 
 import { isNotPublicPlace } from "../../../lib/notPublicPlaces.js";
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
+import { unstable_cache } from "next/cache.js";
+
+// Editorial figure lookup reads wf_place_photo / the stored-photo RPC with
+// cache:"no-store" (freshness for the visitor photo paths that share those
+// modules). Inside a guide render that no-store read bails the whole route
+// out of ISR — the big city guides served private/no-cache while every
+// other guide prerendered (2026-11-19 audit). Wrap the RESULT in a Data
+// Cache boundary on the guide route's own 900s cadence, the same pattern
+// lib/guideProductResolveCache.js uses for the spend-gated product read.
+// The underlying modules keep their no-store default everywhere else.
+const cachedGuideFigureImage = unstable_cache(
+  async (place) => guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }),
+  ["guide-place-figure-image-v1"],
+  { revalidate: 900 },
+);
 import { guidePickFacts } from "../../../lib/guidePickFacts.js";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard, resolveGuidePickPlaceId } from "../../../lib/guidePlaceIdentity.js";
 // Separate interactive map discovery still uses the shared place-card CSS.
 import { WF_PLACE_CARD_CSS } from "../../components/css";
+import { GUIDE_STANDARD_CSS } from "../../../lib/guideStandardCss.js";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
 import GuideFigure from "../../components/GuideFigureWithFallback.js";
@@ -656,7 +672,7 @@ export default async function GuidePage({ params }) {
     .map((p, idx) => (!curatedPickImages[idx] && pickPlaceIds[idx]) ? (pickPlaces[idx] || { id: pickPlaceIds[idx], name: p.name }) : null)
     .filter(Boolean);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
-    editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
+    editorialImages.set(place.id, await cachedGuideFigureImage(place));
   }));
   // Reuse an already licensed photo of this exact place before asking the
   // browser for another answer. The hero and other picks keep their own images.
@@ -889,9 +905,6 @@ export default async function GuidePage({ params }) {
         <ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }} />
       </nav>
       <style dangerouslySetInnerHTML={styleHtml(`
-        .wf-guide-article{max-width:860px;margin:0 auto}
-        .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#F1F5F9}
-        .wf-guide-disclosure{font-size:13px;line-height:1.5;color:#94A3B8;margin:12px 0 20px;padding:0}
         /* RIGHT NOW block — server-rendered, so it is in the indexed HTML. */
         .wf-guide-now{margin:26px 0 8px;padding:18px 20px;border-radius:14px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.30)}
         .wf-guide-now-head{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#FDBA74;margin-bottom:6px}
@@ -902,11 +915,6 @@ export default async function GuidePage({ params }) {
         .wf-guide-now-handoff a{color:#7DD3FC;font-weight:750}
         .wf-guide-now-live{background:rgba(94,232,180,.07);border-color:rgba(94,232,180,.30)}
         .wf-guide-now-live .wf-guide-now-head{color:#5EE8B4}
-        .wf-guide-pick{display:grid;grid-template-columns:76px minmax(0,1fr);gap:22px;position:relative;margin:0;padding:31px 4px;border-radius:0;background:transparent;border:0;border-top:1px solid #2D3748;box-shadow:none;color:#F1F5F9}
-        .wf-guide-pick:last-of-type{border-bottom:1px solid #2D3748}
-        .wf-guide-number{font:600 49px/1 Georgia,"Times New Roman",serif;color:#68778d;letter-spacing:-2px;padding-top:3px;text-shadow:0 1px 18px rgba(104,119,141,.14)}
-        .wf-guide-pick h2{font-size:31px;color:#F1F5F9!important}
-        .wf-guide-pick>p{color:#94A3B8!important}
         /* Live deal cards. Sized so the whole card is one tap target on a phone,
            and min-width:0 on the text column is what stops a long merchant name
            forcing the grid wider than the viewport — the classic overflow. */
@@ -941,17 +949,9 @@ export default async function GuidePage({ params }) {
         .wf-guide-related a{font-size:13px;line-height:1.4;justify-content:center}
         @media(max-width:760px){
           .wf-guide-quick>div,.wf-guide-related>div{grid-template-columns:1fr}
-          .wf-guide-article{padding-top:2px}
-          .wf-guide-intro{font-size:17px!important;line-height:1.5!important;margin:14px 2px 16px!important}
-          .wf-guide-disclosure{margin:10px 2px 16px!important;padding:0 0 10px!important;font-size:12.5px!important;line-height:1.5!important}
           .wf-gd-card{grid-template-columns:72px minmax(0,1fr);gap:11px;padding:10px}
           .wf-gd-img{width:72px;height:72px}
           .wf-gd-h{font-size:19px}
-          .wf-guide-pick{grid-template-columns:35px minmax(0,1fr);gap:11px;padding:21px 2px!important}
-          .wf-guide-number{font-size:29px;letter-spacing:-1px;color:#7f8da1}
-          .wf-guide-pick h2{font-size:22px!important;line-height:1.15!important;margin:3px 0 8px!important}
-          .wf-guide-pick p{font-size:14px!important;line-height:1.5!important;margin-bottom:10px!important}
-          .wf-guide-pick .wf-guide-tip{font-size:13px!important;margin:6px 0 2px!important}
           .wf-guide-actions a{margin:7px 0 0!important;padding:8px 13px!important;font-size:12.5px!important}
           /* v8.14: at phone width the pick grid's number gutter (35px column
              + 11px gap) squeezes the iconic card until the Share button clips.
@@ -960,6 +960,7 @@ export default async function GuidePage({ params }) {
              the gutter; the text above keeps its indent. */
           .wf-guide-card-slot{margin-left:-46px!important}
         }
+        ${GUIDE_STANDARD_CSS}
         ${WF_PLACE_CARD_CSS}
         ${GUIDE_EDITORIAL_CSS}
       `)} />

@@ -60,11 +60,11 @@ export default function DisneyHolidayFoodGuidePage() {
       <DisneyFoodMap parks={DISNEY_FOOD_PARKS} stops={DISNEY_FOOD_STOPS}
         panels={Object.fromEntries(DISNEY_FOOD_PARKS.map((park) => [park.id, DISNEY_FOOD_STOPS
           .filter((stop) => stop.parkId === park.id)
-          .map((stop) => <FoodStop key={stop.id} stop={stop} destination={park.shortName} placeId={park.placeId} />)]))} />
+          .map((stop) => <FoodStop key={stop.id} stop={stop} />)]))} />
 
       <details className={styles.section}>
         <summary>California bonus · Downtown Disney, Anaheim</summary>
-        <FoodStop stop={CALIFORNIA_BONUS} destination="Downtown Disney, California" />
+        <FoodStop stop={CALIFORNIA_BONUS} />
       </details>
 
       <section className={styles.section} aria-labelledby="plans-heading">
