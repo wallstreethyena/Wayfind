@@ -94,7 +94,7 @@
     "file": "supabase/migrations/20261119120000_wf_inventory_broward_metro_labels.sql",
     "sha256": "8454c673c0febd7ea0c3be27d53f794fd0e2591f8f9a7a3a8e9f5a14a561468b",
     "decision_owner": "wallstreethyena",
-    "tracking": "broward metro labels 2026-11-19",
+    "tracking": "#2612",
     "reason": "NOT APPLIED YET. Data only: relabels two Broward County rows from unknown metro keys (fort-lauderdale, pompano-beach-fl) to broward. Owner-approved 2026-11-19. Applied after merge by claude.exe (Wayfind lane) with the exact file bytes, then this entry is replaced by an apply receipt. Rollback in the file header."
   }
 ]
