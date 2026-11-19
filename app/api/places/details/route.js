@@ -25,7 +25,7 @@ import { gateShut, spendAllow, spendAllowDetailsAtmosphere, runWithTraffic, TRAF
 import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 import { getCachedPlaceIdentity } from "../../../../lib/cachedPlaceIdentity.js";
-import { loadPlaceDetailPhotos } from "../../../../lib/placeDetailGallery.js";
+import { inventoryDetailGallery } from "../../../../lib/inventoryDetailGallery.js";
 import { resolveOwnedDetailBeforeSpend, persistLiveDetailEnrichment, resolveGracefulDetailFallback } from "../../../../lib/placeDetailSpine.js";
 import { floridaTimezoneForCoords, utcOffsetMinutesForTimezone } from "../../../../lib/ownedHours.js";
 import { recordDetailMetric } from "../../../../lib/detailTelemetry.js";
@@ -47,10 +47,10 @@ async function inventoryPlace(placeId) {
   const row = await getInventoryIdentity(placeId);
   if (!row || !Number.isFinite(row.lat) || !Number.isFinite(row.lng)) return null;
   const signals = row.signals || {};
-  const coverSrc = typeof signals.photo_url === "string" ? signals.photo_url : (typeof signals.photoUrl === "string" ? signals.photoUrl : "");
+  // Shared with app/p/[id]/page.js's hero preload (lib/inventoryDetailGallery.js).
   let gallery = [];
   try {
-    gallery = await loadPlaceDetailPhotos(row.place_id, { name: row.name, signals, coverSrc });
+    gallery = await inventoryDetailGallery(row);
   } catch { gallery = []; }
   const photos = gallery.length
     ? gallery.map((photo) => ({ _directUri: photo.src }))
