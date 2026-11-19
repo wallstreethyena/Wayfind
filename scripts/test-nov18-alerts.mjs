@@ -42,7 +42,8 @@ function makeDom() {
   const font = new Node("font"); p.removeChild(text); font.insertBefore(text, null); p.insertBefore(font, null);
   assert.throws(() => p.removeChild(text), NotFoundError); assertions++;
 
-  const ctx = { Node };
+  const warnings = [];
+  const ctx = { Node, console: { warn: (m) => warnings.push(m) } };
   vm.runInNewContext(TRANSLATE_DOM_GUARD_SCRIPT, ctx);
   ok(Node.prototype.__wfTranslateGuard === 1, "guard installs on Node.prototype");
   const patched = Node.prototype.removeChild;
@@ -51,6 +52,7 @@ function makeDom() {
 
   ok(p.removeChild(text) === text, "removeChild of a translator-moved node no longer throws, returns the node");
   ok(text.parentNode === font, "the stale node is left where the translator put it");
+  ok(warnings.length === 1 && /translate guard: removeChild/.test(warnings[0]), "each step-in leaves a console breadcrumb");
   const n = new Node("span");
   ok(p.insertBefore(n, text) === n && n.parentNode === null, "insertBefore against a moved reference no longer throws");
 
@@ -60,6 +62,7 @@ function makeDom() {
   ok(p.childNodes.indexOf(b) === p.childNodes.indexOf(a) - 1, "valid insertBefore still inserts in order");
   ok(p.removeChild(a) === a && a.parentNode === null && !p.childNodes.includes(a), "valid removeChild still removes");
   ok(p.insertBefore(new Node("c"), null).parentNode === p, "insertBefore(n, null) still appends");
+  ok(warnings.length === 2, "valid calls log nothing (only the two step-ins warned)");
 }
 {
   // No Node global (server / worker): the script is a silent no-op.
@@ -71,7 +74,7 @@ const guardAt = layout.indexOf("__html: TRANSLATE_DOM_GUARD_SCRIPT");
 const shimAt = layout.indexOf("if(window.__wfSentryInit)");
 ok(guardAt > 0 && /from "\.\.\/lib\/translateDomGuard\.js"/.test(layout), "layout inlines the translation guard");
 ok(shimAt > guardAt, "guard is inlined in the document head path before the Sentry shim (runs before React's first commit)");
-ok(TRANSLATE_DOM_GUARD_SCRIPT.length < 400, "guard stays under 400 bytes");
+ok(TRANSLATE_DOM_GUARD_SCRIPT.length < 600, "guard stays under 600 bytes");
 
 // ── WAYFIND-1Y: replay keeps the source and drops denied origins. ──────────
 const savedLocation = globalThis.location;
