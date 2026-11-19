@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MapCategoryPin from '../../components/MapCategoryPin';
 import viewports from './disney-map-viewports.json';
 import styles from './DisneyFoodGeographicMap.module.css';
@@ -44,6 +44,11 @@ function ParkView({ parkId, places, selectedId, onSelect }) {
 function MapCanvas({ mapKey, title, viewport, places, selectedId, onSelect }) {
   const [zoom, setZoom] = useState(1);
   const [failed, setFailed] = useState(false);
+  // The server-rendered basemap can fail BEFORE React hydrates, and that error
+  // event is gone by the time onError is attached: check the image once after
+  // mount too (a finished image with no pixels is a failed one).
+  const basemap = useRef(null);
+  useEffect(() => { const img = basemap.current; if (img && img.complete && img.naturalWidth === 0) setFailed(true); }, []);
   const pins = places.map((place, index) => ({place, number: index + 1, position: projectPin(place, viewport)})).filter(({position: p}) => Number.isFinite(p.left) && Number.isFinite(p.top) && p.left >= 0 && p.left <= 100 && p.top >= 0 && p.top <= 100);
   return <>
     <div className={styles.toolbar}>
@@ -55,7 +60,7 @@ function MapCanvas({ mapKey, title, viewport, places, selectedId, onSelect }) {
     </div>
     <div className={styles.scroll} tabIndex={0} role="region" aria-label={`${title} map, scroll to explore when zoomed`}>
       <div className={styles.canvas} style={failed ? undefined : {width: `${zoom * 100}%`, aspectRatio: `${viewport.width} / ${viewport.height}`}}>
-        {!failed && <img data-guide-map-canvas width={viewport.width} height={viewport.height} className={styles.basemap} src={`/guides/disney-food-2026/maps/${mapKey}.svg`} alt={`${title}: mapped buildings, water, green areas and paths. North is up.`} onError={() => setFailed(true)} draggable={false} />}
+        {!failed && <img ref={basemap} data-guide-map-canvas width={viewport.width} height={viewport.height} className={styles.basemap} src={`/guides/disney-food-2026/maps/${mapKey}.svg`} alt={`${title}: mapped buildings, water, green areas and paths. North is up.`} onError={() => setFailed(true)} draggable={false} />}
         {failed && <p role="status" className={styles.failure}>The map image could not load. Choose a food stop from the numbered list below.</p>}
         {!failed && pins.map(({place, number, position}) => <button key={place.id} type="button" className={styles.pin} style={{left: `${position.left.toFixed(3)}%`, top: `${position.top.toFixed(3)}%`}} aria-label={`Stop ${number}: ${place.name}`} aria-pressed={selectedId === place.id} data-food-pin={place.id} onClick={() => onSelect(place.id)}><MapCategoryPin family="food" height={46} /><span>{number}</span></button>)}
       </div>

@@ -708,7 +708,7 @@ scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3
 scripts/test-direct-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	73	0	0	cb69c1cbdc990de5a00073c73413a8d2db011d0800d4c96c9081356f7fce831c
 scripts/test-disney-food-map.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	300e866de8bf51568a5f7eddace70a451de62beed766aa5f085fd6c7ee91eb61
 scripts/test-disney-food-posts.mjs	0	RENDER	blocks-ci-and-deploy	1	-	39	0	0	b3b8638081b7ffa6198e68405a1aadc9f8812b0bfc27a8645e6d160a3f41b9bd
-scripts/test-disney-geographic-map.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	9110f6c84f11d5c47bcfbce0859b87b978f003011a59d8ec3a62b4f9d3d63120
+scripts/test-disney-geographic-map.mjs	0	RENDER	blocks-ci-and-deploy	1	-	29	0	0	1b14338da0fdc08e086379d114ded988af6ae6ab91fee083390617be8b0a9391
 scripts/test-doc-ownership-shallow.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	a7fc950b33e73074eaf31d622c2dfe3e06f022191fde062f489e4de4160f576c
 scripts/test-document-position.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	9d3cf23d98d16e3a52711f8e129fa02eee755e9f1a897ad918f29070e874b47e
 scripts/test-drop-rail-parity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0	6a3be0dc03e54b92bc6459e828eb53211503e5f1a8a84e616e8d229fdec49a78

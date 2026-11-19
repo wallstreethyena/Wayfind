@@ -78,7 +78,30 @@ for(const park of parks){
  assert.ok(host.querySelector('[aria-label="Zoom in"]').disabled&&host.querySelector('[aria-label="Zoom out"]').disabled,'zoom is off when there is no map');
  assert.ok(!/aspect-ratio/.test(host.querySelector('[role="status"]').parentElement.getAttribute('style')||''),'no empty map-sized box is reserved');
 }
+// Basemap that already failed BEFORE hydration (its error event fired before React
+// attached onError): the mount-time check must still show the failure state.
+{
+ const proto=dom.window.HTMLImageElement.prototype, park=parks[0];
+ const box=document.createElement('div');document.body.appendChild(box);
+ const places=DISNEY_FOOD_STOPS.filter(s=>s.parkId===park).map(s=>({id:s.id,...locations[s.id],name:s.venue}));
+ const saved={complete:Object.getOwnPropertyDescriptor(proto,'complete'),naturalWidth:Object.getOwnPropertyDescriptor(proto,'naturalWidth')};
+ Object.defineProperty(proto,'complete',{configurable:true,get(){return true;}});
+ Object.defineProperty(proto,'naturalWidth',{configurable:true,get(){return 1260;}});
+ const root2=createRoot(box);
+ await act(()=>root2.render(React.createElement(Component,{parkId:park,places,selectedId:null,onSelect:()=>{}})));
+ assert.ok(box.querySelector('img[data-guide-map-canvas]') && box.querySelectorAll('[data-food-pin]').length===places.length,'positive control: an image that loaded keeps the map and pins');
+ await act(()=>root2.unmount());
+ Object.defineProperty(proto,'naturalWidth',{configurable:true,get(){return 0;}});
+ const root3=createRoot(box);
+ await act(()=>root3.render(React.createElement(Component,{parkId:park,places,selectedId:null,onSelect:()=>{}})));
+ assert.ok(!box.querySelector('img[data-guide-map-canvas]'),'an image that failed before hydration is removed on mount');
+ assert.match(box.querySelector('[role="status"]')?.textContent||'',/could not load.*numbered list/,'and the failure message shows without any error event');
+ assert.ok(box.querySelector('[aria-label="Zoom in"]').disabled && box.querySelectorAll('[data-food-pin]').length===0,'zoom off, no pins over a missing map');
+ await act(()=>root3.unmount());
+ box.remove();
+ for(const k of ['complete','naturalWidth']){ if(saved[k]) Object.defineProperty(proto,k,saved[k]); else delete proto[k]; }
+}
 const bad=project({lat:NaN,lng:0},viewports[parks[0]]);assert.ok(!Number.isFinite(bad.top),'negative coordinate control cannot look valid');
 await act(()=>root.unmount());
 delete globalThis.window;delete globalThis.document;delete globalThis.IS_REACT_ACT_ENVIRONMENT;
-console.log('PASS: five actual map component renders, all seven geographic anchors, ten source SVGs, source hashes/ODbL links, repeated pin activation, core/whole/zoom controls and the basemap-failure state. Live phone browser remains separate.');
+console.log('PASS: five actual map component renders, all seven geographic anchors, ten source SVGs, source hashes/ODbL links, repeated pin activation, core/whole/zoom controls and the basemap-failure state (error event, and a failure that happened before hydration). Live phone browser remains separate.');
