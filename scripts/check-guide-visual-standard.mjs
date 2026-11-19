@@ -224,7 +224,9 @@ for (const rel of GUIDE_JS_FILES) {
 }
 
 // ── RULE 5 — every guide entry point imports the shared shell/figure ──────
-const SHELL_IMPORT_RX = /from\s+["'][^"']*\/(GuideArticleHero|GuideFigure)(?:\.js)?["']/;
+// GuideStandardShell renders GuideArticleHero (and its GuideFigure) for every
+// dedicated route, so importing the shell IS rendering through the shell.
+const SHELL_IMPORT_RX = /from\s+["'][^"']*\/(GuideArticleHero|GuideFigure|GuideStandardShell)(?:\.js)?["']/;
 ok(SHELL_IMPORT_RX.test('import GuideArticleHero from "../../components/GuideArticleHero";'), "red-proof: shell-import detector fires on a synthetic positive");
 for (const rel of ENTRY_POINTS) {
   const src = read(rel);
