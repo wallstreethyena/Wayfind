@@ -551,7 +551,9 @@ export default async function GuidePage({ params }) {
   // SOLD OUT (owner rule 2026-11-04, enforced live 2026-11-19): the picks and the
   // primary button below were built from a fixed list, so check the live status
   // before offering a ticket. Mickey's party sold out while this guide still sold it.
-  const unavailable = await noSaleEvents();
+  // revalidate matches this page's own 900s ISR so the read never shortens it;
+  // /api/commerce/go re-checks every click within five minutes regardless.
+  const unavailable = await noSaleEvents({ revalidate: 900 });
   const unavailableFor = (id) => (id ? unavailable.get(String(id)) || null : null);
   let primaryCta = guidePrimaryCta(past || unavailableFor(g.eventTicket) ? { ...g, eventTicket: undefined } : g);
   const vacationRental = past ? null : guideVacationRentalCta(params.slug);

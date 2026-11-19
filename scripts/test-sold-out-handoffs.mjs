@@ -68,6 +68,8 @@ const loc = res.headers.get("location") || "";
 ok(res.status === 302 && /\/florida-events\/mickeys-very-merry-christmas-party-2026$/.test(loc), "a click for the sold out party lands on its Wayfind page (got " + res.status + " " + loc + ")");
 ok(!/viator\.com/i.test(loc) && partnerLookups === 0, "and no partner URL is even looked up");
 ok(/no-store/i.test(res.headers.get("cache-control") || ""), "the detour is never cached for the next visitor");
+const ctl = await GET(new Request("https://www.gowayfind.com/api/commerce/go?provider=viator&offer=3805P5&surface=holiday_guide_pick&content=fine-2026", { headers: human }));
+ok(partnerLookups > 0 && !/\/florida-events\//.test(ctl.headers.get("location") || ""), "control: an available event with a content id still goes on to the partner lookup");
 globalThis.fetch = realFetch;
 delete process.env.NEXT_PUBLIC_SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 ok((await noSaleEvent("fine-2026")) === null && (await noSaleEvent("")) === null, "available and empty ids pass through");
@@ -78,6 +80,9 @@ const onSale = santaModelFromListings([card({})], "2026-11-19").events?.[0] || n
 const soldOut = santaModelFromListings([card({ ticket_status: "sold_out", official_ticket_url: "https://disneyworld.disney.go.com/x", url: "https://disneyworld.disney.go.com/x" })], "2026-11-19").events?.[0] || null;
 ok(onSale && onSale.cta && /\/api\/commerce\/go\?/.test(onSale.cta.href), "control: an on sale party keeps Santa's ticket link");
 ok(soldOut && soldOut.cta && soldOut.cta.href === "/florida-events/mickeys-very-merry-christmas-party-2026" && soldOut.cta.label === "See details", "sold out: Santa links its own page, never a ticket (got " + JSON.stringify(soldOut && soldOut.cta) + ")");
+
+const noPage = santaModelFromListings([card({ detailHref: null, ticket_status: "sold_out", official_ticket_url: "https://disneyworld.disney.go.com/x", url: "https://disneyworld.disney.go.com/x" })], "2026-11-19").events?.[0] || null;
+ok(!noPage || !noPage.cta || noPage.cta.href !== "https://disneyworld.disney.go.com/x", "sold out with no event page: never the ticket page, even as Official Site");
 
 // 5. Alternatives: nearby, soon, available, relevance order only.
 const mv = { event_id: "mvmcp-2026", slug: "mickeys-very-merry-christmas-party-2026", lat: 28.4177, lng: -81.5812, city: "Lake Buena Vista", category: "holiday", tags: ["theme-park", "christmas"], ticket_status: "sold_out", last_verified_at: "2026-11-19T19:41:51Z" };
@@ -105,8 +110,8 @@ ok(!/—|–| - /.test(unavailableNote(mv, true) + alternativeLabel({ name: "A",
 // 6. Map and cards agree on the same evidence. The map now uses the shared
 // mainScheduleClause like the cards and the day strip (#2646). Measured
 // 2026-11-19: no note shape found where the old map flag changed a result
-// (a daily/nightly note already parses as seven weekdays), so this is an
-// agreement check, not a red-proved defect.
+// (a daily/nightly note already parses as seven weekdays). The add-on words
+// are read from the main clause only (verifier finding D1).
 const { compactDayRule, compactRuleAllows } = await import("../lib/scheduleNoteDays.js");
 const tonight = Date.parse("2026-11-20T00:30:00Z"); // Nov 19, 7:30 PM ET
 for (const note of [
@@ -115,6 +120,7 @@ for (const note of [
   "Every night 6 to 10 PM; Santa visits on select nights",
   "Select nights only; check the calendar",
   "Saturdays and Sundays 10 AM to 6 PM; Santa breakfast on select dates",
+  "Open through Jan 3; fireworks nightly on select nights",
 ]) {
   const row = { event_id: "x", event_name: "X", kind: "event", lat: 28.4058, lng: -81.4249, start_date: "2026-11-14", end_date: "2026-12-30", event_status: "scheduled", schedule_note: note };
   const map = evaluateEventEligibility(row, tonight);
