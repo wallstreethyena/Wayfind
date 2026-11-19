@@ -30,6 +30,8 @@ create table if not exists public.wf_booking_agent_runs (
   selector_map_version text not null check (char_length(selector_map_version) between 1 and 40),
   sms_consent boolean not null default false,
   sms_code text check (sms_code is null or sms_code ~ '^[0-9]{4,8}$'),
+  sms_code_attempts int not null default 0 check (sms_code_attempts between 0 and 5),
+  sms_code_expires_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint wf_booking_agent_runs_idem unique (idempotency_key)
@@ -37,6 +39,9 @@ create table if not exists public.wf_booking_agent_runs (
 
 create index if not exists wf_booking_agent_runs_user_created on public.wf_booking_agent_runs (user_id, created_at desc);
 create index if not exists wf_booking_agent_runs_site_status on public.wf_booking_agent_runs (site, status);
+create unique index if not exists wf_booking_agent_runs_one_active_per_site
+  on public.wf_booking_agent_runs (site)
+  where status in ('opening', 'selecting_slot', 'form_ready', 'filling', 'review', 'submitting', 'awaiting_sms_code');
 
 create table if not exists public.wf_booking_agent_events (
   run_id uuid not null references public.wf_booking_agent_runs (id) on delete cascade,

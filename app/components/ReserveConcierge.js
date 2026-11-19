@@ -263,6 +263,7 @@ export function AgentOfferCard({ card, state, place, busy, sms, onStart }) {
 export function AgentProgressCard({ card }) {
   const [view, setView] = useState(null);
   const [gone, setGone] = useState(false);
+  const [stalled, setStalled] = useState(false);
   const [smsCode, setSmsCode] = useState("");
   const [codeBusy, setCodeBusy] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
@@ -270,6 +271,7 @@ export function AgentProgressCard({ card }) {
   useEffect(() => {
     let dead = false;
     let timer = null;
+    const startedAt = Date.now();
     const tick = async () => {
       const r = await bookingAgentStatus(card.runId);
       if (dead) return;
@@ -277,7 +279,13 @@ export function AgentProgressCard({ card }) {
       if (run) setView(run);
       const status = run && run.status;
       const done = status && !["queued", "opening", "selecting_slot", "form_ready", "filling", "review", "submitting", "awaiting_sms_code"].includes(status);
-      if (!done) timer = setTimeout(tick, 2000);
+      if (done) return;
+      const elapsed = Date.now() - startedAt;
+      if (status !== "awaiting_sms_code" && ((status === "queued" || !status) ? elapsed >= 30000 : elapsed >= 95000)) {
+        setStalled(true);
+        return;
+      }
+      timer = setTimeout(tick, 2000);
     };
     tick();
     return () => { dead = true; if (timer) clearTimeout(timer); };
@@ -292,7 +300,13 @@ export function AgentProgressCard({ card }) {
     );
   }
   if (run && run.status === "unknown_after_submit") {
-    return <div data-reserve-card="agent_unknown" style={box}><div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{sentence}</div></div>;
+    const checkUrl = run.checkUrl || run.handoffUrl || (card.handoff && card.handoff.url) || null;
+    return (
+      <div data-reserve-card="agent_unknown" style={box}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>{sentence}</div>
+        {checkUrl ? <a href={checkUrl} target="_blank" rel="noopener noreferrer" style={{ ...linkBtn, marginTop: 10 }}>Check on OpenTable</a> : null}
+      </div>
+    );
   }
   if (run && (String(run.status).indexOf("handback:") === 0 || run.status === "refused_kill_switch" || run.status === "refused_flag_off")) {
     return (
@@ -327,6 +341,16 @@ export function AgentProgressCard({ card }) {
         )}
         {run.cancellable ? <button type="button" data-booking-agent-cancel="1" style={{ ...quietBtn, marginTop: 8 }} onClick={async () => { const r = await cancelBookingAgent(card.runId); if (r && r.ok) setGone(true); }}>Cancel</button> : null}
       </form>
+    );
+  }
+  if (stalled) {
+    const fallbackUrl = (run && run.handoffUrl) || (card.handoff && card.handoff.url) || null;
+    return (
+      <div data-reserve-card="agent_stalled" style={box}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4 }}>Booking help is taking longer than expected. You can cancel here or finish on OpenTable.</div>
+        {fallbackUrl ? <a href={fallbackUrl} target="_blank" rel="noopener noreferrer" style={{ ...linkBtn, marginTop: 10 }}>Finish on OpenTable</a> : null}
+        {(!run || run.cancellable) ? <button type="button" data-booking-agent-cancel="1" style={{ ...quietBtn, marginTop: 8 }} onClick={async () => { const r = await cancelBookingAgent(card.runId); if (r && r.ok) setGone(true); }}>Cancel</button> : null}
+      </div>
     );
   }
   return (

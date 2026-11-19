@@ -442,5 +442,231 @@ const confirmed = { html: html("confirmation.html") };
   ok(noSlotRes.status === "handback:slot_unavailable", "missing exact time slot on Step 1 hands back slot_unavailable");
 }
 
+// ---- Defect 1: HTTP/2 / ERR_BLOCKED on open trips breaker; cancellation/no-show fee stops as payment_required; active challenge vs hidden v3 ----
+{
+  const store = createMemoryStore({ status: "on" });
+  await seedRun(store);
+  const { out } = await go(store, {
+    async launch({ userAgent }) {
+      return {
+        userAgent,
+        async open() { throw new Error("page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.opentable.com/"); },
+        async close() {},
+      };
+    },
+  });
+  const site = await store.getSite("opentable");
+  ok(out.status === "handback:challenge" && site.status === "paused" && site.challenge_count_7d === 1, "ERR_HTTP2_PROTOCOL_ERROR on open classifies as challenge and trips breaker");
+
+  for (const phrase of [
+    "A $25 cancellation fee applies within 24 hours.",
+    "No-show fee of $50 per person.",
+    "Your card will be charged for late cancellations.",
+  ]) {
+    const feeStore = createMemoryStore({ status: "on" });
+    const feeBrowser = scripted([{ html: `<html><body><form><input id="firstName"><input id="email"><p>${phrase}</p></form></body></html>` }]);
+    await seedRun(feeStore);
+    const { out: feeOut } = await go(feeStore, feeBrowser);
+    ok(feeOut.status === "handback:payment_required" && feeBrowser.log.fills.length === 0, "fee disclosure stops as payment_required: " + phrase);
+  }
+
+  ok(classifyPage({ html: `<html><body><iframe src="https://www.google.com/recaptcha/api2/bframe"></iframe></body></html>` }) === "challenge", "recaptcha/api2/bframe classifies as challenge");
+  ok(classifyPage({ html: `<html><body><form><input id="firstName"><input id="email"></form><textarea name="g-recaptcha-response"></textarea></body></html>` }) === "form", "hidden v3 g-recaptcha-response textarea does not false-positive");
+}
+
+// ---- Defect 2: SMS code security (expiry 410, invalid 400, replay 409, >3 attempts 429, stranger 404, cleanup on cancel/timeout, no leak) ----
+{
+  const store = createMemoryStore({ status: "on" });
+  const run = await seedRun(store, { status: "queued" });
+  await store.updateRun(run.id, { status: "opening" }, { expect: "queued" });
+  await store.updateRun(run.id, { status: "form_ready" }, { expect: "opening" });
+  await store.updateRun(run.id, { status: "filling" }, { expect: "form_ready" });
+  await store.updateRun(run.id, { status: "review" }, { expect: "filling" });
+  await store.updateRun(run.id, { status: "submitting" }, { expect: "review" });
+  await store.updateRun(run.id, { status: "awaiting_sms_code", sms_code: null, sms_code_expires_at: new Date(NOW + 60000).toISOString() }, { expect: "submitting" });
+
+  const mkHandlers = (uid, clock = NOW) => createBookingAgentHandlers({
+    env: ON, store, now: () => clock,
+    registry: { forPlace: async () => ({ id: "opentable_handoff", link: { rid: "100001" } }) },
+    readProfile: async () => PROFILE,
+    placeName: async () => "Synthetic Grill",
+    verifyUser: async () => ({ id: uid }),
+  });
+  const codePost = (id, code) => new Request(ORIGIN + "/api/reserve/agent/code", {
+    method: "POST",
+    headers: { origin: ORIGIN, "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ id, code }),
+  });
+
+  // Invalid code -> 400
+  const badRes = await mkHandlers(USER).submitCode(codePost(run.id, "12"));
+  ok(badRes.status === 400, "invalid SMS code returns 400");
+
+  // Another user -> 404
+  const strangerRes = await mkHandlers(OTHER).submitCode(codePost(run.id, "482910"));
+  ok(strangerRes.status === 404, "another user cannot submit SMS code (404)");
+
+  // Expired window -> 410
+  const expRes = await mkHandlers(USER, NOW + 120000).submitCode(codePost(run.id, "482910"));
+  const expJson = await expRes.json();
+  ok(expRes.status === 410 && expJson.error === "CODE_EXPIRED", "expired SMS code returns 410 CODE_EXPIRED");
+
+  // Valid submit -> 200 and no sms_code leaked in response
+  const okRes = await mkHandlers(USER).submitCode(codePost(run.id, "482910"));
+  const okJson = await okRes.json();
+  ok(okRes.status === 200 && !JSON.stringify(okJson).includes("482910") && okJson.run.sms_code === undefined, "submitCode returns 200 and never leaks sms_code");
+
+  // Replay while code pending -> 409
+  const replayRes = await mkHandlers(USER).submitCode(codePost(run.id, "999999"));
+  const replayJson = await replayRes.json();
+  ok(replayRes.status === 409 && replayJson.error === "CODE_ALREADY_SUBMITTED", "replayed SMS code returns 409 CODE_ALREADY_SUBMITTED");
+
+  // Attempt cap (>3) -> 429
+  await store.updateRun(run.id, { sms_code: null, sms_code_attempts: 3 }, { expect: "awaiting_sms_code" });
+  const capRes = await mkHandlers(USER).submitCode(codePost(run.id, "111222"));
+  const capJson = await capRes.json();
+  ok(capRes.status === 429 && capJson.error === "TOO_MANY_ATTEMPTS", "SMS code attempts >= 3 returns 429 TOO_MANY_ATTEMPTS");
+
+  // Cancel clears sms_code and sms_code_expires_at
+  await store.updateRun(run.id, { sms_code: "555666" }, { expect: "awaiting_sms_code" });
+  const cancelRes = await mkHandlers(USER).cancel(new Request(ORIGIN + "/api/reserve/agent/cancel", {
+    method: "POST",
+    headers: { origin: ORIGIN, "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ id: run.id }),
+  }));
+  const afterCancel = await store.getRun(run.id);
+  ok(cancelRes.status === 200 && afterCancel.sms_code === null && afterCancel.sms_code_expires_at === null, "cancel clears sms_code and sms_code_expires_at");
+
+  // Timeout in awaiting_sms_code clears sms_code and sms_code_expires_at
+  const tStore = createMemoryStore({ status: "on" });
+  const tRun = await seedRun(tStore);
+  const otSmsHtml = `<html><body><h1>Enter verification code</h1><p>We texted you a code.</p><input autocomplete="one-time-code"><button type="submit">Verify</button></body></html>`;
+  const tBrowser = scripted([form, { html: otSmsHtml }]);
+  const { out: tOut } = await go(tStore, tBrowser, ON, { now: () => Date.now(), smsTimeoutMs: 40, smsPollMs: 10 });
+  const tSaved = await tStore.getRun(tRun.id);
+  ok(tOut.status === "handback:phone_verification" && tSaved.sms_code === null && tSaved.sms_code_expires_at === null, "SMS timeout hands back phone_verification and clears sms_code_expires_at");
+}
+
+// ---- Defect 3: duplicate concurrent worker claim & unknown_after_submit checkUrl ----
+{
+  const store = createMemoryStore({ status: "on" });
+  await seedRun(store);
+  await seedRun(store);
+  let launches = 0;
+  const slowBrowser = {
+    async launch({ userAgent }) {
+      launches++;
+      return {
+        userAgent,
+        async open(url) {
+          await new Promise((r) => setTimeout(r, 30));
+          return {
+            async snapshot() { return { html: html("slot-gone.html"), httpStatus: 200, url, title: "" }; },
+            async fill() {},
+            async click() {},
+          };
+        },
+        async close() {},
+      };
+    },
+  };
+  const [r1, r2] = await Promise.all([go(store, slowBrowser), go(store, slowBrowser)]);
+  ok(launches === 1 && ((r1.out.ran && !r2.out.ran) || (!r1.out.ran && r2.out.ran)), "concurrent worker claims launch only 1 browser");
+
+  // unknown_after_submit exposes checkUrl while preserving handoffUrl === null
+  const uStore = createMemoryStore({ status: "on" });
+  const uRun = await seedRun(uStore);
+  await uStore.updateRun(uRun.id, { status: "opening" }, { expect: "queued" });
+  await uStore.updateRun(uRun.id, { status: "form_ready" }, { expect: "opening" });
+  await uStore.updateRun(uRun.id, { status: "filling" }, { expect: "form_ready" });
+  await uStore.updateRun(uRun.id, { status: "review" }, { expect: "filling" });
+  await uStore.updateRun(uRun.id, { status: "submitting" }, { expect: "review" });
+  await uStore.updateRun(uRun.id, { status: "unknown_after_submit", reason: "network" }, { expect: "submitting" });
+  const uHandlers = createBookingAgentHandlers({
+    env: ON, store: uStore, now: () => NOW,
+    registry: { forPlace: async () => ({ id: "opentable_handoff", link: { rid: "100001" } }) },
+    readProfile: async () => PROFILE, placeName: async () => "Synthetic Grill", verifyUser: async () => ({ id: USER }),
+  });
+  const uRes = await uHandlers.status(new Request(ORIGIN + "/api/reserve/agent/status?id=" + uRun.id, { headers: { origin: ORIGIN } }));
+  const uJson = await uRes.json();
+  ok(uRes.status === 200 && uJson.run.handoffUrl === null && typeof uJson.run.checkUrl === "string" && uJson.run.checkUrl.includes("/api/reserve/go"), "unknown_after_submit provides checkUrl and keeps handoffUrl null");
+}
+
+// ---- Defect 4: missing profile, missing/wrong restaurant on confirmation, seating choice refusal ----
+{
+  // Missing profile -> failed:profile, no browser launched
+  const pStore = createMemoryStore({ status: "on" });
+  const pBrowser = scripted([form, confirmed]);
+  await seedRun(pStore);
+  const { out: pOut } = await go(pStore, pBrowser, ON, { loadProfile: async () => ({ first_name: "Ada" }) });
+  ok(pOut.status === "failed:profile" && pBrowser.log.launched === 0, "incomplete profile fails without launching browser");
+
+  // Missing restaurant name in confirmation HTML -> unknown_after_submit (no fallbackRestaurant!)
+  const noRestHtml = `<html><body><h1>Reservation confirmed</h1><p>Confirmation number OTSYN2002</p><p>Date 2026-11-20</p><p>Time 19:00</p><p>Party 4</p></body></html>`;
+  ok(parseConfirmation(noRestHtml) === null, "parseConfirmation returns null when restaurant name is absent from HTML");
+  const nrStore = createMemoryStore({ status: "on" });
+  const nrBrowser = scripted([form, { html: noRestHtml }]);
+  await seedRun(nrStore);
+  const { out: nrOut } = await go(nrStore, nrBrowser);
+  ok(nrOut.status === "unknown_after_submit", "confirmation missing restaurant name ends unknown_after_submit, not confirmed");
+
+  // Wrong restaurant name -> unknown_after_submit
+  const wrongRestHtml = `<html><body><h1>Reservation confirmed</h1><p>Confirmation number OTSYN2003</p><p>Restaurant Wrong Bistro</p><p>Date 2026-11-20</p><p>Time 19:00</p><p>Party 4</p></body></html>`;
+  const wrStore = createMemoryStore({ status: "on" });
+  const wrBrowser = scripted([form, { html: wrongRestHtml }]);
+  await seedRun(wrStore);
+  const { out: wrOut } = await go(wrStore, wrBrowser);
+  ok(wrOut.status === "unknown_after_submit", "confirmation with mismatched restaurant name ends unknown_after_submit");
+
+  // Seating choice modal refuses to silently auto-pick Standard
+  const sStore = createMemoryStore({ status: "on" });
+  await seedRun(sStore);
+  let clickedOptional = false;
+  let stage = "slots";
+  const slotsHtml = `<html><body><button data-test="slot-button">7:00 PM</button></body></html>`;
+  const seatingHtml = `<html><body><h2>Choose your seating</h2><button data-synthetic="seating-standard">Standard</button><button>Outdoor</button></body></html>`;
+  const { out: sOut } = await go(sStore, {
+    async launch({ userAgent }) {
+      return {
+        userAgent,
+        async open() {
+          return {
+            async snapshot() { return { html: stage === "slots" ? slotsHtml : seatingHtml, httpStatus: 200, url: "https://www.opentable.com/restref/client/", title: "OpenTable" }; },
+            async clickSlot() { stage = "seating"; return true; },
+            async clickOptional() { clickedOptional = true; return true; },
+            async waitForSettled() {},
+            async fill() {},
+            async click() {},
+          };
+        },
+        async close() {},
+      };
+    },
+  });
+  ok(sOut.status === "handback:unrecognized_page" && clickedOptional === false, "seating choice prompt stops cleanly without silently picking Standard");
+}
+
+// ---- Defect 5: disabled endpoints with throwing store (absent migration does not break disabled routes) ----
+{
+  const throwingStore = new Proxy({}, { get() { throw new Error("relation wf_booking_agent_sites does not exist"); } });
+  const hOff = createBookingAgentHandlers({
+    env: {},
+    store: throwingStore,
+    registry: { forPlace: async () => { throw new Error("should not call registry"); } },
+    readProfile: async () => { throw new Error("should not call readProfile"); },
+    verifyUser: async () => { throw new Error("should not call verifyUser"); },
+  });
+  const postOff = (path, body) => new Request(ORIGIN + path, {
+    method: "POST",
+    headers: { origin: ORIGIN, "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify(body),
+  });
+  const rStart = await hOff.start(postOff("/api/reserve/agent/start", { placeId: PLACE }));
+  const rStatus = await hOff.status(new Request(ORIGIN + "/api/reserve/agent/status?id=" + USER, { headers: { origin: ORIGIN } }));
+  const rCancel = await hOff.cancel(postOff("/api/reserve/agent/cancel", { id: USER }));
+  const rCode = await hOff.submitCode(postOff("/api/reserve/agent/code", { id: USER, code: "123456" }));
+  ok(rStart.status === 404 && rStatus.status === 404 && rCancel.status === 404 && rCode.status === 404, "all 4 disabled endpoints return 404 before touching store/migration");
+}
+
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }
 console.log(`test-booking-agent: OK - ${count} assertions (local fixtures, no live site)`);
