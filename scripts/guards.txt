@@ -125,6 +125,7 @@ node scripts/check-cron-post-nostore.mjs
 node scripts/test-sentry-lazy.mjs
 node scripts/test-client-buffer-scan.mjs
 node scripts/test-sentry-meta-iab.mjs
+node scripts/test-nov18-alerts.mjs
 node scripts/test-sentry-webkit-bridge.mjs
 node scripts/test-sentry-mapkit-nan-weather.mjs
 node scripts/check-cache-refresh.mjs
@@ -2341,6 +2342,7 @@ node scripts/test-halloween-haunt.mjs
 node scripts/test-santa-chat.mjs
 node scripts/test-haunt-photos.mjs
 node scripts/test-place-detail-gallery.mjs
+node scripts/test-place-hero-preload.mjs
 node scripts/test-event-page-static-reads.mjs
 node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
