@@ -1,0 +1,56 @@
+{
+  "magic-kingdom": {
+    "features": 1944,
+    "errors": [
+      "relation/9710009: inner outside outer"
+    ],
+    "types": {
+      "Polygon": 1128,
+      "LineString": 816
+    }
+  },
+  "epcot": {
+    "features": 3159,
+    "errors": [
+      "relation/8610102: inner outside outer",
+      "relation/17751279: inner outside outer"
+    ],
+    "types": {
+      "Polygon": 1638,
+      "MultiPolygon": 5,
+      "LineString": 1516
+    }
+  },
+  "hollywood-studios": {
+    "features": 1365,
+    "errors": [
+      "relation/7449597: inner outside outer"
+    ],
+    "types": {
+      "Polygon": 791,
+      "MultiPolygon": 2,
+      "LineString": 572
+    }
+  },
+  "animal-kingdom": {
+    "features": 1336,
+    "errors": [],
+    "types": {
+      "Polygon": 668,
+      "MultiPolygon": 4,
+      "LineString": 664
+    }
+  },
+  "disney-springs": {
+    "features": 1972,
+    "errors": [
+      "relation/7932663: inner outside outer",
+      "relation/14338474: inner outside outer"
+    ],
+    "types": {
+      "Polygon": 868,
+      "MultiPolygon": 7,
+      "LineString": 1097
+    }
+  }
+}
