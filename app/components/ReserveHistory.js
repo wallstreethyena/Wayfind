@@ -15,16 +15,16 @@ function Row({ children, id }) {
 }
 
 export function ReserveHistoryView({ onClose }) {
-  const [state, setState] = useState({ s: "loading", bookings: [] });
+  const [state, setState] = useState({ s: "loading", bookings: [], agentRuns: [] });
   const [handoffs, setHandoffs] = useState([]);
   const [busyId, setBusyId] = useState("");
   const [askId, setAskId] = useState("");
   const [error, setError] = useState("");
   const load = useCallback(async () => {
     const r = await reserveHistory();
-    if (r.status === 401) setState({ s: "signedout", bookings: [] });
-    else if (r.ok && Array.isArray(r.bookings)) setState({ s: "ready", bookings: r.bookings });
-    else setState({ s: "error", bookings: [] });
+    if (r.status === 401) setState({ s: "signedout", bookings: [], agentRuns: [] });
+    else if (r.ok && Array.isArray(r.bookings)) setState({ s: "ready", bookings: r.bookings, agentRuns: Array.isArray(r.agentRuns) ? r.agentRuns : [] });
+    else setState({ s: "error", bookings: [], agentRuns: [] });
   }, []);
   useEffect(() => { setHandoffs(readHandoffs()); load(); }, [load]);
 
@@ -81,6 +81,19 @@ export function ReserveHistoryView({ onClose }) {
           </Row>
         );
       })}
+      {state.agentRuns && state.agentRuns.length ? (
+        <div data-reserve-agent-runs="1" style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: C.text, marginBottom: 8 }}>OpenTable booking help</div>
+          {state.agentRuns.map((run) => (
+            <Row key={run.id} id={run.id}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: C.text, overflowWrap: "anywhere" }}>{run.restaurantName || "Restaurant"}</div>
+              <div style={{ fontSize: 14, color: C.light, margin: "2px 0 6px" }}>{[run.date ? dateLabel(run.date) : "", run.time ? timeLabel(run.time) : "", run.partySize ? run.partySize + (run.partySize === 1 ? " person" : " people") : ""].filter(Boolean).join(" · ")}</div>
+              <div style={{ fontSize: 13, color: run.status === "confirmed" ? C.green : C.muted, fontWeight: 700 }}>{run.sentence}</div>
+              {run.status && String(run.status).indexOf("handback:") === 0 ? <a href={reserveGoUrl({ placeId: run.placeId, date: run.date, time: run.time, party: run.partySize })} target="_blank" rel="noopener noreferrer" style={{ ...linkBtn, marginTop: 8 }}>Finish on OpenTable</a> : null}
+            </Row>
+          ))}
+        </div>
+      ) : null}
       {handoffs.length ? (
         <div data-reserve-handoffs="1" style={{ marginTop: 14 }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: C.text, marginBottom: 8 }}>Started on OpenTable</div>

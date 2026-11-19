@@ -1231,6 +1231,30 @@
    "detail": "Regressing it could send a fixture as a live conversion into Google Ads, leak OAuth secrets into logs or the job pulse, or report a broken credential as healthy so the first real booking upload fails silently."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/check-booking-agent.mjs": {
+  "protects": "The booking agent cannot evade a site: no stealth packages, no fingerprint patching, the exact Wayfind user agent, placeholder selectors, and the worker stays out of the client bundle and the nav.",
+  "blastRadius": {
+   "category": "trust",
+   "detail": "A stealth browser or a worker pulled into the homepage bundle would hide the agent from restaurants and ship a browser runtime to every visitor."
+  },
+  "owner": "owner (Gabriel)"
+ },
+ "scripts/test-booking-agent.mjs": {
+  "protects": "The supervised OpenTable agent stays dark unless all three switches are on, never types on a challenge, login, payment or code page, clicks submit once, and says Booked only when the parsed confirmation matches.",
+  "blastRadius": {
+   "category": "trust",
+   "detail": "A retried submit or a Booked sentence without a matching OpenTable confirmation could double book a guest or tell them a table exists when it does not."
+  },
+  "owner": "owner (Gabriel)"
+ },
+ "scripts/test-booking-agent-browser.mjs": {
+  "protects": "The Playwright pass serves synthetic pages from a local server and fulfills every non-local document itself, so the suite never contacts OpenTable, Resy or Tock.",
+  "blastRadius": {
+   "category": "trust",
+   "detail": "A test that followed a real booking URL would hit a live site from CI and could create or probe a real reservation."
+  },
+  "owner": "owner (Gabriel)"
  }
 }
 
