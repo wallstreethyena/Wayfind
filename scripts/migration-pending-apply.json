@@ -89,5 +89,19 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2561",
     "reason": "NOT APPLIED YET. Data only: raises the existing wf_heartbeat_expected row for guide-visual-monitor from 720 to 1080 minutes (GitHub's measured worst gap for this 6-hourly workflow is 935min over 40 runs). Applied after merge by claude.exe (Wayfind lane) under the owner's monitoring-fix mission (2026-11-16), then this entry is replaced by an apply receipt. Rollback: set it back to 720."
+  },
+  {
+    "file": "supabase/migrations/20261119130000_wf_inventory_junk_metro_relabels.sql",
+    "sha256": "c0bb2abae7c844f45f44be0f8857ac840dd1c37ab46aebc28db5e9d11e92ef83",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2628",
+    "reason": "NOT APPLIED YET. Data only: relabels two Florida rows from junk out-of-state metro keys (city-37.3--85.4, boardman-or) to st-augustine-fl / florida. Owner-approved 2026-11-19 (full-audit P3 fix). Applied after merge with the exact file bytes, then this entry is replaced by an apply receipt. Rollback in the file header."
+  },
+  {
+    "file": "supabase/migrations/20261119130100_wf_inventory_exclude_non_florida.sql",
+    "sha256": "3a2b19e832409e0023fa14ca37153779fa1fde881dde23b54bd8003c29ae9aee",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2628",
+    "reason": "NOT APPLIED YET. Data only: marks ~5,017 OPERATIONAL non-Florida inventory rows excluded (out_of_scope:non_florida); reversible, deletes nothing. Verified not visitor-visible 2026-11-19 (404s, absent from sitemap). Owner-approved 2026-11-19 (full-audit P3 fix). Applied after merge with the exact file bytes, then this entry is replaced by an apply receipt. Rollback in the file header."
   }
 ]

@@ -2729,3 +2729,8 @@ node scripts/check-portrait-photo-fit.mjs
 
 # Metro photo coverage = servable photos (stored/free/owned lanes), never the placeholder photo_ref.
 node scripts/test-metro-photo-coverage.mjs
+
+node scripts/test-disney-food-map.mjs
+node scripts/test-disney-geographic-map.mjs
+
+node scripts/test-disney-food-posts.mjs

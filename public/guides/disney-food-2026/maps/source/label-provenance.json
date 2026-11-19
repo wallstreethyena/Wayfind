@@ -1,0 +1,212 @@
+{
+  "magic-kingdom": {
+    "core": [
+      {
+        "featureId": "way/121516748",
+        "label": "Cinderella Castle",
+        "longitude": -81.58117821425924,
+        "latitude": 28.419502345546793
+      },
+      {
+        "featureId": "way/296125663",
+        "label": "Main Street Station",
+        "longitude": -81.58120042085065,
+        "latitude": 28.416491726314938
+      },
+      {
+        "featureId": "way/41831418",
+        "label": "The Haunted Mansion",
+        "longitude": -81.58289061697545,
+        "latitude": 28.420888171689477
+      }
+    ],
+    "whole": [
+      {
+        "featureId": "way/121516748",
+        "label": "Cinderella Castle",
+        "longitude": -81.58117821425924,
+        "latitude": 28.419502345546793
+      },
+      {
+        "featureId": "way/296125663",
+        "label": "Main Street Station",
+        "longitude": -81.58120042085065,
+        "latitude": 28.416491726314938
+      },
+      {
+        "featureId": "way/296326395",
+        "label": "Space Mountain",
+        "longitude": -81.57725241616649,
+        "latitude": 28.419142079984226
+      },
+      {
+        "featureId": "way/41831418",
+        "label": "The Haunted Mansion",
+        "longitude": -81.58289061697545,
+        "latitude": 28.420888171689477
+      }
+    ]
+  },
+  "epcot": {
+    "core": [
+      {
+        "featureId": "way/146221550",
+        "label": "Spaceship Earth",
+        "longitude": -81.54939641229157,
+        "latitude": 28.375292427718346
+      },
+      {
+        "featureId": "relation/3930723",
+        "label": "World Showcase Lagoon",
+        "longitude": -81.54926257956275,
+        "latitude": 28.36972309819007
+      },
+      {
+        "featureId": "way/295598769",
+        "label": "Mexico Pavilion",
+        "longitude": -81.54697546992878,
+        "latitude": 28.371843125583183
+      }
+    ],
+    "whole": [
+      {
+        "featureId": "way/146221550",
+        "label": "Spaceship Earth",
+        "longitude": -81.54939641229157,
+        "latitude": 28.375292427718346
+      },
+      {
+        "featureId": "relation/3930723",
+        "label": "World Showcase Lagoon",
+        "longitude": -81.54926257956275,
+        "latitude": 28.36972309819007
+      },
+      {
+        "featureId": "way/295598769",
+        "label": "Mexico Pavilion",
+        "longitude": -81.54697546992878,
+        "latitude": 28.371843125583183
+      },
+      {
+        "featureId": "way/373112775",
+        "label": "Japan Pavilion",
+        "longitude": -81.55070768589692,
+        "latitude": 28.367198625499768
+      }
+    ]
+  },
+  "hollywood-studios": {
+    "core": [
+      {
+        "featureId": "relation/3919624",
+        "label": "Echo Lake",
+        "longitude": -81.55928309246347,
+        "latitude": 28.35708004375132
+      },
+      {
+        "featureId": "way/294898804",
+        "label": "Mickey and Minnie's Runaway Railway",
+        "longitude": -81.56048214243754,
+        "latitude": 28.35607282010199
+      }
+    ],
+    "whole": [
+      {
+        "featureId": "relation/3919624",
+        "label": "Echo Lake",
+        "longitude": -81.55928309246347,
+        "latitude": 28.35708004375132
+      },
+      {
+        "featureId": "way/294898804",
+        "label": "Mickey and Minnie's Runaway Railway",
+        "longitude": -81.56048214243754,
+        "latitude": 28.35607282010199
+      },
+      {
+        "featureId": "way/530750421",
+        "label": "The Twilight Zone Tower of Terror",
+        "longitude": -81.55991898756919,
+        "latitude": 28.360006698922323
+      },
+      {
+        "featureId": "way/688502132",
+        "label": "Millennium Falcon: Smugglers Run",
+        "longitude": -81.56173456621029,
+        "latitude": 28.353468936342807
+      }
+    ]
+  },
+  "animal-kingdom": {
+    "core": [
+      {
+        "featureId": "way/295879946",
+        "label": "Tree of Life",
+        "longitude": -81.59059729832173,
+        "latitude": 28.357943432214046
+      },
+      {
+        "featureId": "way/295881759",
+        "label": "Harambe Theatre",
+        "longitude": -81.59294913878267,
+        "latitude": 28.358437190825832
+      },
+      {
+        "featureId": "way/296060954",
+        "label": "Theater In The Wild",
+        "longitude": -81.5871410341655,
+        "latitude": 28.35722881927135
+      },
+      {
+        "featureId": "relation/3937134",
+        "label": "Expedition Everest: Legend of the Forbidden Mountain",
+        "longitude": -81.58722582792664,
+        "latitude": 28.358623908713106
+      }
+    ],
+    "whole": [
+      {
+        "featureId": "way/295879946",
+        "label": "Tree of Life",
+        "longitude": -81.59059729832173,
+        "latitude": 28.357943432214046
+      },
+      {
+        "featureId": "way/295881759",
+        "label": "Harambe Theatre",
+        "longitude": -81.59294913878267,
+        "latitude": 28.358437190825832
+      },
+      {
+        "featureId": "way/296060954",
+        "label": "Theater In The Wild",
+        "longitude": -81.5871410341655,
+        "latitude": 28.35722881927135
+      }
+    ]
+  },
+  "disney-springs": {
+    "core": [
+      {
+        "featureId": "way/292450920",
+        "label": "AMC Disney Springs 24",
+        "longitude": -81.52037842091043,
+        "latitude": 28.369768114366025
+      },
+      {
+        "featureId": "way/519160066",
+        "label": "Disney Springs Welcome Center",
+        "longitude": -81.51727768847728,
+        "latitude": 28.370238173039375
+      }
+    ],
+    "whole": [
+      {
+        "featureId": "way/292450920",
+        "label": "AMC Disney Springs 24",
+        "longitude": -81.52037842091043,
+        "latitude": 28.369768114366025
+      }
+    ]
+  }
+}
