@@ -157,7 +157,7 @@ for (const [query,kind,value] of [['Coffee shop','experience','coffee'],['Pizza'
  assert.match(state.searchFeedback,/Search hit a snag/i); oneOutcome(state,'unavailable');
 }
 {
- const {ctx,state}=harness('Known Cafe'); await ctx.submitSearch('Known Cafe',{placeIntent:true,near:'Key West'});
+ const {ctx,state}=harness('Known Cafe'); await ctx.submitSearch('Known Cafe',{placeIntent:true,near:'Savannah, GA'}); // Key West became a covered market 2026-11-18
  assert.equal(state.calls.length,0,'an unsupported explicit guide region never searches the visitor city');
  assert.equal(state.detail.id,'old'); oneOutcome(state,'unavailable');
  assert.equal(outcomes(state)[0].reason,'unsupported_location');
