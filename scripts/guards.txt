@@ -596,6 +596,8 @@ node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs
 node scripts/check-guide-deal-cards.mjs
+# 2026-11-19 a business's own verified deal (Clipp certificate or venue offer) shows on /places/<id>, under the guide pick that names it, and in guide place rails: identity only (Place ID, never a name), tracked surface place_page_deal / guide_pick_deal, no invented deadline, fail closed after the recheck date. Red-proven by mutation.
+node scripts/check-place-deal.mjs
 node scripts/check-intro-instrumentation.mjs
 node scripts/check-intro-gate.mjs
 node scripts/check-hub-conversion.mjs
