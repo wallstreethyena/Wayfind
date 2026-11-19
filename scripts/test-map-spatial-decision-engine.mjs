@@ -2067,6 +2067,41 @@ let mapComponentMod = null;
   assert.notEqual(evSpan.state, "canceled");
   const spanReason = buildMapDecisionReason(unconfirmedSpanRow, { eventEval: evSpan });
   assert.ok(!/closed|canceled|sold out|christmas event tonight/i.test(spanReason), `unexpected reason "${spanReason}"`);
+
+  // 4a. P0 hotfix: undated / stripped event card (no start_date/end_date/occurrence_dates/visit_schedule) MUST fail closed
+  const strippedEventCard = {
+    id: "event:seaworld-orlando-christmas-2026",
+    kind: "event",
+    name: "SeaWorld Orlando",
+    lat: 28.411,
+    lng: -81.461,
+  };
+  const evStripped = evaluateEventEligibility(strippedEventCard, nov19EveningEst);
+  assert.equal(evStripped.activeToday, false, "Undated/stripped event card must NEVER evaluate activeToday: true");
+  assert.equal(evStripped.state, "unconfirmed_select_nights");
+  assert.notEqual(evStripped.state, "closed");
+  assert.notEqual(evStripped.state, "closed_day");
+  assert.notEqual(evStripped.state, "canceled");
+  const strippedReason = buildMapDecisionReason(strippedEventCard, { eventEval: evStripped });
+  assert.ok(!/christmas event tonight|closed|canceled|sold out/i.test(strippedReason), `unexpected stripped event reason "${strippedReason}"`);
+
+  // 4b. P0 hotfix: ownedSearch() in app/home.js preserves /api/search event schedule & hours metadata
+  const homeSrc = readFileSync(fileURLToPath(new URL("../app/home.js", import.meta.url)), "utf8");
+  const ownedSearchMatch = homeSrc.match(/async function ownedSearch\([\s\S]*?\n  \}/);
+  assert.ok(ownedSearchMatch, "ownedSearch function exists in app/home.js");
+  const ownedSearchBody = ownedSearchMatch[0];
+  for (const requiredField of [
+    "occurrence_dates",
+    "start_date",
+    "end_date",
+    "select_nights",
+    "schedule_note",
+    "event_status",
+    "visit_schedule",
+    "ownedHours",
+  ]) {
+    assert.ok(ownedSearchBody.includes(requiredField), `ownedSearch() must preserve "${requiredField}" from /api/search cards`);
+  }
 }
 
 console.log("test-map-spatial-decision-engine: OK — all 9 spatial decision engine suites, 7 event schedule cases, Wave 3 verified occurrences & Hard Test SSR verified");
