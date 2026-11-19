@@ -279,8 +279,9 @@ function CITIES() {
   ok(music.select_nights === false, "a daily run with select-night music stays daily");
   const real = researchEvent({ id: "x-select", state: "confirmed_dated", start_date: "2026-11-19", end_date: "2027-01-05", schedule: "Select nights: Nov 19 to 22, 27 to 29; Dec 3 to 6; Jan 3, 5", times: "7 PM", price: "unannounced", event_name: "V", city: "Orlando", primary_rail: "lights" });
   ok(real.select_nights === true && real.occurrence_dates && real.occurrence_dates.length === 13, "a real select-nights schedule keeps every listed night");
-  const uni = cards.find((c) => c.id === "universal-holidays-2026" || c.slug === "universal-holidays-2026" || c.event_id === "universal-holidays-2026");
-  ok(!uni || (uni.select_nights !== true && !(uni.occurrence_dates || []).length), "Universal Holidays reads as nightly, not select nights");
+  const uniRow = RAW.find((r) => r.id === "universal-holidays-2026");
+  const uniEvent = uniRow ? researchEvent(uniRow) : null;
+  ok(!!uniEvent && uniEvent.select_nights === false && !uniEvent.occurrence_dates, "the real Universal Holidays row reads as nightly, not select nights");
   const t = parseResearchTimes("5:30 PM to 9:30 PM CT");
   ok(t.start_time === "17:30:00" && t.end_time === "21:30:00" && t.timezone === "America/Chicago", "times parse, and a Central Time row keeps its zone");
   const jan = cards.find((c) => c.end_date && c.end_date >= "2027-01-01");
