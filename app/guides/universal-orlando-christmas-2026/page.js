@@ -1,4 +1,4 @@
-import GuideArticleHero from "../../components/GuideArticleHero";
+import GuideStandardShell, { GuideSection } from "../../components/GuideStandardShell";
 import ShareButton from "../../components/ShareButton";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
 import GuideFigure from "../../components/GuideFigure";
@@ -21,7 +21,21 @@ export const metadata = {
   openGraph: { title: content.title, description: content.description, url: CANONICAL, type: "article", images: [{ url: share, width: hero.width, height: hero.height, alt: hero.alt }] },
   twitter: { card: "summary_large_image", title: content.title, description: content.description, images: [share] },
 };
-const schema = [{ "@context": "https://schema.org", "@type": "Article", headline: content.title, description: content.description, datePublished: "2026-11-17", dateModified: "2026-11-17", mainEntityOfPage: CANONICAL, image: { "@type": "ImageObject", url: share, width: hero.width, height: hero.height }, author: { "@type": "Person", name: "Gabriel Pereira" }, publisher: { "@type": "Organization", name: "Wayfind", url: SITE_URL } }, { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 2, name: content.title, item: CANONICAL }] }];
+
+// Each content section opens with its own <h2 id> in the authored HTML. The
+// standard frame renders that heading as the numbered GuideSection title, so
+// the leading <h2> (and the hand-numbered "01" span some carried) is lifted
+// out of the first block here. Source is our own checked-in JSON.
+const LEAD_H2 = /^\s*<h2\b[^>]*>([\s\S]*?)<\/h2>\s*/;
+const plain = (html) => html.replace(/<span class="wf-number"[^>]*>[\s\S]*?<\/span>/g, "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+const SECTIONS = content.sections.map((section) => {
+  const [first, ...rest] = section.blocks;
+  const m = first?.kind === "html" ? LEAD_H2.exec(first.html) : null;
+  if (!m) throw new Error("Universal guide section " + section.id + " must open with its <h2>");
+  const body = first.html.slice(m[0].length);
+  return { id: section.id, title: plain(m[1]), blocks: body.trim() ? [{ ...first, html: body }, ...rest] : rest };
+});
+const EYEBROWS = { "islands-of-adventure": "Grinchmas", "universal-studios-florida": "The parade", "epic-universe": "Mario and dragons", "universal-citywalk": "An evening out" };
 
 function Picture({ photoKey, role = "pick" }) {
   const image = content.photos[photoKey];
@@ -39,17 +53,26 @@ function Block({ block }) {
   return <div className={styles.richText} dangerouslySetInnerHTML={{ __html: block.html }} />;
 }
 export default function UniversalChristmasGuide() {
-  return <div className={styles.page}><article className={styles.article}>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
-    <GuideArticleHero title={content.title} description={content.description} region="Orlando" category="Christmas guide" image={hero} updatedLabel="By Gabriel Pereira · Checked November 17, 2026" jumpHref="#explore-the-park" jumpLabel="Explore the map" actions={<ShareButton url={pageShareUrl("/guides/universal-orlando-christmas-2026")} title={content.title} text="Let’s pick our Universal holiday day." label="Share guide" tone="dark" meta={{ page: "guide", slug: SLUG }} />}>
-      <div className={styles.quickChoices}>{[["#islands-of-adventure", "The Grinch", "Islands of Adventure"], ["#universal-studios-florida", "The parade", "Universal Studios Florida"], ["#epic-universe", "Mario & dragons", "Epic Universe"], ["#universal-citywalk", "An evening out", "CityWalk"]].map(([href, title, text]) => <a href={href} key={href}><strong>{title}</strong><span>{text}</span></a>)}</div>
-    </GuideArticleHero>
-    <div id="guide" className={styles.reading}>
-      <div className={styles.intro} dangerouslySetInnerHTML={{ __html: content.intro }} />
-      <UniversalHolidayMap />
-      <nav className={styles.readingNav} aria-label="In this guide">{[["#islands-of-adventure", "Grinchmas"], ["#universal-studios-florida", "The parade"], ["#epic-universe", "Epic Universe"], ["#holiday-food-shortlist", "What to eat"], ["#park-routes-you-can-actually-use", "Your park plan"], ["#parking-and-arrival", "Getting there"]].map(([href, title]) => <a key={href} href={href}>{title}</a>)}</nav>
-      {content.sections.map(section => <section className={styles.section} data-guide-section={section.id} key={section.id}>{section.blocks.map((block, index) => <Block key={index} block={block} />)}</section>)}
-      <section className={styles.sources}><div dangerouslySetInnerHTML={{ __html: content.closingCredits }} /><details><summary>Food photography and illustrated map</summary><p>The food selection photographs are supplied by Universal Orlando for editorial reporting. ©2026 Universal Orlando. All Rights Reserved. Provider-prepared renditions are displayed without cropping or other alterations. <a href="https://media.universalparksusa.com/usage-policy/" target="_blank" rel="noopener noreferrer">Usage policy</a>.</p><p>The owner-approved illustrated map is original generated artwork based on official park layouts. Its positions are approximate; use the official Universal maps and app for walking directions and current operations.</p></details></section>
-    </div>
-  </article></div>;
+  return <GuideStandardShell
+    slug={SLUG}
+    title={content.title}
+    description={content.description}
+    image={hero}
+    region="Orlando"
+    category="Christmas guide"
+    published="2026-11-17"
+    updated={content.researchChecked}
+    jumpHref="#explore-the-park"
+    jumpLabel="Explore the map"
+    actions={<ShareButton url={pageShareUrl("/guides/universal-orlando-christmas-2026")} title={content.title} text="Let’s pick our Universal holiday day." label="Share guide" tone="dark" meta={{ page: "guide", slug: SLUG }} />}
+    quick={<div className={styles.quickChoices}>{[["#islands-of-adventure", "The Grinch", "Islands of Adventure"], ["#universal-studios-florida", "The parade", "Universal Studios Florida"], ["#epic-universe", "Mario & dragons", "Epic Universe"], ["#universal-citywalk", "An evening out", "CityWalk"]].map(([href, title, text]) => <a href={href} key={href}><strong>{title}</strong><span>{text}</span></a>)}</div>}
+    intro={<div className="wf-guide-intro" dangerouslySetInnerHTML={{ __html: content.intro }} />}
+    contents={SECTIONS.map((s) => ({ href: "#" + s.id, label: s.title }))}
+    lead={<div className={styles.reading}><UniversalHolidayMap /></div>}
+  >
+    {SECTIONS.map((section, i) => <GuideSection key={section.id} index={i + 1} id={section.id} eyebrow={EYEBROWS[section.id] || null} title={section.title}>
+      <div className={styles.reading}>{section.blocks.map((block, index) => <Block key={index} block={block} />)}</div>
+    </GuideSection>)}
+    <section className={`${styles.sources} ${styles.reading}`}><div dangerouslySetInnerHTML={{ __html: content.closingCredits }} /><details><summary>Food photography and illustrated map</summary><p>The food selection photographs are supplied by Universal Orlando for editorial reporting. ©2026 Universal Orlando. All Rights Reserved. Provider-prepared renditions are displayed without cropping or other alterations. <a href="https://media.universalparksusa.com/usage-policy/" target="_blank" rel="noopener noreferrer">Usage policy</a>.</p><p>The owner-approved illustrated map is original generated artwork based on official park layouts. Its positions are approximate; use the official Universal maps and app for walking directions and current operations.</p></details></section>
+  </GuideStandardShell>;
 }

@@ -1,4 +1,4 @@
-import GuideArticleHero from "../../components/GuideArticleHero";
+import GuideStandardShell, { GuideSection } from "../../components/GuideStandardShell";
 import ShareButton from "../../components/ShareButton";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
 import GuideFigure from "../../components/GuideFigure";
@@ -156,29 +156,41 @@ const otherSeasons = [
   ["Brewhouse + llama evenings", "Craft beer, food, live music and llama time give adults and families a reason to visit outside the main seasonal ticket windows."]
 ];
 
+const CONTENTS = [
+  { href: "#gallery", label: "See Pinto's Farm" },
+  { href: "#farm-map", label: "Pinto's Farm map" },
+  { href: "#included", label: "Eight included fall activities" },
+  { href: "#tickets", label: "2026 ticket choices" },
+  { href: "#family-plan", label: "Go early and front-load the animals." },
+  { href: "#know-before", label: "The rules that change the day." },
+  { href: "#special-dates", label: "Dog days, Goat Yoga and Oktoberfest" },
+  { href: "#night-option", label: "Pumpkins & Pints is a different experience." },
+  { href: "#beyond-fall", label: "Pinto's has more than pumpkin season." },
+  { href: "#ready", label: "Check your exact date before driving." }
+];
+
 export default function PintosFarmGuidePage() {
   return (
-    <main className={styles.page}>
-      <GuideArticleHero
-        title="Pinto's Farm Miami: Fall 2026"
-        description="Rides, animals, pumpkins, a corn maze, photo spots and the ticket details that matter, plus a map of where everything is on the farm."
-        image={heroPhoto}
-        region="Miami"
-        category="Farm guide"
-        updatedLabel="Checked September 22, 2026"
-        jumpHref="#guide"
-        jumpLabel="Plan your visit"
-        actions={<ShareButton
-          url={pageShareUrl("/guides/pintos-farm-miami-2026")}
-          title={"Pinto's Farm Miami: Fall 2026"}
-          text={"Pinto's Farm Miami, fall 2026: rides, animals, pumpkins and the ticket details that matter. On Wayfind."}
-          tone="dark"
-          event="guide_share"
-          meta={{ slug: "pintos-farm-miami-2026", placement: "hero" }}
-        />}
-      />
-
-      <article id="guide" className={styles.article}>
+    <GuideStandardShell
+      slug={SLUG}
+      title="Pinto's Farm Miami: Fall 2026"
+      description="Rides, animals, pumpkins, a corn maze, photo spots and the ticket details that matter, plus a map of where everything is on the farm."
+      image={heroPhoto}
+      region="Miami"
+      category="Farm guide"
+      updated="2026-09-22"
+      jumpHref="#guide"
+      jumpLabel="Plan your visit"
+      actions={<ShareButton
+        url={pageShareUrl("/guides/pintos-farm-miami-2026")}
+        title={"Pinto's Farm Miami: Fall 2026"}
+        text={"Pinto's Farm Miami, fall 2026: rides, animals, pumpkins and the ticket details that matter. On Wayfind."}
+        tone="dark"
+        event="guide_share"
+        meta={{ slug: "pintos-farm-miami-2026", placement: "hero" }}
+      />}
+      contents={CONTENTS}
+      lead={<>
         <section className={styles.lead}>
           <p className={styles.kicker}>The useful answer</p>
           <h2>A full young-family fall day, not just a pumpkin stop.</h2>
@@ -194,128 +206,120 @@ export default function PintosFarmGuidePage() {
         <div className={styles.factGrid}>
           {facts.map(([label, value]) => <div className={styles.fact} key={label}><small>{label}</small><strong>{value}</strong></div>)}
         </div>
+      </>}
+    >
+      <GuideSection index={1} id="gallery" eyebrow="Photo gallery" title="See Pinto's Farm">
+        <div className={styles.sectionHead} style={{ justifyContent: "flex-end" }}>
+          <a href={OFFICIAL_TICKETS} target="_blank" rel="noopener" className={styles.primaryAction}>Official tickets ↗</a>
+        </div>
+        <div className={styles.galleryGrid}>
+          {GALLERY.map((photo) => (
+            <GuideFigure
+              key={photo.src}
+              role="tile"
+              image={photo}
+              sizes="(max-width: 700px) 47vw, (max-width: 1000px) 31vw, 23vw"
+              className={styles.galleryItem}
+              imgClassName={styles.galleryImg}
+              fallbackClassName={styles.galleryFallback}
+              captionClassName={styles.galleryCaption}
+            />
+          ))}
+        </div>
+        <p className={styles.galleryCredit}>
+          Photos courtesy of{" "}
+          <a href={PINTOS_FARM_SITE} target="_blank" rel="noopener">Pinto's Farm</a>
+        </p>
+      </GuideSection>
 
-        <section className={styles.cardSection} aria-labelledby="gallery-heading">
-          <div className={styles.sectionHead}>
-            <div><p className={styles.kicker}>Photo gallery</p><h2 id="gallery-heading">See Pinto's Farm</h2></div>
-            <a href={OFFICIAL_TICKETS} target="_blank" rel="noopener" className={styles.primaryAction}>Official tickets ↗</a>
-          </div>
-          <div className={styles.galleryGrid}>
-            {GALLERY.map((photo) => (
-              <GuideFigure
-                key={photo.src}
-                role="tile"
-                image={photo}
-                sizes="(max-width: 700px) 47vw, (max-width: 1000px) 31vw, 23vw"
-                className={styles.galleryItem}
-                imgClassName={styles.galleryImg}
-                fallbackClassName={styles.galleryFallback}
-                captionClassName={styles.galleryCaption}
-              />
-            ))}
-          </div>
-          <p className={styles.galleryCredit}>
-            Photos courtesy of{" "}
-            <a href={PINTOS_FARM_SITE} target="_blank" rel="noopener">Pinto's Farm</a>
-          </p>
-        </section>
-
+      <GuideSection index={2} id="farm-map" eyebrow="Plan the farm" title="Pinto's Farm map">
         <PintosFarmMap />
+      </GuideSection>
 
-        <section className={styles.section}>
-          <p className={styles.kicker}>What your ticket covers</p>
-          <h2>Eight included fall activities</h2>
-          <div className={styles.includedGrid}>
-            {included.map(([name, detail]) => <div className={styles.includedItem} key={name}><strong>{name}</strong><span>{detail}</span></div>)}
-          </div>
-          <p className={styles.smallPrint}>All animal encounters close at 6 PM. Pony rides are limited to children up to 75 pounds and 48 inches tall.</p>
-        </section>
+      <GuideSection index={3} id="included" eyebrow="What your ticket covers" title="Eight included fall activities">
+        <div className={styles.includedGrid}>
+          {included.map(([name, detail]) => <div className={styles.includedItem} key={name}><strong>{name}</strong><span>{detail}</span></div>)}
+        </div>
+        <p className={styles.smallPrint}>All animal encounters close at 6 PM. Pony rides are limited to children up to 75 pounds and 48 inches tall.</p>
+      </GuideSection>
 
-        <section className={styles.section}>
-          <p className={styles.kicker}>Pick the right admission</p>
-          <h2>2026 ticket choices</h2>
-          <div className={styles.ticketTable} role="table" aria-label="Pinto's Farm 2026 fall tickets">
-            {tickets.map(([name, price, fit, timing]) => (
-              <div className={styles.ticketRow} role="row" key={name}>
-                <div role="cell"><strong>{name}</strong><small>{fit}</small></div>
-                <div role="cell"><b>{price}</b><small>{timing}</small></div>
-              </div>
-            ))}
-          </div>
-          <p className={styles.smallPrint}>Ticket prices are the amounts displayed on Pinto's 2026 ticket page before the listed ticketing fees and can vary by selected weekend date.</p>
-        </section>
-
-        <section className={styles.split}>
-          <div className={styles.panel}>
-            <p className={styles.kicker}>Best family plan</p>
-            <h2>Go early and front-load the animals.</h2>
-            <ol>
-              <li>Weekend: check in before 10 AM if you bought Early Bird.</li>
-              <li>Do the petting zoo and pony rides before anything else.</li>
-              <li>Move to the tractor, boat and race track before peak heat.</li>
-              <li>Take photos before everyone is tired.</li>
-              <li>Finish with the corn maze, bounce pad and a shake or smoothie.</li>
-            </ol>
-          </div>
-          <div className={styles.panel}>
-            <p className={styles.kicker}>Know before you go</p>
-            <h2>The rules that change the day.</h2>
-            <ul>
-              <li>Every guest age 2 and older needs a ticket.</li>
-              <li>Outside food, drinks and coolers are not allowed.</li>
-              <li>Tickets are nonrefundable under the posted policy.</li>
-              <li>Wear secure shoes for outdoor farm terrain.</li>
-              <li>Early Bird arrivals after 10 AM pay the regular-price difference.</li>
-            </ul>
-          </div>
-        </section>
-
-        <section className={styles.section}>
-          <p className={styles.kicker}>Special dates</p>
-          <h2>Dog days, Goat Yoga and Oktoberfest</h2>
-          <div className={styles.eventGrid}>
-            <article><strong>Dog-friendly fall days</strong><p>September 26 and 27, every Thursday and Friday during the fall run, and November 7 and 8. Service dogs are always welcome under the posted policy.</p></article>
-            <article><strong>Goat Yoga</strong><p>The 2026 fall ticket page lists a September 27 session at 9 AM: a 40-minute beginner class plus goat photo time. Children must be at least 5 and accompanied by an adult.</p></article>
-            <article><strong>Oktoberfest, October 3</strong><p>4 PM to 9 PM, age 21+. The ticket includes beer tastings from participating local breweries, a souvenir tasting glass and live music. The standalone ticket does not include the pumpkin patch.</p></article>
-          </div>
-          <div className={styles.magicBlock}>
-            <div>
-              <p className={styles.kicker}>Magic show calendar</p>
-              <h3>Choose the date around the show.</h3>
+      <GuideSection index={4} id="tickets" eyebrow="Pick the right admission" title="2026 ticket choices">
+        <div className={styles.ticketTable} role="table" aria-label="Pinto's Farm 2026 fall tickets">
+          {tickets.map(([name, price, fit, timing]) => (
+            <div className={styles.ticketRow} role="row" key={name}>
+              <div role="cell"><strong>{name}</strong><small>{fit}</small></div>
+              <div role="cell"><b>{price}</b><small>{timing}</small></div>
             </div>
-            <div className={styles.magicGrid}>
-              {magicShows.map(([dates, times]) => <div key={dates}><span>{dates}</span><strong>{times}</strong></div>)}
-            </div>
+          ))}
+        </div>
+        <p className={styles.smallPrint}>Ticket prices are the amounts displayed on Pinto's 2026 ticket page before the listed ticketing fees and can vary by selected weekend date.</p>
+      </GuideSection>
+
+      <GuideSection index={5} id="family-plan" eyebrow="Best family plan" title="Go early and front-load the animals.">
+        <div className={styles.panel}>
+          <ol>
+            <li>Weekend: check in before 10 AM if you bought Early Bird.</li>
+            <li>Do the petting zoo and pony rides before anything else.</li>
+            <li>Move to the tractor, boat and race track before peak heat.</li>
+            <li>Take photos before everyone is tired.</li>
+            <li>Finish with the corn maze, bounce pad and a shake or smoothie.</li>
+          </ol>
+        </div>
+      </GuideSection>
+
+      <GuideSection index={6} id="know-before" eyebrow="Know before you go" title="The rules that change the day.">
+        <div className={styles.panel}>
+          <ul>
+            <li>Every guest age 2 and older needs a ticket.</li>
+            <li>Outside food, drinks and coolers are not allowed.</li>
+            <li>Tickets are nonrefundable under the posted policy.</li>
+            <li>Wear secure shoes for outdoor farm terrain.</li>
+            <li>Early Bird arrivals after 10 AM pay the regular-price difference.</li>
+          </ul>
+        </div>
+      </GuideSection>
+
+      <GuideSection index={7} id="special-dates" eyebrow="Special dates" title="Dog days, Goat Yoga and Oktoberfest">
+        <div className={styles.eventGrid}>
+          <article><strong>Dog-friendly fall days</strong><p>September 26 and 27, every Thursday and Friday during the fall run, and November 7 and 8. Service dogs are always welcome under the posted policy.</p></article>
+          <article><strong>Goat Yoga</strong><p>The 2026 fall ticket page lists a September 27 session at 9 AM: a 40-minute beginner class plus goat photo time. Children must be at least 5 and accompanied by an adult.</p></article>
+          <article><strong>Oktoberfest, October 3</strong><p>4 PM to 9 PM, age 21+. The ticket includes beer tastings from participating local breweries, a souvenir tasting glass and live music. The standalone ticket does not include the pumpkin patch.</p></article>
+        </div>
+        <div className={styles.magicBlock}>
+          <div>
+            <p className={styles.kicker}>Magic show calendar</p>
+            <h3>Choose the date around the show.</h3>
           </div>
-        </section>
-
-        <section className={styles.section}>
-          <p className={styles.kicker}>Night option</p>
-          <h2>Pumpkins & Pints is a different experience.</h2>
-          <p className={styles.bodyCopy}>
-            Pumpkins & Pints runs Friday through Sunday from 6 PM to 9 PM. It gives you the Brewhouse area and one small or medium pumpkin.
-            It does <strong>not</strong> include the rest of the farm, rides or animal attractions. Choose it for an easy evening, not as a cheaper substitute for regular admission.
-          </p>
-        </section>
-
-        <section className={styles.section}>
-          <p className={styles.kicker}>Beyond fall</p>
-          <h2>Pinto's has more than pumpkin season.</h2>
-          <div className={styles.eventGrid}>
-            {otherSeasons.map(([name, detail]) => <article key={name}><strong>{name}</strong><p>{detail}</p></article>)}
+          <div className={styles.magicGrid}>
+            {magicShows.map(([dates, times]) => <div key={dates}><span>{dates}</span><strong>{times}</strong></div>)}
           </div>
-        </section>
+        </div>
+      </GuideSection>
 
-        <section className={styles.cta}>
-          <div><p className={styles.kicker}>Ready to go?</p><h2>Check your exact date before driving.</h2><p>Ticket inventory, weekend pricing and limited-date experiences can change.</p></div>
+      <GuideSection index={8} id="night-option" eyebrow="Night option" title="Pumpkins & Pints is a different experience.">
+        <p className={styles.bodyCopy}>
+          Pumpkins & Pints runs Friday through Sunday from 6 PM to 9 PM. It gives you the Brewhouse area and one small or medium pumpkin.
+          It does <strong>not</strong> include the rest of the farm, rides or animal attractions. Choose it for an easy evening, not as a cheaper substitute for regular admission.
+        </p>
+      </GuideSection>
+
+      <GuideSection index={9} id="beyond-fall" eyebrow="Beyond fall" title="Pinto's has more than pumpkin season.">
+        <div className={styles.eventGrid}>
+          {otherSeasons.map(([name, detail]) => <article key={name}><strong>{name}</strong><p>{detail}</p></article>)}
+        </div>
+      </GuideSection>
+
+      <GuideSection index={10} id="ready" eyebrow="Ready to go?" title="Check your exact date before driving.">
+        <div className={styles.cta}>
+          <div><p>Ticket inventory, weekend pricing and limited-date experiences can change.</p></div>
           <div className={styles.ctaActions}>
             <a href={OFFICIAL_TICKETS} target="_blank" rel="noopener" className={styles.primaryAction}>Check tickets ↗</a>
             <a href={OFFICIAL_EVENTS} target="_blank" rel="noopener" className={styles.secondaryAction}>Current events ↗</a>
           </div>
-        </section>
+        </div>
+      </GuideSection>
 
-        <p className={styles.method}>Facts on this page were checked against Pinto's current 2026 ticketing and event information on September 22, 2026. Seasonal operations can change with weather and farm conditions.</p>
-      </article>
-    </main>
+      <p className={styles.method}>Facts on this page were checked against Pinto's current 2026 ticketing and event information on September 22, 2026. Seasonal operations can change with weather and farm conditions.</p>
+    </GuideStandardShell>
   );
 }

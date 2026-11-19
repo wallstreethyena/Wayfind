@@ -123,8 +123,19 @@ The hero is eager and high priority. Everything below the fold is lazy.
 ## GVS-7. One implementation, no local re-styling
 
 Guides render through the shared guide components. A guide with its own folder
-(Pinto's farm map, the fall explorer) keeps its custom module as a child of the
-standard shell; it does not fork the shell. Raw `<img>` in `app/guides/**` is
+(Pinto's farm map, the fall explorer, the Universal and Disney park maps) keeps
+its custom module as a child of the standard shell; it does not fork the shell.
+
+The shell is `app/components/GuideStandardShell.js` (owner, 2026-11-18: "make
+sure we have a uniform standard look and dont allow any other blogs or guide to
+be created that does not fit our standards"). It renders, in order: Back to
+Wayfind, the GuideArticleHero with its photo, the byline, the intro, "In this
+guide", the partner disclosure, then the guide's numbered `GuideSection` blocks.
+Its CSS is `lib/guideStandardCss.js`, the same rules the `[slug]` template
+renders. `scripts/check-guide-standard.mjs` fails the build when a dedicated
+route skips the shell or `GuideSection`, imports GuideArticleHero itself,
+declares its own Article/BreadcrumbList schema, re-styles a `.wf-guide-*`
+selector, or when a parallel `app/blog` style route appears. Raw `<img>` in `app/guides/**` is
 not allowed outside `GuidePhoto`. One narrow exemption: an interactive map
 canvas (the base layer that pins sit on, such as the Pinto's illustrated farm
 map) is not editorial photography. It may use a plain `<img>` only when the tag
