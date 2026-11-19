@@ -927,7 +927,7 @@ scripts/test-map-pin-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0	0	4c789a
 scripts/test-map-release-2026-10.mjs	0	CALL	blocks-ci-and-deploy	1	-	152	0	0	1fcfb5eae8d308df2603ae5fdbe797c9b44b88fe5f23a1b60e39797602829881
 scripts/test-map-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	55	0	0	8628a4499236301830356f5d02e21c1d0bb950b82648c3cbc3efb323db854a16
 scripts/test-map-router-return.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	6578a34ac23a711d407294f8e899281fdfe21850fc342c9118998999546f98fe
-scripts/test-map-spatial-decision-engine.mjs	0	RENDER	blocks-ci-and-deploy	1	-	304	0	0	e8c503b072e5e044642624fc56990da5a67e19fe3b5c1d060e881274a0e8ec51
+scripts/test-map-spatial-decision-engine.mjs	0	RENDER	blocks-ci-and-deploy	1	-	346	0	0	e81cd1c481da763cd2a3343a28bf8cc31e9cbecc8b69814d00146af04ba04cb9
 scripts/test-map-teardown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	e26ed8d8c761a6cfbf2fec6cf10e04b9fe88007581b27f589b166a9eb1cf585b
 scripts/test-map-unpinned-note-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0	a897c5a3b4585a2f4af283925aea39023b4448d7632ae3693ca66e691751e5b7
 scripts/test-map-worker.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	2f8097cfa17238a0cdf813749786945d4c7d086ea2768ba82f383ee0fa3f36e0
@@ -968,7 +968,7 @@ scripts/test-outbound-ssrf.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	25be0211235
 scripts/test-owned-editorial-review.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	908d41e4f332deae546264e9e320f13fca5de37e3d4c136f138e3c3da0276a6b
 scripts/test-owned-editorial-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	e51aef201af0ecdd2f9f345faac2cab7e89e9d586a7eb202f559d57222d2f6da
 scripts/test-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	154	0	0	fff474ccbd0856c5aece1b1ec561b8a5effadc3491838e11f57b0815b69f5388
-scripts/test-owned-hours-cohort.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	e416f3b321f2fe24725ce1c2025b2d24722e13320ba9f5759a330b758f7b0d93
+scripts/test-owned-hours-cohort.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	f001424ecedecb2c7185698a1da753618aedfdc9443771f2c8ae750dcdf15c97
 scripts/test-owned-place-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	06e086f70e7d6f962693b1111f1d28b37fcb9653321441e4a8b0362f37047e36
 scripts/test-owned-place-truth-frontier.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	43	0	0	05b4f1c1b35237cf2b3c226dddd34cb8e1f65b9605b432753302c6e0b5c788ad
 scripts/test-owned-social-reconcile.mjs	0	RENDER	blocks-ci-and-deploy	1	-	88	0	0	e5c0ed0a869a91228aa911f59a94359b648dc0246f7b6386572e792389fea3a5
