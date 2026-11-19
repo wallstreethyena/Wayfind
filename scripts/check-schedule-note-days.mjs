@@ -93,6 +93,12 @@ ok(nextOpenDay(R("Daily"), "2026-11-04", "2026-11-03") === null && nextOpenDay({
   ok(ids({ date: "2026-11-13" }) === "closed16,daily,select", "Christmas browse, opening day Nov 13: all three are open");
   ok(ids({ when: "nov" }) === "closed16,daily,select", "Christmas browse, the month filter is a season filter and keeps the envelope");
   ok(compactDayRule({ start_date: "2026-11-13", end_date: "2026-12-01", schedule_note: "Nightly" }) === null && compactRuleAllows(null, "2026-11-20", "2026-11-13"), "an every-day run carries no rule and is allowed every day");
+  // 2026-11-19: "select" in a later clause names an add-on, not the event's
+  // nights (Universal read "Select nights · check dates" off its Holiday Tour).
+  const uni = { start_date: "2026-11-14", end_date: "2027-01-03", schedule_note: "Nov 14, 2026 to Jan 3, 2027; Holiday Tour select dates Nov 14 to Jan 2" };
+  ok(compactDayRule(uni) === null && compactRuleAllows(compactDayRule(uni), "2026-11-19", "2026-11-14"), "an add-on's select dates leave a nightly run open every night");
+  ok(compactDayRule({ start_date: "2026-11-14", end_date: "2027-01-03", schedule_note: "Daily; nightly snowfall in Town Center; live music on select nights" }) === null, "a daily run with select-night music stays daily");
+  ok(compactDayRule({ start_date: "2026-11-14", end_date: "2027-01-03", schedule_note: "Holiday hours on select dates; check the calendar" })?.k === "r", "a first clause that says select still restricts");
 }
 
 
