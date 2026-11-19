@@ -658,7 +658,7 @@ scripts/test-coupon-value.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	c799a3f7791
 scripts/test-coupon-wallet.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	4be653db170acc2b1cdd030fc440485a22fe9b2e4242bd6bfcb40c4cbf2bc8b3
 scripts/test-coverage-gap-feed.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	e087a26236a865a603008361a72dd7a73228c87a4da469058af174a41f915dd5
 scripts/test-coverage-waitlist.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	0	0	90ace5c90d68e68e70e3de2b28f8bcadd963dafe3910af484d5158448c99b045
-scripts/test-covered-markets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	86b6a0587f87bf789f23bd1d517ebce073c75a50df3a84adc6189259a59b8dee
+scripts/test-covered-markets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	a14be310d61c9077ff1281a7018892d699283884f3a05609f73b73105ff5831a
 scripts/test-creator-archetypes.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	1	2	aae8354a209ba76c6109e957d046e00a873bf558ec927346f2cd5add39b6c93b
 scripts/test-creator-card-mark.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	10d1708f177f33f3108eea54994f0fa9f81e2f2d248fce74d864a2b1db72d73f
 scripts/test-creator-corroboration.mjs	0	CALL	blocks-ci-and-deploy	1	-	71	0	0	d33e4a6fdb97c1e42ec3f8bbed595ddbb422b2a11b09dd06a5bee76f51c965f6
