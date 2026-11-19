@@ -56,6 +56,8 @@ for(const park of parks){
  assert.equal(pins[0].querySelector('img').getAttribute('src'),mapPinUrl('food'));
  assert.ok(host.querySelector(`a[href="/guides/disney-food-2026/maps/data/${park}.geojson"]`));
  assert.ok(host.querySelector('a[href="https://www.openstreetmap.org/copyright"]'));
+ // Server and browser must print the same pin position (hydration): fixed precision, no float noise.
+ for(const pin of pins){assert.match(pin.getAttribute('style'),/^left: \d{1,3}(?:\.\d{1,3})?%; top: \d{1,3}(?:\.\d{1,3})?%;?$/,'pin positions are printed at fixed precision');}
  for(let i=0;i<pins.length;i++){
   await act(()=>{pins[i].click();pins[i].click();});
   assert.deepEqual(chosen.slice(-2),[places[i].id,places[i].id],'real rendered buttons preserve repeat activation');

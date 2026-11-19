@@ -57,7 +57,7 @@ function MapCanvas({ mapKey, title, viewport, places, selectedId, onSelect }) {
       <div className={styles.canvas} style={failed ? undefined : {width: `${zoom * 100}%`, aspectRatio: `${viewport.width} / ${viewport.height}`}}>
         {!failed && <img data-guide-map-canvas width={viewport.width} height={viewport.height} className={styles.basemap} src={`/guides/disney-food-2026/maps/${mapKey}.svg`} alt={`${title}: mapped buildings, water, green areas and paths. North is up.`} onError={() => setFailed(true)} draggable={false} />}
         {failed && <p role="status" className={styles.failure}>The map image could not load. Choose a food stop from the numbered list below.</p>}
-        {!failed && pins.map(({place, number, position}) => <button key={place.id} type="button" className={styles.pin} style={{left: `${position.left}%`, top: `${position.top}%`}} aria-label={`Stop ${number}: ${place.name}`} aria-pressed={selectedId === place.id} data-food-pin={place.id} onClick={() => onSelect(place.id)}><MapCategoryPin family="food" height={46} /><span>{number}</span></button>)}
+        {!failed && pins.map(({place, number, position}) => <button key={place.id} type="button" className={styles.pin} style={{left: `${position.left.toFixed(3)}%`, top: `${position.top.toFixed(3)}%`}} aria-label={`Stop ${number}: ${place.name}`} aria-pressed={selectedId === place.id} data-food-pin={place.id} onClick={() => onSelect(place.id)}><MapCategoryPin family="food" height={46} /><span>{number}</span></button>)}
       </div>
     </div>
   </>;
