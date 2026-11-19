@@ -12,11 +12,12 @@
 // Invariant: Actionability Coverage and the review queue exist for operational
 // backfill and internal diagnostics ONLY. They never modify `wayfindScore`.
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseEditorialHours } from "../lib/editorialHoursParser.js";
 import { cardToEditorial } from "../lib/atlasCards.js";
+import { RAINY_DAY_2026_GUIDES } from "../lib/guidesRainyDay2026.js";
 import {
   resolveAdmissionTruth,
   resolveOwnedHours,
@@ -41,10 +42,66 @@ for (const c of Array.isArray(atlasRawArray) ? atlasRawArray : []) {
   }
 }
 
+// Load verified editorial packs (`docs/editorial/*/pack-*.json`)
+const editorialPackById = new Map();
+const editorialDocsRoot = path.join(ROOT, "docs/editorial");
+if (existsSync(editorialDocsRoot)) {
+  for (const dirName of readdirSync(editorialDocsRoot).sort()) {
+    const dirPath = path.join(editorialDocsRoot, dirName);
+    let files = [];
+    try {
+      files = readdirSync(dirPath).filter((f) => /^pack-\d+\.json$/.test(f)).sort();
+    } catch {
+      continue;
+    }
+    for (const fileName of files) {
+      try {
+        const pack = JSON.parse(readFileSync(path.join(dirPath, fileName), "utf8"));
+        for (const cand of Array.isArray(pack?.candidates) ? pack.candidates : []) {
+          if (cand && cand.place_id && !editorialPackById.has(cand.place_id)) {
+            const edObj = cand.editorial || cand;
+            editorialPackById.set(cand.place_id, {
+              raw: cand,
+              editorial: {
+                name: cand.name || edObj.name || null,
+                know_before: edObj.know_before || null,
+                watchOut: edObj.know_before || null,
+                facts: Array.isArray(edObj.facts) ? edObj.facts : [],
+              },
+            });
+          }
+        }
+      } catch {
+        // Ignore malformed pack files
+      }
+    }
+  }
+}
+
+// Load verified Rainy Day Guide 2026 picks (`lib/guidesRainyDay2026.js`)
+const guideEditorialById = new Map();
+for (const guide of Object.values(RAINY_DAY_2026_GUIDES || {})) {
+  for (const pickItem of Array.isArray(guide?.picks) ? guide.picks : []) {
+    if (!pickItem?.placeId || typeof pickItem.blurb !== "string") continue;
+    for (const sentence of pickItem.blurb.split(/\.\s+/)) {
+      const trimmed = sentence.trim().replace(/\.$/, "");
+      if (
+        /^(?:open|galleries\s+open)\b/i.test(trimmed) &&
+        !/\b(?:school\s+year|summer|box\s+office|ticket\s+office)\b/i.test(trimmed)
+      ) {
+        guideEditorialById.set(pickItem.placeId, {
+          hoursText: trimmed,
+          hours: trimmed,
+        });
+      }
+    }
+  }
+}
+
 const firstPartyPlaces = firstPartyData.places || {};
 const overridePlaces = overridesData.places || overridesData.overrides || {};
 
-// Include all first-party action places, overrides, key frontier fixtures, plus top Atlas cards up to 125+ places
+// Include all first-party action places, overrides, key frontier fixtures, plus verified wf_editorial_servable / wf_inventory editorial hours facts
 const HIGH_INTENT_FIXTURES = {
   "ChIJ5d9yNNEXw4gRm2kGIGmpfT4": {
     place_id: "ChIJ5d9yNNEXw4gRm2kGIGmpfT4",
@@ -54,7 +111,96 @@ const HIGH_INTENT_FIXTURES = {
     types: ["water_park", "amusement_park", "point_of_interest", "establishment"],
     gap_class: "MUNICIPAL_SPLASH_PARK",
   },
+  "ChIJ6y2dx9g_w4gRWoZIRhLk-JI": {
+    editorial: {
+      hoursText: "The museum is open daily 10am-5pm, with general admission free on Mondays; it is closed Thanksgiving, Christmas Day, and New Year's Day.",
+    },
+  },
+  "ChIJAdipByc9w4gR2lYv8gezcWM": {
+    editorial: {
+      hoursText: "Hours are 11:00 AM – 9:00 PM daily",
+    },
+  },
+  "ChIJIZt3d7DFwogRQ5Lg2tPMXyk": {
+    editorial: {
+      hoursText: "Hours are Mon-Thu 5:00 PM-12:30 AM, Fri 5:00 PM-2:30 AM, Sat 3:00 PM-2:30 AM, and Sun 2:00 PM-12:30 AM.",
+    },
+  },
+  "ChIJOdY8qlHEwogRXPbXY1cq2xo": {
+    editorial: {
+      hoursText: "Hours are Sunday 4pm-3am, Monday-Tuesday closed, Wednesday-Thursday 7pm-3am, Friday 6pm-3am, and Saturday 4pm-3am.",
+    },
+  },
+  "ChIJPd6UAfJ_3YgRP-V0GS5jS8I": {
+    editorial: {
+      hoursText: "Open 10 AM–11 PM Monday–Thursday, 10 AM–11:30 PM Friday–Saturday, 10 AM–11 PM Sunday.",
+    },
+  },
+  "ChIJjwUZ8htHw4gR6-xAgrevYLM": {
+    editorial: {
+      hoursText: "The Sarasota location's official page lists hours of 11 a.m.-midnight Sunday-Thursday and 11 a.m.-1 a.m. Friday-Saturday.",
+    },
+  },
+  "ChIJkTDP2OLFwogR9W0EjRYIL-0": {
+    editorial: {
+      hoursText: "Open Mon–Thu 11 AM–9:30 PM, Fri–Sat 11 AM–10:30 PM, Sun 11:30 AM–9 PM.",
+    },
+  },
+  "ChIJq2_lAFHEwogRRCeJJ77fHgg": {
+    editorial: {
+      hoursText: "Bad Monkey is a sports bar in Ybor City at 1717 E 7th Ave, Tampa, FL 33605, open daily noon to 3 AM.",
+    },
+  },
+  "ChIJv4dyuXnPwogRMK5yN-Ke2Iw": {
+    editorial: {
+      hoursText: "Hours are Monday-Friday 5 p.m.-3 a.m. and Saturday-Sunday 7 p.m.-3 a.m.",
+    },
+  },
 };
+
+function classifyQueueItemSchedule({ hasStructuredHours, sourceFact, parsedReason }) {
+  if (hasStructuredHours) return "STRUCTURED_HOURS_RESOLVED_ACTION_GAP";
+  const fact = String(sourceFact || "").trim();
+  const reason = String(parsedReason || "").trim();
+  if (!fact) return "UNPOSTED_OR_NO_CARD";
+  if (
+    reason === "seasonal-hours-require-verification" ||
+    /\b(?:seasonal|seasonally|june\s*[–-]\s*september|october\s*[–-]\s*may|sept(?:ember)?\s+\d+\s*[–-]\s*feb(?:ruary)?\s+\d+|winter\s+(?:season|hours)|summer\s+(?:season|hours)|reduced\s+summer\s+hours)\b|^\s*(?:summer|winter)\s*:/i.test(fact)
+  ) {
+    return "SEASONAL_VARIABLE";
+  }
+  if (reason === "daylight-bound-prose-hours" || /\b(?:sunrise|sunset|sundown|dawn|dusk)\b/i.test(fact)) {
+    return "DAYLIGHT_BOUND";
+  }
+  if (
+    reason === "lodging-checkin-not-operating-hours" ||
+    /\b(?:night\s+minimum\s+by\s+unit|check[- ]in|check[- ]out)\b/i.test(fact)
+  ) {
+    return "LODGING_CHECKIN_ONLY";
+  }
+  if (
+    reason === "box-office-not-venue-hours" ||
+    reason === "subfacility-not-venue-hours" ||
+    /^\s*(?:box\s+office|rooftop\s+bar|ticket\s+office|office\/front\s+desk|office\s+mon|front\s+desk|fuel\s+dock|fuel\/bait)\b|\bfuel\/bait\b|\bfuel\s+dock\b/i.test(fact)
+  ) {
+    return "SUBFACILITY_OR_BOX_OFFICE_ONLY";
+  }
+  if (/\b(?:official\s+clocks\s+disagree|also\s+says|still\s+says)\b/i.test(fact)) {
+    return "CONFLICTING_OFFICIAL_CLOCKS";
+  }
+  if (
+    /\b(?:event[- ]based|by\s+appointment|train\s+rides\s+weekends\s+only|call\s+to\s+confirm|check\s+ahead|confirm\s+(?:the\s+current\s+week|before)|hours?\s+vary|vary\s+by\s+day|hours?\s+aren'?t\s+posted|not\s+posted|does\s+not\s+print|closed\s+for\s+summer|made\s+to\s+order|weddings\s+can\s+close|free\s+sunday\s+shows|on\s+site\s+only\s+for\s+a\s+charter|^call\s*;)\b/i.test(fact)
+  ) {
+    return "VARIABLE_OR_UNPOSTED";
+  }
+  if (
+    reason.startsWith("incomplete-week-schedule") ||
+    /\b(?:from\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)|daily\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)\s*;\s*kitchen\s+closes|third\s+thursday|late[- ]night\s+hours\s+on\s+fridays|saturday\s+docent\s+tours)\b/i.test(fact)
+  ) {
+    return "PARTIAL_WEEK_OR_MISSING_CLOSE";
+  }
+  return "AMBIGUOUS_PROSE";
+}
 
 const baseIds = new Set([
   ...Object.keys(firstPartyPlaces),
@@ -107,15 +253,38 @@ const NOW_MS = Date.parse(GENERATED_AT);
 
 for (const placeId of allTargetIds) {
   const fpEntry = firstPartyPlaces[placeId] || overridePlaces[placeId] || HIGH_INTENT_FIXTURES[placeId] || {};
+  const fixtureEditorial = HIGH_INTENT_FIXTURES[placeId]?.editorial || null;
   const atlasEntry = atlasById.get(placeId) || null;
+  const packEntry = editorialPackById.get(placeId) || null;
+  const guideEditorial = guideEditorialById.get(placeId) || null;
   const atlasRaw = atlasEntry?.raw || null;
-  const atlasEditorial = atlasEntry?.editorial || null;
+  const baseEditorial = atlasEntry?.editorial || packEntry?.editorial || null;
+  const fallbackHoursText =
+    fixtureEditorial?.hoursText ||
+    guideEditorial?.hoursText ||
+    packEntry?.editorial?.hoursText ||
+    null;
+  const fallbackFacts =
+    (Array.isArray(packEntry?.editorial?.facts) && packEntry.editorial.facts.length > 0 ? packEntry.editorial.facts : null) ||
+    (Array.isArray(fixtureEditorial?.facts) && fixtureEditorial.facts.length > 0 ? fixtureEditorial.facts : null) ||
+    null;
+  const atlasEditorial = baseEditorial
+    ? {
+        ...baseEditorial,
+        ...(!baseEditorial.hoursText && fallbackHoursText ? { hoursText: fallbackHoursText } : {}),
+        ...(!baseEditorial.hours && fallbackHoursText ? { hours: fallbackHoursText } : {}),
+        ...(!baseEditorial.know_before && packEntry?.editorial?.know_before ? { know_before: packEntry.editorial.know_before } : {}),
+        ...((!Array.isArray(baseEditorial.facts) || baseEditorial.facts.length === 0) && fallbackFacts
+          ? { facts: fallbackFacts }
+          : {}),
+      }
+    : (fixtureEditorial || guideEditorial || null);
   const resolvedActions = firstPartyActionsForPlace(placeId) || fpEntry.actions || null;
 
   const syntheticDetail = {
     id: placeId,
     place_id: placeId,
-    name: fpEntry.name || atlasRaw?.name || placeId,
+    name: fpEntry.name || atlasRaw?.name || packEntry?.raw?.name || placeId,
     locality: fpEntry.locality || atlasRaw?.city || "Sarasota",
     category: fpEntry.category || atlasRaw?.category || null,
     types: fpEntry.types || (atlasRaw?.category ? [String(atlasRaw.category).toLowerCase()] : []),
@@ -238,11 +407,18 @@ for (const placeId of allTargetIds) {
   };
 
   if (actionability.missingDimensions.length > 0 || !hasStructuredHours) {
+    const parsedForReason = atlasEditorial ? parseEditorialHours(atlasEditorial, { venueName: syntheticDetail.name }) : null;
+    const scheduleClassification = classifyQueueItemSchedule({
+      hasStructuredHours,
+      sourceFact: ownedHours.sourceFact || parsedForReason?.sourceFact || null,
+      parsedReason: parsedForReason?.reason || null,
+    });
     reviewQueue.push({
       place_id: placeId,
       name: syntheticDetail.name,
       locality: syntheticDetail.locality,
       gap_class: fpEntry.gap_class || "ATLAS_TOP_INVENTORY",
+      schedule_classification: scheduleClassification,
       actionability_score: actionability.score,
       missing_fields: [
         ...actionability.missingDimensions,
@@ -260,16 +436,22 @@ for (const placeId of allTargetIds) {
   }
 }
 
-// Also scan remaining Atlas cards not in allTargetIds that have PROSE_ONLY hours so the review queue captures top unparsed prose hours
+// Also scan remaining Atlas cards not in allTargetIds that have PROSE_ONLY hours so the review queue captures all unparsed prose hours
 for (const [placeId, { raw, editorial }] of atlasById.entries()) {
   if (placesLedger[placeId]) continue;
-  const parsed = parseEditorialHours(editorial);
+  const parsed = parseEditorialHours(editorial, { venueName: raw.name || null });
   if (!parsed.ok && parsed.sourceFact) {
+    const scheduleClassification = classifyQueueItemSchedule({
+      hasStructuredHours: false,
+      sourceFact: parsed.sourceFact,
+      parsedReason: parsed.reason,
+    });
     reviewQueue.push({
       place_id: placeId,
       name: raw.name || placeId,
       locality: raw.city || "Sarasota",
       gap_class: "ATLAS_PROSE_HOURS",
+      schedule_classification: scheduleClassification,
       actionability_score: 0.6,
       missing_fields: ["structured_hours"],
       hours_prose: parsed.sourceFact,
@@ -281,6 +463,12 @@ for (const [placeId, { raw, editorial }] of atlasById.entries()) {
 }
 
 reviewQueue.sort((a, b) => a.actionability_score - b.actionability_score || a.place_id.localeCompare(b.place_id));
+
+const classificationSummary = {};
+for (const item of reviewQueue) {
+  const cls = item.schedule_classification || "UNCLASSIFIED";
+  classificationSummary[cls] = (classificationSummary[cls] || 0) + 1;
+}
 
 const avgActionabilityScore = allTargetIds.length > 0 ? Number((actionabilitySum / allTargetIds.length).toFixed(2)) : 0;
 const avgFallbackReadinessScore = allTargetIds.length > 0 ? Number((fallbackReadinessSum / allTargetIds.length).toFixed(2)) : 0;
@@ -331,11 +519,13 @@ const reviewQueuePayload = {
   generated_at: GENERATED_AT,
   affects_wayfind_score: false,
   total_items: reviewQueue.length,
-  items: reviewQueue.slice(0, 150),
+  classification_summary: classificationSummary,
+  items: reviewQueue,
 };
 
 writeFileSync(path.join(ROOT, "data/owned-place-truth.json"), JSON.stringify(ownedTruthPayload, null, 2) + "\n", "utf8");
 writeFileSync(path.join(ROOT, "data/place-truth-review-queue.json"), JSON.stringify(reviewQueuePayload, null, 2) + "\n", "utf8");
 
 console.log("Owned Place Truth ledger written:", JSON.stringify(ownedTruthPayload.summary, null, 2));
+console.log("Review queue classification summary:", JSON.stringify(classificationSummary, null, 2));
 console.log(`Review queue written: ${reviewQueuePayload.items.length} items (of ${reviewQueue.length} total candidates)`);
