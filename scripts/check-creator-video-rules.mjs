@@ -111,24 +111,33 @@ for (const f of surfaces) {
   ok(!POST_LINK.test(src) && !POST_HREF.test(src), `${f}: no link sends a visitor to the creator post itself`);
 }
 
-// Disney holiday food guide (audit 2026-11-18): its nine creator tiles shipped with painted
-// illustrations of the dishes, with no credit, source or licence. A creator tile takes a cover
-// only from an owned credited photo; otherwise it keeps the branded cover.
+// Disney food acceptance (owner mission 2026-11-19): show the actual food,
+// preserve all nine sources including California, and never substitute a park photo.
+// Native attributed embeds replace the earlier cover-only contract. No media is copied.
 {
-  const here = path.dirname(fileURLToPath(import.meta.url));
-  const stopFile = path.join(here, "../app/guides/disney-world-holiday-food-guide-2026/FoodStop.js");
-  const stop = readFileSync(stopFile, "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "").replace(/\/\/.*$/gm, "");
-  const tile = /<CreatorCoverFacade\b[^>]*>/.exec(stop);
-  ok(!!tile && /\bplaceId=\{placeId\}/.test(tile[0]), "positive control: the Disney food stop renders its creator tile through CreatorCoverFacade with the park's place id");
-  ok(!/disney-christmas-maps\/covers|Food illustration|\bposter=/.test(stop), "the Disney food stop uses no illustration or hand-set picture as a creator tile cover");
-  ok(/\(placeId \? stop\.posts : \[\]\)\.map\(/.test(stop), "a Disney stop with no park row shows no video tile (no blank tile)");
-  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS } = await import("../lib/guidesDisneyHolidayFood2026.js");
-  ok(DISNEY_FOOD_PARKS.length === 5 && DISNEY_FOOD_PARKS.every((park) => /^ChIJ[\w-]{20,}$/.test(park.placeId || "")), "every Disney food park carries its inventory place id for the credited cover");
-  ok(DISNEY_FOOD_STOPS.every((s) => DISNEY_FOOD_PARKS.some((park) => park.id === s.parkId)), "every Florida food stop belongs to a park with a cover source");
+  const stop = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodStop.js"));
+  const post = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodPost.js"));
+  ok(/stop\.posts\.map\(/.test(stop) && /<FoodPost\b/.test(stop), "every food source renders independently of a park inventory row");
+  ok(!/placeId\s*\?\s*stop\.posts/.test(stop), "California sources are not dropped by the old Florida-place-id gate");
+  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=/.test(stop + post), "food media has no substituted park photo, generated illustration or unlicensed cover");
+  ok(/<CreatorVideoPlayer\b/.test(post), "food posts use the shared native in-page player");
+  ok(/IntersectionObserver/.test(post) && /entry\.isIntersecting/.test(post), "hidden parks do not immediately load all provider players");
+  ok(/Instagram controls playback/.test(post), "provider-controlled playback is disclosed, never promised");
+  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, CALIFORNIA_BONUS } = await import("../lib/guidesDisneyHolidayFood2026.js");
+  const posts = [...DISNEY_FOOD_STOPS, CALIFORNIA_BONUS].flatMap((s) => s.posts);
+  ok(posts.length === 9 && new Set(posts.map((p) => p.url)).size === 9, "all nine distinct food posts are retained");
+  ok(posts.every((p) => p.creator && embedSrc("instagram", p.url)), "every food source has attribution and an official embed");
+  ok(CALIFORNIA_BONUS.posts.some((p) => p.url === "https://www.instagram.com/reel/DfdaTVttmvV/"), "California Hawaiian rolls Reel is retained");
+  ok(DISNEY_FOOD_STOPS.every((s) => DISNEY_FOOD_PARKS.some((park) => park.id === s.parkId)), "all Florida stops belong to a selectable park");
+  ok(!DISNEY_FOOD_STOPS.includes(CALIFORNIA_BONUS), "Anaheim stays outside the Florida maps");
+  // Negative controls retain the two specific protections the prior gate intended.
+  ok(/placeId\s*\?\s*stop\.posts/.test("(placeId ? stop.posts : []).map"), "red proof: the missing-California regression is detected");
+  ok(/CreatorCoverFacade|\bposter=/.test("<CreatorCoverFacade poster={parkPhoto}/>"), "red proof: a substituted park cover is detected");
   let coversExist = true;
-  try { statSync(path.join(here, "../public/guides/disney-christmas-maps/covers")); } catch { coversExist = false; }
-  ok(!coversExist, "public/guides/disney-christmas-maps/covers holds no uncredited cover art");
+  try { statSync(path.join(REPO, "public/guides/disney-christmas-maps/covers")); } catch { coversExist = false; }
+  ok(!coversExist, "no uncredited Disney cover art is shipped");
 }
+
 if (failures.length) {
   console.error(`check-creator-video-rules: ${failures.length} FAILED (${passed} passed)`);
   for (const m of failures) console.error("  ✗ " + m);
