@@ -9183,6 +9183,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         kind: row.kind || "place",
         line: typeof row.line === "string" ? row.line : "",
       };
+      for (const k of [
+        "event_id", "slug", "event_status", "start_date", "end_date", "start_time", "end_time",
+        "timezone", "schedule_note", "venue_name", "seasonal", "_ownedHoursSource", "hoursState",
+      ]) {
+        if (typeof row[k] === "string" && row[k]) card[k] = row[k];
+      }
+      for (const k of ["overnight", "select_nights", "approx", "is_free", "hoursVerified", "openNow"]) {
+        if (typeof row[k] === "boolean") card[k] = row[k];
+      }
+      for (const k of ["occurrence_dates", "closed_dates", "canceled_dates"]) {
+        if (Array.isArray(row[k]) && row[k].length) card[k] = row[k];
+      }
+      for (const k of ["recurring_schedule", "visit_schedule", "ownedHours", "oh", "regularOpeningHours"]) {
+        if (row[k] && typeof row[k] === "object") card[k] = row[k];
+      }
+      if (row.utcOffset != null && row.utcOffset !== "" && Number.isFinite(Number(row.utcOffset))) card.utcOffset = Number(row.utcOffset);
+      if ((typeof row.hoursAsOf === "number" && Number.isFinite(row.hoursAsOf)) || (typeof row.hoursAsOf === "string" && row.hoursAsOf)) card.hoursAsOf = row.hoursAsOf;
       if (searchEditorialCard(card)) return card;
       return hasPoint && cardComplete(card) ? card : null;
     }).filter(Boolean);
