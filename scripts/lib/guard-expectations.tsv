@@ -74,7 +74,7 @@ scripts/check-christmas-photo-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0
 scripts/check-christmas-photo-rights-field.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	0c16e188d61aa809b99247f66599a39f9f0458fb0b95a5b52beb742139f153e1
 scripts/check-christmas-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	260	0	0	4e65df21516e5a83aeed3a1a31f919f5e6c7a7e55fff9e15d0abfd8bb1e3ac28
 scripts/check-christmas-rejected-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	819c85fc14cdcf04b76f2bbd1946ff834bcda13de5d35d073aa7edea6bbd31ce
-scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	161	0	0	a19363d26330e5f1ea85643e1b69fa87a779c9e209284210aaa21f1e7d917749
+scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	166	0	0	d3a0c5afafbe52725df1abf6191df9dd1b368fe8437e875f2bfcace0d008de52
 scripts/check-christmas-retired-redirects.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	c074760686ffb6e21e1bbcbcda11b080f975645a89524e757414d1c8c1eadff3
 scripts/check-christmas-static-gallery-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	8034aeecc1fae46c7c29699a51a43245bd5ecb3b553f6fe978116fe73179f170
 scripts/check-christmas-treats-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	8955551c1c731e4d2e06d94bd5850dcfc51eb239115115fbbd5d1e3a1813a9fd
@@ -616,7 +616,7 @@ scripts/test-christmas-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	64f422e5a
 scripts/test-christmas-stubhub-dark.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	ad380a9fc53e69ad945dcb9f970bc7f1c71c059938b3a37961298b70d18e6a58
 scripts/test-christmas-temporal-modes.mjs	0	RENDER	blocks-ci-and-deploy	1	-	39	0	0	44d8334b696cfaaed3a411235a2b3f447afbc2387ecbdba6382c7cd3759d21fe
 scripts/test-christmas-ticketmaster.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	35	0	0	1e2e375e82e90100ee9a3b3664020e0b21075b50628ffb92ba667e6d720ce80a
-scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	352	0	0	1d82f240aa648f012edbe0b82dc3f41e00526326289f220653189e4837864dd8
+scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	356	0	0	1dcdb091775e6fe4d29a7cd4dd96867a1660fdd36628d53c267ba7d13cc07543
 scripts/test-christmas-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	Revenue QA	65	0	0	2b2f280f171f97df33138fa035e752bef3999d95e69267a5c63b69cf9698d20a
 scripts/test-christmas-twins.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	6de79401688c1183e17dbce51c7b7c1c817b8d7d7f2e1c430adf53d3b54eadaf
 scripts/test-christmas-unservable-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	de04257d5b85d82cfe75b9ecefb2c0b79ee2fd1b0da8f4ff380aa6ac0af30e49
