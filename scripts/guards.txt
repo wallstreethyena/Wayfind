@@ -53,6 +53,7 @@ node scripts/test-landing-why-fits.mjs
 node scripts/test-landing-card-cue.mjs
 node scripts/test-score-band.mjs
 node scripts/test-business-status.mjs
+node scripts/test-closed-place-pages.mjs
 node scripts/test-closed-policy.mjs
 npm run check:seo
 npm run check:events
