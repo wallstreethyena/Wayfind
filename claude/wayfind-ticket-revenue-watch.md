@@ -15,3 +15,9 @@ Events checked (5): naples-night-lights-2026 (Nov 27 2026, not_yet_on_sale), cos
 Findings: none. No TicketSmarter or TicketNetwork per-performance page surfaced for any Cosmic date; no approved-partner listing for Naples Night Lights (the garden sells its own tickets).
 
 Organizer page (chilipeppersbaseball.com/cosmic-lottery/): still says the lottery is the only way to get Cosmic Baseball tickets; selected entrants can buy until the event sells out. No lottery dates, prices, first pitch times or matchups shown.
+
+## 2026-11-19 (no findings; one new row watched)
+
+New row in the watch list: pop-tarts-bowl-orlando-2026 (Dec 29 2026, Camping World Stadium, not_yet_on_sale). TicketSmarter has only the general performer page (ticketsmarter.com/p/pop-tarts-bowl-tickets), which says the next game is not announced; no per-date page. No TicketNetwork page surfaced.
+
+Other 5 rows unchanged: no approved-partner per-performance page for any Cosmic date or for Naples Night Lights. Organizer lottery page unchanged. Ticketmaster still not a provider in lib/eventTicketDeals.js on main (66b3c6f).
