@@ -200,3 +200,18 @@ admin rights), and without turning off `guards` or `owner-approval`:
 
 After that, changing branch protection or the gate is something only the owner
 can do.
+
+## The merge train (2026-11-19)
+
+main requires a pull request to be up to date and green before it merges, and
+lanes merge often, so pull requests that kept themselves current raced each
+other. GitHub's merge queue is not available to personal-account repositories,
+so `.github/workflows/merge-train.yml` does the same job from main: a pull
+request with auto-merge on joins the line (oldest first); one at a time it is
+updated with main, `guards` is dispatched on its branch (judged as that pull
+request), and `owner-approval` is judged for the new head by main's own
+`scripts/check-owner-approval-pr.mjs`, unchanged, with the carry-forward rule
+above. Auto-merge merges it; then the next one. A pull request whose guards fail
+on the merged result leaves the line until its author pushes. To pause the
+train, disable the workflow in Actions. Logic and tests: `scripts/merge-train.mjs`,
+`scripts/lib/mergeTrain.mjs`, `scripts/test-merge-train.mjs`.
