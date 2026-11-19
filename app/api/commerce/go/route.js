@@ -48,6 +48,7 @@ import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
 import { attributedViatorDestination } from "../../../../lib/viatorAttribution.js";
 import { classifySyntheticTraffic } from "../../../../lib/productionWriteFirewall.js";
+import { ensureDurableClippEvidenceHydrated } from "../../../../lib/clippDurableStore.js";
 
 const ATTRIBUTED_TP = new Set(["tiqets", "klook", "gocity"]);
 
@@ -161,6 +162,9 @@ export async function GET(req) {
   // Viator: wf-<page>-<placement>-<offer> in the documented `campaign` param,
   // so a partner-reported booking can be tied to the page, placement and offer
   // that produced it (see lib/affiliates.js). No click token, no utm/gclid.
+  if (provider === "clipp") {
+    try { await ensureDurableClippEvidenceHydrated(); } catch {}
+  }
   const campaign = provider === "viator" ? viatorCampaign({ page: pageHint, surface, offerId }) : null;
   const { dest, sourceUrl, error } = await resolveOffer(provider, offerId, { subId: surface, campaign });
   if (error || !dest) return fail(error || "unresolved");
