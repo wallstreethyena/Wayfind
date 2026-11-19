@@ -224,5 +224,78 @@ if (unreadableRun) {
   eq(unreadableRun.google, 0, "C: ...and no Google call");
 }
 
+// ── D. mid-batch daily-line pause + Pacific-reset recovery + visitor preservation ──
+function runMidBatch(dayUsed, placeCount = 4, dayOverride = null) {
+  const code = `
+    import { register } from "node:module";
+    register(${JSON.stringify(HOOK)}, import.meta.url);
+    process.env.WAYFIND_GATE = "free"; process.env.CRON_SECRET = "s"; process.env.GOOGLE_MAPS_SERVER_KEY = "k";
+    process.env.SUPABASE_URL = "https://ledger.fake.test"; process.env.SUPABASE_SERVICE_ROLE_KEY = "sb_secret_fake"; process.env.NEXT_PUBLIC_SUPABASE_URL = "https://ledger.fake.test"; process.env.VERCEL_ENV = "production";
+    process.env.WAYFIND_PROMOTE_PAID = "1"; process.env.PROMOTE_DETAILS_MONTH_CAP = "25000";
+    const gate = await import(${JSON.stringify(GATE)});
+    const realDateNow = Date.now;
+    ${dayOverride ? `Date.now = () => Date.parse(${JSON.stringify(dayOverride)});` : ""}
+    const day = gate.backgroundDailySku(${dayOverride ? `new Date(${JSON.stringify(dayOverride)})` : ""});
+    const ledger = new Map([[day, ${dayUsed}], ["details_pro", 6552]]);
+    const log = { pulses: [], releases: [], completes: [], google: 0 };
+    const claimed = Array.from({ length: ${placeCount} }, (_, i) => ({ place_id: "ChIJP" + i, name: "Place " + i, metro: "tampa" }));
+    globalThis.fetch = async (url, init = {}) => {
+      const u = String(url);
+      if (u.includes("/rest/v1/wf_spend_ledger")) {
+        const m = u.match(/sku=eq\\.([^&]+)/); const sku = m ? decodeURIComponent(m[1]) : "";
+        return Response.json(ledger.has(sku) ? [{ used: ledger.get(sku) }] : []);
+      }
+      if (u.includes("/rest/v1/rpc/wf_spend_take")) {
+        const b = JSON.parse(init.body); const n = ledger.get(b.p_sku) ?? 0;
+        if (n + 1 <= b.p_cap) { ledger.set(b.p_sku, n + 1); return Response.json(true); }
+        return Response.json(false);
+      }
+      if (u.includes("/rest/v1/rpc/wf_spend_refund")) { const b = JSON.parse(init.body); ledger.set(b.p_sku, Math.max(0, (ledger.get(b.p_sku) ?? 0) - b.p_n)); return Response.json(true); }
+      if (u.includes("/rest/v1/wf_job_pulse")) { log.pulses.push(JSON.parse(init.body)); return new Response(null, { status: 201 }); }
+      if (u.includes("wf_promotion_claim")) return Response.json(claimed);
+      if (u.includes("wf_promotion_release")) { log.releases.push(JSON.parse(init.body)); return Response.json(null); }
+      if (u.includes("wf_promotion_complete")) { log.completes.push(JSON.parse(init.body)); return Response.json(null); }
+      if (u.includes("wf_place_ids")) return Response.json(claimed.map((c) => ({ place_id: c.place_id, signals: { rating: 4.8, reviews: 200 } })));
+      if (u.includes("places.googleapis.com")) {
+        log.google++;
+        const id = decodeURIComponent(u.split("/").pop());
+        return Response.json({ id, displayName: { text: "Cafe " + id }, location: { latitude: 27.95, longitude: -82.45 }, businessStatus: "OPERATIONAL", types: ["restaurant"], primaryType: "restaurant", formattedAddress: "1 Main St, Tampa, FL" });
+      }
+      return Response.json([]);
+    };
+    const { GET } = await import(${JSON.stringify(ROUTE)});
+    const res = await GET(new Request("https://x.test/api/cron/promote-index", { headers: { authorization: "Bearer s" } }));
+    log.body = await res.json();
+    log.dayUsedAfter = ledger.get(day);
+    log.visitorOk = await gate.spendAllow("details_enterprise");
+    Date.now = realDateNow;
+    console.log("@@" + JSON.stringify(log));
+  `;
+  const p = spawnSync(process.execPath, ["--input-type=module", "-e", code], { encoding: "utf8", timeout: 60000, env: { ...process.env, NODE_NO_WARNINGS: "1" } });
+  const m = /@@(.*)/.exec(p.stdout || "");
+  if (!m) { console.error((p.stderr || "").slice(0, 600)); return null; }
+  return JSON.parse(m[1]);
+}
+const mid = runMidBatch(L[P.PROMOTION] - 2, 4);
+ok(!!mid, "D: the real promote-index route ran mid-batch near the daily line");
+if (mid) {
+  eq(mid.google, 2, "D: only 2 Google calls made before hitting the 340 promotion line");
+  eq(mid.dayUsedAfter, L[P.PROMOTION], "D: daily counter stopped at exact 340 line");
+  eq(mid.releases.length, 2, "D: remaining 2 claimed places released cleanly back to pending");
+  ok(mid.releases.every((r) => /google daily line/i.test(r.p_note)), `D: release notes name the daily line instead of monthly ceiling (got ${JSON.stringify(mid.releases[0])})`);
+  const p = mid.pulses.find((x) => x.job === "promote-index");
+  ok(!!p && p.failed === 0 && isBudgetReserveNote(p.note) && /google-details-daily 340\/340/.test(p.note), `D: mid-batch daily pause pulses budgetDailyReserveNote with failed=0 (got ${JSON.stringify(p)})`);
+  const ch = classifyHealth([{ job: "promote-index", attempted: p.attempted, succeeded: p.succeeded, consecutive_zero: 0, last_note: p.note }]);
+  eq(ch.incidents.length, 0, "D: mid-batch daily pause never triggers a job-watch incident");
+  eq(mid.visitorOk, true, "D: visitor traffic retains its permitted allocation while promotion is paused at 340");
+}
+// After Pacific midnight reset (08:00 UTC in November -> new google_details_bg_d20261114 row with 0 used), promotion recovers cleanly.
+const resetRun = runMidBatch(0, 2, "2026-11-14T08:05:00Z");
+ok(!!resetRun, "D: post-reset promote-index run executed");
+if (resetRun) {
+  eq(resetRun.google, 2, "D: after Pacific midnight reset, promotion resumes cleanly and processes pending work");
+  eq(resetRun.releases.length, 0, "D: zero releases after reset");
+}
+
 if (failures) { console.error(`background-daily-line: ${failures} failure(s), ${passes} passed`); process.exit(1); }
-console.log(`background-daily-line: OK - ${passes} assertions (daily line per priority via the existing ledger; visitors never counted; refunds return the tick; fail closed; Pacific day key; expected-pause pulse; real promote-index route pauses at the line)`);
+console.log(`background-daily-line: OK - ${passes} assertions (daily line per priority via the existing ledger; visitors never counted; refunds return the tick; fail closed; Pacific day key; expected-pause pulse; real promote-index route pauses at the line, reports mid-batch pauses accurately, and recovers after reset)`);
