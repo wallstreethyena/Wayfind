@@ -10,6 +10,8 @@
 //   5. Event Temporal Eligibility + Ended-Earlier-Today + Past-Event Ticket Suppression
 //   6. Internal Actionability Coverage (Before -> After) + Demand Operations Queue
 
+process.env.WF_SUPPRESS_ANALYTICS = "1";
+
 import assert from "node:assert/strict";
 import fs, { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -881,6 +883,7 @@ const eq = (a, b, msg) => {
         CRON_SECRET: "c3-test-secret",
         WF_CLIPP_EVIDENCE_STORE_PATH: tmpStorePath,
         CLIPP_EVIDENCE_SNAPSHOT_PATH: tmpSnapPath,
+        WF_SUPPRESS_ANALYTICS: "1",
       },
       encoding: "utf8",
     });
@@ -947,6 +950,7 @@ const eq = (a, b, msg) => {
       env: {
         ...process.env,
         WF_CLIPP_EVIDENCE_STORE_PATH: tmpStorePath,
+        WF_SUPPRESS_ANALYTICS: "1",
       },
       encoding: "utf8",
     });
