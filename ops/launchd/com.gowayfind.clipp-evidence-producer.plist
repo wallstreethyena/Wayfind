@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ops/launchd/com.gowayfind.clipp-evidence-producer.plist — PREPARED (Unapplied)
+  Recurring Local Chrome Evidence Producer Schedule for Clipp Offers (C3).
+
+  OPERATIONAL STATUS:
+    PREPARED (committed and syntax-validated, deliberately NOT loaded into launchctl).
+
+  WHY THIS RUNS ON THE OWNER MAC BOX INSTEAD OF VERCEL SERVERLESS:
+    clipp.com sits behind Akamai WAF and returns HTTP 403 (`INCONCLUSIVE`) to every
+    datacenter IP. Wayfind never uses stealth scrapers or WAF bypasses. Running
+    `scripts/produce-clipp-evidence.mjs` once daily at 07:45 local time via standard
+    Mac Chrome produces authenticated first-party DOM evidence and pushes the
+    structured batch to `POST /api/cron/verify-offers` (`verify-offers:clipp`).
+
+  OPERATIONAL LIMITS & COST:
+    - Cadence: Daily at 07:45 local time (40 polite serial GETs/day, ~450ms pause)
+    - Runtime: ~28 seconds/day
+    - Cost: $0/month (zero paid proxy/scraper API usage)
+
+  VALIDATION (Dry-Run):
+    PATH="/opt/homebrew/bin:/usr/local/bin:$PATH" node scripts/produce-clipp-evidence.mjs --dry-run
+    plutil -lint ops/launchd/com.gowayfind.clipp-evidence-producer.plist
+
+  ENABLE (When Owner Chooses to Activate):
+    cp ops/launchd/com.gowayfind.clipp-evidence-producer.plist ~/Library/LaunchAgents/
+    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.gowayfind.clipp-evidence-producer.plist
+
+  ROLLBACK (1-Command Disable):
+    launchctl bootout gui/$(id -u)/com.gowayfind.clipp-evidence-producer
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.gowayfind.clipp-evidence-producer</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/node</string>
+    <string>scripts/produce-clipp-evidence.mjs</string>
+    <string>--out</string>
+    <string>/tmp/wf-clipp-evidence-latest.json</string>
+    <string>--store</string>
+    <string>/tmp/wf-clipp-durable-store.json</string>
+    <string>--push</string>
+    <string>https://www.gowayfind.com/api/cron/verify-offers</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/Users/gabrielpereira/Projects/Wayfind-for-Real-Life</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>CLIPP_PRODUCER_SCHEDULED</key>
+    <string>1</string>
+  </dict>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>7</integer>
+    <key>Minute</key>
+    <integer>45</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/com.gowayfind.clipp-evidence-producer.out.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/com.gowayfind.clipp-evidence-producer.err.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>
