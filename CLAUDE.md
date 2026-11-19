@@ -368,6 +368,10 @@ one production chunk was swept.
   ("Score pending"), never 0. `scoreLabel` routes through `toDisplayScore`.
 - **Order In location**: `wf_center` → URL params → geolocation → default; `nearestMetro`
   uses haversine miles (~75mi).
+- **Extra ticket sellers (owner rule 2026-11-18, global)**: when a card already has a main
+  buy button, any other seller (Ticketmaster, StubHub, …) is one small "Also on <seller>" link
+  INSIDE that yellow button box, never its own big chip or pill. Locked in
+  `scripts/test-christmas-ticketmaster.mjs`; any new card surface follows the same pattern.
 - **Paid API proxies** are guarded in `middleware.js` (`lib/apiGuard.js`); add any new
   metered/scrape proxy to the matcher. `/api/eats/go` is GET-302 → `rateLimitOnly`.
 

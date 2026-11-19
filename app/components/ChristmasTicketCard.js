@@ -67,8 +67,11 @@ export const XM_CARD_CSS = `
 .xm-note{margin:0;font-size:12.5px;line-height:1.35;color:var(--xm-soft);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:center;overflow-wrap:anywhere}
 .xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
 .xm-via{margin:0;font-size:11.5px;line-height:1.6;color:var(--xm-soft);text-align:center}
-.xm-opts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0}
-.xm-opt{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:4px 12px;border:1.5px solid rgba(245,196,81,.75);border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);font-size:12.5px;font-weight:700;line-height:1.1;white-space:nowrap;text-decoration:none}
+.xm-bottom>.xm-pricerow+.xm-buybox{grid-column:2}
+.xm-buybox{display:flex;flex-direction:column;width:100%;min-width:0;background:linear-gradient(180deg,#FFE9B8,#F5C451);border:2px solid var(--xm-rose);border-radius:12px;box-shadow:0 0 10px rgba(232,180,138,.25);overflow:hidden}
+.xm-buybox>.xm-buy{min-height:40px;padding-bottom:2px;background:none;border:0;border-radius:0;box-shadow:none}
+.xm-buyalt{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0 4px;margin:0;padding:0 8px 3px;font-size:11.5px;font-weight:600;line-height:1.2;color:var(--xm-ink)}
+.xm-buyalt a{display:inline-flex;align-items:center;min-height:24px;padding:0 3px;color:var(--xm-ink);font-weight:800;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
 .xm-event{color:#FFD9AE;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .xm-title{color:inherit;text-decoration:none}
 .xm-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin:0;min-width:0}
@@ -264,23 +267,39 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
           ) : null}
           {cta ? (
             <>
-              <a
-                className="xm-buy"
-                href={cta.href}
-                target="_blank"
-                rel={affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
-                data-commerce-owner={affiliate ? undefined : "ChristmasTickets"}
-                onClick={affiliate ? undefined : () => organizerTap(row)}
-              >{cta.label}</a>
+              {(() => {
+                const buy = (
+                  <a
+                    className="xm-buy"
+                    href={cta.href}
+                    target="_blank"
+                    rel={affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
+                    data-commerce-owner={affiliate ? undefined : "ChristmasTickets"}
+                    onClick={affiliate ? undefined : () => organizerTap(row)}
+                  >{cta.label}</a>
+                );
+                // Owner rule 2026-11-18 (global): another ticket seller never gets
+                // its own big chip. It rides inside the main buy button as one
+                // small "Also on ..." line.
+                const opts = Array.isArray(row.options) ? row.options : [];
+                if (!opts.length) return buy;
+                return (
+                  <div className="xm-buybox">
+                    {buy}
+                    <p className="xm-buyalt" data-ticket-options="">
+                      <span>Also on</span>
+                      {opts.map((o, i) => (
+                        <span key={o.provider}>
+                          {i ? <span aria-hidden="true">{"· "}</span> : null}
+                          <a href={o.href} target="_blank" rel="sponsored nofollow noopener" data-option-provider={o.provider} aria-label={"Tickets at " + o.label + ", opens in a new tab"}>{o.label}</a>
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                );
+              })()}
               {noteEl}
               <p className="xm-via">{cta.via}{row.eventHref ? <>{" · "}<a className="xm-event" href={row.eventHref}>{chrome.eventPage}</a></> : null}</p>
-              {Array.isArray(row.options) && row.options.length ? (
-                <p className="xm-opts" data-ticket-options="">
-                  {row.options.map((o) => (
-                    <a key={o.provider} className="xm-opt" href={o.href} target="_blank" rel="sponsored nofollow noopener" data-option-provider={o.provider} aria-label={"Tickets at " + o.label + ", opens in a new tab"}>{o.label}</a>
-                  ))}
-                </p>
-              ) : null}
               {secondaryTicketPrimaryMatches(cta, secondaryCta) ? (
                 <p className="xm-via" data-secondary-resale="">
                   <a href={secondaryCta.href} target="_blank" rel="sponsored nofollow noopener">
