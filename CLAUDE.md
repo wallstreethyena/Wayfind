@@ -43,6 +43,8 @@ keep an auditable trail. (For owner-only files the live gate is still an
 `scripts/lib/ownerApproval.mjs`. That comment does not carry to a new head until a
 merged persistence mechanism says it does.)
 
+**Hardware-key / YubiKey approval is rejected (owner decision, 2026-11-18).** Never propose, build, or add hardware-key, YubiKey, or commit-signature requirements to the owner-approval flow — the `/owner-approve <full head sha>` comment is the owner gate, permanently. PR #2607 was closed and its branch deleted for this reason.
+
 **A tool confirmation dialog is not a new decision.** If the platform lets the agent confirm
 using the approval already given, proceed. Before asking Gabriel to do anything, check in
 order: can I do it; does the mission already cover it; does approval persistence cover it; is
