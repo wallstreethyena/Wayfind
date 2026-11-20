@@ -2,23 +2,24 @@
 
 This folder is a separate Node process that claims queued rows and runs `runNext` in `lib/bookingAgent/run.js`.
 
-## Running the worker
+## Status: OFF (owner decision, 2026-11-20)
 
-Install dependencies once inside this folder:
-```bash
-cd services/booking-agent && npm install
-```
+The booking agent is merged dark. Do not apply `20261117143000_wf_booking_agent.sql`, set
+`BOOKING_AGENT_ENABLED` / `BOOKING_AGENT_SITE_OPENTABLE`, or start this worker in production
+without a new owner decision. Reserve sends OpenTable restaurants through the prefilled
+`/api/reserve/go` handoff instead.
 
-Start the continuous polling daemon (requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `BOOKING_AGENT_ENABLED=1`, `BOOKING_AGENT_SITE_OPENTABLE=1`, and the `wf_booking_agent_sites` row for `opentable` set to `on`):
-```bash
-node services/booking-agent/runner.js
-```
+Standing rules for this worker:
+- It always identifies itself with the honest Wayfind agent user agent (`AGENT_UA`) in every
+  mode; `runNext` refuses any browser presenting a different user agent.
+- It never bypasses CAPTCHA or anti-bot checks; if blocked, the user gets the exact booking page.
+- A personal Mac is never production infrastructure, and any hosted worker is new spend that
+  needs owner approval first.
 
-Run a single queued job and exit:
-```bash
-node services/booking-agent/runner.js --once
-```
+`BOOKING_AGENT_BROWSER_MODE=chrome` only switches to a visible (headed) Chrome window for local
+fixture debugging. Local fixture tests: `node scripts/test-booking-agent.mjs` and
+`node scripts/test-booking-agent-browser.mjs` (no live booking site).
 
-On macOS/Windows, real Chrome (`channel: "chrome"`) is launched directly. On a headless Linux server, run under `xvfb-run -a node services/booking-agent/runner.js` so OpenTable serves the live availability and guest form pages cleanly.
+Twilio confirmation texts reuse the existing `RESERVE_SMS_ENABLED=1` + Twilio credentials when the guest opts in on the booking card. OpenTable SMS verification codes are relayed inline in the Wayfind chat (`POST /api/reserve/agent/code`).
 
 The only runtime dependency is `playwright-core`. The Next.js app does not import this folder.
