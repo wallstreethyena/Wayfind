@@ -115,7 +115,7 @@
     "file": "supabase/migrations/20261120140000_wf_cc_partner_clicks_commerce_mirror.sql",
     "sha256": "29f221b01cb244889a9fd302f289f05675b8a6fddd6019c61613db7da404387c",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1627 (superseded); owner briefing 2026-11-19",
+    "tracking": "#2662 (supersedes #1627)",
     "reason": "Command Center partner clicks: counts the canonical commerce_cta_clicked mirror row (every booking button since 2026-10-26 22:45:35 UTC) and gates the legacy out actions to rows before it, so the owner briefing stops reporting 0 partner clicks (2026-11-19: 22 real clicks from 20 devices). Read-time only; supersedes held #1627. Owner released 2026-11-20 (\"Fix the report\"). Applied through the canonical path right after merge."
   }
 ]
