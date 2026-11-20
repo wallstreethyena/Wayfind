@@ -38,6 +38,7 @@ import {
   buildNearbyPool,
 } from "../lib/nearbyPool.js";
 import { BEACH_NEAR_MI } from "../lib/beaches.js";
+import { OWNED_CITY_LABEL_MI } from "../lib/locationHonesty.js";
 import { MIN_CARDS } from "../lib/railSelect.js";
 import { RAIL_SELECT } from "../lib/railSelect.js";
 import * as NEARBY from "../lib/nearbyPool.js";
@@ -115,6 +116,34 @@ ok(shapeNearbyRow(row({ signals: { rating: 4.9, reviews: 3 } }), SARASOTA, "food
   "a three-review row is refused");
 ok(shapeNearbyRow(row({ lat: null }), SARASOTA, "food") === null, "a row with no coordinates is refused");
 ok(shapeNearbyRow(null, SARASOTA, "food") === null, "a malformed row is refused, never thrown on");
+
+// ── 4b. the card's town is the place's town (2026-11-19) ───────────────────
+// A reader in Sebring resolves to the Lakeland market, 49 mi away; every
+// Sebring card used to read "Lakeland". CALL the shaper with the real
+// geometry: the market name labels only rows inside OWNED_CITY_LABEL_MI.
+{
+  const LAKELAND = { name: "Lakeland", lat: 28.0395, lng: -81.9498 };
+  const SEBRING = { lat: 27.4956, lng: -81.4409 };
+  const far = shapeNearbyRow(row({ lat: 27.5, lng: -81.45 }), SEBRING, "food",
+    { locName: LAKELAND.name, locCenter: LAKELAND });
+  ok(!!far, "the Sebring row still shapes (the label rule never removes a place)");
+  ok(far.city === null, `a row ${Math.round(nearbyMiBetween(27.5, -81.45, LAKELAND.lat, LAKELAND.lng))} mi from Lakeland must not be labelled "Lakeland" (got ${JSON.stringify(far.city)})`);
+  const own = shapeNearbyRow(row({ lat: 27.5, lng: -81.45, locality: "Sebring", postal_city: "Sebring" }), SEBRING, "food",
+    { locName: LAKELAND.name, locCenter: LAKELAND });
+  ok(own.locality === "Sebring" && own.postalCity === "Sebring", "the row's own stored town survives shaping");
+  const near = shapeNearbyRow(row({ lat: 28.05, lng: -81.95 }), LAKELAND, "food",
+    { locName: LAKELAND.name, locCenter: LAKELAND });
+  ok(near.city === "Lakeland", "a row inside the market keeps the market label (no healthy-area regression)");
+  const noCentre = shapeNearbyRow(row(), SARASOTA, "food", { locName: "Sarasota" });
+  ok(noCentre.city === null, "with no market centre there is no evidence the name fits, so none is stamped");
+  for (const status of ["CLOSED_TEMPORARILY", "CLOSED_PERMANENTLY", "FUTURE_OPENING", "EXCLUDED"]) {
+    ok(shapeNearbyRow(row({ status }), SARASOTA, "food") === null, `a ${status} row is never served from the nearby pool`);
+  }
+  ok(!!shapeNearbyRow(row({ status: null }), SARASOTA, "food"), "an unknown status stays unknown (served), the same rule as rankInventory");
+  ok(OWNED_CITY_LABEL_MI === 30, "one honest-label range, shared with nearestOwnedCityName");
+  ok(/fields = "place_id,name,locality,postal_city,/.test(readFileSync(new URL("../lib/nearbyPool.js", import.meta.url), "utf8")),
+    "the nearby read selects locality and postal_city, or the stored town can never reach the card");
+}
 // THE DISCOVERY GATE. This is the door that keeps a tennis court out of Beach
 // Day and a contractor out of Activities — the same placeAllowed() the city
 // path applies to its Google results.
