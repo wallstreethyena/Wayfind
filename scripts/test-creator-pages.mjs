@@ -128,12 +128,26 @@ for (const handle of slugs) {
   const markup = renderToStaticMarkup(await CreatorPage({ handle, mapPlaces: [] }));
   const expected = creatorProfile(handle).spots.filter(s => isEmbeddable(s.video.platform, s.video.url)).length;
   ok(auditVideoCovers(markup, `/creators/${handle}`) === expected, `${handle}: every embeddable post has a rendered cover (${expected})`);
+  // Owner 2026-11-19 ("I need the reels to look like this"): EVERY creator page
+  // shows its videos as the Cindy Selects card, in the swipe rail.
+  const tiles = [...markup.matchAll(/<button[^>]*data-creator-embed-action="[^"]*"[^>]*>/g)].map(m => m[0]);
+  ok(tiles.length === expected && tiles.every(t => /aspect-ratio:\s*3\s*\/\s*4/.test(t)), `${handle}: all ${expected} video tiles use the card face (3:4 cover), not the plain 9:16 tile`);
+  ok((markup.match(/class="wfcr-card"/g) || []).length === creatorProfile(handle).spots.length, `${handle}: every spot is a card`);
+  ok(/aria-label="[^"]* posts"[^>]*role="region"|role="region"[^>]*aria-label="[^"]* posts"/.test(markup) || /Swipe to find your next stop/.test(markup), `${handle}: cards sit in the swipe rail`);
+  if (handle === "cindy.selects") ok(markup.includes("THE CINDY SELECTS EDIT"), "Cindy keeps her own label");
+  else {
+    ok(markup.includes(`THE @${handle} EDIT`), `${handle}: cards carry the creator's own label`);
+    ok(!markup.includes("THE CINDY SELECTS EDIT") && !markup.includes("cindy-selects-portrait"), `${handle}: never Cindy's label or photo on another creator's page`);
+  }
 }
 const trendingMod = await loadComponent(path.join(REPO, "lib/trending.js"), REPO);
 for (const slug of trendingMod.trendingCitySlugs()) {
   const markup = renderToStaticMarkup(await trendingMod.TrendingCityPage({ slug }));
   const expected = trendingMod.TRENDING[slug].places.flatMap(p => videosByKey(p.key)).filter(v => isEmbeddable(v.platform, v.url)).length;
   ok(auditVideoCovers(markup, `/trending/${slug}`) === expected, `${slug}: every embeddable post has a rendered cover (${expected})`);
+  const tTiles = [...markup.matchAll(/<button[^>]*data-creator-embed-action="[^"]*"[^>]*>/g)].map(m => m[0]);
+  ok(tTiles.length === expected && tTiles.every(t => /aspect-ratio:\s*3\s*\/\s*4/.test(t)), `${slug}: trending video tiles use the card face`);
+  ok((expected === 0 || /THE @[^<]+ EDIT|CREATOR POST/.test(markup)) && !markup.includes("cindy-selects-portrait"), `${slug}: trending cards carry a creator label, never Cindy's photo`);
 }
 ok(auditedCovers > 50, `non-vacuous sitewide creator/trending audit (${auditedCovers} covers)`);
 
