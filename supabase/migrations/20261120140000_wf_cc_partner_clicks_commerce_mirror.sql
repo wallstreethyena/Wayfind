@@ -1,49 +1,50 @@
--- Command Center: count the partner clicks the app actually writes, and let
--- confirmed test devices be excluded by device_id (2026-10-02, analytics
--- reconciliation; #1603).
+-- Command Center: count the partner clicks visitors actually make (2026-11-20).
+-- Supersedes held-migrations/20261002010000 (#1627), released by the owner on
+-- 2026-11-20 ("Fix the report") after the 2026-11-19 owner briefing showed
+-- "0 partner clicks" on a day 20 real devices tapped 22 partner buttons.
 --
--- 1. PARTNER CLICKS. wf_cc_out_actions() counted maps_list (a "see this list
---    on the map" intent, never a partner click) and missed book_it_out,
---    partner_program_out and sponsor_out, which the app writes. hotel_out /
---    eats_out / ta_out are kept: 16 stored July rows are real partner clicks.
---    The Detail sheet's primary CTA (primary_cta_clicked) also fires for
---    plan/directions/menu taps, so it is counted through the new predicate
---    wf_cc_is_out(action, meta): partner when meta.monetized is true (written
---    since 2026-10-02); older rows when they carry a provider (production,
---    2026-10-02: 11 provider rows, all partner rungs; 95 without, none).
---    Every out-click reader (kpis, daily, top_places, breakdown, funnel,
---    time_to_action) now calls the predicate instead of the bare list.
---    A read-time change: no events row is written, updated or deleted.
+-- ROOT CAUSE. Since 2026-10-26 22:45:35 UTC every booking button writes ONE
+-- canonical row, action 'commerce_cta_clicked' (lib/commerce.js mirror via
+-- lib/likeSignal.recordCommerceClick), for guides, rails, event pages and place
+-- pages alike. Production's wf_cc_out_actions() never listed it, so every
+-- out-click reader counted only the old per-surface actions, which are now
+-- almost silent (30 days: 10 tickets_out, 4 monetized primary_cta_clicked) and,
+-- when they do fire, are a second copy of a click already mirrored (8 of 10
+-- tickets_out and 3 of 4 monetized primary taps had a commerce_cta_clicked
+-- from the same device within 10 s).
 --
--- 2. REFERRERS. Session rows written before #1623 (2026-10-02) stored the entry
---    type ("share"/"direct") in meta.ref, which wf_cc_breakdown('referrer') then
---    showed as if it were a referring site (W1 2026-09-24..10-01: "share" 343,
---    "direct" 111). Those legacy values now read "(entry: Wayfind share link)" and
---    "(direct/none)"; new rows carry the real referring host.
+-- 1. PARTNER CLICKS. wf_cc_is_out(action, meta, created_at): a
+--    'commerce_cta_clicked' row is a partner click. The legacy actions
+--    (#1627 rules: the corrected out list, primary_cta_clicked by
+--    meta.monetized / provider) count only for rows written BEFORE the mirror
+--    existed, so history keeps its clicks and no click is counted twice.
+--    Every out-click reader passes created_at.
+-- 2. BREAKDOWNS. out_provider names the partner (meta.provider) for mirrored
+--    rows instead of the action name; out_src falls back to meta.surface.
+-- 3. REFERRERS and #1603 DEVICE EXCLUSION: unchanged from #1627 (legacy
+--    "share"/"direct" refs relabelled; exclude_devices setting read, and no
+--    such row exists, so nothing new is excluded).
 --
--- 3. #1603 DEVICE EXCLUSION. wf_cc_excluded_devices() also returns the device
---    ids listed in wf_cc_settings 'exclude_devices' (jsonb array). The row does
---    not exist after this migration: nothing is excluded until the owner adds a
---    CONFIRMED test device id. Reversible by editing or deleting that row.
+-- A read-time change: no events row is written, updated or deleted.
+-- Mirrors supabase/command-center.sql exactly;
+-- scripts/test-cc-partner-click-predicate.mjs checks the blocks byte for byte.
 --
--- Mirrors supabase/command-center.sql exactly (the function bodies below are
--- copied from it; scripts/test-cc-partner-click-predicate.mjs checks they match
--- byte for byte. The SQL was executed against PGlite at authoring time; the
--- guard itself is text-only).
---
--- ROLLBACK: re-run the previous definitions from git (supabase/command-center.sql
--- at the parent commit) and `drop function if exists public.wf_cc_is_out(text,jsonb);`.
+-- ROLLBACK: re-run the previous definitions (supabase/command-center.sql at the
+-- parent commit, which production ran before this) and
+-- `drop function if exists public.wf_cc_is_out(text,jsonb,timestamptz);`.
 
 create or replace function public.wf_cc_out_actions()
 returns text[] language sql immutable as
 $$ select array['tickets_out','coupon_out','tour_card_out','book_it_out','partner_program_out','sponsor_out','hotel_out','eats_out','ta_out'] $$;
 
-create or replace function public.wf_cc_is_out(_action text, _meta jsonb)
+create or replace function public.wf_cc_is_out(_action text, _meta jsonb, _at timestamptz)
 returns boolean language sql immutable as
-$$ select _action = any(public.wf_cc_out_actions())
-       or (_action = 'primary_cta_clicked'
-           and case when (coalesce(_meta, '{}'::jsonb) -> 'monetized') is not null then (_meta->>'monetized') = 'true'
-                    else coalesce(_meta->>'provider','') <> '' end) $$;
+$$ select _action = 'commerce_cta_clicked'
+       or (_at < timestamptz '2026-10-26 22:45:35+00'
+           and (_action = any(public.wf_cc_out_actions())
+                or (_action = 'primary_cta_clicked'
+                    and case when (coalesce(_meta, '{}'::jsonb) -> 'monetized') is not null then (_meta->>'monetized') = 'true'
+                             else coalesce(_meta->>'provider','') <> '' end))) $$;
 
 create or replace function public.wf_cc_excluded_devices()
 returns setof text language sql stable security definer set search_path = public as $$
@@ -59,7 +60,7 @@ create or replace function public.wf_cc_kpis(_from timestamptz, _to timestamptz)
 returns table(metric text, n bigint)
 language sql stable security definer set search_path = public as $$
   with w as (
-    select action, device_id, user_id, public.wf_cc_is_out(action, meta) as is_out from public.events
+    select action, device_id, user_id, public.wf_cc_is_out(action, meta, created_at) as is_out from public.events
     where created_at >= _from and created_at < _to
       and (device_id is null or device_id not in (select public.wf_cc_excluded_devices()))
       and (user_id is null or user_id not in (select public.wf_cc_excluded_users()))
@@ -98,10 +99,10 @@ language sql stable security definer set search_path = public as $$
          count(*) filter (where action = 'like') as likes,
          count(*) filter (where action = 'share') as shares,
          count(*) filter (where action = 'directions') as directions,
-         count(*) filter (where public.wf_cc_is_out(action, meta)) as out_clicks,
+         count(*) filter (where public.wf_cc_is_out(action, meta, created_at)) as out_clicks,
          count(*) filter (where action = 'search') as searches,
          count(*) filter (where action = 'places_none') as no_results,
-         count(distinct device_id) filter (where action = any(public.wf_cc_engage_actions()) or public.wf_cc_is_out(action, meta)) as engaged_devices,
+         count(distinct device_id) filter (where action = any(public.wf_cc_engage_actions()) or public.wf_cc_is_out(action, meta, created_at)) as engaged_devices,
          count(distinct device_id) filter (where action = any(public.wf_cc_browse_actions())) as browse_devices,
          count(distinct device_id) filter (where action in ('detail_open','event_open')) as open_devices
   from public.events
@@ -126,7 +127,7 @@ language sql stable security definer set search_path = public as $$
           when 'like' then action = 'like'
           when 'share' then action = 'share'
           when 'directions' then action = 'directions'
-          when 'out' then public.wf_cc_is_out(action, meta)
+          when 'out' then public.wf_cc_is_out(action, meta, created_at)
           else false
         end
   group by place_id
@@ -156,8 +157,8 @@ language sql stable security definer set search_path = public as $$
                                  else coalesce(nullif(lower(split_part(regexp_replace(meta->>'ref','^https?://',''),'/',1)),''),'(direct/none)') end
         when 'share_kind' then nullif(meta->>'kind','')
         when 'curated'    then nullif(meta->>'kind','')
-        when 'out_provider' then action
-        when 'out_src'    then nullif(meta->>'src','')
+        when 'out_provider' then case when action = 'commerce_cta_clicked' then coalesce(nullif(meta->>'provider',''), '(unknown partner)') else action end
+        when 'out_src'    then coalesce(nullif(meta->>'src',''), nullif(meta->>'surface',''))
       end as k
     from public.events
     where created_at >= _from and created_at < _to
@@ -171,8 +172,8 @@ language sql stable security definer set search_path = public as $$
         when 'referrer' then action = 'session'
         when 'share_kind' then action = 'share'
         when 'curated' then action = 'curated_open'
-        when 'out_provider' then public.wf_cc_is_out(action, meta)
-        when 'out_src' then public.wf_cc_is_out(action, meta)
+        when 'out_provider' then public.wf_cc_is_out(action, meta, created_at)
+        when 'out_src' then public.wf_cc_is_out(action, meta, created_at)
         else false
       end
   ) t
@@ -186,7 +187,7 @@ create or replace function public.wf_cc_funnel(_from timestamptz, _to timestampt
 returns table(step text, ord int, devices bigint)
 language sql stable security definer set search_path = public as $$
   with w as (
-    select action, device_id, public.wf_cc_is_out(action, meta) as is_out from public.events
+    select action, device_id, public.wf_cc_is_out(action, meta, created_at) as is_out from public.events
     where created_at >= _from and created_at < _to and device_id is not null
       and device_id not in (select public.wf_cc_excluded_devices())
   )
@@ -216,7 +217,7 @@ language sql stable security definer set search_path = public as $$
            min(created_at) as t0,
            min(created_at) filter (where action in ('detail_open','event_open')
                                       or action = any(public.wf_cc_engage_actions())
-                                      or public.wf_cc_is_out(action, meta)) as t1
+                                      or public.wf_cc_is_out(action, meta, created_at)) as t1
     from public.events
     where created_at >= _from and created_at < _to and device_id is not null
       and device_id not in (select public.wf_cc_excluded_devices())
@@ -233,5 +234,5 @@ $$;
 -- New function: server-only, like every wf_cc_* function (lock block in
 -- supabase/command-center.sql). create or replace keeps the existing grants
 -- of the redefined functions.
-revoke all on function public.wf_cc_is_out(text,jsonb) from public, anon, authenticated;
-grant execute on function public.wf_cc_is_out(text,jsonb) to service_role;
+revoke all on function public.wf_cc_is_out(text,jsonb,timestamptz) from public, anon, authenticated;
+grant execute on function public.wf_cc_is_out(text,jsonb,timestamptz) to service_role;
