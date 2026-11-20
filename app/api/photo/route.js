@@ -5,7 +5,7 @@ import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photo
 import { NextResponse } from "next/server";
 import { waitUntil } from "@vercel/functions";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
-import { findFreePhoto } from "../../../lib/freePhoto";
+import { findFreePhoto, LICENSED_SOURCES } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass } from "../../../lib/photoOutcomes";
 import { recordPhotoPurchase, bucketHash, idempotencyKey, uaClass } from "../../../lib/photoPurchaseLog";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
@@ -360,7 +360,7 @@ async function handlePhotoGet(req) {
   const free = await getFreePhoto();
   if (free && free.url) recordResponse("response-served");
   if (free && free.url && wantJson) {
-    return jsonAnswer({ src: free.url, source: free.source === "wikimedia" ? "licensed" : "permitted", credit: { name: free.attributionText, uri: free.attributionUrl, license: free.license } }, "public, max-age=" + FREE_REDIRECT_TTL + ", s-maxage=" + FREE_REDIRECT_TTL, "owned-free");
+    return jsonAnswer({ src: free.url, source: LICENSED_SOURCES.has(String(free.source || "wikimedia").toLowerCase()) ? "licensed" : "permitted", credit: { name: free.attributionText, uri: free.attributionUrl, license: free.license } }, "public, max-age=" + FREE_REDIRECT_TTL + ", s-maxage=" + FREE_REDIRECT_TTL, "owned-free");
   }
   if (free && free.url) {
     return NextResponse.redirect(free.url, {

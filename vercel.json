@@ -178,6 +178,10 @@
       "schedule": "50 4 * * *"
     },
     {
+      "path": "/api/cron/place-photos-openverse?limit=8",
+      "schedule": "15 * * * *"
+    },
+    {
       "path": "/api/cron/photo-warm",
       "schedule": "10,25,40,55 * * * *"
     },

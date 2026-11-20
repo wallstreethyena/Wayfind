@@ -233,6 +233,7 @@ const render = async (c, s, city) => {
   const { resolvePlacePhoto, FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } = await import("../lib/placePhotoServe.js");
   const { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } = await import("../lib/spendGate.js");
   const { ledgerOutcomeClass } = await import("../lib/photoOutcomes.js");
+  const { LICENSED_SOURCES } = await import("../lib/freePhoto.js"); // the real set (route labels a free photo with it)
   const { landingCardPhotoSrc } = await import("../lib/placePhoto.js");
   // #1587: the route keeps photo credits from the Details response it already
   // read. Bound to the REAL keeper: no Google call; its Supabase write lands in
@@ -262,7 +263,7 @@ const render = async (c, s, city) => {
   globalThis.__wfEvergreenGuard = {
     FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, ledgerOutcomeClass,
     resolvePlacePhoto: (input) => resolvePlacePhoto(input, deps),
-    findSamePlaceCachedPhoto: async () => null, findFreePhoto: async () => null,
+    findSamePlaceCachedPhoto: async () => null, findFreePhoto: async () => null, LICENSED_SOURCES,
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
     waitUntil: task => scheduledPhotoWork.push(task),
     recordPhotoPurchase: async () => false, takeVisitorToken: async () => ({ ok: true, reason: "test-noop" }), bucketHash: () => null, idempotencyKey: () => "", uaClass: () => "other",
@@ -283,10 +284,11 @@ const render = async (c, s, city) => {
     "};",
     `const FALLBACK_PATH = ${G}.FALLBACK_PATH;`,
     `const PHOTO_REF_RX = ${G}.PHOTO_REF_RX;`,
+    `const LICENSED_SOURCES = ${G}.LICENSED_SOURCES;`,
     ...fns.map((n) => `const ${n} = (...a) => ${G}.${n}(...a);`),
   ].join("\n");
   const importedNames = [...routeSrc.matchAll(/^import\s*\{([^}]*)\}/gm)].flatMap((m) => m[1].split(",").map((x) => x.trim()).filter(Boolean));
-  const bound = new Set(["NextResponse", "FALLBACK_PATH", "PHOTO_REF_RX", ...fns]);
+  const bound = new Set(["NextResponse", "FALLBACK_PATH", "PHOTO_REF_RX", "LICENSED_SOURCES", ...fns]);
   ok(importedNames.every((n) => bound.has(n)), `PROBE: every name the route imports is bound by the rig (unbound: ${importedNames.filter((n) => !bound.has(n)).join(", ") || "none"})`);
   const route = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + routeSrc.replace(/^import[^;]+;\n/gm, "")));
   ok(typeof route.GET === "function", "PROBE: app/api/photo/route.js was sourced and exposes GET");

@@ -124,5 +124,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2552 follow-up: reserve notification kinds beyond confirmation texts",
     "reason": "NOT APPLIED. Additive only, and only after 20261116120000_wf_reserve_notifications.sql. Widens the kind check to request_received_sms, request_accepted_sms, request_declined_sms, opentable_handoff, cancellation_sms and failure_sms. Adds status recorded and channel none so a row we chose not to text is not left queued. Recipient may be null only when channel is none. No new table, no grant, RLS unchanged. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials."
+  },
+  {
+    "file": "supabase/migrations/20261120220000_wf_place_photo_openverse_source.sql",
+    "sha256": "60b8d39e0cd39b8b944e5497403a6698fc88253f2ee2f3b01cdba36a4e9dd803",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2671",
+    "reason": "Owner decision 2026-11-20: fill photo gaps from free licensed sources, no Google spend. Widens wf_place_photo_source_check by one value ('openverse'); no data rewritten, no RLS change. Apply before the Openverse lane deploys; receipt replaces this entry."
   }
 ]

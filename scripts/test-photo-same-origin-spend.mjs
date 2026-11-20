@@ -18,6 +18,7 @@
 // is answered by COUNTING authorizeSpend -> spendAllowPhotosDetailed calls.
 import { readFileSync } from "node:fs";
 import { creditedRequest } from "../lib/apiGuard.js";
+import { LICENSED_SOURCES } from "../lib/freePhoto.js";
 import { getPlacePhoto, resetPhotoAnswers } from "../lib/photoAnswers.js";
 
 let failures = 0;
@@ -42,6 +43,7 @@ const T = (globalThis.__wfSameOriginTest = {
   recordPhotoDeniedCeiling: async () => true,
   recordReaderPhotoMiss: async () => false,
   findFreePhoto: async () => T.free,
+  LICENSED_SOURCES, // the real set from lib/freePhoto.js
   // Resolver contract (lib/placePhotoServe.js): no credited surface => honest miss
   // BEFORE any grant; credited => ask the authorizer exactly once, then a google redirect.
   resolvePlacePhoto: async (input) => {
@@ -64,6 +66,7 @@ const prelude = `
   const placeIdFromRef = (...a) => t().placeIdFromRef(...a);
   const resolvePlacePhoto = (...a) => t().resolvePlacePhoto(...a);
   const findFreePhoto = (...a) => t().findFreePhoto(...a);
+  const LICENSED_SOURCES = t().LICENSED_SOURCES;
   const recordReaderPhotoMiss = (...a) => t().recordReaderPhotoMiss(...a);
   const recordPhotoOutcome = (...a) => t().recordPhotoOutcome(...a);
   const recordPhotoDeniedCeiling = (...a) => t().recordPhotoDeniedCeiling(...a);

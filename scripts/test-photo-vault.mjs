@@ -128,7 +128,8 @@ function makeFetch({ existingRow = null, download = imageResponse(), rowReadOk =
 async function run() {
   // ── Section A — lib/photoLicense.js in isolation (pure, no I/O) ────────
 
-  eq(STORABLE_SOURCES, ["wikimedia", "owner", "creator"], "A1: STORABLE_SOURCES is exactly the wf_place_photo source check constraint's list");
+  // 2026-11-20: + openverse, matching supabase/migrations/20261120220000_wf_place_photo_openverse_source.sql.
+eq(STORABLE_SOURCES, ["wikimedia", "owner", "creator", "openverse"], "A1: STORABLE_SOURCES is exactly the wf_place_photo source check constraint's list");
 
   eq(mayStorePermanently({ source: "google", license: "cc-by-sa-4.0" }), { allowed: false, reason: "google_places_terms_no_photo_caching" }, "A2: source=google is refused BY NAME even with a perfectly free licence");
 
