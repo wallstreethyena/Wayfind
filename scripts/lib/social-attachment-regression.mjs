@@ -10,7 +10,10 @@ import {
   __EVENT_VENUE_CONTEXT_FOR_GUARDS__ as EVENT_VENUE_CONTEXT,
   eventSocialPosts,
 } from "../../lib/eventSocial.js";
-import { embedSrc } from "../../lib/videoEmbed.js";
+import { embedSrc, instagramPlaysInWayfind } from "../../lib/videoEmbed.js";
+// Owner 2026-11-20: a player only where Instagram plays the post inside Wayfind
+// (scripts/classify-instagram-embeds.mjs); a post it only links out for gets none.
+const nativeEmbed = (url) => { const code = (String(url).match(/\/(?:reel|p|tv)\/([\w-]+)/) || [])[1]; return instagramPlaysInWayfind(code) ? url + "embed/" : null; };
 
 const ensure = (condition, message) => {
   if (!condition) throw new Error(`social-attachment-regression: ${message}`);
@@ -43,7 +46,7 @@ export function checkSocialAttachments(repo) {
       const matches = creatorVideosFor({ id: place.place_id }).filter((video) => video.url === url);
       ensure(matches.length === 1 && matches[0].creator === creator, `${code} reaches ${place.name} once with original creator credit`);
       ensure(captionFor(matches[0]).length > 40, `${place.key} retains a substantive caption`);
-      ensure(embedSrc("instagram", url) === url + "embed/", `${code} preserves the native Instagram embed`);
+      ensure(embedSrc("instagram", url) === nativeEmbed(url), `${code} preserves the native Instagram embed`);
       ensure(!creatorVideosFor({ id: "ChIJdifferentVerifiedVenue123", name: place.name, city: place.city }, place.city).some((video) => video.url === url), `${code} cannot transfer to a same-name different Google ID`);
       for (const other of six.sources.flatMap((candidate) => candidate.places)) {
         if (ids.includes(other.place_id)) continue;
@@ -80,7 +83,7 @@ export function checkSocialAttachments(repo) {
     const caption = captionFor(matches[0]);
     ensure(caption.length > 40, `${place.key} needs its original editorial caption`);
     if (source.kind === "multi_place_roundup") ensure(/roundup/i.test(caption), `${place.key} must disclose the shared roundup`);
-    ensure(embedSrc("instagram", source.native_url) === source.native_url + "embed/", `${source.shortcode} must retain its native embed path`);
+    ensure(embedSrc("instagram", source.native_url) === nativeEmbed(source.native_url), `${source.shortcode} must retain its native embed path`);
     const wrong = creatorVideosFor({ id: "ChIJdifferentVerifiedVenue123", name: place.name, city: place.city }, place.city);
     ensure(!wrong.some((video) => video.url === source.native_url), `${place.key} cannot transfer its video to a same-name different Google ID`);
     for (const other of verified.flatMap((candidate) => candidate.places)) {
@@ -174,8 +177,9 @@ export function checkSocialAttachments(repo) {
     for (const event of row.roundup_event_mentions || []) ensure(roundupLinks.get(row.native_url)?.has(event.event_id), `${row.shortcode} roundup mention is absent from ${event.event_id}`);
     for (const event of row.venue_context_associations || []) ensure(venueContextLinks.get(row.native_url)?.has(event.event_id), `${row.shortcode} venue context is absent from ${event.event_id}`);
     const embed = embedSrc("instagram", row.native_url);
-    ensure(!!embed, `${row.shortcode} does not resolve to an official Instagram embed`);
-    ensure(embed.includes(`/${row.native_path_kind === "p" ? "p" : "reel"}/${row.shortcode}/embed/`), `${row.shortcode} embed changed its native route kind`);
+    // Owner 2026-11-20: a post Instagram only links out for has no player by design.
+    ensure(embed === nativeEmbed(row.native_url), `${row.shortcode} does not resolve to an official Instagram embed (or no player for a recorded handoff)`);
+    if (embed) ensure(embed.includes(`/${row.native_path_kind === "p" ? "p" : "reel"}/${row.shortcode}/embed/`), `${row.shortcode} embed changed its native route kind`);
   }
   for (const [eventId, posts] of Object.entries(EVENT_SOCIAL)) for (const [, url] of posts) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
@@ -273,7 +277,7 @@ export function checkSocialAttachments(repo) {
   const frightFest = eventSocialPosts("sarasota-frightfest-2026");
   ensure(frightFest.length === 1 && frightFest[0].url === flyerUrl && frightFest[0].creator === "sarasota_lifebynay", "FrightFest must show its dedicated static flyer with the observed creator credit");
   ensure(eventSocialPosts("wfc:sarasota-frightfest-2026")[0]?.url === flyerUrl, "FrightFest's wfc event ID must retain the same native static post");
-  ensure(embedSrc("instagram", flyerUrl) === "https://www.instagram.com/p/DeZO5ntRRM9/embed/", "a static flyer must not be rewritten as a Reel");
+  ensure(embedSrc("instagram", flyerUrl) === nativeEmbed("https://www.instagram.com/p/DeZO5ntRRM9/") && !String(embedSrc("instagram", flyerUrl) || "").includes("/reel/"), "a static flyer must not be rewritten as a Reel");
   const flyerVideo = creatorVideosFor({ id: "ChIJPWsUhY9Aw4gRoltOtGa3nPM" }).find((video) => video.url === flyerUrl);
   ensure(/flyer/i.test(captionFor(flyerVideo)) && /announcement, not footage of a visit/i.test(captionFor(flyerVideo)), "FrightFest's place caption must describe a flyer rather than claim a filmed visit");
   ensure(!eventSocialPosts("hhn-orlando-2026").some((post) => post.url === flyerUrl), "the FrightFest flyer must not appear on a different Halloween event");

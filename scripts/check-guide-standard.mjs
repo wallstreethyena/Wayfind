@@ -35,6 +35,9 @@
 //      (EXEMPT_NO_PLACE_CARDS). An exemption whose own conditions no longer
 //      hold (the dir now DOES render a place-photo card) is a guard failure,
 //      not a silent pass — the exemption cannot go stale unnoticed.
+//   4. Maps and creator media (owner 2026-11-20): a route's map renders only
+//      inside the shared GuideMapExplorer card, and creator posts only through
+//      the shared CreatorPostRail. See mediaMapViolation().
 //
 // Registered in scripts/guards.txt; its reviewed expectation line lives in
 // scripts/lib/guard-expectations.tsv (check-guard-registry names any drift).
@@ -49,14 +52,9 @@ const GUIDES_DIR = path.join(ROOT, "app/guides");
 const TEMPLATE_DIR = "[slug]";
 
 // A bespoke guide directory with NO place cards at all — verified below, not
-// just declared. Pinto's Farm Miami renders a farm-orientation diagram
-// (PintosFarmMap.js: an illustrated farm map with approximate zone pins)
-// and a credited photo gallery (owner-approved use of Pinto's Farm's own
-// photos, #1417) — neither is a Wayfind place card, so there is nothing to
-// port onto RailCard and no affiliate link to disclose.
-const EXEMPT_NO_PLACE_CARDS = {
-  "pintos-farm-miami-2026": "no Wayfind place cards render on this route — an illustrated farm map with approximate zone pins (no place pin) and a credited photo gallery only (see docs/proposals/guide-standard-2026-09-22.md)",
-};
+// just declared. (Empty since 2026-11-20: Pinto's farm map moved onto the
+// shared GuideMapExplorer card, so every map route is on the card standard.)
+const EXEMPT_NO_PLACE_CARDS = {};
 
 const CARD_COMPONENT_RX = /from ["']\.\.\/\.\.\/components\/(RailCard|GuidePlaceCard|IconicPlaceCard|GuideMapExplorer)["']|from ["']\.\/(RailCard|GuidePlaceCard|IconicPlaceCard|GuideMapExplorer)["']/;
 const PLACE_PHOTO_RX = /\/api\/photo\?(ref|place)=/;
@@ -110,6 +108,31 @@ export function shellViolation(pageSrc, combinedSrc, cssSrc) {
   return null;
 }
 
+// RULE 4 (owner 2026-11-20: "the box holding [the map] should be the same as
+// the place card details page ... the video holders ... should be a horizontal
+// rail ... protect any new blog or guide [from being] created outside of our
+// standards"). Maps and creator media have ONE look each:
+//   - every guide map renders inside the shared GuideMapExplorer card (an
+//     illustrated park map goes in through its renderMap slot), so no route
+//     can wrap a map in its own panel, header or toolbar;
+//   - every creator post renders through the shared CreatorPostRail (the
+//     event page's horizontal creator rail), never a route's own player tile
+//     or a raw provider iframe.
+const MAP_PIECE_RX = /from ["'][./]+components\/(IllustratedParkMap|CreatorAppleMap|MapExplorer|PlaceMap)["']|data-guide-map-canvas|mapkit\.Map\b/;
+const EXPLORER_RX = /from ["'][./]+components\/GuideMapExplorer["']/;
+const RAW_CREATOR_RX = /from ["'][./]+components\/(CreatorVideoPlayer|VideoFacade|CreatorVideoRail|CheckedCreatorPost|CreatorPlaybackDetails)["']|<iframe\b|instagram-media|instagram\.com\/embed\.js|tiktok-embed/;
+// Checked FILE BY FILE: a file that mounts a map piece must itself be the one
+// that puts it inside GuideMapExplorer (one compliant file in a folder must not
+// cover a sibling that boxes its own map).
+export function mediaMapViolation(files) {
+  const list = typeof files === "string" ? [files] : files;
+  for (const src of list) {
+    if (MAP_PIECE_RX.test(src) && !EXPLORER_RX.test(src)) return "renders a map outside the shared guide map card — put it inside GuideMapExplorer (an illustrated map goes in through renderMap) so it gets the standard card, chips, in-map zoom and card rail";
+    if (RAW_CREATOR_RX.test(src)) return "renders creator media with its own player tile, a raw iframe or a provider embed script — use the shared CreatorPostRail (app/components/CreatorPostRail.js), the same horizontal creator rail as event pages";
+  }
+  return null;
+}
+
 // SHRINKING baseline (GVS "Changing this standard": slugs may leave, never
 // join). Only for a route another lane is actively rebuilding, so this PR
 // does not collide with it; its own migration lands right behind that PR.
@@ -136,7 +159,18 @@ if (process.argv.includes("--red-prove")) {
     if (!shellViolation(src, src, css)) fail(`--red-prove: rule 1 did NOT catch "${name}"`);
   }
   if (shellViolation(good, good, ".mine{color:red}")) fail("--red-prove: rule 1 rejected a compliant route");
-  console.log(`check-guide-standard --red-prove: OK — rule 1 caught all ${cases.length} violations and passed the compliant control`);
+  const rule4 = [
+    ["map without the shared card", 'import IllustratedParkMap from "../../components/IllustratedParkMap";'],
+    ["hand-drawn map canvas", '<img data-guide-map-canvas src="/x.webp" />'],
+    ["own creator player", 'import CreatorVideoPlayer from "../../components/CreatorVideoPlayer";'],
+    ["raw provider iframe", '<iframe src="https://www.instagram.com/p/x/embed" />'],
+    ["Instagram blockquote embed", '<blockquote className="instagram-media" data-instgrm-permalink="x" />'],
+    ["boxed map in a sibling file", ['import GuideMapExplorer from "../../components/GuideMapExplorer";', 'import IllustratedParkMap from "../../components/IllustratedParkMap";']],
+  ];
+  for (const [name, src] of rule4) if (!mediaMapViolation(src)) fail(`--red-prove: rule 4 did NOT catch "${name}"`);
+  const goodMedia = 'import GuideMapExplorer from "../../components/GuideMapExplorer";\nimport IllustratedParkMap from "../../components/IllustratedParkMap";\nimport CreatorPostRail from "../../components/CreatorPostRail";';
+  if (mediaMapViolation(goodMedia)) fail("--red-prove: rule 4 rejected a compliant route");
+  console.log(`check-guide-standard --red-prove: OK — rule 1 caught all ${cases.length} violations, rule 4 caught all ${rule4.length} map/creator-media violations, and both passed their compliant controls`);
   process.exit(0);
 }
 
@@ -191,6 +225,9 @@ for (const dir of guideDirs) {
     fail(`app/guides/${dir} now passes rule 1 — remove it from SHELL_MIGRATION_BASELINE (the list only shrinks)`);
   }
 
+  const mediaProblem = mediaMapViolation(jsFiles.map((f) => readFileSync(f, "utf8")));
+  if (mediaProblem) fail(`app/guides/${dir}: ${mediaProblem}`);
+
   const usesApprovedCard = CARD_COMPONENT_RX.test(combinedSrc);
   const showsPlacePhoto = PLACE_PHOTO_RX.test(combinedSrc);
   const exemptReason = EXEMPT_NO_PLACE_CARDS[dir];
@@ -215,7 +252,7 @@ for (const dir of guideDirs) {
 
   // Rule 2a — shared place-card CSS, on the page itself (the CSS is injected
   // once per route, not per component).
-  if (!WF_PLACE_CARD_CSS_IMPORT_RX.test(pageSrc)) {
+  if (!WF_PLACE_CARD_CSS_IMPORT_RX.test(pageSrc) && !SHELL_IMPORT_RX.test(pageSrc)) {
     fail(`app/guides/${dir}/${pageName}: renders place cards (RailCard/GuidePlaceCard/GuideMapExplorer) but never imports/renders WF_PLACE_CARD_CSS — the card ships as unstyled HTML`);
   }
 
@@ -231,12 +268,17 @@ for (const dir of guideDirs) {
 // against — assert it still meets its own bar rather than trusting
 // check-guides.mjs alone to keep catching regressions here.
 const templateSrc = readFileSync(path.join(GUIDES_DIR, TEMPLATE_DIR, "page.js"), "utf8");
+{
+  const templateAll = listJsFiles(path.join(GUIDES_DIR, TEMPLATE_DIR)).map((f) => readFileSync(f, "utf8"));
+  const templateMedia = mediaMapViolation(templateAll);
+  if (templateMedia) fail("app/guides/[slug]: " + templateMedia);
+}
 if (!WF_PLACE_CARD_CSS_IMPORT_RX.test(templateSrc)) fail("app/guides/[slug]/page.js: the shared template itself is missing WF_PLACE_CARD_CSS");
 if (!DISCLOSURE_RX.test(templateSrc)) fail("app/guides/[slug]/page.js: the shared template itself is missing the affiliate disclosure");
 if (!/GUIDE_STANDARD_CSS/.test(templateSrc)) fail("app/guides/[slug]/page.js: the shared template must render GUIDE_STANDARD_CSS (lib/guideStandardCss.js), the same rules GuideStandardShell uses");
 {
   const shellSrc = readFileSync(path.join(ROOT, "app/components/GuideStandardShell.js"), "utf8");
-  for (const [what, rx] of [["the Back to Wayfind breadcrumb", /<ReturnToWayfind\b/], ["GuideArticleHero", /<GuideArticleHero\b/], ["GUIDE_STANDARD_CSS", /GUIDE_STANDARD_CSS/], ["the contents list", /<GuideContents\b/], ["the partner disclosure", /<GuideDisclosure\b/], ["the byline", /Gabriel Pereira/]]) {
+  for (const [what, rx] of [["the Back to Wayfind breadcrumb", /<ReturnToWayfind\b/], ["GuideArticleHero", /<GuideArticleHero\b/], ["GUIDE_STANDARD_CSS", /GUIDE_STANDARD_CSS/], ["the contents list", /<GuideContents\b/], ["the partner disclosure", /<GuideDisclosure\b/], ["the byline", /Gabriel Pereira/], ["the shared place-card CSS", /WF_PLACE_CARD_CSS/]]) {
     if (!rx.test(shellSrc)) fail(`app/components/GuideStandardShell.js no longer renders ${what} — the shell IS the standard`);
   }
 }

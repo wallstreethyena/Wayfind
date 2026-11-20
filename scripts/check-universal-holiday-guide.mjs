@@ -23,7 +23,9 @@ assert.equal(UNIVERSAL_STOPS.length,17);
 // and every view's illustration exists on disk.
 for(const stop of UNIVERSAL_STOPS){assert.ok(doc.getElementById(stop.target),stop.target);assert.ok(stop.x>2&&stop.x<98&&stop.y>4&&stop.y<99,'pin inside its map: '+stop.target);assert.ok(UNIVERSAL_VIEW_MAPS[stop.park],'stop park has a map view: '+stop.target);}
 for(const key of Object.values(UNIVERSAL_VIEW_MAPS))assert.ok(fs.existsSync('public'+parkMapImage(key).src),key);
-for(const stop of UNIVERSAL_STOPS.filter(s=>s.park==='islands'))assert.ok(doc.querySelector(`[data-map-pin="${stop.target}"][href="#${stop.target}"]`),'default Islands view pin: '+stop.target);
+for(const stop of UNIVERSAL_STOPS.filter(s=>s.park==='islands')){assert.ok(doc.querySelector(`[data-universal-map] [data-map-pin="${stop.target}"]`),'default Islands view pin: '+stop.target);assert.ok(doc.querySelector(`[data-universal-map] a[href="#${stop.target}"]`),'default Islands view card opens its entry: '+stop.target);}
+// Owner 2026-11-20: the map sits on the shared guide map card with the zoom inside the map.
+assert.ok(doc.querySelector('[data-universal-map] [data-map-kind="illustrated"] [data-map-zoom-inside]'),'zoom control sits inside the shared map card');
 assert.equal(doc.querySelectorAll('[data-guide-map-canvas]').length,1);
 assert.equal(doc.querySelector('[data-guide-map-canvas]').getAttribute('src'),'/guides/park-maps-2026/islands-of-adventure.webp');
 for(const im of doc.querySelectorAll('img[src^="/"]'))assert.ok(fs.existsSync('public'+im.getAttribute('src')),im.getAttribute('src'));
@@ -53,9 +55,10 @@ console.log('check-universal-holiday-guide: OK — 17 pins resolve to real guide
 
 dom.window.close();
 const interactive = new JSDOM('<!doctype html><div id="root"></div>', { url: 'https://www.gowayfind.com/guides/universal-orlando-christmas-2026', pretendToBeVisual: true });
-const original = { window: globalThis.window, document: globalThis.document, requestAnimationFrame: globalThis.requestAnimationFrame, CustomEvent: globalThis.CustomEvent };
+const original = { window: globalThis.window, document: globalThis.document, requestAnimationFrame: globalThis.requestAnimationFrame, cancelAnimationFrame: globalThis.cancelAnimationFrame, CustomEvent: globalThis.CustomEvent };
 globalThis.window = interactive.window; globalThis.document = interactive.window.document;
 globalThis.requestAnimationFrame = callback => setTimeout(callback, 0);
+globalThis.cancelAnimationFrame = id => clearTimeout(id);
 globalThis.CustomEvent = interactive.window.CustomEvent;
 interactive.window.matchMedia = () => ({ matches: false });
 interactive.window.HTMLElement.prototype.scrollTo = function(options) { this.scrollLeft = options.left || 0; this.scrollTop = options.top || 0; };
@@ -63,23 +66,26 @@ const { createRoot } = await import('react-dom/client');
 const root = createRoot(document.getElementById('root'));
 flushSync(() => { root.render(React.createElement(Page)); });
 const VIEW_TITLE = { islands: 'Islands', studios: 'Studios', epic: 'Epic', citywalk: 'CityWalk' };
-const showView = (park) => flushSync(() => { [...document.querySelectorAll('.mapViews button')].find(button => button.textContent === VIEW_TITLE[park]).click(); });
+const chips = () => [...document.querySelectorAll('[data-universal-map] [aria-label="Filter this guide"] button')];
+const showView = (park) => flushSync(() => { chips().find(button => button.querySelector('span')?.textContent === VIEW_TITLE[park]).click(); });
 for (const stop of UNIVERSAL_STOPS) {
   showView(stop.park);
   assert.equal(document.querySelector('[data-guide-map-canvas]').getAttribute('src'), parkMapImage(UNIVERSAL_VIEW_MAPS[stop.park]).src, 'view shows its park map');
   flushSync(() => { document.querySelector(`[data-map-pin="${stop.target}"]`).click(); });
-  assert.equal(document.activeElement.id, stop.target, 'map selection must open/focus ' + stop.target);
+  assert.equal(document.querySelector(`[data-map-pin="${stop.target}"]`).dataset.selected, 'true', 'tapped pin is selected: ' + stop.target);
+  assert.equal(document.querySelector(`[data-map-pin="${stop.target}"] span`).textContent, String(stop.n), 'pin keeps the guide number ' + stop.n);
+  assert.ok(document.querySelector(`[data-universal-map] a[href="#${stop.target}"]`), 'the matching card opens ' + stop.target);
 }
 const buttons = [...document.querySelectorAll('.foodFilters button')];
 flushSync(() => { buttons.find(button => button.textContent === 'Studios').click(); });
 assert.equal(document.getElementById('le-gobelet-noir').hidden, true);
+window.history.replaceState(null, '', '#le-gobelet-noir');
+flushSync(() => { window.dispatchEvent(new window.HashChangeEvent('hashchange')); });
+assert.equal(document.getElementById('le-gobelet-noir').hidden, false, 'jumping to a filtered food entry reveals it');
 showView('epic');
-flushSync(() => { document.querySelector('[data-map-pin="le-gobelet-noir"]').click(); });
-assert.equal(document.getElementById('le-gobelet-noir').hidden, false, 'map must reveal a previously filtered food entry');
-flushSync(() => { [...document.querySelectorAll('.mapViews button')].find(button => button.textContent === 'Epic').click(); });
-assert.equal(document.querySelectorAll('.mapStops a').length, 6, 'Epic close-up lists its six mapped stops');
+assert.equal(document.querySelectorAll('[data-map-pin]').length, 6, 'Epic map shows its six mapped stops');
 flushSync(() => { root.unmount(); });
 interactive.window.close();
 globalThis.window = original.window; globalThis.document = original.document;
-globalThis.requestAnimationFrame = original.requestAnimationFrame; globalThis.CustomEvent = original.CustomEvent;
-console.log('check-universal-holiday-guide: interaction OK — all 17 actual pin handlers focus the matching entry, filtered rows reveal, park views change; missing-map negative control fails as required.');
+globalThis.requestAnimationFrame = original.requestAnimationFrame; globalThis.cancelAnimationFrame = original.cancelAnimationFrame; globalThis.CustomEvent = original.CustomEvent;
+console.log('check-universal-holiday-guide: interaction OK — all 17 pins select their stop with the guide numbers and every card opens its entry, filtered rows reveal, park views change; missing-map negative control fails as required.');

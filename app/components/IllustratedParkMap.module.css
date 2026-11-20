@@ -1,20 +1,26 @@
-.map{color:#243f34;background:#f6efdf;border:1px solid #dcd2bb;border-radius:12px;overflow:hidden}
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px}
-.hint{font-size:12px;line-height:1.5;margin:0!important;color:#4d5c4d;max-width:360px}
-.zoom{display:flex;gap:6px;flex-shrink:0}
-.zoom button{width:44px;height:44px;border:1px solid #c2bfa9;background:#fffdf6;color:#254a3d;border-radius:8px;font-size:24px;line-height:1;cursor:pointer}
-.zoom button:disabled{opacity:.4;cursor:default}
-.scroll{overflow:auto;max-height:720px;padding-top:18px;background:#efe6d1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+/* Illustrated park map: the bare map, sized to drop into the shared guide map
+   card (GuideMapExplorer .mapWrap) like the Apple map. No panel, no toolbar:
+   the zoom control floats inside the map, top right (owner 2026-11-20). */
+.map{color:#dfe6ee;min-width:0}
+.stage{position:relative;overflow:hidden;border-radius:18px;background:#efe6d1}
+.zoom{position:absolute;z-index:4;top:10px;right:10px;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;background:rgba(17,24,33,.9);border:1px solid rgba(255,255,255,.18);box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.zoom button{width:44px;height:44px;padding:0;border:0;background:transparent;color:#fff;font:500 24px/1 system-ui,sans-serif;cursor:pointer}
+.zoom button+button{border-top:1px solid rgba(255,255,255,.16)}
+.zoom button:disabled{opacity:.35;cursor:default}
+.scroll{overflow:auto;max-height:640px;padding-top:18px;background:#efe6d1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .canvas{position:relative;min-width:100%}
 .art{display:block;width:100%;height:auto;user-select:none;-webkit-user-drag:none}
 .pin{position:absolute;width:48px;height:58px;transform:translate(-50%,-100%);display:flex;align-items:flex-end;justify-content:center;padding:0;border:0;background:transparent;cursor:pointer;z-index:1;text-decoration:none;-webkit-tap-highlight-color:transparent}
 .pin img{width:32px!important;height:44px!important;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(21,56,44,.45))}
-.pin span{position:absolute;top:0;right:2px;width:23px;height:23px;display:grid;place-items:center;border-radius:50%;background:#254a3d;color:#fff;border:2px solid #fffef7;font:700 12px/1 system-ui,sans-serif;pointer-events:none}
+.pin span{position:absolute;top:0;right:2px;width:23px;height:23px;display:grid;place-items:center;border-radius:50%;background:#111821;color:#fff;border:2px solid #fff;font:700 12px/1 system-ui,sans-serif;pointer-events:none}
 .pin[data-selected="true"]{z-index:3}
-.pin[data-selected="true"] span{background:#934d2c;outline:2px solid #934d2c;outline-offset:2px}
-.pin:focus-visible,.scroll:focus-visible,.map a:focus-visible,.zoom button:focus-visible{outline:3px solid #9b542d;outline-offset:2px}
-.failure{position:absolute;inset:0;margin:0;padding:24px;display:grid;place-items:center;text-align:center;color:#254a3d;background:#f6efdf;font-size:15px}
-.credit{font-size:11px;line-height:1.5;margin:8px 12px 12px!important;color:#4d5c4d}
-.credit a{color:#254a3d!important;text-decoration:underline}
-@media(max-width:480px){.scroll{max-height:560px}.toolbar{gap:8px;padding:8px 10px}}
+.caption{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:2px;padding:3px 8px;border-radius:999px;background:rgba(17,24,33,.88);color:#fff;font:600 11px/1.2 system-ui,sans-serif;font-style:normal;white-space:nowrap;pointer-events:none}
+.caption[data-below="true"]{bottom:auto;top:100%;margin:2px 0 0}
+.pin[data-selected="true"] .caption{background:#ff782f;color:#171108}
+.pin[data-selected="true"] span{background:#ff782f;color:#171108;outline:2px solid #ff782f;outline-offset:2px}
 .pin:hover,.pin:focus-visible{z-index:2}
+.pin:focus-visible,.scroll:focus-visible,.map a:focus-visible,.zoom button:focus-visible{outline:3px solid #ffc294;outline-offset:2px}
+.failure{position:absolute;inset:0;margin:0;padding:24px;display:grid;place-items:center;text-align:center;color:#eef1f5;background:#111821;font-size:15px}
+.credit{font-size:12px;line-height:1.5;margin:10px 4px 2px!important;color:#aab4c2}
+.credit a{color:#ffc294!important;text-decoration:underline}
+@media(max-width:480px){.scroll{max-height:520px}}

@@ -31,7 +31,14 @@ let passed = 0;
 const failures = [];
 const ok = (cond, msg) => { if (cond) passed++; else failures.push(msg); };
 
-const { embedSrc } = await import(path.join(REPO, "lib/videoEmbed.js"));
+const { embedSrc, instagramPlaysInWayfind } = await import(path.join(REPO, "lib/videoEmbed.js"));
+const IGV = await import(path.join(REPO, "lib/instagramEmbedVerdicts.js"));
+const IG_HANDOFF = new Set(IGV.INSTAGRAM_HANDOFF.split(" ").filter(Boolean));
+const igCode = (url) => (String(url).match(/instagram\.com\/(?:reel|reels|p|tv)\/([\w-]+)/) || [])[1] || "";
+// Owner 2026-11-20: a reel whose official embed only links out to Instagram is a
+// RECORDED handoff (scripts/classify-instagram-embeds.mjs). It gets no player and
+// every playback surface leaves it off, so it never sends a visitor to Instagram.
+const recordedHandoff = (platform, url) => platform === "instagram" && IG_HANDOFF.has(igCode(url));
 const creator = await import(path.join(REPO, "lib/creatorVideos.js"));
 const social = await import(path.join(REPO, "lib/eventSocial.js"));
 const { pickOwnedCover } = await import(path.join(REPO, "lib/creatorCovers.js"));
@@ -40,21 +47,23 @@ const { pickOwnedCover } = await import(path.join(REPO, "lib/creatorCovers.js"))
 // Grandfathered, exact match only. Do NOT add to this list: a video that cannot
 // play inside Wayfind does not ship.
 const CANNOT_EMBED_YET = new Set(["mai-kai-fort-lauderdale|https://www.facebook.com/share/r/1EPX6DN118/"]);
-ok(embedSrc("instagram", "https://www.instagram.com/reel/ABC123/") === "https://www.instagram.com/reel/ABC123/embed/", "probe: an Instagram reel embeds (positive control)");
+ok(embedSrc("instagram", "https://www.instagram.com/reel/Dc50nKNB9pJ/") === "https://www.instagram.com/reel/Dc50nKNB9pJ/embed/", "probe: an Instagram reel verified to play here embeds (positive control)");
+ok(embedSrc("instagram", "https://www.instagram.com/reel/DfN3Hxph0jD/") === null && recordedHandoff("instagram", "https://www.instagram.com/reel/DfN3Hxph0jD/"), "probe: a reel Instagram only links out for gets no player (negative control)");
+ok(embedSrc("instagram", "https://www.instagram.com/reel/ABC123/") === null && !instagramPlaysInWayfind("ABC123"), "probe: an unchecked reel gets no player (fail closed)");
 ok(embedSrc("facebook", "https://www.facebook.com/share/r/x/") === null, "probe: an unsupported format is detected (negative control)");
 let videos = 0;
 const unplayable = [];
 for (const entry of creator.__CURATED_FOR_CODEGEN__) {
   for (const v of entry.videos || []) {
     videos++;
-    if (!embedSrc(v.platform, v.url) && !CANNOT_EMBED_YET.has(entry.key + "|" + v.url)) unplayable.push(`${entry.key}: ${v.platform} ${v.url}`);
+    if (!embedSrc(v.platform, v.url) && !recordedHandoff(v.platform, v.url) && !CANNOT_EMBED_YET.has(entry.key + "|" + v.url)) unplayable.push(`${entry.key}: ${v.platform} ${v.url}`);
   }
 }
 let eventPosts = 0;
 for (const [eventKey, posts] of Object.entries(social.__EVENT_SOCIAL_FOR_GUARDS__ || {})) {
   for (const [, url] of posts) {
     eventPosts++;
-    if (!embedSrc("instagram", url)) unplayable.push(`event ${eventKey}: ${url}`);
+    if (!embedSrc("instagram", url) && !recordedHandoff("instagram", url)) unplayable.push(`event ${eventKey}: ${url}`);
   }
 }
 ok(videos > 500 && eventPosts > 0, `the registries were actually scanned (${videos} creator videos, ${eventPosts} event posts)`);
@@ -131,7 +140,7 @@ ok(POST_HREF.test('<a href="https://www.instagram.com/reel/ABC/">') && POST_HREF
 const action = strip(read("app/components/CreatorVideoAction.js"));
 ok(!NEW_TAB.test(action) && !/<a[\s>]/.test(action), "the watch action never links out (no new-tab or anchor)");
 ok(/if \(!isEmbeddable\(platform, safeUrl\(url\)\)\) return null;/.test(action), "a post that cannot play here gets no watch button");
-const surfaces = ["app/christmas-in-florida/page.js", "app/florida-events/[slug]/page.js", "app/components/sheets/SocialFind.js", "app/components/CreatorMapPanel.js", "app/components/VideoFacade.js", "app/components/CreatorVideoPlayer.js", "app/components/CreatorCoverFacade.js"];
+const surfaces = ["app/components/CreatorPostRail.js", "app/components/CheckedCreatorPost.js", "app/christmas-in-florida/page.js", "app/florida-events/[slug]/page.js", "app/components/sheets/SocialFind.js", "app/components/CreatorMapPanel.js", "app/components/VideoFacade.js", "app/components/CreatorVideoPlayer.js", "app/components/CreatorCoverFacade.js"];
 for (const f of surfaces) {
   const src = strip(read(f));
   ok(!POST_LINK.test(src) && !POST_HREF.test(src), `${f}: no link sends a visitor to the creator post itself`);
@@ -142,17 +151,23 @@ for (const f of surfaces) {
 // Native attributed embeds replace the earlier cover-only contract. No media is copied.
 {
   const stop = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodStop.js"));
-  const post = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodPost.js"));
-  ok(/stop\.posts\.map\(/.test(stop) && /<FoodPost\b/.test(stop), "every food source renders independently of a park inventory row");
+  const rail = strip(read("app/components/CreatorPostRail.js"));
+  const post = strip(read("app/components/CheckedCreatorPost.js"));
+  ok(/<CreatorPostRail\b[^>]*posts=\{stop\.posts\.map\(/.test(stop), "every food source renders independently of a park inventory row, in the shared creator rail");
+  ok(/posts\.filter\(\(post\) => isEmbeddable\("instagram", post\.url\)\)/.test(rail), "the shared creator rail shows only posts that play inside Wayfind");
+  ok(/<CreatorVideoRail\b/.test(rail), "guide creator posts use the site's horizontal creator rail");
   ok(!/placeId\s*\?\s*stop\.posts/.test(stop), "California sources are not dropped by the old Florida-place-id gate");
-  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=/.test(stop + post), "food media has no substituted park photo, generated illustration or unlicensed cover");
+  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=|<img\b/.test(stop + rail + post), "food media has no substituted park photo, generated illustration or unlicensed cover");
+  ok(!/<a[\s>]/.test(rail + post), "the guide creator rail never links out to Instagram");
   ok(/<CreatorVideoPlayer\b/.test(post), "food posts use the shared native in-page player");
-  ok(/IntersectionObserver/.test(post) && /entry\.isIntersecting/.test(post), "hidden parks do not immediately load all provider players");
-  ok(/Instagram controls playback/.test(post), "provider-controlled playback is disclosed, never promised");
-  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, CALIFORNIA_BONUS } = await import("../lib/guidesDisneyHolidayFood2026.js");
-  const posts = [...DISNEY_FOOD_STOPS, CALIFORNIA_BONUS].flatMap((s) => s.posts);
-  ok(posts.length === 9 && new Set(posts.map((p) => p.url)).size === 9, "all nine distinct food posts are retained");
-  ok(posts.every((p) => p.creator && embedSrc("instagram", p.url)), "every food source has attribution and an official embed");
+  ok(/useState\("idle"\)/.test(post) && /\{started \?/.test(post) && !/IntersectionObserver/.test(post), "no provider player loads until the reader taps");
+  ok(/Instagram controls playback/.test(rail), "provider-controlled playback is disclosed, never promised");
+  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, CALIFORNIA_BONUS, EPCOT_FESTIVAL } = await import("../lib/guidesDisneyHolidayFood2026.js");
+  const posts = [...DISNEY_FOOD_STOPS, CALIFORNIA_BONUS].flatMap((s) => s.posts).concat(EPCOT_FESTIVAL.post);
+  ok(posts.length === 10 && new Set(posts.map((p) => p.url)).size === 10, "all nine food posts and the festival post are retained");
+  ok(EPCOT_FESTIVAL.post.url === "https://www.instagram.com/p/DfpbdQwG23q/" && EPCOT_FESTIVAL.post.creator === "disneyfoodblog" && embedSrc("instagram", EPCOT_FESTIVAL.post.url), "the owner-requested festival post is credited and plays inside Wayfind");
+  ok(posts.every((p) => p.creator && (embedSrc("instagram", p.url) || recordedHandoff("instagram", p.url))), "every food source has attribution and either plays here or is a recorded handoff the page hides");
+  ok(posts.some((p) => embedSrc("instagram", p.url)), "at least one food post still plays inside Wayfind");
   ok(CALIFORNIA_BONUS.posts.some((p) => p.url === "https://www.instagram.com/reel/DfdaTVttmvV/"), "California Hawaiian rolls Reel is retained");
   ok(DISNEY_FOOD_STOPS.every((s) => DISNEY_FOOD_PARKS.some((park) => park.id === s.parkId)), "all Florida stops belong to a selectable park");
   ok(!DISNEY_FOOD_STOPS.includes(CALIFORNIA_BONUS), "Anaheim stays outside the Florida maps");
