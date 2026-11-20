@@ -1470,6 +1470,7 @@ const eq = (a, b, msg) => {
 
 // ── 10. Rolling 7-Day Automated Liveness, 30-Day Human Ceiling, CJ GraphQL Producer & UT Renewal ──
 {
+  const { evaluateClippOfferFreshness } = await import("../lib/commerceHealth.js");
   const { ingestClippOfferEvidence, resetClippRuntimeEvidence } = await import("../lib/clippOffers.js");
   const { produceClippOfferEvidence, runClippDurableSweep } = await import("../lib/clippDurableStore.js");
   const { COUPONS, UT_AUDIT_EXPIRY, resolveLiveCoupon, couponIsLive } = await import("../lib/coupons.js");
@@ -1540,6 +1541,34 @@ const eq = (a, b, msg) => {
     // Past 7-day automated TTL without new receipt (2026-12-16): fails closed!
     eq(clippOfferById("clipp-m-blind-goat", { now: "2026-12-16T12:00:00.000Z" }), null, "automated receipt >7d old fails closed");
 
+    // Manual or unlabelled runtime evidence MUST NOT spoof rolling automated liveness past CLIPP_AUDIT_EXPIRY!
+    resetClippRuntimeEvidence();
+    ingestClippOfferEvidence(
+      "clipp-m-blind-goat",
+      {
+        httpStatus: 200,
+        finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+        html: "<title>The Blind Goat Tampa, FL</title><div>Add to Cart Buy Now $15 for $30</div>",
+        observedAt: "2026-12-08T06:45:00.000Z",
+        verificationMode: "manual",
+        source: "manual_browser_audit",
+      },
+      { now: "2026-12-08T08:00:00.000Z", persist: false }
+    );
+    eq(clippOfferById("clipp-m-blind-goat", { now: "2026-12-10T12:00:00.000Z" }), null, "manual_browser_audit runtime evidence does NOT roll liveness past CLIPP_AUDIT_EXPIRY");
+    eq(resolveLiveCoupon(bgCoupon, { now: "2026-12-10T12:00:00.000Z" }), null, "resolveLiveCoupon rejects manual_browser_audit spoofing past CLIPP_AUDIT_EXPIRY");
+    eq(couponIsLive(bgCoupon, "2026-12-10"), false, "couponIsLive rejects manual_browser_audit spoofing past CLIPP_AUDIT_EXPIRY");
+    eq(
+      evaluateClippOfferFreshness(
+        { status: "ACTIVE", runtimeVerifiedAt: "2026-12-08T06:45:00.000Z" },
+        { now: "2026-12-10T12:00:00.000Z", auditExpiry: "2026-12-07", lastManualAuditAt: "2026-11-20T21:54:32.632Z" }
+      ).serveable,
+      false,
+      "evaluateClippOfferFreshness rejects unlabelled runtimeVerifiedAt without automated verificationMode/source"
+    );
+    resetClippRuntimeEvidence();
+    eq(couponIsLive(bgCoupon, "2026-12-22"), false, "couponIsLive enforces 30-day human spot-check ceiling even when runtime overlay is absent");
+
     // Past 30-day human spot-check ceiling (>2026-12-20T21:54:32.632Z), even a <1h automated receipt fails closed!
     ingestClippOfferEvidence(
       "clipp-m-blind-goat",
@@ -1560,7 +1589,7 @@ const eq = (a, b, msg) => {
     resetClippRuntimeEvidence();
   }
 
-  // 10d. CJ Official GraphQL Cloud Producer: fail-loud partial config + hermetic catalog ingestion
+  // 10d. CJ Official GraphQL Cloud Producer: fail-loud partial config, empty/malformed payload + hermetic catalog ingestion
   const tmpCjStore = path.join(os.tmpdir(), `wf-cj-store-${Date.now()}.json`);
   try {
     const missingCompany = await produceClippOfferEvidence({
@@ -1582,6 +1611,30 @@ const eq = (a, b, msg) => {
     ok(
       sweepFail.ok === false && sweepFail.succeeded === 0 && sweepFail.failed > 0,
       "runClippDurableSweep records failed execution receipt when CJ producer config is incomplete"
+    );
+
+    const malformedCjSweep = await runClippDurableSweep({
+      cjAccessToken: "test-cj-token",
+      cjPublisherCompanyId: "7654321",
+      storePath: tmpCjStore,
+      now: "2026-11-21T08:15:00.000Z",
+      fetchImpl: async () => new Response(JSON.stringify({ data: {} }), { status: 200, headers: { "content-type": "application/json" } }),
+    });
+    ok(
+      malformedCjSweep.ok === false && malformedCjSweep.mode === "cj_graphql_invalid_payload" && malformedCjSweep.succeeded === 0 && malformedCjSweep.failed === 39,
+      "runClippDurableSweep fails loudly when CJ GraphQL HTTP 200 payload lacks data.products.resultList"
+    );
+
+    const emptyCjSweep = await runClippDurableSweep({
+      cjAccessToken: "test-cj-token",
+      cjPublisherCompanyId: "7654321",
+      storePath: tmpCjStore,
+      now: "2026-11-21T08:30:00.000Z",
+      fetchImpl: async () => new Response(JSON.stringify({ data: { products: { resultList: [] } } }), { status: 200, headers: { "content-type": "application/json" } }),
+    });
+    ok(
+      emptyCjSweep.ok === false && emptyCjSweep.mode === "cj_graphql_empty_or_unmatched" && emptyCjSweep.succeeded === 0 && emptyCjSweep.failed === 39,
+      "runClippDurableSweep fails loudly when CJ GraphQL returns zero matching Clipp records"
     );
 
     const cjSweep = await runClippDurableSweep({
