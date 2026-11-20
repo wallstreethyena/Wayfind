@@ -1,11 +1,14 @@
 import EventPhotoRailControls from "./EventPhotoRailControls.js";
+import SoldOutStamp, { SOLD_OUT_STAMP_CSS } from "./SoldOutStamp.js";
+import { styleHtml } from "../../lib/styleHtml.js";
 
 // Both event sources supply content to this shell. Reading order and action
 // spacing belong here, so a new event cannot invent another page layout.
-export default function EventDetailShell({ title, status, facts, story, actions, note, media, credit }) {
+export default function EventDetailShell({ title, status, facts, story, actions, note, media, credit, soldOut = false }) {
   return (
     <section className="wf-event-hero" id="event-overview" data-event-section="Overview" aria-label="Event overview" tabIndex={-1}>
-      <div className="wf-event-media" aria-label="Event photos">
+      <div className="wf-event-media" aria-label="Event photos" style={soldOut ? { position: "relative" } : undefined}>
+        {soldOut ? <><style dangerouslySetInnerHTML={styleHtml(SOLD_OUT_STAMP_CSS)} /><SoldOutStamp id="wf-event-soldout" /></> : null}
         <div className="wf-event-photo-rail" role="region" aria-label="Event photo rail" tabIndex={0}>
           {media}
         </div>

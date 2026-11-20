@@ -88,18 +88,21 @@ returns text[] language sql immutable as
 $$ select array['tickets_out','coupon_out','tour_card_out','book_it_out','partner_program_out','sponsor_out','hotel_out','eats_out','ta_out'] $$;
 
 -- Is this events row a partner click? Every out-click reader uses this, never
--- the bare list. primary_cta_clicked is a partner click when the app said so
--- (meta.monetized, written since 2026-10-02). Rows from before that carry no
--- monetized key; for them a provider is the partner signal. Measured on
--- production 2026-10-02: all 11 provider-bearing rows were partner rungs
--- (Klook / Tiqets / Undercover Tourist tickets, Uber Eats pickup/delivery);
--- the 95 provider-less rows were menu / directions / plan / conditions taps.
-create or replace function public.wf_cc_is_out(_action text, _meta jsonb)
+-- the bare list. Since 2026-10-26 22:45:35 UTC every booking button writes one
+-- canonical 'commerce_cta_clicked' row (lib/commerce.js mirror), so that is the
+-- partner click. The legacy actions below count only for rows written before the
+-- mirror existed: after it, they are a second copy of a mirrored click (30 days to
+-- 2026-11-20: 11 of 14 paired within 10 s). Legacy rules (2026-10-02):
+-- primary_cta_clicked counts when meta.monetized is true, or, for rows without
+-- that key, when it carries a provider.
+create or replace function public.wf_cc_is_out(_action text, _meta jsonb, _at timestamptz)
 returns boolean language sql immutable as
-$$ select _action = any(public.wf_cc_out_actions())
-       or (_action = 'primary_cta_clicked'
-           and case when (coalesce(_meta, '{}'::jsonb) -> 'monetized') is not null then (_meta->>'monetized') = 'true'
-                    else coalesce(_meta->>'provider','') <> '' end) $$;
+$$ select _action = 'commerce_cta_clicked'
+       or (_at < timestamptz '2026-10-26 22:45:35+00'
+           and (_action = any(public.wf_cc_out_actions())
+                or (_action = 'primary_cta_clicked'
+                    and case when (coalesce(_meta, '{}'::jsonb) -> 'monetized') is not null then (_meta->>'monetized') = 'true'
+                             else coalesce(_meta->>'provider','') <> '' end))) $$;
 
 -- Engagement actions = a "meaningful action" on a place or surface.
 create or replace function public.wf_cc_engage_actions()
@@ -123,7 +126,7 @@ create or replace function public.wf_cc_kpis(_from timestamptz, _to timestamptz)
 returns table(metric text, n bigint)
 language sql stable security definer set search_path = public as $$
   with w as (
-    select action, device_id, user_id, public.wf_cc_is_out(action, meta) as is_out from public.events
+    select action, device_id, user_id, public.wf_cc_is_out(action, meta, created_at) as is_out from public.events
     where created_at >= _from and created_at < _to
       and (device_id is null or device_id not in (select public.wf_cc_excluded_devices()))
       and (user_id is null or user_id not in (select public.wf_cc_excluded_users()))
@@ -167,10 +170,10 @@ language sql stable security definer set search_path = public as $$
          count(*) filter (where action = 'like') as likes,
          count(*) filter (where action = 'share') as shares,
          count(*) filter (where action = 'directions') as directions,
-         count(*) filter (where public.wf_cc_is_out(action, meta)) as out_clicks,
+         count(*) filter (where public.wf_cc_is_out(action, meta, created_at)) as out_clicks,
          count(*) filter (where action = 'search') as searches,
          count(*) filter (where action = 'places_none') as no_results,
-         count(distinct device_id) filter (where action = any(public.wf_cc_engage_actions()) or public.wf_cc_is_out(action, meta)) as engaged_devices,
+         count(distinct device_id) filter (where action = any(public.wf_cc_engage_actions()) or public.wf_cc_is_out(action, meta, created_at)) as engaged_devices,
          count(distinct device_id) filter (where action = any(public.wf_cc_browse_actions())) as browse_devices,
          count(distinct device_id) filter (where action in ('detail_open','event_open')) as open_devices
   from public.events
@@ -214,7 +217,7 @@ language sql stable security definer set search_path = public as $$
           when 'like' then action = 'like'
           when 'share' then action = 'share'
           when 'directions' then action = 'directions'
-          when 'out' then public.wf_cc_is_out(action, meta)
+          when 'out' then public.wf_cc_is_out(action, meta, created_at)
           else false
         end
   group by place_id
@@ -248,8 +251,8 @@ language sql stable security definer set search_path = public as $$
                                  else coalesce(nullif(lower(split_part(regexp_replace(meta->>'ref','^https?://',''),'/',1)),''),'(direct/none)') end
         when 'share_kind' then nullif(meta->>'kind','')
         when 'curated'    then nullif(meta->>'kind','')
-        when 'out_provider' then action
-        when 'out_src'    then nullif(meta->>'src','')
+        when 'out_provider' then case when action = 'commerce_cta_clicked' then coalesce(nullif(meta->>'provider',''), '(unknown partner)') else action end
+        when 'out_src'    then coalesce(nullif(meta->>'src',''), nullif(meta->>'surface',''))
       end as k
     from public.events
     where created_at >= _from and created_at < _to
@@ -263,8 +266,8 @@ language sql stable security definer set search_path = public as $$
         when 'referrer' then action = 'session'
         when 'share_kind' then action = 'share'
         when 'curated' then action = 'curated_open'
-        when 'out_provider' then public.wf_cc_is_out(action, meta)
-        when 'out_src' then public.wf_cc_is_out(action, meta)
+        when 'out_provider' then public.wf_cc_is_out(action, meta, created_at)
+        when 'out_src' then public.wf_cc_is_out(action, meta, created_at)
         else false
       end
   ) t
@@ -281,7 +284,7 @@ create or replace function public.wf_cc_funnel(_from timestamptz, _to timestampt
 returns table(step text, ord int, devices bigint)
 language sql stable security definer set search_path = public as $$
   with w as (
-    select action, device_id, public.wf_cc_is_out(action, meta) as is_out from public.events
+    select action, device_id, public.wf_cc_is_out(action, meta, created_at) as is_out from public.events
     where created_at >= _from and created_at < _to and device_id is not null
       and device_id not in (select public.wf_cc_excluded_devices())
   )
@@ -429,7 +432,7 @@ language sql stable security definer set search_path = public as $$
            min(created_at) as t0,
            min(created_at) filter (where action in ('detail_open','event_open')
                                       or action = any(public.wf_cc_engage_actions())
-                                      or public.wf_cc_is_out(action, meta)) as t1
+                                      or public.wf_cc_is_out(action, meta, created_at)) as t1
     from public.events
     where created_at >= _from and created_at < _to and device_id is not null
       and device_id not in (select public.wf_cc_excluded_devices())
@@ -546,7 +549,7 @@ do $lock$
 declare fn text;
 begin
   foreach fn in array array[
-    'wf_cc_out_actions()','wf_cc_is_out(text,jsonb)','wf_cc_engage_actions()','wf_cc_browse_actions()','wf_cc_tz(text)',
+    'wf_cc_out_actions()','wf_cc_is_out(text,jsonb,timestamptz)','wf_cc_engage_actions()','wf_cc_browse_actions()','wf_cc_tz(text)',
     'wf_cc_excluded_users()','wf_cc_excluded_devices()',
     'wf_cc_kpis(timestamptz,timestamptz)',
     'wf_cc_daily(timestamptz,timestamptz,text)',
@@ -581,7 +584,7 @@ $lock$;
 --   drop function if exists public.wf_cc_score_coverage();
 --   drop function if exists public.wf_cc_time_to_action(timestamptz,timestamptz);
 --   drop function if exists public.wf_cc_browse_actions();
---   drop function if exists public.wf_cc_is_out(text,jsonb);
+--   drop function if exists public.wf_cc_is_out(text,jsonb,timestamptz);
 --   drop function if exists public.wf_cc_new_returning(timestamptz,timestamptz,text);
 --   drop function if exists public.wf_cc_cohorts_weekly(int,text);
 --   drop function if exists public.wf_cc_retention(timestamptz,timestamptz,text);

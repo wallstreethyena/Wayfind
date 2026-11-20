@@ -274,7 +274,9 @@ export default async function CuratedEventPage({ params }) {
   // "Remind me" (owner, 2026-10-14): only for an event with a real date. An
   // undated season, a watchlist twin and a past event get no button.
   const remind = reminderFactsFor(e, { occurrences: occurrenceDatesFor(e) });
-  const socialPosts = eventSocialPosts(e.event_id) || [];
+  // Owner 2026-11-20: creator posts play inside Wayfind. A post Instagram will
+  // not play here (its embed only links out) never reaches the rail.
+  const socialPosts = (eventSocialPosts(e.event_id) || []).filter((post) => isEmbeddable(post.platform, post.url));
   // The card's creator mark promises that the post is one tap away. Reuse the
   // event's already-cleared hero as the click-to-load cover so that promise is
   // visible before Instagram's third-party iframe is requested.
@@ -349,6 +351,7 @@ export default async function CuratedEventPage({ params }) {
       <EventSectionNav />
       <EventHeroPhotoProvider src={heroSrc}>
       <EventDetailShell
+        soldOut={soldOut}
         title={eventTitleWithYear(e.event_name, e.year)}
         facts={[
           { label: "When", value: `${datesLabel}${dateYearSuffix}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },

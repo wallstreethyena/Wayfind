@@ -5,11 +5,11 @@
 // Proves, on the real data and files:
 //  1. every map image exists and its decoded WebP size equals the declared
 //     width/height (the pins are percentages of that exact image);
-//  2. every Disney food stop has a pin on its park's "Food area" map, every
-//     park with a "Whole park" view pins all its stops there too, and every
-//     pin sits inside the image;
+//  2. every Disney food stop (and every EPCOT Festival of the Holidays booth)
+//     has a pin on its park's map, and every pin sits inside the image;
 //  3. the shared component renders the real image as a declared map canvas
-//     with one numbered control per pin and the OpenStreetMap credit.
+//     with one numbered control per pin, the zoom control INSIDE the map
+//     (owner 2026-11-20) and the OpenStreetMap credit.
 // --red-prove: a stop with no pin and a wrong declared size must be caught.
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
@@ -17,8 +17,9 @@ import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
-import { PARK_MAPS, DISNEY_PARK_VIEWS, DISNEY_FOOD_PINS, UNIVERSAL_VIEW_MAPS, parkMapImage } from "../lib/parkMaps2026.js";
-import { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS } from "../lib/guidesDisneyHolidayFood2026.js";
+import { PARK_MAPS, DISNEY_PARK_MAP, DISNEY_FOOD_PINS, UNIVERSAL_VIEW_MAPS, parkMapImage } from "../lib/parkMaps2026.js";
+import { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, EPCOT_FESTIVAL } from "../lib/guidesDisneyHolidayFood2026.js";
+const DISNEY_MAPPED = [...DISNEY_FOOD_STOPS, ...EPCOT_FESTIVAL.booths.map((b) => ({ id: b.id, parkId: EPCOT_FESTIVAL.parkId }))];
 
 function webpSize(file) {
   const b = readFileSync(file);
@@ -35,17 +36,15 @@ export function sizeProblem(key, meta) {
   return actual.width === meta.width && actual.height === meta.height ? null : `${key}: declared ${meta.width}x${meta.height}, file is ${actual.width}x${actual.height}`;
 }
 
-export function pinProblems(parks, stops, views, pins) {
+export function pinProblems(parks, stops, mapByPark, pins) {
   const problems = [];
   for (const park of parks) {
-    const view = views[park.id];
-    if (!view) { problems.push("no map views for " + park.id); continue; }
-    for (const key of [view.food, view.whole].filter(Boolean)) {
-      for (const stop of stops.filter((s) => s.parkId === park.id)) {
-        const p = pins[key]?.[stop.id];
-        if (!p) problems.push(`${stop.id} has no pin on ${key}`);
-        else if (!(p[0] > 2 && p[0] < 98 && p[1] > 4 && p[1] < 99)) problems.push(`${stop.id} pin outside ${key}`);
-      }
+    const key = mapByPark[park.id];
+    if (!key || !PARK_MAPS[key]) { problems.push("no map for " + park.id); continue; }
+    for (const stop of stops.filter((s) => s.parkId === park.id)) {
+      const p = pins[park.id]?.[stop.id];
+      if (!p) problems.push(`${stop.id} has no pin on ${key}`);
+      else if (!(p[0] > 2 && p[0] < 98 && p[1] > 4 && p[1] < 99)) problems.push(`${stop.id} pin outside ${key}`);
     }
   }
   return problems;
@@ -55,10 +54,13 @@ const red = process.argv.includes("--red-prove");
 if (red) {
   const broken = { ...DISNEY_FOOD_PINS, "animal-kingdom": { ...DISNEY_FOOD_PINS["animal-kingdom"] } };
   delete broken["animal-kingdom"]["flame-tree-cheesecake-pop"];
-  assert.ok(pinProblems(DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, DISNEY_PARK_VIEWS, broken).some((p) => p.includes("flame-tree")), "red-prove: missing pin must be caught");
+  assert.ok(pinProblems(DISNEY_FOOD_PARKS, DISNEY_MAPPED, DISNEY_PARK_MAP, broken).some((p) => p.includes("flame-tree")), "red-prove: missing pin must be caught");
   const off = { ...DISNEY_FOOD_PINS, "magic-kingdom": { "main-street-popcorn": [120, 50] } };
-  assert.ok(pinProblems(DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, DISNEY_PARK_VIEWS, off).some((p) => p.includes("outside")), "red-prove: off-map pin must be caught");
+  assert.ok(pinProblems(DISNEY_FOOD_PARKS, DISNEY_MAPPED, DISNEY_PARK_MAP, off).some((p) => p.includes("outside")), "red-prove: off-map pin must be caught");
   assert.ok(sizeProblem("epcot", { ...PARK_MAPS.epcot, width: PARK_MAPS.epcot.width + 1 }), "red-prove: a wrong declared width must be caught");
+  const noBooth = { ...DISNEY_FOOD_PINS, epcot: { ...DISNEY_FOOD_PINS.epcot } };
+  delete noBooth.epcot["diwali-holiday-kitchen"];
+  assert.ok(pinProblems(DISNEY_FOOD_PARKS, DISNEY_MAPPED, DISNEY_PARK_MAP, noBooth).some((p) => p.includes("diwali")), "red-prove: an unpinned festival booth must be caught");
   console.log("test-park-maps-2026 --red-prove: OK — missing pin, off-map pin and size mismatch are all detected");
   process.exit(0);
 }
@@ -72,7 +74,7 @@ for (const [key, meta] of Object.entries(PARK_MAPS)) {
   images++;
 }
 for (const key of Object.values(UNIVERSAL_VIEW_MAPS)) assert.ok(PARK_MAPS[key], "Universal view map registered: " + key);
-const problems = pinProblems(DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, DISNEY_PARK_VIEWS, DISNEY_FOOD_PINS);
+const problems = pinProblems(DISNEY_FOOD_PARKS, DISNEY_MAPPED, DISNEY_PARK_MAP, DISNEY_FOOD_PINS);
 assert.deepEqual(problems, [], problems.join("; "));
 
 const { default: IllustratedParkMap } = await loadComponent(path.resolve("app/components/IllustratedParkMap.js"), process.cwd());
@@ -81,6 +83,17 @@ assert.ok(html.includes('data-guide-map-canvas') && html.includes('src="/guides/
 assert.equal((html.match(/data-map-pin=/g) || []).length, 2, "one control per pin");
 assert.ok(html.includes('<button') && html.includes('href="#b"'), "button pins and link pins both render");
 assert.ok(html.includes("openstreetmap.org/copyright"), "OpenStreetMap credit next to the map");
+// Owner 2026-11-20: zoom sits inside the map (same positioned stage as the
+// scroll area), and the map has no toolbar or panel box above it.
+{
+  const doc = new (await import("jsdom")).JSDOM(html).window.document;
+  const zoom = doc.querySelector("[data-map-zoom-inside]");
+  assert.ok(zoom && zoom.parentElement.contains(doc.querySelector("[data-guide-map-canvas]")), "zoom control shares the map stage with the canvas");
+  assert.equal(zoom.querySelectorAll("button").length, 2, "zoom in and out");
+  const css = readFileSync("app/components/IllustratedParkMap.module.css", "utf8");
+  assert.ok(/\.zoom\{position:absolute/.test(css) && /\.stage\{position:relative/.test(css), "zoom floats over the map art");
+  assert.ok(!/\.toolbar\b/.test(css) && !/#f6efdf/i.test(css), "no toolbar strip or beige panel around the map");
+}
 // Crowded pins must not cover each other on a phone (Islands of Adventure's
 // four Seuss Landing stops at a ~340px map width): the map opens zoomed.
 const { zoomToSeparate, scrollToCrowd, PIN_GAP } = await loadComponent(path.resolve("app/components/IllustratedParkMap.js"), process.cwd());
@@ -105,4 +118,4 @@ for (const width of [330, 350, 366, 398]) {
 }
 assert.equal(zoomToSeparate(islands, 2400, ioa.height / ioa.width), 1, "a wide desktop map needs no zoom");
 assert.equal(zoomToSeparate([{ left: 10, top: 10 }, { left: 90, top: 90 }], 340, 1), 1, "well-spaced pins stay at 1x");
-console.log(`test-park-maps-2026: OK — ${images} illustrated maps match their declared sizes, ${DISNEY_FOOD_STOPS.length} Disney stops pinned on every view of their park, component renders canvas, pins and credit`);
+console.log(`test-park-maps-2026: OK — ${images} illustrated maps match their declared sizes, ${DISNEY_MAPPED.length} Disney stops and festival booths pinned on their park map, component renders canvas, pins, in-map zoom and credit`);
