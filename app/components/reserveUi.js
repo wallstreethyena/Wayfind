@@ -10,7 +10,9 @@ import { styleHtml } from "../../lib/styleHtml.js";
 // Every fixed Santa surface that sits above kit sheets: the dock (.wf-sd, z 930) and the proactive
 // "Build a day around this" offer bar (.wfp-so, z 936, app/components/PlannerSantaOffer.js). visibility:hidden
 // also stops them taking taps, so the sheet's own buttons (Open on OpenTable, Send) always get the touch.
-const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd,html[data-wf-reserve-open] .wfp-so{visibility:hidden}";
+// + the plain planner offer card (.wfp-proactive, z 935, bottom 82px on phones; shown outside Santa season), which
+// covers the same bottom strip of the sheet.
+const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd,html[data-wf-reserve-open] .wfp-so,html[data-wf-reserve-open] .wfp-proactive{visibility:hidden}";
 
 export const mainBtn = { width: "100%", minHeight: 48, padding: "0 16px", background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" };
 export const quietBtn = { width: "100%", minHeight: 44, padding: "0 16px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
