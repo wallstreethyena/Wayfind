@@ -78,12 +78,22 @@ function ConfirmCard({ card, name, who, busy, sms, onConfirm, onBack }) {
   );
 }
 
-function RequestCard({ card, name, busy, onSend }) {
+// Same words lib/reserveSms.js stores as REQUEST_CONSENT_TEXT. Not imported: that module is server only.
+const TEXT_REQUEST = "Text me about this request. One text when we receive it, one text when the restaurant accepts or declines, and one text if that confirmed table is later cancelled. Msg and data rates may apply. Reply STOP to opt out.";
+
+function RequestCard({ card, name, busy, sms, onSend }) {
+  const [textMe, setTextMe] = useState(false); // opt in: never pre-ticked
   return (
     <div data-reserve-card="request" style={box}>
       <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.4 }}>{[exactDay(card.date), timeLabel(card.time), card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ")}</div>
       <Note>{name || "The restaurant"} answers requests on its own time. Nothing is confirmed until they say yes.</Note>
-      <div style={{ marginTop: 10 }}><button type="button" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={onSend}>Send request</button></div>
+      {sms && sms.tail ? (
+        <label style={{ display: "flex", alignItems: "flex-start", gap: 10, minHeight: 44, padding: "10px 0 0", fontSize: 14, color: C.light, cursor: "pointer" }}>
+          <input type="checkbox" data-reserve-text-request="1" checked={textMe} onChange={(ev) => setTextMe(ev.target.checked)} style={{ width: 24, height: 24, flexShrink: 0 }} />
+          <span>{TEXT_REQUEST} <span style={{ color: C.muted }}>Number ending in {sms.tail}.</span></span>
+        </label>
+      ) : null}
+      <div style={{ marginTop: 10 }}><button type="button" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={() => onSend(Boolean(sms && sms.tail && textMe))}>Send request</button></div>
     </div>
   );
 }
@@ -624,7 +634,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     switch (c.type) {
       case "times": return <TimesCard card={c} busy={busy} onPick={(t) => { if (!busyRef.current) push({ card: { type: "confirm", date: c.date, time: t, partySize: c.partySize, back: c } }); }} />;
       case "confirm": return <ConfirmCard card={c} name={srv.current.restaurantName || (pl && pl.name)} who={who} busy={busy} sms={sms} onConfirm={(textMe) => book({ date: c.date, time: c.time, partySize: c.partySize, textMe })} onBack={() => { if (!busyRef.current && c.back) push({ card: c.back }); }} />;
-      case "request": return <RequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} onSend={() => book({ date: c.date, time: c.time, partySize: c.partySize })} />;
+      case "request": return <RequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} sms={sms} onSend={(textMe) => book({ date: c.date, time: c.time, partySize: c.partySize, textMe })} />;
       case "phone_request": return <PhoneRequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} onConfirm={() => confirmPhone({ date: c.date, time: c.time, partySize: c.partySize })} />;
       case "phone_outcome": return <PhoneOutcomeCard card={c} />;
       case "handoff": return <HandoffCard card={c} state={srv.current} place={pl} />;
