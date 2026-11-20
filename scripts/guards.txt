@@ -2691,6 +2691,7 @@ node scripts/test-ai-itinerary-planner.mjs
 # 2026-11-13: Florida Partner Revenue Engine end-to-end lock (all 18 acceptance checks, editorial firewall red-team cases, synthetic QA isolation, outbound tracking, Command Center panel, and 25 verified Florida prospects).
 node scripts/test-partner-revenue-engine.mjs
 node scripts/test-planner-imessage.mjs
+node scripts/test-host-confident-voice.mjs
 node scripts/test-planner-host-voice.mjs
 node scripts/test-santa-one-thread.mjs
 # 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).
