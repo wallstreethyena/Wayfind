@@ -1097,7 +1097,7 @@ scripts/test-reserve-logic.mjs	0	CALL	blocks-ci-and-deploy	1	-	183	0	0	8ac39821a
 scripts/test-reserve-phone.mjs	0	RENDER	blocks-ci-and-deploy	1	-	97	0	0	1718e88028e620096d0f9c965081b25b79f7bdc6880551146ba1745c36c6f5f7
 scripts/test-reserve-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	f19a6fd8025b5fa57245b01cc0f759277085ee60e8472f78dd6969f894fa936a
 scripts/test-reserve-sms.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	1d896f6c791984c35c6db9318d2536fcaf81c0053e78f486da38e25412771f35
-scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	230	0	0	30593b75c7f0b89763eec1186b7dbc92e440ec4df248f293d646045521982097
+scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	231	0	0	ec5075c421645bcfda98ebc1cfced417f28c0482e03456660cf3c7e64f8a7585
 scripts/test-reserve-v2.mjs	0	CALL	blocks-ci-and-deploy	1	-	168	0	0	27945772748fe795b46b3796f9e58f162da86d506a2d07dffa5903b17703591e
 scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	5a42f16bb1b72847758f21eef58dba011dcfa77ecdaa04f3eabe3088c3107fb1
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633
