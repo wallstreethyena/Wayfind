@@ -239,7 +239,8 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
     const dlg = document.querySelector('[role="dialog"]');
     ok(opened === 0 && !!dlg && !!dlg.querySelector("[data-reserve-concierge]") && /Mario's Trattoria/.test(dlg.textContent), `${label}: tap opens the concierge sheet for the restaurant (card stays closed)`);
     ok(!!dlg && (dlg.querySelector("#wf-reserve-title") || {}).textContent === label, `${label}: the sheet title repeats the button, never a stronger promise (got ${(dlg && dlg.querySelector("#wf-reserve-title") || {}).textContent})`);
-    ok(document.documentElement.hasAttribute("data-wf-reserve-open") && /\.wf-sd\{visibility:hidden\}/.test(dlg.parentElement.innerHTML), `${label}: while the sheet is open the fixed Santa dock is hidden so it cannot cover the message box`);
+    ok(document.documentElement.hasAttribute("data-wf-reserve-open") && /html\[data-wf-reserve-open\] \.wf-sd,/.test(dlg.parentElement.innerHTML), `${label}: while the sheet is open the fixed Santa dock is hidden so it cannot cover the message box`);
+    ok(/html\[data-wf-reserve-open\] \.wfp-so,html\[data-wf-reserve-open\] \.wfp-proactive\{visibility:hidden\}/.test(dlg.parentElement.innerHTML), `${label}: Santa's "Build a day" bar and the planner offer card are hidden too, so neither can cover the OpenTable button`);
     const input = dlg && dlg.querySelector("#wf-reserve-msg");
     if (input) { Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, "value").set.call(input, "tomorrow at 7 for 2"); await act(async () => { input.dispatchEvent(new w.Event("input", { bubbles: true })); }); await act(async () => { dlg.querySelector("form:last-of-type").dispatchEvent(new w.Event("submit", { bubbles: true, cancelable: true })); await new Promise((r) => setTimeout(r, 80)); }); }
     const turnCall = calls.slice(before).find((c) => c.url === "/api/reserve/concierge");

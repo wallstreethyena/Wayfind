@@ -7,7 +7,10 @@ import { createRoot } from "react-dom/client";
 import { C, sheetBg, sheet, Grabber, useDialogFocus } from "./kit";
 import { styleHtml } from "../../lib/styleHtml.js";
 
-const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd{visibility:hidden}";
+// Every fixed Santa surface that layers above kit sheets (z 900): the chat dock .wf-sd (z 930), the "Build a day"
+// offer bar .wfp-so (z 936, bottom of the screen, right where the sheet's OpenTable button sits on a phone) and the
+// plain planner offer card .wfp-proactive (z 935). visibility:hidden also removes them from hit testing.
+const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd,html[data-wf-reserve-open] .wfp-so,html[data-wf-reserve-open] .wfp-proactive{visibility:hidden}";
 
 export const mainBtn = { width: "100%", minHeight: 48, padding: "0 16px", background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" };
 export const quietBtn = { width: "100%", minHeight: 44, padding: "0 16px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
