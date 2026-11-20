@@ -185,7 +185,7 @@ const eq = (a, b, msg) => {
   // In baseline catalogue on 2026-11-18, the 8 flash promo-drop merchants ended flash promo and reverted to ACTIVE
   const promoDropped = CLIPP_MERCHANT_OFFERS.filter((m) => m.status === "PRICE_CHANGED" && m.priceChangeKind === "promo_drop");
   eq(promoDropped.length, 0, "all 8 promo-drop Clipp merchants ended flash promo and reverted to standard 50%-off terms by 2026-11-18");
-  const ismash = clippOfferById("clipp-m-ismash-brandon");
+  const ismash = clippOfferById("clipp-m-ismash-brandon", { now: "2026-11-19T12:00:00.000Z" });
   ok(ismash && ismash.offerId === "clipp-m-ismash-brandon" && !ismash.livePrice, "iSmash Brandon carries standard 50%-off active terms in baseline");
 
   // HTML classifier & evidence threshold transitions
@@ -666,38 +666,47 @@ const eq = (a, b, msg) => {
   );
 
   try {
+    const c2Now = "2026-11-19T12:00:00.000Z";
     // 1. Ingesting 403 on ismash keeps offer non-null and does not set runtimeVerifiedAt
-    ingestClippOfferEvidence("clipp-m-ismash-brandon", { httpStatus: 403 });
-    const ismashAfter403 = clippOfferById("clipp-m-ismash-brandon");
+    ingestClippOfferEvidence("clipp-m-ismash-brandon", { httpStatus: 403 }, { now: c2Now });
+    const ismashAfter403 = clippOfferById("clipp-m-ismash-brandon", { now: c2Now });
     ok(ismashAfter403 !== null, "clippOfferById keeps ismash non-null after 403");
     ok(!ismashAfter403.runtimeVerifiedAt, "403 evidence does not set runtimeVerifiedAt");
 
     // 2. Ingesting strong SOLD_OUT HTML on chez-leon immediately quarantines it
-    ingestClippOfferEvidence("clipp-m-chez-leon", {
-      httpStatus: 200,
-      html: "<div>Chez Leon THIS DEAL IS SOLD OUT</div>",
-    });
-    eq(clippOfferById("clipp-m-chez-leon"), null, "strong SOLD_OUT HTML quarantines chez-leon from clippOfferById");
+    ingestClippOfferEvidence(
+      "clipp-m-chez-leon",
+      {
+        httpStatus: 200,
+        html: "<div>Chez Leon THIS DEAL IS SOLD OUT</div>",
+      },
+      { now: c2Now }
+    );
+    eq(clippOfferById("clipp-m-chez-leon", { now: c2Now }), null, "strong SOLD_OUT HTML quarantines chez-leon from clippOfferById");
     ok(
       quarantinedClippOfferById("clipp-m-chez-leon") !== null,
       "quarantinedClippOfferById returns chez-leon record after quarantine"
     );
 
     // 3. Ingesting 403 on quarantined chez-leon does NOT release quarantine
-    ingestClippOfferEvidence("clipp-m-chez-leon", { httpStatus: 403 });
+    ingestClippOfferEvidence("clipp-m-chez-leon", { httpStatus: 403 }, { now: c2Now });
     eq(
-      clippOfferById("clipp-m-chez-leon"),
+      clippOfferById("clipp-m-chez-leon", { now: c2Now }),
       null,
       "subsequent 403 does not release chez-leon from quarantine"
     );
 
     // 4. Ingesting strong ACTIVE HTML recovers chez-leon
-    ingestClippOfferEvidence("clipp-m-chez-leon", {
-      httpStatus: 200,
-      html: "<title>Chez Leon Tampa, FL</title><div>Add to Cart Buy Now $15 for $30</div>",
-    });
+    ingestClippOfferEvidence(
+      "clipp-m-chez-leon",
+      {
+        httpStatus: 200,
+        html: "<title>Chez Leon Tampa, FL</title><div>Add to Cart Buy Now $15 for $30</div>",
+      },
+      { now: c2Now }
+    );
     ok(
-      clippOfferById("clipp-m-chez-leon") !== null,
+      clippOfferById("clipp-m-chez-leon", { now: c2Now }) !== null,
       "strong ACTIVE HTML restores chez-leon to clippOfferById"
     );
     eq(
@@ -767,8 +776,8 @@ const eq = (a, b, msg) => {
   eq(clippMod.CLIPP_LAST_MANUAL_AUDIT_AT, "2026-11-18T23:19:12.000Z", "CLIPP_LAST_MANUAL_AUDIT_AT is 2026-11-18T23:19:12.000Z");
   ok(QUARANTINED_PARTNER_OFFERS.includes("clipp-m-pizza-kitchen"), "clipp-m-pizza-kitchen in QUARANTINED_PARTNER_OFFERS");
   ok(QUARANTINED_PARTNER_OFFERS.includes("clipp-m-marcos-riverview"), "clipp-m-marcos-riverview in QUARANTINED_PARTNER_OFFERS");
-  eq(clippOfferById("clipp-m-pizza-kitchen"), null, "clippOfferById returns null for clipp-m-pizza-kitchen");
-  eq(clippOfferById("clipp-m-marcos-riverview"), null, "clippOfferById returns null for clipp-m-marcos-riverview");
+  eq(clippOfferById("clipp-m-pizza-kitchen", { now: "2026-11-19T12:00:00.000Z" }), null, "clippOfferById returns null for clipp-m-pizza-kitchen");
+  eq(clippOfferById("clipp-m-marcos-riverview", { now: "2026-11-19T12:00:00.000Z" }), null, "clippOfferById returns null for clipp-m-marcos-riverview");
   ok(quarantinedClippOfferById("clipp-m-pizza-kitchen") !== null, "quarantinedClippOfferById non-null for pizza-kitchen");
   ok(quarantinedClippOfferById("clipp-m-marcos-riverview") !== null, "quarantinedClippOfferById non-null for marcos-riverview");
 
@@ -787,7 +796,7 @@ const eq = (a, b, msg) => {
           finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
           title: "Chez Leon Tampa, FL",
           hasSoldOut: true,
-          observedAt: "2026-11-18T23:00:00.000Z",
+          observedAt: "2026-11-19T11:55:00.000Z",
         },
       ]),
       "utf8"
@@ -909,6 +918,8 @@ const eq = (a, b, msg) => {
       import { GET as getHealth } from "./app/api/offers/health/route.js";
       import { GET as getRedirect } from "./app/api/commerce/go/route.js";
 
+      const PINNED_NOW = "2026-11-19T12:05:00.000Z";
+
       // 1. Receipts in fresh Process B
       const receipts = getClippExecutionReceipts();
       assert.ok(receipts.length >= 1, "receipts present");
@@ -916,10 +927,10 @@ const eq = (a, b, msg) => {
       assert.equal(lastReceipt.job, "verify-offers:clipp");
 
       // 2. clipp-m-chez-leon (durably quarantined)
-      assert.equal(clippOfferById("clipp-m-chez-leon"), null);
+      assert.equal(clippOfferById("clipp-m-chez-leon", { now: PINNED_NOW }), null);
       const chezCoupon = COUPONS.find((c) => c.id === "cpn-clipp-m-chez-leon");
-      assert.equal(couponIsLive(chezCoupon, "2026-11-18"), false);
-      const healthRes = await getHealth();
+      assert.equal(couponIsLive(chezCoupon, "2026-11-19"), false);
+      const healthRes = await getHealth(new Request("https://wayfind.test/api/offers/health?now=" + PINNED_NOW));
       assert.equal(healthRes.status, 200);
       const healthJson = await healthRes.json();
       assert.equal(healthJson.clipp?.overlays?.["clipp-m-chez-leon"]?.quarantined, true);
@@ -932,7 +943,7 @@ const eq = (a, b, msg) => {
       assert.equal(chezRedirect.headers.get("location"), "https://wayfind.test/");
 
       // 3. clipp-m-pizza-kitchen (durably recovered)
-      const pk = clippOfferById("clipp-m-pizza-kitchen");
+      const pk = clippOfferById("clipp-m-pizza-kitchen", { now: PINNED_NOW });
       assert.ok(pk && pk.status === "ACTIVE");
       const pkReq = new Request("https://wayfind.test/api/commerce/go?provider=clipp&offer=clipp-m-pizza-kitchen", {
         headers: { "user-agent": "WayfindVerify/1.0" },
@@ -943,15 +954,15 @@ const eq = (a, b, msg) => {
       assert.ok(pkLoc.startsWith("https://www.dpbolvw.net/click-101643573-12174096"), "redirects to CJ affiliate destination");
 
       // 4. clipp-m-blind-goat (durably updated promo)
-      const bg = clippOfferById("clipp-m-blind-goat");
+      const bg = clippOfferById("clipp-m-blind-goat", { now: PINNED_NOW });
       assert.ok(bg && bg.status === "PRICE_CHANGED" && bg.livePrice === 12);
       assert.equal(bg.runtimeVerifiedAt, "2026-11-19T12:00:00.000Z");
 
       // 5. clipp-m-dip-and-happy & clipp-m-marcos-riverview (403 WAF firewall)
-      const dh = clippOfferById("clipp-m-dip-and-happy");
+      const dh = clippOfferById("clipp-m-dip-and-happy", { now: PINNED_NOW });
       assert.ok(dh !== null);
       assert.equal(dh.runtimeVerifiedAt, undefined);
-      assert.equal(clippOfferById("clipp-m-marcos-riverview"), null);
+      assert.equal(clippOfferById("clipp-m-marcos-riverview", { now: PINNED_NOW }), null);
 
       console.log(JSON.stringify({ ok: true }));
     `;
@@ -960,6 +971,7 @@ const eq = (a, b, msg) => {
       env: {
         ...process.env,
         WF_CLIPP_EVIDENCE_STORE_PATH: tmpStorePath,
+        WF_COMMERCE_TEST_NOW: "2026-11-19T12:05:00.000Z",
         WF_SUPPRESS_ANALYTICS: "1",
       },
       encoding: "utf8",
@@ -1376,9 +1388,11 @@ const eq = (a, b, msg) => {
       import { GET as getHealth } from "./app/api/offers/health/route.js";
       import { GET as getRedirect } from "./app/api/commerce/go/route.js";
 
+      const PINNED_NOW = "2026-11-19T14:05:00.000Z";
+
       // Cold server process hydration check
-      assert.equal(clippOfferById("clipp-m-chez-leon"), null, "chez-leon remains quarantined after 403 on cold restart");
-      const bg = clippOfferById("clipp-m-blind-goat");
+      assert.equal(clippOfferById("clipp-m-chez-leon", { now: PINNED_NOW }), null, "chez-leon remains quarantined after 403 on cold restart");
+      const bg = clippOfferById("clipp-m-blind-goat", { now: PINNED_NOW });
       assert.ok(bg !== null, "blind-goat remains serveable after 200 challenge on cold restart");
       assert.equal(bg.status, "PRICE_CHANGED");
       assert.equal(bg.livePrice, 12);
@@ -1390,16 +1404,16 @@ const eq = (a, b, msg) => {
       assert.equal(goChez.headers.get("location"), "https://wayfind.test/");
 
       // Client applyOfferHealthSnapshot hydration check
-      const healthRes = await getHealth(new Request("https://wayfind.test/api/offers/health?now=2026-11-19T14:05:00.000Z"));
+      const healthRes = await getHealth(new Request("https://wayfind.test/api/offers/health?now=" + PINNED_NOW));
       const healthJson = await healthRes.json();
       assert.equal(applyOfferHealthSnapshot(healthJson), true);
 
       const chezCpn = COUPONS.find((c) => c.id === "cpn-clipp-m-chez-leon");
       const bgCpn = COUPONS.find((c) => c.id === "cpn-clipp-m-blind-goat");
       assert.equal(couponIsLive(chezCpn, "2026-11-19"), false, "client couponIsLive keeps chez-leon hidden after subsequent 403");
-      assert.equal(resolveLiveCoupon(chezCpn, { now: "2026-11-19T14:05:00.000Z" }), null);
+      assert.equal(resolveLiveCoupon(chezCpn, { now: PINNED_NOW }), null);
 
-      const resolvedBg = resolveLiveCoupon(bgCpn, { now: "2026-11-19T14:05:00.000Z" });
+      const resolvedBg = resolveLiveCoupon(bgCpn, { now: PINNED_NOW });
       assert.ok(resolvedBg !== null, "client resolveLiveCoupon keeps blind-goat live after subsequent challenge");
       assert.equal(resolvedBg.status, "PRICE_CHANGED");
       assert.equal(resolvedBg.livePrice, 12);
@@ -1413,6 +1427,7 @@ const eq = (a, b, msg) => {
         env: {
           ...process.env,
           WF_CLIPP_EVIDENCE_STORE_PATH: tmpPrecedenceStore,
+          WF_COMMERCE_TEST_NOW: "2026-11-19T14:05:00.000Z",
           WF_SUPPRESS_ANALYTICS: "1",
         },
         encoding: "utf8",

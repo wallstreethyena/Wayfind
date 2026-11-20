@@ -383,19 +383,22 @@ async function main() {
 
     let snapshotPath = args.fixture;
     let payload = null;
+    let fixtureEvalNow = null;
 
     if (args.fixture) {
       // Deterministic fixture mode: tag as fixture unless --allow-snapshot-ingest is explicitly set
       const raw = JSON.parse(fs.readFileSync(args.fixture, "utf8"));
+      const list = Array.isArray(raw) ? raw : Array.isArray(raw?.results) ? raw.results : [];
+      const firstObs = raw?.observedAt || list.find((x) => x && x.observedAt)?.observedAt || "2026-11-19T12:00:00.000Z";
+      fixtureEvalNow = new Date(Date.parse(firstObs) + 60000).toISOString();
       if (args.allowSnapshotIngest) {
         payload = raw;
       } else {
-        const list = Array.isArray(raw) ? raw : Array.isArray(raw?.results) ? raw.results : [];
         const tmpFixture = path.join(os.tmpdir(), `wf-clipp-fixture-run-${process.pid}-${Date.now()}.json`);
         fs.writeFileSync(
           tmpFixture,
           JSON.stringify({
-            observedAt: raw?.observedAt || new Date().toISOString(),
+            observedAt: firstObs,
             verificationMode: args.dryRun ? "automated_fixture_dryrun" : "fixture",
             source: args.dryRun ? "fixture_dryrun" : "fixture",
             isFixture: !args.dryRun,
@@ -429,6 +432,7 @@ async function main() {
       snapshotPath,
       storePath: tmpStore,
       verificationMode: args.mode,
+      ...(fixtureEvalNow ? { now: fixtureEvalNow } : {}),
     });
 
     if (args.dryRun && !args.storeExplicit && tmpStore && fs.existsSync(tmpStore)) {
