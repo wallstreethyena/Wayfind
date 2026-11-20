@@ -11,15 +11,16 @@ import { C } from "./kit";
 import { mainBtn, quietBtn, linkBtn, field, label, chip, errStyle, keepVisible, Bubble } from "./reserveUi.js";
 import ReservePicks from "./ReservePicks.js";
 import {
-  RESERVE_LIMITS, conciergeTurn, bookTable, cancelBooking, saveProfile, profileBody, cleanPhoneInput, newIdempotencyKey,
+  RESERVE_LIMITS, conciergeTurn, bookTable, confirmPhoneRequest, getPhoneRequest, cancelBooking, saveProfile, profileBody, cleanPhoneInput, newIdempotencyKey,
   addToItinerary, directionsUrl, addHandoff, downloadIcs, timeLabel, dateLabel, weekdayLabel,
   startBookingAgent, bookingAgentStatus, cancelBookingAgent, submitBookingAgentCode,
 } from "../../lib/reserveClientApi.js";
 import { consentParagraph } from "../../lib/bookingAgent/copy.js";
 import { trackReserve, savePendingReserve, clearPendingReserve } from "../../lib/reserveOpen.js";
+import { phoneGuestLine } from "../../lib/reservePhone/copy.js";
 
 const NAME_NEEDED = ["INVALID_NAME", "NAME_REQUIRED", "NEEDS_NAME", "PROFILE_REQUIRED", "NEEDS_PROFILE", "GUEST_NAME_REQUIRED"];
-const KEEP = ["booked", "requested", "cancelled", "agent_progress"]; // cards that stay in the thread after later messages
+const KEEP = ["booked", "requested", "cancelled", "phone_outcome", "agent_progress"]; // cards that stay in the thread after later messages
 
 const safe = (fn) => { try { return fn(); } catch (e) { return undefined; } };
 const track = (name, props) => { safe(() => trackReserve(name, props)); };
@@ -238,6 +239,27 @@ function BookedCard({ card, place }) {
   );
 }
 
+function PhoneRequestCard({ card, name, busy, onConfirm }) {
+  const when = [exactDay(card.date), timeLabel(card.time)].filter(Boolean).join(" at ");
+  return (
+    <div data-reserve-card="phone_request" style={box}>
+      <div style={{ fontSize: 16, fontWeight: 800, color: C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{"Call " + (name || "the restaurant") + " for " + when + " for " + card.partySize + "."}</div>
+      <Note>Nothing is confirmed until the restaurant says yes.</Note>
+      <div style={{ marginTop: 10 }}><button type="button" data-reserve-phone-confirm="1" style={{ ...mainBtn, opacity: busy ? 0.7 : 1 }} disabled={busy} onClick={onConfirm}>Confirm</button></div>
+    </div>
+  );
+}
+
+function PhoneOutcomeCard({ card }) {
+  const phone = card.phone || {};
+  const line = phone.line || phoneGuestLine(phone);
+  return (
+    <div data-reserve-card="phone_outcome" data-reserve-status={phone.outcome || "calling"} data-reserve-booked="0" style={box}>
+      <div style={{ fontSize: 16, fontWeight: 800, color: phone.outcome === "confirmed" ? C.green : C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{line}</div>
+    </div>
+  );
+}
+
 function RequestedCard({ card, place }) {
   const b = card.booking || {};
   const name = b.restaurantName || (place && place.name) || "the restaurant";
@@ -397,7 +419,8 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
   const last = useRef({ kind: "turn" });
   const keys = useRef({});
   const guest = useRef(null); // a name given for one booking only: { guestName, phone }
-  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  const phonePoll = useRef(null);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; if (phonePoll.current) clearInterval(phonePoll.current); }; }, []);
   useEffect(() => { const el = logRef.current; if (el) el.scrollTop = el.scrollHeight; }, [items, busy]);
 
   const push = useCallback((it) => { setItems((cur) => cur.concat([Object.assign({ id: idRef.current++, role: "assistant", text: "", card: null }, it)])); }, []);
@@ -488,7 +511,46 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     push({ text: (r && r.message) || "We could not confirm that. Please try again.", card: { type: "retry" } });
   }, [push]);
 
-  const retry = () => { const l = last.current; if (l.kind === "book") book(l.a); else runTurn(); };
+  // Phone requests dial only from this tap. The outcome replaces the calling card in the same thread.
+  const confirmPhone = useCallback(async (a) => {
+    if (busyRef.current) return;
+    const placeId = srv.current.placeId || pid.current;
+    const sig = ["phone", placeId, a.date, a.time, a.partySize].join("|");
+    const key = keys.current[sig] || (keys.current[sig] = newIdempotencyKey());
+    last.current = { kind: "phone", a };
+    setBusyBoth(true); setCardError("");
+    const req = { placeId, date: a.date, time: a.time, partySize: a.partySize, idempotencyKey: key };
+    if (guest.current && guest.current.guestName) req.guestName = guest.current.guestName;
+    const r = await confirmPhoneRequest(req);
+    if (!alive.current) return;
+    setBusyBoth(false);
+    const phone = r && r.phone;
+    if (r && r.ok && phone && phone.id) {
+      if (phone.outcome) delete keys.current[sig];
+      push({ card: { type: "phone_outcome", phone }, phonePoll: phone.id });
+      if (!phone.outcome) {
+        let n = 0;
+        if (phonePoll.current) clearInterval(phonePoll.current);
+        phonePoll.current = setInterval(async () => {
+          n += 1;
+          const next = await getPhoneRequest(phone.id);
+          if (!alive.current) return;
+          const got = next && next.ok && next.phone;
+          if (got && (next.phone.outcome || n >= 40)) {
+            clearInterval(phonePoll.current);
+            phonePoll.current = null;
+            if (next.phone.outcome) delete keys.current[sig];
+            setItems((cur) => cur.map((it) => it.phonePoll === phone.id ? Object.assign({}, it, { card: { type: "phone_outcome", phone: next.phone } }) : it));
+          }
+        }, 3000);
+      }
+      return;
+    }
+    if (r && r.status === 401) { push({ text: "Sign in to ask the restaurant.", card: { type: "signin" } }); return; }
+    push({ text: (r && r.message) || "We could not start that call. Please try again.", card: { type: "retry" } });
+  }, [push]);
+
+  const retry = () => { const l = last.current; if (l.kind === "book") book(l.a); else if (l.kind === "phone") confirmPhone(l.a); else runTurn(); };
   const afterSignIn = () => retry();
 
   const submitProfile = async (v) => {
@@ -563,6 +625,8 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
       case "times": return <TimesCard card={c} busy={busy} onPick={(t) => { if (!busyRef.current) push({ card: { type: "confirm", date: c.date, time: t, partySize: c.partySize, back: c } }); }} />;
       case "confirm": return <ConfirmCard card={c} name={srv.current.restaurantName || (pl && pl.name)} who={who} busy={busy} sms={sms} onConfirm={(textMe) => book({ date: c.date, time: c.time, partySize: c.partySize, textMe })} onBack={() => { if (!busyRef.current && c.back) push({ card: c.back }); }} />;
       case "request": return <RequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} onSend={() => book({ date: c.date, time: c.time, partySize: c.partySize })} />;
+      case "phone_request": return <PhoneRequestCard card={c} name={srv.current.restaurantName || (pl && pl.name)} busy={busy} onConfirm={() => confirmPhone({ date: c.date, time: c.time, partySize: c.partySize })} />;
+      case "phone_outcome": return <PhoneOutcomeCard card={c} />;
       case "handoff": return <HandoffCard card={c} state={srv.current} place={pl} />;
       case "agent_offer": return <AgentOfferCard card={c} state={srv.current} place={pl} busy={busy} sms={sms} onStart={(textMe) => startAgent(c, textMe)} />;
       case "agent_progress": return <AgentProgressCard card={c} />;

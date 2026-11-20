@@ -10,6 +10,25 @@ Claude is the concierge. Providers are plumbing.
 | handoff | `opentable_handoff` | active verified `wf_reserve_platform_links` row | none (never claimed) | not possible: returns `HANDOFF_ONLY` + `/api/reserve/go?...` URL |
 | api | `opentable_api` | NEVER selected unless `RESERVE_OPENTABLE_API=on` AND credentials exist (they do not) | throws `NOT_ENABLED` | throws `NOT_ENABLED` |
 | none | `none` | everything else | none | `NO_PROVIDER` |
+| phone_request | `phone_request` | `RESERVE_PHONE_ENABLED=1`, place id on `RESERVE_PHONE_ALLOWLIST` (empty by default), and a verified row in `wf_reserve_phone_places` | none (never claimed) | only when the guest taps Confirm: at most one outbound call, outcome `confirmed` / `declined` / `alternative_offered` / `needs_guest` / `failed` |
+
+## Phone request (draft)
+
+OpenTable declined a Wayfind integration, and there is no online booking API for these restaurants. Santa can offer to call a restaurant that has a verified public phone. The call is not placed when the card appears. It is placed only when the guest taps Confirm.
+
+The assistant's first sentence is: "This is an automated assistant calling for Wayfind on behalf of a guest." It asks for the date, time, and party under the guest's first name and last initial. It may accept one other time only inside the guest's window. It never gives a card, never agrees to a deposit or a fee, and never claims to be a person. Voicemail, an automated menu it cannot finish, a hold longer than 45 seconds, or a request for payment ends the call as `needs_guest`.
+
+Florida is a two party consent state. Calls are not recorded. The database stores a structured outcome and a short summary, not audio and not a transcript.
+
+A confirmed phone request is shown as "The restaurant confirmed by phone." It is never shown as "Booked."
+
+The voice seam is Twilio ConversationRelay, on the same Twilio account as booking texts. ElevenLabs Conversational AI was not used: it would add a second account and a prompt that the tests could not lock. Tests use fake telephony and a fake transcript. Nothing in the test suite places a real call.
+
+Texting the guest reuses the kind names `request_received`, `request_accepted`, and `request_declined`, and stays behind `RESERVE_SMS_ENABLED`. Those kinds are not on the notifications table yet, so the hook does not send.
+
+New calls also require `RESERVE_PHONE_KILL` unset, `RESERVE_PHONE_MAX_PER_HOUR`, `RESERVE_PHONE_FROM_NUMBER`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `RESERVE_PHONE_RELAY_URL`, and `RESERVE_PHONE_CALLBACK_BASE`. The callback base has no default: set it to the https origin that should receive status and the outcome, including a preview origin. The relay process is `node scripts/reserve-phone-relay/server.mjs` (see `scripts/reserve-phone-relay/README.md`). It can sit behind a tunnel such as cloudflared.
+
+`RESERVE_PHONE_DRY_RUN_TO`, an E.164 number, sends the outbound call to that number instead of the restaurant. The synthetic place id `wf-phone-dry-run` is allowed only while that number is set, so a dry run does not need a production phone row and is not blocked by an OpenTable lane. Business hours are not applied during a dry run. The audit line does not store the dry run number.
 
 ## Provider interface (`lib/reserveProviders/`)
 Every provider exports an object with `id`, `kind` and these async methods (all return plain objects, never throw except `opentable_api`):

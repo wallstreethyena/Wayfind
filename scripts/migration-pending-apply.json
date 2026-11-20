@@ -110,5 +110,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "supervised OpenTable booking agent draft, not applied #20261117",
     "reason": "NOT APPLIED. New tables wf_booking_agent_runs, wf_booking_agent_events, wf_booking_agent_sites (RLS on, owner select on runs and events, service role writes, opentable seeded off). Additive. Unused until BOOKING_AGENT_ENABLED=1, BOOKING_AGENT_SITE_OPENTABLE=1 and the site row is on. Owner applies after review. Do not apply from this draft."
+  },
+  {
+    "file": "supabase/migrations/20261117120000_wf_reserve_phone.sql",
+    "sha256": "45a0d9ab8f1ff5da9fbf44d64e89803211afa9e3706504d459afff58d94911ce",
+    "decision_owner": "wallstreethyena",
+    "tracking": "draft phone request, notification kinds from #2568 are not on main",
+    "reason": "NOT APPLIED. New tables wf_reserve_phone_places, wf_reserve_phone_requests, wf_reserve_phone_calls, and wf_reserve_phone_audit (RLS on, no policies, service role only). No audio or transcript columns. No seed rows: the allowlist stays empty until the owner names one restaurant. Additive; rollback = drop the four tables. Unused until RESERVE_PHONE_ENABLED=1, so applying it changes no behavior."
   }
 ]
