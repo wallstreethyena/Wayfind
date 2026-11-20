@@ -119,7 +119,12 @@ console.log("test-christmas-ticketmaster: " + n + " assertions OK (" + ids.lengt
   const lib = strip(readFileSync(new URL("../lib/christmasTickets.js", import.meta.url), "utf8"));
   if (!/if \(o && o\.provider === "ticketmaster" && tmDate !== pinned\) continue;/.test(lib)) throw new Error("a Ticketmaster option must match the pinned night");
   const card = strip(readFileSync(new URL("../app/components/ChristmasTicketCard.js", import.meta.url), "utf8"));
-  if (!/\.xm-opt\{[^}]*min-height:44px/.test(card)) throw new Error("ticket option pills must be 44px tap targets");
+  // Owner rule 2026-11-18 (global): an extra ticket seller is a small line
+  // INSIDE the yellow buy button, never its own big chip.
+  if (/\.xm-opts?\{/.test(card) || /className="xm-opts?"/.test(card)) throw new Error("extra ticket sellers must not render as a standalone chip");
+  if (!/<div className="xm-buybox">[\s\S]*?\{buy\}[\s\S]*?<p className="xm-buyalt" data-ticket-options="">[\s\S]*?data-option-provider=\{o\.provider\}[\s\S]*?<\/div>/.test(card)) throw new Error("extra ticket sellers must sit inside the buy button box");
+  if (!/\.xm-buyalt a\{[^}]*min-height:24px/.test(card)) throw new Error("the small seller link needs a 24px tap target");
+  if (!/\.xm-buybox\{[^}]*background:linear-gradient\(180deg,#FFE9B8,#F5C451\)/.test(card)) throw new Error("the seller line must sit inside the yellow button");
   const tm = await import("../lib/christmasTicketmaster.js");
   for (const [id, rows] of Object.entries(tm.CHRISTMAS_TICKETMASTER || {})) {
     if (!Array.isArray(rows) || !rows.length) continue;
@@ -127,5 +132,5 @@ console.log("test-christmas-ticketmaster: " + n + " assertions OK (" + ids.lengt
     if (tm.christmasTicketmasterNextDate(id, d) !== d) throw new Error("next Ticketmaster night for " + id + " on " + d);
     break;
   }
-  console.log("test-christmas-ticketmaster: same night + 44px pill locked");
+  console.log("test-christmas-ticketmaster: same night + seller inside buy button locked");
 }

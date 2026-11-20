@@ -70,6 +70,8 @@ export default function GuideMapExplorer({
   // The page path, so a saved card from an illustrated map links back to its
   // entry (pagePath + "#entry") instead of a bare page-relative hash.
   pagePath = "",
+  // Optional: (hash) => filter id, so a link like #park-epcot opens that chip.
+  filterForHash = null,
 }) {
   const illustrated = Boolean(renderMap);
   const FILTERS = useMemo(() => (Array.isArray(filters) && filters.length ? filters : deriveFilters(spots)), [filters, spots]);
@@ -77,6 +79,21 @@ export default function GuideMapExplorer({
   const hasFilters = FILTERS.length > 1;
   const [active, setActive] = useState(() => (FILTERS[0] && FILTERS[0].id) || "all");
   const [selectedId, setSelectedId] = useState(null);
+  // Read on mount and on hash changes only (callers pass inline props, so the
+  // latest values come through a ref instead of effect dependencies).
+  const hashFollow = useRef({ filterForHash, FILTERS });
+  hashFollow.current = { filterForHash, FILTERS };
+  useEffect(() => {
+    const follow = () => {
+      const { filterForHash: toFilter, FILTERS: list } = hashFollow.current;
+      if (!toFilter) return;
+      const id = toFilter(decodeURIComponent(window.location.hash.slice(1)));
+      if (id && list.some((f) => f.id === id)) { setActive(id); setSelectedId(null); }
+    };
+    follow();
+    window.addEventListener("hashchange", follow);
+    return () => window.removeEventListener("hashchange", follow);
+  }, []);
   const railRef = useRef(null);
   const cardNodes = useRef(new Map());
   const scrollFrame = useRef(0);
@@ -202,7 +219,7 @@ export default function GuideMapExplorer({
   const railId = railIdPrefix + "-" + active;
 
   return (
-    <section className={styles.explorer} style={{ "--gme-accent": accent }} aria-labelledby={railIdPrefix + "-heading"}>
+    <section className={styles.explorer} data-stack={illustrated ? "true" : undefined} style={{ "--gme-accent": accent }} aria-labelledby={railIdPrefix + "-heading"}>
       <div className={styles.explorerIntro}>
         <div>
           <p className={styles.kicker}>{kicker}</p>

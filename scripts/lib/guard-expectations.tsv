@@ -496,7 +496,7 @@ scripts/check-trend-sources.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	1ee81cf65
 scripts/check-ttd-dedup.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	a83b28f7a3baebeeeb2570c78f72462690ae5955a9728c5a30c6a4bce2fe267f
 scripts/check-unbound-refs.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	769e72abe0976976c5701cec3b6a9b6b33a1ea3ebef8a75b7e9799b30d982c13
 scripts/check-unified-commerce-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	0	0	3ddf626c703e9afd0a9da25aa9ca4c327ce0822647f7567509d082ba3ce1a12c
-scripts/check-universal-holiday-guide.mjs	0	RENDER	blocks-ci-and-deploy	1	-	33	0	0	0fdaf29dea12d89aa2b484f7178799701975534b42fec4fb7f4e4e98da1c2552
+scripts/check-universal-holiday-guide.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0	77215b1f79dd25dbbb763050e3553391878dd22526a3bd195e34329a0b2b3821
 scripts/check-universal-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	5f35da9f4014f203f9a228913b91c08ffab5196e6e9ec8a2a4af558287744259
 scripts/check-untracked-affiliate-links.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	c03311510e3466de486b057db919182ae294377ceac623c40299db21942c8be4
 scripts/check-ut-crawler-clicks.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	18	1	2	6a88c30c40adf797bc10e983cd13e72d154bf865436838b5583c09a69b637b5a
@@ -574,7 +574,7 @@ scripts/test-book-it.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	30	0	0	57c3bcb
 scripts/test-bookable-highlights-30.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	54	0	0	a041e7aeae4f1bb84d67243fffe81ae1c82e40195e05e8aa2fbc94bd740957f4
 scripts/test-bookable-near-50.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	17	0	0	0bc1fee507af5d5fc128910e7d5e80d10af5f4ff36379f6368593e7067039f79
 scripts/test-booking-agent-browser.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	5	0	0	ce95abda76187ba90b0d2807b7b0ecd6e818bc7633685ef8a57cf62e430aa246
-scripts/test-booking-agent.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	92	0	0	ff1aec5dac0938e475bfb2a484c3bc8597239f4a7adbdb26738f39efd056438a
+scripts/test-booking-agent.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	95	0	0	2813ca382fedc1b25c2d8d4e0be22fd81f554f552761e30304aa349a35361fd6
 scripts/test-booking-audit.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	04a622ff97a114637cbee61b26e0fb0ea44de830dd9a08cb96022f512bc2acdf
 scripts/test-booking-integrity.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	1	1	ba05309c1803b65dfbc4a860f723e10d335e263194eab137de525df06a8226ff
 scripts/test-booking-resolve-extraction.mjs	1	CALL	blocks-ci-and-deploy	1	Qwen (Engineering)	41	1	4	93277e74fc91f92fdf466189922f7de2357fa237750e8bb120cb9335b5adae03
@@ -1080,6 +1080,7 @@ scripts/test-rail-visual-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0	f
 scripts/test-rails-failed-is-not-covered.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	387f4ee328c78075475812b7ed65b53ffcf32d00a92c8c865857dc64472838b4
 scripts/test-ranked-experience-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	1	3	5f8b6ab194ce6348480b3ac16ae175b7f0bad6cb1f288fe2a0003539111e4298
 scripts/test-ranking-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	a954710f51e3a8d496e74df3717f1038f248d9da883342dfa0bd60e92b61dab2
+scripts/test-rating-backfill.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	29	0	0	61d1d9194cdff3242e133eba3721daa3a8c2f6d58d5af745d53fd6e6a4a13960
 scripts/test-rays-world-series-poster.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	322a58cd8cc580604ea53015886de6415bb6addf13d06135586daf88b4092fba
 scripts/test-reaction-affordance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	6	0	0	220676c3fce47c15caef74152814bc4cb854b6dd2eafb823e4526e90555db2b2
 scripts/test-reconcile-list-map-live.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	dca906ab3e256ee0683cd2195cebbd3fa1ba7a9cb7491201f1bd37a7ff1e652a
@@ -1093,9 +1094,10 @@ scripts/test-refresh-selector-trap.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	6fc
 scripts/test-reserve-concierge.mjs	0	CALL	blocks-ci-and-deploy	1	-	146	0	0	3ee99372b831f8f909dcd558d30f71ea588f052803f1bd47e38bdcb8684723cc
 scripts/test-reserve-guest.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	7d41458098f7bd282c745e70b27708ec589abf4bb9397feb735985ebb8b97635
 scripts/test-reserve-logic.mjs	0	CALL	blocks-ci-and-deploy	1	-	183	0	0	8ac39821a2db6169e60d7fb355232a519da58a294661d70a64ce3f311e4ef3ae
+scripts/test-reserve-phone.mjs	0	RENDER	blocks-ci-and-deploy	1	-	97	0	0	1718e88028e620096d0f9c965081b25b79f7bdc6880551146ba1745c36c6f5f7
 scripts/test-reserve-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	f19a6fd8025b5fa57245b01cc0f759277085ee60e8472f78dd6969f894fa936a
 scripts/test-reserve-sms.mjs	0	CALL	blocks-ci-and-deploy	1	-	103	0	0	240c4e254277a267cb655c7c2ffe52db0160bb437d7a757295160b806613ce50
-scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	225	0	0	9a72d0a33778789eaab99448bb442457f1a0d2c26dcad893ae1c6144d021271f
+scripts/test-reserve-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	230	0	0	30593b75c7f0b89763eec1186b7dbc92e440ec4df248f293d646045521982097
 scripts/test-reserve-v2.mjs	0	CALL	blocks-ci-and-deploy	1	-	168	0	0	27945772748fe795b46b3796f9e58f162da86d506a2d07dffa5903b17703591e
 scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	5a42f16bb1b72847758f21eef58dba011dcfa77ecdaa04f3eabe3088c3107fb1
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633

@@ -76,6 +76,16 @@ for (const stop of UNIVERSAL_STOPS) {
   assert.equal(document.querySelector(`[data-map-pin="${stop.target}"] span`).textContent, String(stop.n), 'pin keeps the guide number ' + stop.n);
   assert.ok(document.querySelector(`[data-universal-map] a[href="#${stop.target}"]`), 'the matching card opens ' + stop.target);
 }
+// Owner 2026-11-20: the card rail sits BELOW the map, never beside it, and a
+// link to an entry opens that entry's park on the map.
+assert.equal(document.querySelector('[data-universal-map] section').dataset.stack, 'true', 'illustrated map card stacks the rail below the map');
+const gmeCss = fs.readFileSync('app/components/GuideMapExplorer.module.css', 'utf8');
+assert.ok(/\.explorer\[data-stack="true"\] \.mapRailStage \{\s*grid-template-columns: minmax\(0, 1fr\);/.test(gmeCss), 'stacked card uses one column at every width');
+showView('islands');
+window.history.replaceState(null, '', '#le-gobelet-noir');
+flushSync(() => { window.dispatchEvent(new window.HashChangeEvent('hashchange')); });
+assert.equal(document.querySelector('[data-guide-map-canvas]').getAttribute('src'), parkMapImage(UNIVERSAL_VIEW_MAPS.epic).src, 'a link to an Epic entry opens the Epic map');
+window.history.replaceState(null, '', '#');
 const buttons = [...document.querySelectorAll('.foodFilters button')];
 flushSync(() => { buttons.find(button => button.textContent === 'Studios').click(); });
 assert.equal(document.getElementById('le-gobelet-noir').hidden, true);

@@ -507,7 +507,7 @@ export default function WayfindPlannerSheet() {
   const onReserveSnapshot = useCallback((snap) => {
     const prev = reserveSnapRef.current || {};
     const items = Array.isArray(snap.items) ? snap.items : [];
-    reserveSnapRef.current = { ...snap, placeKnown: items.some((it) => it && it.card && ["times", "confirm", "request", "handoff", "booked", "requested"].includes(it.card.type)) || prev.placeKnown };
+    reserveSnapRef.current = { ...snap, placeKnown: items.some((it) => it && it.card && ["times", "confirm", "request", "handoff", "booked", "requested", "phone_request", "phone_outcome"].includes(it.card.type)) || prev.placeKnown };
     const fresh = items.filter((it) => it && !reserveSeenRef.current.has(it.id));
     if (fresh.length) {
       for (const it of fresh) reserveSeenRef.current.add(it.id);
