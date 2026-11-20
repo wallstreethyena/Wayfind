@@ -608,7 +608,7 @@ scripts/test-cash-register-batch-2026-08-20.mjs	1	CALL	blocks-ci-and-deploy	1	Re
 scripts/test-cash-register-batch-2026-08-20b.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	90	0	0	85d53205087919bc45551d7550a81bfde21a8683d7392950ccb4f80515e442f9
 scripts/test-cash-register-factory.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	4f43941e285dca227cbb4b55960f33e3eeb1cad71f20d891ba551d9d6640c2c4
 scripts/test-cc-alert-drill.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	c3b2c94d8c2d1b841e46af97c2e73e7575214413265084b15d2d9dd854331d4b
-scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	b464f63601a7fb6627829311be46571844c0f4951a2a692fa9d33383a968dd00
+scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	880e81fdbc029d7c084fa2a50b17496a19f40a50e10ca8aeb6d9ed6a26d0bafa
 scripts/test-cc-stale-cache-shape.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	4b85015ef776258c3041f5fc30a1258207ea8f4d748192974201e94eda7cb694
 scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	58e675164312b60944182e83e4b1d7353f67b6951e5964dd418ebae12ebd0804
 scripts/test-christmas-cached-page.mjs	0	RENDER	blocks-ci-and-deploy	1	-	45	0	0	d5c3b33a7e44acdf5a1cb66d1a59198b54b21ad660c4cd33394fc33aa17eb323
@@ -946,7 +946,7 @@ scripts/test-meta-partner-handoff.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	2
 scripts/test-meta-pixel.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	7a09235fd33aef9b6d46601b7ccfda8063aeeaf4171d63c54953c87109eb9845
 scripts/test-metro-photo-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	57e590e21e06d1c7eaaecec6d0f71b852f04ad3369c562a34790a7b00b129c04
 scripts/test-migration-lease.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	fc13a91e6410f4f77975b4b5c54de58ed9513639fd83ffc278052abf36f7029f
-scripts/test-migration-state-reconciler.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	211c37dcc788ff7c9ce8a716d6e567fafd3a90822c9fa48bae1fbbd43b8e4c37
+scripts/test-migration-state-reconciler.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	ada73df4a797e14b07f2d8f9d42498d620d2c011a269436db2e08bf43891d101
 scripts/test-mobile-header-fit.mjs	0	RENDER	blocks-ci-and-deploy	1	-	29	0	0	8dcc6396be0995a014fbade77694509d5ddf93f80dcf0175168a132c378d1b17
 scripts/test-moment-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	a0ef6680beb48c04e4fab08fe4bf25cc34ff67a06d3ec22b9458ca45b9602e01
 scripts/test-moment-search-redteam.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	b6646f8b796db0ea01ea276a7f168b678a4417245c70eb55b6f9376ac703e74c
