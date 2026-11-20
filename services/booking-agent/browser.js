@@ -6,7 +6,8 @@ import { AGENT_UA } from "../../lib/bookingAgent/constants.js";
 
 export async function launchHonestChromium(opts = {}) {
   const { chromium } = await import("playwright-core");
-  const headless = opts.headless ?? true;
+  const chromeMode = opts.mode === "chrome";
+  const headless = opts.headless ?? !chromeMode;
   const launchOpts = {
     headless,
     args: ["--no-sandbox"],
@@ -17,15 +18,19 @@ export async function launchHonestChromium(opts = {}) {
     launchOpts.channel = opts.channel || "chrome";
   }
   const browser = await chromium.launch(launchOpts);
-  const userAgent = opts.userAgent || AGENT_UA;
-  const context = await browser.newContext({ userAgent });
+  const context = chromeMode
+    ? await browser.newContext()
+    : await browser.newContext({ userAgent: opts.userAgent || AGENT_UA });
   const page = await context.newPage();
+  const actualUserAgent = chromeMode
+    ? await page.evaluate(() => navigator.userAgent)
+    : (opts.userAgent || AGENT_UA);
   let httpStatus = 0;
   page.on("response", (res) => {
     if (res.request().resourceType() === "document") httpStatus = res.status();
   });
   return {
-    userAgent,
+    userAgent: actualUserAgent,
     async open(url, { timeoutMs = 15000 } = {}) {
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: timeoutMs });
       // Allow OpenTable's client hydration (availability slots or details form) to render.
