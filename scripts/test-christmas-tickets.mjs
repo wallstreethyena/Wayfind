@@ -240,6 +240,13 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   ok(p("$10 admission, children 5 and under free; $35 ride wristband").amount === 10, "a ride wristband add on is never the from price");
   ok(p("$26.90 per passenger vehicle, up to 8 people").unit === "per passenger vehicle", "the unit rides with the price");
   ok(ticketPrice(base({ id: "q", price_note: "", price_kind: "unannounced", is_free: null, price_label: "Price not announced" })).text === "Price not announced", "no note, unannounced: Price not announced");
+  // 2026-11-19: an organizer sold out row says so, never a price or "not announced".
+  ok(ticketPrice(base({ id: "so", price_note: "$189", ticket_status: "sold_out" })).text === "Sold out", "sold out: the price line says Sold out");
+  ok(ticketPrice(base({ id: "so2", ticket_status: "on_sale", price_note: "$189" })).text !== "Sold out", "on sale: never Sold out");
+  // ...and the hub card never carries a partner buy button for it (owner rule 2026-11-04).
+  const mvRow = { event_id: "mvmcp-2026", slug: "mickeys-very-merry-christmas-party-2026", event_name: "Mickey's Very Merry Christmas Party", city: "Lake Buena Vista", state: "FL", start_date: "2026-11-08", end_date: "2026-12-22", select_nights: true };
+  ok(!!christmasEventCard(mvRow, { today: "2026-11-19" }).ticket, "control: an on sale party keeps its partner ticket");
+  ok(christmasEventCard({ ...mvRow, ticket_status: "sold_out" }, { today: "2026-11-19" }).ticket === null, "sold out: no partner ticket on the card");
   ok(ticketPrice(base({ id: "q2", price_note: "", price_kind: "paid", price_label: "Ticketed" })).text === "See price on the ticket page", "paid with no figure points to the ticket page, not a made up number");
   ok(ticketPrice(base({ id: "q3", price_kind: "free", is_free: true, price_label: "Free" })).text === "Free", "only data that says free shows Free");
 }
@@ -749,7 +756,13 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(/aria-label="Florida Christmas events"/.test(browseSrc), "the one list section is labelled for assistive tech");
   ok(/card-bg-640\.webp/.test(cardSrc) && /#5A0712/.test(cardSrc) && /card-bg-1100\.webp/.test(cardSrc) && !/wf-christmas/.test(cardSrc), "the card wears the red skin's gradient and doodle art without applying .wf-christmas");
   ok(/\.xm-buy\{[^}]*background:linear-gradient\(180deg,#FFE9B8,#F5C451\)[^}]*color:var\(--xm-ink\)/.test(cardSrc), "the ticket button is gold with dark red text so it stands out on the red card");
-  ok(/grid-template-columns:40% minmax\(0,1fr\)/.test(cardSrc), "the card keeps the 40 percent photo and 60 percent body grid for 375px phones");
+  // Owner 2026-11-17 ("more like the Viator card"): photo on top at full width, one card shape.
+  ok(/\.xm-card\{[^}]*display:flex;flex-direction:column;height:100%/.test(cardSrc) && !/grid-template-columns:40% minmax\(0,1fr\)/.test(cardSrc), "the card stacks the photo above the body at every width");
+  ok(/\.xm-photo\{[^}]*width:100%;aspect-ratio:16\/9/.test(cardSrc), "the photo is full width at a fixed 16:9 shape, so every card's photo is the same size");
+  // Owner 2026-11-17 ("too long from top to bottom"): one line per fact, price beside the button.
+  ok(/\.xm-line>span\{[^}]*white-space:nowrap[^}]*text-overflow:ellipsis/.test(cardSrc) && !/className="xm-pitch"/.test(cardSrc), "dates and city take one line each and the card carries no pitch paragraph");
+  ok(/\.xm-bottom>\.xm-pricerow\+\.xm-buy\{grid-column:2\}/.test(cardSrc), "the price sits beside the ticket button, not on its own row");
+  ok(/sizes="\(min-width: 720px\) 470px, 100vw"/.test(cardSrc), "the photo requests a full-width image, never a 40vw thumbnail");
   ok(!/Directions/i.test(cardSrc + browseSrc), "no Directions button");
 
   const { ChristmasBrowseCard } = await loadComponent(path.join(root, "app/components/ChristmasBrowse.js"), root);

@@ -88,6 +88,7 @@ import { createAppleExplorerController } from "../lib/appleExplorerMap.js";
 import { toDisplayScore } from "../lib/score.js";
 import { DEFAULT_CENTER } from "../lib/locationHonesty.js";
 import { landingSearchFromSearch } from "../lib/searchDeepLink.js";
+import { occurrenceDatesFor } from "../lib/eventOccurrences.js";
 
 const SARASOTA_GPS = { lat: 27.3364, lng: -82.5307 };
 const TAMPA_CENTER = { lat: 27.9506, lng: -82.4572 };
@@ -700,7 +701,8 @@ let mapComponentMod = null;
     nov13Evening
   );
   assert.equal(offNightEval.activeToday, false, "Saturday-only event must be inactive on Friday Nov 13");
-  assert.equal(offNightEval.state, "off_night");
+  assert.equal(offNightEval.state, "tomorrow");
+  assert.equal(offNightEval.nextDate, "2026-11-14");
 
   // Render real `<MapScreen />` in this exact Hard Test state:
   // User physically in Sarasota (`deviceLoc` = SARASOTA_GPS), camera looking at Tampa,
@@ -1304,14 +1306,25 @@ let mapComponentMod = null;
   assert.equal(datedEval.occurrenceSource, "occurrence_dates");
   assert.equal(datedEval.venueConfirmed, true);
 
-  // Off-night date in occurrence_dates
-  const eventOffNight = {
+  // Tomorrow-only date in occurrence_dates -> state: "tomorrow"
+  const eventTomorrow = {
     ...eventWithDates,
     occurrence_dates: ["2026-11-14"], // Tomorrow only
+  };
+  const tomorrowEval = evaluateEventEligibility(eventTomorrow, testNow);
+  assert.equal(tomorrowEval.activeToday, false);
+  assert.equal(tomorrowEval.state, "tomorrow");
+  assert.equal(tomorrowEval.nextDate, "2026-11-14");
+
+  // Off-night date (> 1 day away) in occurrence_dates -> state: "off_night"
+  const eventOffNight = {
+    ...eventWithDates,
+    occurrence_dates: ["2026-11-16"],
   };
   const offNightEval = evaluateEventEligibility(eventOffNight, testNow);
   assert.equal(offNightEval.activeToday, false);
   assert.equal(offNightEval.state, "off_night");
+  assert.equal(offNightEval.nextDate, "2026-11-16");
 
   // 3. Event with select_nights: true without occurrence_dates or weekday cadence -> unconfirmed_select_nights
   const eventSelectNightsBroad = {
@@ -1538,8 +1551,8 @@ let mapComponentMod = null;
     makeMockMapkit([{ id: "cast-lot", name: "Contemporary Resort Cast Parking Lot", lat: 28.4195, lng: -81.5750, distanceMeters: 300 }]),
     { id: "mk", name: "Magic Kingdom Park", lat: 28.4188, lng: -81.5818 }
   );
-  assert.equal(castRes.status, "fallback", "Disney Cast Member lot must never be recommended as visitor parking");
-  assert.equal(castRes.items.length, 0);
+  assert.equal(castRes.restrictedExcludedCount, 1, "Disney Cast Member lot must be excluded as restricted");
+  assert.equal(castRes.items.some((i) => /cast/i.test(i.name)), false, "Disney Cast Member lot must never be recommended as visitor parking");
 
   const hotelMismatchRes = await searchDestinationParking(
     makeMockMapkit([{ id: "marriott-gar", name: "Marriott Hotel Parking Garage", lat: 27.9480, lng: -82.4390, distanceMeters: 150 }]),
@@ -1633,4 +1646,462 @@ let mapComponentMod = null;
   assert.equal(normalHomeSearch.q, "Christmas tonight", "normal query term extracted correctly");
 }
 
-console.log("test-map-spatial-decision-engine: OK — all 8 spatial decision engine suites & Hard Test SSR verified");
+// Suite: Event Schedule, Cancellations, Timezones & Midnight Crossing (@events)
+{
+  const nov18EveningEst = Date.parse("2026-11-19T02:00:00Z"); // Wed 2026-11-18 21:00 EST
+
+  // 1. Verified event tonight -> activeToday: true, emits "Christmas event tonight"
+  const verifiedTonight = {
+    id: "event:symphony-in-lights-gulfstream-park-2026",
+    kind: "event",
+    event_id: "symphony-in-lights-gulfstream-park-2026",
+    slug: "symphony-in-lights-gulfstream-park-2026",
+    event_name: "Symphony in Lights Holiday Celebration",
+    lat: 25.9781,
+    lng: -80.1419,
+    start_date: "2026-11-14",
+    end_date: "2026-12-31",
+    start_time: "18:00:00",
+    end_time: "23:00:00",
+    occurrence_dates: occurrenceDatesFor({ event_id: "symphony-in-lights-gulfstream-park-2026" }),
+    seasonal: "christmas",
+  };
+  const evTonight = evaluateEventEligibility(verifiedTonight, nov18EveningEst);
+  assert.equal(evTonight.activeToday, true);
+  assert.equal(evTonight.state, "happening_now");
+  assert.equal(evTonight.occurrenceSource, "occurrence_dates");
+  assert.equal(buildMapDecisionReason(verifiedTonight, { eventEval: evTonight }), "Christmas event tonight");
+
+  // 2. Verified event tomorrow: Mickey's Very Merry Christmas Party evaluated on Wed 2026-11-18 -> tomorrow (2026-11-19)
+  const mvmcpRow = {
+    id: "event:mvmcp-2026",
+    kind: "event",
+    event_id: "mvmcp-2026",
+    slug: "mickeys-very-merry-christmas-party-2026",
+    event_name: "Mickey's Very Merry Christmas Party",
+    lat: 28.41882,
+    lng: -81.58177,
+    start_date: "2026-11-08",
+    end_date: "2026-12-22",
+    start_time: "19:00:00",
+    select_nights: true,
+    occurrence_dates: occurrenceDatesFor({ event_id: "mvmcp-2026" }),
+    seasonal: "christmas",
+  };
+  assert.ok(Array.isArray(mvmcpRow.occurrence_dates) && mvmcpRow.occurrence_dates.length === 25, "MVMCP has 25 T1 verified dates");
+  const evMvmcp = evaluateEventEligibility(mvmcpRow, nov18EveningEst);
+  assert.equal(evMvmcp.activeToday, false);
+  assert.equal(evMvmcp.state, "tomorrow");
+  assert.equal(evMvmcp.nextDate, "2026-11-19");
+  const mvmcpReason = buildMapDecisionReason(mvmcpRow, { eventEval: evMvmcp });
+  assert.equal(mvmcpReason, "Next event night tomorrow");
+  assert.ok(!mvmcpReason.includes("Christmas event tonight"), "MVMCP on off-night 2026-11-18 must NEVER claim tonight");
+
+  // 3. Closed day: Fri-Sun event checked on Wed 2026-11-18, and closed_dates: ["2026-11-26"] on Thanksgiving
+  const friSunEvent = {
+    id: "event:fri-sun-lights",
+    kind: "event",
+    event_id: "fri-sun-lights",
+    event_name: "Weekend Garden Lights",
+    lat: 27.95,
+    lng: -82.45,
+    start_date: "2026-11-01",
+    end_date: "2026-12-31",
+    visit_schedule: { weekdays: [5, 6, 0], start_time: "18:00", end_time: "22:00" },
+    closed_dates: ["2026-11-26"],
+  };
+  const evWedClosed = evaluateEventEligibility(friSunEvent, nov18EveningEst);
+  assert.equal(evWedClosed.activeToday, false);
+  assert.equal(evWedClosed.state, "closed_day");
+  assert.equal(evWedClosed.nextDate, "2026-11-20");
+
+  const dailyClosedThanksgiving = {
+    id: "event:daily-closed-tg",
+    kind: "event",
+    event_id: "daily-closed-tg",
+    event_name: "Holiday Lights Closed Thanksgiving",
+    lat: 27.95,
+    lng: -82.45,
+    start_date: "2026-11-12",
+    end_date: "2027-01-03",
+    visit_schedule: { weekdays: [0, 1, 2, 3, 4, 5, 6], start_time: "17:00", end_time: "22:00" },
+    closed_dates: ["2026-11-26"],
+  };
+  const thanksgivingEvening = Date.parse("2026-11-27T00:00:00Z"); // Thu 2026-11-26 19:00 EST
+  const evTgClosed = evaluateEventEligibility(dailyClosedThanksgiving, thanksgivingEvening);
+  assert.equal(evTgClosed.activeToday, false);
+  // Next day Fri 2026-11-27 is open -> surfaces tomorrow, never active on Thanksgiving
+  assert.equal(evTgClosed.state, "tomorrow");
+  assert.equal(evTgClosed.nextDate, "2026-11-27");
+
+  const closedTwoDays = {
+    ...dailyClosedThanksgiving,
+    closed_dates: ["2026-11-26", "2026-11-27"],
+  };
+  const evTgClosedTwo = evaluateEventEligibility(closedTwoDays, thanksgivingEvening);
+  assert.equal(evTgClosedTwo.activeToday, false);
+  assert.equal(evTgClosedTwo.state, "closed_day");
+  assert.equal(evTgClosedTwo.nextDate, "2026-11-28");
+
+  // 4. Canceled occurrence & canceled event_status -> always state: "canceled", never active
+  const canceledOccurrence = {
+    ...verifiedTonight,
+    canceled_dates: ["2026-11-18"],
+  };
+  const evCanceledDate = evaluateEventEligibility(canceledOccurrence, nov18EveningEst);
+  assert.equal(evCanceledDate.activeToday, false);
+  assert.equal(evCanceledDate.state, "canceled");
+  assert.equal(buildMapDecisionReason(canceledOccurrence, { eventEval: evCanceledDate }), "Canceled");
+
+  const canceledStatusEvent = {
+    ...verifiedTonight,
+    event_status: "canceled",
+  };
+  const evCanceledStatus = evaluateEventEligibility(canceledStatusEvent, nov18EveningEst);
+  assert.equal(evCanceledStatus.activeToday, false);
+  assert.equal(evCanceledStatus.state, "canceled");
+  assert.equal(evaluateMapCandidate({ ...canceledStatusEvent, _isEventCard: true }, { nowMs: nov18EveningEst }).eligible, false);
+
+  // 5. Expired event -> state: "ended"
+  const expiredEvent = {
+    id: "event:ended-nov-15",
+    kind: "event",
+    event_id: "ended-nov-15",
+    event_name: "Fall Harvest Lights",
+    lat: 27.95,
+    lng: -82.45,
+    start_date: "2026-11-01",
+    end_date: "2026-11-15",
+  };
+  const evExpired = evaluateEventEligibility(expiredEvent, nov18EveningEst);
+  assert.equal(evExpired.activeToday, false);
+  assert.equal(evExpired.state, "ended");
+
+  // 6. Unknown / outdated schedule: ICON Park Santa Workshop (select_nights: true, outdated 2024 timetable, no T1 2026 dates) -> unconfirmed_select_nights
+  assert.equal(occurrenceDatesFor({ event_id: "santa-workshop-icon-park-2026" }), null, "Outdated 2024 schedule must stay out of verified occurrences");
+  const iconParkSanta = {
+    id: "event:santa-workshop-icon-park-2026",
+    kind: "event",
+    event_id: "santa-workshop-icon-park-2026",
+    slug: "santa-workshop-icon-park-2026",
+    event_name: "The Santa Workshop Experience at ICON Park",
+    lat: 28.4436,
+    lng: -81.4682,
+    start_date: "2026-11-13",
+    end_date: "2026-12-24",
+    select_nights: true,
+    schedule_note: "Reserve a current Santa session. Detailed daily timetable on event page is labeled 2024 and is not used for 2026; midnight-to-midnight calendar metadata is not an operating schedule.",
+    seasonal: "christmas",
+  };
+  const evSanta = evaluateEventEligibility(iconParkSanta, nov18EveningEst);
+  assert.equal(evSanta.activeToday, false);
+  assert.equal(evSanta.state, "unconfirmed_select_nights");
+  assert.notEqual(evSanta.state, "closed");
+  assert.notEqual(evSanta.state, "closed_day");
+  assert.notEqual(evSanta.state, "canceled");
+  const santaReason = buildMapDecisionReason(iconParkSanta, { eventEval: evSanta });
+  assert.ok(!santaReason.includes("Christmas event tonight"));
+  assert.ok(!/closed|canceled|sold out/i.test(santaReason), `unknown must never become closed/canceled/sold out (got "${santaReason}")`);
+
+  // 7. Timezone boundaries (ET vs UTC midnight, Panhandle CT vs ET) & midnight crossing carryover
+  // 7a. 2026-11-19T02:30:00Z = 2026-11-18 21:30 EST (UTC is already 2026-11-19!)
+  const utcNextDayEstNight = Date.parse("2026-11-19T02:30:00Z");
+  const orlandoNov18 = {
+    id: "event:orlando-nov18-only",
+    kind: "event",
+    event_id: "orlando-nov18-only",
+    event_name: "Orlando Holiday Concert",
+    lat: 28.5383,
+    lng: -81.3792,
+    start_date: "2026-11-18",
+    end_date: "2026-11-18",
+    start_time: "19:00:00",
+    end_time: "22:30:00",
+  };
+  const evOrl = evaluateEventEligibility(orlandoNov18, utcNextDayEstNight);
+  assert.equal(evOrl.activeToday, true, "At 02:30Z (21:30 EST on Nov 18), Orlando event on Nov 18 must still be active");
+  assert.equal(evOrl.localDate, "2026-11-18");
+
+  // 7b. Panhandle America/Chicago boundary: 2026-11-19T05:30:00Z = 2026-11-19 00:30 EST vs 2026-11-18 23:30 CST!
+  const panhandleBoundary = Date.parse("2026-11-19T05:30:00Z");
+  const pensacolaNov18 = {
+    id: "event:pensacola-nov18",
+    kind: "event",
+    event_id: "pensacola-nov18",
+    event_name: "Pensacola Winterfest",
+    lat: 30.4213,
+    lng: -87.2169, // < -85.35 -> America/Chicago
+    start_date: "2026-11-18",
+    end_date: "2026-11-18",
+    start_time: "19:00:00",
+    end_time: "23:59:00",
+  };
+  const evPns = evaluateEventEligibility(pensacolaNov18, panhandleBoundary);
+  assert.equal(evPns.activeToday, true, "At 05:30Z (23:30 CST on Nov 18), Pensacola event on Nov 18 is still active");
+  assert.equal(evPns.localDate, "2026-11-18");
+
+  const orlandoSameInstant = evaluateEventEligibility(orlandoNov18, panhandleBoundary);
+  assert.equal(orlandoSameInstant.activeToday, false, "At 05:30Z (00:30 EST on Nov 19), Orlando non-overnight Nov 18 event has ended");
+  assert.equal(orlandoSameInstant.state, "ended");
+
+  // 7c. Midnight crossing carryover: 19:00-01:00 operating on Wed 2026-11-18, checked at Thu 00:15 EST vs Thu 01:30 EST
+  const overnightEvent = {
+    id: "event:late-holiday-party",
+    kind: "event",
+    event_id: "late-holiday-party",
+    event_name: "Late Holiday Party",
+    lat: 28.5383,
+    lng: -81.3792,
+    start_date: "2026-11-18",
+    end_date: "2026-11-18",
+    start_time: "19:00:00",
+    end_time: "01:00:00",
+    overnight: true,
+    occurrence_dates: ["2026-11-18"],
+  };
+  const thu0015Est = Date.parse("2026-11-19T05:15:00Z"); // Thu 2026-11-19 00:15 EST
+  const thu0130Est = Date.parse("2026-11-19T06:30:00Z"); // Thu 2026-11-19 01:30 EST
+
+  const evCarry = evaluateEventEligibility(overnightEvent, thu0015Est);
+  assert.equal(evCarry.activeToday, true, "00:15 EST carries over Wed Nov 18 19:00-01:00 session");
+  assert.equal(evCarry.state, "happening_now");
+  assert.equal(evCarry.localDate, "2026-11-18");
+  assert.equal(evCarry.overnightCarryover, true);
+
+  const evAfterEnd = evaluateEventEligibility(overnightEvent, thu0130Est);
+  assert.equal(evAfterEnd.activeToday, false, "01:30 EST is past 01:00 end time -> ended");
+  assert.equal(evAfterEnd.state, "ended");
+
+  // Non-operating yesterday (Wed 18 off, Thu 19 19:00-01:00) at Thu 00:15 EST must NOT claim happening_now from Wed
+  const thuOnlyOvernight = {
+    ...overnightEvent,
+    start_date: "2026-11-18",
+    end_date: "2026-11-19",
+    occurrence_dates: ["2026-11-19"],
+  };
+  const evNoFalseCarry = evaluateEventEligibility(thuOnlyOvernight, thu0015Est);
+  assert.equal(evNoFalseCarry.state, "starting_soon", "Non-operating Wed must not carry over at Thu 00:15 EST");
+  assert.notEqual(evNoFalseCarry.overnightCarryover, true);
+
+  // Search Cards metadata preservation (`lib/searchCards.js`)
+  const metaSearch = await searchResultCards({
+    query: "Christmas",
+    lat: 28.5383,
+    lng: -81.3792,
+    today: "2026-11-18",
+    nowMs: nov18EveningEst,
+    places: [],
+    guides: [],
+    events: [
+      {
+        event_id: "mvmcp-2026",
+        slug: "mickeys-very-merry-christmas-party-2026",
+        event_name: "Mickey's Very Merry Christmas Party",
+        venue: "Magic Kingdom Park",
+        place_id: "ChIJgUulalN-3YgRGoTaWM2LawY",
+        city: "Bay Lake",
+        lat: 28.41882,
+        lng: -81.58177,
+        category: "holiday",
+        event_status: "scheduled",
+        start_date: "2026-11-08",
+        end_date: "2026-12-22",
+        start_time: "19:00:00",
+        select_nights: true,
+        schedule_note: "25 select nights only",
+        closed_dates: ["2026-11-26"],
+        canceled_dates: ["2026-12-01"],
+      },
+    ],
+  });
+  const mvmcpCard = metaSearch.cards.find((c) => c.event_id === "mvmcp-2026");
+  assert.ok(mvmcpCard, "searchResultCards preserves event_id even when place_id sets card.id");
+  assert.equal(mvmcpCard.select_nights, true);
+  assert.equal(mvmcpCard.event_status, "scheduled");
+  assert.equal(mvmcpCard.schedule_note, "25 select nights only");
+  assert.ok(Array.isArray(mvmcpCard.occurrence_dates) && mvmcpCard.occurrence_dates.length === 25);
+  assert.deepEqual(mvmcpCard.closed_dates, ["2026-11-26"]);
+  assert.deepEqual(mvmcpCard.canceled_dates, ["2026-12-01"]);
+}
+
+// ── 12. Wave 3 Verified T1 Dates, Non-Event Nights & Unconfirmed Evidence ─────
+{
+  const nov18EveningEst = Date.parse("2026-11-19T02:00:00Z"); // Wed 2026-11-18 21:00 EST
+  const nov19EveningEst = Date.parse("2026-11-20T00:30:00Z"); // Thu 2026-11-19 19:30 EST
+  const nov20EveningEst = Date.parse("2026-11-21T00:30:00Z"); // Fri 2026-11-20 19:30 EST
+  const nov30EveningEst = Date.parse("2026-12-01T00:30:00Z"); // Mon 2026-11-30 19:30 EST
+
+  // 1. Verified event nights (Busch Gardens Christmas Town, SeaWorld Christmas Celebration, MVMCP)
+  const bgOcc = occurrenceDatesFor({ event_id: "christmas-town-2026" });
+  assert.ok(Array.isArray(bgOcc) && bgOcc.length === 44, `Busch Gardens Christmas Town has 44 T1 dates (got ${bgOcc?.length})`);
+  assert.ok(bgOcc.includes("2026-11-19") && !bgOcc.includes("2026-11-18") && !bgOcc.includes("2026-11-30"));
+
+  const bgRow = {
+    id: "event:christmas-town-2026",
+    kind: "event",
+    event_id: "christmas-town-2026",
+    slug: "busch-gardens-christmas-town-2026",
+    event_name: "Busch Gardens Christmas Town",
+    lat: 28.0373,
+    lng: -82.4194,
+    start_date: "2026-11-13",
+    end_date: "2027-01-04",
+    select_nights: true,
+    occurrence_dates: bgOcc,
+    seasonal: "christmas",
+  };
+  const bgNov19 = evaluateEventEligibility(bgRow, nov19EveningEst);
+  assert.equal(bgNov19.activeToday, true);
+  assert.equal(bgNov19.occurrenceSource, "occurrence_dates");
+  assert.equal(buildMapDecisionReason(bgRow, { eventEval: bgNov19 }), "Christmas event tonight");
+
+  const swOcc = occurrenceDatesFor({ event_id: "seaworld-orlando-christmas-2026" });
+  assert.ok(Array.isArray(swOcc) && swOcc.length === 44, `SeaWorld Christmas Celebration has 44 T1 dates (got ${swOcc?.length})`);
+  assert.ok(!swOcc.includes("2026-11-19") && swOcc.includes("2026-11-20") && !swOcc.includes("2026-11-30"));
+
+  const swRow = {
+    id: "event:seaworld-orlando-christmas-2026",
+    kind: "event",
+    event_id: "seaworld-orlando-christmas-2026",
+    slug: "seaworld-orlando-christmas-celebration-2026",
+    event_name: "SeaWorld Orlando Christmas Celebration",
+    lat: 28.4112,
+    lng: -81.4612,
+    start_date: "2026-11-06",
+    end_date: "2027-01-04",
+    select_nights: true,
+    occurrence_dates: swOcc,
+    seasonal: "christmas",
+  };
+  const swNov20 = evaluateEventEligibility(swRow, nov20EveningEst);
+  assert.equal(swNov20.activeToday, true);
+  assert.equal(swNov20.occurrenceSource, "occurrence_dates");
+  assert.equal(buildMapDecisionReason(swRow, { eventEval: swNov20 }), "Christmas event tonight");
+
+  const mvmcpOcc = occurrenceDatesFor({ event_id: "mvmcp-2026" });
+  const mvmcpRow = {
+    id: "event:mvmcp-2026",
+    kind: "event",
+    event_id: "mvmcp-2026",
+    slug: "mickeys-very-merry-christmas-party-2026",
+    event_name: "Mickey's Very Merry Christmas Party",
+    lat: 28.41882,
+    lng: -81.58177,
+    start_date: "2026-11-08",
+    end_date: "2026-12-22",
+    start_time: "19:00:00",
+    select_nights: true,
+    occurrence_dates: mvmcpOcc,
+    seasonal: "christmas",
+  };
+  const mvmcpNov19 = evaluateEventEligibility(mvmcpRow, nov19EveningEst);
+  assert.equal(mvmcpNov19.activeToday, true);
+  assert.equal(mvmcpNov19.occurrenceSource, "occurrence_dates");
+
+  // 2. Non-event nights on verified select-dates runs -> never "Christmas event tonight"
+  const swNov19 = evaluateEventEligibility(swRow, nov19EveningEst);
+  assert.equal(swNov19.activeToday, false);
+  assert.equal(swNov19.state, "tomorrow");
+  assert.equal(swNov19.nextDate, "2026-11-20");
+  assert.ok(!buildMapDecisionReason(swRow, { eventEval: swNov19 }).includes("Christmas event tonight"));
+
+  const swNov18 = evaluateEventEligibility(swRow, nov18EveningEst);
+  assert.equal(swNov18.activeToday, false);
+  assert.equal(swNov18.state, "off_night");
+  assert.equal(swNov18.nextDate, "2026-11-20");
+  assert.ok(!buildMapDecisionReason(swRow, { eventEval: swNov18 }).includes("Christmas event tonight"));
+
+  const bgNov30 = evaluateEventEligibility(bgRow, nov30EveningEst);
+  assert.equal(bgNov30.activeToday, false);
+  assert.equal(bgNov30.state, "off_night");
+  assert.equal(bgNov30.nextDate, "2026-12-03");
+  assert.ok(!buildMapDecisionReason(bgRow, { eventEval: bgNov30 }).includes("Christmas event tonight"));
+
+  // 3. Missing or outdated evidence (ICON Park Santa Workshop + unconfirmed season span) -> unconfirmed, NEVER closed/canceled/sold out
+  assert.equal(occurrenceDatesFor({ event_id: "santa-workshop-icon-park-2026" }), null);
+  for (const scheduleNote of [
+    "Reserve a current Santa session. Detailed daily timetable on event page is labeled 2024 and is not used for 2026; midnight-to-midnight calendar metadata is not an operating schedule.",
+    "Reserve a current Santa session. The 2024 timetable on the event page is not used for 2026; midnight-to-midnight calendar metadata is not an operating schedule.",
+  ]) {
+    const santaRow = {
+      id: "event:santa-workshop-icon-park-2026",
+      kind: "event",
+      event_id: "santa-workshop-icon-park-2026",
+      slug: "santa-workshop-icon-park-2026",
+      event_name: "The Santa Workshop Experience at ICON Park",
+      lat: 28.4436,
+      lng: -81.4682,
+      start_date: "2026-11-13",
+      end_date: "2026-12-24",
+      select_nights: true,
+      schedule_note: scheduleNote,
+      seasonal: "christmas",
+    };
+    const ev = evaluateEventEligibility(santaRow, nov19EveningEst);
+    assert.equal(ev.activeToday, false);
+    assert.equal(ev.state, "unconfirmed_select_nights");
+    assert.notEqual(ev.state, "closed");
+    assert.notEqual(ev.state, "closed_day");
+    assert.notEqual(ev.state, "canceled");
+    const reason = buildMapDecisionReason(santaRow, { eventEval: ev });
+    assert.ok(!/closed|canceled|sold out|christmas event tonight/i.test(reason), `unexpected reason "${reason}"`);
+  }
+
+  const unconfirmedSpanRow = {
+    id: "event:christmas-at-gaylord-palms-2026",
+    kind: "event",
+    event_id: "christmas-at-gaylord-palms-2026",
+    event_name: "Christmas at Gaylord Palms",
+    lat: 28.3426,
+    lng: -81.5318,
+    start_date: "2026-11-13",
+    end_date: "2027-01-03",
+    schedule_note: "Select holiday attractions require tickets; check schedule.",
+    seasonal: "christmas",
+  };
+  const evSpan = evaluateEventEligibility(unconfirmedSpanRow, nov19EveningEst);
+  assert.equal(evSpan.activeToday, false);
+  assert.equal(evSpan.state, "unconfirmed_season_span");
+  assert.notEqual(evSpan.state, "closed");
+  assert.notEqual(evSpan.state, "closed_day");
+  assert.notEqual(evSpan.state, "canceled");
+  const spanReason = buildMapDecisionReason(unconfirmedSpanRow, { eventEval: evSpan });
+  assert.ok(!/closed|canceled|sold out|christmas event tonight/i.test(spanReason), `unexpected reason "${spanReason}"`);
+
+  // 4a. P0 hotfix: undated / stripped event card (no start_date/end_date/occurrence_dates/visit_schedule) MUST fail closed
+  const strippedEventCard = {
+    id: "event:seaworld-orlando-christmas-2026",
+    kind: "event",
+    name: "SeaWorld Orlando",
+    lat: 28.411,
+    lng: -81.461,
+  };
+  const evStripped = evaluateEventEligibility(strippedEventCard, nov19EveningEst);
+  assert.equal(evStripped.activeToday, false, "Undated/stripped event card must NEVER evaluate activeToday: true");
+  assert.equal(evStripped.state, "unconfirmed_select_nights");
+  assert.notEqual(evStripped.state, "closed");
+  assert.notEqual(evStripped.state, "closed_day");
+  assert.notEqual(evStripped.state, "canceled");
+  const strippedReason = buildMapDecisionReason(strippedEventCard, { eventEval: evStripped });
+  assert.ok(!/christmas event tonight|closed|canceled|sold out/i.test(strippedReason), `unexpected stripped event reason "${strippedReason}"`);
+
+  // 4b. P0 hotfix: ownedSearch() in app/home.js preserves /api/search event schedule & hours metadata
+  const homeSrc = readFileSync(fileURLToPath(new URL("../app/home.js", import.meta.url)), "utf8");
+  const ownedSearchMatch = homeSrc.match(/async function ownedSearch\([\s\S]*?\n  \}/);
+  assert.ok(ownedSearchMatch, "ownedSearch function exists in app/home.js");
+  const ownedSearchBody = ownedSearchMatch[0];
+  for (const requiredField of [
+    "occurrence_dates",
+    "start_date",
+    "end_date",
+    "select_nights",
+    "schedule_note",
+    "event_status",
+    "visit_schedule",
+    "ownedHours",
+  ]) {
+    assert.ok(ownedSearchBody.includes(requiredField), `ownedSearch() must preserve "${requiredField}" from /api/search cards`);
+  }
+}
+
+console.log("test-map-spatial-decision-engine: OK — all 9 spatial decision engine suites, 7 event schedule cases, Wave 3 verified occurrences & Hard Test SSR verified");

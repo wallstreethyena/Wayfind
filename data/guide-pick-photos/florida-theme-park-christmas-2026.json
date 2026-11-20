@@ -140,15 +140,29 @@
       "placeId": null,
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-09"
+    },
+    "Disney Jollywood Nights": {
+      "src": "/guides/picks/florida-theme-park-christmas-2026/hollywood-studios-christmas-tree.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A Christmas tree with red bows and colored ornaments on a lamppost beside palm trees and retro storefronts at Disney's Hollywood Studios",
+      "caption": "A holiday tree in Disney's Hollywood Studios during the Christmas season.",
+      "credit": "Theme Park Tourist",
+      "creditHref": "https://www.flickr.com/photos/134538912@N02/22676180897",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/134538912@N02/22676180897",
+      "author": "Theme Park Tourist",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJRx6CYyd83YgRD_HjNqPO_7s",
+      "verification": "Flickr photo Disney's Hollywood Studios by Theme Park Tourist, taken November 16, 2015 during the park's holiday season. Viewed the full image: a decorated Christmas tree beside the park's retro Super Service storefront and Hollywood style signage inside Disney's Hollywood Studios, where Jollywood Nights runs. No overlay or watermark. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     }
   },
   "gaps": {
-    "Disney Jollywood Nights": {
-      "reason": "no-verified-source",
-      "placeId": "ChIJRx6CYyd83YgRD_HjNqPO_7s",
-      "needsPermissionFrom": null,
-      "note": "Image intent pass 2026-11-09: no licensed photo of this exact holiday event was found (Wikimedia Commons and Flickr checked 2026-11-09; the only Hollywood Studios holiday photos show the Osborne lights, which no longer run, or a daytime portrait of the entrance tree). The previous illustrative stand in was a daytime venue photo with no holiday program, so this guide now uses Wayfind's neutral fallback and the pick shows the \"Photo unavailable\" tile."
-    },
     "Christmas Bricktacular at LEGOLAND Florida": {
       "reason": "no-verified-source",
       "placeId": "ChIJ38rlfogN3YgRGic46M9dbLw",

@@ -173,7 +173,11 @@ for (const [label, extra] of [
   ok((conc.match(/conciergePrompt\(/g) || []).length === 2, "one prompt builder, one call (declaration + call)");
   ok(m.phoneTail("(508) 555-0123") === "23" && m.phoneTail("nope") === null, "the confirm card shows two digits only");
   const ui = strip(readFileSync(path.join(REPO, "app/components/ReserveConcierge.js"), "utf8"));
-  ok((ui.match(/const \[textMe, setTextMe\] = useState\(false\);/g) || []).length === 2, "the confirmation and the request text options both start unticked");
+  // Every text opt-in starts unticked: the confirmation, the request, and any later
+  // card (the booking agent's offer added a third on main, #2580).
+  const textStates = (ui.match(/const \[textMe, setTextMe\] = useState\(/g) || []).length;
+  const unticked = (ui.match(/const \[textMe, setTextMe\] = useState\(false\);/g) || []).length;
+  ok(textStates >= 2 && unticked === textStates && /data-reserve-text-me="1"/.test(ui) && /data-reserve-text-request="1"/.test(ui), `the confirmation and the request text options (and every other text opt-in, ${textStates} total) start unticked`);
   ok(!/useState\(true\)/.test(ui.slice(ui.indexOf("function ConfirmCard"), ui.indexOf("function HandoffCard"))), "neither text option is pre-ticked");
   ok(/if \(a\.textMe === true\) req\.smsConsent = true;/.test(ui), "only the tick sends smsConsent");
   ok(ui.includes(m.REQUEST_CONSENT_TEXT) && /data-reserve-text-request="1"/.test(ui), "the request card shows the same consent words the server stores");

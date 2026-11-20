@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import CreatorVideoPlayer from "./CreatorVideoPlayer";
 import { safeUrl } from "../../lib/links";
+import { isEmbeddable } from "../../lib/videoEmbed";
 
 // A native modal lives in the top layer, above even a transformed detail sheet.
 // It supplies focus containment, Escape handling and focus return. Closing
@@ -11,7 +12,10 @@ export default function CreatorVideoAction({ platform, url, label, children, sty
   const dialogRef = useRef(null);
   const [open, setOpen] = useState(false);
   const close = () => { dialogRef.current?.close(); setOpen(false); };
-  const source = safeUrl(url);
+  // Owner rule 2026-11-18: creator videos play inside gowayfind and never send
+  // the visitor to Instagram or TikTok. A post that cannot play here gets no
+  // watch button at all (an empty player would be a dead end).
+  if (!isEmbeddable(platform, safeUrl(url))) return null;
   return <>
     <button {...props} type="button" className={className} data-creator-video-action="in-app" aria-haspopup="dialog" aria-label={label} onClick={(event) => {
       onClick?.(event);
@@ -25,7 +29,6 @@ export default function CreatorVideoAction({ platform, url, label, children, sty
           <button type="button" autoFocus onClick={close} aria-label="Close video" style={{ minWidth: 44, minHeight: 44, border: 0, borderRadius: 99, background: "#161B22", color: "#fff", cursor: "pointer", fontSize: 22 }}>×</button>
         </div>
         {open ? <CreatorVideoPlayer platform={platform} url={url} label={label} /> : null}
-        {open && source ? <details style={{ padding: "8px 14px 16px", fontSize: 12 }}><summary style={{ cursor: "pointer" }}>Original source</summary><a href={source} target="_blank" rel="noopener" style={{ color: "#FF9B50", display: "inline-block", padding: "10px 0" }}>Open original post in a new tab ↗</a></details> : null}
       </div>
     </dialog>
   </>;

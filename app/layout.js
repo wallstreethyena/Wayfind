@@ -1,5 +1,6 @@
 import Script from "next/script";
 import { Suspense } from "react";
+import { TRANSLATE_DOM_GUARD_SCRIPT } from "../lib/translateDomGuard.js";
 import SiteFeedback from "./components/SiteFeedbackEntry";
 import DocumentPosition from "./components/DocumentPosition";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -12,6 +13,7 @@ import { chunkRecoveryScript } from "../lib/chunkRecovery";
 import { GUIDES } from "../lib/guides";
 import { currentGuides } from "../lib/guideLifecycle";
 import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEFAULT_COLLAPSED_RAILS_DESKTOP, RAILS_DESKTOP_MQ } from "../lib/railCollapse";
+import { homeShelfScript, HOME_SHELF_CSS } from "../lib/homeLanding.js";
 // v8.46.1 — the pairing law, interpolated into the pre-hydration events primer
 // below (it runs before React, so it cannot import the module at runtime).
 import { cityOriginsWire, PAIRING_MAX_MI } from "../lib/locationHonesty";
@@ -197,6 +199,11 @@ export default function RootLayout({ children }) {
             the true width — never by JS state after mount, which is the
             0.4938-CLS pattern app/components/css.js opens with. */}
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var r=localStorage.getItem('${RAILS_COLLAPSED_KEY}');var d=${JSON.stringify(DEFAULT_COLLAPSED_RAILS)};var w=${JSON.stringify(DEFAULT_COLLAPSED_RAILS_DESKTOP)};var v=r?JSON.parse(r):((window.matchMedia&&window.matchMedia('${RAILS_DESKTOP_MQ}').matches)?w:d);if(!Array.isArray(v))v=d;var out=[];for(var i=0;i<v.length;i++){var s=typeof v[i]==='string'?v[i].trim():'';if(s&&s.length<=40&&out.indexOf(s)===-1)out.push(s)}document.documentElement.setAttribute('${RAILS_COLLAPSED_ATTR}',out.join(' '))}catch(e){}})();` }} />
+        {/* 2026-11-16 — the seasonal poster opens itself only on a first visit. A returning visit lands on the
+            poster shelf; decided here, before paint, because the home page is statically rendered open
+            (lib/homeLanding.js). */}
+        <script dangerouslySetInnerHTML={{ __html: homeShelfScript() }} />
+        <style dangerouslySetInnerHTML={styleHtml(HOME_SHELF_CSS)} />
         {/* v8.46.1 — THE PAIRING LAW REACHES THE PRIMER. This was the last
             reader of wf_center that could not import lib/locationHonesty.js,
             because it runs before React exists. It matters more than it looks:
@@ -228,6 +235,11 @@ export default function RootLayout({ children }) {
             Built from lib/cardActionAttrs.js — the card renders the same
             constants, so the selector and the markup cannot drift apart. */}
         <script dangerouslySetInnerHTML={{ __html: cardActionBridgeScript() }} />
+        {/* Browser translation guard (WAYFIND-1X): Chrome's page translator
+            swaps React's text nodes for <font> wrappers, so React's later
+            removeChild/insertBefore throws and unmounts the route. Steps in
+            only where the DOM would throw. See lib/translateDomGuard.js. */}
+        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_DOM_GUARD_SCRIPT }} />
         {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
             'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy
             client SDK finishes loading; SentryClient replays this queue on load,

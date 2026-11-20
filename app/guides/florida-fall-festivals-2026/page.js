@@ -1,9 +1,9 @@
-import GuideArticleHero from "../../components/GuideArticleHero";
+import GuideStandardShell, { GuideSection } from "../../components/GuideStandardShell";
 import SeasonalSearchNav from "../../components/SeasonalSearchNav";
 import { seasonalHubsForGuide } from "../../../lib/seasonalSearch";
 import ShareButton from "../../components/ShareButton";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
-import { WF_PLACE_CARD_CSS } from "../../components/css";
+// WF_PLACE_CARD_CSS (the shared place-card stylesheet) is injected by GuideStandardShell.
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import GuideFigure from "../../components/GuideFigureWithFallback.js";
 import { googleCreditMissing } from "../../components/GuideFigure";
@@ -28,7 +28,8 @@ import {
   fallGuideRegion,
   findFallGuideEvent,
 } from "../../../lib/floridaFallGuide2026";
-import { styleHtml } from "../../../lib/styleHtml.js";
+import { GuidePickWhere } from "../[slug]/GuidePickWhere";
+import { guideWhereForRecord } from "../../../lib/guidePlaceAddress.js";
 
 // v2026-09-22 — moved onto the shared GuideMapExplorer (map + house-card
 // rail + category filters), the SAME component every guide with >=3 mappable
@@ -67,10 +68,10 @@ function fallGuideSpots(spots) {
   return spots.map((spot) => {
     if (spot.image || !/^ChIJ/.test(String(spot.id))) {
       const placeId = EVENT_PHOTO_PLACE_IDS[spot.id];
-      if (placeId) return { ...spot, photoPlaceId: placeId, image: "/api/photo?place=" + encodeURIComponent(placeId) + "&g=2&w=800" };
+      if (placeId) return { ...spot, photoPlaceId: placeId, image: null };
       return spot;
     }
-    return { ...spot, image: "/api/photo?place=" + encodeURIComponent(spot.id) + "&g=2&w=800" };
+    return { ...spot, photoPlaceId: spot.id, image: null };
   });
 }
 
@@ -741,6 +742,7 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true, ven
           <span>{FALL_GUIDE_KIND_LABELS[fallGuideKind(event)] || "Fall plan"}</span>
         </div>
         <h3>{event.event_name}</h3>
+        <GuidePickWhere where={guideWhereForRecord({ name: event.venue || event.event_name, placeId: event.place_id, address: event.address, pickKey: "florida-fall-festivals-2026\t" + event.event_name })} />
         <p>{event.card_hook || event.editorial_summary || eventWhen(event)}</p>
         <small className={styles.whenLine}>{eventWhen(event)}</small>
         {ticket ? <a href={ticket.href} rel="sponsored noopener" data-commerce-surface="guide_fall_festivals">{"Tickets at " + ticket.via + " \u2197"}</a>
@@ -750,19 +752,18 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true, ven
   );
 }
 
-function StarterGrid({ venuePhotos, usedSrc }) {
+function StarterGrid({ venuePhotos, usedSrc, index }) {
   const picks = FALL_GUIDE_STARTER_IDS.map(findFallGuideEvent).filter(Boolean);
   return (
-    <section className={styles.editorialSection} aria-labelledby="start-here">
-      <p className={styles.kicker}>Start here</p>
-      <h2 id="start-here">Ten fall plans worth building a weekend around.</h2>
+    <GuideSection index={index} id="start-here" eyebrow="Start here" title="Ten fall plans worth building a weekend around.">
       <p className={styles.sectionDeck}>
         This is the fast version: unusual experiences, big statewide events, classic farms and the strongest October anchors from North Florida to the Keys.
       </p>
       <div className={styles.topTenGrid}>
-        {picks.map((event, index) => <EventMiniCard key={event.event_id} event={event} rank={index + 1} venuePhotos={venuePhotos} usedSrc={usedSrc} />)}
+        {picks.map((event, i) => <EventMiniCard key={event.event_id} event={event} rank={i + 1} venuePhotos={venuePhotos} usedSrc={usedSrc} />)}
       </div>
-    </section>
+      <ExperienceLanes />
+    </GuideSection>
   );
 }
 
@@ -812,11 +813,9 @@ function ExperienceLanes() {
   );
 }
 
-function OctoberWeekendPlanner({ venuePhotos, usedSrc }) {
+function OctoberWeekendPlanner({ venuePhotos, usedSrc, index }) {
   return (
-    <section className={styles.editorialSection} aria-labelledby="october-weekends">
-      <p className={styles.kicker}>Every October weekend</p>
-      <h2 id="october-weekends">Pick the weekend first. Then pick the vibe.</h2>
+    <GuideSection index={index} id="october-weekends" eyebrow="Every October weekend" title="Pick the weekend first. Then pick the vibe.">
       <p className={styles.sectionDeck}>
         Each weekend below is built from dated 2026 events so you can choose the part of October that fits your group instead of scrolling one giant list.
       </p>
@@ -838,32 +837,28 @@ function OctoberWeekendPlanner({ venuePhotos, usedSrc }) {
           </article>
         ))}
       </div>
-    </section>
+    </GuideSection>
   );
 }
 
-function WeekdayPlans({ venuePhotos, usedSrc }) {
+function WeekdayPlans({ venuePhotos, usedSrc, index }) {
   const plans = FALL_GUIDE_WEEKDAY_IDS.map(findFallGuideEvent).filter(Boolean);
   return (
-    <section className={styles.editorialSection} aria-labelledby="weekday-fall">
-      <p className={styles.kicker}>Monday through Thursday</p>
-      <h2 id="weekday-fall">Fall does not have to wait for Saturday.</h2>
+    <GuideSection index={index} id="weekday-fall" eyebrow="Monday through Thursday" title="Fall does not have to wait for Saturday.">
       <p className={styles.sectionDeck}>
         Use these when you want a quieter pumpkin stop, a seasonal dinner, a coffee run, a ghost tour or a major festival that is open beyond the weekend.
       </p>
       <div className={styles.cardGrid}>
         {plans.map((event) => <EventMiniCard key={event.event_id} event={event} venuePhotos={venuePhotos} usedSrc={usedSrc} />)}
       </div>
-    </section>
+    </GuideSection>
   );
 }
 
-function BrowseByKind() {
+function BrowseByKind({ index }) {
   const kinds = ["farms", "family", "haunts", "food", "festival", "activities"];
   return (
-    <section className={styles.editorialSection} aria-labelledby="browse-by-kind">
-      <p className={styles.kicker}>Everything by vibe</p>
-      <h2 id="browse-by-kind">Pumpkins, scares, food, festivals and family Halloween.</h2>
+    <GuideSection index={index} id="browse-by-kind" eyebrow="Everything by vibe" title="Pumpkins, scares, food, festivals and family Halloween.">
       <div className={styles.bucketGrid}>
         {kinds.map((kind) => {
           const events = FLORIDA_FALL_GUIDE_EVENTS_2026.filter((event) => fallGuideKind(event) === kind)
@@ -875,26 +870,30 @@ function BrowseByKind() {
               <h3>{FALL_GUIDE_KIND_LABELS[kind]}</h3>
               <p>{events.length} featured plans in this guide</p>
               <div className={styles.bucketList}>
-                {events.map((event) => (
-                  <a key={event.event_id} href={fallGuideEventHref(event) || "#guide"}>
-                    <span>{event.event_name}</span>
-                    <small>{event.city || "Florida"} · {formatGuideDate(event.start_date)}</small>
-                  </a>
-                ))}
+                {events.map((event) => {
+                  const where = guideWhereForRecord({ name: event.venue || event.event_name, placeId: event.place_id, address: event.address, pickKey: "florida-fall-festivals-2026\t" + event.event_name });
+                  return (
+                    <div className={styles.bucketRow} key={event.event_id}>
+                      <a href={fallGuideEventHref(event) || "#guide"}>
+                        <span>{event.event_name}</span>
+                        <small>{event.city || "Florida"} · {formatGuideDate(event.start_date)}</small>
+                      </a>
+                      {where ? <a href={where.mapsUrl} target="_blank" rel="noopener noreferrer">{where.address ? where.address + " " : ""}Directions</a> : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
         })}
       </div>
-    </section>
+    </GuideSection>
   );
 }
 
-function BrowseByRegion() {
+function BrowseByRegion({ index }) {
   return (
-    <section className={styles.editorialSection} aria-labelledby="browse-by-region">
-      <p className={styles.kicker}>Statewide</p>
-      <h2 id="browse-by-region">Find fall near the part of Florida you are actually in.</h2>
+    <GuideSection index={index} id="browse-by-region" eyebrow="Statewide" title="Find fall near the part of Florida you are actually in.">
       <p className={styles.sectionDeck}>
         The guide reaches beyond Tampa Bay and Orlando so a fall road trip can start in Pensacola, Jacksonville, Miami, the Gulf Coast or anywhere in between.
       </p>
@@ -909,17 +908,21 @@ function BrowseByRegion() {
               <h3>{region}</h3>
               <p>{events.length} current picks shown</p>
               <div className={styles.regionLinks}>
-                {events.map((event) => (
-                  <a key={event.event_id} href={fallGuideEventHref(event) || "#guide"}>
-                    {event.event_name}
-                  </a>
-                ))}
+                {events.map((event) => {
+                  const where = guideWhereForRecord({ name: event.venue || event.event_name, placeId: event.place_id, address: event.address, pickKey: "florida-fall-festivals-2026\t" + event.event_name });
+                  return (
+                    <div className={styles.bucketRow} key={event.event_id}>
+                      <a href={fallGuideEventHref(event) || "#guide"}>{event.event_name}</a>
+                      {where ? <a href={where.mapsUrl} target="_blank" rel="noopener noreferrer">{where.address ? where.address + " " : ""}Directions</a> : null}
+                    </div>
+                  );
+                })}
               </div>
             </article>
           );
         })}
       </div>
-    </section>
+    </GuideSection>
   );
 }
 
@@ -989,53 +992,27 @@ export default async function FloridaFallGuide() {
       if (primary.creditHref) usedSrc.add(primary.creditHref);
     }
   }
-  return (
-    <main className={styles.page}>
-      <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
+  const sectionIntro = (
+    <>
+      <div className={styles.trustBar} aria-label="Florida fall guide details">
+        <span><b>{FLORIDA_FALL_GUIDE_EVENT_COUNT}+</b> verified plans</span>
+        <span><b>Every</b> October weekend</span>
+        <span><b>Statewide</b> Florida coverage</span>
+      </div>
+      <div className={styles.intro}>
+        <p className={styles.kicker}>Florida fall, all in one place</p>
+        <h2>Pick your weekend. We did the rest.</h2>
+        <p>
+          This guide combines dated 2026 farms, pumpkin patches, Halloween nights, trick or treating, food festivals, seasonal menus, Oktoberfests, fairs and fall day trips across Florida. Start with the ten anchors, plan an October weekend, then browse by vibe or region.
+        </p>
+      </div>
+    </>
+  );
+  const lead = (
+    <>
       <SeasonalSearchNav hubs={seasonalHubsForGuide("florida-fall-festivals-2026")} />
-      <GuideArticleHero
-        title="The Complete Florida Fall Guide 2026"
-        description="Plan every October weekend with pumpkin patches, farm days, haunted nights, family Halloween, seasonal food, fairs and statewide fall festivals."
-        image={hero}
-        region="Florida"
-        category="Fall guide"
-        updatedLabel="Updated September 25, 2026"
-        backHref="/guides"
-        backLabel="All guides"
-        jumpHref="#guide"
-        jumpLabel="Plan October"
-        actions={<ShareButton
-          url={pageShareUrl("/guides/florida-fall-festivals-2026")}
-          title="The Complete Florida Fall Guide 2026"
-          text="Every October weekend, pumpkin patches, haunted nights, family Halloween, fall food and statewide festival plans. On Wayfind."
-          tone="dark"
-          event="guide_share"
-          meta={{ slug: "florida-fall-festivals-2026", placement: "hero" }}
-        />}
-      />
-
-      <div id="guide" className={styles.content}>
-        <div className={styles.trustBar} aria-label="Florida fall guide details">
-          <span><b>{FLORIDA_FALL_GUIDE_EVENT_COUNT}+</b> verified plans</span>
-          <span><b>Every</b> October weekend</span>
-          <span><b>Statewide</b> Florida coverage</span>
-        </div>
-
-        <div className={styles.intro}>
-          <p className={styles.kicker}>Florida fall, all in one place</p>
-          <h2>Pick your weekend. We did the rest.</h2>
-          <p>
-            This guide combines dated 2026 farms, pumpkin patches, Halloween nights, trick or treating, food festivals, seasonal menus, Oktoberfests, fairs and fall day trips across Florida. Start with the ten anchors, plan an October weekend, then browse by vibe or region.
-          </p>
-        </div>
-
-        <FallQuickNav />
-        <StarterGrid venuePhotos={venuePhotos} usedSrc={usedSrc} />
-        <ExperienceLanes />
-        <OctoberWeekendPlanner venuePhotos={venuePhotos} usedSrc={usedSrc} />
-        <WeekdayPlans venuePhotos={venuePhotos} usedSrc={usedSrc} />
-
-        <section id="fall-map" className={styles.mapSection} aria-label="Florida fall map">
+      <FallQuickNav />
+      <section id="fall-map" className={styles.mapSection} aria-label="Florida fall map">
         <FallMapExplorer
           filters={MAP_EXPLORER_FILTERS}
           kicker="Pick a category, then swipe"
@@ -1045,21 +1022,49 @@ export default async function FloridaFallGuide() {
           note="Swipe the cards to move the selected pin. Tap a pin to jump back to its card."
           railIdPrefix="fall-guide"
         />
-        </section>
-
-        <BrowseByKind />
-        <BrowseByRegion />
-
-        <aside className={styles.note}>
-          <p className={styles.kicker}>Before you go</p>
-          <h2>Use the timing to make the day better.</h2>
-          <p>
-            Farm festivals are easier earlier in the day when it is cooler and photos are cleaner. For ticketed haunts, reserve timed entry before you leave. For food festivals, eat the signature stuff first because the most popular items can run out.
-          </p>
-        </aside>
-
-        <div className={styles.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</div>
-      </div>
-    </main>
+      </section>
+    </>
+  );
+  return (
+    <GuideStandardShell
+      slug="florida-fall-festivals-2026"
+      title="The Complete Florida Fall Guide 2026"
+      description="Plan every October weekend with pumpkin patches, farm days, haunted nights, family Halloween, seasonal food, fairs and statewide fall festivals."
+      image={hero}
+      region="Florida"
+      category="Fall guide"
+      updated="2026-09-25"
+      jumpHref="#guide"
+      jumpLabel="Plan October"
+      actions={<ShareButton
+        url={pageShareUrl("/guides/florida-fall-festivals-2026")}
+        title="The Complete Florida Fall Guide 2026"
+        text="Every October weekend, pumpkin patches, haunted nights, family Halloween, fall food and statewide festival plans. On Wayfind."
+        tone="dark"
+        event="guide_share"
+        meta={{ slug: "florida-fall-festivals-2026", placement: "hero" }}
+      />}
+      intro={sectionIntro}
+      contents={[
+        { href: "#start-here", label: "Ten fall plans worth building a weekend around." },
+        { href: "#october-weekends", label: "Pick the weekend first. Then pick the vibe." },
+        { href: "#weekday-fall", label: "Fall does not have to wait for Saturday." },
+        { href: "#browse-by-kind", label: "Pumpkins, scares, food, festivals and family Halloween." },
+        { href: "#browse-by-region", label: "Find fall near the part of Florida you are actually in." },
+        { href: "#before-you-go", label: "Use the timing to make the day better." },
+      ]}
+      lead={lead}
+    >
+      <StarterGrid index={1} venuePhotos={venuePhotos} usedSrc={usedSrc} />
+      <OctoberWeekendPlanner index={2} venuePhotos={venuePhotos} usedSrc={usedSrc} />
+      <WeekdayPlans index={3} venuePhotos={venuePhotos} usedSrc={usedSrc} />
+      <BrowseByKind index={4} />
+      <BrowseByRegion index={5} />
+      <GuideSection index={6} id="before-you-go" eyebrow="Before you go" title="Use the timing to make the day better.">
+        <p>
+          Farm festivals are easier earlier in the day when it is cooler and photos are cleaner. For ticketed haunts, reserve timed entry before you leave. For food festivals, eat the signature stuff first because the most popular items can run out.
+        </p>
+      </GuideSection>
+    </GuideStandardShell>
   );
 }

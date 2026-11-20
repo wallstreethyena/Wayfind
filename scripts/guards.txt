@@ -23,6 +23,9 @@ node scripts/check-response-imports.mjs
 # 2026-07-31 after 5c541b4 let `.env.production.local` decide whether a live
 # affiliate program was protected.
 node scripts/check-guard-hermeticity.mjs
+# The CI audit step ignores one picomatch advisory with no patched release.
+# This test locks that the exception cannot hide any other advisory.
+node scripts/test-npm-audit-allowlist.mjs
 # Vercel runs `npm run build` (postbuild → check-bundle). GitHub used to run
 # `npx next build` only, so a homepage JS overage shipped green and died on
 # deploy (#949, 2026-08-26). This lock is source-level and cheap.
@@ -50,12 +53,14 @@ node scripts/test-landing-why-fits.mjs
 node scripts/test-landing-card-cue.mjs
 node scripts/test-score-band.mjs
 node scripts/test-business-status.mjs
+node scripts/test-closed-place-pages.mjs
 node scripts/test-closed-policy.mjs
 npm run check:seo
 npm run check:events
 node scripts/check-business-events.mjs
 node scripts/check-guides.mjs
 node scripts/check-guide-standard.mjs
+node scripts/check-guide-standard.mjs --red-prove
 # 2026-09-23 (owner): guides that already happened move to /guides/past via
 # endsOn (lib/guideLifecycle.js); never deleted, never promoted as current.
 node scripts/check-guide-lifecycle.mjs
@@ -122,6 +127,9 @@ node scripts/check-cron-post-nostore.mjs
 node scripts/test-sentry-lazy.mjs
 node scripts/test-client-buffer-scan.mjs
 node scripts/test-sentry-meta-iab.mjs
+node scripts/test-nov18-alerts.mjs
+node scripts/test-sentry-webkit-bridge.mjs
+node scripts/test-sentry-mapkit-nan-weather.mjs
 node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
 node scripts/test-editorial.mjs
@@ -194,6 +202,7 @@ node scripts/test-command-center-feedback.mjs
 node scripts/test-cc-stale-cache-shape.mjs
 node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
+node scripts/test-rail-menu-reserve.mjs
 node scripts/test-lightbox-paging.mjs
 node scripts/test-brand-rail-dedupe.mjs
 node scripts/test-first-screen.mjs
@@ -516,6 +525,7 @@ node scripts/test-provider-health.mjs
 node scripts/check-cuisine-sheet.mjs
 node scripts/check-tampa-bay-region.mjs
 node scripts/check-commerce-redirect.mjs
+node scripts/test-sold-out-handoffs.mjs
 node scripts/check-earning-integrations.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs
@@ -576,16 +586,14 @@ node scripts/check-direct-affiliate-urls.mjs
 # app/layout.js (Stay22 LinkSwap route-scoped, Travelpayouts Drive removed).
 node scripts/check-no-sitewide-autolinker.mjs
 
-node scripts/check-doc-ownership.mjs
-node scripts/test-owner-approval.mjs
-node scripts/test-owner-approval-gate.mjs
-node scripts/test-owner-approval-carry-forward.mjs
+node scripts/test-merge-train.mjs
 node scripts/check-brand-vault.mjs
 node scripts/test-brand-vault.mjs
-node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs
 node scripts/check-guide-deal-cards.mjs
+# 2026-11-19 a business's own verified deal (Clipp certificate or venue offer) shows on /places/<id>, under the guide pick that names it, and in guide place rails: identity only (Place ID, never a name), tracked surface place_page_deal / guide_pick_deal, no invented deadline, fail closed after the recheck date. Red-proven by mutation.
+node scripts/check-place-deal.mjs
 node scripts/check-intro-instrumentation.mjs
 node scripts/check-intro-gate.mjs
 node scripts/check-hub-conversion.mjs
@@ -1242,6 +1250,9 @@ node scripts/check-partner-collections.mjs
 # so the advertiser can see what they bought). Plus the bundle wall: home.js
 # must reach both the registry and the card lazily.
 node scripts/check-sponsored-places.mjs
+# Flag off /partners must stay today's page. Flag on is the pitch, with the
+# audience numbers only in lib/partnerProof.js.
+node scripts/check-partner-pitch.mjs
 node scripts/check-no-third-party-rating-schema.mjs
 node scripts/check-rail-drop-images.mjs
 
@@ -2331,11 +2342,13 @@ node scripts/test-halloween-haunt.mjs
 node scripts/test-santa-chat.mjs
 node scripts/test-haunt-photos.mjs
 node scripts/test-place-detail-gallery.mjs
+node scripts/test-place-hero-preload.mjs
 node scripts/test-event-page-static-reads.mjs
 node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+node scripts/test-christmas-city-guides.mjs
 node scripts/test-christmas-ticketmaster.mjs
 node scripts/test-snowcat-tickets.mjs
 node scripts/test-christmas-tours.mjs
@@ -2417,6 +2430,11 @@ node scripts/test-guide-context-photos.mjs
 # and renders the real figures for all 24 picks; red-proven by mutation.
 node scripts/check-guide-neutral-fallback.mjs
 
+# 2026-11-17: every guide and blog place or event recommendation shows a verified
+# full street address and a Google Maps link. Partial lines and missing venues fail.
+node scripts/test-guide-place-addresses.mjs
+node scripts/check-guide-place-addresses.mjs
+
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
@@ -2461,6 +2479,7 @@ node scripts/test-itinerary-rls.mjs
 node scripts/test-guide-email.mjs
 
 node scripts/test-creator-in-app-playback.mjs
+node scripts/test-instagram-plays-in-wayfind.mjs
 
 node scripts/test-event-source-corrections-20261021.mjs
 node scripts/test-guide-rays-game-day.mjs
@@ -2524,6 +2543,9 @@ node scripts/test-photo-queue-close-condition.mjs
 # 2026-10-27: parallel guard runner (worker pool, serial list, fail-closed exit codes). Fake-guard scenarios against the real runner, plus --red-prove mutants of the runner.
 node scripts/test-run-guards.mjs
 node scripts/test-run-guards.mjs --red-prove
+
+# 2026-11-13: GUARD_SHARD=i/n deterministic sharding for parallel CI jobs. Real-manifest partition for n=1..8 must be disjoint, complete, kind-preserving; malformed specs rejected; shard reports cover the manifest exactly once.
+node scripts/test-guard-shards.mjs
 # 2026-10-28 event safety without the LLM task: deterministic rollover of ended
 # events + data-level verification freshness pulse that pages via job-watch.
 node scripts/test-event-safety.mjs
@@ -2665,6 +2687,7 @@ node scripts/test-ai-itinerary-planner.mjs
 # 2026-11-13: Florida Partner Revenue Engine end-to-end lock (all 18 acceptance checks, editorial firewall red-team cases, synthetic QA isolation, outbound tracking, Command Center panel, and 25 verified Florida prospects).
 node scripts/test-partner-revenue-engine.mjs
 node scripts/test-planner-imessage.mjs
+node scripts/test-host-confident-voice.mjs
 node scripts/test-planner-host-voice.mjs
 node scripts/test-santa-one-thread.mjs
 # 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).
@@ -2686,9 +2709,41 @@ node scripts/test-nervous-system-health.mjs
 node scripts/test-owned-hours-cohort.mjs
 # 2026-11-13: Wayfind Self-Healing "Should I Go?" Truth Engine (truth provenance, commerce health quarantine, owned hours persistence, 7-state cold location, event temporal eligibility, and actionability coverage).
 node scripts/test-self-healing-truth-engine.mjs
+# 2026-11-14: production migration lease — apply-migration takes public.wf_migration_lease before any migration SQL (atomic acquire, injection-safe tokens, bounded TTL, fail-closed reply parsing, lease-before-SQL wiring). Real-Postgres race proof: scripts/prove-migration-lease-race.sh.
+node scripts/test-migration-lease.mjs
 # 2026-11-13: Closed-place guide/rail/index exclusion, inline card golf_course/duplicate-chip/false-Brazilian/Star-Fish fixes, Santa family outing classification, screen-reader flex-span spacing, and CardPhoto eager/monogram behavior.
 node scripts/test-closed-places-and-inline-cards.mjs
 node scripts/test-santa-local-dates.mjs
 # 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
 node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
+# 2026-11-17: supervised OpenTable booking agent. Dark unless three switches are on. Local fixtures only.
+node scripts/check-booking-agent.mjs
+node scripts/test-booking-agent.mjs
+node scripts/test-booking-agent-browser.mjs
+node scripts/check-photo-rail-swipe.mjs
+node scripts/test-home-landing-thanksgiving.mjs
+
+# Universal holiday atlas: real targets and actual food media, not screenshot crops.
+node scripts/check-universal-holiday-guide.mjs
+node scripts/check-creator-video-rules.mjs
+node scripts/check-rail-position-counter.mjs
+
+# Portrait photos show whole (contain over blurred fill) on event hero, place sheet, paid landing.
+node scripts/check-portrait-photo-fit.mjs
+
+# Metro photo coverage = servable photos (stored/free/owned lanes), never the placeholder photo_ref.
+node scripts/test-metro-photo-coverage.mjs
+
+
+node scripts/test-disney-food-posts.mjs
+node scripts/test-park-maps-2026.mjs
+node scripts/test-park-maps-2026.mjs --red-prove
+node scripts/test-disney-food-post-states.mjs
+node scripts/test-disney-food-post-states.mjs --red-prove
+node scripts/check-no-conflict-markers.mjs
+node scripts/check-no-conflict-markers.mjs --red-prove
+# 2026-11-18: Homepage INP / slow-phone main-thread guard (offscreen containment, tracked horizontal snapshots, IO/rAF/2-card pitch rail observer, AffiliateCard/ThemeParkRail/suggestedView memoization, shared two-pass creator index).
+node scripts/test-home-inp-perf.mjs
+# 2026-11-20: primary_cta_null means "a bookable-class place showed only Directions after inputs settled" (primaryCtaGap), not "not monetized"; guides tagged surface=guide.
+node scripts/test-primary-cta-gap.mjs

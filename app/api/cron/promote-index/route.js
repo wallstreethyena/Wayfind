@@ -521,6 +521,18 @@ async function runPromoteIndex(req) {
     }
   }
 
+  const [reservePause, dailyPause] = budgetExhausted && !writeError
+    ? await Promise.all([
+        backgroundReserveStatus(PROMOTE_SKU),
+        backgroundDailyStatus(BACKGROUND_PRIORITY.PROMOTION),
+      ])
+    : [null, null];
+  const releaseNote = dailyPause && dailyPause.blocked
+    ? `google daily line: ${dailyPause.used ?? "?"}/${dailyPause.line} reached; parked ${RELEASE_DELAY_MINUTES}m`
+    : reservePause && reservePause.blocked
+      ? `human reserve: ${PROMOTE_SKU} ${reservePause.used}/${reservePause.line}; parked ${RELEASE_DELAY_MINUTES}m`
+      : `spend ledger: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()})`;
+
   // Settle the queue. A failed WRITE returns every row to pending with backoff —
   // the places were valid, the database was not, and losing them would be the
   // atlas-build defect exactly.
@@ -535,7 +547,7 @@ async function runPromoteIndex(req) {
   // Budget refusals: back to pending, attempt refunded, parked — see the
   // migration. Deliberately NOT wf_promotion_complete(p_ok:false): that path
   // burns an attempt and would reject a good place after three empty months.
-  for (const id of released) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: RELEASE_DELAY_MINUTES, p_note: `spend ledger: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()})` }));
+  for (const id of released) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: RELEASE_DELAY_MINUTES, p_note: releaseNote }));
   if (quotaReleased.length) {
     const delay = quotaKind === "quota_daily" ? minutesUntilQuotaReset(Date.now()) : RATE_LIMIT_DELAY_MINUTES;
     if (quotaKind === "quota_daily") await tripBreaker(GOOGLE_DETAILS_DAILY_BREAKER, "quota", "google 429 per day", delay * 60 * 1000);
@@ -556,12 +568,13 @@ async function runPromoteIndex(req) {
     const led = await readLedgerUsage(PROMOTE_SKU);
     if (led && Number.isFinite(led.used)) budgetUsed = led.used;
   }
-  // A refusal mid-run can be the human traffic reserve (a pause), not the ceiling: say which.
-  const reservePause = budgetExhausted && !writeError ? await backgroundReserveStatus(PROMOTE_SKU) : null;
+  // A refusal mid-run can be the human traffic reserve or daily line (a pause), not the monthly ceiling: say which.
   const note = writeError
     ? `upsert failed: ${writeError.slice(0, 120)}`
     : budgetExhausted && reservePause && reservePause.blocked
       ? `${budgetReserveNote(PROMOTE_SKU, reservePause.used, reservePause.line)}; released ${released.length}/${claimed.length}`.slice(0, 200)
+    : budgetExhausted && dailyPause && dailyPause.blocked
+      ? `${budgetDailyReserveNote(dailyPause.used, dailyPause.line)}; released ${released.length}/${claimed.length}`.slice(0, 200)
     : budgetExhausted
       ? `${budgetLimitNote(PROMOTE_SKU, budgetUsed, effectiveCap(PROMOTE_SKU, monthCap))}; ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()}); released ${released.length}/${claimed.length}`.slice(0, 200)
       : quotaKind === "quota_daily"

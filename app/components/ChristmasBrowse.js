@@ -261,7 +261,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     </div>
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
-      <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>
+      <span className="xm-sort-note">{ticketsFirst ? "Book online first, then tickets" : located ? "Book online first, then top rated near you" : "Book online first, then top rated and trending"}</span>
       <button type="button" className="xm-map-toggle" data-promoted={lightsView ? "" : undefined} aria-expanded={mapOpen} aria-controls="xm-map-panel" onClick={() => setMapOpen((v) => !v)}>
         {mapOpen ? "Hide the map" : lightsView ? "See the lights on a map" : "Map"}
       </button>
@@ -272,6 +272,10 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     <p className="xm-count" role="status" aria-live="polite">
       {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "Christmas plan" : "Christmas plans"}${summary ? " · " + summary : ""}`}
     </p>
+    {/* 2026-11-19 (owner, ads): a filtered link (an ad's ?category=theme-parks&when=tonight)
+        always shows the way back to every plan, so a broader search never dead ends. */}
+    {anyFilter && !loading && !failed && Number.isFinite(initial?.total) && initial.total > data.total
+      ? <button type="button" className="xm-see-all" data-christmas-see-all="" onClick={clearAll}>See all {initial.total} Florida Christmas plans &rarr;</button> : null}
     <div className="xm-grid" data-browse-total={data.total} data-browse-shown={shownCards}>
       {cards.map((card, i) => <ChristmasBrowseCard key={card.id} card={card} rank={i + 1} today={today} />)}
     </div>

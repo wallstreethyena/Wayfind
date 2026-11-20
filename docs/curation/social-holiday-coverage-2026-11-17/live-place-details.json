@@ -1,0 +1,18 @@
+[
+  {
+    "place_id": "wfadd_oldest_wooden_school_house_st_augustine",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "place_id": "wfadd_centro_ybor_tampa",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "place_id": "wfadd_sykes_family_farms_elkton",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "place_id": "wfadd_wunder_glow_dade_city",
+    "error": "HTTP Error 403: Forbidden"
+  }
+]

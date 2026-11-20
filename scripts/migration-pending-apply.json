@@ -84,18 +84,39 @@
     "reason": "NOT APPLIED. Additive only: new table wf_photo_change_audit (RLS on, no anon/authenticated policies) plus statement-level audit triggers on wf_google_photo_store and wf_place_photo that only ever raise a WARNING. The SQL was NOT test-run on production: the transaction test through execute_sql timed out waiting for a confirmation prompt, so it is unproven until applied or tested in a transaction that is rolled back. Pending canonical scripts/apply-migration.mjs application by the owner."
   },
   {
-    "file": "supabase/migrations/20261115130000_wf_reserve_replay_flag.sql",
-    "sha256": "d0d640840f47d2d4768fe65cdac4b87bcd021bece6e4c3bebd6a5675aa163816",
+    "file": "supabase/migrations/20261116220000_wf_heartbeat_guide_visual_monitor_measured_gap.sql",
+    "sha256": "aa92268018d822feca57b2ee9af8a8bb5b2853ba425bb2c17d337f1938dee0f3",
     "decision_owner": "wallstreethyena",
-    "tracking": "#2539 follow up (Santa reservations mission)",
-    "reason": "Notification integrity. Adds 'replayed': true to the three saved-booking returns of wf_reserve_book and wf_reserve_request (assertion guarded: exactly 3 each, rebuilt from the live definition, no-op when already applied), so a retried booking never re-sends its confirmation. Additive JSON key; the app already ignores it when absent and falls back to the booking's created_at. Not applied: the connector apply was refused by the session's safety gate, owner applies."
+    "tracking": "#2561",
+    "reason": "NOT APPLIED YET. Data only: raises the existing wf_heartbeat_expected row for guide-visual-monitor from 720 to 1080 minutes (GitHub's measured worst gap for this 6-hourly workflow is 935min over 40 runs). Applied after merge by claude.exe (Wayfind lane) under the owner's monitoring-fix mission (2026-11-16), then this entry is replaced by an apply receipt. Rollback: set it back to 720."
   },
   {
-    "file": "supabase/migrations/20261116120000_wf_reserve_notifications.sql",
-    "sha256": "691f7e9bc4284ad1df48328a4d739f27cd5280fd6ed981830c20d81a4774a668",
+    "file": "supabase/migrations/20261119130000_wf_inventory_junk_metro_relabels.sql",
+    "sha256": "c0bb2abae7c844f45f44be0f8857ac840dd1c37ab46aebc28db5e9d11e92ef83",
     "decision_owner": "wallstreethyena",
-    "tracking": "#2543 follow-up: booking confirmation text (lib/reserveSms.js)",
-    "reason": "NOT APPLIED. New table wf_reserve_notifications (RLS on, no policies, service role only): one row per (booking, kind) holding the guest's text consent, recipient, provider message id and forward-only delivery status. Additive; rollback = drop table. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials, so applying it changes no behavior."
+    "tracking": "#2628",
+    "reason": "NOT APPLIED YET. Data only: relabels two Florida rows from junk out-of-state metro keys (city-37.3--85.4, boardman-or) to st-augustine-fl / florida. Owner-approved 2026-11-19 (full-audit P3 fix). Applied after merge with the exact file bytes, then this entry is replaced by an apply receipt. Rollback in the file header."
+  },
+  {
+    "file": "supabase/migrations/20261119130100_wf_inventory_exclude_non_florida.sql",
+    "sha256": "3a2b19e832409e0023fa14ca37153779fa1fde881dde23b54bd8003c29ae9aee",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2628",
+    "reason": "NOT APPLIED YET. Data only: marks ~5,017 OPERATIONAL non-Florida inventory rows excluded (out_of_scope:non_florida); reversible, deletes nothing. Verified not visitor-visible 2026-11-19 (404s, absent from sitemap). Owner-approved 2026-11-19 (full-audit P3 fix). Applied after merge with the exact file bytes, then this entry is replaced by an apply receipt. Rollback in the file header."
+  },
+  {
+    "file": "supabase/migrations/20261117143000_wf_booking_agent.sql",
+    "sha256": "231cff1e1c11565a44aabdcbfdca81e157bd92cac372612bcd84c5365415c2db",
+    "decision_owner": "wallstreethyena",
+    "tracking": "supervised OpenTable booking agent draft, not applied #20261117",
+    "reason": "NOT APPLIED. New tables wf_booking_agent_runs, wf_booking_agent_events, wf_booking_agent_sites (RLS on, owner select on runs and events, service role writes, opentable seeded off). Additive. Unused until BOOKING_AGENT_ENABLED=1, BOOKING_AGENT_SITE_OPENTABLE=1 and the site row is on. Owner applies after review. Do not apply from this draft."
+  },
+  {
+    "file": "supabase/migrations/20261120140000_wf_cc_partner_clicks_commerce_mirror.sql",
+    "sha256": "29f221b01cb244889a9fd302f289f05675b8a6fddd6019c61613db7da404387c",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2662 (supersedes #1627)",
+    "reason": "Command Center partner clicks: counts the canonical commerce_cta_clicked mirror row (every booking button since 2026-10-26 22:45:35 UTC) and gates the legacy out actions to rows before it, so the owner briefing stops reporting 0 partner clicks (2026-11-19: 22 real clicks from 20 devices). Read-time only; supersedes held #1627. Owner released 2026-11-20 (\"Fix the report\"). Applied through the canonical path right after merge."
   },
   {
     "file": "supabase/migrations/20261116223000_wf_reserve_notification_kinds.sql",

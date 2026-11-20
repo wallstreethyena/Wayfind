@@ -10,7 +10,10 @@ import {
   __EVENT_VENUE_CONTEXT_FOR_GUARDS__ as EVENT_VENUE_CONTEXT,
   eventSocialPosts,
 } from "../../lib/eventSocial.js";
-import { embedSrc } from "../../lib/videoEmbed.js";
+import { embedSrc, instagramPlaysInWayfind } from "../../lib/videoEmbed.js";
+// Owner 2026-11-20: a player only where Instagram plays the post inside Wayfind
+// (scripts/classify-instagram-embeds.mjs); a post it only links out for gets none.
+const nativeEmbed = (url) => { const code = (String(url).match(/\/(?:reel|p|tv)\/([\w-]+)/) || [])[1]; return instagramPlaysInWayfind(code) ? url + "embed/" : null; };
 
 const ensure = (condition, message) => {
   if (!condition) throw new Error(`social-attachment-regression: ${message}`);
@@ -43,7 +46,7 @@ export function checkSocialAttachments(repo) {
       const matches = creatorVideosFor({ id: place.place_id }).filter((video) => video.url === url);
       ensure(matches.length === 1 && matches[0].creator === creator, `${code} reaches ${place.name} once with original creator credit`);
       ensure(captionFor(matches[0]).length > 40, `${place.key} retains a substantive caption`);
-      ensure(embedSrc("instagram", url) === url + "embed/", `${code} preserves the native Instagram embed`);
+      ensure(embedSrc("instagram", url) === nativeEmbed(url), `${code} preserves the native Instagram embed`);
       ensure(!creatorVideosFor({ id: "ChIJdifferentVerifiedVenue123", name: place.name, city: place.city }, place.city).some((video) => video.url === url), `${code} cannot transfer to a same-name different Google ID`);
       for (const other of six.sources.flatMap((candidate) => candidate.places)) {
         if (ids.includes(other.place_id)) continue;
@@ -80,7 +83,7 @@ export function checkSocialAttachments(repo) {
     const caption = captionFor(matches[0]);
     ensure(caption.length > 40, `${place.key} needs its original editorial caption`);
     if (source.kind === "multi_place_roundup") ensure(/roundup/i.test(caption), `${place.key} must disclose the shared roundup`);
-    ensure(embedSrc("instagram", source.native_url) === source.native_url + "embed/", `${source.shortcode} must retain its native embed path`);
+    ensure(embedSrc("instagram", source.native_url) === nativeEmbed(source.native_url), `${source.shortcode} must retain its native embed path`);
     const wrong = creatorVideosFor({ id: "ChIJdifferentVerifiedVenue123", name: place.name, city: place.city }, place.city);
     ensure(!wrong.some((video) => video.url === source.native_url), `${place.key} cannot transfer its video to a same-name different Google ID`);
     for (const other of verified.flatMap((candidate) => candidate.places)) {
@@ -134,9 +137,10 @@ export function checkSocialAttachments(repo) {
   // and Holly Bluff (DeLand boat parade) + Old Citrus Estate (Whoville) owner posts 2026-11-01.
   // and the Florida Coffee Festival organizer countdown reel (owner intake 2026-11-02),
   // and eight owner Christmas reels (docs/curation/christmas-reels-2026-11-12.md),
-  // and nine of Wayfind's own posts on the business they feature (docs/curation/owned-reels-on-cards-2026-11-14.md).
-  ensure(audit.records.length === 99, `expected 99 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 99, "shortcodes must be unique");
+  // and nine of Wayfind's own posts on the business they feature (docs/curation/owned-reels-on-cards-2026-11-14.md),
+  // and Wayfind's Christmas Town at Busch Gardens Reel (DfuuG8_hPy5, same ledger, 2026-11-16).
+  ensure(audit.records.length === 101, `expected 101 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 101, "shortcodes must be unique");
   ensure(unresolved.length === 0, `the four historical identities are now resolved; got ${unresolved.length} still marked unresolved`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
@@ -173,8 +177,9 @@ export function checkSocialAttachments(repo) {
     for (const event of row.roundup_event_mentions || []) ensure(roundupLinks.get(row.native_url)?.has(event.event_id), `${row.shortcode} roundup mention is absent from ${event.event_id}`);
     for (const event of row.venue_context_associations || []) ensure(venueContextLinks.get(row.native_url)?.has(event.event_id), `${row.shortcode} venue context is absent from ${event.event_id}`);
     const embed = embedSrc("instagram", row.native_url);
-    ensure(!!embed, `${row.shortcode} does not resolve to an official Instagram embed`);
-    ensure(embed.includes(`/${row.native_path_kind === "p" ? "p" : "reel"}/${row.shortcode}/embed/`), `${row.shortcode} embed changed its native route kind`);
+    // Owner 2026-11-20: a post Instagram only links out for has no player by design.
+    ensure(embed === nativeEmbed(row.native_url), `${row.shortcode} does not resolve to an official Instagram embed (or no player for a recorded handoff)`);
+    if (embed) ensure(embed.includes(`/${row.native_path_kind === "p" ? "p" : "reel"}/${row.shortcode}/embed/`), `${row.shortcode} embed changed its native route kind`);
   }
   for (const [eventId, posts] of Object.entries(EVENT_SOCIAL)) for (const [, url] of posts) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
@@ -188,7 +193,7 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 99, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 101, "mapped source coverage drifted");
   ensure(audit.summary.source_total === audit.records.length, "audited source total drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
@@ -272,7 +277,7 @@ export function checkSocialAttachments(repo) {
   const frightFest = eventSocialPosts("sarasota-frightfest-2026");
   ensure(frightFest.length === 1 && frightFest[0].url === flyerUrl && frightFest[0].creator === "sarasota_lifebynay", "FrightFest must show its dedicated static flyer with the observed creator credit");
   ensure(eventSocialPosts("wfc:sarasota-frightfest-2026")[0]?.url === flyerUrl, "FrightFest's wfc event ID must retain the same native static post");
-  ensure(embedSrc("instagram", flyerUrl) === "https://www.instagram.com/p/DeZO5ntRRM9/embed/", "a static flyer must not be rewritten as a Reel");
+  ensure(embedSrc("instagram", flyerUrl) === nativeEmbed("https://www.instagram.com/p/DeZO5ntRRM9/") && !String(embedSrc("instagram", flyerUrl) || "").includes("/reel/"), "a static flyer must not be rewritten as a Reel");
   const flyerVideo = creatorVideosFor({ id: "ChIJPWsUhY9Aw4gRoltOtGa3nPM" }).find((video) => video.url === flyerUrl);
   ensure(/flyer/i.test(captionFor(flyerVideo)) && /announcement, not footage of a visit/i.test(captionFor(flyerVideo)), "FrightFest's place caption must describe a flyer rather than claim a filmed visit");
   ensure(!eventSocialPosts("hhn-orlando-2026").some((post) => post.url === flyerUrl), "the FrightFest flyer must not appear on a different Halloween event");
@@ -309,7 +314,7 @@ export function checkSocialAttachments(repo) {
   const social = readFileSync(path.join(repo, "app/components/sheets/SocialFind.js"), "utf8");
   ensure(/hydratedFindForSpot\(spot, videoHeroPlaces\)/.test(social) && !/find\(\(o\) => o\.video\.url === spot\.video\.url\)/.test(social), "roundup cards must hydrate by place identity");
   ensure((social.match(/setSocialFind\(\{ place: local\.place, video: spot\.video \}\)/g) || []).length === 2, "both browse surfaces must retain the selected post");
-  ensure(/!curatedSpot && \(/.test(social) && /<VideoFacade platform=\{video\.platform\}/.test(social), "registry previews must embed the native post without a full-place CTA");
+  ensure(/!curatedSpot && \(/.test(social) && /<(?:VideoFacade|CreatorCoverFacade)\b[^>]*\bplatform=\{video\.platform\}/.test(social), "registry previews must embed the native post without a full-place CTA");
 
   const eventPage = readFileSync(path.join(repo, "app/florida-events/[slug]/page.js"), "utf8");
   ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<CreatorVideoRail/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the shared premium rail and click-to-load facade");

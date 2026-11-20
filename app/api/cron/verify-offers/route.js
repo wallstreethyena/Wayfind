@@ -38,8 +38,10 @@ import { recordPulse } from "../../../../lib/jobPulse.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
 import { evaluateOfferHealthTransition, EVIDENCE_STRENGTH, OFFER_HEALTH_STATUS } from "../../../../lib/commerceHealth.js";
 import { ingestClippOfferEvidence } from "../../../../lib/clippOffers.js";
+import { runClippDurableSweep, recordClippExecutionReceipt } from "../../../../lib/clippDurableStore.js";
 
 const JOB = "verify-offers";
+const CLIPP_JOB = "verify-offers:clipp";
 
 // OPERATIONAL BOUNDARY (C3):
 // Direct datacenter / serverless fetches to https://www.clipp.com/* are blocked by
@@ -47,8 +49,11 @@ const JOB = "verify-offers";
 // NEVER fabricates unauthenticated serverless fetches against clipp.com and NEVER treats
 // an HTTP 403 as either `SOLD_OUT` or `ACTIVE`. Instead, Clipp live page evidence is
 // harvested by an authenticated browser-session worker or partner feed and ingested via
-// `verifyClippEvidenceBatch` / `POST /api/cron/verify-offers`.
-export function verifyClippEvidenceBatch(evidenceBatch = [], { now = new Date() } = {}) {
+// `verifyClippEvidenceBatch`, `runClippDurableSweep`, or `POST /api/cron/verify-offers`.
+export function verifyClippEvidenceBatch(
+  evidenceBatch = [],
+  { now = new Date(), verificationMode = "automated_batch", persist = true } = {}
+) {
   const items = Array.isArray(evidenceBatch) ? evidenceBatch : [];
   const summary = {
     checked: 0,
@@ -57,6 +62,7 @@ export function verifyClippEvidenceBatch(evidenceBatch = [], { now = new Date() 
     recovered: 0,
     inconclusive: 0,
     skipped: 0,
+    verificationMode,
     results: [],
   };
 
@@ -66,7 +72,11 @@ export function verifyClippEvidenceBatch(evidenceBatch = [], { now = new Date() 
       continue;
     }
     const { offerId, ...probeInput } = item;
-    const res = ingestClippOfferEvidence(offerId, probeInput, { now });
+    const res = ingestClippOfferEvidence(
+      offerId,
+      { ...probeInput, verificationMode: probeInput.verificationMode || verificationMode },
+      { now, persist }
+    );
     if (!res.ok) {
       summary.skipped++;
       summary.results.push({ offerId: offerId || null, ok: false, reason: res.reason });
@@ -92,6 +102,25 @@ export function verifyClippEvidenceBatch(evidenceBatch = [], { now = new Date() 
       transition: res.transition.transition,
       evidence: res.classification.evidence,
       reason: res.transition.reason,
+      verificationMode: probeInput.verificationMode || verificationMode,
+    });
+  }
+
+  if (persist && typeof recordClippExecutionReceipt === "function") {
+    const nowIso = now instanceof Date ? now.toISOString() : new Date(now).toISOString();
+    summary.receipt = recordClippExecutionReceipt({
+      recordedAt: nowIso,
+      mode: "verify_clipp_evidence_batch",
+      verificationMode,
+      attempted: summary.checked,
+      succeeded: summary.active + summary.quarantined,
+      failed: summary.inconclusive,
+      checked: summary.checked,
+      active: summary.active,
+      quarantined: summary.quarantined,
+      recovered: summary.recovered,
+      inconclusive: summary.inconclusive,
+      note: `clipp:batch mode=${verificationMode} active=${summary.active} quarantined=${summary.quarantined} recovered=${summary.recovered} inconclusive=${summary.inconclusive}`,
     });
   }
 
@@ -131,16 +160,33 @@ export async function GET(req) {
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
 
+  let clipp = null;
+  if (typeof runClippDurableSweep === "function") {
+    let liveProbe = false;
+    try {
+      liveProbe = new URL(req.url).searchParams.get("liveProbe") === "1";
+    } catch {}
+    clipp = await runClippDurableSweep({ now: new Date(), liveProbe });
+    if (clipp) {
+      await recordPulse(CLIPP_JOB, {
+        attempted: clipp.attempted,
+        succeeded: clipp.succeeded,
+        failed: clipp.failed,
+        note: clipp.note,
+      });
+    }
+  }
+
   const status = await getStaleLiveOffersStatus(30);
   if (status.dependencyMissing) return jobCannotRun(JOB, status.error);
   if (!status.ok) return jobFailed(JOB, status.error);
 
   const stale = status.rows;
-  const results = { checked: 0, stillLive: 0, suppressed: 0, upstreamError: 0, skippedNoName: 0 };
+  const results = { checked: 0, stillLive: 0, suppressed: 0, upstreamError: 0, writeError: 0, skippedNoName: 0 };
 
   if (stale.length === 0) {
     await recordPulse(JOB, { attempted: 0, succeeded: 0, note: "idle: no live offers past expiry" });
-    return Response.json({ ok: true, job: JOB, ...results });
+    return Response.json({ ok: true, job: JOB, ...results, ...(clipp ? { clipp } : {}) });
   }
 
   for (const row of stale) {
@@ -175,7 +221,7 @@ export async function GET(req) {
         currentFailureCount: Number(row.failure_count || 0),
         probeResult: { status: OFFER_HEALTH_STATUS.ACTIVE, evidence: EVIDENCE_STRENGTH.STRONG, reason: "reverified_live" },
       });
-      await persistOffer(offer);
+      if (!(await persistOffer(offer))) { results.writeError++; continue; }
       results.stillLive++;
       try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, confidence: offer.confidence, decision: "reverified_live", healthStatus: transition.nextStatus })); } catch (e) {}
     } else {
@@ -188,7 +234,7 @@ export async function GET(req) {
           reason: candidate ? "reverify_failed_threshold" : "product_no_longer_found",
         },
       });
-      await suppressOffer(row.place_id, row.product_provider, row.product_code);
+      if (!(await suppressOffer(row.place_id, row.product_provider, row.product_code))) { results.writeError++; continue; }
       results.suppressed++;
       try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "verify-offers", placeId: row.place_id, productCode: row.product_code, decision: candidate ? "reverify_failed_threshold" : "product_no_longer_found", healthStatus: transition.nextStatus })); } catch (e) {}
     }
@@ -202,11 +248,14 @@ export async function GET(req) {
   await recordPulse(JOB, {
     attempted: results.checked,
     succeeded: results.stillLive + results.suppressed,
-    failed: results.upstreamError,
-    note: results.upstreamError ? `${results.upstreamError} upstream error(s) during re-verification` : null,
+    failed: results.upstreamError + results.writeError,
+    note: results.writeError ? `${results.writeError} write(s) not confirmed; ${results.upstreamError} upstream error(s)` : results.upstreamError ? `${results.upstreamError} upstream error(s) during re-verification` : null,
   });
 
-  return Response.json({ ok: true, job: JOB, ...results });
+  return Response.json(
+    { ok: results.writeError === 0, job: JOB, ...results, ...(clipp ? { clipp } : {}) },
+    { status: results.writeError ? 500 : 200 }
+  );
 }
 
 export async function POST(req) {
@@ -222,15 +271,38 @@ export async function POST(req) {
   }
 
   const now = body?.now ? new Date(body.now) : new Date();
-  const summary = verifyClippEvidenceBatch(body?.clippEvidence || [], { now });
+  const summary =
+    typeof runClippDurableSweep === "function"
+      ? await runClippDurableSweep({
+          evidenceBatch: body?.clippEvidence,
+          snapshotPath: body?.snapshotPath,
+          feedUrl: body?.feedUrl,
+          liveProbe: body?.liveProbe === true,
+          verificationMode: body?.verificationMode,
+          source: body?.source,
+          observedAt: body?.observedAt,
+          isFixture: body?.isFixture === true,
+          storePath: body?.storePath,
+          now,
+        })
+      : verifyClippEvidenceBatch(body?.clippEvidence || [], {
+          now,
+          verificationMode: body?.verificationMode || "automated_batch",
+        });
 
-  await recordPulse(JOB, {
-    attempted: summary.checked,
-    succeeded: summary.active + summary.quarantined,
-    failed: summary.inconclusive,
-    note: "clipp_evidence_batch",
+  await recordPulse(CLIPP_JOB, {
+    attempted: summary.attempted ?? summary.checked,
+    succeeded: summary.succeeded ?? summary.active + summary.quarantined,
+    failed: summary.failed ?? summary.inconclusive,
+    note: summary.note || "clipp_evidence_batch",
   });
 
-  return Response.json({ ok: true, job: JOB, mode: "clipp_evidence_batch", ...summary });
+  return Response.json({
+    ok: true,
+    job: CLIPP_JOB,
+    mode: summary.mode || "clipp_evidence_batch",
+    ...summary,
+  });
 }
+
 

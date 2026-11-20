@@ -1,0 +1,2995 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-18",
+ "scope_note": "Card-pool editorial batch 65. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJg8qVGJq22YgRgnRfn3-HvOY",
+   "name": "Museum of Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "history_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://museumofmiami.org/",
+     "source_name": "Museum of Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "HistoryMiami Museum is now Museum of Miami; for more than 86 years this Smithsonian affiliate has preserved stories of Greater Miami",
+      "Safeguarding more than 40,000 artifacts and over 2 million images that track the rise and diversity of the city"
+     ]
+    },
+    {
+     "source": "https://museumofmiami.org/plan-your-visit/",
+     "source_name": "Museum of Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Museum Hours Wednesday to Sunday 12 p.m. to 5 p.m.; galleries close at 5 p.m. and entry will not be allowed after 4:30 p.m.",
+      "General admission Adults $15, Children 6-12 $8, Children under 6 free, Seniors and Students with ID $10"
+     ]
+    },
+    {
+     "source": "https://museumofmiami.org/plan-your-visit/group-visits/",
+     "source_name": "Museum of Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Tropical Dreams: A People's History of South Florida Highlights Tour highlights include a dire wolf skull and a 1920s trolley",
+      "Guided tours led by a Museum Educator for groups of 10 or more; advance reservations required at least four weeks prior"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smithsonian affiliate with 40,000 Miami artifacts",
+    "why_here": "Formerly HistoryMiami, the Museum of Miami is a Smithsonian affiliate of more than 86 years safeguarding over 40,000 artifacts and 2 million images of Greater Miami, with the Tropical Dreams exhibition tracing South Florida history through highlights like a dire wolf skull and a 1920s trolley.",
+    "know_before": "The museum is open Wednesday to Sunday 12 p.m. to 5 p.m. and entry is not allowed after 4:30 p.m., so arrive with enough time to view all exhibitions.",
+    "local_tip": "Book the Tropical Dreams Highlights Tour for the dire wolf skull and 1920s trolley; groups of 10+ must reserve four weeks ahead.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://museumofmiami.org/"
+     ],
+     "why_here": [
+      "https://museumofmiami.org/",
+      "https://museumofmiami.org/plan-your-visit/group-visits/"
+     ],
+     "know_before": [
+      "https://museumofmiami.org/plan-your-visit/"
+     ],
+     "local_tip": [
+      "https://museumofmiami.org/plan-your-visit/group-visits/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "HistoryMiami Museum is now Museum of Miami; for more than 86 years this Smithsonian affiliate has preserved stories of Greater Miami",
+      "source": "https://museumofmiami.org/"
+     },
+     {
+      "claim": "Safeguarding more than 40,000 artifacts and over 2 million images that track the rise and diversity of the city",
+      "source": "https://museumofmiami.org/"
+     },
+     {
+      "claim": "Museum Hours Wednesday to Sunday 12 p.m. to 5 p.m.; galleries close at 5 p.m. and entry will not be allowed after 4:30 p.m.",
+      "source": "https://museumofmiami.org/plan-your-visit/"
+     },
+     {
+      "claim": "General admission Adults $15, Children 6-12 $8, Children under 6 free, Seniors and Students with ID $10",
+      "source": "https://museumofmiami.org/plan-your-visit/"
+     },
+     {
+      "claim": "Tropical Dreams: A People's History of South Florida Highlights Tour highlights include a dire wolf skull and a 1920s trolley",
+      "source": "https://museumofmiami.org/plan-your-visit/group-visits/"
+     },
+     {
+      "claim": "Guided tours led by a Museum Educator for groups of 10 or more; advance reservations required at least four weeks prior",
+      "source": "https://museumofmiami.org/plan-your-visit/group-visits/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP9zQoVLB2YgRsReMtxvOoSs",
+   "name": "Se\u00f1or Pan Caf\u00e9 Kendall",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://senorpancafe.com/",
+     "source_name": "Se\u00f1or Pan Caf\u00e9 Kendall",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Se\u00f1or Pan Caf\u00e9 Kendall - Best Cuban Food in Kendall, Miami-Dade County; located in Miami, FL at 11238 SW 137th Ave",
+      "Cuban classics include pork sandwiches, shredded beef, tamales, and rice with black beans; examples include Cuban Sandwich, Pan Con Lechon, Ropa Vieja, Cuban Tamal, and Arroz Blanco & Frijoles Negros",
+      "Cuisine: Cuban, Latin-American, Caribbean, Breakfast, Brunch, Cafe, Coffee, Sandwiches, Family-friendly, Empanadas"
+     ]
+    },
+    {
+     "source": "https://senorpancafe.com/menu",
+     "source_name": "Se\u00f1or Pan Caf\u00e9 Kendall",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Se\u00f1or Pan Caf\u00e9 Kendall Online Menu; Sandwiches include Cuban Sandwich 2x1: 17.45 USD",
+      "Online provider charges a 5% service fee, up to $7.50, covering order costs including 24/7 support"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban sandwiches and cafe classics in Kendall",
+    "why_here": "Se\u00f1or Pan Caf\u00e9 Kendall serves Cuban and Latin-American cafe fare in Kendall, Miami, built around Cuban classics such as the Cuban Sandwich, Pan Con Lechon, Ropa Vieja, Cuban Tamal and Arroz Blanco with Frijoles Negros, plus breakfast, brunch, coffee and empanadas.",
+    "know_before": "Online orders carry a 5% service fee up to $7.50 charged by the online provider, so factor that in when ordering ahead.",
+    "local_tip": "Order the Cuban Sandwich, listed on the official menu as a 2x1 sandwich option at 17.45 USD, to share the signature item.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://senorpancafe.com/"
+     ],
+     "why_here": [
+      "https://senorpancafe.com/"
+     ],
+     "know_before": [
+      "https://senorpancafe.com/menu"
+     ],
+     "local_tip": [
+      "https://senorpancafe.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Se\u00f1or Pan Caf\u00e9 Kendall - Best Cuban Food in Kendall, Miami-Dade County; located in Miami, FL at 11238 SW 137th Ave",
+      "source": "https://senorpancafe.com/"
+     },
+     {
+      "claim": "Cuban classics include pork sandwiches, shredded beef, tamales, and rice with black beans; examples include Cuban Sandwich, Pan Con Lechon, Ropa Vieja, Cuban Tamal, and Arroz Blanco & Frijoles Negros",
+      "source": "https://senorpancafe.com/"
+     },
+     {
+      "claim": "Cuisine: Cuban, Latin-American, Caribbean, Breakfast, Brunch, Cafe, Coffee, Sandwiches, Family-friendly, Empanadas",
+      "source": "https://senorpancafe.com/"
+     },
+     {
+      "claim": "Se\u00f1or Pan Caf\u00e9 Kendall Online Menu; Sandwiches include Cuban Sandwich 2x1: 17.45 USD",
+      "source": "https://senorpancafe.com/menu"
+     },
+     {
+      "claim": "Online provider charges a 5% service fee, up to $7.50, covering order costs including 24/7 support",
+      "source": "https://senorpancafe.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJiRy3pRdj54gRL5mIENus5LI",
+   "name": "Kidiverse",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "indoor_playground",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJiRy3pRdj54gRL5mIENus5LI",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "PENDING SOURCE"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-10T23:55:24.320357+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-10T23:55:24.320357+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.ourkidiverse.com/",
+     "source_name": "Kidiverse",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Kidiverse indoor playground, gym classes and birthday parties for kids 0-12 in Orlando, Florida; open daily",
+      "Open Play: all-day access with free re-entry, come and go as you like; drop in for $17.99 all day, re-entry included",
+      "Classes in art and craft on Mondays, Wednesdays and Fridays; field trips weekday mornings for schools"
+     ]
+    },
+    {
+     "source": "https://www.ourkidiverse.com/about",
+     "source_name": "Kidiverse",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "We fit a little bit of everything into one space: a 20ft slide, climbing walls, soccer and basketball, a mini zipline, ninja course, pretend playhouses and interactive games",
+      "Built by two parents who wanted a place where kids could run around, be loud and be free"
+     ]
+    },
+    {
+     "source": "https://www.ourkidiverse.com/contact",
+     "source_name": "Kidiverse",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Kidiverse at 7149 N. Frontage Rd, Orlando, FL 32812; indoor playground, gym classes and birthday parties for kids 0-12"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor playground with 20ft slide and zipline",
+    "why_here": "Kidiverse in Orlando packs a 20-foot slide, climbing walls, soccer and basketball, a mini zipline, ninja course, pretend playhouses and interactive games into one indoor playground for ages 0 to 12, built by two parents who wanted a place where kids could run around, be loud and be free.",
+    "know_before": "Open play is all-day access with free re-entry for a $17.99 drop-in, so you can come and go as you like during the day.",
+    "local_tip": "Time art and craft classes on Mondays, Wednesdays and Fridays if you want structured activities alongside open play.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ourkidiverse.com/about"
+     ],
+     "why_here": [
+      "https://www.ourkidiverse.com/about"
+     ],
+     "know_before": [
+      "https://www.ourkidiverse.com/"
+     ],
+     "local_tip": [
+      "https://www.ourkidiverse.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kidiverse indoor playground, gym classes and birthday parties for kids 0-12 in Orlando, Florida; open daily",
+      "source": "https://www.ourkidiverse.com/"
+     },
+     {
+      "claim": "Open Play: all-day access with free re-entry, come and go as you like; drop in for $17.99 all day, re-entry included",
+      "source": "https://www.ourkidiverse.com/"
+     },
+     {
+      "claim": "Classes in art and craft on Mondays, Wednesdays and Fridays; field trips weekday mornings for schools",
+      "source": "https://www.ourkidiverse.com/"
+     },
+     {
+      "claim": "We fit a little bit of everything into one space: a 20ft slide, climbing walls, soccer and basketball, a mini zipline, ninja course, pretend playhouses and interactive games",
+      "source": "https://www.ourkidiverse.com/about"
+     },
+     {
+      "claim": "Built by two parents who wanted a place where kids could run around, be loud and be free",
+      "source": "https://www.ourkidiverse.com/about"
+     },
+     {
+      "claim": "Kidiverse at 7149 N. Frontage Rd, Orlando, FL 32812; indoor playground, gym classes and birthday parties for kids 0-12",
+      "source": "https://www.ourkidiverse.com/contact"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf7PUWy7FwogRU7CrN8rdncg",
+   "name": "Babushka's - Hyde Park",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "eastern_european_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJf7PUWy7FwogRU7CrN8rdncg",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "FAILED VERIFICATION",
+      "unsourced-number:best_time:11:30 AM"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-11T01:55:30.992172+00:00",
+     "attempt_count": 1,
+     "last_attempted_at": "2026-08-11T01:55:30.992172+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.babushkas.us/about",
+     "source_name": "Babushka's official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Babushka's story began in 2018 when a family opened a first restaurant in Tampa Bay serving authentic and homemade Russian and Ukrainian cuisines",
+      "Babushka's serves a wide variety of Russian and Eastern European dishes from classic Borscht and Pierogi to Blinchiki (Russian Cr\u00eapes), Piroshki and homemade Honey Cake",
+      "The restaurant name comes from the Russian word B\u00e1bushka, literally translating as Grandmother",
+      "Babushka's Hyde Park is open Tuesday to Sunday, with dine-in, takeout and delivery, at 901 W Platt St, Tampa",
+      "Hyde Park menus include Siberian Pelmeni and Borscht described as traditional Ukrainian soup with beets, beef and sauteed vegetables"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Russian-grandmother cooking in Hyde Park",
+    "why_here": "Babushka's began in 2018 as a family restaurant bringing homemade Russian and Ukrainian cooking to Tampa Bay, where the name means grandmother. The kitchen serves classic Borscht and Pierogi alongside Blinchiki, Piroshki and homemade Honey Cake, giving Hyde Park a distinctive Eastern European table.",
+    "know_before": "The Hyde Park location lists opening Tuesday to Sunday for dine-in, takeout and delivery; reserve or order ahead through the official site, especially for larger groups.",
+    "local_tip": "Order the homemade Honey Cake and a plate of Pierogi or Blinchiki to taste the dishes the restaurant itself highlights as its classics.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.babushkas.us/about"
+     ],
+     "why_here": [
+      "https://www.babushkas.us/about"
+     ],
+     "know_before": [
+      "https://www.babushkas.us/about"
+     ],
+     "local_tip": [
+      "https://www.babushkas.us/about"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Babushka's story began in 2018 when a family opened a first restaurant in Tampa Bay serving authentic and homemade Russian and Ukrainian cuisines",
+      "source": "https://www.babushkas.us/about"
+     },
+     {
+      "claim": "Babushka's serves a wide variety of Russian and Eastern European dishes from classic Borscht and Pierogi to Blinchiki (Russian Cr\u00eapes), Piroshki and homemade Honey Cake",
+      "source": "https://www.babushkas.us/about"
+     },
+     {
+      "claim": "The restaurant name comes from the Russian word B\u00e1bushka, literally translating as Grandmother",
+      "source": "https://www.babushkas.us/about"
+     },
+     {
+      "claim": "Babushka's Hyde Park is open Tuesday to Sunday, with dine-in, takeout and delivery, at 901 W Platt St, Tampa",
+      "source": "https://www.babushkas.us/about"
+     },
+     {
+      "claim": "Hyde Park menus include Siberian Pelmeni and Borscht described as traditional Ukrainian soup with beets, beef and sauteed vegetables",
+      "source": "https://www.babushkas.us/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJPflEd7Aa2YgRkBEb_KcZwQM",
+   "name": "Betti Stradling Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "city_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park",
+     "source_name": "City of Coral Springs",
+     "source_class": "government",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Betti Stradling Park features include Meadow's Playground, Splash-N-Play, softball fields, sand volleyball, basketball courts and more",
+      "The Splash-N-Play at Betti Stradling Park features the largest water play area under the Coral Springs sun",
+      "Park hours are Monday through Saturday 8 a.m. to 10:30 p.m. and Sunday 8 a.m. to 10 p.m.; parks close at sunset on holidays",
+      "Due to capacity limitations at the splash pad and playground, camps and organized groups are not a permitted usage",
+      "The park also lists Pavilions, a Skate Park and a Splash Pad, with the Skate Park located inside Betti Stradling Park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Largest splash-play area in Coral Springs",
+    "why_here": "Betti Stradling Park is a multi-faceted, play-centric park whose Splash-N-Play is described by the city as the largest water play area in Coral Springs. Around it sit Meadow's Playground, a skate park, softball fields, sand volleyball and basketball courts, making it a full outdoor stop rather than a single playground.",
+    "know_before": "Hours are Monday to Saturday 8 a.m. to 10:30 p.m. and Sunday 8 a.m. to 10 p.m.; parks close at sunset on holidays, and camps and organized groups are not permitted.",
+    "local_tip": "Base yourselves near Splash-N-Play: the city places it by Meadow's Playground, the Skate Park, restrooms and pavilions in one convenient spot.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     ],
+     "why_here": [
+      "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     ],
+     "know_before": [
+      "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     ],
+     "local_tip": [
+      "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Betti Stradling Park features include Meadow's Playground, Splash-N-Play, softball fields, sand volleyball, basketball courts and more",
+      "source": "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     },
+     {
+      "claim": "The Splash-N-Play at Betti Stradling Park features the largest water play area under the Coral Springs sun",
+      "source": "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     },
+     {
+      "claim": "Park hours are Monday through Saturday 8 a.m. to 10:30 p.m. and Sunday 8 a.m. to 10 p.m.; parks close at sunset on holidays",
+      "source": "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     },
+     {
+      "claim": "Due to capacity limitations at the splash pad and playground, camps and organized groups are not a permitted usage",
+      "source": "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     },
+     {
+      "claim": "The park also lists Pavilions, a Skate Park and a Splash Pad, with the Skate Park located inside Betti Stradling Park",
+      "source": "https://www.coralsprings.gov/Parks-Directory/Betti-Stradling-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs7XkOJ7h2ogRmfXBo7WJO2U",
+   "name": "Cambier Park",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.naplesgov.com/parksrec/park/cambier-park",
+     "source_name": "City of Naples",
+     "source_class": "government",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Cambier Park sits on 12.84 acres and was named after William Cambier, a town engineer instrumental in the development of the City of Naples in 1926",
+      "Cambier Park is located in the heart of downtown Naples, just south of the prestigious 5th Avenue South",
+      "Park facilities include the Norris Community Center, Bandshell, Unique Children's Playground, Softball Field, Covered Pavilion and open green space",
+      "The Cambier Park playground is currently closed, per the City of Naples park page",
+      "Facilities also include lighted shuffleboard courts, a bocce court, a lighted basketball court and the Arthur L. Allen Tennis Center"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "12.84-acre downtown park by 5th Avenue",
+    "why_here": "Cambier Park covers 12.84 acres in the heart of downtown Naples, just south of 5th Avenue South, and was named for William Cambier, a town engineer instrumental in the city's development in 1926. Its Bandshell, Norris Community Center, softball field and covered pavilion anchor a classic central-park mix.",
+    "know_before": "Check before you go with children: the City of Naples page states the Cambier Park playground is currently closed and points visitors to its playground project update.",
+    "local_tip": "Use the open green space and covered pavilion for a picnic break between the Bandshell and softball field, steps from 5th Avenue South.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.naplesgov.com/parksrec/park/cambier-park"
+     ],
+     "why_here": [
+      "https://www.naplesgov.com/parksrec/park/cambier-park"
+     ],
+     "know_before": [
+      "https://www.naplesgov.com/parksrec/park/cambier-park"
+     ],
+     "local_tip": [
+      "https://www.naplesgov.com/parksrec/park/cambier-park"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cambier Park sits on 12.84 acres and was named after William Cambier, a town engineer instrumental in the development of the City of Naples in 1926",
+      "source": "https://www.naplesgov.com/parksrec/park/cambier-park"
+     },
+     {
+      "claim": "Cambier Park is located in the heart of downtown Naples, just south of the prestigious 5th Avenue South",
+      "source": "https://www.naplesgov.com/parksrec/park/cambier-park"
+     },
+     {
+      "claim": "Park facilities include the Norris Community Center, Bandshell, Unique Children's Playground, Softball Field, Covered Pavilion and open green space",
+      "source": "https://www.naplesgov.com/parksrec/park/cambier-park"
+     },
+     {
+      "claim": "The Cambier Park playground is currently closed, per the City of Naples park page",
+      "source": "https://www.naplesgov.com/parksrec/park/cambier-park"
+     },
+     {
+      "claim": "Facilities also include lighted shuffleboard courts, a bocce court, a lighted basketball court and the Arthur L. Allen Tennis Center",
+      "source": "https://www.naplesgov.com/parksrec/park/cambier-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpddKgpniwogRSjX7jpa7auQ",
+   "name": "Siri's Gourmet Burgers & Pizza",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sirisgourmetburgersandpizza.com/",
+     "source_name": "Siri's Gourmet Burgers & Pizza official site",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Located at 2813 Beach Blvd. Gulfport, FL 33707",
+      "Our Gourmet Burgers are handmade fresh to order. We grind our own beef from my Daddy's special blend of premium cuts",
+      "We make our own rolls for the burgers, hoagies, & cheese steaks fresh daily",
+      "Our Gourmet Pizzas are hand tossed from our own dough also made fresh daily",
+      "Made Fresh from Scratch. Dine in. Take Out. Free Delivery.",
+      "The only FREE DELIVERY in the area"
+     ]
+    },
+    {
+     "source": "https://www.sirisgourmetburgersandpizza.com/food-menu",
+     "source_name": "Siri's Gourmet Burgers & Pizza official menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Our burgers are hand made from our own fresh ground blend 3 cuts of Steak and served on our fresh baked burger buns",
+      "Hell Fire Burger - Our single burger with my 3 Demon sauce, jalapenos, blue cheese dressing, and cheese",
+      "Hand Tossed Pizza Slice $4.25 | Med. $12.99 | Large $16.99"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-ground burgers, hand-tossed pizza, made from scratch",
+    "why_here": "Siri's makes its gourmet burgers handmade fresh to order from beef it grinds itself from a special blend of premium cuts, serves them on rolls baked fresh daily, and hand-tosses pizzas from dough also made fresh daily, all in a friendly, intimate Gulfport spot.",
+    "know_before": "Come for dine-in or takeout, and note the official site promotes free delivery nearby - it calls itself the only free delivery in the area, so delivery is worth asking about when you order.",
+    "local_tip": "Try the Hell Fire Burger if you like heat: the menu lists it with 3 Demon sauce, jalapenos and blue cheese dressing.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sirisgourmetburgersandpizza.com/",
+      "https://www.sirisgourmetburgersandpizza.com/food-menu"
+     ],
+     "why_here": [
+      "https://www.sirisgourmetburgersandpizza.com/",
+      "https://www.sirisgourmetburgersandpizza.com/food-menu"
+     ],
+     "know_before": [
+      "https://www.sirisgourmetburgersandpizza.com/",
+      "https://www.sirisgourmetburgersandpizza.com/food-menu"
+     ],
+     "local_tip": [
+      "https://www.sirisgourmetburgersandpizza.com/",
+      "https://www.sirisgourmetburgersandpizza.com/food-menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located at 2813 Beach Blvd. Gulfport, FL 33707",
+      "source": "https://www.sirisgourmetburgersandpizza.com/"
+     },
+     {
+      "claim": "Our Gourmet Burgers are handmade fresh to order. We grind our own beef from my Daddy's special blend of premium cuts",
+      "source": "https://www.sirisgourmetburgersandpizza.com/"
+     },
+     {
+      "claim": "We make our own rolls for the burgers, hoagies, & cheese steaks fresh daily",
+      "source": "https://www.sirisgourmetburgersandpizza.com/"
+     },
+     {
+      "claim": "Our Gourmet Pizzas are hand tossed from our own dough also made fresh daily",
+      "source": "https://www.sirisgourmetburgersandpizza.com/"
+     },
+     {
+      "claim": "Made Fresh from Scratch. Dine in. Take Out. Free Delivery.",
+      "source": "https://www.sirisgourmetburgersandpizza.com/"
+     },
+     {
+      "claim": "The only FREE DELIVERY in the area",
+      "source": "https://www.sirisgourmetburgersandpizza.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh78Ge0qwwogRUZSs1htZjro",
+   "name": "Treble Makers Sports Bar & Dueling Pianos",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.treblemakersofwc.com/",
+     "source_name": "Treble Makers official site",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Treble Makers is the sports bar in Wesley Chapel for NFL, college football and all your favorite teams",
+      "Catch the action on 13+ TVs with NFL Sunday Ticket, great food, cold drinks and live entertainment throughout the week",
+      "enjoy pool tables, dart boards, and Golden Tee, all backed by an amazing sound system",
+      "delectable dinner to Sunday Brunch, juicy burgers to hand-cut steaks, all made fresh daily with care in our scratch kitchen",
+      "Our live entertainment and dueling piano players are the heartbeat of the room"
+     ]
+    },
+    {
+     "source": "https://treblemakersofwc.com/event/dueling-pianos-2/2026-03-06/",
+     "source_name": "Treble Makers official events",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Friday Dueling Pianos March 6 @ 7:00 pm - 11:00 pm",
+      "Location Address: 6034 Wesley Grove Blvd Suite 101 Wesley Chapel, FL 33544",
+      "Hours Monday-Wednesday: 11am-Midnight Thursday-Saturday: 11am-2am Sunday: 10am-Midnight"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dueling pianos plus 13+ TVs in Wesley Chapel",
+    "why_here": "Treble Makers pairs a Wesley Chapel sports bar - 13-plus TVs with NFL Sunday Ticket, pool tables, dart boards and Golden Tee - with live dueling-piano players the venue calls the heartbeat of the room, plus a scratch kitchen serving burgers to hand-cut steaks.",
+    "know_before": "Plan around the posted hours on the official event page: Monday-Wednesday 11am-midnight, Thursday-Saturday 11am-2am and Sunday 10am-midnight at 6034 Wesley Grove Blvd Suite 101, Wesley Chapel.",
+    "local_tip": "Time a visit for Friday Dueling Pianos, listed at 7:00 pm - 11:00 pm, for the signature piano show.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.treblemakersofwc.com/",
+      "https://treblemakersofwc.com/event/dueling-pianos-2/2026-03-06/"
+     ],
+     "why_here": [
+      "https://www.treblemakersofwc.com/",
+      "https://treblemakersofwc.com/event/dueling-pianos-2/2026-03-06/"
+     ],
+     "know_before": [
+      "https://www.treblemakersofwc.com/",
+      "https://treblemakersofwc.com/event/dueling-pianos-2/2026-03-06/"
+     ],
+     "local_tip": [
+      "https://www.treblemakersofwc.com/",
+      "https://treblemakersofwc.com/event/dueling-pianos-2/2026-03-06/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Treble Makers is the sports bar in Wesley Chapel for NFL, college football and all your favorite teams",
+      "source": "https://www.treblemakersofwc.com/"
+     },
+     {
+      "claim": "Catch the action on 13+ TVs with NFL Sunday Ticket, great food, cold drinks and live entertainment throughout the week",
+      "source": "https://www.treblemakersofwc.com/"
+     },
+     {
+      "claim": "enjoy pool tables, dart boards, and Golden Tee, all backed by an amazing sound system",
+      "source": "https://www.treblemakersofwc.com/"
+     },
+     {
+      "claim": "delectable dinner to Sunday Brunch, juicy burgers to hand-cut steaks, all made fresh daily with care in our scratch kitchen",
+      "source": "https://www.treblemakersofwc.com/"
+     },
+     {
+      "claim": "Our live entertainment and dueling piano players are the heartbeat of the room",
+      "source": "https://www.treblemakersofwc.com/"
+     },
+     {
+      "claim": "Friday Dueling Pianos March 6 @ 7:00 pm - 11:00 pm",
+      "source": "https://treblemakersofwc.com/event/dueling-pianos-2/2026-03-06/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMY24uwzE54gRPAOxne3Yxmk",
+   "name": "The Flying Biscuit Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://flyingbiscuit.com/locations-2/thevillages/",
+     "source_name": "Flying Biscuit Cafe The Villages official location page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Flying Biscuit is proud to call The Villages home since May 2019",
+      "Join us for Breakfast, Brunch and Lunch in our dining room or on our patio. Parking is free and on-site",
+      "Serving Breakfast All Day, Everyday 1101 Canal Street The Villages, FL 32162",
+      "Hours Dine-in: Mon - Sun 7am | 3pm",
+      "From our award-winning creamy, dreamy Shrimp & Grits to our heavenly French Toast"
+     ]
+    },
+    {
+     "source": "https://flyingbiscuit.com/locations-2/mobile/careers/",
+     "source_name": "Flying Biscuit Cafe official story",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "OUR FIRST CAFE OPENED FOR BREAKFAST AT ABOUT 7 A.M. ONE MORNING IN 1993. SETTLED IN A QUIET NEIGHBORHOOD CALLED CANDLER PARK ON THE EAST SIDE OF ATLANTA, WE SOLD OUT OF OUR SIGNATURE BISCUITS BY 11AM THAT DAY",
+      "Though we're famous for our grits and biscuits (we bake almost 5,000 biscuits per week at each location)"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Signature biscuits and grits, breakfast all day",
+    "why_here": "The Villages Flying Biscuit has served breakfast, brunch and lunch in its dining room and on its patio since May 2019, carrying a story that began in Atlanta in 1993 when the first cafe sold out of its signature biscuits by 11am, and a reputation the chain says is famous for grits and biscuits.",
+    "know_before": "Use the free on-site parking at 1101 Canal Street and plan for daytime hours: the official location page lists dine-in Mon-Sun 7am to 3pm, with delivery and carry-out also offered.",
+    "local_tip": "Order the award-winning creamy Shrimp & Grits or the heavenly French Toast rather than a generic breakfast stop.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://flyingbiscuit.com/locations-2/thevillages/",
+      "https://flyingbiscuit.com/locations-2/mobile/careers/"
+     ],
+     "why_here": [
+      "https://flyingbiscuit.com/locations-2/thevillages/",
+      "https://flyingbiscuit.com/locations-2/mobile/careers/"
+     ],
+     "know_before": [
+      "https://flyingbiscuit.com/locations-2/thevillages/",
+      "https://flyingbiscuit.com/locations-2/mobile/careers/"
+     ],
+     "local_tip": [
+      "https://flyingbiscuit.com/locations-2/thevillages/",
+      "https://flyingbiscuit.com/locations-2/mobile/careers/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flying Biscuit is proud to call The Villages home since May 2019",
+      "source": "https://flyingbiscuit.com/locations-2/thevillages/"
+     },
+     {
+      "claim": "Join us for Breakfast, Brunch and Lunch in our dining room or on our patio. Parking is free and on-site",
+      "source": "https://flyingbiscuit.com/locations-2/thevillages/"
+     },
+     {
+      "claim": "Serving Breakfast All Day, Everyday 1101 Canal Street The Villages, FL 32162",
+      "source": "https://flyingbiscuit.com/locations-2/thevillages/"
+     },
+     {
+      "claim": "Hours Dine-in: Mon - Sun 7am | 3pm",
+      "source": "https://flyingbiscuit.com/locations-2/thevillages/"
+     },
+     {
+      "claim": "From our award-winning creamy, dreamy Shrimp & Grits to our heavenly French Toast",
+      "source": "https://flyingbiscuit.com/locations-2/thevillages/"
+     },
+     {
+      "claim": "OUR FIRST CAFE OPENED FOR BREAKFAST AT ABOUT 7 A.M. ONE MORNING IN 1993. SETTLED IN A QUIET NEIGHBORHOOD CALLED CANDLER PARK ON THE EAST SIDE OF ATLANTA, WE SOLD OUT OF OUR SIGNATURE BISCUITS BY 11AM THAT DAY",
+      "source": "https://flyingbiscuit.com/locations-2/mobile/careers/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXUMgB22D54gRTiOmYQADv-c",
+   "name": "Mecatos Bakery & Caf\u00e9",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mecatoscafe.com/w-colonial-location/",
+     "source_name": "Mecatos Bakery & Cafe W. Colonial Ocoee official location page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Mecatos Bakery & Cafe W. Colonial Dr, Ocoee 10151 W. Colonial Dr. Ocoee, FL 34761 (407) 704-8222",
+      "Store Hours: Monday thru Friday: 6am - 9pm Saturday: 7am - 9pm Sunday: 8am - 8pm",
+      "Don't miss out on our famous Colombian pastries, a delightful fusion of traditional flavors and bakery artistry",
+      "Choose from various breakfast options, including hearty sandwiches, omelets, and traditional Colombian breakfast dishes",
+      "From flaky pastries, cheese bread, and large bread to birthday cakes, each item is crafted with love and quality ingredients",
+      "From creamy cheesecakes and cannolis to Tiramisu, our desserts are made to delight"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian pastries and breakfast in Ocoee",
+    "why_here": "Mecatos on W. Colonial Drive in Ocoee leans into its Colombian roots with famous Colombian pastries, freshly baked cheese bread and traditional Colombian breakfast dishes alongside omelets and hearty sandwiches, plus a full bakery and dessert case from birthday cakes to tiramisu.",
+    "know_before": "Check the Ocoee hours before you go: Monday-Friday 6am-9pm, Saturday 7am-9pm and Sunday 8am-8pm at 10151 W. Colonial Dr, and use ocoee@mecatoscafe.com for job enquiries listed on the page rather than ordering.",
+    "local_tip": "Start with the famous Colombian pastries and cheese bread, then add a traditional Colombian breakfast dish for a distinctive order.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mecatoscafe.com/w-colonial-location/"
+     ],
+     "why_here": [
+      "https://mecatoscafe.com/w-colonial-location/"
+     ],
+     "know_before": [
+      "https://mecatoscafe.com/w-colonial-location/"
+     ],
+     "local_tip": [
+      "https://mecatoscafe.com/w-colonial-location/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mecatos Bakery & Cafe W. Colonial Dr, Ocoee 10151 W. Colonial Dr. Ocoee, FL 34761 (407) 704-8222",
+      "source": "https://mecatoscafe.com/w-colonial-location/"
+     },
+     {
+      "claim": "Store Hours: Monday thru Friday: 6am - 9pm Saturday: 7am - 9pm Sunday: 8am - 8pm",
+      "source": "https://mecatoscafe.com/w-colonial-location/"
+     },
+     {
+      "claim": "Don't miss out on our famous Colombian pastries, a delightful fusion of traditional flavors and bakery artistry",
+      "source": "https://mecatoscafe.com/w-colonial-location/"
+     },
+     {
+      "claim": "Choose from various breakfast options, including hearty sandwiches, omelets, and traditional Colombian breakfast dishes",
+      "source": "https://mecatoscafe.com/w-colonial-location/"
+     },
+     {
+      "claim": "From flaky pastries, cheese bread, and large bread to birthday cakes, each item is crafted with love and quality ingredients",
+      "source": "https://mecatoscafe.com/w-colonial-location/"
+     },
+     {
+      "claim": "From creamy cheesecakes and cannolis to Tiramisu, our desserts are made to delight",
+      "source": "https://mecatoscafe.com/w-colonial-location/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJza4Xy8DA2YgRNBrjgYd0ef8",
+   "name": "Chuck Wagon Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://chuckwagonmiami.net/",
+     "source_name": "Chuck Wagon Restaurant official site",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The original Chuck Wagon Restaurant opened more than 50 years ago on the corner of Sunset Drive and 117th Avenue",
+      "In the mid 1960's, the Chuck Wagon Restaurant moved to its current location with the opening of The Dade Western Center",
+      "Back then, customers would show up on horse back and have a bite to eat",
+      "Currently, the Chuck Wagon Restaurant is all that exist of The Dade Western Center",
+      "Home Cooked American Cuisine",
+      "Welcome to Chuck Wagon Restaurant"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "50-year breakfast landmark, ex-horseback stop",
+    "why_here": "Chuck Wagon is a home-cooked American restaurant whose own history says the original opened more than 50 years ago at Sunset Drive and 117th Avenue, moved in the mid-1960s to its current location in the Dade Western Center, and once had customers arrive on horseback.",
+    "know_before": "Know that Chuck Wagon is now all that remains of the Dade Western Center, so the visit is as much history as a meal.",
+    "local_tip": "Ask about the Dade Western Center era, when customers would show up on horseback and have a bite to eat.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://chuckwagonmiami.net/"
+     ],
+     "why_here": [
+      "https://chuckwagonmiami.net/"
+     ],
+     "know_before": [
+      "https://chuckwagonmiami.net/"
+     ],
+     "local_tip": [
+      "https://chuckwagonmiami.net/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The original Chuck Wagon Restaurant opened more than 50 years ago on the corner of Sunset Drive and 117th Avenue",
+      "source": "https://chuckwagonmiami.net/"
+     },
+     {
+      "claim": "In the mid 1960's, the Chuck Wagon Restaurant moved to its current location with the opening of The Dade Western Center",
+      "source": "https://chuckwagonmiami.net/"
+     },
+     {
+      "claim": "Back then, customers would show up on horse back and have a bite to eat",
+      "source": "https://chuckwagonmiami.net/"
+     },
+     {
+      "claim": "Currently, the Chuck Wagon Restaurant is all that exist of The Dade Western Center",
+      "source": "https://chuckwagonmiami.net/"
+     },
+     {
+      "claim": "Home Cooked American Cuisine",
+      "source": "https://chuckwagonmiami.net/"
+     },
+     {
+      "claim": "Welcome to Chuck Wagon Restaurant",
+      "source": "https://chuckwagonmiami.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAQDpFLfe0IgR9UYIPDuX6Gk",
+   "name": "Irie Island Eats",
+   "category": "shopping",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.irieislandeats.com/",
+     "source_name": "Irie Island Eats official site",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "A true island oasis in the Florida Keys. Serving fresh, delicious food for breakfast, lunch, and dinner in our tropical garden",
+      "4540 Overseas Hwy Marathon, FL 33050 (305) 509-9398",
+      "Business Hours Mon - Wed: 7:00 AM - 4:00 PM Thu - Sat: 7:00 AM - 8:00 PM Sun: Closed"
+     ]
+    },
+    {
+     "source": "https://www.irieislandeats.com/menu",
+     "source_name": "Irie Island Eats official menu page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Just steps off of US1 you will find a lush, tropical garden restaurant that will surprise and excite you",
+      "We use fresh ingredients, made-from-scratch recipes, and flavors that you'll remember",
+      "Blue mountain coffee, acai bowls, banana bread French toast, our famous tuna poke rice bowls, and many other specialties!",
+      "Our breakfast/brunch menu is served Monday through Saturday 7 am to 4 pm. Our lunch/dinner menu is served 11 am to close"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Famous tuna poke bowls in a tropical garden",
+    "why_here": "Irie Island Eats sits in a lush tropical garden just steps off US1 in Marathon, serving breakfast, lunch and dinner from fresh ingredients and made-from-scratch recipes, with specialties the official menu names as Blue Mountain coffee, banana bread French toast and its famous tuna poke rice bowls.",
+    "know_before": "Plan for split hours: Mon - Wed 7:00 AM - 4:00 PM, Thu - Sat 7:00 AM - 8:00 PM, Sun: Closed; breakfast/brunch runs Monday through Saturday 7am-4pm, lunch/dinner from 11am.",
+    "local_tip": "Order the famous tuna poke rice bowl the menu singles out, paired with Blue Mountain coffee or an acai bowl.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.irieislandeats.com/",
+      "https://www.irieislandeats.com/menu"
+     ],
+     "why_here": [
+      "https://www.irieislandeats.com/",
+      "https://www.irieislandeats.com/menu"
+     ],
+     "know_before": [
+      "https://www.irieislandeats.com/",
+      "https://www.irieislandeats.com/menu"
+     ],
+     "local_tip": [
+      "https://www.irieislandeats.com/",
+      "https://www.irieislandeats.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A true island oasis in the Florida Keys. Serving fresh, delicious food for breakfast, lunch, and dinner in our tropical garden",
+      "source": "https://www.irieislandeats.com/"
+     },
+     {
+      "claim": "4540 Overseas Hwy Marathon, FL 33050 (305) 509-9398",
+      "source": "https://www.irieislandeats.com/"
+     },
+     {
+      "claim": "Business Hours Mon - Wed: 7:00 AM - 4:00 PM Thu - Sat: 7:00 AM - 8:00 PM Sun: Closed",
+      "source": "https://www.irieislandeats.com/"
+     },
+     {
+      "claim": "Just steps off of US1 you will find a lush, tropical garden restaurant that will surprise and excite you",
+      "source": "https://www.irieislandeats.com/menu"
+     },
+     {
+      "claim": "We use fresh ingredients, made-from-scratch recipes, and flavors that you'll remember",
+      "source": "https://www.irieislandeats.com/menu"
+     },
+     {
+      "claim": "Blue mountain coffee, acai bowls, banana bread French toast, our famous tuna poke rice bowls, and many other specialties!",
+      "source": "https://www.irieislandeats.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_03_jfOx2YgRjMjZjOk9RGE",
+   "name": "Crab Du Jour Cajun Seafood & Sports Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crabdujourmidtown.com/",
+     "source_name": "Crab Du Jour Midtown Miami official site",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Crab Du Jour offers experience-driven seafood dining in a fun, communal atmosphere, perfect for friends and family",
+      "Our Cajun-inspired eatery is known for fresh seafood boils (made for sharing) and an array of signature house-blended sauces",
+      "Calendar events & Specials Happy Hour drink Monday thru Friday 12pm - 2pm & 5pm - 8pm",
+      "Tuesday Oyster Day: $1.25 oysters ( Minimum of 6)",
+      "Thursday Karaoke, Hookah and Ladies Night",
+      "Hours of Operation SUN - THU 11:30am - 11:00pm FRI & SAT 11:30am - 12:00am",
+      "Find Delicious fries and burger, Mouthwatering seafood, TVs with games, Beers and special cocktails at Crab Du Jour Midtown Miami"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun seafood boils made for sharing in Midtown",
+    "why_here": "Crab Du Jour in Midtown Miami is a Cajun-inspired eatery built around fresh seafood boils made for sharing and signature house-blended sauces, in what its official site calls a fun, communal, experience-driven room with TVs showing games, beers and special cocktails.",
+    "know_before": "Use the weekly rhythm on the official site: happy hour Monday thru Friday 12pm-2pm and 5pm-8pm, with hours SUN - THU 11:30am-11:00pm and FRI & SAT 11:30am-12:00am.",
+    "local_tip": "Come Tuesday for Oyster Day at $1.25 oysters (minimum of six), or Thursday for karaoke and hookah.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crabdujourmidtown.com/"
+     ],
+     "why_here": [
+      "https://www.crabdujourmidtown.com/"
+     ],
+     "know_before": [
+      "https://www.crabdujourmidtown.com/"
+     ],
+     "local_tip": [
+      "https://www.crabdujourmidtown.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crab Du Jour offers experience-driven seafood dining in a fun, communal atmosphere, perfect for friends and family",
+      "source": "https://www.crabdujourmidtown.com/"
+     },
+     {
+      "claim": "Our Cajun-inspired eatery is known for fresh seafood boils (made for sharing) and an array of signature house-blended sauces",
+      "source": "https://www.crabdujourmidtown.com/"
+     },
+     {
+      "claim": "Calendar events & Specials Happy Hour drink Monday thru Friday 12pm - 2pm & 5pm - 8pm",
+      "source": "https://www.crabdujourmidtown.com/"
+     },
+     {
+      "claim": "Tuesday Oyster Day: $1.25 oysters ( Minimum of 6)",
+      "source": "https://www.crabdujourmidtown.com/"
+     },
+     {
+      "claim": "Thursday Karaoke, Hookah and Ladies Night",
+      "source": "https://www.crabdujourmidtown.com/"
+     },
+     {
+      "claim": "Hours of Operation SUN - THU 11:30am - 11:00pm FRI & SAT 11:30am - 12:00am",
+      "source": "https://www.crabdujourmidtown.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxXiEOWW32YgRGcgMWqB7CaM",
+   "name": "Sixty Vines Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sixtyvines.com/location/miami",
+     "source_name": "Sixty Vines Miami official location page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Sixty Vines Miami brings 60 wines on tap - poured fresh from sustainable kegs - to the heart of Miami Worldcenter, just a 10-minute walk from the Kaseya Center and the Adrienne Arscht Center",
+      "From a crisp Sauvignon Blanc sourced from the Loire Valley to a bold Napa Cab, every glass is pulled from our rotating tap wall",
+      "paired with wine country-inspired plates made for sharing: hand-tossed pizzas, wood-fired proteins, and custom charcuterie boards",
+      "Conveniently located at 150 NE 8th St. in Miami Worldcenter, with self-parking and valet available",
+      "Open Monday-Thursday 11am-10pm, Friday-Saturday 11am-11pm, Sunday 11am-10pm",
+      "Happy Hours MON-FRI 3PM-6PM 1/2 off 5 and 8oz select wines"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "60 wines on tap at Miami Worldcenter",
+    "why_here": "Sixty Vines Miami pours 60 wines on tap from sustainable kegs at Miami Worldcenter, pulling glasses from a rotating tap wall that the official page ranges from a Loire Valley Sauvignon Blanc to a bold Napa Cab, paired with wine-country plates made for sharing like hand-tossed pizzas and wood-fired proteins.",
+    "know_before": "Self-parking and valet are available at 150 NE 8th St; hours are Monday-Thursday and Sunday 11am-10pm, Friday-Saturday 11am-11pm, a 10-minute walk from the Kaseya Center.",
+    "local_tip": "Hit weekday happy hour Monday-Friday 3pm-6pm, listed at half off 5 and 8oz select wines, to sample the rotating tap wall for less.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sixtyvines.com/location/miami"
+     ],
+     "why_here": [
+      "https://www.sixtyvines.com/location/miami"
+     ],
+     "know_before": [
+      "https://www.sixtyvines.com/location/miami"
+     ],
+     "local_tip": [
+      "https://www.sixtyvines.com/location/miami"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sixty Vines Miami brings 60 wines on tap - poured fresh from sustainable kegs - to the heart of Miami Worldcenter, just a 10-minute walk from the Kaseya Center and the Adrienne Arscht Center",
+      "source": "https://www.sixtyvines.com/location/miami"
+     },
+     {
+      "claim": "From a crisp Sauvignon Blanc sourced from the Loire Valley to a bold Napa Cab, every glass is pulled from our rotating tap wall",
+      "source": "https://www.sixtyvines.com/location/miami"
+     },
+     {
+      "claim": "paired with wine country-inspired plates made for sharing: hand-tossed pizzas, wood-fired proteins, and custom charcuterie boards",
+      "source": "https://www.sixtyvines.com/location/miami"
+     },
+     {
+      "claim": "Conveniently located at 150 NE 8th St. in Miami Worldcenter, with self-parking and valet available",
+      "source": "https://www.sixtyvines.com/location/miami"
+     },
+     {
+      "claim": "Open Monday-Thursday 11am-10pm, Friday-Saturday 11am-11pm, Sunday 11am-10pm",
+      "source": "https://www.sixtyvines.com/location/miami"
+     },
+     {
+      "claim": "Happy Hours MON-FRI 3PM-6PM 1/2 off 5 and 8oz select wines",
+      "source": "https://www.sixtyvines.com/location/miami"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRYN_mnv3wogRRESf8hFlDQk",
+   "name": "Calypso Queen",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "buffet_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/",
+     "source_name": "Calypso Queen (Starlite Cruises)",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "A Casual Tropical Afternoon Cruise in Clearwater Harbor",
+      "The captain narrates as you go: the protected mangrove bird sanctuary where pelicans, herons, and egrets nest",
+      "Add the optional tropical lunch buffet\u2014mango-glazed chicken, beef teriyaki, fresh fruit, and more",
+      "Boarding begins 30 minutes prior to departure",
+      "Departure Location: Clearwater Beach Marina, 25 Causeway Boulevard, Clearwater, FL 33767",
+      "1.5 Hour Inland Water Cruise"
+     ]
+    },
+    {
+     "source": "https://www.starlitecruises.com/calypso-tropical-cruises/evening-cruise/queen/",
+     "source_name": "Calypso Queen Evening Cruise (Starlite Cruises)",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Our live DJ spins island favorites and today's top hits",
+      "Add our tropical island-style dinner buffet for mango-glazed chicken, beef teriyaki, chilled steamed shrimp, and more",
+      "2 Hour Inland Water Cruise"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tropical buffet cruise through Clearwater Harbor",
+    "why_here": "The Calypso Queen runs a casual tropical cruise in Clearwater Harbor where the captain narrates the protected mangrove bird sanctuary where pelicans, herons, and egrets nest. The optional tropical lunch buffet adds mango-glazed chicken, beef teriyaki, and fresh fruit, so the trip pairs sightseeing with a distinctly Florida-style meal on the water.",
+    "know_before": "Boarding begins 30 minutes prior to departure, and you must check in at ticket booth #4 with your booking number to receive boarding passes, per the official cruise page.",
+    "local_tip": "Choose the buffet ticket for mango-glazed chicken and beef teriyaki; cruise-only tickets do not include the tropical lunch buffet.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     ],
+     "why_here": [
+      "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     ],
+     "know_before": [
+      "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     ],
+     "local_tip": [
+      "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A Casual Tropical Afternoon Cruise in Clearwater Harbor",
+      "source": "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     },
+     {
+      "claim": "The captain narrates as you go: the protected mangrove bird sanctuary where pelicans, herons, and egrets nest",
+      "source": "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     },
+     {
+      "claim": "Add the optional tropical lunch buffet\u2014mango-glazed chicken, beef teriyaki, fresh fruit, and more",
+      "source": "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     },
+     {
+      "claim": "Boarding begins 30 minutes prior to departure",
+      "source": "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     },
+     {
+      "claim": "Departure Location: Clearwater Beach Marina, 25 Causeway Boulevard, Clearwater, FL 33767",
+      "source": "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     },
+     {
+      "claim": "1.5 Hour Inland Water Cruise",
+      "source": "https://www.starlitecruises.com/calypso-tropical-cruises/daytime-cruises/queen/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ81vRCvis2YgRVPL70o2nvTc",
+   "name": "Soho Asian Bar and Grill",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sohoasiangrill.com/about-us/",
+     "source_name": "Soho Asian Bar & Grill",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Located in Aventura, the City of Excellence, Soho Asian Bar and Grill fuses far east cuisine with delightful kosher creations",
+      "Try our famous Coco Loco or ask your server for the dessert special of the day",
+      "From sushi to steak we have signature dishes for everyone",
+      "Soho has a 150 indoor and 120 outdoor capacity",
+      "Mon-Thu: 5:00 pm \u2013 12:00 am Friday: Closed Sat: 7:30 pm \u2013 1:00 am Sun: 3:00 pm \u2013 12:00 am",
+      "19004 NE 29th Ave, Miami, FL 33180"
+     ]
+    },
+    {
+     "source": "https://sohoasiangrill.com/menu/",
+     "source_name": "Soho Asian Bar & Grill Menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "SOHO CAULIFLOWER",
+      "AVOCADO EGG ROLLS",
+      "SOHO EDAMAME | SPICY EDAMAME"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kosher Asian fusion \u2014 sushi to steak in Aventura",
+    "why_here": "Located in Aventura, Soho Asian Bar and Grill fuses far east cuisine with delightful kosher creations. From sushi to steak the menu offers signature dishes for everyone, and the official site singles out its famous Coco Loco dessert, making this a specific kosher dining destination rather than a generic Asian restaurant.",
+    "know_before": "Friday is closed on the official hours listing; Sat hours are 7:30 pm \u2013 1:00 am and Sun hours are 3:00 pm \u2013 12:00 am.",
+    "local_tip": "Try the famous Coco Loco, or ask your server for the dessert special of the day.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sohoasiangrill.com/about-us/"
+     ],
+     "why_here": [
+      "https://sohoasiangrill.com/about-us/"
+     ],
+     "know_before": [
+      "https://sohoasiangrill.com/about-us/"
+     ],
+     "local_tip": [
+      "https://sohoasiangrill.com/about-us/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located in Aventura, the City of Excellence, Soho Asian Bar and Grill fuses far east cuisine with delightful kosher creations",
+      "source": "https://sohoasiangrill.com/about-us/"
+     },
+     {
+      "claim": "Try our famous Coco Loco or ask your server for the dessert special of the day",
+      "source": "https://sohoasiangrill.com/about-us/"
+     },
+     {
+      "claim": "From sushi to steak we have signature dishes for everyone",
+      "source": "https://sohoasiangrill.com/about-us/"
+     },
+     {
+      "claim": "Soho has a 150 indoor and 120 outdoor capacity",
+      "source": "https://sohoasiangrill.com/about-us/"
+     },
+     {
+      "claim": "Mon-Thu: 5:00 pm \u2013 12:00 am Friday: Closed Sat: 7:30 pm \u2013 1:00 am Sun: 3:00 pm \u2013 12:00 am",
+      "source": "https://sohoasiangrill.com/about-us/"
+     },
+     {
+      "claim": "19004 NE 29th Ave, Miami, FL 33180",
+      "source": "https://sohoasiangrill.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNTCHeFRbw4gRTUqtjPnIBNQ",
+   "name": "The Breakfast Cottage",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJNTCHeFRbw4gRTUqtjPnIBNQ",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "PENDING SOURCE"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-18T02:55:22.234042+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-18T02:55:22.234042+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://thebreakfastcottage.com/menu/",
+     "source_name": "The Breakfast Cottage Menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Key West Omelette $22.99 lobster & shrimp topped with hollandaise",
+      "Blueberry Lemon Ricotta Cakes $13.39 blueberry cakes with fresh lemon ricotta glaze",
+      "The Breakfast Cottage Cakes $11.29 the ORIGINAL recipe",
+      "Our Location 2301 N Tamiami Trail, Nokomis, FL 34275",
+      "Proud Supporter of Local Vendors DD Roasters Local Tea Co. St. Armands Bakery"
+     ]
+    },
+    {
+     "source": "https://thebreakfastcottage.com/",
+     "source_name": "The Breakfast Cottage",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "We are OPEN Monday - Sunday 7:30 am - 2:00 pm",
+      "Our restaurant specializes in breakfast and lunch"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Key West omelette and blueberry-lemon ricotta cakes",
+    "why_here": "The Breakfast Cottage specializes in breakfast and lunch with house signatures you can order by name, including the Key West Omelette with lobster and shrimp topped with hollandaise. Its pancake list goes beyond plain stacks to Blueberry Lemon Ricotta Cakes with fresh lemon ricotta glaze and the original-recipe Breakfast Cottage Cakes, giving this cottage menu concrete dishes worth planning a morning around.",
+    "know_before": "The official site lists opening Monday through Sunday 7:30 am to 2:00 pm, so this is a morning-to-early-afternoon stop rather than a dinner option.",
+    "local_tip": "Order the Blueberry Lemon Ricotta Cakes for the fresh lemon ricotta glaze, a specific house pancake highlighted on the official menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thebreakfastcottage.com/menu/"
+     ],
+     "why_here": [
+      "https://thebreakfastcottage.com/menu/"
+     ],
+     "know_before": [
+      "https://thebreakfastcottage.com/"
+     ],
+     "local_tip": [
+      "https://thebreakfastcottage.com/menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Key West Omelette $22.99 lobster & shrimp topped with hollandaise",
+      "source": "https://thebreakfastcottage.com/menu/"
+     },
+     {
+      "claim": "Blueberry Lemon Ricotta Cakes $13.39 blueberry cakes with fresh lemon ricotta glaze",
+      "source": "https://thebreakfastcottage.com/menu/"
+     },
+     {
+      "claim": "The Breakfast Cottage Cakes $11.29 the ORIGINAL recipe",
+      "source": "https://thebreakfastcottage.com/menu/"
+     },
+     {
+      "claim": "Our Location 2301 N Tamiami Trail, Nokomis, FL 34275",
+      "source": "https://thebreakfastcottage.com/menu/"
+     },
+     {
+      "claim": "Proud Supporter of Local Vendors DD Roasters Local Tea Co. St. Armands Bakery",
+      "source": "https://thebreakfastcottage.com/menu/"
+     },
+     {
+      "claim": "We are OPEN Monday - Sunday 7:30 am - 2:00 pm",
+      "source": "https://thebreakfastcottage.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAaUq3kp-54gRTByNtizR980",
+   "name": "The Oceanaire Seafood Room",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "fine_dining_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJAaUq3kp-54gRTByNtizR980",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "FAILED VERIFICATION",
+      "unsourced-entity:know_before:Suite",
+      "unsourced-number:best_time:7 PM",
+      "unsourced-number:local_tip:$50"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-24T20:55:34.354583+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-24T20:55:34.354583+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.theoceanaire.com/location/orlando-fl/",
+     "source_name": "The Oceanaire Seafood Room Orlando",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "9101 International Drive, Ste 1002, Orlando, FL 32819",
+      "Conveniently located near the Orange County Convention Center, ICON Park, and Universal Orlando Resort",
+      "Valet parking is available during restaurant hours",
+      "Happy Hour Available Monday - Friday 5:00 - 6:30 PM",
+      "FLORIDA STONE CRAB $ 69",
+      "Grand Shellfish Tower jumbo shrimp cocktail, oceanaire pearls, lobster cocktail, jumbo lump crab cocktail"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida stone crab and shellfish towers",
+    "why_here": "The Oceanaire Seafood Room brings together fresh, sustainably sourced seafood on International Drive, conveniently located near the Orange County Convention Center, ICON Park, and Universal Orlando Resort. Its Orlando menu lists Florida Stone Crab and a Grand Shellfish Tower with jumbo shrimp cocktail, Oceanaire pearls, lobster cocktail, and jumbo lump crab cocktail, giving the location concrete seafood signatures to order.",
+    "know_before": "Valet parking is available during restaurant hours, according to the official Orlando page.",
+    "local_tip": "Visit during Happy Hour, listed as Monday - Friday 5:00 - 6:30 PM on the Orlando page, for the location's happy hour offering.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theoceanaire.com/location/orlando-fl/"
+     ],
+     "why_here": [
+      "https://www.theoceanaire.com/location/orlando-fl/"
+     ],
+     "know_before": [
+      "https://www.theoceanaire.com/location/orlando-fl/"
+     ],
+     "local_tip": [
+      "https://www.theoceanaire.com/location/orlando-fl/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "9101 International Drive, Ste 1002, Orlando, FL 32819",
+      "source": "https://www.theoceanaire.com/location/orlando-fl/"
+     },
+     {
+      "claim": "Conveniently located near the Orange County Convention Center, ICON Park, and Universal Orlando Resort",
+      "source": "https://www.theoceanaire.com/location/orlando-fl/"
+     },
+     {
+      "claim": "Valet parking is available during restaurant hours",
+      "source": "https://www.theoceanaire.com/location/orlando-fl/"
+     },
+     {
+      "claim": "Happy Hour Available Monday - Friday 5:00 - 6:30 PM",
+      "source": "https://www.theoceanaire.com/location/orlando-fl/"
+     },
+     {
+      "claim": "FLORIDA STONE CRAB $ 69",
+      "source": "https://www.theoceanaire.com/location/orlando-fl/"
+     },
+     {
+      "claim": "Grand Shellfish Tower jumbo shrimp cocktail, oceanaire pearls, lobster cocktail, jumbo lump crab cocktail",
+      "source": "https://www.theoceanaire.com/location/orlando-fl/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK7Bi5l5p54gRKyccehMBozA",
+   "name": "District Eat & Play",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJK7Bi5l5p54gRKyccehMBozA",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "PENDING SOURCE"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-18T02:55:22.573548+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-18T02:55:22.573548+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://districtoviedo.com/",
+     "source_name": "District Eat & Play Oviedo",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "District Eat & Play 1395 Oviedo Mall Boulevard Oviedo, FL 32765",
+      "attractions Escape rooms VR Escape rooms Boutique bowling Pinball alley karaoke Arcade",
+      "FULL BAR & RESTAURANT District Has A Delicious Offering Of Grub And A Huge Selection Of Drinks",
+      "DISTRICT EAT AND PLAY Monday:CLOSED Tuesday: 3PM-10PM (kitchen closes at 9)",
+      "ESCAPE ROOMS Test Your Survival Skills In Our Escape Rooms"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boutique bowling, escape rooms and arcade in Oviedo",
+    "why_here": "District Eat & Play in Oviedo combines a full bar and restaurant with escape rooms, VR escape rooms, boutique bowling, a pinball alley, karaoke, and an arcade. That mix makes it more than a meal stop: you can eat, then test your survival skills in the escape rooms or move to bowling and arcade play without leaving the venue.",
+    "know_before": "The official hours list District Eat and Play as closed on Monday, with Tuesday hours 3PM-10PM and the kitchen closes at 9, so check the day before going.",
+    "local_tip": "Start with the escape rooms, promoted with 'Test Your Survival Skills In Our Escape Rooms,' then stay for the restaurant and bar.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://districtoviedo.com/"
+     ],
+     "why_here": [
+      "https://districtoviedo.com/"
+     ],
+     "know_before": [
+      "https://districtoviedo.com/"
+     ],
+     "local_tip": [
+      "https://districtoviedo.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "District Eat & Play 1395 Oviedo Mall Boulevard Oviedo, FL 32765",
+      "source": "https://districtoviedo.com/"
+     },
+     {
+      "claim": "attractions Escape rooms VR Escape rooms Boutique bowling Pinball alley karaoke Arcade",
+      "source": "https://districtoviedo.com/"
+     },
+     {
+      "claim": "FULL BAR & RESTAURANT District Has A Delicious Offering Of Grub And A Huge Selection Of Drinks",
+      "source": "https://districtoviedo.com/"
+     },
+     {
+      "claim": "DISTRICT EAT AND PLAY Monday:CLOSED Tuesday: 3PM-10PM (kitchen closes at 9)",
+      "source": "https://districtoviedo.com/"
+     },
+     {
+      "claim": "ESCAPE ROOMS Test Your Survival Skills In Our Escape Rooms",
+      "source": "https://districtoviedo.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg7LQJzjDwogR-zUWN8XPbfA",
+   "name": "KELP SUSHI JOINT",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kelpsushijoint.com/",
+     "source_name": "KELP SUSHI JOINT official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "KELP SUSHI JOINT is a trendy sushi restaurant in South Tampa, Florida",
+      "modern asian fusion menu offers lunch specials, happy hour, specialty sushi rolls, vegetarian food, poke bowls, fresh salads, cocktails & wine bar",
+      "South Tampa 3401 West Bay to Bay Blvd. Town 'n' Country 6507 West Waters Ave."
+     ]
+    },
+    {
+     "source": "https://www.kelpsushijoint.com/local-trendy-food/takout-picnic-box-tampa",
+     "source_name": "KELP Sushi Joint Create Your Own Picnic Box",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "create your own picnic box available at both Tampa locations",
+      "Choose between 3 boxes made with your own sushi rolls selection",
+      "Each box comes with pork gyoza or veggie spring rolls, hand made krab rangoon & edamame",
+      "pre-order ahead on the app for convenient pickup"
+     ]
+    },
+    {
+     "source": "https://www.kelpsushijoint.com/local-trendy-food/lunch-special-tampa",
+     "source_name": "KELP Sushi Joint Lunch Specials",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Weekdays from 11am to 3pm Available at both locations Dine-in only",
+      "sushi, bowls, and burritos specials"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Create-your-own sushi picnic boxes to go",
+    "why_here": "KELP is a modern Asian fusion sushi spot in South Tampa serving specialty rolls, poke bowls, fresh salads and a cocktails and wine bar. Its signature move is a create-your-own picnic box, where you pick specialty or classic rolls in a colorful box designed for takeout picnics and beach afternoons.",
+    "know_before": "Lunch specials run weekdays from 11am to 3pm and are dine-in only at both Tampa locations, so plan a weekday sit-down if you want that deal.",
+    "local_tip": "Build a picnic box with your own roll selection; it includes pork gyoza or veggie spring rolls, krab rangoon and edamame. Pre-order on the app.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kelpsushijoint.com/local-trendy-food/takout-picnic-box-tampa"
+     ],
+     "why_here": [
+      "https://www.kelpsushijoint.com/",
+      "https://www.kelpsushijoint.com/local-trendy-food/takout-picnic-box-tampa"
+     ],
+     "know_before": [
+      "https://www.kelpsushijoint.com/local-trendy-food/lunch-special-tampa"
+     ],
+     "local_tip": [
+      "https://www.kelpsushijoint.com/local-trendy-food/takout-picnic-box-tampa"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KELP SUSHI JOINT is a trendy sushi restaurant in South Tampa, Florida",
+      "source": "https://www.kelpsushijoint.com/"
+     },
+     {
+      "claim": "modern asian fusion menu offers lunch specials, happy hour, specialty sushi rolls, vegetarian food, poke bowls, fresh salads, cocktails & wine bar",
+      "source": "https://www.kelpsushijoint.com/"
+     },
+     {
+      "claim": "South Tampa 3401 West Bay to Bay Blvd. Town 'n' Country 6507 West Waters Ave.",
+      "source": "https://www.kelpsushijoint.com/"
+     },
+     {
+      "claim": "create your own picnic box available at both Tampa locations",
+      "source": "https://www.kelpsushijoint.com/local-trendy-food/takout-picnic-box-tampa"
+     },
+     {
+      "claim": "Choose between 3 boxes made with your own sushi rolls selection",
+      "source": "https://www.kelpsushijoint.com/local-trendy-food/takout-picnic-box-tampa"
+     },
+     {
+      "claim": "Each box comes with pork gyoza or veggie spring rolls, hand made krab rangoon & edamame",
+      "source": "https://www.kelpsushijoint.com/local-trendy-food/takout-picnic-box-tampa"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvWf2DVQI3YgRFQk9CMu-jbM",
+   "name": "All Star Grill",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://allstargrillfl.com/",
+     "source_name": "All Star Grill official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Welcome to All Star Grill Family Sports Bar in Lake Wales, FL",
+      "full sit down dining room, a full bar with televisions, a full menu, pool tables, darts, games and even a jukebox",
+      "recognized as the best sports bar in town with the coldest beer and the two time champions for best wings",
+      "All Star Grill: 2019 State Road 60 E Lake Wales, FL 33898",
+      "Hours: Sunday - Saturday: 11:00am - 11:00pm"
+     ]
+    },
+    {
+     "source": "https://allstargrillfl.com/menu/",
+     "source_name": "All Star Grill Menu and FAQs",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "When is Karaoke? Every Wednesday from 7 PM to 11 PM",
+      "Do you have a band or DJ? DJ every Friday night except 1 Friday out of each month",
+      "What quantities of wings do you offer? 5, 8, 10, 15, 20, increments of 5 on up",
+      "From bar classics like wings and mozzarella sticks to class spaghetti dinners"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two-time best-wings champ with karaoke Wednesdays",
+    "why_here": "All Star Grill is a family-owned sports bar and grill in Lake Wales with a full dining room, full bar with televisions, pool tables, darts, games and a jukebox. The house claim to fame is being named the town's two-time champions for best wings, served alongside burgers and bar classics.",
+    "know_before": "Plan around the weekly rhythm: karaoke runs every Wednesday from 7pm to 11pm and a DJ plays every Friday night except one Friday a month, with hours 11:00am to 11:00pm daily.",
+    "local_tip": "Order wings in batches of 5, 8, 10, 15 or 20, then increments of 5.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://allstargrillfl.com/"
+     ],
+     "why_here": [
+      "https://allstargrillfl.com/"
+     ],
+     "know_before": [
+      "https://allstargrillfl.com/menu/",
+      "https://allstargrillfl.com/"
+     ],
+     "local_tip": [
+      "https://allstargrillfl.com/menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Welcome to All Star Grill Family Sports Bar in Lake Wales, FL",
+      "source": "https://allstargrillfl.com/"
+     },
+     {
+      "claim": "full sit down dining room, a full bar with televisions, a full menu, pool tables, darts, games and even a jukebox",
+      "source": "https://allstargrillfl.com/"
+     },
+     {
+      "claim": "recognized as the best sports bar in town with the coldest beer and the two time champions for best wings",
+      "source": "https://allstargrillfl.com/"
+     },
+     {
+      "claim": "All Star Grill: 2019 State Road 60 E Lake Wales, FL 33898",
+      "source": "https://allstargrillfl.com/"
+     },
+     {
+      "claim": "Hours: Sunday - Saturday: 11:00am - 11:00pm",
+      "source": "https://allstargrillfl.com/"
+     },
+     {
+      "claim": "When is Karaoke? Every Wednesday from 7 PM to 11 PM",
+      "source": "https://allstargrillfl.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJiXUmxf3pwogR_Ru5j9NdtUQ",
+   "name": "K-Hwa Ro Gui",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJiXUmxf3pwogR_Ru5j9NdtUQ",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "FAILED VERIFICATION",
+      "unsourced-number:local_tip:6 PM",
+      "unsourced-number:local_tip:8:30 PM"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-22T16:55:19.923803+00:00",
+     "attempt_count": 1,
+     "last_attempted_at": "2026-08-22T16:55:19.923803+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://khwarogui.com/",
+     "source_name": "K-Hwa Ro Gui official ordering website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "K-Hwa Ro Gui | Korean - Tampa, USA",
+      "Address 7525 W Hillsborough Ave, Tampa, FL USA 33615",
+      "Menu categories include Rice, Noodles, Lunch, Cooked Grill, Raw Grill, Soup, Fried, Meat Combo, Lunch Combo and Jeon Gol"
+     ]
+    },
+    {
+     "source": "https://khwarogui.com/c/cooked-grill/",
+     "source_name": "K-Hwa Ro Gui Cooked Grill menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Beef Bulgogi, Chicken Bulgogi, Pork Bulgogi and Beef Galbi / LA galbi on Cooked Grill menu",
+      "Chicken Katsu and Pork Katsu on Cooked Grill menu"
+     ]
+    },
+    {
+     "source": "https://khwarogui.com/c/raw-grill/",
+     "source_name": "K-Hwa Ro Gui Raw Grill menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Raw Grill menu lists Gal Bi - Beef, Sam Gym Sal + Minari + Soybean, Gop Chang and Dae Chang"
+     ]
+    },
+    {
+     "source": "https://khwarogui.com/c/lunch-combo/",
+     "source_name": "K-Hwa Ro Gui Lunch Combo menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Beef Bulgogi Lunch Combo Served with Nang Myun or Soondoodoo",
+      "Galbi Lunch Combo Served with Nang Myun or Soondoodoo"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Korean raw and cooked grill in Tampa",
+    "why_here": "K-Hwa Ro Gui is a Korean restaurant in Tampa built around grilling, with separate Cooked Grill and Raw Grill menus. Cooked options include beef, chicken and pork bulgogi and LA galbi, while the raw grill list features beef galbi and samgyeopsal with minari and soybean.",
+    "know_before": "Lunch combos pair grilled meats such as beef bulgogi or galbi with a choice of Nang Myun or Soondoodoo, so decide on noodles or soup when you order the combo.",
+    "local_tip": "Compare the Cooked Grill bulgogi and galbi plates against the Raw Grill galbi and Sam Gym Sal + Minari + Soybean options.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://khwarogui.com/c/raw-grill/",
+      "https://khwarogui.com/c/cooked-grill/"
+     ],
+     "why_here": [
+      "https://khwarogui.com/c/cooked-grill/",
+      "https://khwarogui.com/c/raw-grill/"
+     ],
+     "know_before": [
+      "https://khwarogui.com/c/lunch-combo/"
+     ],
+     "local_tip": [
+      "https://khwarogui.com/c/cooked-grill/",
+      "https://khwarogui.com/c/raw-grill/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "K-Hwa Ro Gui | Korean - Tampa, USA",
+      "source": "https://khwarogui.com/"
+     },
+     {
+      "claim": "Address 7525 W Hillsborough Ave, Tampa, FL USA 33615",
+      "source": "https://khwarogui.com/"
+     },
+     {
+      "claim": "Menu categories include Rice, Noodles, Lunch, Cooked Grill, Raw Grill, Soup, Fried, Meat Combo, Lunch Combo and Jeon Gol",
+      "source": "https://khwarogui.com/"
+     },
+     {
+      "claim": "Beef Bulgogi, Chicken Bulgogi, Pork Bulgogi and Beef Galbi / LA galbi on Cooked Grill menu",
+      "source": "https://khwarogui.com/c/cooked-grill/"
+     },
+     {
+      "claim": "Chicken Katsu and Pork Katsu on Cooked Grill menu",
+      "source": "https://khwarogui.com/c/cooked-grill/"
+     },
+     {
+      "claim": "Raw Grill menu lists Gal Bi - Beef, Sam Gym Sal + Minari + Soybean, Gop Chang and Dae Chang",
+      "source": "https://khwarogui.com/c/raw-grill/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe-VAWZe32YgRfSCYQk3JFe0",
+   "name": "Copper 29 Bar",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.copper29bar.com/",
+     "source_name": "Copper 29 Bar official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "206 Miracle Mile, Coral Gables, FL 33134 | Open Tuesday - Saturday 5pm | Sunday Bottomless Brunch Open 12pm",
+      "BEST BAR ON THE MILE",
+      "From craft cocktails to live music and entertainment, Copper 29 is known as the best bar and late night spot in Coral Gables",
+      "Our dishes include gourmet burgers, truffle mac & cheese, wings and flatbread pizza",
+      "Dress Code Enforced Indoors on Friday & Saturday Nights (no shorts, hats, sleeveless shirts or flip flops)"
+     ]
+    },
+    {
+     "source": "https://www.copper29bar.com/menu",
+     "source_name": "Copper 29 Bar menus",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "TRUFFLE MAC N CHEESE Creamy Cheddar, Fontina, Monterey, Truffle, Crispy Bacon",
+      "Signature cocktails include The Green Zen, Mediterranean Mule and Passionfire Margarita",
+      "Happy Hour Bites Everyday 5pm-8pm",
+      "Sunday brunch menu lists bottomless mimosas and sangrias with an entree purchase"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Craft cocktails and late nights on Miracle Mile",
+    "why_here": "Copper 29 calls itself the best bar on the Mile on Coral Gables' Miracle Mile, built around craft cocktails, live music and a late-night scene for local professionals and socialites. The kitchen goes beyond bar snacks with gourmet burgers, truffle mac and cheese, wings and flatbread pizza.",
+    "know_before": "There is an indoor dress code on Friday and Saturday nights with no shorts, hats, sleeveless shirts or flip flops, and the bar opens Tuesday to Saturday at 5pm.",
+    "local_tip": "Come for Happy Hour Bites Everyday 5pm-8pm, or try a signature cocktail such as The Green Zen or Mediterranean Mule.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.copper29bar.com/"
+     ],
+     "why_here": [
+      "https://www.copper29bar.com/"
+     ],
+     "know_before": [
+      "https://www.copper29bar.com/"
+     ],
+     "local_tip": [
+      "https://www.copper29bar.com/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "206 Miracle Mile, Coral Gables, FL 33134 | Open Tuesday - Saturday 5pm | Sunday Bottomless Brunch Open 12pm",
+      "source": "https://www.copper29bar.com/"
+     },
+     {
+      "claim": "BEST BAR ON THE MILE",
+      "source": "https://www.copper29bar.com/"
+     },
+     {
+      "claim": "From craft cocktails to live music and entertainment, Copper 29 is known as the best bar and late night spot in Coral Gables",
+      "source": "https://www.copper29bar.com/"
+     },
+     {
+      "claim": "Our dishes include gourmet burgers, truffle mac & cheese, wings and flatbread pizza",
+      "source": "https://www.copper29bar.com/"
+     },
+     {
+      "claim": "Dress Code Enforced Indoors on Friday & Saturday Nights (no shorts, hats, sleeveless shirts or flip flops)",
+      "source": "https://www.copper29bar.com/"
+     },
+     {
+      "claim": "TRUFFLE MAC N CHEESE Creamy Cheddar, Fontina, Monterey, Truffle, Crispy Bacon",
+      "source": "https://www.copper29bar.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuYRSpIsa3ogRSN4XwRyuswI",
+   "name": "Cadillac Cove",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cadillaccovebeachside.com/",
+     "source_name": "Cadillac Cove official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Beachside Tiki Restaurant & Bar",
+      "Welcome to Cadillac Cove, Satellite Beach Fl- Discover delicious dishes, yummy cocktails, and get lost in the live music and entertainment",
+      "From karaoke to dancing on our LED dance floor, you'll find Cadillac Cove to be the perfect place to gather and celebrate",
+      "Private Events: reserving one of our VIP lounges",
+      "Cadillac Cove 1462 Highway A1a, Satellite Beach, Florida 32937",
+      "Sunday Brunch: 10:30am-2:00pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachside tiki bar with an LED dance floor",
+    "why_here": "Cadillac Cove is a beachside tiki restaurant and bar in Satellite Beach pairing dishes and cocktails with live music and entertainment. It is set up for group nights out, with private-event VIP lounges, karaoke and dancing on an LED dance floor right off Highway A1A.",
+    "know_before": "Sunday brunch runs from 10:30am to 2:00pm, so time a weekend visit for brunch hours if that is the meal you want.",
+    "local_tip": "Book a VIP lounge for a private event and plan on karaoke or the LED dance floor rather than a quiet bar night.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cadillaccovebeachside.com/"
+     ],
+     "why_here": [
+      "https://cadillaccovebeachside.com/"
+     ],
+     "know_before": [
+      "https://cadillaccovebeachside.com/"
+     ],
+     "local_tip": [
+      "https://cadillaccovebeachside.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beachside Tiki Restaurant & Bar",
+      "source": "https://cadillaccovebeachside.com/"
+     },
+     {
+      "claim": "Welcome to Cadillac Cove, Satellite Beach Fl- Discover delicious dishes, yummy cocktails, and get lost in the live music and entertainment",
+      "source": "https://cadillaccovebeachside.com/"
+     },
+     {
+      "claim": "From karaoke to dancing on our LED dance floor, you'll find Cadillac Cove to be the perfect place to gather and celebrate",
+      "source": "https://cadillaccovebeachside.com/"
+     },
+     {
+      "claim": "Private Events: reserving one of our VIP lounges",
+      "source": "https://cadillaccovebeachside.com/"
+     },
+     {
+      "claim": "Cadillac Cove 1462 Highway A1a, Satellite Beach, Florida 32937",
+      "source": "https://cadillaccovebeachside.com/"
+     },
+     {
+      "claim": "Sunday Brunch: 10:30am-2:00pm",
+      "source": "https://cadillaccovebeachside.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUfSpeSV_3YgR9kWlZYN2j5o",
+   "name": "Sakeba Asian Pub & Grill",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sakebakissimmee.com/",
+     "source_name": "Sake Ba official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Sake Ba Asian Pub & Grill Japanese Pub Experience 5770 W Irlo Bronson Memorial Hwy, Suite 414 Kissimmee, FL 34746 (407) 479-6796",
+      "Experience the art of authentic Japanese cuisine. Fresh sushi, premium sake, and traditional dishes",
+      "Sake Ba Authentic Japanese Cuisine Since 2010",
+      "Three unique dining experiences across Florida"
+     ]
+    },
+    {
+     "source": "https://pubandgrill.sakebakissimmee.com",
+     "source_name": "Sakeba Asian Pub & Grill official ordering menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Sakeba Asian Pub & Grill Open Now - 5770 W Irlo Bronson Memorial Hwy, Suite 414, Kissimmee, FL, 34746",
+      "Lunch Specials Monday - Friday: 12:00 pm - 4:00 pm Served with spring roll, and choice of white rice or fried rice",
+      "Special Roll list includes Cocoa Beach Roll and Hwy 192 Roll",
+      "Menu sections include Sushi Combo, Entrees, Fried Rice and Noodles, Beer, Wine & Sake",
+      "Sakeba Loaded Fries Loaded with house special sauce, seaweed strip, bonito flakes"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese pub with Hwy 192 and Cocoa Beach rolls",
+    "why_here": "Sakeba Asian Pub & Grill is the Japanese pub experience from Sake Ba in Kissimmee, serving fresh sushi, premium sake and traditional dishes in a group that dates to 2010. The menu leans playful and local, with special rolls named Cocoa Beach and Hwy 192 alongside sushi combos, entrees and fried rice and noodles.",
+    "know_before": "Weekday lunch specials run Monday to Friday from 12pm to 4pm and are no longer available after 4pm, and each comes with a spring roll and your choice of white rice or fried rice.",
+    "local_tip": "Try a locally named special roll such as the Hwy 192 Roll or Cocoa Beach Roll.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pubandgrill.sakebakissimmee.com"
+     ],
+     "why_here": [
+      "https://sakebakissimmee.com/",
+      "https://pubandgrill.sakebakissimmee.com"
+     ],
+     "know_before": [
+      "https://pubandgrill.sakebakissimmee.com"
+     ],
+     "local_tip": [
+      "https://pubandgrill.sakebakissimmee.com"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sake Ba Asian Pub & Grill Japanese Pub Experience 5770 W Irlo Bronson Memorial Hwy, Suite 414 Kissimmee, FL 34746 (407) 479-6796",
+      "source": "https://sakebakissimmee.com/"
+     },
+     {
+      "claim": "Experience the art of authentic Japanese cuisine. Fresh sushi, premium sake, and traditional dishes",
+      "source": "https://sakebakissimmee.com/"
+     },
+     {
+      "claim": "Sake Ba Authentic Japanese Cuisine Since 2010",
+      "source": "https://sakebakissimmee.com/"
+     },
+     {
+      "claim": "Three unique dining experiences across Florida",
+      "source": "https://sakebakissimmee.com/"
+     },
+     {
+      "claim": "Sakeba Asian Pub & Grill Open Now - 5770 W Irlo Bronson Memorial Hwy, Suite 414, Kissimmee, FL, 34746",
+      "source": "https://pubandgrill.sakebakissimmee.com"
+     },
+     {
+      "claim": "Lunch Specials Monday - Friday: 12:00 pm - 4:00 pm Served with spring roll, and choice of white rice or fried rice",
+      "source": "https://pubandgrill.sakebakissimmee.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtZQCfk_V3ogRxdV-rP77Zsk",
+   "name": "Christopher's Kitchen",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://christopherskitchen.com/",
+     "source_name": "Christopher's Kitchen official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "One of America's finest plant based lifestyle restaurants",
+      "Our mission is to serve you only the highest quality, certified organic plant based food",
+      "Christopher's Kitchen does not take reservations",
+      "Palm Beach Gardens Location Sunday-Wednesday 11 am - 8 pm Thursday- Saturday 11-9 pm",
+      "On the Plaza at Midtown 4783 PGA BLVD Palm Beach Gardens, FL 33418"
+     ]
+    },
+    {
+     "source": "https://christopherskitchen.com/menu/",
+     "source_name": "Christopher's Kitchen Palm Beach Gardens menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "MENU PALM BEACH GARDENS We source the finest ingredients that are Organic and local whenever possible",
+      "Tacos handmade raw tortilla, walnut taco mix, lettuce, cabbage, pico de gallo, guacamole, cashew cheese, almond crunchies",
+      "Mac & Cheese quinoa pasta, creamy cashew cheese, sweet potato, toasted pangrattato, brazil nut parmesan",
+      "Gluten-free crust & bread available on request"
+     ]
+    },
+    {
+     "source": "https://christopherskitchen.com/about/",
+     "source_name": "Christopher's Kitchen About page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Thank you for supporting our family owned restaurant",
+      "family-owned restaurant that offers a wide selection of organic meals"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Certified organic plant-based kitchen, no reservations",
+    "why_here": "Christopher's Kitchen is a family-owned, certified organic plant-based restaurant in Palm Beach Gardens that calls itself one of America's finest plant-based lifestyle restaurants. The menu is built around cashew cheese and nut parmesans, from quinoa-pasta mac and cheese to raw tacos on a handmade tortilla with walnut taco mix.",
+    "know_before": "Christopher's Kitchen does not take reservations, and the Palm Beach Gardens location runs Sunday to Wednesday 11am to 8pm and Thursday to Saturday 11am to 9pm, so arrive with walk-in timing in mind.",
+    "local_tip": "Order the Tacos on a handmade raw tortilla with walnut taco mix, guacamole and cashew cheese; ask for gluten-free crust or bread on request.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://christopherskitchen.com/"
+     ],
+     "why_here": [
+      "https://christopherskitchen.com/",
+      "https://christopherskitchen.com/menu/"
+     ],
+     "know_before": [
+      "https://christopherskitchen.com/"
+     ],
+     "local_tip": [
+      "https://christopherskitchen.com/menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "One of America's finest plant based lifestyle restaurants",
+      "source": "https://christopherskitchen.com/"
+     },
+     {
+      "claim": "Our mission is to serve you only the highest quality, certified organic plant based food",
+      "source": "https://christopherskitchen.com/"
+     },
+     {
+      "claim": "Christopher's Kitchen does not take reservations",
+      "source": "https://christopherskitchen.com/"
+     },
+     {
+      "claim": "Palm Beach Gardens Location Sunday-Wednesday 11 am - 8 pm Thursday- Saturday 11-9 pm",
+      "source": "https://christopherskitchen.com/"
+     },
+     {
+      "claim": "On the Plaza at Midtown 4783 PGA BLVD Palm Beach Gardens, FL 33418",
+      "source": "https://christopherskitchen.com/"
+     },
+     {
+      "claim": "MENU PALM BEACH GARDENS We source the finest ingredients that are Organic and local whenever possible",
+      "source": "https://christopherskitchen.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEb01-yF83YgRvPIlfu-cp0c",
+   "name": "GameTime Kissimmee",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJEb01-yF83YgRvPIlfu-cp0c",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "FAILED VERIFICATION",
+      "unsourced-number:best_time:9 PM"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-11T02:55:30.99732+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-11T02:55:30.99732+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://gametimeplayers.com/arcade/?venue=kissimmee",
+     "source_name": "GameTime Kissimmee arcade floor",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Mini bowling is out on the game floor at Kissimmee",
+      "Every game sits behind a lit reader - red or blue. The number on each game is what a play costs in credits",
+      "Game list at Kissimmee includes Air Hockey, Axe Master, Cruisin Blast and Daytona Champion"
+     ]
+    },
+    {
+     "source": "https://gametimeplayers.com/faq/",
+     "source_name": "GameTime FAQ",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Kissimmee - mini bowling offered in the arcade",
+      "All Access is loaded with credits that are used up as you play and unused credits never expire",
+      "Timed Play is a block of arcade time that works on games with blue readers only"
+     ]
+    },
+    {
+     "source": "https://www.gametimeplayers.com/locations/kissimmee/",
+     "source_name": "GameTime Kissimmee location page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "GameTime Kissimmee regular hours include Friday 11:00 AM - 2:00 AM and Saturday 10:00 AM - 2:00 AM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mini bowling on a credit-priced arcade floor",
+    "why_here": "GameTime Kissimmee is built around a large arcade floor where every game sits behind a red or blue lit reader priced in credits, with titles from Air Hockey and Axe Master to Cruisin Blast and Daytona Champion. Kissimmee is one of the venues with mini bowling out on the game floor, plus timed-play and credit options for different group styles.",
+    "know_before": "Know the card system before you play: All Access credits work on red and blue readers and unused credits never expire, while Timed Play is a continuous block that works on blue-reader games only.",
+    "local_tip": "Pick Kissimmee specifically for mini bowling on the game floor, and load All Access if you want unused credits to carry over to another visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gametimeplayers.com/arcade/?venue=kissimmee",
+      "https://gametimeplayers.com/faq/"
+     ],
+     "why_here": [
+      "https://gametimeplayers.com/arcade/?venue=kissimmee",
+      "https://gametimeplayers.com/faq/"
+     ],
+     "know_before": [
+      "https://gametimeplayers.com/faq/"
+     ],
+     "local_tip": [
+      "https://gametimeplayers.com/arcade/?venue=kissimmee",
+      "https://gametimeplayers.com/faq/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mini bowling is out on the game floor at Kissimmee",
+      "source": "https://gametimeplayers.com/arcade/?venue=kissimmee"
+     },
+     {
+      "claim": "Every game sits behind a lit reader - red or blue. The number on each game is what a play costs in credits",
+      "source": "https://gametimeplayers.com/arcade/?venue=kissimmee"
+     },
+     {
+      "claim": "Game list at Kissimmee includes Air Hockey, Axe Master, Cruisin Blast and Daytona Champion",
+      "source": "https://gametimeplayers.com/arcade/?venue=kissimmee"
+     },
+     {
+      "claim": "Kissimmee - mini bowling offered in the arcade",
+      "source": "https://gametimeplayers.com/faq/"
+     },
+     {
+      "claim": "All Access is loaded with credits that are used up as you play and unused credits never expire",
+      "source": "https://gametimeplayers.com/faq/"
+     },
+     {
+      "claim": "Timed Play is a block of arcade time that works on games with blue readers only",
+      "source": "https://gametimeplayers.com/faq/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLyvf9vkB2YgR1UFK6AHGGbo",
+   "name": "Emily's Garden",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.emilysgarden.us/",
+     "source_name": "Emily's Garden official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Nestled among the palms and blooms of a 1920s Las Olas garden estate, Emily's Garden is a restaurant like no other",
+      "By day, our culinary bouquet includes breakfast, lunch, and fresh juice from our garden juice bar",
+      "As the afternoon settles in, we fire up Roman-style pizza from our outdoor Piaggio Ape Oven, and in the evening, we serve a medley of steak and seafood entrees",
+      "Sunday - Thursday: 8am - 10pm Friday - Saturday: 8am - 12am; $5 Happy Hour: Mon - Fri | 4pm - 6pm",
+      "On The Run Coffee Bar is stationed in the garden each morning for craft coffee, loose teas, and pastries"
+     ]
+    },
+    {
+     "source": "https://www.emilysgarden.us/menu",
+     "source_name": "Emily's Garden official brunch menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Loaded Tostones: Crispy tostones topped with fresh avocado, shredded skirt steak, and chimichurri sauce",
+      "Goat Cheese Croquettes Served with lavender Thai chili honey",
+      "Brunch Menu 8:00am - 4:00pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1920s Las Olas garden estate dining",
+    "why_here": "Set in a 1920s Las Olas garden estate among palms and blooms, Emily's Garden changes through the day from breakfast and fresh juice at its garden juice bar to Roman-style pizza from an outdoor Piaggio Ape oven, then steak and seafood entrees in the evening, making one garden setting work for brunch through dinner.",
+    "know_before": "Brunch is served 8:00am to 4:00pm and the venue lists Sunday to Thursday 8am to 10pm and Friday to Saturday 8am to 12am, so plan brunch dishes inside that morning window.",
+    "local_tip": "Try the Loaded Tostones with avocado, skirt steak and chimichurri, or arrive in the morning for craft coffee and pastries.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.emilysgarden.us/",
+      "https://www.emilysgarden.us/menu"
+     ],
+     "why_here": [
+      "https://www.emilysgarden.us/",
+      "https://www.emilysgarden.us/menu"
+     ],
+     "know_before": [
+      "https://www.emilysgarden.us/",
+      "https://www.emilysgarden.us/menu"
+     ],
+     "local_tip": [
+      "https://www.emilysgarden.us/",
+      "https://www.emilysgarden.us/menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nestled among the palms and blooms of a 1920s Las Olas garden estate, Emily's Garden is a restaurant like no other",
+      "source": "https://www.emilysgarden.us/"
+     },
+     {
+      "claim": "By day, our culinary bouquet includes breakfast, lunch, and fresh juice from our garden juice bar",
+      "source": "https://www.emilysgarden.us/"
+     },
+     {
+      "claim": "As the afternoon settles in, we fire up Roman-style pizza from our outdoor Piaggio Ape Oven, and in the evening, we serve a medley of steak and seafood entrees",
+      "source": "https://www.emilysgarden.us/"
+     },
+     {
+      "claim": "Sunday - Thursday: 8am - 10pm Friday - Saturday: 8am - 12am; $5 Happy Hour: Mon - Fri | 4pm - 6pm",
+      "source": "https://www.emilysgarden.us/"
+     },
+     {
+      "claim": "On The Run Coffee Bar is stationed in the garden each morning for craft coffee, loose teas, and pastries",
+      "source": "https://www.emilysgarden.us/"
+     },
+     {
+      "claim": "Loaded Tostones: Crispy tostones topped with fresh avocado, shredded skirt steak, and chimichurri sauce",
+      "source": "https://www.emilysgarden.us/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW3Be-984w4gRpIcva9B26Vg",
+   "name": "Apollonia Grill",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.apolloniagrill.com/",
+     "source_name": "Apollonia Grill official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Proudly serving Award Winning Mediterranean Cuisine, with Classic and Modern takes on recipes",
+      "Visit our two locations at University Town Center and Sarasota Landings",
+      "Happy Hour - Everyday from 4:00-6:30PM Special Beverage & Food Menu available at the Bar"
+     ]
+    },
+    {
+     "source": "https://www.apolloniagrill.com/about/",
+     "source_name": "Apollonia Grill official About page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Apollonia Grill opened its doors in 2013 bringing Award winning Mediterranean Cuisine to the neighborhoods around University Town Center",
+      "We are Family owned and operated",
+      "Our second Location was opened in 2019 at the Landings Shopping Center to serve the neighborhoods in South Sarasota"
+     ]
+    },
+    {
+     "source": "https://www.apolloniagrill.com/sarasota-menus/",
+     "source_name": "Apollonia Grill official Sarasota menus",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Join us every Sunday for an Unique and Mediterranean Inspired Brunch, along with Bottomless Mimosas & Bloody Mary for $18.00, 11am - 3pm",
+      "Every Monday Prix-Fixe Menu $27.99 per person, Dine In Only"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned Mediterranean, opened 2013",
+    "why_here": "Family owned and operated since opening in 2013, Apollonia Grill serves award-winning Mediterranean cuisine with classic and modern takes on recipes, complemented by wine, beer and hand-crafted cocktails in a casual and elegant setting across its University Town Center and Sarasota Landings locations.",
+    "know_before": "Happy Hour runs every day from 4:00 to 6:30PM with a special beverage and food menu available at the bar, so time a bar visit inside that window.",
+    "local_tip": "Go on Sunday for the Mediterranean-inspired brunch with bottomless mimosas and Bloody Marys from 11am to 3pm, or on Monday for the dine-in prix-fixe menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.apolloniagrill.com/",
+      "https://www.apolloniagrill.com/about/",
+      "https://www.apolloniagrill.com/sarasota-menus/"
+     ],
+     "why_here": [
+      "https://www.apolloniagrill.com/",
+      "https://www.apolloniagrill.com/about/",
+      "https://www.apolloniagrill.com/sarasota-menus/"
+     ],
+     "know_before": [
+      "https://www.apolloniagrill.com/",
+      "https://www.apolloniagrill.com/about/",
+      "https://www.apolloniagrill.com/sarasota-menus/"
+     ],
+     "local_tip": [
+      "https://www.apolloniagrill.com/",
+      "https://www.apolloniagrill.com/about/",
+      "https://www.apolloniagrill.com/sarasota-menus/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Proudly serving Award Winning Mediterranean Cuisine, with Classic and Modern takes on recipes",
+      "source": "https://www.apolloniagrill.com/"
+     },
+     {
+      "claim": "Visit our two locations at University Town Center and Sarasota Landings",
+      "source": "https://www.apolloniagrill.com/"
+     },
+     {
+      "claim": "Happy Hour - Everyday from 4:00-6:30PM Special Beverage & Food Menu available at the Bar",
+      "source": "https://www.apolloniagrill.com/"
+     },
+     {
+      "claim": "Apollonia Grill opened its doors in 2013 bringing Award winning Mediterranean Cuisine to the neighborhoods around University Town Center",
+      "source": "https://www.apolloniagrill.com/about/"
+     },
+     {
+      "claim": "We are Family owned and operated",
+      "source": "https://www.apolloniagrill.com/about/"
+     },
+     {
+      "claim": "Our second Location was opened in 2019 at the Landings Shopping Center to serve the neighborhoods in South Sarasota",
+      "source": "https://www.apolloniagrill.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa1VmANKz4IgRljd_64MH4pE",
+   "name": "Vine & Olive",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.vineandolive.net/",
+     "source_name": "Vine & Olive official website",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Vine & Olive is a modern, Italian influenced restaurant. We have 24 rotating types of wine on tap & chef driven locally sourced dishes",
+      "Kegged wine never touches the air, meaning the wine doesn't over-oxidize making it the freshest glass possible",
+      "You can get a 2.5oz pour and try several different wines or jump right to the 5oz, 8oz or 750ml pour",
+      "We also have a large selection of Gluten free and vegan options",
+      "We have beautiful views of the river in our River Room Dining Room and a large, open covered patio; at night our fire pit is a great relaxing spot",
+      "Hours: Monday-Thursday 11am-9pm Friday 11am-10pm Saturday 10am-10pm Sunday 10am-9pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Scratch kitchen with 24 wines on tap",
+    "why_here": "A modern Italian-influenced scratch kitchen and wine bar, Vine & Olive pours 24 rotating wines on tap alongside chef-driven, locally sourced dishes, with gluten-free and vegan options, river views in the River Room, a covered patio and a nighttime fire pit.",
+    "know_before": "Wine on tap is offered in 2.5oz, 5oz, 8oz and 750ml pours, and kegged wine never touches air so it does not over-oxidize; use the small pour to sample before committing.",
+    "local_tip": "Ask for a seat in the River Room for river views, or head to the fire pit at night.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.vineandolive.net/"
+     ],
+     "why_here": [
+      "https://www.vineandolive.net/"
+     ],
+     "know_before": [
+      "https://www.vineandolive.net/"
+     ],
+     "local_tip": [
+      "https://www.vineandolive.net/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Vine & Olive is a modern, Italian influenced restaurant. We have 24 rotating types of wine on tap & chef driven locally sourced dishes",
+      "source": "https://www.vineandolive.net/"
+     },
+     {
+      "claim": "Kegged wine never touches the air, meaning the wine doesn't over-oxidize making it the freshest glass possible",
+      "source": "https://www.vineandolive.net/"
+     },
+     {
+      "claim": "You can get a 2.5oz pour and try several different wines or jump right to the 5oz, 8oz or 750ml pour",
+      "source": "https://www.vineandolive.net/"
+     },
+     {
+      "claim": "We also have a large selection of Gluten free and vegan options",
+      "source": "https://www.vineandolive.net/"
+     },
+     {
+      "claim": "We have beautiful views of the river in our River Room Dining Room and a large, open covered patio; at night our fire pit is a great relaxing spot",
+      "source": "https://www.vineandolive.net/"
+     },
+     {
+      "claim": "Hours: Monday-Thursday 11am-9pm Friday 11am-10pm Saturday 10am-10pm Sunday 10am-9pm",
+      "source": "https://www.vineandolive.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk0J1GkZw54gRxygjCHtw_dI",
+   "name": "Jazz Tastings",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false,
+    "wf_editorial_prior": {
+     "place_id": "ChIJk0J1GkZw54gRxygjCHtw_dI",
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null,
+     "facts": [],
+     "beach_extras": null,
+     "verified": false,
+     "issues": [
+      "empty-published-row"
+     ],
+     "standard_version": "atlas-590-v1",
+     "written_at": "2026-08-24T22:55:35.019845+00:00",
+     "attempt_count": 2,
+     "last_attempted_at": "2026-08-24T22:55:35.019845+00:00"
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://jazztastings.com/about/",
+     "source_name": "Jazz Tastings official About page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Family-owned and chef-driven, we pair prime steaks, signature housemade sauces, and hand-crafted cocktails with live events Tuesday through Saturday",
+      "We feature a seasonal menu and a unique collection of wines & spirits",
+      "Hours Tuesday-Thursday: 5:00 PM - 11:00 PM Friday-Saturday: 6:00 PM - 12:00 AM Closed on Sunday & Monday",
+      "Jazz Tastings, 164 Lake Avenue, Maitland, FL 32751"
+     ]
+    },
+    {
+     "source": "https://jazztastings.com/food-menu",
+     "source_name": "Jazz Tastings official food menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Miso Braised Short Rib: Garlic Mash, Seasonal Veggies, Miso Demi, Scallions",
+      "Shrimp & Grits: Andouille Sausage, Roasted Tomato Etouffee",
+      "$25 Minimum Purchase Per Person Tuesday-Thursday; $12 Entertainment Fee Per Person on Friday & Saturday; $50 Minimum Purchase Per Person on Friday & Saturday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live jazz with prime steaks in Maitland",
+    "why_here": "Family-owned and chef-driven, Jazz Tastings in Maitland pairs prime steaks, signature housemade sauces and hand-crafted cocktails with live events Tuesday through Saturday, a seasonal menu and a curated collection of wines and spirits in an intimate room built for lingering over dinner and music.",
+    "know_before": "Note per-person minimums on the official menu: $25 Tuesday-Thursday; Friday & Saturday a $12 entertainment fee plus $50 minimum per person, with closure Sunday & Monday.",
+    "local_tip": "Order the Miso Braised Short Rib with garlic mash and miso demi, or Shrimp & Grits with andouille sausage and roasted tomato etouffee.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jazztastings.com/about/",
+      "https://jazztastings.com/food-menu"
+     ],
+     "why_here": [
+      "https://jazztastings.com/about/",
+      "https://jazztastings.com/food-menu"
+     ],
+     "know_before": [
+      "https://jazztastings.com/about/",
+      "https://jazztastings.com/food-menu"
+     ],
+     "local_tip": [
+      "https://jazztastings.com/about/",
+      "https://jazztastings.com/food-menu"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Family-owned and chef-driven, we pair prime steaks, signature housemade sauces, and hand-crafted cocktails with live events Tuesday through Saturday",
+      "source": "https://jazztastings.com/about/"
+     },
+     {
+      "claim": "We feature a seasonal menu and a unique collection of wines & spirits",
+      "source": "https://jazztastings.com/about/"
+     },
+     {
+      "claim": "Hours Tuesday-Thursday: 5:00 PM - 11:00 PM Friday-Saturday: 6:00 PM - 12:00 AM Closed on Sunday & Monday",
+      "source": "https://jazztastings.com/about/"
+     },
+     {
+      "claim": "Jazz Tastings, 164 Lake Avenue, Maitland, FL 32751",
+      "source": "https://jazztastings.com/about/"
+     },
+     {
+      "claim": "Miso Braised Short Rib: Garlic Mash, Seasonal Veggies, Miso Demi, Scallions",
+      "source": "https://jazztastings.com/food-menu"
+     },
+     {
+      "claim": "Shrimp & Grits: Andouille Sausage, Roasted Tomato Etouffee",
+      "source": "https://jazztastings.com/food-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb8vOxP672YgRRiTUr2LVihE",
+   "name": "OMAKAI sushi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "new",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://omakai.com/locations/doral/",
+     "source_name": "OMAKAI sushi official Doral location page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Right in the heart of Doral, the most recent OMAKAI sushi location delivers the full journey with curated nigiri and hand rolls, an intimate ambiance",
+      "Hours Sunday-Thursday 11:30am-10:00pm Friday-Saturday 11:30am-10:30pm; happy hour Monday-Sunday 3:00pm-6:30pm",
+      "Address 5675 NW 87th Ave #106, Doral, FL 33178"
+     ]
+    },
+    {
+     "source": "https://omakai.com/about/",
+     "source_name": "OMAKAI sushi official About page",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "Founded in 2019 by brothers Diego and Pedro Quijada, along with friend Nicolas Sayavedra and Chef Aaron Pate",
+      "OMAKAI is redefining the standard of sushi by making an authentic omakase experience accessible for everyone; embodying Omotenashi, hospitality from the heart"
+     ]
+    },
+    {
+     "source": "https://omakai.com/menu/",
+     "source_name": "OMAKAI sushi official menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-18",
+     "supports": [
+      "The OMAKAI Experience: an elevated 9-course tasting with premium, seasonal ingredients and specialty cuts of seafood",
+      "Hand rolls include Blue Crab and Maine Lobster; specialty nigiri includes Toro Truffle and Wagyu Uni"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Accessible omakase, founded 2019",
+    "why_here": "Founded in 2019, OMAKAI makes an authentic omakase experience accessible, built on Omotenashi hospitality from the heart, and its newest location in Doral delivers curated nigiri and hand rolls in an intimate room where guests trust the chef and leave it up to us through seasonal, chef-selected courses.",
+    "know_before": "Doral hours are Sunday to Thursday 11:30am to 10:00pm and Friday to Saturday 11:30am to 10:30pm, with happy hour Monday to Sunday 3:00 to 6:30pm at this location.",
+    "local_tip": "Try the 9-course OMAKAI Experience for premium seasonal ingredients and specialty cuts, or a Blue Crab or Maine Lobster hand roll from the official menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://omakai.com/locations/doral/",
+      "https://omakai.com/about/",
+      "https://omakai.com/menu/"
+     ],
+     "why_here": [
+      "https://omakai.com/locations/doral/",
+      "https://omakai.com/about/",
+      "https://omakai.com/menu/"
+     ],
+     "know_before": [
+      "https://omakai.com/locations/doral/",
+      "https://omakai.com/about/",
+      "https://omakai.com/menu/"
+     ],
+     "local_tip": [
+      "https://omakai.com/locations/doral/",
+      "https://omakai.com/about/",
+      "https://omakai.com/menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Right in the heart of Doral, the most recent OMAKAI sushi location delivers the full journey with curated nigiri and hand rolls, an intimate ambiance",
+      "source": "https://omakai.com/locations/doral/"
+     },
+     {
+      "claim": "Hours Sunday-Thursday 11:30am-10:00pm Friday-Saturday 11:30am-10:30pm; happy hour Monday-Sunday 3:00pm-6:30pm",
+      "source": "https://omakai.com/locations/doral/"
+     },
+     {
+      "claim": "Address 5675 NW 87th Ave #106, Doral, FL 33178",
+      "source": "https://omakai.com/locations/doral/"
+     },
+     {
+      "claim": "Founded in 2019 by brothers Diego and Pedro Quijada, along with friend Nicolas Sayavedra and Chef Aaron Pate",
+      "source": "https://omakai.com/about/"
+     },
+     {
+      "claim": "OMAKAI is redefining the standard of sushi by making an authentic omakase experience accessible for everyone; embodying Omotenashi, hospitality from the heart",
+      "source": "https://omakai.com/about/"
+     },
+     {
+      "claim": "The OMAKAI Experience: an elevated 9-course tasting with premium, seasonal ingredients and specialty cuts of seafood",
+      "source": "https://omakai.com/menu/"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,4 +1,5 @@
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
+import { creatorCoversFor, posterCoverForPosts } from "../../../lib/creatorCovers.js";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
@@ -29,6 +30,9 @@ import RemindMe from "../../components/RemindMe.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
 import { partnerAvailabilityNote } from "../../../lib/eventTicketDeals.js";
+import { ticketsUnavailable } from "../../../lib/ticketAvailability.js";
+import { availableAlternatives, alternativeLabel, unavailableNote } from "../../../lib/eventAlternatives.js";
+import { siteTodayStr } from "../../../lib/siteTime.js";
 import { secondaryEventTicketAction } from "../../../lib/secondaryEventTickets.js";
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
@@ -211,7 +215,9 @@ export default async function CuratedEventPage({ params }) {
   // SERVER-resolved, never window.location — on a preview deploy that is a host
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
-  const shareText = `${e.event_name}, ${eventDatesLabel(e, dateRangeLabel(e))}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
+  const datesLabel = eventDatesLabel(e, dateRangeLabel(e));
+  const dateYearSuffix = e.when_label || /\b\d{4}\b/.test(datesLabel) ? "" : `, ${e.year}`;
+  const shareText = `${e.event_name}, ${datesLabel}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
   // v8.88 — WHERE IT IS, AND HOW TO GET THERE (owner, 2026-08-29, on this very
   // page): "how are people gonna be able to find it?"
   //
@@ -249,17 +255,48 @@ export default async function CuratedEventPage({ params }) {
   const resaleTicket = secondaryEventTicketAction(e, { surface: "florida_event_page", primaryAction: ticket });
   // Partner tickets gone (NO_EXACT_AFFILIATE_PRODUCT visitorNote): say so plainly
   // and offer the bookable alternatives, instead of a silent organizer fallback.
-  const availability = partnerAvailabilityNote(e.event_id);
+  // SOLD OUT (owner rule 2026-11-04; 2026-11-19): no ticket button (above), and
+  // the page says so plainly with up to three events open nearby instead of
+  // reading like a booking page (lib/eventAlternatives.js, relevance order only).
+  const soldOut = ticketsUnavailable(e);
+  let availability = partnerAvailabilityNote(e.event_id);
+  if (soldOut) {
+    const today = siteTodayStr();
+    let alts = [];
+    try { alts = availableAlternatives(e, await fetchCuratedEvents(), today); } catch { alts = []; }
+    availability = {
+      note: unavailableNote(e, alts.length > 0),
+      alternatives: alts.map((a) => ({ href: "/florida-events/" + encodeURIComponent(a.slug), label: alternativeLabel(a, today) })),
+      soldOut: true,
+    };
+  }
   const crownTracked = CROWN_EVENT_SLUGS.has(params.slug);
   // "Remind me" (owner, 2026-10-14): only for an event with a real date. An
   // undated season, a watchlist twin and a past event get no button.
   const remind = reminderFactsFor(e, { occurrences: occurrenceDatesFor(e) });
-  const socialPosts = eventSocialPosts(e.event_id) || [];
+  // Owner 2026-11-20: creator posts play inside Wayfind. A post Instagram will
+  // not play here (its embed only links out) never reaches the rail.
+  const socialPosts = (eventSocialPosts(e.event_id) || []).filter((post) => isEmbeddable(post.platform, post.url));
   // The card's creator mark promises that the post is one tap away. Reuse the
   // event's already-cleared hero as the click-to-load cover so that promise is
   // visible before Instagram's third-party iframe is requested.
   // A Google venue photo (/api/photo) cannot be a bare <img> cover (credited lane only), so it is not the creator-post cover.
-  const socialPoster = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
+  // Owner 2026-11-18: no creator tile without a picture. When the hero is a
+  // Google photo (not allowed as a bare cover), use our own credited photo of
+  // the venue instead (lib/creatorCovers.js).
+  const heroCover = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
+  const venueCover = !heroCover && socialPosts.length
+    ? ((e.place_id ? (await creatorCoversFor([e.place_id]))[e.place_id] : null) || (await posterCoverForPosts(socialPosts.map((p) => p.url))) || null)
+    : null;
+  const socialPoster = heroCover || venueCover?.src || null;
+  // Live check 2026-11-19: tiles covered by the event hero printed no credit. The hero's own
+  // credit (rail photo, registry shot or the event row's attribution) rides on the tile too.
+  const heroCoverCredit = heroCover ? (
+    (detailPhotos[0] && detailPhotos[0].src === heroCover && eventRailPhotoCredit(detailPhotos[0])?.text)
+    || (shots && shots.hero && shots.hero.src === heroCover && shots.credit ? "Photo: " + String(shots.credit).replace(/^photos?\s*(?:by|from|:)\s*/i, "") : null)
+    || (e.photoAttr && heroCover === e.hero_image ? "Photo: " + String(e.photoAttr).replace(/^photos?\s*(?:by|from|:)\s*/i, "") : null)
+    || null) : null;
+  const socialPosterCredit = heroCover ? heroCoverCredit : venueCover?.credit || null;
   const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
   const socialDetails = (post) => <>
     <div style={{ padding: "18px 16px 14px" }}>
@@ -314,16 +351,18 @@ export default async function CuratedEventPage({ params }) {
       <EventSectionNav />
       <EventHeroPhotoProvider src={heroSrc}>
       <EventDetailShell
+        soldOut={soldOut}
         title={eventTitleWithYear(e.event_name, e.year)}
         facts={[
-          { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}${e.when_label ? "" : `, ${e.year}`}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },
+          { label: "When", value: `${datesLabel}${dateYearSuffix}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },
           { label: "Where", value: <>{e.viewing_label || e.venue ? <div>{e.viewing_label || e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
           { label: "Cost", value: e.christmas_price_line || eventCostSummary(e) },
           { label: "Who it is for", value: e.audience_label || null },
           { label: "Entry rules", value: eventRestrictions(e).join(" · ") || null },
           { label: "Time needed", value: e.duration_recommendation },
           { label: "Crowds", value: e.crowd_level },
-          { label: "Verdict", value: e.wayfind_verdict },
+          // A verdict can say "book a November date"; never on a sold out page.
+          { label: "Verdict", value: soldOut ? null : e.wayfind_verdict },
         ]}
         story={<>
           {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
@@ -351,7 +390,7 @@ export default async function CuratedEventPage({ params }) {
         </div>
       ) : null}
       {availability ? (
-        <div style={S.availability} data-partner-availability="">
+        <div style={S.availability} data-partner-availability="" {...(availability.soldOut ? { "data-sold-out": "" } : {})}>
           <p style={S.availabilityNote}>{availability.note}</p>
           {availability.alternatives.length ? (
             <ul style={S.availabilityList}>
@@ -482,7 +521,9 @@ export default async function CuratedEventPage({ params }) {
                     url={post.url}
                     label={`@${post.creator}'s post about ${e.event_name}`}
                     poster={socialPoster}
+                    posterCredit={socialPosterCredit}
                     fallbackPoster={socialPosterFallback}
+                    placeId={socialPosterFallback ? null : e.place_id}
                     coverTitle={e.event_name}
                     coverCity={e.city}
                     coverEyebrow={`THE @${post.creator} EDIT`}

@@ -74,7 +74,6 @@ export const TOP20_AUDIT_FILES = [
   "check-price-badge.mjs",
   "check-spend-effective-cap.mjs",
   "test-booking-resolve-extraction.mjs",
-  "check-doc-ownership.mjs",
   "check-guide-share.mjs",
   "check-editorial-everywhere.mjs",
 ];

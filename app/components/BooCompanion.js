@@ -21,6 +21,7 @@ import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, cove
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, TUCK_MAX } from "./booClear.js";
 import { styleHtml } from "../../lib/styleHtml.js";
+import { watchRootPresence } from "../../lib/rootPresence.js";
 import { maybeHandoffCompanionToPlanner, openWayfindPlanner } from "../../lib/plannerCompanionBridge.js";
 
 // Table picks for "book Ulele Friday at 7 for 4": a lazy chunk, fetched only when a reservation request is typed.
@@ -481,6 +482,7 @@ input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
 @keyframes boo-t-ring{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}30%{box-shadow:0 0 0 3px rgba(249,115,22,.9),0 0 26px 6px rgba(249,115,22,.5)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
 .boo-ty{color:transparent}
 @media (prefers-reduced-motion:reduce){.boo-ring{display:none !important}.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr,.boo-sa *{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
+html.wf-has-map .boo-c,html.wf-has-map .boo-ring{display:none !important}
 `;
 
 export default function BooCompanion() {
@@ -501,6 +503,12 @@ export default function BooCompanion() {
   // him: no timers, no listeners, no animation frames. The chat sheet below is
   // shared and still opens for either character.
   const roam = eligible && !santa;
+  // Hide the companion and its touch rings while the map is up, so a speech
+  // bubble cannot float over the pins. The class comes from rootPresence;
+  // a root :has() would re-style every link and button on the page.
+  useEffect(() => watchRootPresence({
+    "wf-has-map": [".wf-map-explorer", '[data-analytics-page="map"]'],
+  }), []);
   const [reduced, setReduced] = useState(false);
   const [open, setOpen] = useState(false);
   const [bubble, setBubble] = useState(null); // { text, v, h }

@@ -6,6 +6,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, dis
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
 import CardPhoto from "./components/CardPhoto";
+import PortraitAwareImg from "./components/PortraitAwareImg";
 import { cardPhotoRequest, isApiPhotoSrc, photoPlaceIdFromSrc } from "../lib/cardPhotoRequest.js";
 import { rememberAuthReturn, consumeAuthReturn } from "../lib/authReturn.js";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
@@ -106,7 +107,7 @@ import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
 import { setLocal, sweepLocal } from "../lib/localStore";
-import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
+import { browsePosition, horizontalPositions, restoreBrowsePosition, trackHorizontalScrolls } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIdsSafe } from "../lib/syncReconcile";
 import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange, likeEventSuppressed } from "../lib/likeSignal";
@@ -263,7 +264,6 @@ import { nowContext, siteHourFloat, tzForPoint, bucketForHour, mealForHour, gree
 import { condCtxFromNow } from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import { resolveMetro, CULTURE_TITLES } from "../lib/culture";
-import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
@@ -410,7 +410,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.64.0";
+const BUILD_ID = "v8.64.1";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -569,7 +569,7 @@ const WF_DESTINATIONS = [
   { id: "map", icon: "map", label: "Map", href: "/map" },
 ];
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, panelCollapsed = false, onExpandPanel, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -603,12 +603,15 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
   // side they fit on one line, which is what takes the panel under 150px.
   if (compact) {
     const open = !!(activeCat && subs.length > 1);
+    const activeTile = Cats.CATEGORY_TILES.find((m) => m.id === activeCat);
+    const activeSubObj = subs.find((sf) => sf.id === sub);
+    const expandPanel = () => { try { onExpandPanel && onExpandPanel(); } catch (e) {} };
     return (
       <div className={`wf-mapfp${subsExpanded === false ? " is-subs-collapsed" : ""}`}>
         <style dangerouslySetInnerHTML={styleHtml(`
           .wf-mapfp{background:rgba(10,14,20,.82);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.12);border-radius:15px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.28)}
-          .wf-mapfp-row{position:relative}
-          .wf-mapfp-scroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:5px 8px}
+          .wf-mapfp-row{position:relative;display:flex;align-items:center}
+          .wf-mapfp-scroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:5px 8px;flex:1;min-width:0}
           .wf-mapfp-scroll::-webkit-scrollbar{display:none}
           /* Scroll affordance. pointer-events:none so it can never eat a tap on
              the pill underneath, and it is only rendered when the row actually
@@ -637,20 +640,36 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-sub{background:rgba(249,115,22,.16);border-color:rgba(249,115,22,.42);color:${C.accent};font-weight:800}
           @media (prefers-reduced-motion: reduce){ .wf-mapfp-subs{transition:none} }
         `)} />
-        <div className="wf-mapfp-row">
-          <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
-            {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-              <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
-                onClick={() => tapCat(m.id, m.label)}>
-                <span className="wf-mapfp-pill">
-                  <NavIcon name={m.id} color={on ? "#0B0F14" : "#FFFFFF"} size={15} strokeWidth={1.6} />
-                  <span>{m.label}</span>
-                </span>
-              </button>
-            ); })}
-            {trailing || null}
+        {panelCollapsed ? (
+          <div className="wf-mapfp-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 8px" }}>
+            <button type="button" onClick={expandPanel} style={{ background: "none", border: 0, padding: "4px 2px", color: "#FFFFFF", fontSize: 12.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7 }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.accent, color: "#0B0F14", padding: "3px 10px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
+                {activeTile ? activeTile.label : "All categories"}
+              </span>
+              {activeSubObj && activeSubObj.id !== "all" ? <span style={{ color: C.accent, fontSize: 11.5, fontWeight: 700 }}>· {activeSubObj.label}</span> : null}
+            </button>
+            <button type="button" className="wf-mapfp-tap" onClick={expandPanel} aria-expanded="false">
+              <span className="wf-mapfp-pill"><span>{"Filters \u25BE"}</span></span>
+            </button>
           </div>
-          <MapFpFade />
+        ) : (
+        <>
+        <div className="wf-mapfp-row">
+          <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+            <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
+              {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
+                <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
+                  onClick={() => tapCat(m.id, m.label)}>
+                  <span className="wf-mapfp-pill">
+                    <NavIcon name={m.id} color={on ? "#0B0F14" : "#FFFFFF"} size={15} strokeWidth={1.6} />
+                    <span>{m.label}</span>
+                  </span>
+                </button>
+              ); })}
+            </div>
+            <MapFpFade />
+          </div>
+          {trailing || null}
         </div>
         {/* MOUNTED ONLY WHEN A CATEGORY IS SELECTED. On landing the panel is one
             pill row — that is the ~100px the work order asks for. */}
@@ -659,19 +678,23 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             <div className="wf-mapfp-divider" />
             <div className={"wf-mapfp-subs is-open"}>
               <div className="wf-mapfp-row">
-                <div className="wf-mapfp-scroll" role="tablist" aria-label="Sub-filters" ref={mapfpArrowKeys}>
-                  {subs.map((sf) => { const son = sub === sf.id; return (
-                    <button key={sf.id} role="tab" aria-selected={son ? "true" : "false"} className="wf-mapfp-tap"
-                      onClick={() => onSub(sf.id)}>
-                      <span className="wf-mapfp-sub">{sf.label}</span>
-                    </button>
-                  ); })}
+                <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
+                  <div className="wf-mapfp-scroll" role="tablist" aria-label="Sub-filters" ref={mapfpArrowKeys}>
+                    {subs.map((sf) => { const son = sub === sf.id; return (
+                      <button key={sf.id} role="tab" aria-selected={son ? "true" : "false"} className="wf-mapfp-tap"
+                        onClick={() => onSub(sf.id)}>
+                        <span className="wf-mapfp-sub">{sf.label}</span>
+                      </button>
+                    ); })}
+                  </div>
+                  <MapFpFade />
                 </div>
-                <MapFpFade />
               </div>
             </div>
           </>
         ) : null}
+        </>
+        )}
       </div>
     );
   }
@@ -1968,7 +1991,7 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover", defer = false }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover", defer = false, portraitFit = false }) {
   // An unrelated fallback update must not hide an already decoded primary.
   // Keep outcomes attached to the URL that actually emitted the event.
   const [outcomes, setOutcomes] = useState(() => new Map());
@@ -2087,7 +2110,9 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
-      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+      {portraitFit
+        ? <PortraitAwareImg key={activeSrc} imgRef={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+        : <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />}
     </div>
   );
 }
@@ -5938,7 +5963,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const galleryRef = useRef(null);
   function scrollGallery(dir) {
     const el = galleryRef.current;
-    if (el) el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.85), behavior: "smooth" });
+    if (el) el.scrollBy({ left: dir * el.clientWidth, behavior: "smooth" }); // one full-width photo per tap (owner 2026-11-18)
   }
 
   // ── Full-screen photo viewer paging (v6.43) ────────────────────────────────
@@ -5990,15 +6015,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     }
   }, [lightbox, lightboxIndex]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Pinch to zoom (owner 2026-11-18): two fingers, or a page already zoomed in,
+  // belong to the browser's zoom, never to photo paging.
+  const lightboxZoomed = () => typeof window !== "undefined" && !!window.visualViewport && window.visualViewport.scale > 1.01;
   function lightboxTouchStart(e) {
     const t = e.touches && e.touches[0];
     if (!t) return;
+    if (e.touches.length > 1 || lightboxZoomed()) { lbTouch.current = null; setLbDrag(0); return; }
     lbTouch.current = { x: t.clientX, y: t.clientY, axis: null };
   }
   function lightboxTouchMove(e) {
     const g = lbTouch.current;
     const t = e.touches && e.touches[0];
     if (!g || !t) return;
+    if (e.touches.length > 1) { lbTouch.current = null; setLbDrag(0); return; }
     const dx = t.clientX - g.x;
     const dy = t.clientY - g.y;
     // Lock the axis once past the noise floor so a diagonal drag does not
@@ -6415,7 +6445,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // Same law as the holiday card, same module — "Where to watch near {loc}"
     // is the same promise and needs the same evidence. See lib/promoLocation.js.
     if (!locationPromoAllowed({ coverage: railsCoverage })) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
-                      <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                      <div className="wf-hol-cv" style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_w)} aria-label={_wct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
                       <style dangerouslySetInnerHTML={styleHtml("@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}")} />
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
@@ -6595,16 +6625,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // restore branch never once ran. A fallback that cannot fire is not
   // resilience, it is a comment that lies. scripts/check-shell-scroll.mjs now
   // fails the build on any new window.scroll* in the shell.
+  const posStateRef = useRef(null);
+  posStateRef.current = { center, locName, query, intent, sortBy, searchRadius, quickFilter,
+    searchLabel, visibleCount, activeBadge, moodPick, eventCat, eventDate, places };
+  useEffect(() => (scrollRef.current ? trackHorizontalScrolls(scrollRef.current) : undefined), []);
   useEffect(() => {
     if (initialPlaceId) return undefined;
-    const write = (entryOverride) => {
+    const write = (entryOverride, preSnap) => {
       if (writingPosition.current || posRestore.current || !scrollRef.current) return;
       writingPosition.current = true;
       try {
-        const p = { screen, cat, browseCat, sub, vibe, ...browsePosition(scrollRef.current),
-          horizontal: horizontalPositions(scrollRef.current), center, locName, query, intent, sortBy,
-          searchRadius, quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick,
-          eventCat, eventDate, searchPlaces: searchMode ? places : undefined, browseReturn: browseReturn.current,
+        const { places, ...rest } = posStateRef.current;
+        const p = { screen, cat, browseCat, sub, vibe, searchMode, ...rest,
+          ...(preSnap || browsePosition(scrollRef.current)),
+          horizontal: preSnap?.horizontal || horizontalPositions(scrollRef.current),
+          searchPlaces: searchMode ? places : undefined, browseReturn: browseReturn.current,
           poster: JSON.parse(sessionStorage.getItem("wf_poster_position") || "null"), ts: Date.now() };
         sessionStorage.setItem("wf_pos", JSON.stringify(p));
         sessionStorage.setItem("wf_pos_entry_" + (typeof entryOverride === "string" ? entryOverride : positionEntryKey()), JSON.stringify(p));
@@ -6613,10 +6648,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     positionWriter.current = write;
     const frame = requestAnimationFrame(() => write());
     let timer;
-    const onScroll = () => { clearTimeout(timer); timer = setTimeout(write, 150); };
-    const capture = () => {
-      if (!browseCat && scrollRef.current) browseReturn.current = browsePosition(scrollRef.current);
-      write();
+    const onScroll = () => { clearTimeout(timer); timer = setTimeout(() => write(), 150); };
+    const capture = (ev) => {
+      const t = ev && ev.target;
+      if (t && typeof t.closest === "function" && (t.closest(".wf-navtabs,.wf-dests") || !t.closest("a[href],.wf-place-card-open,.wf-holiday-open"))) return;
+      if (!scrollRef.current) { write(); return; }
+      const snap = browsePosition(scrollRef.current);
+      if (!browseCat) browseReturn.current = snap;
+      write(undefined, snap);
     };
     document.addEventListener("click", capture, true);
     document.addEventListener("scroll", onScroll, { capture: true, passive: true });
@@ -6627,8 +6666,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       document.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("pagehide", write);
     };
-  }, [screen, cat, browseCat, sub, vibe, center, locName, query, intent, sortBy, searchRadius,
-      quickFilter, searchMode, searchLabel, visibleCount, activeBadge, moodPick, eventCat, eventDate, restoreVersion, places]);
+  }, [screen, cat, browseCat, sub, vibe, searchMode, restoreVersion]);
   function closeBrowse() {
     posRestore.current = browseReturn.current || { top: 0, horizontal: [] };
     setBrowseCat(null); setMoodPick(null); setSub("all");
@@ -7066,7 +7104,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (detailRequest !== detailOpenRequestRef.current) return;
     try { if (detailOpenGateRef.current.shouldEmit(p && p.id)) { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null, ...(p?._searchId ? { search_id: p._searchId } : {}) }); } } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
-    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
+    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) }; } } catch (e) {}
     setDetail(p);
     setDetail(attachOfficialScoreReceipt({ ...p }, locName));
     // /p/{id} and any card that skipped withMemberSignal still show the raw
@@ -9145,6 +9183,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         kind: row.kind || "place",
         line: typeof row.line === "string" ? row.line : "",
       };
+      for (const k of [
+        "event_id", "slug", "event_status", "start_date", "end_date", "start_time", "end_time",
+        "timezone", "schedule_note", "venue_name", "seasonal", "_ownedHoursSource", "hoursState",
+      ]) {
+        if (typeof row[k] === "string" && row[k]) card[k] = row[k];
+      }
+      for (const k of ["overnight", "select_nights", "approx", "is_free", "hoursVerified", "openNow"]) {
+        if (typeof row[k] === "boolean") card[k] = row[k];
+      }
+      for (const k of ["occurrence_dates", "closed_dates", "canceled_dates"]) {
+        if (Array.isArray(row[k]) && row[k].length) card[k] = row[k];
+      }
+      for (const k of ["recurring_schedule", "visit_schedule", "ownedHours", "oh", "regularOpeningHours"]) {
+        if (row[k] && typeof row[k] === "object") card[k] = row[k];
+      }
+      if (row.utcOffset != null && row.utcOffset !== "" && Number.isFinite(Number(row.utcOffset))) card.utcOffset = Number(row.utcOffset);
+      if ((typeof row.hoursAsOf === "number" && Number.isFinite(row.hoursAsOf)) || (typeof row.hoursAsOf === "string" && row.hoursAsOf)) card.hoursAsOf = row.hoursAsOf;
       if (searchEditorialCard(card)) return card;
       return hasPoint && cardComplete(card) ? card : null;
     }).filter(Boolean);
@@ -10657,6 +10712,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // drives -- no separate location state, no independent geolocation.
   const livePosterTiles = useLivePosterTiles({ center: railCenter || center, city: locName });
 
+  const suggestedView = useMemo(() => {
+    const list = suggested || [];
+    const affinities = computeAffinities(signals);
+    // Phase 2: fold the DURABLE per-user taste vector into the category
+    // weights so preference persists across sessions, not just this one.
+    const _vec = tasteVecRef.current || tasteVecState || {};
+    if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
+    affinities.tagW = { ..._vec.tag };
+    const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
+    const hasTaste = hasLearnedTaste(_vec, activeSignals.length);
+    const personalized = personalize === "on" && hasTaste;
+    const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
+    return { personalized, displayList };
+  }, [suggested, signals, personalize, tasteVecState]);
+
   const railMenuBand = railMenu ? (
     <div className="wf-fullbleed">
       <DaypartRail
@@ -11279,29 +11349,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
               </div>
             );
           }
-          const list = suggested || [];
-          const affinities = computeAffinities(signals);
-          // Phase 2: fold the DURABLE per-user taste vector into the category
-          // weights so preference persists across sessions, not just this one.
-          // (category namespace matches catW; the visible Score is untouched.)
-          const _vec = tasteVecRef.current || {};
-          if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
-          // 2026-08-07: the durable TAG dims ride along too — they are the
-          // discriminating signal within a category and were previously
-          // learned-but-never-applied (the dead-toggle root cause).
-          affinities.tagW = { ..._vec.tag };
-          const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
-          // Personalize only after explicit opt-in or an explicit reaction.
-          // Without that, the feed is pure moment/Score order. The gate lives
-          // in lib/taste.js (hasLearnedTaste) so the test suite can CALL it —
-          // and it counts every dimension applyAffinity consumes, not just
-          // category (the mismatch that made the toggle read as dead).
-          const hasTaste = hasLearnedTaste(_vec, activeSignals.length);
-          // The setting and reset controls are available in Favorites before
-          // sign-in. Signing in syncs the same private vector; it is not a
-          // prerequisite for on-device recommendations.
-          const personalized = personalize === "on" && hasTaste;
-          const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
+          const { personalized, displayList } = suggestedView;
           const likeCount = Object.keys(liked).length;
           const h = siteHourFloat();
           const part = BUCKET_PHRASE[bucketForHour(h)];
@@ -11881,7 +11929,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                            definition in lib/promoLocation.js. */
                         if (!locationPromoAllowed({ coverage: railsCoverage })) return null;
                         const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
-                        <div style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                        <div className="wf-hol-cv" style={{ borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <button type="button" className="wf-holiday-open" onClick={() => openHoliday(_h)} aria-label={_ct.headline(locName)} style={{ position: "absolute", inset: 0, zIndex: 1, opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
                           <style dangerouslySetInnerHTML={styleHtml("@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}")} />
                           <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />
@@ -12151,7 +12199,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
             onTouchMove={lightboxTouchMove}
             onTouchEnd={lightboxTouchEnd}
             onTouchCancel={lightboxTouchEnd}
-            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, touchAction: "pan-y", overflow: "hidden" }}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, touchAction: "pan-y pinch-zoom", overflow: "hidden" }}
           >
             <img
               src={lightbox}

@@ -19,21 +19,21 @@
       "avg_actionability_score": 0.28
     },
     "after": {
-      "structured_hours_count": 36,
+      "structured_hours_count": 54,
       "official_website_count": 127,
       "ticket_or_admission_count": 24,
-      "menu_or_reservation_count": 21,
+      "menu_or_reservation_count": 28,
       "free_paid_classified_count": 49,
       "zero_paid_ready_count": 129,
-      "avg_actionability_score": 0.34,
-      "avg_verified_coverage_score": 0.34,
+      "avg_actionability_score": 0.4,
+      "avg_verified_coverage_score": 0.4,
       "avg_fallback_readiness_score": 0.75
     },
     "atlas_wide": {
       "cards_with_hours_fact": 424,
-      "deterministic_structured_hours_count": 284,
+      "deterministic_structured_hours_count": 291,
       "holiday_closure_protected_count": 12,
-      "honest_prose_only_count": 140
+      "honest_prose_only_count": 133
     }
   },
   "places": {
@@ -230,7 +230,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Bee%20Ridge%20Park&query_place_id=ChIJ08zZpRpBw4gRiDJBlBXfAHw",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -251,7 +251,13 @@
       },
       "ticket_url": null,
       "admission_url": null,
-      "menu_url": null,
+      "menu_url": {
+        "url": "https://piscoperuviangastrobar.com/menu",
+        "source": "official_venue_subpage",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
@@ -280,8 +286,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -291,7 +297,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -300,12 +306,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -315,7 +320,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -324,8 +329,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -469,14 +473,14 @@
         "confidence": "EXACT",
         "verification_status": "verified"
       },
-      "ticket_url": {
-        "url": "https://veniceperformingartscenter.com/booking/",
+      "ticket_url": null,
+      "admission_url": {
+        "url": "https://veniceperformingartscenter.com/events/",
         "source": "official_venue_subpage",
-        "retrieved_at": "2026-11-13T04:23:22.606Z",
+        "retrieved_at": "2026-11-13T20:42:00.000Z",
         "confidence": "EXACT",
         "verification_status": "verified"
       },
-      "admission_url": null,
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
@@ -557,7 +561,7 @@
       },
       "trace_summary": {
         "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
-        "primary_cta_why": "CTA=official_tickets (\"Official tickets\") via first_party_ticket -> https://veniceperformingartscenter.com/booking/",
+        "primary_cta_why": "CTA=admission (\"See admission\") via first_party_admission -> https://veniceperformingartscenter.com/events/",
         "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
       }
@@ -588,9 +592,9 @@
       "owned_hours": {
         "ok": false,
         "source": "none",
-        "confidence": "UNKNOWN",
+        "confidence": "PROSE_ONLY",
         "parser_version": null,
-        "source_fact": null,
+        "source_fact": "Guanabanas opens at 11:30am, seven days a week, so plan arrival accordingly.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
@@ -612,8 +616,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -623,7 +627,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -632,12 +636,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -647,7 +650,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -656,8 +659,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -674,7 +676,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Guanabanas%20Restaurant&query_place_id=ChIJ1T2OiMEp34gRcRQOutyc6j8",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -730,8 +732,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -741,7 +743,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -750,12 +752,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -765,7 +766,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -774,8 +775,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -996,7 +996,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Scenic%20Boat%20Tour&query_place_id=ChIJ4XkjoBtw54gRGiqFxtWvbM8",
         "free_paid_why": "Admission=PAID (explicit-admission-price) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -1197,7 +1197,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Coquina%20Beach%20Cafe&query_place_id=ChIJ4azy4NsTw4gRggI1e2ak_Rs",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -1253,8 +1253,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -1264,7 +1264,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -1273,12 +1273,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -1288,7 +1287,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -1297,8 +1296,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -1365,8 +1363,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.13,
-        "answered_count": 1,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -1376,7 +1374,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -1384,12 +1382,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.13,
-          "answeredCount": 1,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -1399,7 +1396,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -1407,8 +1404,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -1919,8 +1915,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -1930,7 +1926,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -1939,12 +1935,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -1954,7 +1949,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -1963,8 +1958,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -2031,8 +2025,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -2042,7 +2036,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -2051,12 +2045,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -2066,7 +2059,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -2075,8 +2068,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -2114,7 +2106,13 @@
       },
       "ticket_url": null,
       "admission_url": null,
-      "menu_url": null,
+      "menu_url": {
+        "url": "https://www.stpeteathletic.com/roses-menu",
+        "source": "official_venue_subpage",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
@@ -2143,8 +2141,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -2153,7 +2151,7 @@
           "needsTickets": false,
           "whereToGetTickets": false,
           "duration": false,
-          "parking": false,
+          "parking": true,
           "whatToKnow": false
         },
         "missing_dimensions": [
@@ -2163,12 +2161,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -2177,7 +2174,7 @@
             "needsTickets": false,
             "whereToGetTickets": false,
             "duration": false,
-            "parking": false,
+            "parking": true,
             "whatToKnow": false
           },
           "missingDimensions": [
@@ -2187,7 +2184,6 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
             "whatToKnow"
           ]
         },
@@ -2412,7 +2408,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Tide%20Tables%20Restaurant%20and%20Marina&query_place_id=ChIJ6fLbnXYRw4gRoW_2igruY88",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -2448,20 +2444,144 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "The museum is open daily 10am-5pm, with general admission free on Mondays; it is closed Thanksgiving, Christmas Day, and New Year's Day.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
-        "special_hours_count": 0,
-        "special_hours": []
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 17,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 10:00 AM – 5:00 PM",
+          "Tuesday: 10:00 AM – 5:00 PM",
+          "Wednesday: 10:00 AM – 5:00 PM",
+          "Thursday: 10:00 AM – 5:00 PM",
+          "Friday: 10:00 AM – 5:00 PM",
+          "Saturday: 10:00 AM – 5:00 PM",
+          "Sunday: 10:00 AM – 5:00 PM"
+        ],
+        "special_hours_count": 6,
+        "special_hours": [
+          {
+            "date": "2026-11-26",
+            "closed": true,
+            "reason": "Closed Thanksgiving Day"
+          },
+          {
+            "date": "2026-12-25",
+            "closed": true,
+            "reason": "Closed Christmas Day"
+          },
+          {
+            "date": "2026-01-01",
+            "closed": true,
+            "reason": "Closed New Year's Day"
+          },
+          {
+            "date": "2027-11-25",
+            "closed": true,
+            "reason": "Closed Thanksgiving Day"
+          },
+          {
+            "date": "2027-12-25",
+            "closed": true,
+            "reason": "Closed Christmas Day"
+          },
+          {
+            "date": "2027-01-01",
+            "closed": true,
+            "reason": "Closed New Year's Day"
+          }
+        ]
       },
       "admission_truth": {
         "status": "PAID",
@@ -2474,12 +2594,12 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.63,
+        "answered_count": 5,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": true,
           "needsTickets": true,
           "whereToGetTickets": true,
@@ -2488,19 +2608,17 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "duration",
           "parking",
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.63,
+          "answeredCount": 5,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": true,
             "needsTickets": true,
             "whereToGetTickets": true,
@@ -2509,8 +2627,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "duration",
             "parking",
             "whatToKnow"
@@ -2530,7 +2646,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=official_tickets (\"Official tickets\") via first_party_ticket -> https://www.ringling.org/tickets-admission/",
         "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -2831,7 +2947,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Rocco%E2%80%99s%20Tacos&query_place_id=ChIJ70O3wxY5w4gRNF6OmOiNvNc",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -3042,7 +3158,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Agave%20Bandido&query_place_id=ChIJ7QsLgxQ5w4gRSLtMON-sOaI",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -3241,7 +3357,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Oyster%20Bar&query_place_id=ChIJ9050DL0Ww4gRquWht0P2vsQ",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -3432,7 +3548,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Nokomis%20Public%20Beach&query_place_id=ChIJ93GmrXxbw4gRwpdoUmSQPO8",
         "free_paid_why": "Admission=FREE (public-beach) via wayfind_beach_policy",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -3625,7 +3741,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Turtle%20Beach&query_place_id=ChIJ9RsHDcVDw4gRg3ftHUNMwco",
         "free_paid_why": "Admission=FREE (public-beach) via wayfind_beach_policy",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -3646,21 +3762,180 @@
       },
       "ticket_url": null,
       "admission_url": null,
-      "menu_url": null,
+      "menu_url": {
+        "url": "https://order.toasttab.com/online/atria-cafe-lwr",
+        "source": "official_venue_subpage",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Café daily 8am to 2:30pm, pizza and wine bar Tue to Sat 5pm to 8pm",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 12,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 14,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 14,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 14,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 20,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 14,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 20,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 14,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 20,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 14,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 20,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 14,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 20,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 8:00 AM – 2:30 PM",
+          "Tuesday: 8:00 AM – 2:30 PM, 5:00 PM – 8:00 PM",
+          "Wednesday: 8:00 AM – 2:30 PM, 5:00 PM – 8:00 PM",
+          "Thursday: 8:00 AM – 2:30 PM, 5:00 PM – 8:00 PM",
+          "Friday: 8:00 AM – 2:30 PM, 5:00 PM – 8:00 PM",
+          "Saturday: 8:00 AM – 2:30 PM, 5:00 PM – 8:00 PM",
+          "Sunday: 8:00 AM – 2:30 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -3675,11 +3950,11 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.25,
-        "answered_count": 2,
+        "score": 0.38,
+        "answered_count": 3,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": false,
           "needsTickets": false,
@@ -3689,7 +3964,6 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -3697,11 +3971,11 @@
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.25,
-          "answeredCount": 2,
+          "score": 0.38,
+          "answeredCount": 3,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": false,
             "needsTickets": false,
@@ -3711,7 +3985,6 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -3733,7 +4006,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=ATRIA%20Cafe&query_place_id=ChIJA-QkamE7w4gRfdzcxEHyPls",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -3992,7 +4265,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Mi%20Pueblo%20El%20Restaurante%20Mexicano%20%26%20Cantina&query_place_id=ChIJA4OSg7Rbw4gRM9CT-uJJIwg",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -4016,18 +4289,111 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Hours are 11:00 AM – 9:00 PM daily",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 21,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 21,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 21,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 21,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 21,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 21,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 21,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 11:00 AM – 9:00 PM",
+          "Tuesday: 11:00 AM – 9:00 PM",
+          "Wednesday: 11:00 AM – 9:00 PM",
+          "Thursday: 11:00 AM – 9:00 PM",
+          "Friday: 11:00 AM – 9:00 PM",
+          "Saturday: 11:00 AM – 9:00 PM",
+          "Sunday: 11:00 AM – 9:00 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -4042,12 +4408,12 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
@@ -4056,8 +4422,6 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -4066,12 +4430,12 @@
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
@@ -4080,8 +4444,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -4104,7 +4466,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Shake%20Station&query_place_id=ChIJAdipByc9w4gR2lYv8gezcWM",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -4352,9 +4714,9 @@
       "owned_hours": {
         "ok": false,
         "source": "none",
-        "confidence": "UNKNOWN",
+        "confidence": "PROSE_ONLY",
         "parser_version": null,
-        "source_fact": null,
+        "source_fact": "Hours are listed as 11 a.m. to 11 p.m. Monday to Thursday.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
@@ -4367,13 +4729,13 @@
       },
       "admission_truth": {
         "status": "PAID",
-        "label": "Paid admission",
-        "priceText": null,
+        "label": "Weekday tickets are listed from $50, and hours are 11 a.m. to 11 p.m. Monday to Thursday.",
+        "priceText": "Weekday tickets are listed from $50, and hours are 11 a.m. to 11 p.m. Monday to Thursday.",
         "isFree": false,
         "requiresTicket": true,
-        "confidence": "HIGH_CONFIDENCE",
-        "source": "verified_action_ledger",
-        "reason": "verified-ticketed-venue"
+        "confidence": "EXACT",
+        "source": "wayfind_editorial",
+        "reason": "explicit-admission-price"
       },
       "actionability": {
         "score": 0.38,
@@ -4432,9 +4794,9 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
         "primary_cta_why": "CTA=official_tickets (\"Official tickets\") via first_party_ticket -> https://sandboxvr.com/orlando/pointe-orlando/booking/experiences",
-        "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
+        "free_paid_why": "Admission=PAID (explicit-admission-price) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
       }
     },
@@ -4623,7 +4985,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Blackburn%20Point%20Park&query_place_id=ChIJD7cZSFBDw4gRsEpfMoip9BE",
         "free_paid_why": "Admission=FREE (editorial-free-statement) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -4873,18 +5235,99 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Mon, Tue, Thu, Fri 7am to 3pm, Sat and Sun 8am to 3pm, closed Wed",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 6,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 15,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 7,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 15,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 7,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 15,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 7,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 15,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 7,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 15,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 8,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 15,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 7:00 AM – 3:00 PM",
+          "Tuesday: 7:00 AM – 3:00 PM",
+          "Wednesday: Closed",
+          "Thursday: 7:00 AM – 3:00 PM",
+          "Friday: 7:00 AM – 3:00 PM",
+          "Saturday: 8:00 AM – 3:00 PM",
+          "Sunday: 8:00 AM – 3:00 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -4899,11 +5342,11 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.25,
-        "answered_count": 2,
+        "score": 0.38,
+        "answered_count": 3,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": false,
           "needsTickets": false,
@@ -4913,7 +5356,6 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -4921,11 +5363,11 @@
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.25,
-          "answeredCount": 2,
+          "score": 0.38,
+          "answeredCount": 3,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": false,
             "needsTickets": false,
@@ -4935,7 +5377,6 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -4957,7 +5398,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Hashtag%20Caf%C3%A9&query_place_id=ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -5179,7 +5620,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Gecko's%20Grill%20%26%20Pub%20%E2%80%94%20SR-64%20Bradenton&query_place_id=ChIJH9Womvo8w4gR3b99nAsCHXY",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -5235,8 +5676,8 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.5,
+        "answered_count": 4,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -5246,18 +5687,17 @@
           "whereToGetTickets": true,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
           "whenToGo",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.5,
+          "answeredCount": 4,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -5267,14 +5707,13 @@
             "whereToGetTickets": true,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
             "whenToGo",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -5327,18 +5766,111 @@
         "verification_status": "verified"
       },
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Hours are Mon-Thu 5:00 PM-12:30 AM, Fri 5:00 PM-2:30 AM, Sat 3:00 PM-2:30 AM, and Sun 2:00 PM-12:30 AM.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 14,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 0,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 0,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 0,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 0,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 0,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 2,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 15,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 2,
+              "minute": 30
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 5:00 PM – 12:30 AM",
+          "Tuesday: 5:00 PM – 12:30 AM",
+          "Wednesday: 5:00 PM – 12:30 AM",
+          "Thursday: 5:00 PM – 12:30 AM",
+          "Friday: 5:00 PM – 2:30 AM",
+          "Saturday: 3:00 PM – 2:30 AM",
+          "Sunday: 2:00 PM – 12:30 AM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -5353,12 +5885,12 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
@@ -5367,8 +5899,6 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -5377,12 +5907,12 @@
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
@@ -5391,8 +5921,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -5415,7 +5943,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Dracula's%20Legacy%20Wine%20Bar%20%26%20Bistro%20Tampa&query_place_id=ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -5616,7 +6144,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (HIGH_CONFIDENCE, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Gulf%20Drive%20Cafe&query_place_id=ChIJJWCbj5kRw4gRYkZ7QJ-L91s",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -5666,8 +6194,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -5677,7 +6205,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -5686,12 +6214,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -5701,7 +6228,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -5710,8 +6237,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -5752,18 +6278,111 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Store hours are Sunday to Thursday from 11:00 a.m. to 2:00 a.m. and Friday and Saturday from 11:00 a.m. to 4:00 a.m.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 2,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 2,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 2,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 2,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 2,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 4,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 4,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 11:00 AM – 2:00 AM",
+          "Tuesday: 11:00 AM – 2:00 AM",
+          "Wednesday: 11:00 AM – 2:00 AM",
+          "Thursday: 11:00 AM – 2:00 AM",
+          "Friday: 11:00 AM – 4:00 AM",
+          "Saturday: 11:00 AM – 4:00 AM",
+          "Sunday: 11:00 AM – 2:00 AM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -5778,52 +6397,46 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.38,
+        "answered_count": 3,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.38,
+          "answeredCount": 3,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -5840,7 +6453,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Skinny%20Louie&query_place_id=ChIJJzZWD1PX2IgREC3NijoLNd8",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -5902,8 +6515,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -5913,7 +6526,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -5922,12 +6535,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -5937,7 +6549,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -5946,8 +6558,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -6014,8 +6625,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.13,
-        "answered_count": 1,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -6025,7 +6636,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -6033,12 +6644,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.13,
-          "answeredCount": 1,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -6048,7 +6658,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -6056,8 +6666,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -6275,7 +6884,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Mean%20Deans%20Local%20Kitchen&query_place_id=ChIJKSZuXtQVw4gRZRqrR4H9HyQ",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -6331,8 +6940,8 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.5,
+        "answered_count": 4,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -6342,18 +6951,17 @@
           "whereToGetTickets": true,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
           "whenToGo",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.5,
+          "answeredCount": 4,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -6363,14 +6971,13 @@
             "whereToGetTickets": true,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
             "whenToGo",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -6578,7 +7185,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=The%20Bay%20Park&query_place_id=ChIJLZ2vzRxBw4gRMOtW0ArhBhw",
         "free_paid_why": "Admission=FREE (editorial-free-statement) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -6610,9 +7217,9 @@
       "owned_hours": {
         "ok": false,
         "source": "none",
-        "confidence": "UNKNOWN",
+        "confidence": "PROSE_ONLY",
         "parser_version": null,
-        "source_fact": null,
+        "source_fact": "The Full Irish Breakfast is available Saturday & Sunday 11am - 2pm.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
@@ -6634,8 +7241,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -6645,7 +7252,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -6654,12 +7261,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -6669,7 +7275,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -6678,8 +7284,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -6696,7 +7301,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=The%20Field%20Irish%20Pub%20%26%20Eatery&query_place_id=ChIJMTpK3B-q2YgRsI58IHDJFHo",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -6995,7 +7600,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Historic%20Spanish%20Point&query_place_id=ChIJNwQxUnFDw4gRlEruVgcCmu0",
         "free_paid_why": "Admission=PAID (explicit-admission-price) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -7166,7 +7771,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Big%20Cat%20Habitat%20%26%20Gulf%20Coast%20Sanctuary&query_place_id=ChIJNxf8h55Hw4gRSaBE_mEdfxo",
         "free_paid_why": "Admission=PAID (explicit-admission-price) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -7188,26 +7793,89 @@
       "ticket_url": null,
       "admission_url": null,
       "menu_url": null,
-      "reservation_url": {
-        "url": "https://www.coyoteuglysaloon.com/book/florida/",
-        "source": "official_venue_subpage",
-        "retrieved_at": "2026-11-13T04:23:22.606Z",
-        "confidence": "EXACT",
-        "verification_status": "verified"
-      },
+      "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Hours are Sunday 4pm-3am, Monday-Tuesday closed, Wednesday-Thursday 7pm-3am, Friday 6pm-3am, and Saturday 4pm-3am.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 5,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 16,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 19,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 19,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 18,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 16,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 3,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: Closed",
+          "Tuesday: Closed",
+          "Wednesday: 7:00 PM – 3:00 AM",
+          "Thursday: 7:00 PM – 3:00 AM",
+          "Friday: 6:00 PM – 3:00 AM",
+          "Saturday: 4:00 PM – 3:00 AM",
+          "Sunday: 4:00 PM – 3:00 AM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -7222,12 +7890,12 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
@@ -7236,8 +7904,6 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -7246,12 +7912,12 @@
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
@@ -7260,8 +7926,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -7284,7 +7948,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Coyote%20Ugly%20Saloon&query_place_id=ChIJOdY8qlHEwogRXPbXY1cq2xo",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -7708,7 +8372,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=admission (\"See admission\") via first_party_admission -> https://selby.org/visit/",
         "free_paid_why": "Admission=PAID (explicit-admission-price) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -7903,7 +8567,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Warm%20Mineral%20Springs&query_place_id=ChIJPXlTqYFTw4gRveHTZWG55DY",
         "free_paid_why": "Admission=PAID (explicit-admission-price) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -7927,18 +8591,111 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Open 10 AM–11 PM Monday–Thursday, 10 AM–11:30 PM Friday–Saturday, 10 AM–11 PM Sunday.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 23,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 10,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 23,
+              "minute": 30
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 10:00 AM – 11:00 PM",
+          "Tuesday: 10:00 AM – 11:00 PM",
+          "Wednesday: 10:00 AM – 11:00 PM",
+          "Thursday: 10:00 AM – 11:00 PM",
+          "Friday: 10:00 AM – 11:30 PM",
+          "Saturday: 10:00 AM – 11:30 PM",
+          "Sunday: 10:00 AM – 11:00 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -7953,12 +8710,12 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
@@ -7967,8 +8724,6 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -7977,12 +8732,12 @@
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
@@ -7991,8 +8746,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -8015,7 +8768,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Gideon's%20Bakehouse&query_place_id=ChIJPd6UAfJ_3YgRP-V0GS5jS8I",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -8071,8 +8824,8 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.5,
+        "answered_count": 4,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -8082,18 +8835,17 @@
           "whereToGetTickets": true,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
           "whenToGo",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.5,
+          "answeredCount": 4,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -8103,14 +8855,13 @@
             "whereToGetTickets": true,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
             "whenToGo",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -8567,7 +9318,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Gecko's%20Grill%20%26%20Pub%20%E2%80%94%20Fruitville%20Sarasota&query_place_id=ChIJRcH7zGBHw4gRek5qQU0_8wg",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -8603,18 +9354,111 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Open daily 9:30am to 5pm",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 0,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 1,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 2,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 3,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 4,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 5,
+              "hour": 17,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 6,
+              "hour": 17,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 9:30 AM – 5:00 PM",
+          "Tuesday: 9:30 AM – 5:00 PM",
+          "Wednesday: 9:30 AM – 5:00 PM",
+          "Thursday: 9:30 AM – 5:00 PM",
+          "Friday: 9:30 AM – 5:00 PM",
+          "Saturday: 9:30 AM – 5:00 PM",
+          "Sunday: 9:30 AM – 5:00 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -8629,12 +9473,12 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.63,
+        "answered_count": 5,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": true,
           "needsTickets": true,
           "whereToGetTickets": true,
@@ -8643,19 +9487,17 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "duration",
           "parking",
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.63,
+          "answeredCount": 5,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": true,
             "needsTickets": true,
             "whereToGetTickets": true,
@@ -8664,8 +9506,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "duration",
             "parking",
             "whatToKnow"
@@ -8685,7 +9525,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=official_tickets (\"Official tickets\") via first_party_ticket -> https://ticketing.mote.org/events/06635617-3233-f0f3-79fa-092eea8061c6",
         "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -8806,7 +9646,13 @@
       },
       "ticket_url": null,
       "admission_url": null,
-      "menu_url": null,
+      "menu_url": {
+        "url": "https://eathawkers.com/menus/dining/",
+        "source": "official_venue_subpage",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
@@ -8835,8 +9681,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -8846,7 +9692,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -8855,12 +9701,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -8870,7 +9715,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -8879,8 +9724,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -9098,7 +9942,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Original%20Word%20of%20Mouth&query_place_id=ChIJSZyKtGVaw4gRkKUbiPqvOVI",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -9154,8 +9998,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -9165,7 +10009,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -9174,12 +10018,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -9189,7 +10032,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -9198,8 +10041,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -9405,7 +10247,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Der%20Dutchman&query_place_id=ChIJSxtyZcBAw4gRrgOGwbkWXIU",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -9455,8 +10297,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -9466,7 +10308,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -9475,12 +10317,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -9490,7 +10331,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -9499,8 +10340,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -9553,18 +10393,111 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Edison and Ford Winter Estates is open daily 9 a.m. to 5:30 p.m., with last admission at 4:30 p.m.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 9,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 17,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 9,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 17,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 9,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 17,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 9,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 17,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 9,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 17,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 9,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 17,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 9,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 17,
+              "minute": 30
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 9:00 AM – 5:30 PM",
+          "Tuesday: 9:00 AM – 5:30 PM",
+          "Wednesday: 9:00 AM – 5:30 PM",
+          "Thursday: 9:00 AM – 5:30 PM",
+          "Friday: 9:00 AM – 5:30 PM",
+          "Saturday: 9:00 AM – 5:30 PM",
+          "Sunday: 9:00 AM – 5:30 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -9579,46 +10512,40 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.75,
+        "answered_count": 6,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": true,
           "needsTickets": true,
           "whereToGetTickets": true,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.75,
+          "answeredCount": 6,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": true,
             "needsTickets": true,
             "whereToGetTickets": true,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -9635,7 +10562,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=official_tickets (\"Official tickets\") via first_party_ticket -> https://www.edisonfordwinterestates.org/visit/tickets-tours/",
         "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -9828,7 +10755,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=De%20Soto%20National%20Memorial&query_place_id=ChIJVcqB2MUQw4gRbN_T0WF8QEw",
         "free_paid_why": "Admission=FREE (editorial-free-statement) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -10029,7 +10956,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Smugglers%20Cove%20Adventure%20Golf&query_place_id=ChIJVeAVXRMWw4gRxZI3_6BnaR0",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -10050,7 +10977,13 @@
       },
       "ticket_url": null,
       "admission_url": null,
-      "menu_url": null,
+      "menu_url": {
+        "url": "https://tampaichibansushi.com/menu",
+        "source": "official_venue_subpage",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
@@ -10079,8 +11012,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -10090,7 +11023,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -10099,12 +11032,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -10114,7 +11046,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -10123,8 +11055,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -10154,15 +11085,21 @@
       "gap_class": "E",
       "timezone": "America/New_York",
       "official_website": {
-        "url": "https://www.thesteinandvine.com/about",
+        "url": "https://www.thesteinandvine.com/",
         "source": "wf_editorial_citation",
-        "retrieved_at": "2026-11-13T04:23:22.606Z",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
         "confidence": "EXACT",
         "verification_status": "verified"
       },
       "ticket_url": null,
       "admission_url": null,
-      "menu_url": null,
+      "menu_url": {
+        "url": "https://www.thesteinandvine.com/brandon/menu",
+        "source": "official_venue_subpage",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
@@ -10303,8 +11240,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.13,
-        "answered_count": 1,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -10314,7 +11251,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -10322,12 +11259,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.13,
-          "answeredCount": 1,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -10337,7 +11273,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -10345,8 +11281,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -10674,7 +11609,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Max's%20Table&query_place_id=ChIJ_azYMG5Dw4gRi_ACS_yl7Tw",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -10871,7 +11806,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Columbia%20Restaurant&query_place_id=ChIJaTQEjpFqw4gRnHJU2Klfw0o",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -10895,18 +11830,111 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Beach park 5am–11pm; restrooms 7am–11pm; pool currently closed for maintenance",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 5,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 5,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 5,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 5,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 5,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 5,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 23,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 5,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 23,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 5:00 AM – 11:00 PM",
+          "Tuesday: 5:00 AM – 11:00 PM",
+          "Wednesday: 5:00 AM – 11:00 PM",
+          "Thursday: 5:00 AM – 11:00 PM",
+          "Friday: 5:00 AM – 11:00 PM",
+          "Saturday: 5:00 AM – 11:00 PM",
+          "Sunday: 5:00 AM – 11:00 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -10921,11 +11949,11 @@
         "reason": "public-beach"
       },
       "actionability": {
-        "score": 0.75,
-        "answered_count": 6,
+        "score": 0.88,
+        "answered_count": 7,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -10935,15 +11963,14 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration"
         ],
         "verified_coverage": {
-          "score": 0.75,
-          "answeredCount": 6,
+          "score": 0.88,
+          "answeredCount": 7,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -10953,7 +11980,6 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration"
           ]
         },
@@ -10971,7 +11997,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Lido%20Beach&query_place_id=ChIJaW-sUB9rw4gRrQvxVM94nOY",
         "free_paid_why": "Admission=FREE (public-beach) via wayfind_beach_policy",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -11021,8 +12047,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.13,
-        "answered_count": 1,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -11032,7 +12058,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -11040,12 +12066,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.13,
-          "answeredCount": 1,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -11055,7 +12080,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -11063,8 +12088,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -11137,8 +12161,8 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.5,
+        "answered_count": 4,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -11148,18 +12172,17 @@
           "whereToGetTickets": true,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
           "whenToGo",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.5,
+          "answeredCount": 4,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -11169,14 +12192,13 @@
             "whereToGetTickets": true,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
             "whenToGo",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -11361,8 +12383,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -11372,7 +12394,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -11381,12 +12403,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -11396,7 +12417,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -11405,8 +12426,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -11473,8 +12493,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -11484,7 +12504,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -11493,12 +12513,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -11508,7 +12527,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -11517,8 +12536,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -11763,18 +12781,195 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Lunch 11:45am–3:30pm; dinner 3:30–10pm; sushi & cocktails 11:45am–10pm",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 14,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 11,
+              "minute": 45
+            },
+            "close": {
+              "day": 0,
+              "hour": 15,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 0,
+              "hour": 15,
+              "minute": 30
+            },
+            "close": {
+              "day": 0,
+              "hour": 22,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 11,
+              "minute": 45
+            },
+            "close": {
+              "day": 1,
+              "hour": 15,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 15,
+              "minute": 30
+            },
+            "close": {
+              "day": 1,
+              "hour": 22,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 11,
+              "minute": 45
+            },
+            "close": {
+              "day": 2,
+              "hour": 15,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 15,
+              "minute": 30
+            },
+            "close": {
+              "day": 2,
+              "hour": 22,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 11,
+              "minute": 45
+            },
+            "close": {
+              "day": 3,
+              "hour": 15,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 15,
+              "minute": 30
+            },
+            "close": {
+              "day": 3,
+              "hour": 22,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 11,
+              "minute": 45
+            },
+            "close": {
+              "day": 4,
+              "hour": 15,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 15,
+              "minute": 30
+            },
+            "close": {
+              "day": 4,
+              "hour": 22,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 11,
+              "minute": 45
+            },
+            "close": {
+              "day": 5,
+              "hour": 15,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 15,
+              "minute": 30
+            },
+            "close": {
+              "day": 5,
+              "hour": 22,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 11,
+              "minute": 45
+            },
+            "close": {
+              "day": 6,
+              "hour": 15,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 15,
+              "minute": 30
+            },
+            "close": {
+              "day": 6,
+              "hour": 22,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 11:45 AM – 3:30 PM, 3:30 PM – 10:00 PM",
+          "Tuesday: 11:45 AM – 3:30 PM, 3:30 PM – 10:00 PM",
+          "Wednesday: 11:45 AM – 3:30 PM, 3:30 PM – 10:00 PM",
+          "Thursday: 11:45 AM – 3:30 PM, 3:30 PM – 10:00 PM",
+          "Friday: 11:45 AM – 3:30 PM, 3:30 PM – 10:00 PM",
+          "Saturday: 11:45 AM – 3:30 PM, 3:30 PM – 10:00 PM",
+          "Sunday: 11:45 AM – 3:30 PM, 3:30 PM – 10:00 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -11789,11 +12984,11 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.25,
-        "answered_count": 2,
+        "score": 0.38,
+        "answered_count": 3,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": false,
           "needsTickets": false,
@@ -11803,7 +12998,6 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -11811,11 +13005,11 @@
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.25,
-          "answeredCount": 2,
+          "score": 0.38,
+          "answeredCount": 3,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": false,
             "needsTickets": false,
@@ -11825,7 +13019,6 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -11847,7 +13040,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Fins%20At%20Sharky's&query_place_id=ChIJf5M5VmBZw4gRVHX-dcX1dBk",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -12048,7 +13241,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Captain%20Curt's%20Crab%20%26%20Oyster%20Bar&query_place_id=ChIJg2jnUiFCw4gRiYPUEhJoxhg",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -12204,8 +13397,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -12215,7 +13408,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -12224,12 +13417,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -12239,7 +13431,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -12248,8 +13440,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -12402,18 +13593,111 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Open Monday to Friday 12pm to 9:30pm, and Saturday to Sunday 10:30am to 9:30pm",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 10,
+              "minute": 30
+            },
+            "close": {
+              "day": 0,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 10,
+              "minute": 30
+            },
+            "close": {
+              "day": 6,
+              "hour": 21,
+              "minute": 30
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 12:00 PM – 9:30 PM",
+          "Tuesday: 12:00 PM – 9:30 PM",
+          "Wednesday: 12:00 PM – 9:30 PM",
+          "Thursday: 12:00 PM – 9:30 PM",
+          "Friday: 12:00 PM – 9:30 PM",
+          "Saturday: 10:30 AM – 9:30 PM",
+          "Sunday: 10:30 AM – 9:30 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -12428,46 +13712,40 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.75,
+        "answered_count": 6,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": true,
           "needsTickets": true,
           "whereToGetTickets": true,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.75,
+          "answeredCount": 6,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": true,
             "needsTickets": true,
             "whereToGetTickets": true,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -12484,7 +13762,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=official_tickets (\"Official tickets\") via first_party_ticket -> https://escaperealitysarasota.com/book-now",
         "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -12505,7 +13783,13 @@
       },
       "ticket_url": null,
       "admission_url": null,
-      "menu_url": null,
+      "menu_url": {
+        "url": "https://arwafl.com/brand-order",
+        "source": "official_venue_subpage",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
@@ -12534,8 +13818,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -12545,7 +13829,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -12554,12 +13838,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -12569,7 +13852,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -12578,8 +13861,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -12893,7 +14175,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Siesta%20Beach&query_place_id=ChIJjfu2YPBBw4gRo41o9hwHfmg",
         "free_paid_why": "Admission=FREE (public-beach) via wayfind_beach_policy",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -12923,18 +14205,111 @@
       },
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "The Sarasota location's official page lists hours of 11 a.m.-midnight Sunday-Thursday and 11 a.m.-1 a.m. Friday-Saturday.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 0,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 0,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 0,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 0,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 0,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 1,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 1,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 11:00 AM – 12:00 AM",
+          "Tuesday: 11:00 AM – 12:00 AM",
+          "Wednesday: 11:00 AM – 12:00 AM",
+          "Thursday: 11:00 AM – 12:00 AM",
+          "Friday: 11:00 AM – 1:00 AM",
+          "Saturday: 11:00 AM – 1:00 AM",
+          "Sunday: 11:00 AM – 12:00 AM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -12949,12 +14324,12 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
@@ -12963,8 +14338,6 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -12973,12 +14346,12 @@
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
@@ -12987,8 +14360,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -13011,7 +14382,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Twin%20Peaks&query_place_id=ChIJjwUZ8htHw4gR6-xAgrevYLM",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -13145,18 +14516,111 @@
       },
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Open Mon–Thu 11 AM–9:30 PM, Fri–Sat 11 AM–10:30 PM, Sun 11:30 AM–9 PM.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 11,
+              "minute": 30
+            },
+            "close": {
+              "day": 0,
+              "hour": 21,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 21,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 22,
+              "minute": 30
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 22,
+              "minute": 30
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 11:00 AM – 9:30 PM",
+          "Tuesday: 11:00 AM – 9:30 PM",
+          "Wednesday: 11:00 AM – 9:30 PM",
+          "Thursday: 11:00 AM – 9:30 PM",
+          "Friday: 11:00 AM – 10:30 PM",
+          "Saturday: 11:00 AM – 10:30 PM",
+          "Sunday: 11:30 AM – 9:00 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -13171,12 +14635,12 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
@@ -13185,8 +14649,6 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -13195,12 +14657,12 @@
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
@@ -13209,8 +14671,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -13233,7 +14693,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Naked%20Farmer&query_place_id=ChIJkTDP2OLFwogR9W0EjRYIL-0",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -13769,7 +15229,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=admission (\"See admission\") via first_party_admission -> https://boktowergardens.org/admission/",
         "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -13995,7 +15455,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Venice%20Fishing%20Pier&query_place_id=ChIJnXtixd5bw4gRrKDqLZC8Dlk",
         "free_paid_why": "Admission=FREE (editorial-free-statement) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -14265,8 +15725,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -14276,7 +15736,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -14285,12 +15745,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -14300,7 +15759,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -14309,8 +15768,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -14775,7 +16233,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=official_tickets (\"Official tickets\") via manual_verified_ticket -> https://www.ringling.org/tickets-admission/",
         "free_paid_why": "Admission=PAID (explicit-admission-price) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -14903,26 +16361,113 @@
         "confidence": "EXACT",
         "verification_status": "verified"
       },
-      "reservation_url": {
-        "url": "https://badmonkeyybor.com/event-reservation/",
-        "source": "official_venue_subpage",
-        "retrieved_at": "2026-11-13T04:23:22.606Z",
-        "confidence": "EXACT",
-        "verification_status": "verified"
-      },
+      "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Bad Monkey is a sports bar in Ybor City at 1717 E 7th Ave, Tampa, FL 33605, open daily noon to 3 AM.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 12,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 3,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 12:00 PM – 3:00 AM",
+          "Tuesday: 12:00 PM – 3:00 AM",
+          "Wednesday: 12:00 PM – 3:00 AM",
+          "Thursday: 12:00 PM – 3:00 AM",
+          "Friday: 12:00 PM – 3:00 AM",
+          "Saturday: 12:00 PM – 3:00 AM",
+          "Sunday: 12:00 PM – 3:00 AM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -14937,12 +16482,12 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
@@ -14951,8 +16496,6 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -14961,12 +16504,12 @@
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
@@ -14975,8 +16518,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -14999,7 +16540,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Bad%20Monkey%20Ybor&query_place_id=ChIJq2_lAFHEwogRRCeJJ77fHgg",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -15028,10 +16569,10 @@
         "verification_status": "verified"
       },
       "reservation_url": {
-        "url": "https://resy.com/cities/bradenton-fl/venues/obricks-irish-pub",
+        "url": "https://resy.com/cities/bradenton-fl/venues/obricks",
         "source": "official_venue_subpage",
-        "retrieved_at": "2026-11-13T04:23:22.606Z",
-        "confidence": "HIGH_CONFIDENCE",
+        "retrieved_at": "2026-11-13T20:40:00.000Z",
+        "confidence": "EXACT",
         "verification_status": "verified"
       },
       "owned_hours": {
@@ -15143,10 +16684,10 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": true,
-        "source": "wayfind_editorial_hours",
-        "confidence": "HIGH_CONFIDENCE",
-        "parser_version": "editorial-hours-v1",
+        "ok": false,
+        "source": "none",
+        "confidence": "PROSE_ONLY",
+        "parser_version": null,
         "source_fact": "Daily ~8am–8pm (seasonal); breakfast to 11am weekdays, noon weekends",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -15154,101 +16695,209 @@
         "exceptions": [
           "seasonal"
         ],
+        "periods_count": 0,
+        "periods": [],
+        "weekday_descriptions": [],
+        "special_hours_count": 0,
+        "special_hours": []
+      },
+      "admission_truth": {
+        "status": "UNKNOWN",
+        "label": null,
+        "priceText": null,
+        "isFree": false,
+        "requiresTicket": false,
+        "confidence": "UNKNOWN",
+        "source": "none",
+        "reason": "no-admission-evidence"
+      },
+      "actionability": {
+        "score": 0.25,
+        "answered_count": 2,
+        "total_dimensions": 8,
+        "dimensions": {
+          "canGoNow": false,
+          "whenToGo": true,
+          "cost": false,
+          "needsTickets": false,
+          "whereToGetTickets": false,
+          "duration": false,
+          "parking": false,
+          "whatToKnow": true
+        },
+        "missing_dimensions": [
+          "canGoNow",
+          "cost",
+          "needsTickets",
+          "whereToGetTickets",
+          "duration",
+          "parking"
+        ],
+        "verified_coverage": {
+          "score": 0.25,
+          "answeredCount": 2,
+          "totalDimensions": 8,
+          "dimensions": {
+            "canGoNow": false,
+            "whenToGo": true,
+            "cost": false,
+            "needsTickets": false,
+            "whereToGetTickets": false,
+            "duration": false,
+            "parking": false,
+            "whatToKnow": true
+          },
+          "missingDimensions": [
+            "canGoNow",
+            "cost",
+            "needsTickets",
+            "whereToGetTickets",
+            "duration",
+            "parking"
+          ]
+        },
+        "fallback_readiness": {
+          "score": 0.75,
+          "readyCount": 3,
+          "totalFallbacks": 4,
+          "fallbacks": {
+            "hasDirectionsFallback": true,
+            "canPlanShare": true,
+            "hasBackupOrEventOption": false,
+            "hasSafeGracefulDegradation": true
+          }
+        },
+        "affects_wayfind_score": false
+      },
+      "trace_summary": {
+        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
+        "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Island%20Beach%20Cafe&query_place_id=ChIJqdXkLDEQw4gRY9A4zDFkRMA",
+        "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
+        "partner_offer_why": "No exact partner pin; organic/official action ladder used"
+      }
+    },
+    "ChIJqwo10S3dwogRnC3CEXFQNwI": {
+      "place_id": "ChIJqwo10S3dwogRnC3CEXFQNwI",
+      "name": "Green Iguana Bar & Grill",
+      "locality": "Tampa",
+      "gap_class": "E",
+      "timezone": "America/New_York",
+      "official_website": {
+        "url": "https://greeniguana.com/",
+        "source": "wf_editorial_citation",
+        "retrieved_at": "2026-11-13T04:23:22.606Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
+      "ticket_url": null,
+      "admission_url": null,
+      "menu_url": null,
+      "reservation_url": null,
+      "owned_hours": {
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Green Iguana bar is open daily from 11 a.m. to 3 a.m.",
+        "timezone": "America/New_York",
+        "verified_at": null,
+        "freshness": "unverified_timestamp",
+        "exceptions": [],
         "periods_count": 7,
         "periods": [
           {
             "open": {
               "day": 0,
-              "hour": 8,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 11,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 11,
               "minute": 0
             },
             "close": {
               "day": 0,
-              "hour": 20,
-              "minute": 0
-            }
-          },
-          {
-            "open": {
-              "day": 1,
-              "hour": 8,
-              "minute": 0
-            },
-            "close": {
-              "day": 1,
-              "hour": 20,
-              "minute": 0
-            }
-          },
-          {
-            "open": {
-              "day": 2,
-              "hour": 8,
-              "minute": 0
-            },
-            "close": {
-              "day": 2,
-              "hour": 20,
-              "minute": 0
-            }
-          },
-          {
-            "open": {
-              "day": 3,
-              "hour": 8,
-              "minute": 0
-            },
-            "close": {
-              "day": 3,
-              "hour": 20,
-              "minute": 0
-            }
-          },
-          {
-            "open": {
-              "day": 4,
-              "hour": 8,
-              "minute": 0
-            },
-            "close": {
-              "day": 4,
-              "hour": 20,
-              "minute": 0
-            }
-          },
-          {
-            "open": {
-              "day": 5,
-              "hour": 8,
-              "minute": 0
-            },
-            "close": {
-              "day": 5,
-              "hour": 20,
-              "minute": 0
-            }
-          },
-          {
-            "open": {
-              "day": 6,
-              "hour": 8,
-              "minute": 0
-            },
-            "close": {
-              "day": 6,
-              "hour": 20,
+              "hour": 3,
               "minute": 0
             }
           }
         ],
         "weekday_descriptions": [
-          "Monday: 8:00 AM – 8:00 PM",
-          "Tuesday: 8:00 AM – 8:00 PM",
-          "Wednesday: 8:00 AM – 8:00 PM",
-          "Thursday: 8:00 AM – 8:00 PM",
-          "Friday: 8:00 AM – 8:00 PM",
-          "Saturday: 8:00 AM – 8:00 PM",
-          "Sunday: 8:00 AM – 8:00 PM"
+          "Monday: 11:00 AM – 3:00 AM",
+          "Tuesday: 11:00 AM – 3:00 AM",
+          "Wednesday: 11:00 AM – 3:00 AM",
+          "Thursday: 11:00 AM – 3:00 AM",
+          "Friday: 11:00 AM – 3:00 AM",
+          "Saturday: 11:00 AM – 3:00 AM",
+          "Sunday: 11:00 AM – 3:00 AM"
         ],
         "special_hours_count": 0,
         "special_hours": []
@@ -15320,119 +16969,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (HIGH_CONFIDENCE, editorial-hours-v1)",
-        "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Anna%20Maria%20Island%20Beach%20Cafe&query_place_id=ChIJqdXkLDEQw4gRY9A4zDFkRMA",
-        "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
-        "partner_offer_why": "No exact partner pin; organic/official action ladder used"
-      }
-    },
-    "ChIJqwo10S3dwogRnC3CEXFQNwI": {
-      "place_id": "ChIJqwo10S3dwogRnC3CEXFQNwI",
-      "name": "Green Iguana Bar & Grill",
-      "locality": "Tampa",
-      "gap_class": "E",
-      "timezone": "America/New_York",
-      "official_website": {
-        "url": "https://greeniguana.com/",
-        "source": "wf_editorial_citation",
-        "retrieved_at": "2026-11-13T04:23:22.606Z",
-        "confidence": "EXACT",
-        "verification_status": "verified"
-      },
-      "ticket_url": null,
-      "admission_url": null,
-      "menu_url": null,
-      "reservation_url": null,
-      "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
-        "timezone": "America/New_York",
-        "verified_at": null,
-        "freshness": "unverified_timestamp",
-        "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
-        "special_hours_count": 0,
-        "special_hours": []
-      },
-      "admission_truth": {
-        "status": "UNKNOWN",
-        "label": null,
-        "priceText": null,
-        "isFree": false,
-        "requiresTicket": false,
-        "confidence": "UNKNOWN",
-        "source": "none",
-        "reason": "no-admission-evidence"
-      },
-      "actionability": {
-        "score": 0,
-        "answered_count": 0,
-        "total_dimensions": 8,
-        "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
-          "cost": false,
-          "needsTickets": false,
-          "whereToGetTickets": false,
-          "duration": false,
-          "parking": false,
-          "whatToKnow": false
-        },
-        "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
-          "cost",
-          "needsTickets",
-          "whereToGetTickets",
-          "duration",
-          "parking",
-          "whatToKnow"
-        ],
-        "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
-          "totalDimensions": 8,
-          "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
-            "cost": false,
-            "needsTickets": false,
-            "whereToGetTickets": false,
-            "duration": false,
-            "parking": false,
-            "whatToKnow": false
-          },
-          "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
-            "cost",
-            "needsTickets",
-            "whereToGetTickets",
-            "duration",
-            "parking",
-            "whatToKnow"
-          ]
-        },
-        "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
-          "totalFallbacks": 4,
-          "fallbacks": {
-            "hasDirectionsFallback": true,
-            "canPlanShare": true,
-            "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
-          }
-        },
-        "affects_wayfind_score": false
-      },
-      "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Green%20Iguana%20Bar%20%26%20Grill&query_place_id=ChIJqwo10S3dwogRnC3CEXFQNwI",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -15623,7 +17160,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=official_tickets (\"Official tickets\") via first_party_ticket -> https://26965.blackbaudhosting.com/26965/tickets?tab=3&txobjid=604e2f5d-de55-4582-a814-bfe941af2433",
         "free_paid_why": "Admission=PAID (explicit-admission-price) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -15644,7 +17181,13 @@
       },
       "ticket_url": null,
       "admission_url": null,
-      "menu_url": null,
+      "menu_url": {
+        "url": "https://www.kaizenjapanesekitchen.com/order",
+        "source": "official_venue_subpage",
+        "retrieved_at": "2026-11-13T20:36:00.000Z",
+        "confidence": "EXACT",
+        "verification_status": "verified"
+      },
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
@@ -15673,8 +17216,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -15684,7 +17227,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -15693,12 +17236,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -15708,7 +17250,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -15717,8 +17259,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -15936,7 +17477,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Ophelia's%20on%20the%20Bay&query_place_id=ChIJs8HMPKxDw4gR8rXHdqdvpmE",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -15986,8 +17527,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -15997,7 +17538,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -16006,12 +17547,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -16021,7 +17561,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -16030,8 +17570,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -16249,7 +17788,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=OPEN from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=First%20Watch&query_place_id=ChIJt1Uyz0yr3IgRtexrWXMFlwQ",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -16273,18 +17812,111 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Hours are Monday-Friday 5 p.m.-3 a.m. and Saturday-Sunday 7 p.m.-3 a.m.",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 7,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 19,
+              "minute": 0
+            },
+            "close": {
+              "day": 1,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 1,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 2,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 3,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 4,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 5,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 17,
+              "minute": 0
+            },
+            "close": {
+              "day": 6,
+              "hour": 3,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 19,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 3,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: 5:00 PM – 3:00 AM",
+          "Tuesday: 5:00 PM – 3:00 AM",
+          "Wednesday: 5:00 PM – 3:00 AM",
+          "Thursday: 5:00 PM – 3:00 AM",
+          "Friday: 5:00 PM – 3:00 AM",
+          "Saturday: 7:00 PM – 3:00 AM",
+          "Sunday: 7:00 PM – 3:00 AM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -16299,12 +17931,12 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.25,
+        "answered_count": 2,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": false,
           "needsTickets": false,
           "whereToGetTickets": false,
@@ -16313,8 +17945,6 @@
           "whatToKnow": false
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -16323,12 +17953,12 @@
           "whatToKnow"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.25,
+          "answeredCount": 2,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": false,
             "needsTickets": false,
             "whereToGetTickets": false,
@@ -16337,8 +17967,6 @@
             "whatToKnow": false
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -16361,7 +17989,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Hammered%20Harry's%20Tampa&query_place_id=ChIJv4dyuXnPwogRMK5yN-Ke2Iw",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -16521,8 +18149,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -16532,7 +18160,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -16541,12 +18169,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -16556,7 +18183,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -16565,8 +18192,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -16784,7 +18410,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=CLOSED from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
+        "open_closed_why": "Status=CLOSED from atlas_editorial (EXACT)",
         "primary_cta_why": "CTA=directions (\"Directions\") via fallback_directions -> https://www.google.com/maps/search/?api=1&query=Marina%20Jack&query_place_id=ChIJx-U-VRFAw4gRUUDwK8ht44s",
         "free_paid_why": "Admission=UNKNOWN (no-admission-evidence) via none",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -16922,18 +18548,99 @@
       "menu_url": null,
       "reservation_url": null,
       "owned_hours": {
-        "ok": false,
-        "source": "none",
-        "confidence": "UNKNOWN",
-        "parser_version": null,
-        "source_fact": null,
+        "ok": true,
+        "source": "wayfind_editorial_hours",
+        "confidence": "EXACT",
+        "parser_version": "editorial-hours-v1",
+        "source_fact": "Museum hours are Tuesday–Saturday, 9:30 a.m.–4 p.m.; Museum hours are Sunday, 1–4 p.m.; The museum is closed Monday",
         "timezone": "America/New_York",
         "verified_at": null,
         "freshness": "unverified_timestamp",
         "exceptions": [],
-        "periods_count": 0,
-        "periods": [],
-        "weekday_descriptions": [],
+        "periods_count": 6,
+        "periods": [
+          {
+            "open": {
+              "day": 0,
+              "hour": 13,
+              "minute": 0
+            },
+            "close": {
+              "day": 0,
+              "hour": 16,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 2,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 2,
+              "hour": 16,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 3,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 3,
+              "hour": 16,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 4,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 4,
+              "hour": 16,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 5,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 5,
+              "hour": 16,
+              "minute": 0
+            }
+          },
+          {
+            "open": {
+              "day": 6,
+              "hour": 9,
+              "minute": 30
+            },
+            "close": {
+              "day": 6,
+              "hour": 16,
+              "minute": 0
+            }
+          }
+        ],
+        "weekday_descriptions": [
+          "Monday: Closed",
+          "Tuesday: 9:30 AM – 4:00 PM",
+          "Wednesday: 9:30 AM – 4:00 PM",
+          "Thursday: 9:30 AM – 4:00 PM",
+          "Friday: 9:30 AM – 4:00 PM",
+          "Saturday: 9:30 AM – 4:00 PM",
+          "Sunday: 1:00 PM – 4:00 PM"
+        ],
         "special_hours_count": 0,
         "special_hours": []
       },
@@ -16948,46 +18655,40 @@
         "reason": "verified-ticketed-venue"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.75,
+        "answered_count": 6,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
-          "whenToGo": false,
+          "canGoNow": true,
+          "whenToGo": true,
           "cost": true,
           "needsTickets": true,
           "whereToGetTickets": true,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
-          "whenToGo",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.75,
+          "answeredCount": 6,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
-            "whenToGo": false,
+            "canGoNow": true,
+            "whenToGo": true,
             "cost": true,
             "needsTickets": true,
             "whereToGetTickets": true,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
-            "whenToGo",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -17004,7 +18705,7 @@
         "affects_wayfind_score": false
       },
       "trace_summary": {
-        "open_closed_why": "Status=UNKNOWN (no structured periods; prose=none)",
+        "open_closed_why": "Status=OPEN from wayfind_editorial_hours (EXACT, editorial-hours-v1)",
         "primary_cta_why": "CTA=admission (\"See admission\") via manual_verified_admission -> https://morsemuseum.org/plan-your-visit/",
         "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
@@ -17164,8 +18865,8 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0,
-        "answered_count": 0,
+        "score": 0.13,
+        "answered_count": 1,
         "total_dimensions": 8,
         "dimensions": {
           "canGoNow": false,
@@ -17175,7 +18876,7 @@
           "whereToGetTickets": false,
           "duration": false,
           "parking": false,
-          "whatToKnow": false
+          "whatToKnow": true
         },
         "missing_dimensions": [
           "canGoNow",
@@ -17184,12 +18885,11 @@
           "needsTickets",
           "whereToGetTickets",
           "duration",
-          "parking",
-          "whatToKnow"
+          "parking"
         ],
         "verified_coverage": {
-          "score": 0,
-          "answeredCount": 0,
+          "score": 0.13,
+          "answeredCount": 1,
           "totalDimensions": 8,
           "dimensions": {
             "canGoNow": false,
@@ -17199,7 +18899,7 @@
             "whereToGetTickets": false,
             "duration": false,
             "parking": false,
-            "whatToKnow": false
+            "whatToKnow": true
           },
           "missingDimensions": [
             "canGoNow",
@@ -17208,8 +18908,7 @@
             "needsTickets",
             "whereToGetTickets",
             "duration",
-            "parking",
-            "whatToKnow"
+            "parking"
           ]
         },
         "fallback_readiness": {
@@ -17272,14 +18971,14 @@
         "special_hours": []
       },
       "admission_truth": {
-        "status": "PAID",
-        "label": "Paid admission",
-        "priceText": null,
+        "status": "PARKING_FEE_ONLY",
+        "label": "Blue Spring State Park lists a fee of $6 per vehicle",
+        "priceText": "Blue Spring State Park lists a fee of $6 per vehicle",
         "isFree": false,
-        "requiresTicket": true,
-        "confidence": "HIGH_CONFIDENCE",
-        "source": "verified_action_ledger",
-        "reason": "verified-ticketed-venue"
+        "requiresTicket": false,
+        "confidence": "EXACT",
+        "source": "wayfind_editorial",
+        "reason": "vehicle-entry-fee-only"
       },
       "actionability": {
         "score": 0.63,
@@ -17336,7 +19035,7 @@
       "trace_summary": {
         "open_closed_why": "Status=UNKNOWN (no structured periods; prose=present)",
         "primary_cta_why": "CTA=admission (\"See admission\") via first_party_admission -> https://www.floridastateparks.org/parks-and-trails/blue-spring-state-park",
-        "free_paid_why": "Admission=PAID (verified-ticketed-venue) via verified_action_ledger",
+        "free_paid_why": "Admission=PARKING_FEE_ONLY (vehicle-entry-fee-only) via wayfind_editorial",
         "partner_offer_why": "No exact partner pin; organic/official action ladder used"
       }
     },

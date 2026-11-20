@@ -40,6 +40,26 @@
       "verification": "Flickr photo page titled 'New Years Eve Fireworks', description 'St. Augustine Beach, Florida Incredible New Years Fireworks Show', taken 2014-12-31 20:46; page shows Attribution 2.0 Generic licence. Image shows fireworks over a pier with a dark crowd silhouette on the beach, no identifiable people. Earlier edition (2014) of the annual show; the page does not name Ocean Pier Park specifically but shows the pier.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-14"
+    },
+    "Key West New Year's Eve High Heel Shoe Drop": {
+      "src": "/guides/picks/florida-new-years-eve-2026/key-west-high-heel-shoe-drop.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The giant red high heel shoe hanging from the Bourbon St. Pub balcony on Duval Street on New Year's Eve",
+      "caption": "The red high heel waits on the Bourbon St. Pub balcony for the Key West New Year's Eve shoe drop.",
+      "credit": "Elizabeth Nicodemus",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Key_West_New_Year%27s_Eve_Party_2008_becomes_2009.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Key_West_New_Year%27s_Eve_Party_2008_becomes_2009.jpg",
+      "author": "Elizabeth Nicodemus",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file titled Key West New Year's Eve Party 2008 becomes 2009 shows the giant red high heel on the Duval Street balcony with the Bourbon sign below. Live Commons licence checked: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
     }
   },
   "gaps": {
@@ -62,12 +82,6 @@
       "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
     },
     "Downtown Fort Pierce Waterfront Fireworks": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
-    },
-    "Key West New Year's Eve High Heel Shoe Drop": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,

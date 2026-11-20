@@ -15,7 +15,10 @@ import ts from "typescript";
 // "react" by walking up from the importing file, and an OS-tmpdir build cannot
 // see node_modules. First attempt used os.tmpdir() and failed with
 // ERR_MODULE_NOT_FOUND for react.
-export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
+// sourceOverrides: optional Map of absolute path -> module source used INSTEAD
+// of the file on disk, so a red-proof can load a mutated copy of real source
+// without writing into the repository (2026-11-19, FoodPost mutants).
+export async function loadComponent(entryAbs, repoRoot, { onGraph, sourceOverrides } = {}) {
   const out = mkdtempSync(path.join(repoRoot, ".wf-jsx-"));
   process.on("exit", () => { try { rmSync(out, { recursive: true, force: true }); } catch (e) {} });
   const done = new Map();
@@ -137,7 +140,7 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
       done.set(abs, cssFile);
       return cssFile;
     }
-    const src = readFileSync(abs, "utf8");
+    const src = sourceOverrides && sourceOverrides.has(abs) ? sourceOverrides.get(abs) : readFileSync(abs, "utf8");
     // RESERVE the output path and register it in `done` BEFORE recursing into
     // this file's own imports — 2026-09-23. `done` used to gain an entry only
     // AFTER a file's whole dependency tree had resolved, so a CIRCULAR import

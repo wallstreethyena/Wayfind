@@ -1,0 +1,67 @@
+{
+ "batch": "2026-11-18-creators",
+ "note": "Poster-only batch for the Christmas creator rail (lib/christmasCreatorPosters.js). No wf_inventory writes.",
+ "posters": {
+  "the-sail-plaza-tampa": {
+   "file": "public/place-photos/batch-2026-11-18-creators/the-sail-plaza-tampa/cp_730c07b50d20ec0b.jpg",
+   "page": "https://www.tampa.gov/tcc/sail-plaza",
+   "basis": "official website (City of Tampa / Tampa Convention Center page)",
+   "sha256_16": "730c07b50d20ec0b"
+  },
+  "bens-soft-pretzels-st-augustine": {
+   "file": "public/place-photos/batch-2026-11-18-creators/bens-soft-pretzels-st-augustine/cp_9b84488c976a1978.jpg",
+   "page": "https://www.benspretzels.com/",
+   "basis": "official website; locations page lists 54 St George St",
+   "sha256_16": "9b84488c976a1978"
+  },
+  "mimis-famous-crepes-st-augustine": {
+   "file": "public/place-photos/batch-2026-11-18-creators/mimis-famous-crepes-st-augustine/cp_7f4e2c1cf06c5b3b.jpg",
+   "page": "https://www.mimisfamouscrepes.com/",
+   "basis": "official website",
+   "sha256_16": "7f4e2c1cf06c5b3b"
+  },
+  "jock-lindseys-hangar-bar-disney-springs": {
+   "file": "public/place-photos/batch-2026-11-18-creators/jock-lindseys-hangar-bar-disney-springs/cp_35917a38c971b9ae.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Jock_Lindsey%27s_Hangar_Bar_at_Disney_Springs.jpg",
+   "basis": "CC BY-SA 4.0, author Jedi94",
+   "sha256_16": "35917a38c971b9ae"
+  },
+  "snowcat-ridge-dade-city": {
+   "file": "public/place-photos/batch-2026-11-18-creators/snowcat-ridge-dade-city/cp_452dfa740dd5a48a.jpg",
+   "page": "https://snowcatridge.com/attractions/snowy-slopes/",
+   "basis": "official website",
+   "sha256_16": "452dfa740dd5a48a"
+  },
+  "santas-christmas-tree-forest-eustis": {
+   "file": "public/place-photos/batch-2026-11-18-creators/santas-christmas-tree-forest-eustis/cp_0e4c8735b734f4a7.jpg",
+   "page": "https://santaschristmastreeforest.com/",
+   "basis": "official website",
+   "sha256_16": "0e4c8735b734f4a7"
+  },
+  "st-augustine-coffee-house": {
+   "file": "public/place-photos/batch-2026-11-18-creators/st-augustine-coffee-house/cp_764e18b20dc90674.jpg",
+   "page": "https://www.staugcoffee.com/",
+   "basis": "official website",
+   "sha256_16": "764e18b20dc90674"
+  },
+  "roberts-christmas-wonderland-clearwater": {
+   "file": "public/place-photos/batch-2026-11-18-creators/roberts-christmas-wonderland-clearwater/cp_2a38dbf6b874731c.jpg",
+   "page": "https://www.flickr.com/photos/29096601@N00/11594726824",
+   "basis": "CC BY-SA 2.0, author Tom Woodward (bionicteaching); photo shows the store sign with street number 2951; 600x400 is the largest size reachable, not upscaled",
+   "sha256_16": "2a38dbf6b874731c"
+  },
+  "dead-coconut-club-citywalk-orlando": {
+   "file": "public/place-photos/batch-2026-11-18-creators/dead-coconut-club-citywalk-orlando/cp_05fdada786f2bc43.jpg",
+   "page": "https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club/index.html",
+   "basis": "official website (Universal Orlando consumer site, Red Coconut Club page hero image); same official-website precedent as other covers; Universal's separate media site is editorial-only and was not used",
+   "sha256_16": "05fdada786f2bc43"
+  },
+  "spirit-christmas-clearwater": {
+   "file": "public/place-photos/batch-2026-11-18-creators/spirit-christmas-clearwater/cp_e460bf751970eead.jpg",
+   "page": "https://stores.spirithalloween.com/christmas/fl/clearwater/christmas-store-10043.html",
+   "basis": "official website (Spirit Christmas store locator page for 2522 McMullen Booth Rd, Clearwater); generic brand storefront image, not a photo of that exact building; same brand-photo precedent as Ben's Soft Pretzels",
+   "sha256_16": "e460bf751970eead"
+  }
+ },
+ "skipped": {}
+}

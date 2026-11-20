@@ -14,11 +14,26 @@ export const EVENT_EXPERIENCE_CSS = `
    Full attribution must wrap on phones rather than being clipped over an image. */
 .wf-event-media{position:relative;min-width:0;max-width:100%}.wf-event-media>p{padding:0 24px}.wf-event-media [data-event-hero-credit]{position:static;margin:0!important;padding:12px 24px 16px!important;border:0;background:transparent;color:#c9d1d9!important;font-size:13px!important;font-weight:500;line-height:1.5;white-space:normal;overflow:visible;overflow-wrap:anywhere;text-overflow:clip;text-shadow:none}
 .wf-event-media h2{font-size:20px;font-weight:600;margin:0 0 16px}
-.wf-event-photo-rail{display:flex;align-items:flex-start;gap:16px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:0 0 16px;max-width:100%;border-radius:18px}
+.wf-event-photo-rail{display:flex;align-items:flex-start;gap:16px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x pan-y;padding:0 0 16px;max-width:100%;border-radius:18px}
+.wf-event-photo-rail::-webkit-scrollbar{display:none}
 .wf-event-photo-rail:focus-visible{outline:3px solid #ff782f;outline-offset:4px}
-.wf-event-photo{position:relative;flex:0 0 252px;width:252px;height:448px;max-width:100%;background:#141a16;border:1px solid #27313d;border-radius:18px;overflow:hidden;min-width:0;scroll-snap-align:start}
+.wf-event-photo{position:relative;flex:0 0 252px;width:252px;height:448px;max-width:100%;background:#141a16;border:1px solid #27313d;border-radius:18px;overflow:hidden;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
 .wf-event-photo img{display:block;width:100%;height:100%;object-fit:cover;background:#111612}.wf-event-photo-credit{position:absolute;left:6px;right:8px;bottom:6px;z-index:2;margin:0;padding:0;background:transparent;color:rgba(255,255,255,.6);font-size:9.5px;font-weight:500;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.85),0 0 6px rgba(0,0,0,.6);pointer-events:none}.wf-event-photo-credit a{color:inherit;text-decoration:underline;text-underline-offset:2px;pointer-events:auto}
-.wf-event-hero .wf-event-photo-rail{padding:0;gap:12px;border-radius:0}.wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px);border:0;border-radius:0}.wf-event-hero .wf-event-photo:first-child{flex:0 0 100%;width:100%}
+/* Owner report 2026-11-16: the old full-width first photo + 216px photos under a
+   proximity snap made swipes land between mixed widths. Owner follow-up the same
+   night: no photo may be cut off at the edge ("I want the images not to be cut
+   off"), so every hero photo fills the card on its own and one swipe moves
+   exactly one photo. The counter and dots (EventPhotoRailControls) say there
+   are more photos; nothing peeks in and nothing moves on its own. */
+/* Owner, 2026-11-18 ("fix it globally"): the box was a fixed short height, so on
+   tablets and computers a normal 3:2 photo lost a third of its top and bottom.
+   The box now has the photo's own shape (3:2), capped so it never fills more
+   than ~72% of the screen. */
+.wf-event-hero .wf-event-photo-rail{padding:0;gap:0;border-radius:0}.wf-event-hero .wf-event-photo{height:auto;aspect-ratio:3/2;max-height:min(72vh,660px);flex:0 0 100%;width:100%;border:0;border-radius:0}.wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}
+.wf-event-hero .wf-event-photo-rail:has(>.wf-event-photo+.wf-event-photo){margin-bottom:26px}
+.wf-event-photo-rail[data-zoomable] .wf-event-photo img{cursor:zoom-in;-webkit-touch-callout:none}
+.wf-event-rail-arrow{position:absolute;z-index:3;display:none;width:44px;height:44px;border-radius:22px;border:1px solid rgba(255,255,255,.28);background:rgba(8,11,16,.72);color:#fff;font-size:26px;line-height:40px;cursor:pointer}
+@media(hover:hover) and (pointer:fine){.wf-event-rail-arrow{display:block}}
 .wf-event-photo-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:linear-gradient(155deg,#1B2433,#0D1117);color:#FFC08F}
 .wf-event-photo-fallback span{font-size:36px;font-weight:800}
 .wf-event-photo-fallback small{font-size:12px;color:#aab4c2}

@@ -19,7 +19,7 @@ ok(/Animal encounters close at 6 PM/.test(guide.intro), "guide carries the 6 PM 
 for (const activity of ["boat ride","tractor ride","race track","petting zoo","bounce pad","fall photo spots","corn maze","pony rides"]) {
   ok(new RegExp(activity, "i").test(guide.intro + page), "included activity present: " + activity);
 }
-ok(/MapCategoryPin/.test(map), "farm layout reuses the shared Wayfind pin system");
+ok(/family: zone.family/.test(map) && /MapCategoryPin/.test(read("app/components/IllustratedParkMap.js")), "farm layout reuses the shared Wayfind pin system");
 // Owner decision 2026-09-22: ONE map on the page, an illustrated farm map with
 // tappable zone pins. The separate Apple arrival map is gone, and the old
 // coordinate pair (about a mile off, on a different property) must never come
@@ -34,12 +34,16 @@ ok(!/25\.559785|80\.41664/.test(map + page), "the wrong farm coordinate (a diffe
 ok(/https:\/\/maps\.apple\.com\/\?daddr=14890%20SW%20216th%20St%2C%20Miami%2C%20FL%2033170/.test(map), "driving directions use Pinto's verified street address");
 const zonePoints = [...map.matchAll(/\bx:\s*([\d.]+),\s*y:\s*([\d.]+)/g)].map((m) => [Number(m[1]), Number(m[2])]);
 ok(zonePoints.length >= 10 && zonePoints.every(([x, y]) => x >= 3 && x <= 97 && y >= 3 && y <= 97), `every zone pin sits inside the illustrated map (got ${zonePoints.length} pins)`);
-const liftedRule = /\.zonePin\[data-active="true"\] \.zonePinMark\{([^}]*)\}/.exec(css)?.[1] ?? "";
-ok(/aria-pressed=\{active\}/.test(map) && /scale\(1\.[2-9]/.test(liftedRule), "the picked pin visibly lifts on the map and its state is exposed to assistive tech");
-ok(/scroller\.scrollTo\(/.test(map) && !/scrollIntoView/.test(map), "choosing a spot moves only the map window, never the whole page");
+// Owner 2026-11-20: the farm map renders on the ONE shared guide map card, so
+// pin selection, map-only scrolling and in-map zoom come from the shared parts.
+const sharedMap = read("app/components/IllustratedParkMap.js");
+ok(/<GuideMapExplorer\b/.test(map) && /<IllustratedParkMap\b/.test(map), "the farm map uses the shared guide map card and illustrated map");
+ok(/caption: zone\.name/.test(map), "every farm pin keeps its printed label on the map");
+ok(/aria-pressed=\{selectedId === pin\.id\}/.test(sharedMap) && /data-selected/.test(sharedMap), "the picked pin is marked on the map and its state is exposed to assistive tech");
+ok(/node\.scrollTo\(/.test(sharedMap) && !/scrollIntoView/.test(sharedMap), "choosing a spot moves only the map window, never the whole page");
 const visibleMapCopy = map.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 ok(!/Wayfind/.test(visibleMapCopy), "guides sell the experience: the farm map copy never mentions Wayfind");
-ok(/Not to scale/.test(page + map) && /Seasonal zones can move/.test(map), "layout is explicitly orientation-only");
+ok(/Not to scale/.test(page + map) && /Seasonal zones can move/.test(map) && /approximate spot/.test(map), "layout is explicitly orientation-only");
 ok(/exact on-property positions are not published clearly enough/.test(map), "unverified seasonal positions are not invented");
 ok(!/lat:\s*25\.559\d+[\s\S]{0,120}Corn maze/i.test(map), "corn maze is not assigned a fake GPS point");
 ok(!/GuidePlaceCard/.test(page), "owner decision 2026-09-22: the credited photo gallery replaces the place card, so the page no longer imports GuidePlaceCard");
@@ -90,8 +94,6 @@ ok(/repeating-linear-gradient/.test("background:repeating-linear-gradient(105deg
 // The drawn .fieldBand diagram was replaced by the illustrated map on
 // 2026-09-22; carry the "no hairline striping" protection over to the new map.
 ok(fieldBandRule === "", "the retired .fieldBand diagram rule is gone with the drawn diagram");
-const mapFrameRules = ["farmMapFrame", "farmMapScroller", "farmMapCanvas", "farmMapImg"].map((cls) => new RegExp("\\." + cls + "\\{([^}]*)\\}").exec(css)?.[1] ?? "");
-ok(mapFrameRules.every((rule) => rule.length > 0), "the illustrated map frame, scroller, canvas and image all keep a styled treatment");
-ok(mapFrameRules.every((rule) => !/repeating-linear-gradient/.test(rule)), "farm map has no repeating-linear-gradient hairline striping");
+ok(!/repeating-linear-gradient/.test(css + read("app/components/IllustratedParkMap.module.css")), "farm map has no repeating-linear-gradient hairline striping");
 
 console.log("check-pintos-farm-guide: OK — " + checks + " factual identity, map, card and ticket assertions");

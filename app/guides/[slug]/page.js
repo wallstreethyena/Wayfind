@@ -24,8 +24,10 @@ import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta, ctaProofSco
 import { guidePickTicket } from "../../../lib/guidePickTicket";
 import { withPageParam } from "../../../lib/commerce";
 import GuideConversion from "./GuideConversion";
+import { noSaleEvents, unavailableDestination } from "../../../lib/ticketAvailability.js";
 import GuideStays from "../../components/GuideStays";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
+import { GuidePickWhere, guidePickWhere } from "./GuidePickWhere";
 // Verified, credited pick photos (data/guide-pick-photos/<slug>.json via
 // scripts/build-guide-pick-photos.mjs's generated lib/guidePickPhotoManifest.js).
 // Imported HERE, not inside GuideEditorial.js: that file is transpiled and
@@ -34,7 +36,7 @@ import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUID
 // there resolves against the wrong directory and crashes that guard. This
 // file is never transpiled that way, so it carries the fallback instead — see
 // the pick loop below for the one call site.
-import { guidePickPhoto, guidePhotoForPlace } from "../../../lib/guidePickPhotos";
+import { guidePickPhoto, guidePhotoForPlace, placePhotoReuseAllowed } from "../../../lib/guidePickPhotos";
 import { guideContextPhoto } from "../../../lib/guideContextPhotos.js";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery.js";
@@ -52,6 +54,8 @@ import GuideEmailCapture from "./GuideEmailCapture";
 import GuidePickDecision from "./GuidePickDecision";
 import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import GuidePickOffer from "./GuidePickOffer";
+import PlaceDealOffer from "../../components/PlaceDealOffer";
+import { placeDealFor, GUIDE_PICK_DEAL_SURFACE } from "../../../lib/placeDeal";
 import { guidePickOffers, replacesCityStrip } from "../../../lib/guidePickOffers";
 import { orlandoExactTiqetsEntry } from "../../../lib/orlandoGuideTickets";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
@@ -389,12 +393,28 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 
 import { isNotPublicPlace } from "../../../lib/notPublicPlaces.js";
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
+import { unstable_cache } from "next/cache.js";
+
+// Editorial figure lookup reads wf_place_photo / the stored-photo RPC with
+// cache:"no-store" (freshness for the visitor photo paths that share those
+// modules). Inside a guide render that no-store read bails the whole route
+// out of ISR — the big city guides served private/no-cache while every
+// other guide prerendered (2026-11-19 audit). Wrap the RESULT in a Data
+// Cache boundary on the guide route's own 900s cadence, the same pattern
+// lib/guideProductResolveCache.js uses for the spend-gated product read.
+// The underlying modules keep their no-store default everywhere else.
+const cachedGuideFigureImage = unstable_cache(
+  async (place) => guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }),
+  ["guide-place-figure-image-v1"],
+  { revalidate: 900 },
+);
 import { guidePickFacts } from "../../../lib/guidePickFacts.js";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard, resolveGuidePickPlaceId } from "../../../lib/guidePlaceIdentity.js";
 // Separate interactive map discovery still uses the shared place-card CSS.
 import { WF_PLACE_CARD_CSS } from "../../components/css";
+import { GUIDE_STANDARD_CSS } from "../../../lib/guideStandardCss.js";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
 import GuideFigure from "../../components/GuideFigureWithFallback.js";
@@ -528,7 +548,14 @@ export default async function GuidePage({ params }) {
   // at its URL as an archive, but it must not sell tickets to a night that is
   // over, and its next steps must point at guides that are still current.
   const past = isGuidePast(g);
-  let primaryCta = guidePrimaryCta(past ? { ...g, eventTicket: undefined } : g);
+  // SOLD OUT (owner rule 2026-11-04, enforced live 2026-11-19): the picks and the
+  // primary button below were built from a fixed list, so check the live status
+  // before offering a ticket. Mickey's party sold out while this guide still sold it.
+  // revalidate matches this page's own 900s ISR so the read never shortens it;
+  // /api/commerce/go re-checks every click within five minutes regardless.
+  const unavailable = await noSaleEvents({ revalidate: 900 });
+  const unavailableFor = (id) => (id ? unavailable.get(String(id)) || null : null);
+  let primaryCta = guidePrimaryCta(past || unavailableFor(g.eventTicket) ? { ...g, eventTicket: undefined } : g);
   const vacationRental = past ? null : guideVacationRentalCta(params.slug);
   const liveGuides = currentGuides(GUIDES);
   const continueTo = guideContinue(g, params.slug, liveGuides);
@@ -655,7 +682,7 @@ export default async function GuidePage({ params }) {
     .map((p, idx) => (!curatedPickImages[idx] && pickPlaceIds[idx]) ? (pickPlaces[idx] || { id: pickPlaceIds[idx], name: p.name }) : null)
     .filter(Boolean);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
-    editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
+    editorialImages.set(place.id, await cachedGuideFigureImage(place));
   }));
   // Reuse an already licensed photo of this exact place before asking the
   // browser for another answer. The hero and other picks keep their own images.
@@ -673,7 +700,9 @@ export default async function GuidePage({ params }) {
     rememberMedia(guideHero(params.slug));
     g.picks.forEach((pick, i) => {
       if (curatedPickImages[i] || editorialImages.get(pickPlaceIds[i])) return;
-      const reused = guidePhotoForPlace(pickPlaceIds[i], { avoidSrc: usedSrc });
+      // declinePlacePhotoReuse keeps a year round venue photograph off a
+      // recommendation it does not show. The neutral tile stays.
+      const reused = placePhotoReuseAllowed(pick) ? guidePhotoForPlace(pickPlaceIds[i], { avoidSrc: usedSrc }) : null;
       if (reused) { curatedPickImages[i] = reused; rememberMedia(reused); }
     });
     // Owner, 2026-10-15: photographs for every guide recommendation. Only
@@ -702,6 +731,17 @@ export default async function GuidePage({ params }) {
   const mapExplorerSpots = g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3
     ? await withAttributableSpotPhotos(g.mapExplorer.spots, { findFreePhoto })
     : null;
+  // The named business's own verified deal (Clipp certificate or venue offer)
+  // under the pick that names it — owner ask 2026-11-19. Keyed by the pick's
+  // RESOLVED, deduped Place ID only (never its name), so a chain pick can never
+  // carry another branch's certificate. A deal already shown in the guide's
+  // "Live right now" block is not repeated under the pick (dealCards below).
+  const pickDealFor = (placeId, idx) => placeDealFor(placeId, {
+    surface: GUIDE_PICK_DEAL_SURFACE,
+    contentId: params.slug + ":" + (idx == null ? placeId : "pick-" + (idx + 1)),
+  });
+  // Editorial briefs carry no deals (chrome.liveDeals false), same as the block.
+  const pickDeals = g.picks.map((_, i) => (chrome.liveDeals ? pickDealFor(pickPlaceIds[i], i) : null));
   const nowResult = guidePicksForNow(g.picks, nowCtx);
   const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
   const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
@@ -759,6 +799,17 @@ export default async function GuidePage({ params }) {
       external: !String(c.url || "").startsWith("/"),
       ends: couponEndsLabel(c) || null,
     }));
+  // One deal, one place on the page: a deal in the "Live right now" block or
+  // already under a pick is not printed again further down.
+  const dealCardIds = new Set(chrome.liveDeals ? dealCards.map((d) => d.id) : []);
+  const railDeals = new Map();
+  if (chrome.liveDeals) {
+    const shown = new Set([...dealCardIds, ...pickDeals.filter(Boolean).map((d) => d.id)]);
+    for (const place of (placeRail && placeRail.places) || []) {
+      const d = place && place.id ? pickDealFor(place.id, null) : null;
+      if (d && !shown.has(d.id)) { railDeals.set(place.id, d); shown.add(d.id); }
+    }
+  }
 
   // Social proof adjacent to the CTA — review count + rating, ONLY where the data
   // actually exists. rankedFor() is the same ranked local inventory the landing
@@ -886,9 +937,6 @@ export default async function GuidePage({ params }) {
         <ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }} />
       </nav>
       <style dangerouslySetInnerHTML={styleHtml(`
-        .wf-guide-article{max-width:860px;margin:0 auto}
-        .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#F1F5F9}
-        .wf-guide-disclosure{font-size:13px;line-height:1.5;color:#94A3B8;margin:12px 0 20px;padding:0}
         /* RIGHT NOW block — server-rendered, so it is in the indexed HTML. */
         .wf-guide-now{margin:26px 0 8px;padding:18px 20px;border-radius:14px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.30)}
         .wf-guide-now-head{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#FDBA74;margin-bottom:6px}
@@ -899,11 +947,6 @@ export default async function GuidePage({ params }) {
         .wf-guide-now-handoff a{color:#7DD3FC;font-weight:750}
         .wf-guide-now-live{background:rgba(94,232,180,.07);border-color:rgba(94,232,180,.30)}
         .wf-guide-now-live .wf-guide-now-head{color:#5EE8B4}
-        .wf-guide-pick{display:grid;grid-template-columns:76px minmax(0,1fr);gap:22px;position:relative;margin:0;padding:31px 4px;border-radius:0;background:transparent;border:0;border-top:1px solid #2D3748;box-shadow:none;color:#F1F5F9}
-        .wf-guide-pick:last-of-type{border-bottom:1px solid #2D3748}
-        .wf-guide-number{font:600 49px/1 Georgia,"Times New Roman",serif;color:#68778d;letter-spacing:-2px;padding-top:3px;text-shadow:0 1px 18px rgba(104,119,141,.14)}
-        .wf-guide-pick h2{font-size:31px;color:#F1F5F9!important}
-        .wf-guide-pick>p{color:#94A3B8!important}
         /* Live deal cards. Sized so the whole card is one tap target on a phone,
            and min-width:0 on the text column is what stops a long merchant name
            forcing the grid wider than the viewport — the classic overflow. */
@@ -938,17 +981,9 @@ export default async function GuidePage({ params }) {
         .wf-guide-related a{font-size:13px;line-height:1.4;justify-content:center}
         @media(max-width:760px){
           .wf-guide-quick>div,.wf-guide-related>div{grid-template-columns:1fr}
-          .wf-guide-article{padding-top:2px}
-          .wf-guide-intro{font-size:17px!important;line-height:1.5!important;margin:14px 2px 16px!important}
-          .wf-guide-disclosure{margin:10px 2px 16px!important;padding:0 0 10px!important;font-size:12.5px!important;line-height:1.5!important}
           .wf-gd-card{grid-template-columns:72px minmax(0,1fr);gap:11px;padding:10px}
           .wf-gd-img{width:72px;height:72px}
           .wf-gd-h{font-size:19px}
-          .wf-guide-pick{grid-template-columns:35px minmax(0,1fr);gap:11px;padding:21px 2px!important}
-          .wf-guide-number{font-size:29px;letter-spacing:-1px;color:#7f8da1}
-          .wf-guide-pick h2{font-size:22px!important;line-height:1.15!important;margin:3px 0 8px!important}
-          .wf-guide-pick p{font-size:14px!important;line-height:1.5!important;margin-bottom:10px!important}
-          .wf-guide-pick .wf-guide-tip{font-size:13px!important;margin:6px 0 2px!important}
           .wf-guide-actions a{margin:7px 0 0!important;padding:8px 13px!important;font-size:12.5px!important}
           /* v8.14: at phone width the pick grid's number gutter (35px column
              + 11px gap) squeezes the iconic card until the Share button clips.
@@ -957,6 +992,7 @@ export default async function GuidePage({ params }) {
              the gutter; the text above keeps its indent. */
           .wf-guide-card-slot{margin-left:-46px!important}
         }
+        ${GUIDE_STANDARD_CSS}
         ${WF_PLACE_CARD_CSS}
         ${GUIDE_EDITORIAL_CSS}
       `)} />
@@ -1164,7 +1200,8 @@ export default async function GuidePage({ params }) {
       ) : null}
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];
-        const ticket = guidePickTicket(pick.ticket);
+        const noSale = unavailableFor(pick.eventSlug);
+        const ticket = noSale ? null : guidePickTicket(pick.ticket);
         // One editorial photograph per recommendation. Curated images win;
         // otherwise use the same venue-owned source as discovery cards.
         const pickImage = curatedPickImages[i] || editorialImages.get(pickPlaceIds[i]);
@@ -1174,6 +1211,7 @@ export default async function GuidePage({ params }) {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
+              <GuidePickWhere where={guidePickWhere(pick, params.slug)} />
               {neutralPickFigures[i] ? <GuideNeutralFigure name={pick.name} className="wf-guide-pick-figure" /> : null}
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
@@ -1198,10 +1236,11 @@ export default async function GuidePage({ params }) {
               {inlineBookConfig(params.slug, i) && !replacesCityStrip(params.slug) ? <GuidePickDecision slug={params.slug} pickIndex={i} /> : null}
               {/* Focused offers attach by the pick's stable id, never its number. */}
               <GuidePickOffer entry={guidePickOffers(params.slug, pick)} slug={params.slug} />
+              {pickDeals[i] && !dealCardIds.has(pickDeals[i].id) ? <PlaceDealOffer deal={pickDeals[i]} /> : null}
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}
-                {pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
+                {noSale ? <a href={unavailableDestination(noSale)} style={{ ...S.btnGhost, marginLeft: 0 }} data-wf-unavailable={noSale.kind}>{noSale.kind === "sold_out" ? "Sold out: see dates and alternatives" : "Not on sale: see details"}</a> : pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
                 {ticket ? (
                   <a
                     href={ticket.href}
@@ -1229,7 +1268,9 @@ export default async function GuidePage({ params }) {
                       {market.places.map((place) => (
                         <li key={place.id}>
                           <h3><a href={guidePlacePath(place.id)}>{place.name}</a></h3>
+                          <GuidePickWhere where={guidePickWhere({ name: place.name, placeId: place.id }, params.slug)} />
                           <GuideFigure role="pick" image={editorialImages.get(place.id)} />
+                          {railDeals.get(place.id) ? <PlaceDealOffer deal={railDeals.get(place.id)} /> : null}
                           <a className="wf-guide-photo-link" href={guidePlacePath(place.id)}>Explore {place.name}</a>
                         </li>
                       ))}

@@ -1,0 +1,116 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-19T03:03:18.907Z",
+  "pack": "docs/editorial/card-lines-2026-11-19-b67/pack-01.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-11-19",
+  "researched_at": "2026-11-19",
+  "replaced": [
+    {
+      "place_id": "ChIJ2UkCqd0_w4gRDra_JVdWrsc",
+      "name": "Sunnyside Cafe",
+      "prior_row": {
+        "place_id": "ChIJ2UkCqd0_w4gRDra_JVdWrsc",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:why_here:European",
+          "unsourced-entity:why_here:American"
+        ],
+        "written_at": "2026-08-24T22:55:35.64387+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-24T22:55:35.64387+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJyXmxHj-B3YgRW-F-tBJN7Qg",
+      "name": "Orlando Helicopter Adventures",
+      "prior_row": {
+        "place_id": "ChIJyXmxHj-B3YgRW-F-tBJN7Qg",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-11T03:55:31.710489+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-11T03:55:31.710489+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ_7KuLDEXw4gRZQjfVJIXiNc",
+      "name": "Hong BBQ & Hot Pot Bradenton",
+      "prior_row": {
+        "place_id": "ChIJ_7KuLDEXw4gRZQjfVJIXiNc",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:know_before:90"
+        ],
+        "written_at": "2026-08-25T00:55:35.512913+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-25T00:55:35.512913+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJAR8q54BBw4gReIjAP3JR06A",
+      "name": "Aji Ceviche Bar Sarasota – Peruvian Restaurant",
+      "prior_row": {
+        "place_id": "ChIJAR8q54BBw4gReIjAP3JR06A",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-24T23:55:35.233717+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-24T23:55:35.233717+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJi98-LBDiwogRM-NnaCTJ9rg",
+      "name": "Dell Holmes Park",
+      "prior_row": {
+        "place_id": "ChIJi98-LBDiwogRM-NnaCTJ9rg",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-11T04:55:31.919894+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-11T04:55:31.919894+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJCdp87Zd754gR6gvk4yp1M8s",
+      "name": "St. James Catholic Cathedral",
+      "prior_row": {
+        "place_id": "ChIJCdp87Zd754gR6gvk4yp1M8s",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:hook:Gothic",
+          "unsourced-entity:best_time:Mass"
+        ],
+        "written_at": "2026-08-11T04:55:32.49413+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-11T04:55:32.49413+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    }
+  ]
+}
