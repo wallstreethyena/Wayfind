@@ -95,7 +95,7 @@ export default function DisneyHolidayFoodGuidePage() {
       <GuideSection index={PARK_SECTIONS.length + 4} {...SECTIONS[PARK_SECTIONS.length + 3]}>
         <div className={styles.method}>
           <p>Researched November 17, 2026 using Disney Parks Blog’s official 2026 menus, the Summer House menu, six reels by @disneyforfoodies and posts by @disneyfoodblog. The Anaheim bonus features @eatsbynatt’s reel. This is a researched planning guide, not a claim that Wayfind personally tasted each dish.</p>
-          <p>Prices come from the shared posts. Daily operating hours, current stock, the Cookie Bar sundae and the San Angel Inn special were not independently confirmed. Instagram controls post and embed availability; every post has a direct source link so the guide remains useful if an embed cannot play.</p>
+          <p>Prices come from the shared posts. Daily operating hours, current stock, the Cookie Bar sundae and the San Angel Inn special were not independently confirmed. Instagram controls post and embed availability. Only posts Instagram plays here on Wayfind are shown, and every creator is credited by name.</p>
           <ul>{guide.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label} ↗</a></li>)}</ul>
           <p>The park maps locate food counters and mark the nearest known landmark for seasonal pop-ups. Select a pin to open its food details.</p>
         </div>

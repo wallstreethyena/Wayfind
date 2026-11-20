@@ -8,20 +8,14 @@
  * Steps it can take:
  *   - update the next queued pull request with main (GitHub "Update branch");
  *   - dispatch "guards" on the car's branch (an update made with the workflow
- *     token fires no pull_request run, so the train starts it explicitly);
- *   - evaluate "owner-approval" for the car's head with MAIN's copy of
- *     scripts/check-owner-approval-pr.mjs and post the result as that check.
- * It never merges (auto-merge does, once both required checks pass on an
+ *     token fires no pull_request run, so the train starts it explicitly).
+ * It never merges (auto-merge does, once the required "guards" check passes on an
  * up-to-date head), never approves, never edits code, never pushes to main.
  *
  * SECURITY: runs in main's context with a write token. It never checks out,
  * installs or executes anything from a pull request; pull requests are read only
  * as API data. Fails safe: on any error it does nothing and exits non-zero.
  */
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { REQUIRED_CHECKS, planTrain } from "./lib/mergeTrain.mjs";
 
 const token = String(process.env.GITHUB_TOKEN || "").trim();
@@ -96,36 +90,6 @@ async function dispatchGuards(car) {
   console.log(`merge-train: #${car.number} guards dispatched on ${car.head.slice(0, 12)} (${r.ok ? "ok" : `HTTP ${r.status}`})`);
 }
 
-async function postOwnerApproval(car) {
-  // MAIN's copy of scripts/check-owner-approval-pr.mjs judges the new head exactly
-  // as the pull_request_target workflow would (an update made with the workflow
-  // token fires no pull_request_target run). The payload names only the pull
-  // request and the head; the script re-reads everything else from GitHub and
-  // refuses if that head is not the live head.
-  const eventPath = join(mkdtempSync(join(tmpdir(), "merge-train-")), "event.json");
-  writeFileSync(eventPath, JSON.stringify({ pull_request: { number: car.number, head: { sha: car.head } } }));
-  const run = spawnSync(process.execPath, ["scripts/check-owner-approval-pr.mjs"], {
-    env: { ...process.env, GITHUB_EVENT_NAME: "pull_request_target", GITHUB_EVENT_PATH: eventPath },
-    encoding: "utf8",
-    timeout: 120000,
-  });
-  const passed = run.status === 0;
-  const text = `${run.stdout || ""}${run.stderr || ""}`.trim().slice(0, 60000) || "no output";
-  const previous = car.checks["owner-approval"];
-  if (previous && previous.status === "completed" && previous.conclusion === (passed ? "success" : "failure")) {
-    console.log(`merge-train: #${car.number} owner-approval unchanged (${passed ? "success" : "failure"})`);
-    return;
-  }
-  await must("POST", "/check-runs", {
-    name: "owner-approval",
-    head_sha: car.head,
-    status: "completed",
-    conclusion: passed ? "success" : "failure",
-    output: { title: passed ? "Owner approval OK (merge train)" : "Owner approval needed", summary: text },
-  });
-  console.log(`merge-train: #${car.number} owner-approval ${passed ? "success" : "failure"} posted for ${car.head.slice(0, 12)}`);
-}
-
 async function waitForNewHead(number, oldHead) {
   for (let i = 0; i < 20; i++) {
     await new Promise((r) => setTimeout(r, 3000));
@@ -139,16 +103,12 @@ async function main() {
   const cars = await readQueue();
   const plan = planTrain(cars);
   const byNumber = new Map(cars.map((c) => [c.number, c]));
-  for (const s of plan.skipped) {
-    console.log(`merge-train: #${s.number} skipped (${s.why})`);
-    if (s.recheck) await postOwnerApproval(byNumber.get(s.number));
-  }
+  for (const s of plan.skipped) console.log(`merge-train: #${s.number} skipped (${s.why})`);
   if (plan.type === "idle") { console.log(`merge-train: idle (${cars.length} queued)`); return; }
   if (plan.type === "wait") {
     const car = byNumber.get(plan.number);
     console.log(`merge-train: #${car.number} is the car (current with main); needs: ${plan.need.join(", ") || "nothing, its checks are running or done"}`);
     if (plan.need.includes("guards")) await dispatchGuards(car);
-    if (plan.need.includes("owner-approval")) await postOwnerApproval(car);
     return;
   }
   // update: try the planned car, then the next ones, if GitHub refuses (conflict).
@@ -161,7 +121,6 @@ async function main() {
     const next = { ...car, head: pull.head.sha, behindBy: 0, checks: {} };
     console.log(`merge-train: #${car.number} brought up to date: ${car.head.slice(0, 12)} -> ${next.head.slice(0, 12)}`);
     await dispatchGuards(next);
-    await postOwnerApproval(next);
     return;
   }
   console.log("merge-train: no queued pull request could be updated");

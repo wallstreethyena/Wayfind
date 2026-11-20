@@ -23,7 +23,10 @@ globalThis.clearTimeout = (id) => { if (timers[id - 1]) timers[id - 1].fn = null
 const fire = () => { const live = timers.filter((t) => t.fn); live.forEach((t) => { const f = t.fn; t.fn = null; f(); }); };
 
 const { default: CheckedCreatorPost, CREATOR_POST_TIMEOUT_MS } = await loadComponent(path.resolve("app/components/CheckedCreatorPost.js"), process.cwd());
-const post = DISNEY_FOOD_STOPS[0].posts[0];
+// A post Instagram plays inside Wayfind (owner 2026-11-20: handoff posts are not rendered at all).
+const { embedSrc } = await import("../lib/videoEmbed.js");
+const post = DISNEY_FOOD_STOPS.flatMap((s) => s.posts).find((p) => embedSrc("instagram", p.url));
+assert.ok(post, "fixture: at least one food post plays inside Wayfind");
 const { createRoot } = await import("react-dom/client");
 
 function run(variant, Component = CheckedCreatorPost) {
@@ -41,7 +44,8 @@ function run(variant, Component = CheckedCreatorPost) {
   assert.equal(state(), "loading");
   assert.ok(frame(), "player is mounted (hidden) so Instagram can load");
   assert.equal(fig().querySelector("[inert]")?.contains(frame()), true, "hidden player is inert while loading");
-  assert.match(fig().textContent, /Loading the reel from Instagram/);
+  assert.match(fig().textContent, /Loading the (?:reel|photos) from @/);
+  assert.equal(fig().querySelectorAll("a").length, 0, "no link out to Instagram while loading");
   assert.ok(timers.some((t) => t.fn && t.ms === CREATOR_POST_TIMEOUT_MS), "fallback timer armed");
   const mounted = '{"details":{},"type":"MOUNTED"}';
   send(mounted, "https://evil.example", frame().contentWindow);
@@ -52,7 +56,8 @@ function run(variant, Component = CheckedCreatorPost) {
     flushSync(fire);
     assert.equal(state(), "unavailable", "no render signal → compact source card, not a black frame");
     assert.match(fig().textContent, /The post didn’t load here/);
-    assert.ok([...fig().querySelectorAll("a")].some((a) => a.textContent === "Watch on Instagram ↗" && a.href === post.url));
+    assert.equal(fig().querySelectorAll("a").length, 0, "the fallback card offers Try again, never a link out to Instagram");
+    assert.ok([...fig().querySelectorAll("button")].some((b) => b.textContent === "Try again"));
   }
   send(mounted, "https://www.instagram.com", frame().contentWindow);
   assert.equal(state(), "ready", "the post's own frame reporting MOUNTED reveals it");
@@ -60,7 +65,7 @@ function run(variant, Component = CheckedCreatorPost) {
   flushSync(() => [...fig().querySelectorAll("button")].find((b) => b.textContent === "Reload post").click());
   flushSync(() => {});
   assert.equal(state(), "loading");
-  assert.equal(document.activeElement?.textContent, "Watch on Instagram ↗", "focus lands on the loading panel's link");
+  assert.match(document.activeElement?.textContent || "", /^Loading the (?:reel|photos) from @/, "focus lands on the loading panel");
   flushSync(() => root.unmount());
 }
 
@@ -91,4 +96,4 @@ if (process.argv.includes("--red-prove")) {
 }
 run("late");
 run("on-time");
-console.log("test-disney-food-post-states: OK — loading panel with source link, wrong origin and wrong frame ignored, timeout → source card, late MOUNTED reveals, reload keeps focus");
+console.log("test-disney-food-post-states: OK — loading panel with no link out to Instagram, wrong origin and wrong frame ignored, timeout → source card, late MOUNTED reveals, reload keeps focus");

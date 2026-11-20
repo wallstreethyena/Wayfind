@@ -14,7 +14,7 @@ import styles from "./CreatorPostRail.module.css";
 // black box (owner report, 2026-11-18). Instagram's embed posts MOUNTED (and
 // MEASURE with a height) to the parent once it has drawn, so the player is
 // revealed only after that signal from THIS post's frame. Until then the cover
-// stays in place with a loading note and the source link (the hidden player is
+// stays in place with a loading note (never a link out to Instagram) (the hidden player is
 // inert and takes no space, so nothing jumps); without the signal in time the
 // cover shows a short "didn't load here" card. A late signal still reveals it.
 const IG_ORIGIN = "https://www.instagram.com";
@@ -48,7 +48,7 @@ export default function CheckedCreatorPost({ post, kicker = null }) {
   useEffect(() => {
     if (focusAfter && state === "loading") { loadingLink.current?.focus(); setFocusAfter(false); }
   }, [focusAfter, state]);
-  // The tapped cover unmounts, so focus moves to the loading note's link.
+  // The tapped cover unmounts, so focus moves to the loading note.
   const start = () => { setState("loading"); setAttempt((n) => n + 1); setFocusAfter(true); };
   const retry = start;
   const photos = post.kind === "carousel";
@@ -70,16 +70,14 @@ export default function CheckedCreatorPost({ post, kicker = null }) {
     {state === "loading" ? <div className={styles.cover} role="status">
       {cover}
       <span className={styles.coverNote}>
-        <span>Loading the {kind} from Instagram…</span>
-        <a ref={loadingLink} href={post.url} target="_blank" rel="noopener noreferrer">Watch on Instagram ↗</a>
+        <span ref={loadingLink} tabIndex={-1}>Loading the {kind} from @{post.creator}…</span>
       </span>
     </div> : null}
     {state === "unavailable" ? <div className={styles.cover} role="status">
       {cover}
       <span className={styles.coverNote}>
-        <span><strong>The post didn’t load here.</strong> Instagram may block embeds on some browsers and networks.</span>
+        <span><strong>The post didn’t load here.</strong> Your browser or network may be blocking it. Try again in a moment.</span>
         <span className={styles.coverActions}>
-          <a href={post.url} target="_blank" rel="noopener noreferrer">Watch on Instagram ↗</a>
           <button type="button" onClick={retry}>Try again</button>
         </span>
       </span>

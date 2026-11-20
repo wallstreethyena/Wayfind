@@ -153,5 +153,18 @@ ok(paidTier({ kind: "event", id: "mvmcp-2026", ticket_status: "sold_out" }) === 
 ok(paidTier({ kind: "event", id: "mvmcp-2026" }) === 0, "control: the same deal on sale sorts as paid");
 ok(paidTier({ kind: "event", id: "no-deal-event-2026" }) === 1 && paidTier({ kind: "place", id: "x" }) === 1, "no partner deal, no paid lift");
 
+// 9. A sold out card and event page carry a SOLD OUT stamp over the photo
+// (owner 2026-11-20). The price row marks it; both renderers draw the stamp.
+const { ticketPrice } = await import("../lib/christmasTickets.js");
+const sp = ticketPrice({ ticket_status: "sold_out" });
+ok(sp && sp.kind === "note" && sp.text === "Sold out" && sp.soldOut === true, "a sold out row marks its price for the stamp");
+ok(!ticketPrice({ ticket_status: "on_sale", price_kind: "free" }).soldOut, "control: an on sale row has no stamp");
+const fsm = await import("node:fs");
+const src = (rel) => fsm.readFileSync(new URL("../" + rel, import.meta.url), "utf8");
+const cardJs = src("app/components/ChristmasTicketCard.js"), shellJs = src("app/components/EventDetailShell.js"), stampJs = src("app/components/SoldOutStamp.js"), evJs = src("app/florida-events/[slug]/page.js");
+ok((cardJs.match(/row\.price && row\.price\.soldOut \? <SoldOutStamp/g) || []).length === 2 && /\$\{SOLD_OUT_STAMP_CSS\}`;/.test(cardJs), "the card stamps both the photo strip and the placeholder tile (static)");
+ok(/soldOut \? <><style dangerouslySetInnerHTML=\{styleHtml\(SOLD_OUT_STAMP_CSS\)\} \/><SoldOutStamp/.test(shellJs) && /soldOut=\{soldOut\}/.test(evJs), "the event page stamps its photos when sold out (static)");
+ok(/pointer-events:none/.test(stampJs) && /aria-label="Sold out"/.test(stampJs) && !/<img/.test(stampJs), "the stamp never blocks taps, is read aloud, and is coded, not an image file (static)");
+
 if (fail.length) { console.error("test-sold-out-handoffs: FAIL"); for (const f of fail) console.error("  - " + f); process.exit(1); }
 console.log(`test-sold-out-handoffs: OK - ${pass} assertions (one rule, cached live read, the real /api/commerce/go handler, Santa, alternatives, map)`);

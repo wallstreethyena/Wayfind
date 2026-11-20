@@ -1,12 +1,6 @@
 // scripts/lib/githubAppAuth.mjs — authenticate as a GitHub App (free, no Enterprise).
 //
-// Used by scripts/owner-approval-gate.mjs, which posts the "owner-approval-gate"
-// check as the Wayfind Owner Gate App. Branch protection pins that required check
-// to the App's id, and GitHub attributes a check run to the App whose installation
-// token created it. So only code holding the App's private key can produce a
-// passing gate check: a workflow a pull request adds runs with GitHub Actions'
-// token (a different app), and the key lives only in the "owner-gate" environment,
-// which only workflows running on main can open. See docs/OWNER_APPROVAL.md.
+// Used by scripts/agent-github-token.mjs to mint the agents' App installation token.
 //
 // No dependencies: node:crypto signs the RS256 JWT GitHub requires.
 import { createPrivateKey, createSign } from "node:crypto";
