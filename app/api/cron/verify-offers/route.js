@@ -279,6 +279,9 @@ export async function POST(req) {
           feedUrl: body?.feedUrl,
           liveProbe: body?.liveProbe === true,
           verificationMode: body?.verificationMode,
+          source: body?.source,
+          observedAt: body?.observedAt,
+          isFixture: body?.isFixture === true,
           storePath: body?.storePath,
           now,
         })

@@ -185,7 +185,8 @@ export async function GET(req) {
     try { await ensureDurableClippEvidenceHydrated(); } catch {}
   }
   const campaign = provider === "viator" ? viatorCampaign({ page: pageHint, surface, offerId }) : null;
-  const { dest, sourceUrl, error } = await resolveOffer(provider, offerId, { subId: surface, campaign });
+  const evalNow = process.env.WF_COMMERCE_TEST_NOW ? new Date(process.env.WF_COMMERCE_TEST_NOW) : new Date();
+  const { dest, sourceUrl, error } = await resolveOffer(provider, offerId, { subId: surface, campaign, now: evalNow });
   if (error || !dest) return fail(error || "unresolved");
 
   let finalDest = dest;
