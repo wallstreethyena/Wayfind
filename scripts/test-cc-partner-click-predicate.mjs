@@ -5,8 +5,8 @@
  * (2026-10-02, analytics reconciliation).
  *
  * supabase/command-center.sql is the full definition; production receives it
- * through supabase/held-migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql
- * (owner-applied with scripts/apply-migration.mjs). If the two drift, production
+ * through supabase/migrations/20261120140000_wf_cc_partner_clicks_commerce_mirror.sql
+ * (supersedes held #1627; released by the owner 2026-11-20). If the two drift, production
  * silently runs something nobody reviewed, so:
  *
  * 1. Every function the migration defines is BYTE-IDENTICAL to its block in
@@ -32,7 +32,7 @@
 import { readFileSync } from "node:fs";
 import { OUT_ACTIONS } from "../lib/commandCenter/eventMap.js";
 
-const MIG = "supabase/held-migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql";
+const MIG = "supabase/migrations/20261120140000_wf_cc_partner_clicks_commerce_mirror.sql";
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 const strip = (s) => s.replace(/^\s*--[^\n]*$/gm, "");
 const full = read("supabase/command-center.sql");
@@ -58,8 +58,8 @@ for (const name of WANT) {
   ok(F.has(name), `command-center.sql defines ${name}`);
   ok(M.get(name) === F.get(name), `${name}: migration block is byte-identical to command-center.sql`);
 }
-ok(/revoke all on function public\.wf_cc_is_out\(text,jsonb\) from public, anon, authenticated;/.test(mig) && /grant execute on function public\.wf_cc_is_out\(text,jsonb\) to service_role;/.test(mig), "migration locks the new predicate to service_role");
-ok(/'wf_cc_is_out\(text,jsonb\)'/.test(full), "command-center.sql lock list includes wf_cc_is_out(text,jsonb)");
+ok(/revoke all on function public\.wf_cc_is_out\(text,jsonb,timestamptz\) from public, anon, authenticated;/.test(mig) && /grant execute on function public\.wf_cc_is_out\(text,jsonb,timestamptz\) to service_role;/.test(mig), "migration locks the new predicate to service_role");
+ok(/'wf_cc_is_out\(text,jsonb,timestamptz\)'/.test(full), "command-center.sql lock list includes wf_cc_is_out(text,jsonb,timestamptz)");
 ok(!/\b(delete|update|insert|truncate|drop table|alter table)\b/i.test(strip(mig).replace(/\$\$[\s\S]*?\$\$/g, "")), "migration is read-time only: no DML/DDL on data outside function bodies");
 
 // ── 2. the list ────────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ ok(defs === 1 && predCalls === 1, `the list is defined once and called once insi
 ok(calls - defs - predCalls === 0, `no reader calls the out list directly, any spelling (found ${calls - defs - predCalls})`);
 
 for (const name of ["wf_cc_kpis", "wf_cc_daily", "wf_cc_top_places", "wf_cc_breakdown", "wf_cc_funnel", "wf_cc_time_to_action"]) {
-  ok(/public\.wf_cc_is_out\(action, meta\)/.test(F.get(name) || ""), `${name} counts partner clicks through wf_cc_is_out(action, meta)`);
+  ok(/public\.wf_cc_is_out\(action, meta, created_at\)/.test(F.get(name) || ""), `${name} counts partner clicks through wf_cc_is_out(action, meta, created_at)`);
 }
 
 // ── 4. predicate shape ─────────────────────────────────────────────────────
@@ -91,6 +91,15 @@ ok(/_action = 'primary_cta_clicked'/.test(pred), "primary_cta_clicked is the onl
 ok(/case when \(coalesce\(_meta, '\{\}'::jsonb\) -> 'monetized'\) is not null then \(_meta->>'monetized'\) = 'true'/.test(pred), "meta.monetized, when present, decides (a monetized:false tickets tap is NOT counted)");
 ok(/else coalesce\(_meta->>'provider',''\) <> '' end/.test(pred), "rows written before the flag count when they carry a provider (production: 11/11 provider rows were partner rungs, 0/95 without)");
 ok(!/\?/.test(pred.replace(/\$\$/g, "")), "no jsonb `?` operator (a driver placeholder hazard)");
+// 2026-11-20: the canonical commerce mirror row is THE partner click; legacy
+// actions only before the mirror existed (no double count, history kept).
+ok(/\$\$ select _action = 'commerce_cta_clicked'\s+or \(_at < timestamptz '2026-10-26 22:45:35\+00'/.test(pred), "commerce_cta_clicked always counts; legacy rules are gated to rows before the 2026-10-26 22:45:35 UTC mirror cutover");
+ok(/and \(_action = any\(public\.wf_cc_out_actions\(\)\)\s+or \(_action = 'primary_cta_clicked'/.test(pred), "both legacy branches (out list, monetized primary CTA) sit inside the cutover gate");
+ok((code.match(/public\.wf_cc_is_out\(action, meta\)/g) || []).length === 0, "no reader calls the old two-argument predicate");
+const lsSrc = read("lib/likeSignal.js");
+ok(/action: "commerce_cta_clicked"/.test(lsSrc), "the mirror writer still writes action commerce_cta_clicked (the name the predicate counts)");
+const brk2 = F.get("wf_cc_breakdown") || "";
+ok(/when 'out_provider' then case when action = 'commerce_cta_clicked' then coalesce\(nullif\(meta->>'provider',''\), '\(unknown partner\)'\) else action end/.test(brk2), "out_provider names the partner for mirrored clicks");
 
 // ── 4b. referrers stay honest ──────────────────────────────────────────────
 const brk = F.get("wf_cc_breakdown") || "";
@@ -113,4 +122,4 @@ if (fail.length) {
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`✓ test-cc-partner-click-predicate: ${pass} assertions (${WANT.length} migration blocks byte-identical to command-center.sql; 6 readers on the predicate; SQL not executed here — PGlite-proven at authoring)`);
+console.log(`✓ test-cc-partner-click-predicate: ${pass} assertions (${WANT.length} migration blocks byte-identical to command-center.sql; 6 readers on the predicate; SQL executed against production read-only at authoring 2026-11-20)`);

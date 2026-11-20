@@ -20,7 +20,7 @@ BEFORE=$(node scripts/run-guards.mjs 2>&1 | grep -oE '^run-guards: [0-9]+' | gre
 echo "   $BEFORE guards"
 
 echo; echo "-- 3. registering the two new guards --"
-for g in "node scripts/check-doc-ownership.mjs" "node scripts/check-locks.mjs"; do
+for g in "node scripts/check-locks.mjs"; do
   grep -qxF "$g" scripts/guards.txt || { echo "$g" >> scripts/guards.txt; echo "   + $g"; }
 done
 
@@ -47,7 +47,7 @@ echo; echo "-- 6. guard count AFTER --"
 node scripts/run-guards.mjs 2>&1 | tail -2
 
 echo; echo "-- 7. staging --"
-git add docs/lanes QUEUE.md LOCKS.md scripts/check-doc-ownership.mjs scripts/check-locks.mjs scripts/guards.txt scripts/lane-fix.sh 2>/dev/null
+git add docs/lanes QUEUE.md LOCKS.md scripts/check-locks.mjs scripts/guards.txt scripts/lane-fix.sh 2>/dev/null
 git status --short | head -20
 echo
 echo "Review, then:"

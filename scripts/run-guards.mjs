@@ -103,7 +103,7 @@
  *                    and digest) and the counts sum to the manifest. Runs nothing.
  *
  *   This file and every local module it imports are OWNER-ONLY
- *   (scripts/lib/ownerApproval.mjs): a PR that edited the runner to exit 0 used to
+ *   (formerly owner-only): a PR that edited the runner to exit 0 used to
  *   turn "guards" and Vercel's prebuild green with a failing guard (2026-11-14).
  *
  * TEST OVERRIDES (used only by scripts/test-run-guards.mjs):

@@ -131,10 +131,6 @@
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
     {
-      "file": "scripts/check-doc-ownership.mjs",
-      "reason": "ANALYZER LIMITATION, not a hollow guard: every assertion runs through a local git(...args) wrapper around execFileSync; the derived-value tracer only follows single-line `const x = call(...)` assignments and this wrapper's body is multi-line, so it never sees that inside.ok/out etc. trace back to a real execFileSync call. The guard itself is a real CALL guard (18 git invocations, branches on stdout/exit throughout)."
-    },
-    {
       "file": "scripts/check-drop-photo-window.mjs",
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
