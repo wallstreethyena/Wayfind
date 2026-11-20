@@ -300,7 +300,7 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
 {
   const intake = JSON.parse(readFileSync(path.join(REPO, "docs/curation/owner-three-reels-2026-10-30.json"), "utf8"));
   const { captionFor } = await import("../lib/creatorCaptions.js");
-  const { embedSrc } = await import("../lib/videoEmbed.js");
+  const { embedSrc, instagramPlaysInWayfind } = await import("../lib/videoEmbed.js");
   const { creatorCountFor } = await import("../lib/creatorVideos.js");
   const { creatorCountFor: leanCount } = await import("../lib/creatorSignals.js");
   ok(intake.sources.length === 16, "all sixteen owner-supplied reels are accounted for");
@@ -313,7 +313,8 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
     const place = source.places[0];
     const matches = creatorVideosFor({ id: place.place_id }).filter((v) => v.url === source.native_url);
     ok(matches.length === 1 && matches[0].creator === source.creator, `${source.shortcode} resolves once with original credit`);
-    ok(embedSrc("instagram", source.native_url) === source.native_url + "embed/", `${source.shortcode} retains native playback`);
+    // Owner 2026-11-20: a player only where Instagram plays the post inside Wayfind; a handoff-only post gets none.
+    ok(embedSrc("instagram", source.native_url) === (instagramPlaysInWayfind(source.shortcode) ? source.native_url + "embed/" : null), `${source.shortcode} retains native playback (or none when Instagram only links out)`);
     ok(captionFor(matches[0]).length > 40, `${source.shortcode} has substantive original editorial context`);
     if (source.independent === false && source.shortcode !== "DfIAf5bxY0Z") ok(creatorCountFor({ id: place.place_id }) === 0 && leanCount({ id: place.place_id }) === 0, `${source.creator} cannot create independent corroboration`);
     ok(!creatorVideosFor({ id: "ChIJwrongVerifiedIdentity123", name: place.name, city: place.city }).some((v) => v.url === source.native_url), `${source.shortcode} cannot leak through a same-name different Google ID`);
@@ -339,7 +340,7 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
 {
   const intake = JSON.parse(readFileSync(path.join(REPO, "docs/curation/owner-christmas-reels-2026-11-01.json"), "utf8"));
   const { captionFor } = await import("../lib/creatorCaptions.js");
-  const { embedSrc } = await import("../lib/videoEmbed.js");
+  const { embedSrc, instagramPlaysInWayfind } = await import("../lib/videoEmbed.js");
   const { creatorCountFor } = await import("../lib/creatorVideos.js");
   const { eventSocialPosts } = await import("../lib/eventSocial.js");
   ok(intake.sources.length === 2, "both owner Christmas reels are accounted for");
@@ -347,7 +348,7 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
     const place = source.places[0];
     const matches = creatorVideosFor({ id: place.place_id }).filter((v) => v.url === source.native_url);
     ok(matches.length === 1 && matches[0].creator === source.creator, `${source.shortcode} resolves once on its venue with original credit`);
-    ok(embedSrc("instagram", source.native_url) === source.native_url + "embed/", `${source.shortcode} keeps native playback`);
+    ok(embedSrc("instagram", source.native_url) === (instagramPlaysInWayfind(source.shortcode) ? source.native_url + "embed/" : null), `${source.shortcode} keeps native playback (or none when Instagram only links out)`);
     ok(captionFor(matches[0]).length > 40, `${source.shortcode} has original editorial context`);
     ok(eventSocialPosts(source.christmas_event_id).some((p) => p.url === source.native_url && p.creator === source.creator), `${source.shortcode} shows on its Christmas event page`);
     ok(!creatorVideosFor({ id: "ChIJwrongVerifiedIdentity123", name: place.name, city: place.city }).some((v) => v.url === source.native_url), `${source.shortcode} cannot leak through a same-name different Google ID`);
