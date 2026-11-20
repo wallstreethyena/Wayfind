@@ -2,29 +2,23 @@
 
 This folder is a separate Node process that claims queued rows and runs `runNext` in `lib/bookingAgent/run.js`.
 
-## Running the worker locally on macOS (standard headed Chrome)
+## Status: OFF (owner decision, 2026-11-20)
 
-Install dependencies once inside this folder:
-```bash
-cd services/booking-agent && npm install
-```
+The booking agent is merged dark. Do not apply `20261117143000_wf_booking_agent.sql`, set
+`BOOKING_AGENT_ENABLED` / `BOOKING_AGENT_SITE_OPENTABLE`, or start this worker in production
+without a new owner decision. Reserve sends OpenTable restaurants through the prefilled
+`/api/reserve/go` handoff instead.
 
-Start the continuous polling daemon with standard headed Chrome (`BOOKING_AGENT_BROWSER_MODE=chrome`) and optional Twilio SMS confirmations (`RESERVE_SMS_ENABLED=1`):
-```bash
-BOOKING_AGENT_ENABLED=1 \
-BOOKING_AGENT_SITE_OPENTABLE=1 \
-BOOKING_AGENT_BROWSER_MODE=chrome \
-SUPABASE_URL=https://<your-project>.supabase.co \
-SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key> \
-node services/booking-agent/runner.js
-```
+Standing rules for this worker:
+- It always identifies itself with the honest Wayfind agent user agent (`AGENT_UA`) in every
+  mode; `runNext` refuses any browser presenting a different user agent.
+- It never bypasses CAPTCHA or anti-bot checks; if blocked, the user gets the exact booking page.
+- A personal Mac is never production infrastructure, and any hosted worker is new spend that
+  needs owner approval first.
 
-Run a single queued job and exit:
-```bash
-BOOKING_AGENT_ENABLED=1 BOOKING_AGENT_SITE_OPENTABLE=1 BOOKING_AGENT_BROWSER_MODE=chrome node services/booking-agent/runner.js --once
-```
-
-On a headless Linux host (Fly.io / Railway / VPS), run under `xvfb-run -a node services/booking-agent/runner.js` with `BOOKING_AGENT_BROWSER_MODE=chrome`.
+`BOOKING_AGENT_BROWSER_MODE=chrome` only switches to a visible (headed) Chrome window for local
+fixture debugging. Local fixture tests: `node scripts/test-booking-agent.mjs` and
+`node scripts/test-booking-agent-browser.mjs` (no live booking site).
 
 Twilio confirmation texts reuse the existing `RESERVE_SMS_ENABLED=1` + Twilio credentials when the guest opts in on the booking card. OpenTable SMS verification codes are relayed inline in the Wayfind chat (`POST /api/reserve/agent/code`).
 

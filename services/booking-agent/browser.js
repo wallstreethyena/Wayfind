@@ -18,13 +18,11 @@ export async function launchHonestChromium(opts = {}) {
     launchOpts.channel = opts.channel || "chrome";
   }
   const browser = await chromium.launch(launchOpts);
-  const context = chromeMode
-    ? await browser.newContext()
-    : await browser.newContext({ userAgent: opts.userAgent || AGENT_UA });
+  // Headed or headless, the agent always announces itself with the honest Wayfind UA.
+  // Chrome mode only changes the window mode; it never disguises the agent as a person.
+  const context = await browser.newContext({ userAgent: opts.userAgent || AGENT_UA });
   const page = await context.newPage();
-  const actualUserAgent = chromeMode
-    ? await page.evaluate(() => navigator.userAgent)
-    : (opts.userAgent || AGENT_UA);
+  const actualUserAgent = await page.evaluate(() => navigator.userAgent);
   let httpStatus = 0;
   page.on("response", (res) => {
     if (res.request().resourceType() === "document") httpStatus = res.status();

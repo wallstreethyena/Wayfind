@@ -574,7 +574,7 @@ scripts/test-book-it.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	30	0	0	57c3bcb
 scripts/test-bookable-highlights-30.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	54	0	0	a041e7aeae4f1bb84d67243fffe81ae1c82e40195e05e8aa2fbc94bd740957f4
 scripts/test-bookable-near-50.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	17	0	0	0bc1fee507af5d5fc128910e7d5e80d10af5f4ff36379f6368593e7067039f79
 scripts/test-booking-agent-browser.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	5	0	0	ce95abda76187ba90b0d2807b7b0ecd6e818bc7633685ef8a57cf62e430aa246
-scripts/test-booking-agent.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	94	0	0	34877fba8ec0f8750c575c02f12f29fdc08102085254e58d7380672af205ecd7
+scripts/test-booking-agent.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	95	0	0	2813ca382fedc1b25c2d8d4e0be22fd81f554f552761e30304aa349a35361fd6
 scripts/test-booking-audit.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	04a622ff97a114637cbee61b26e0fb0ea44de830dd9a08cb96022f512bc2acdf
 scripts/test-booking-integrity.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	1	1	ba05309c1803b65dfbc4a860f723e10d335e263194eab137de525df06a8226ff
 scripts/test-booking-resolve-extraction.mjs	1	CALL	blocks-ci-and-deploy	1	Qwen (Engineering)	41	1	4	93277e74fc91f92fdf466189922f7de2357fa237750e8bb120cb9335b5adae03

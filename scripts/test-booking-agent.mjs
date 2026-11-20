@@ -723,7 +723,7 @@ const confirmed = { html: html("confirmation.html") };
     launch: async (opts) => {
       seenOpts = opts;
       return {
-        userAgent: "Mozilla/5.0 Chrome/131.0.0.0",
+        userAgent: AGENT_UA,
         async open() {
           let step = 0;
           return {
@@ -738,7 +738,7 @@ const confirmed = { html: html("confirmation.html") };
     loadProfile: async () => PROFILE,
     placeName: async () => "Synthetic Grill",
   });
-  ok(seenOpts && seenOpts.mode === "chrome" && chromeOut.status === "confirmed", "BOOKING_AGENT_BROWSER_MODE=chrome passes mode=chrome and accepts standard Chrome UA");
+  ok(seenOpts && seenOpts.mode === "chrome" && seenOpts.userAgent === AGENT_UA && chromeOut.status === "confirmed", "BOOKING_AGENT_BROWSER_MODE=chrome passes mode=chrome with the honest Wayfind UA");
 
   const emptyUaStore = createMemoryStore({ status: "on" });
   await seedRun(emptyUaStore);
@@ -751,6 +751,18 @@ const confirmed = { html: html("confirmation.html") };
     placeName: async () => "Synthetic Grill",
   });
   ok(emptyUaOut.status === "failed:browser", "chrome mode still rejects an empty user agent");
+
+  const disguisedStore = createMemoryStore({ status: "on" });
+  await seedRun(disguisedStore);
+  const disguisedOut = await runNext({
+    store: disguisedStore,
+    env: { ...ON, BOOKING_AGENT_BROWSER_MODE: "chrome" },
+    now: () => NOW,
+    launch: async () => ({ userAgent: "Mozilla/5.0 Chrome/131.0.0.0", async open() { throw new Error("should not open"); }, async close() {} }),
+    loadProfile: async () => PROFILE,
+    placeName: async () => "Synthetic Grill",
+  });
+  ok(disguisedOut.status === "failed:browser", "chrome mode refuses a disguised (non Wayfind) user agent");
 }
 
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }
