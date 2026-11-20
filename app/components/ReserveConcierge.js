@@ -88,18 +88,29 @@ function RequestCard({ card, name, busy, onSend }) {
 }
 
 function HandoffCard({ card, state, place }) {
+  const [opened, setOpened] = useState(false);
   const q = safe(() => new URL(card.url, "https://gowayfind.com").searchParams);
+  const date = (q && q.get("date")) || (state && state.date) || "";
+  const asked = (q && q.get("time")) || (state && state.time) || "";
+  // sentTime is the half hour OpenTable's form actually receives (lib/reservePath.js roundToHalfHour).
+  const shown = (card && card.sentTime) || asked;
+  const party = Number((q && q.get("party")) || (state && state.partySize)) || null;
+  const summary = [exactDay(date), timeLabel(shown), party ? partyWord(party) : ""].filter(Boolean).join(" · ");
+  const rounded = Boolean(card && card.sentTime && asked && card.sentTime !== asked);
   const log = () => safe(() => addHandoff({
     placeId: (q && q.get("placeId")) || (place && place.id) || "",
     name: (place && place.name) || (state && state.restaurantName) || "",
-    date: (q && q.get("date")) || (state && state.date) || "",
-    time: (q && q.get("time")) || (state && state.time) || "",
-    party: Number((q && q.get("party")) || (state && state.partySize)) || null,
+    date,
+    time: shown,
+    party,
   }));
   return (
     <div data-reserve-card="handoff" style={{ margin: "0 0 10px" }}>
-      <a data-reserve-go="1" href={card.url} target="_blank" rel="noopener noreferrer" onClick={() => { log(); track("reserve_opentable_handoff", { place_id: place && place.id }); }}
+      {summary ? <div data-reserve-handoff-summary="1" style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.35, marginBottom: 8, overflowWrap: "anywhere" }}>{summary}</div> : null}
+      {rounded ? <div data-reserve-handoff-rounded="1" style={{ fontSize: 12.5, color: C.light, margin: "-2px 0 8px", overflowWrap: "anywhere" }}>OpenTable books on the half hour, so I filled in {timeLabel(card.sentTime)}.</div> : null}
+      <a data-reserve-go="1" href={card.url} target="_blank" rel="noopener noreferrer" onClick={() => { log(); setOpened(true); track("reserve_opentable_handoff", { place_id: place && place.id }); }}
         style={{ ...mainBtn, display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", boxSizing: "border-box", textAlign: "center", padding: "8px 16px", overflowWrap: "anywhere" }}>{card.label}</a>
+      <div role="status" data-reserve-handoff-opened={opened ? "1" : undefined} style={{ fontSize: 13.5, fontWeight: 700, color: C.accent, marginTop: opened ? 8 : 0, overflowWrap: "anywhere" }}>{opened ? "Opened on OpenTable. Saved to My reservations." : ""}</div>
       <Note>You'll finish on OpenTable. Wayfind hasn't booked this yet.</Note>
     </div>
   );
