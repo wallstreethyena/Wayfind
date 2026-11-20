@@ -501,7 +501,7 @@ scripts/check-universal-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	5f35da9
 scripts/check-untracked-affiliate-links.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	c03311510e3466de486b057db919182ae294377ceac623c40299db21942c8be4
 scripts/check-ut-crawler-clicks.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	18	1	2	6a88c30c40adf797bc10e983cd13e72d154bf865436838b5583c09a69b637b5a
 scripts/check-ux.mjs	0	CALL	unwired	0	-	87	0	0	dc8e1f3cf5b0a257553a70891377459ed849a5b4b2240471d7188a67c86bb049
-scripts/check-vendor-tag-cannot-throw.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	3409ce937e64ac6b5709a1ef7fa4736b6aa30dc66c703c3e5c94b0738bba83ff
+scripts/check-vendor-tag-cannot-throw.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	2a01a9a235dbb244dc7078e27ac0411e1644438fbeda35a32ab394e533fb2086
 scripts/check-venue-timezone.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	78e31935a0858d42a1e0fa1203462a46f1abf6db64a399ea4658475135632f20
 scripts/check-version-watch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	27	1	0	1697e6e532e612c76d96bb61d2be6bd27e6ea2c17c47213f7164be019db90df6
 scripts/check-version.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	343bb64781558820ff85c8c12ad96a99937ecff4cf587e220a10df6b2370637a
@@ -943,7 +943,7 @@ scripts/test-member-score.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	87a08378129
 scripts/test-menu-taxonomy-audit.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	7597e7ad014618a7b950ffea09db0ab6d1f76e431cd484b9be2f6f2bf9940c86
 scripts/test-merge-train.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	cc46140e90ee0c343521c1c67bce7966ff33ffc15969d43ee45c0578e27259a3
 scripts/test-meta-partner-handoff.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	211	0	0	51b56aa07439d11ac49ad0588c194590eb79750ec42d4420ae4b782d97713a05
-scripts/test-meta-pixel.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	7a09235fd33aef9b6d46601b7ccfda8063aeeaf4171d63c54953c87109eb9845
+scripts/test-meta-pixel.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	cbe1165390fdae3ea6753afbd2855a4ef9d0c7e64cf562fd594e7ee0dff88a81
 scripts/test-metro-photo-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	57e590e21e06d1c7eaaecec6d0f71b852f04ad3369c562a34790a7b00b129c04
 scripts/test-migration-lease.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	fc13a91e6410f4f77975b4b5c54de58ed9513639fd83ffc278052abf36f7029f
 scripts/test-migration-state-reconciler.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	ada73df4a797e14b07f2d8f9d42498d620d2c011a269436db2e08bf43891d101
