@@ -106,10 +106,6 @@
       "schedule": "10 * * * *"
     },
     {
-      "path": "/api/cron/rating-backfill?limit=60",
-      "schedule": "*/10 * * * *"
-    },
-    {
       "path": "/api/cron/schema-watch",
       "schedule": "18 6 * * *"
     },

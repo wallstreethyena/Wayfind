@@ -2,9 +2,10 @@
 //
 // Owner decision 2026-11-20 ("I approve the pay run ... I don't want to wait till
 // December 1st"): buy Google's rating + review count for the places in the five held
-// Florida towns that have none (lib/ratingBackfill.js picks them). OFF BY DEFAULT. Vercel's
-// cron wakes it every 10 minutes (CRON_SECRET is a sensitive value only Vercel's cron can
-// send), but it spends nothing unless BOTH switches are valid:
+// Florida towns that have none (lib/ratingBackfill.js picks them). OFF BY DEFAULT and not
+// scheduled: the 2026-11-20 run used a temporary vercel.json cron (#2676, removed after
+// the run). A future approved run re-adds a bounded schedule; it spends nothing unless
+// BOTH switches are valid:
 //   RATING_BACKFILL_PAID=1
 //   RATING_BACKFILL_MONTH_CAP=<positive integer>   paid lookups allowed this month
 // Every lookup takes one grant from its OWN ledger row (details_enterprise_backfill,
