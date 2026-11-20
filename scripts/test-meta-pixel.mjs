@@ -35,6 +35,16 @@ for (const bad of ["", "abc", "1234", "AW-18342267447", "14245597059687111234"])
 }
 ok(M.metaPixelId() === "1424559705968711", "env unset -> falls back to the live id (never detaches)");
 
+// ── 1b. host gate (2026-11-20): previews and localhost never send events ──
+for (const h of ["gowayfind.com", "www.gowayfind.com", "WWW.GOWAYFIND.COM"]) ok(M.isMetaAllowedHost(h) === true, `allows ${h}`);
+for (const h of ["wayfind-abc123-wayfind2.vercel.app", "localhost", "127.0.0.1", "gowayfind.com.evil.io", "notgowayfind.com", "", null]) ok(M.isMetaAllowedHost(h) === false, `blocks ${h}`);
+{
+  const comp = read("app/components/MetaPixel.js");
+  ok(/gowayfind\\\.com\$\/i\.test\(String\(location\.hostname/.test(comp), "init snippet checks location.hostname before loading fbevents.js");
+  ok(comp.indexOf("location.hostname") < comp.indexOf("connect.facebook.net"), "host check runs before the pixel script is injected");
+  ok(/NEXT_PUBLIC_VERCEL_ENV === "production" \? \(\s*<noscript>/.test(comp), "no-JS pixel image renders only on production");
+}
+
 // ── 2. the bridge executes ───────────────────────────────────────────────
 const calls = [];
 const fbq = (...a) => calls.push(a);
