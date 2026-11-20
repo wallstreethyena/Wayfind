@@ -144,5 +144,14 @@ ok(tap && tap.ctx.click_id === "wf-abc-123" && tap.ctx.merchant === "rutheckerdh
 ok(planChristmasOrganizerTap({ id: "x", cta: { href: "https://example.org/t" } }, { mint: () => "wf-a-b" }).ctx.content_id === "x", "no slug: falls back to the row id");
 ok(planChristmasOrganizerTap({ id: "x", cta: { href: "/florida-events/x" } }, { locationHost: "www.gowayfind.com", mint: () => "wf-a-b" }) === null, "an own-site link is never counted as an organizer handoff");
 
+// 8. Paid first on the Christmas page (owner 2026-11-20) never lifts a sold out
+// event, even one that still has a partner deal on file (Mickey's has one).
+const { paidTier } = await import("../lib/christmasBrowse.js");
+const { eventTicketDeal } = await import("../lib/eventTicketDeals.js");
+ok(eventTicketDeal("mvmcp-2026") !== null, "precondition: Mickey's still has a partner deal on file");
+ok(paidTier({ kind: "event", id: "mvmcp-2026", ticket_status: "sold_out" }) === 1, "a sold out event never sorts as paid");
+ok(paidTier({ kind: "event", id: "mvmcp-2026" }) === 0, "control: the same deal on sale sorts as paid");
+ok(paidTier({ kind: "event", id: "no-deal-event-2026" }) === 1 && paidTier({ kind: "place", id: "x" }) === 1, "no partner deal, no paid lift");
+
 if (fail.length) { console.error("test-sold-out-handoffs: FAIL"); for (const f of fail) console.error("  - " + f); process.exit(1); }
 console.log(`test-sold-out-handoffs: OK - ${pass} assertions (one rule, cached live read, the real /api/commerce/go handler, Santa, alternatives, map)`);
