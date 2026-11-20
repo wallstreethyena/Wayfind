@@ -1,5 +1,6 @@
 "use client";
 import CreatorVideoAction from "../CreatorVideoAction";
+import { isEmbeddable } from "../../../lib/videoEmbed";
 import PlaceDistance, { usePlaceDistance } from "../PlaceDistance.js";
 // Extracted from app/home.js (G3, July 2026 decomposition). Render-only.
 // The place-detail bottom sheet — Wayfind's core, most-used UI surface.
@@ -1660,7 +1661,8 @@ export default function DetailSheet({ ctx }) {
 
               {/* Featured creator video: curated UGC social proof, credited to the creator and linked out to their real video, placed below core decision intelligence so visitor logistics answer first. */}
               {!detail._event && (() => {
-                const cvs = creatorVideosFor(detail, locName);
+                // Owner 2026-11-20: only creator posts that play inside Wayfind get a tile.
+                const cvs = creatorVideosFor(detail, locName).filter((v) => isEmbeddable(v.platform, v.url));
                 if (!cvs.length) return null;
                 return (
                   <div style={{ marginBottom: 16 }}>

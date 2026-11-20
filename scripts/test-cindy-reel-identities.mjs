@@ -7,7 +7,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { loadComponent } from './lib/jsxLoad.mjs';
 import { __CURATED_FOR_CODEGEN__ as CURATED, creatorVideosFor, allCreators } from '../lib/creatorVideos.js';
 import { CAPTIONS, captionFor } from '../lib/creatorCaptions.js';
-import { embedSrc } from '../lib/videoEmbed.js';
+import { embedSrc, instagramPlaysInWayfind } from '../lib/videoEmbed.js';
 
 const repo = fileURLToPath(new URL('..', import.meta.url));
 const { sources } = JSON.parse(readFileSync(new URL('../docs/curation/cindy-reels-2026-10-29.json', import.meta.url)));
@@ -48,7 +48,8 @@ for (const source of sources) {
   assert.equal(matches.length, 1, `${source.shortcode}: the normal place resolver must find it once`);
   assert.equal(matches[0].creator, source.creator);
   assert(captionFor(matches[0]).length > 30, `${source.shortcode}: retained caption`);
-  assert.equal(embedSrc('instagram', url), `${url}embed/`, 'retain native playback');
+  // Owner 2026-11-20: a player only where Instagram plays the post inside Wayfind.
+  assert.equal(embedSrc('instagram', url), instagramPlaysInWayfind(source.shortcode) ? `${url}embed/` : null, 'retain native playback (or none when Instagram only links out)');
   assert.equal(spots.length, 1, `${source.shortcode}: exactly one creator-page spot`);
   assert.equal(spots[0].placeId, place.place_id || null);
   // The native URL is a lazy player's React prop, not an SSR link. Its exact

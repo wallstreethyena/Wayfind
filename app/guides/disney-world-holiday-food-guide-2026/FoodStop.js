@@ -1,5 +1,6 @@
 import locations from "../../../lib/disneyChristmasFoodLocations2026.json";
 import FoodPost from "./FoodPost";
+import { isEmbeddable } from "../../../lib/videoEmbed";
 import styles from "./page.module.css";
 
 export default function FoodStop({ stop }) {
@@ -8,7 +9,8 @@ export default function FoodStop({ stop }) {
     <p className={styles.kicker}>{stop.venue}</p>
     <h2 id={stop.id + "-heading"}>{stop.title}</h2>
     <p className={styles.summary}>{stop.summary}</p>
-    <div className={styles.foodMedia}>{stop.posts.map((post) =>
+    {/* Owner 2026-11-20: only posts that play inside Wayfind are shown. */}
+    <div className={styles.foodMedia}>{stop.posts.filter((post) => isEmbeddable("instagram", post.url)).map((post) =>
       <FoodPost key={post.url} post={post} />
     )}</div>
     <dl className={styles.stopFacts}>

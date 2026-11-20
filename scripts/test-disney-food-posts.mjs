@@ -22,12 +22,16 @@ function compile(file, dependencies = {}, whole = false) {
 }
 // Render actual components: source strings alone did not detect the missing California tile.
 const FoodPost = compile('FoodPost.js', { '../../components/CreatorVideoPlayer': () => null });
-const FoodStop = compile('FoodStop.js', { './FoodPost':FoodPost });
+const videoEmbed = await import('../lib/videoEmbed.js');
+const FoodStop = compile('FoodStop.js', { './FoodPost':FoodPost, '../../../lib/videoEmbed': videoEmbed });
+const plays = (post) => Boolean(videoEmbed.embedSrc('instagram', post.url));
 let count = 0;
 for (const stop of [...DISNEY_FOOD_STOPS,CALIFORNIA_BONUS]) {
   const html = renderToStaticMarkup(React.createElement(FoodStop,{stop}));
-  assert.equal((html.match(/data-food-post=/g)||[]).length,stop.posts.length);
-  for (const post of stop.posts) {
+  // Owner 2026-11-20: only posts Instagram plays inside Wayfind render; a handoff-only post is left off.
+  assert.equal((html.match(/data-food-post=/g)||[]).length,stop.posts.filter(plays).length);
+  for (const post of stop.posts.filter((p) => !plays(p))) assert.ok(!html.includes(post.url), 'a handoff-only post never renders: '+post.url);
+  for (const post of stop.posts.filter(plays)) {
     assert.ok(html.includes(post.url));
     assert.ok(html.includes('@'+post.creator));
     assert.ok(html.includes('Instagram controls playback'));
@@ -36,7 +40,8 @@ for (const stop of [...DISNEY_FOOD_STOPS,CALIFORNIA_BONUS]) {
   assert.ok(!html.includes('/place-photos/'),'food media never substitutes a park photo');
   assert.ok(!html.includes('Food illustration'),'food media never substitutes generated dish art');
 }
-assert.equal(count,9);
+assert.equal(count,[...DISNEY_FOOD_STOPS,CALIFORNIA_BONUS].flatMap((s)=>s.posts).filter(plays).length);
+assert.ok(count>0,'at least one food post still plays inside Wayfind');
 const missing = {...CALIFORNIA_BONUS,posts:[]};
 const missingHtml=renderToStaticMarkup(React.createElement(FoodStop,{stop:missing}));
 assert.equal((missingHtml.match(/data-food-post=/g)||[]).length,0,'negative control detects removed source');
@@ -52,6 +57,7 @@ assert.equal(isInstagramRendered('not json'), false);
 assert.equal(isInstagramRendered(null), false);
 assert.ok(FOOD_POST_TIMEOUT_MS >= 5000 && FOOD_POST_TIMEOUT_MS <= 12000, 'fallback waits long enough for a slow embed, not forever');
 const firstPaint = renderToStaticMarkup(React.createElement(FoodPost,{post:DISNEY_FOOD_STOPS[0].posts[0]}));
-assert.ok(firstPaint.includes('href="'+DISNEY_FOOD_STOPS[0].posts[0].url+'"'), 'source link is in the first render');
+assert.ok(firstPaint.includes('@'+DISNEY_FOOD_STOPS[0].posts[0].creator), 'creator credit is in the first render');
+assert.ok(!/<a\b/.test(firstPaint), 'no link out to Instagram in the first render (owner 2026-11-20)');
 assert.ok(firstPaint.includes('data-food-post-state="idle"'), 'no player (and no black frame) before the post is near the viewport');
 console.log('PASS: actual FoodStop/FoodPost render preserves all nine attributed sources, California without placeId, truthful provider messaging, no park-photo substitution; missing-source negative control.');
