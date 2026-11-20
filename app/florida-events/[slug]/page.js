@@ -1,5 +1,5 @@
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
-import { creatorCoversFor } from "../../../lib/creatorCovers.js";
+import { creatorCoversFor, posterCoverForPosts } from "../../../lib/creatorCovers.js";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
@@ -283,7 +283,9 @@ export default async function CuratedEventPage({ params }) {
   // Google photo (not allowed as a bare cover), use our own credited photo of
   // the venue instead (lib/creatorCovers.js).
   const heroCover = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
-  const venueCover = !heroCover && socialPosts.length && e.place_id ? (await creatorCoversFor([e.place_id]))[e.place_id] || null : null;
+  const venueCover = !heroCover && socialPosts.length
+    ? ((e.place_id ? (await creatorCoversFor([e.place_id]))[e.place_id] : null) || (await posterCoverForPosts(socialPosts.map((p) => p.url))) || null)
+    : null;
   const socialPoster = heroCover || venueCover?.src || null;
   // Live check 2026-11-19: tiles covered by the event hero printed no credit. The hero's own
   // credit (rail photo, registry shot or the event row's attribution) rides on the tile too.
