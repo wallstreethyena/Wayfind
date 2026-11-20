@@ -496,7 +496,7 @@ scripts/check-trend-sources.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	1ee81cf65
 scripts/check-ttd-dedup.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	a83b28f7a3baebeeeb2570c78f72462690ae5955a9728c5a30c6a4bce2fe267f
 scripts/check-unbound-refs.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	769e72abe0976976c5701cec3b6a9b6b33a1ea3ebef8a75b7e9799b30d982c13
 scripts/check-unified-commerce-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	0	0	3ddf626c703e9afd0a9da25aa9ca4c327ce0822647f7567509d082ba3ce1a12c
-scripts/check-universal-holiday-guide.mjs	0	RENDER	blocks-ci-and-deploy	1	-	33	0	0	0fdaf29dea12d89aa2b484f7178799701975534b42fec4fb7f4e4e98da1c2552
+scripts/check-universal-holiday-guide.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0	77215b1f79dd25dbbb763050e3553391878dd22526a3bd195e34329a0b2b3821
 scripts/check-universal-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	5f35da9f4014f203f9a228913b91c08ffab5196e6e9ec8a2a4af558287744259
 scripts/check-untracked-affiliate-links.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	c03311510e3466de486b057db919182ae294377ceac623c40299db21942c8be4
 scripts/check-ut-crawler-clicks.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	18	1	2	6a88c30c40adf797bc10e983cd13e72d154bf865436838b5583c09a69b637b5a

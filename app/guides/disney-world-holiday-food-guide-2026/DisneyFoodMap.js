@@ -50,6 +50,11 @@ export default function DisneyFoodMap({ parks, stops, festival }) {
       proof={["Creator posts", "Admission noted", "Festival menus mapped"]}
       note="Illustrated park maps are not to scale. Follow park signs on the day."
       railIdPrefix="disney-food"
+      filterForHash={(hash) => {
+        if (hash.startsWith("park-")) return hash.slice(5);
+        if (hash.startsWith("booth-") || hash === festival?.id) return festival?.parkId;
+        return stops.find((stop) => stop.id === hash)?.parkId || null;
+      }}
       renderMap={({ active, visible, selectedId, onSelect }) => <IllustratedParkMap
         key={active}
         image={parkMapImage(DISNEY_PARK_MAP[active])}
