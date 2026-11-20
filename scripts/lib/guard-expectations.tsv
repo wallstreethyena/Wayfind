@@ -330,7 +330,7 @@ scripts/check-money-funnel.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	21	0	0	4
 scripts/check-movie-pages.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	df2fe6c40550d331b78b92dc5f6aedc800de9c9902d02965190a0f74199affa0
 scripts/check-narrow-chip-inventory.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	1	2	ff8789430085b11dbde7ffd5467735976d416586abd96b26f9538d5424bb9457
 scripts/check-native-no-ad-tracking.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	55c2d20658358cc70c3005444519e42d18141484e24e38a85e438e0ba1d67fa3
-scripts/check-nearby-pool.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	97b600b0fea385a7014eacc75d88521da0cf2f410af5d580da2a9c4ed05253e1
+scripts/check-nearby-pool.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	c9dec95d45381ed59812d0f384ffa875dae84e1bbf9d920d47cf60aa072a89c0
 scripts/check-new-content-images.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	fbdd1ba172447b5a2a9b056dfe73c37f8846a519fe38a23de69e43ecb1492719
 scripts/check-no-card-cap.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	35070336fb6b0f17e207aa2acb016070d36d7bbd7d53d74a6a1605ab2d3c1b99
 scripts/check-no-conflict-markers.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	0	0	a5015678c49c3ba889e9e1f96be93544dfea68e10b26f7640eebf89b755134cc
