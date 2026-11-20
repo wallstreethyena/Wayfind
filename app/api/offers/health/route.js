@@ -17,6 +17,7 @@ export async function GET(req) {
   } catch {}
   const snap = exportClippRuntimeSnapshot();
   const auditExpired = isClippAuditExpiredEt(CLIPP_AUDIT_EXPIRY, now);
+  const activeCount = listActiveClippOffers({ now }).length;
   return Response.json(
     {
       ok: true,
@@ -24,8 +25,8 @@ export async function GET(req) {
         ...snap,
         todayEt: siteTodayStr(now),
         auditExpired,
-        serveable: !auditExpired,
-        activeCount: listActiveClippOffers({ now }).length,
+        serveable: activeCount > 0,
+        activeCount,
       },
       asOf: now.toISOString(),
     },

@@ -41,7 +41,8 @@ const guardsWf = readFileSync(new URL("../.github/workflows/guards.yml", import.
 ok(/inputs\.pr/.test(guardsWf) && /GITHUB_EVENT_NAME=pull_request/.test(guardsWf) && /github\.sha/.test(guardsWf), "a train-dispatched guards run judges its own commit as that pull request (synthetic pull_request payload)");
 ok(!/owner-approval|check-owner-approval-pr|\/check-runs"/.test(runner) && !/checks: write/.test(wf), "the train neither evaluates nor posts an owner-approval check, and has no checks-write permission");
 ok(!/\/merge["`]/.test(runner) && !/git push|checkout/.test(runner.replace(/never checks out/g, "")), "the train never merges or pushes itself; auto-merge merges");
-ok(/actions\/workflows\/guards\.yml\/runs\?head_sha=/.test(runner) && /"queued", "in_progress"/.test(runner), "a guards run that is queued or running for the car's commit counts as running (no double dispatch)");
+ok(/actions\/workflows\/guards\.yml\/runs\?head_sha=/.test(runner) && /"queued", "in_progress", "waiting", "requested", "pending"/.test(runner), "a guards run that is queued, in_progress, waiting, requested, or pending for the car's commit counts as running (no double dispatch)");
+ok(/must\("POST", "\/actions\/workflows\/guards\.yml\/dispatches"/.test(runner) && /\/branches\/\$\{encodeURIComponent\(car\.ref\)\}/.test(runner), "dispatchGuards verifies branch tip matches car.head and fails loudly via must() if GitHub rejects workflow_dispatch");
 const guardsTxt = readFileSync(new URL("./guards.txt", import.meta.url), "utf8");
 ok(/node scripts\/test-merge-train\.mjs/.test(guardsTxt), "wired into guards.txt");
 
