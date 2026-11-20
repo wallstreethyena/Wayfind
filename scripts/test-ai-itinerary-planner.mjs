@@ -407,7 +407,7 @@ delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   // Proactive assistant moments & strict session cap (<= 2 per session)
   const sess = makeMemoryStorage();
   const placeOffer = selectProactivePlannerOffer({ pathname: "/p/ChIJ_test_place", storage: sess });
-  ok(placeOffer && placeOffer.kind === "place" && /build a day around this/i.test(placeOffer.message), "Place page surfaces contextual 'build a day around this' offer");
+  ok(placeOffer && placeOffer.kind === "place" && /whole day/i.test(placeOffer.message) && /build a day around this/i.test(placeOffer.ctaLabel), "Place page surfaces contextual 'build a day around this' offer");
   recordProactiveShown(sess, placeOffer.kind);
 
   const xmasOffer = selectProactivePlannerOffer({ pathname: "/christmas-in-florida", storage: sess });
@@ -419,7 +419,7 @@ delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   const sess2 = makeMemoryStorage();
   const savesOffer = selectProactivePlannerOffer({ pathname: "/", unassignedSaveCount: 4, storage: sess2 });
-  ok(savesOffer && savesOffer.kind === "unassigned_saves" && /organize these into days/i.test(savesOffer.message), "3+ unassigned saves offers to organize stops into days and reduce driving");
+  ok(savesOffer && savesOffer.kind === "unassigned_saves" && /sort these into days/i.test(savesOffer.message) && /organize these into days/i.test(savesOffer.ctaLabel), "3+ unassigned saves offers to organize stops into days and reduce driving");
   dismissProactiveOffers(sess2);
 
   // Live 2026-11-13: on a 375x553 phone the offer covered the first ad pick's
