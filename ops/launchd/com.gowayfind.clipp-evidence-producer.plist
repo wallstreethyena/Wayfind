@@ -1,78 +1,118 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   ops/launchd/com.gowayfind.clipp-evidence-producer.plist — PREPARED (Unapplied)
-  Recurring Local Chrome Evidence Producer Schedule for Clipp Offers (C3).
+  Wayfind Scheduled Clipp Evidence Producer (C3 P1).
 
-  OPERATIONAL STATUS:
-    PREPARED (committed and syntax-validated, deliberately NOT loaded into launchctl).
+  Why this exists:
+  clipp.com sits behind Akamai Bot Manager and returns HTTP 403 to every
+  non-browser datacenter fetcher (including Vercel Serverless Functions).
+  This launchd agent runs scripts/produce-clipp-evidence.mjs inside the
+  operator's logged-in macOS GUI session using standard Google Chrome
+  (Playwright channel: "chrome", headless: false, zero fingerprint spoofing
+  or WAF evasion), writes a durable snapshot under Application Support,
+  and POSTs the structured evidence batch to /api/cron/verify-offers.
 
-  WHY THIS RUNS ON THE OWNER MAC BOX INSTEAD OF VERCEL SERVERLESS:
-    clipp.com sits behind Akamai WAF and returns HTTP 403 (`INCONCLUSIVE`) to every
-    datacenter IP. Wayfind never uses stealth scrapers or WAF bypasses. Running
-    `scripts/produce-clipp-evidence.mjs` once daily at 07:45 local time via standard
-    Mac Chrome produces authenticated first-party DOM evidence and pushes the
-    structured batch to `POST /api/cron/verify-offers` (`verify-offers:clipp`).
+  Schedule & Timezone Contract (Defect #1 Fix):
+  - Vercel's "/api/cron/verify-offers" cron ("0 8 * * *" in vercel.json)
+    always evaluates in UTC:
+      * Standard Time (EST, UTC-5): 08:00:00Z = 03:00:00 AM America/New_York
+      * Daylight Time (EDT, UTC-4): 08:00:00Z = 04:00:00 AM America/New_York
+  - launchd StartCalendarInterval evaluates in Mac local time (America/New_York).
+  - Primary pre-cron slot: 01:45 AM America/New_York
+      * EST (UTC-5): 06:45:00Z (1h 15m BEFORE 08:00:00Z)
+      * EDT (UTC-4): 05:45:00Z (2h 15m BEFORE 08:00:00Z)
+      * Avoids the 02:00 -> 03:00 America/New_York spring-forward DST gap.
+  - Awake/lid-open catch-up:
+      * launchd coalesces missed StartCalendarInterval events while the Mac is
+        asleep and fires immediately on wake.
+      * Secondary daytime slot at 09:15 AM America/New_York + RunAtLoad=true
+        catches up if the Mac was powered off overnight, while
+        --min-interval-hours 18 guarantees at most 1 collection per 18h window
+        and prevents duplicate runs when 01:45 AM already succeeded.
 
-  OPERATIONAL LIMITS & COST:
-    - Cadence: Daily at 07:45 local time (40 polite serial GETs/day, ~450ms pause)
-    - Runtime: ~28 seconds/day
-    - Cost: $0/month (zero paid proxy/scraper API usage)
-
-  VALIDATION (Dry-Run):
-    PATH="/opt/homebrew/bin:/usr/local/bin:$PATH" node scripts/produce-clipp-evidence.mjs --dry-run
-    plutil -lint ops/launchd/com.gowayfind.clipp-evidence-producer.plist
-
-  ENABLE (When Owner Chooses to Activate):
-    cp ops/launchd/com.gowayfind.clipp-evidence-producer.plist ~/Library/LaunchAgents/
-    launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.gowayfind.clipp-evidence-producer.plist
-
-  ROLLBACK (1-Command Disable):
-    launchctl bootout gui/$(id -u)/com.gowayfind.clipp-evidence-producer
+  Secret & Host Contract (Defect #4 Fix):
+  - No plaintext CRON_SECRET is stored in this plist. At runtime,
+    scripts/produce-clipp-evidence.mjs reads CRON_SECRET from process.env or
+    macOS Keychain:
+      security find-generic-password -s com.gowayfind.clipp-evidence-producer -a CRON_SECRET -w
+  - Dedicated persistent host checkout:
+      /Users/gabrielpereira/Projects/wf-clipp-producer
+  - Persistent output & bounded rotated log (<1 MB total via 512 KB + .1 rotation):
+      /Users/gabrielpereira/Library/Application Support/Wayfind/clipp/clipp-browser-evidence.json
+      /Users/gabrielpereira/Library/Application Support/Wayfind/clipp/clipp-runtime-evidence.json
+      /Users/gabrielpereira/Library/Application Support/Wayfind/clipp/producer-state.json
+      /Users/gabrielpereira/Library/Logs/Wayfind/clipp-producer.log
 -->
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>com.gowayfind.clipp-evidence-producer</string>
-
-  <key>ProgramArguments</key>
-  <array>
-    <string>/opt/homebrew/bin/node</string>
-    <string>scripts/produce-clipp-evidence.mjs</string>
-    <string>--out</string>
-    <string>/tmp/wf-clipp-evidence-latest.json</string>
-    <string>--store</string>
-    <string>/tmp/wf-clipp-durable-store.json</string>
-    <string>--push</string>
-    <string>https://www.gowayfind.com/api/cron/verify-offers</string>
-  </array>
-
-  <key>WorkingDirectory</key>
-  <string>/Users/gabrielpereira/Projects/Wayfind-for-Real-Life</string>
-
-  <key>EnvironmentVariables</key>
   <dict>
-    <key>PATH</key>
-    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
-    <key>CLIPP_PRODUCER_SCHEDULED</key>
-    <string>1</string>
+    <key>Label</key>
+    <string>com.gowayfind.clipp-evidence-producer</string>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/gabrielpereira/Projects/wf-clipp-producer</string>
+
+    <key>LimitLoadToSessionType</key>
+    <string>Aqua</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+
+    <key>ProgramArguments</key>
+    <array>
+      <string>/opt/homebrew/bin/node</string>
+      <string>/Users/gabrielpereira/Projects/wf-clipp-producer/scripts/produce-clipp-evidence.mjs</string>
+      <string>--out</string>
+      <string>/Users/gabrielpereira/Library/Application Support/Wayfind/clipp/clipp-browser-evidence.json</string>
+      <string>--store</string>
+      <string>/Users/gabrielpereira/Library/Application Support/Wayfind/clipp/clipp-runtime-evidence.json</string>
+      <string>--state-file</string>
+      <string>/Users/gabrielpereira/Library/Application Support/Wayfind/clipp/producer-state.json</string>
+      <string>--lock-file</string>
+      <string>/Users/gabrielpereira/Library/Application Support/Wayfind/clipp/producer.lock</string>
+      <string>--log-file</string>
+      <string>/Users/gabrielpereira/Library/Logs/Wayfind/clipp-producer.log</string>
+      <string>--min-interval-hours</string>
+      <string>18</string>
+      <string>--push</string>
+      <string>https://www.gowayfind.com/api/cron/verify-offers</string>
+    </array>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+      <key>PATH</key>
+      <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+      <key>CLIPP_PRODUCER_SCHEDULED</key>
+      <string>1</string>
+      <key>CLIPP_KEYCHAIN_SERVICE</key>
+      <string>com.gowayfind.clipp-evidence-producer</string>
+      <key>CLIPP_KEYCHAIN_ACCOUNT</key>
+      <string>CRON_SECRET</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StartCalendarInterval</key>
+    <array>
+      <dict>
+        <key>Hour</key>
+        <integer>1</integer>
+        <key>Minute</key>
+        <integer>45</integer>
+      </dict>
+      <dict>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>15</integer>
+      </dict>
+    </array>
+
+    <key>StandardOutPath</key>
+    <string>/dev/null</string>
+
+    <key>StandardErrorPath</key>
+    <string>/dev/null</string>
   </dict>
-
-  <key>StartCalendarInterval</key>
-  <dict>
-    <key>Hour</key>
-    <integer>7</integer>
-    <key>Minute</key>
-    <integer>45</integer>
-  </dict>
-
-  <key>StandardOutPath</key>
-  <string>/tmp/com.gowayfind.clipp-evidence-producer.out.log</string>
-
-  <key>StandardErrorPath</key>
-  <string>/tmp/com.gowayfind.clipp-evidence-producer.err.log</string>
-
-  <key>RunAtLoad</key>
-  <false/>
-</dict>
 </plist>

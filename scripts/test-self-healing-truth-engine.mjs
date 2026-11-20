@@ -185,7 +185,7 @@ const eq = (a, b, msg) => {
   // In baseline catalogue on 2026-11-18, the 8 flash promo-drop merchants ended flash promo and reverted to ACTIVE
   const promoDropped = CLIPP_MERCHANT_OFFERS.filter((m) => m.status === "PRICE_CHANGED" && m.priceChangeKind === "promo_drop");
   eq(promoDropped.length, 0, "all 8 promo-drop Clipp merchants ended flash promo and reverted to standard 50%-off terms by 2026-11-18");
-  const ismash = clippOfferById("clipp-m-ismash-brandon");
+  const ismash = clippOfferById("clipp-m-ismash-brandon", { now: "2026-11-19T12:00:00.000Z" });
   ok(ismash && ismash.offerId === "clipp-m-ismash-brandon" && !ismash.livePrice, "iSmash Brandon carries standard 50%-off active terms in baseline");
 
   // HTML classifier & evidence threshold transitions
@@ -666,38 +666,47 @@ const eq = (a, b, msg) => {
   );
 
   try {
+    const c2Now = "2026-11-19T12:00:00.000Z";
     // 1. Ingesting 403 on ismash keeps offer non-null and does not set runtimeVerifiedAt
-    ingestClippOfferEvidence("clipp-m-ismash-brandon", { httpStatus: 403 });
-    const ismashAfter403 = clippOfferById("clipp-m-ismash-brandon");
+    ingestClippOfferEvidence("clipp-m-ismash-brandon", { httpStatus: 403 }, { now: c2Now });
+    const ismashAfter403 = clippOfferById("clipp-m-ismash-brandon", { now: c2Now });
     ok(ismashAfter403 !== null, "clippOfferById keeps ismash non-null after 403");
     ok(!ismashAfter403.runtimeVerifiedAt, "403 evidence does not set runtimeVerifiedAt");
 
     // 2. Ingesting strong SOLD_OUT HTML on chez-leon immediately quarantines it
-    ingestClippOfferEvidence("clipp-m-chez-leon", {
-      httpStatus: 200,
-      html: "<div>Chez Leon THIS DEAL IS SOLD OUT</div>",
-    });
-    eq(clippOfferById("clipp-m-chez-leon"), null, "strong SOLD_OUT HTML quarantines chez-leon from clippOfferById");
+    ingestClippOfferEvidence(
+      "clipp-m-chez-leon",
+      {
+        httpStatus: 200,
+        html: "<div>Chez Leon THIS DEAL IS SOLD OUT</div>",
+      },
+      { now: c2Now }
+    );
+    eq(clippOfferById("clipp-m-chez-leon", { now: c2Now }), null, "strong SOLD_OUT HTML quarantines chez-leon from clippOfferById");
     ok(
       quarantinedClippOfferById("clipp-m-chez-leon") !== null,
       "quarantinedClippOfferById returns chez-leon record after quarantine"
     );
 
     // 3. Ingesting 403 on quarantined chez-leon does NOT release quarantine
-    ingestClippOfferEvidence("clipp-m-chez-leon", { httpStatus: 403 });
+    ingestClippOfferEvidence("clipp-m-chez-leon", { httpStatus: 403 }, { now: c2Now });
     eq(
-      clippOfferById("clipp-m-chez-leon"),
+      clippOfferById("clipp-m-chez-leon", { now: c2Now }),
       null,
       "subsequent 403 does not release chez-leon from quarantine"
     );
 
     // 4. Ingesting strong ACTIVE HTML recovers chez-leon
-    ingestClippOfferEvidence("clipp-m-chez-leon", {
-      httpStatus: 200,
-      html: "<title>Chez Leon Tampa, FL</title><div>Add to Cart Buy Now $15 for $30</div>",
-    });
+    ingestClippOfferEvidence(
+      "clipp-m-chez-leon",
+      {
+        httpStatus: 200,
+        html: "<title>Chez Leon Tampa, FL</title><div>Add to Cart Buy Now $15 for $30</div>",
+      },
+      { now: c2Now }
+    );
     ok(
-      clippOfferById("clipp-m-chez-leon") !== null,
+      clippOfferById("clipp-m-chez-leon", { now: c2Now }) !== null,
       "strong ACTIVE HTML restores chez-leon to clippOfferById"
     );
     eq(
@@ -767,8 +776,8 @@ const eq = (a, b, msg) => {
   eq(clippMod.CLIPP_LAST_MANUAL_AUDIT_AT, "2026-11-18T23:19:12.000Z", "CLIPP_LAST_MANUAL_AUDIT_AT is 2026-11-18T23:19:12.000Z");
   ok(QUARANTINED_PARTNER_OFFERS.includes("clipp-m-pizza-kitchen"), "clipp-m-pizza-kitchen in QUARANTINED_PARTNER_OFFERS");
   ok(QUARANTINED_PARTNER_OFFERS.includes("clipp-m-marcos-riverview"), "clipp-m-marcos-riverview in QUARANTINED_PARTNER_OFFERS");
-  eq(clippOfferById("clipp-m-pizza-kitchen"), null, "clippOfferById returns null for clipp-m-pizza-kitchen");
-  eq(clippOfferById("clipp-m-marcos-riverview"), null, "clippOfferById returns null for clipp-m-marcos-riverview");
+  eq(clippOfferById("clipp-m-pizza-kitchen", { now: "2026-11-19T12:00:00.000Z" }), null, "clippOfferById returns null for clipp-m-pizza-kitchen");
+  eq(clippOfferById("clipp-m-marcos-riverview", { now: "2026-11-19T12:00:00.000Z" }), null, "clippOfferById returns null for clipp-m-marcos-riverview");
   ok(quarantinedClippOfferById("clipp-m-pizza-kitchen") !== null, "quarantinedClippOfferById non-null for pizza-kitchen");
   ok(quarantinedClippOfferById("clipp-m-marcos-riverview") !== null, "quarantinedClippOfferById non-null for marcos-riverview");
 
@@ -787,7 +796,7 @@ const eq = (a, b, msg) => {
           finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
           title: "Chez Leon Tampa, FL",
           hasSoldOut: true,
-          observedAt: "2026-11-18T23:00:00.000Z",
+          observedAt: "2026-11-19T11:55:00.000Z",
         },
       ]),
       "utf8"
@@ -805,7 +814,7 @@ const eq = (a, b, msg) => {
     fs.writeFileSync(
       tmpSnapPath,
       JSON.stringify({
-        observedAt: "2026-11-18T23:19:12.000Z",
+        observedAt: "2026-11-19T12:00:00.000Z",
         verificationMode: "manual",
         results: [
           {
@@ -869,6 +878,7 @@ const eq = (a, b, msg) => {
           "content-type": "application/json",
         },
         body: JSON.stringify({
+          now: "2026-11-19T12:05:00.000Z",
           snapshotPath: process.env.CLIPP_EVIDENCE_SNAPSHOT_PATH,
           storePath: process.env.WF_CLIPP_EVIDENCE_STORE_PATH,
         }),
@@ -908,6 +918,8 @@ const eq = (a, b, msg) => {
       import { GET as getHealth } from "./app/api/offers/health/route.js";
       import { GET as getRedirect } from "./app/api/commerce/go/route.js";
 
+      const PINNED_NOW = "2026-11-19T12:05:00.000Z";
+
       // 1. Receipts in fresh Process B
       const receipts = getClippExecutionReceipts();
       assert.ok(receipts.length >= 1, "receipts present");
@@ -915,10 +927,10 @@ const eq = (a, b, msg) => {
       assert.equal(lastReceipt.job, "verify-offers:clipp");
 
       // 2. clipp-m-chez-leon (durably quarantined)
-      assert.equal(clippOfferById("clipp-m-chez-leon"), null);
+      assert.equal(clippOfferById("clipp-m-chez-leon", { now: PINNED_NOW }), null);
       const chezCoupon = COUPONS.find((c) => c.id === "cpn-clipp-m-chez-leon");
-      assert.equal(couponIsLive(chezCoupon, "2026-11-18"), false);
-      const healthRes = await getHealth();
+      assert.equal(couponIsLive(chezCoupon, "2026-11-19"), false);
+      const healthRes = await getHealth(new Request("https://wayfind.test/api/offers/health?now=" + PINNED_NOW));
       assert.equal(healthRes.status, 200);
       const healthJson = await healthRes.json();
       assert.equal(healthJson.clipp?.overlays?.["clipp-m-chez-leon"]?.quarantined, true);
@@ -931,7 +943,7 @@ const eq = (a, b, msg) => {
       assert.equal(chezRedirect.headers.get("location"), "https://wayfind.test/");
 
       // 3. clipp-m-pizza-kitchen (durably recovered)
-      const pk = clippOfferById("clipp-m-pizza-kitchen");
+      const pk = clippOfferById("clipp-m-pizza-kitchen", { now: PINNED_NOW });
       assert.ok(pk && pk.status === "ACTIVE");
       const pkReq = new Request("https://wayfind.test/api/commerce/go?provider=clipp&offer=clipp-m-pizza-kitchen", {
         headers: { "user-agent": "WayfindVerify/1.0" },
@@ -942,14 +954,15 @@ const eq = (a, b, msg) => {
       assert.ok(pkLoc.startsWith("https://www.dpbolvw.net/click-101643573-12174096"), "redirects to CJ affiliate destination");
 
       // 4. clipp-m-blind-goat (durably updated promo)
-      const bg = clippOfferById("clipp-m-blind-goat");
+      const bg = clippOfferById("clipp-m-blind-goat", { now: PINNED_NOW });
       assert.ok(bg && bg.status === "PRICE_CHANGED" && bg.livePrice === 12);
+      assert.equal(bg.runtimeVerifiedAt, "2026-11-19T12:00:00.000Z");
 
       // 5. clipp-m-dip-and-happy & clipp-m-marcos-riverview (403 WAF firewall)
-      const dh = clippOfferById("clipp-m-dip-and-happy");
+      const dh = clippOfferById("clipp-m-dip-and-happy", { now: PINNED_NOW });
       assert.ok(dh !== null);
       assert.equal(dh.runtimeVerifiedAt, undefined);
-      assert.equal(clippOfferById("clipp-m-marcos-riverview"), null);
+      assert.equal(clippOfferById("clipp-m-marcos-riverview", { now: PINNED_NOW }), null);
 
       console.log(JSON.stringify({ ok: true }));
     `;
@@ -958,6 +971,7 @@ const eq = (a, b, msg) => {
       env: {
         ...process.env,
         WF_CLIPP_EVIDENCE_STORE_PATH: tmpStorePath,
+        WF_COMMERCE_TEST_NOW: "2026-11-19T12:05:00.000Z",
         WF_SUPPRESS_ANALYTICS: "1",
       },
       encoding: "utf8",
@@ -968,6 +982,463 @@ const eq = (a, b, msg) => {
     try { if (fs.existsSync(tmpFixturePath)) fs.unlinkSync(tmpFixturePath); } catch {}
     try { if (fs.existsSync(tmpSnapPath)) fs.unlinkSync(tmpSnapPath); } catch {}
     try { if (fs.existsSync(tmpStorePath)) fs.unlinkSync(tmpStorePath); } catch {}
+  }
+}
+
+// ── 9. C3 Activation Readiness: Schedule, Expiry Parity, Stale/Fixture/Challenge Safety & Host Locks ──
+{
+  const { isClippAuditExpiredEt } = await import("../lib/commerceHealth.js");
+  const { validateClippRuntimeOverlay, ingestClippOfferEvidence, resetClippRuntimeEvidence } = await import("../lib/clippOffers.js");
+  const { COUPONS, resolveLiveCoupon } = await import("../lib/coupons.js");
+  const { GET: getHealth } = await import("../app/api/offers/health/route.js");
+  const { GET: getRedirect } = await import("../app/api/commerce/go/route.js");
+  const { POST: postVerifyOffers } = await import("../app/api/cron/verify-offers/route.js");
+
+  // 1. Defect #1: launchd schedule & timezone ordering proof (01:45 AM ET < 08:00Z UTC + 09:15 AM ET catch-up + 18h interval)
+  const plistPath = path.join(ROOT, "ops", "launchd", "com.gowayfind.clipp-evidence-producer.plist");
+  const plistXml = fs.readFileSync(plistPath, "utf8");
+  ok(
+    /<key>Hour<\/key>\s*<integer>1<\/integer>\s*<key>Minute<\/key>\s*<integer>45<\/integer>/.test(plistXml),
+    "launchd plist schedules primary pre-cron run at 01:45 AM America/New_York (06:45Z EST / 05:45Z EDT < 08:00Z)"
+  );
+  ok(
+    /<key>Hour<\/key>\s*<integer>9<\/integer>\s*<key>Minute<\/key>\s*<integer>15<\/integer>/.test(plistXml) &&
+      /<key>RunAtLoad<\/key>\s*<true\/>/.test(plistXml) &&
+      plistXml.includes("--min-interval-hours") &&
+      plistXml.includes("<string>18</string>"),
+    "launchd plist includes 09:15 AM America/New_York daytime catch-up + RunAtLoad + 18h min interval guard"
+  );
+  ok(
+    plistXml.includes("<string>/Users/gabrielpereira/Projects/wf-clipp-producer</string>") &&
+      plistXml.includes("/Users/gabrielpereira/Library/Application Support/Wayfind/clipp/clipp-browser-evidence.json") &&
+      !plistXml.includes("/tmp/"),
+    "launchd plist uses persistent Application Support and wf-clipp-producer paths (zero /tmp paths)"
+  );
+
+  // 2. Defect #3: Exact America/New_York expiry boundary across health, coupon cards, clippOfferById, and /api/commerce/go
+  const justBeforeExpiryUtc = "2026-11-24T04:59:59.000Z"; // 2026-11-23 23:59:59 EST
+  const exactExpiryUtc = "2026-11-24T05:00:00.000Z"; // 2026-11-24 00:00:00 EST
+  eq(isClippAuditExpiredEt("2026-11-23", justBeforeExpiryUtc), false, "2026-11-24T04:59:59.000Z (23:59:59 EST Nov 23) is NOT expired");
+  eq(isClippAuditExpiredEt("2026-11-23", exactExpiryUtc), true, "2026-11-24T05:00:00.000Z (00:00:00 EST Nov 24) IS expired");
+
+  const blindGoatCoupon = COUPONS.find((c) => c.id === "cpn-clipp-m-blind-goat");
+  ok(
+    resolveLiveCoupon(blindGoatCoupon, { now: justBeforeExpiryUtc }) !== null,
+    "resolveLiveCoupon serves Clipp card at 2026-11-24T04:59:59.000Z (23:59:59 EST Nov 23)"
+  );
+  eq(
+    resolveLiveCoupon(blindGoatCoupon, { now: exactExpiryUtc }),
+    null,
+    "resolveLiveCoupon returns null at 2026-11-24T05:00:00.000Z (00:00:00 EST Nov 24)"
+  );
+  ok(
+    clippOfferById("clipp-m-blind-goat", { now: justBeforeExpiryUtc }) !== null,
+    "clippOfferById serves Clipp offer at 2026-11-24T04:59:59.000Z"
+  );
+  eq(
+    clippOfferById("clipp-m-blind-goat", { now: exactExpiryUtc }),
+    null,
+    "clippOfferById returns null at 2026-11-24T05:00:00.000Z"
+  );
+
+  const healthBeforeRes = await getHealth(new Request(`https://wayfind.test/api/offers/health?now=${encodeURIComponent(justBeforeExpiryUtc)}`));
+  const healthBeforeJson = await healthBeforeRes.json();
+  ok(
+    healthBeforeJson.clipp?.todayEt === "2026-11-23" &&
+      healthBeforeJson.clipp?.auditExpired === false &&
+      healthBeforeJson.clipp?.serveable === true &&
+      healthBeforeJson.clipp?.activeCount === 37,
+    "/api/offers/health reports serveable: true and activeCount: 37 at 2026-11-24T04:59:59.000Z"
+  );
+
+  const healthAfterRes = await getHealth(new Request(`https://wayfind.test/api/offers/health?now=${encodeURIComponent(exactExpiryUtc)}`));
+  const healthAfterJson = await healthAfterRes.json();
+  ok(
+    healthAfterJson.clipp?.todayEt === "2026-11-24" &&
+      healthAfterJson.clipp?.auditExpired === true &&
+      healthAfterJson.clipp?.serveable === false &&
+      healthAfterJson.clipp?.activeCount === 0,
+    "/api/offers/health reports auditExpired: true, serveable: false, activeCount: 0 at 2026-11-24T05:00:00.000Z"
+  );
+
+  try {
+    process.env.WF_SUPPRESS_ANALYTICS = "1";
+    process.env.WF_COMMERCE_TEST_NOW = justBeforeExpiryUtc;
+    const goBeforeRes = await getRedirect(
+      new Request("https://wayfind.test/api/commerce/go?provider=clipp&offer=clipp-m-blind-goat", {
+        headers: { "user-agent": "WayfindVerify/1.0" },
+      })
+    );
+    ok(
+      goBeforeRes.status === 302 &&
+        (goBeforeRes.headers.get("location") || "").startsWith("https://www.dpbolvw.net/click-101643573-12174096"),
+      "/api/commerce/go redirects Clipp offer to CJ affiliate link at 2026-11-24T04:59:59.000Z"
+    );
+
+    process.env.WF_COMMERCE_TEST_NOW = exactExpiryUtc;
+    const goAfterRes = await getRedirect(
+      new Request("https://wayfind.test/api/commerce/go?provider=clipp&offer=clipp-m-blind-goat", {
+        headers: { "user-agent": "WayfindVerify/1.0" },
+      })
+    );
+    ok(
+      goAfterRes.status === 302 &&
+        goAfterRes.headers.get("location") === "https://wayfind.test/",
+      "/api/commerce/go fails closed to https://wayfind.test/ at 2026-11-24T05:00:00.000Z"
+    );
+  } finally {
+    delete process.env.WF_COMMERCE_TEST_NOW;
+  }
+
+  // 3. Defect #4: 200 HTML missing purchase CTAs ("Add to Cart" / "Buy Now") -> INCONCLUSIVE, never ACTIVE
+  const challenge200 = classifyClippLandingPage({
+    httpStatus: 200,
+    finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+    expectedDealId: "12868827",
+    expectedMerchant: "The Blind Goat",
+    expectedCity: "Tampa",
+    html: "<html><head><title>The Blind Goat Tampa, FL</title></head><body><div>Please verify you are a human to continue browsing The Blind Goat in Tampa, FL.</div></body></html>",
+  });
+  ok(
+    challenge200.status === "UNVERIFIED" &&
+      challenge200.evidence === "inconclusive" &&
+      challenge200.reason === "purchase_cta_absent_or_challenge",
+    "HTTP 200 merchant page missing Add to Cart / Buy Now is classified INCONCLUSIVE (purchase_cta_absent_or_challenge)"
+  );
+
+  const marketChallenge200 = classifyClippLandingPage({
+    httpStatus: 200,
+    finalUrl: "https://www.clipp.com/states/fl/cities/tampa",
+    expectedMerchant: "Tampa",
+    expectedCity: "Tampa",
+    html: "<html><head><title>Tampa, FL</title></head><body><div>Security Challenge Interstitial</div></body></html>",
+  });
+  ok(
+    marketChallenge200.status === "UNVERIFIED" &&
+      marketChallenge200.evidence === "inconclusive" &&
+      marketChallenge200.reason === "market_inventory_absent_or_challenge",
+    "HTTP 200 city market page missing inventory markers is classified INCONCLUSIVE (market_inventory_absent_or_challenge)"
+  );
+
+  // 4. Defect #4: Fresh observedAt preserved + Stale snapshot rejected + Fixture payload rejected
+  const tmpC3Store = path.join(os.tmpdir(), `wf-c3-readiness-store-${Date.now()}.json`);
+  try {
+    process.env.CRON_SECRET = "c3-readiness-secret";
+    process.env.WF_SUPPRESS_ANALYTICS = "1";
+    resetClippRuntimeEvidence();
+
+    // 4a. Fresh snapshot (<24h) preserves actual observedAt in runtimeVerifiedAt instead of cron execution nowIso
+    const freshObsIso = "2026-11-19T06:45:00.000Z";
+    const cronExecIso = "2026-11-19T08:00:00.000Z";
+    const freshIngest = ingestClippOfferEvidence(
+      "clipp-m-blind-goat",
+      {
+        httpStatus: 200,
+        finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+        html: "<title>The Blind Goat Tampa, FL</title><div>Add to Cart Buy Now $12 for $30</div>",
+        observedAt: freshObsIso,
+        verificationMode: "automated_chrome_producer",
+      },
+      { now: cronExecIso, persist: false }
+    );
+    ok(
+      freshIngest.ok === true &&
+        freshIngest.overlay?.runtimeVerifiedAt === freshObsIso &&
+        freshIngest.overlay?.updatedAt === freshObsIso,
+      "fresh snapshot (<24h) preserves actual observedAt timestamp in runtimeVerifiedAt rather than cron execution time"
+    );
+
+    // 4b. Stale snapshot (>24h old) is rejected
+    const staleOver24h = ingestClippOfferEvidence(
+      "clipp-m-blind-goat",
+      {
+        httpStatus: 200,
+        finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+        html: "<title>The Blind Goat Tampa, FL</title><div>THIS DEAL IS SOLD OUT</div>",
+        observedAt: "2026-11-18T06:00:00.000Z",
+      },
+      { now: cronExecIso, persist: false }
+    );
+    ok(
+      staleOver24h.ok === false && staleOver24h.stale === true && staleOver24h.reason === "stale_snapshot_rejected",
+      "stale snapshot (>24h old) is rejected with stale_snapshot_rejected"
+    );
+
+    // 4c. Snapshot older than existing runtimeVerifiedAt (<24h old, but older than 06:45Z) cannot overwrite newer 06:45Z state
+    const olderThanRuntime = ingestClippOfferEvidence(
+      "clipp-m-blind-goat",
+      {
+        httpStatus: 200,
+        finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+        html: "<title>The Blind Goat Tampa, FL</title><div>THIS DEAL IS SOLD OUT</div>",
+        observedAt: "2026-11-19T05:00:00.000Z",
+      },
+      { now: cronExecIso, persist: false }
+    );
+    ok(
+      olderThanRuntime.ok === false &&
+        olderThanRuntime.stale === true &&
+        clippOfferById("clipp-m-blind-goat", { now: cronExecIso })?.status === "PRICE_CHANGED",
+      "snapshot older than existing runtimeVerifiedAt is rejected and cannot overwrite newer state"
+    );
+
+    // 4d. Stale snapshot on or before manual quarantine timestamp cannot unquarantine a quarantined offer
+    const staleUnquarantine = ingestClippOfferEvidence(
+      "clipp-m-pizza-kitchen",
+      {
+        httpStatus: 200,
+        finalUrl: "https://www.clipp.com/all-offers/20-casual-dining-tampa-fl-deal-12875835",
+        html: "<title>Pizza Kitchen Tampa, FL</title><div>Add to Cart Buy Now $10 for $20</div>",
+        observedAt: "2026-11-18T23:19:12.000Z",
+      },
+      { now: cronExecIso, persist: false }
+    );
+    ok(
+      staleUnquarantine.ok === false &&
+        staleUnquarantine.stale === true &&
+        clippOfferById("clipp-m-pizza-kitchen", { now: cronExecIso }) === null,
+      "snapshot from on/before quarantine timestamp cannot unquarantine clipp-m-pizza-kitchen"
+    );
+
+    // 4e. Fixture payload is rejected from ingestClippOfferEvidence, validateClippRuntimeOverlay, and POST /api/cron/verify-offers
+    const fixtureIngest = ingestClippOfferEvidence(
+      "clipp-m-chez-leon",
+      {
+        httpStatus: 200,
+        finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
+        html: "<title>Chez Leon Tampa, FL</title><div>THIS DEAL IS SOLD OUT</div>",
+        verificationMode: "fixture",
+      },
+      { now: cronExecIso, persist: false }
+    );
+    ok(
+      fixtureIngest.ok === false && fixtureIngest.reason === "fixture_evidence_rejected",
+      "ingestClippOfferEvidence rejects fixture payload with fixture_evidence_rejected"
+    );
+    eq(
+      validateClippRuntimeOverlay("clipp-m-chez-leon", { status: "SOLD_OUT", quarantined: true, verificationMode: "fixture" }),
+      null,
+      "validateClippRuntimeOverlay rejects fixture overlay"
+    );
+
+    const cronFixtureRes = await postVerifyOffers(
+      new Request("https://wayfind.test/api/cron/verify-offers", {
+        method: "POST",
+        headers: {
+          authorization: "Bearer c3-readiness-secret",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          now: cronExecIso,
+          storePath: tmpC3Store,
+          verificationMode: "fixture",
+          isFixture: true,
+          clippEvidence: [
+            {
+              offerId: "clipp-m-chez-leon",
+              httpStatus: 200,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
+              title: "Chez Leon Tampa, FL",
+              hasSoldOut: true,
+            },
+          ],
+        }),
+      })
+    );
+    const cronFixtureJson = await cronFixtureRes.json();
+    ok(
+      cronFixtureJson.ok === true &&
+        cronFixtureJson.checked === 0 &&
+        cronFixtureJson.skipped === 1 &&
+        cronFixtureJson.results?.[0]?.reason === "fixture_evidence_rejected" &&
+        clippOfferById("clipp-m-chez-leon", { now: cronExecIso }) !== null,
+      "POST /api/cron/verify-offers rejects fixture evidence batch without mutating offer health"
+    );
+  } finally {
+    resetClippRuntimeEvidence();
+    delete process.env.CRON_SECRET;
+    try { if (fs.existsSync(tmpC3Store)) fs.unlinkSync(tmpC3Store); } catch {}
+  }
+
+  // 5. Defect #2 & #4: Producer CLI PID lockfile overlap guard & non-loopback dry-run push guard
+  const tmpLockFile = path.join(os.tmpdir(), `wf-c3-lock-${Date.now()}.lock`);
+  const tmpFixtureForLock = path.join(os.tmpdir(), `wf-c3-lock-fixture-${Date.now()}.json`);
+  try {
+    fs.writeFileSync(tmpLockFile, JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() }), "utf8");
+    fs.writeFileSync(tmpFixtureForLock, JSON.stringify([]), "utf8");
+    const lockedOut = JSON.parse(
+      execFileSync(
+        process.execPath,
+        ["scripts/produce-clipp-evidence.mjs", "--dry-run", "--fixture", tmpFixtureForLock, "--lock-file", tmpLockFile],
+        { cwd: ROOT, encoding: "utf8" }
+      )
+    );
+    ok(
+      lockedOut.ok === true &&
+        lockedOut.skipped === true &&
+        lockedOut.reason === "already_running_pid_lock" &&
+        lockedOut.holderPid === process.pid,
+      "produce-clipp-evidence.mjs exits cleanly when PID lockfile is held by a live process"
+    );
+
+    fs.unlinkSync(tmpLockFile);
+    const blockedPushOut = JSON.parse(
+      execFileSync(
+        process.execPath,
+        [
+          "scripts/produce-clipp-evidence.mjs",
+          "--dry-run",
+          "--fixture",
+          tmpFixtureForLock,
+          "--push",
+          "https://www.gowayfind.com/api/cron/verify-offers",
+        ],
+        { cwd: ROOT, encoding: "utf8" }
+      )
+    );
+    ok(
+      blockedPushOut.ok === true &&
+        blockedPushOut.push?.pushed === false &&
+        blockedPushOut.push?.blocked === true &&
+        blockedPushOut.push?.reason === "dry_run_only_allows_loopback_push",
+      "produce-clipp-evidence.mjs --dry-run blocks non-loopback push URLs"
+    );
+  } finally {
+    try { if (fs.existsSync(tmpLockFile)) fs.unlinkSync(tmpLockFile); } catch {}
+    try { if (fs.existsSync(tmpFixtureForLock)) fs.unlinkSync(tmpFixtureForLock); } catch {}
+  }
+
+  // 6. Multi-process cold restart + client applyOfferHealthSnapshot precedence after subsequent 403 and 200 challenge probes
+  const tmpPrecedenceStore = path.join(os.tmpdir(), `wf-c3-precedence-store-${Date.now()}.json`);
+  try {
+    const writeProcCode = `
+      import assert from "node:assert/strict";
+      import { POST } from "./app/api/cron/verify-offers/route.js";
+
+      // Step 1: Conclusive batch quarantines chez-leon (SOLD_OUT) and updates blind-goat (PRICE_CHANGED $12)
+      const res1 = await POST(new Request("https://wayfind.test/api/cron/verify-offers", {
+        method: "POST",
+        headers: { authorization: "Bearer c3-prec-secret", "content-type": "application/json" },
+        body: JSON.stringify({
+          now: "2026-11-19T13:00:00.000Z",
+          observedAt: "2026-11-19T12:55:00.000Z",
+          verificationMode: "automated_chrome_producer",
+          storePath: process.env.WF_CLIPP_EVIDENCE_STORE_PATH,
+          clippEvidence: [
+            {
+              offerId: "clipp-m-chez-leon",
+              httpStatus: 200,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
+              html: "<title>Chez Leon Tampa, FL</title><div>THIS DEAL IS SOLD OUT</div>",
+            },
+            {
+              offerId: "clipp-m-blind-goat",
+              httpStatus: 200,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+              html: "<title>The Blind Goat Tampa, FL</title><div>Add to Cart Buy Now $12 for $30</div>",
+            },
+          ],
+        }),
+      }));
+      assert.equal(res1.status, 200);
+
+      // Step 2: Subsequent probe returns HTTP 403 and 200 challenge-without-CTA on both offers
+      const res2 = await POST(new Request("https://wayfind.test/api/cron/verify-offers", {
+        method: "POST",
+        headers: { authorization: "Bearer c3-prec-secret", "content-type": "application/json" },
+        body: JSON.stringify({
+          now: "2026-11-19T14:00:00.000Z",
+          observedAt: "2026-11-19T13:55:00.000Z",
+          verificationMode: "automated_http_probe",
+          storePath: process.env.WF_CLIPP_EVIDENCE_STORE_PATH,
+          clippEvidence: [
+            {
+              offerId: "clipp-m-chez-leon",
+              httpStatus: 403,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814",
+              html: "Access Denied",
+            },
+            {
+              offerId: "clipp-m-blind-goat",
+              httpStatus: 200,
+              finalUrl: "https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12868827",
+              html: "<title>The Blind Goat Tampa, FL</title><body>Please verify you are a human</body>",
+            },
+          ],
+        }),
+      }));
+      assert.equal(res2.status, 200);
+      console.log(JSON.stringify({ ok: true }));
+    `;
+    execFileSync(process.execPath, ["--input-type=module", "-e", writeProcCode], {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        CRON_SECRET: "c3-prec-secret",
+        WF_CLIPP_EVIDENCE_STORE_PATH: tmpPrecedenceStore,
+        WF_SUPPRESS_ANALYTICS: "1",
+      },
+      encoding: "utf8",
+    });
+
+    const readProcCode = `
+      import assert from "node:assert/strict";
+      import { clippOfferById } from "./lib/clippOffers.js";
+      import { COUPONS, applyOfferHealthSnapshot, couponIsLive, resolveLiveCoupon } from "./lib/coupons.js";
+      import { GET as getHealth } from "./app/api/offers/health/route.js";
+      import { GET as getRedirect } from "./app/api/commerce/go/route.js";
+
+      const PINNED_NOW = "2026-11-19T14:05:00.000Z";
+
+      // Cold server process hydration check
+      assert.equal(clippOfferById("clipp-m-chez-leon", { now: PINNED_NOW }), null, "chez-leon remains quarantined after 403 on cold restart");
+      const bg = clippOfferById("clipp-m-blind-goat", { now: PINNED_NOW });
+      assert.ok(bg !== null, "blind-goat remains serveable after 200 challenge on cold restart");
+      assert.equal(bg.status, "PRICE_CHANGED");
+      assert.equal(bg.livePrice, 12);
+      assert.equal(bg.runtimeVerifiedAt, "2026-11-19T12:55:00.000Z");
+
+      const goChez = await getRedirect(new Request("https://wayfind.test/api/commerce/go?provider=clipp&offer=clipp-m-chez-leon", {
+        headers: { "user-agent": "WayfindVerify/1.0" },
+      }));
+      assert.equal(goChez.headers.get("location"), "https://wayfind.test/");
+
+      // Client applyOfferHealthSnapshot hydration check
+      const healthRes = await getHealth(new Request("https://wayfind.test/api/offers/health?now=" + PINNED_NOW));
+      const healthJson = await healthRes.json();
+      assert.equal(applyOfferHealthSnapshot(healthJson), true);
+
+      const chezCpn = COUPONS.find((c) => c.id === "cpn-clipp-m-chez-leon");
+      const bgCpn = COUPONS.find((c) => c.id === "cpn-clipp-m-blind-goat");
+      assert.equal(couponIsLive(chezCpn, "2026-11-19"), false, "client couponIsLive keeps chez-leon hidden after subsequent 403");
+      assert.equal(resolveLiveCoupon(chezCpn, { now: PINNED_NOW }), null);
+
+      const resolvedBg = resolveLiveCoupon(bgCpn, { now: PINNED_NOW });
+      assert.ok(resolvedBg !== null, "client resolveLiveCoupon keeps blind-goat live after subsequent challenge");
+      assert.equal(resolvedBg.status, "PRICE_CHANGED");
+      assert.equal(resolvedBg.livePrice, 12);
+      assert.equal(resolvedBg.verifiedAt, "2026-11-19T12:55:00.000Z");
+
+      console.log(JSON.stringify({ ok: true }));
+    `;
+    const readProcOut = JSON.parse(
+      execFileSync(process.execPath, ["--input-type=module", "-e", readProcCode], {
+        cwd: ROOT,
+        env: {
+          ...process.env,
+          WF_CLIPP_EVIDENCE_STORE_PATH: tmpPrecedenceStore,
+          WF_COMMERCE_TEST_NOW: "2026-11-19T14:05:00.000Z",
+          WF_SUPPRESS_ANALYTICS: "1",
+        },
+        encoding: "utf8",
+      })
+    );
+    ok(
+      readProcOut && readProcOut.ok === true,
+      "cold server restart and client applyOfferHealthSnapshot preserve SOLD_OUT quarantine and PRICE_CHANGED runtimeVerifiedAt after subsequent 403 and 200 challenge probes"
+    );
+  } finally {
+    try { if (fs.existsSync(tmpPrecedenceStore)) fs.unlinkSync(tmpPrecedenceStore); } catch {}
   }
 }
 
