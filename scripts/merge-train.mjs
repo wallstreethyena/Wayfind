@@ -19,6 +19,7 @@
 import { REQUIRED_CHECKS, planTrain } from "./lib/mergeTrain.mjs";
 
 const token = String(process.env.GITHUB_TOKEN || "").trim();
+const appToken = String(process.env.MERGE_TRAIN_APP_TOKEN || "").trim();
 const repo = String(process.env.GITHUB_REPOSITORY || "").trim();
 const api = String(process.env.GITHUB_API_URL || "").trim().replace(/\/+$/, "");
 if (process.env.GITHUB_ACTIONS !== "true" || !token || !/^[\w.-]+\/[\w.-]+$/.test(repo) || !/^https:\/\/[^\s/]+/.test(api)) {
@@ -26,10 +27,10 @@ if (process.env.GITHUB_ACTIONS !== "true" || !token || !/^[\w.-]+\/[\w.-]+$/.tes
   process.exit(1);
 }
 
-async function gh(method, path, body) {
+async function gh(method, path, body, bearer = token) {
   const response = await fetch(`${api}/repos/${repo}${path}`, {
     method,
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${bearer}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
     signal: AbortSignal.timeout(20000),
   });
@@ -38,8 +39,8 @@ async function gh(method, path, body) {
   try { json = text ? JSON.parse(text) : null; } catch { json = null; }
   return { ok: response.ok, status: response.status, json };
 }
-const must = async (method, path, body) => {
-  const r = await gh(method, path, body);
+const must = async (method, path, body, bearer = token) => {
+  const r = await gh(method, path, body, bearer);
   if (!r.ok) throw new Error(`${method} ${path.split("?")[0]} answered HTTP ${r.status}`);
   return r.json;
 };
@@ -53,12 +54,13 @@ async function latestChecks(sha) {
       .sort((a, b) => String(b.started_at || "").localeCompare(String(a.started_at || "")));
     if (mine[0]) out[name] = { status: mine[0].status, conclusion: mine[0].conclusion };
   }
-  // A guards run dispatched a moment ago may not have created its check run yet.
-  // Count a queued or running guards workflow run for this commit as running, so
-  // two passes close together never dispatch (and so cancel) each other.
+  // A guards run dispatched a moment ago may not have created its final "guards"
+  // check run yet (including waiting/requested/pending runner states). Count any
+  // active workflow run for this commit as running, so back-to-back passes never
+  // double-dispatch and cancel each other via concurrency cancel-in-progress.
   const g = out.guards;
   if (!g || g.status === "completed" && g.conclusion === "cancelled") {
-    for (const state of ["queued", "in_progress"]) {
+    for (const state of ["queued", "in_progress", "waiting", "requested", "pending"]) {
       const r = await must("GET", `/actions/workflows/guards.yml/runs?head_sha=${sha}&status=${state}&per_page=1`);
       if (r && r.total_count > 0) { out.guards = { status: state, conclusion: null }; break; }
     }
@@ -86,8 +88,16 @@ async function readQueue() {
 }
 
 async function dispatchGuards(car) {
-  const r = await gh("POST", "/actions/workflows/guards.yml/dispatches", { ref: car.ref, inputs: { pr: String(car.number) } });
-  console.log(`merge-train: #${car.number} guards dispatched on ${car.head.slice(0, 12)} (${r.ok ? "ok" : `HTTP ${r.status}`})`);
+  // Confirm the branch tip still matches the PR head we inspected before dispatching
+  // workflow_dispatch on `ref`, so a concurrent push cannot make guards judge the wrong SHA.
+  const branch = await must("GET", `/branches/${encodeURIComponent(car.ref)}`);
+  const liveTip = branch && branch.commit && branch.commit.sha;
+  if (liveTip && liveTip !== car.head) {
+    console.log(`merge-train: #${car.number} branch tip moved (${car.head.slice(0, 12)} -> ${liveTip.slice(0, 12)}); next pass will re-evaluate`);
+    return;
+  }
+  await must("POST", "/actions/workflows/guards.yml/dispatches", { ref: car.ref, inputs: { pr: String(car.number) } });
+  console.log(`merge-train: #${car.number} guards dispatched on ${car.head.slice(0, 12)} (ok)`);
 }
 
 async function waitForNewHead(number, oldHead) {
@@ -112,15 +122,19 @@ async function main() {
     return;
   }
   // update: try the planned car, then the next ones, if GitHub refuses (conflict).
+  // When MERGE_TRAIN_APP_TOKEN is configured, update-branch fires a real pull_request
+  // synchronize event natively; otherwise GITHUB_TOKEN updates and dispatches guards.
+  const updateBearer = appToken || token;
   const order = cars.filter((c) => c.behindBy > 0 && c.mergeable !== false && !plan.skipped.some((s) => s.number === c.number));
   for (const car of order.slice(order.findIndex((c) => c.number === plan.number))) {
-    const r = await gh("PUT", `/pulls/${car.number}/update-branch`, { expected_head_sha: car.head });
+    const r = await gh("PUT", `/pulls/${car.number}/update-branch`, { expected_head_sha: car.head }, updateBearer);
     if (!r.ok) { console.log(`merge-train: #${car.number} update refused (HTTP ${r.status}); next`); continue; }
     const pull = await waitForNewHead(car.number, car.head);
     if (!pull) { console.log(`merge-train: #${car.number} updated; head not visible yet, the next pass continues`); return; }
-    const next = { ...car, head: pull.head.sha, behindBy: 0, checks: {} };
+    const checksAfterUpdate = appToken ? await latestChecks(pull.head.sha) : {};
+    const next = { ...car, head: pull.head.sha, behindBy: 0, checks: checksAfterUpdate };
     console.log(`merge-train: #${car.number} brought up to date: ${car.head.slice(0, 12)} -> ${next.head.slice(0, 12)}`);
-    await dispatchGuards(next);
+    if (!checksAfterUpdate.guards) await dispatchGuards(next);
     return;
   }
   console.log("merge-train: no queued pull request could be updated");

@@ -62,12 +62,14 @@ ok(/\}catch\(e\)\{\}return d\}/.test(layout), "the pre-warm must fail soft AND r
 // never be assigned. The live miss (2026-10-18, /things-to-do/orlando, three
 // Lighthouse runs) was the first image in the cold Parrish feed.
 const seedBean = "/api/photo?place=ChIJV12TgcJbw4gR710nwEnWcTs&g=2&w=640";
+const robertsWonderland = "/api/photo?ref=places%2FChIJYybWKcrvwogRT8I06QALhdI%2Fphotos%2Fwfplacediscovery&w=800";
 ok(isDisplayableEventImage(seedBean) === false, "Seed & Bean's uncredited /api/photo?place= URL is not displayable — priming it is the 404");
+ok(isDisplayableEventImage(robertsWonderland) === false, "Robert's Christmas Wonderland uncredited /api/photo?ref=...wfplacediscovery URL is not displayable — priming it is the 404");
 ok(isDisplayableEventImage("/brand/opt/orlando-roller-800.webp") === true, "a static image stays displayable (positive control — the predicate is not refusing everything)");
 ok(isDisplayableEventImage("https://media-cdn.tripadvisor.com/media/photo.jpg") === true, "an external event photo stays displayable");
 ok(isDisplayableEventImage("") === false && isDisplayableEventImage(null) === false, "an empty image is not primed");
 const fromSource = new Function("return (" + EVENT_IMAGE_PRIME_SOURCE + ")")();
-for (const sample of [seedBean, "/brand/opt/orlando-roller-800.webp", "https://media-cdn.tripadvisor.com/media/photo.jpg", "", null, "/api/photo?place=ChIJzzzzzzzzzzzzzzz&s=card", "/api/photo?ref=places/abc/photos/1&g=2&w=640"]) {
+for (const sample of [seedBean, robertsWonderland, "/brand/opt/orlando-roller-800.webp", "https://media-cdn.tripadvisor.com/media/photo.jpg", "", null, "/api/photo?place=ChIJzzzzzzzzzzzzzzz&s=card", "/api/photo?ref=places/abc/photos/1&s=detail", "/api/photo?ref=places/abc/photos/1&g=2&w=640"]) {
   ok(fromSource(sample) === isDisplayableEventImage(sample), "inlined primer source and isDisplayableEventImage disagree on " + JSON.stringify(sample));
 }
 ok(/EVENT_IMAGE_PRIME_SOURCE/.test(layout) && /if\(primeable\(im\)\)\{var pi=new Image\(\)/.test(layout),
@@ -76,19 +78,19 @@ ok(layout.includes(EVENT_IMAGE_PRIME_SOURCE) === false, "the predicate source is
 ok(/if\(location\.pathname==='\/'\)window\.__wfEvPrime=/.test(layout),
   "the events fetch runs on the home document only — other routes were downloading that feed and a high-priority image before their own hero painted");
 ok(!/if\(im\)\{var pi=new Image\(\)/.test(layout), "the unfiltered prewarm is gone — `if(im)` assigned the first image even when that URL 404s");
-// Execute the loop that ships, not a copy of it. The first image is the live
-// 404; the second is a real file; a later uncredited place URL must not be reached.
+// Execute the loop that ships, not a copy of it. The first images are the live
+// 404s (?place= and ?ref=...wfplacediscovery); the next real file wins; a later uncredited URL must not be reached.
 const loop = layout.match(/for\(var i=0;i<d\.events\.length;i\+\+\)\{var im=d\.events\[i\]&&d\.events\[i\]\.image;if\(primeable\(im\)\)\{var pi=new Image\(\);pi\.fetchPriority='high';pi\.src=im;break\}\}/);
 ok(!!loop, "the prewarm loop is still the one this test executes");
 const warmed = [];
 vm.runInNewContext(loop[0], {
   primeable: new Function("return (" + EVENT_IMAGE_PRIME_SOURCE + ")")(),
-  d: { events: [{ image: seedBean }, { image: null }, { image: "/brand/opt/orlando-roller-800.webp" }, { image: "/api/photo?place=ChIJzzzzzzzzzzzzzzz&g=2&w=640" }] },
+  d: { events: [{ image: seedBean }, { image: robertsWonderland }, { image: null }, { image: "/brand/opt/orlando-roller-800.webp" }, { image: "/api/photo?place=ChIJzzzzzzzzzzzzzzz&g=2&w=640" }] },
   Image: function Image() {
     Object.defineProperty(this, "src", { set(v) { warmed.push(v); } });
   },
 });
 ok(warmed.length === 1 && warmed[0] === "/brand/opt/orlando-roller-800.webp",
-  `the shipped loop warmed ${JSON.stringify(warmed)} — expected only the static image, after skipping the uncredited place URL`);
+  `the shipped loop warmed ${JSON.stringify(warmed)} — expected only the static image, after skipping the uncredited place/ref URLs`);
 
 console.log(`test-events-prime: OK — ${passed} assertions (primer starts pre-hydration with the client's own location resolution; value-matched one-shot consume; falls through on mismatch; seed stays dead; hero photo pre-warmed)`);
