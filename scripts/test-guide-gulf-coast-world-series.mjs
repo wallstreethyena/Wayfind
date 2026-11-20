@@ -91,7 +91,7 @@ for (const row of tickets) {
 ok(guidePickTicket({ affiliate: true, href: "https://www.ticketmaster.com/event/0D0065159FC782E6", label: "Yung Gravy tickets" }) === null, "a raw Ticketmaster URL is not an affiliate button");
 ok(guidePickTicket({ affiliate: false, href: "https://www.ticketmaster.com/event/0D0065159FC782E6", label: "Tickets, not an affiliate link" }) === null, "Ticketmaster is not treated as an official host");
 ok(guidePickTicket({ affiliate: false, href: "https://evil.example/tickets", label: "Tickets, not an affiliate link" }) === null, "an unknown host renders no button");
-ok(/const ticket = guidePickTicket\(pick\.ticket\)/.test(page), "the guide page calls the shared ticket gate");
+ok(/const ticket = (?:noSale \? null : )?guidePickTicket\(pick\.ticket\)/.test(page), "the guide page calls the shared ticket gate");
 ok(/rel: "sponsored noreferrer"/.test(page) && /rel: "noopener noreferrer"/.test(page), "affiliate and official buttons use different rel values");
 
 if (failures.length) {

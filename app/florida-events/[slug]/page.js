@@ -1,5 +1,5 @@
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
-import { creatorCoversFor } from "../../../lib/creatorCovers.js";
+import { creatorCoversFor, posterCoverForPosts } from "../../../lib/creatorCovers.js";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
@@ -30,6 +30,9 @@ import RemindMe from "../../components/RemindMe.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
 import { partnerAvailabilityNote } from "../../../lib/eventTicketDeals.js";
+import { ticketsUnavailable } from "../../../lib/ticketAvailability.js";
+import { availableAlternatives, alternativeLabel, unavailableNote } from "../../../lib/eventAlternatives.js";
+import { siteTodayStr } from "../../../lib/siteTime.js";
 import { secondaryEventTicketAction } from "../../../lib/secondaryEventTickets.js";
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
@@ -252,7 +255,21 @@ export default async function CuratedEventPage({ params }) {
   const resaleTicket = secondaryEventTicketAction(e, { surface: "florida_event_page", primaryAction: ticket });
   // Partner tickets gone (NO_EXACT_AFFILIATE_PRODUCT visitorNote): say so plainly
   // and offer the bookable alternatives, instead of a silent organizer fallback.
-  const availability = partnerAvailabilityNote(e.event_id);
+  // SOLD OUT (owner rule 2026-11-04; 2026-11-19): no ticket button (above), and
+  // the page says so plainly with up to three events open nearby instead of
+  // reading like a booking page (lib/eventAlternatives.js, relevance order only).
+  const soldOut = ticketsUnavailable(e);
+  let availability = partnerAvailabilityNote(e.event_id);
+  if (soldOut) {
+    const today = siteTodayStr();
+    let alts = [];
+    try { alts = availableAlternatives(e, await fetchCuratedEvents(), today); } catch { alts = []; }
+    availability = {
+      note: unavailableNote(e, alts.length > 0),
+      alternatives: alts.map((a) => ({ href: "/florida-events/" + encodeURIComponent(a.slug), label: alternativeLabel(a, today) })),
+      soldOut: true,
+    };
+  }
   const crownTracked = CROWN_EVENT_SLUGS.has(params.slug);
   // "Remind me" (owner, 2026-10-14): only for an event with a real date. An
   // undated season, a watchlist twin and a past event get no button.
@@ -266,9 +283,18 @@ export default async function CuratedEventPage({ params }) {
   // Google photo (not allowed as a bare cover), use our own credited photo of
   // the venue instead (lib/creatorCovers.js).
   const heroCover = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
-  const venueCover = !heroCover && socialPosts.length && e.place_id ? (await creatorCoversFor([e.place_id]))[e.place_id] || null : null;
+  const venueCover = !heroCover && socialPosts.length
+    ? ((e.place_id ? (await creatorCoversFor([e.place_id]))[e.place_id] : null) || (await posterCoverForPosts(socialPosts.map((p) => p.url))) || null)
+    : null;
   const socialPoster = heroCover || venueCover?.src || null;
-  const socialPosterCredit = heroCover ? null : venueCover?.credit || null;
+  // Live check 2026-11-19: tiles covered by the event hero printed no credit. The hero's own
+  // credit (rail photo, registry shot or the event row's attribution) rides on the tile too.
+  const heroCoverCredit = heroCover ? (
+    (detailPhotos[0] && detailPhotos[0].src === heroCover && eventRailPhotoCredit(detailPhotos[0])?.text)
+    || (shots && shots.hero && shots.hero.src === heroCover && shots.credit ? "Photo: " + String(shots.credit).replace(/^photos?\s*(?:by|from|:)\s*/i, "") : null)
+    || (e.photoAttr && heroCover === e.hero_image ? "Photo: " + String(e.photoAttr).replace(/^photos?\s*(?:by|from|:)\s*/i, "") : null)
+    || null) : null;
+  const socialPosterCredit = heroCover ? heroCoverCredit : venueCover?.credit || null;
   const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
   const socialDetails = (post) => <>
     <div style={{ padding: "18px 16px 14px" }}>
@@ -332,7 +358,8 @@ export default async function CuratedEventPage({ params }) {
           { label: "Entry rules", value: eventRestrictions(e).join(" · ") || null },
           { label: "Time needed", value: e.duration_recommendation },
           { label: "Crowds", value: e.crowd_level },
-          { label: "Verdict", value: e.wayfind_verdict },
+          // A verdict can say "book a November date"; never on a sold out page.
+          { label: "Verdict", value: soldOut ? null : e.wayfind_verdict },
         ]}
         story={<>
           {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
@@ -360,7 +387,7 @@ export default async function CuratedEventPage({ params }) {
         </div>
       ) : null}
       {availability ? (
-        <div style={S.availability} data-partner-availability="">
+        <div style={S.availability} data-partner-availability="" {...(availability.soldOut ? { "data-sold-out": "" } : {})}>
           <p style={S.availabilityNote}>{availability.note}</p>
           {availability.alternatives.length ? (
             <ul style={S.availabilityList}>
