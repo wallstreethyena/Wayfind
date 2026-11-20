@@ -58,13 +58,14 @@ ok(Boolean(embedSrc("tiktok", "https://www.tiktok.com/@a/video/67183353908450951
 const surfaces = {
   "app/florida-events/[slug]/page.js": /eventSocialPosts\(e\.event_id\)\s*\|\|\s*\[\]\)\.filter\(\(post\) => isEmbeddable\(post\.platform, post\.url\)\)/,
   "app/christmas-in-florida/page.js": /\(allPosts \|\| \[\]\)\.filter\(\(post\) => isEmbeddable\(post\.platform, post\.url\)\)/,
-  "app/guides/disney-world-holiday-food-guide-2026/FoodStop.js": /stop\.posts\.filter\(\(post\) => isEmbeddable\("instagram", post\.url\)\)\.map\(/,
+  // Guides show creator posts only through the shared rail (check-guide-standard rule 4).
+  "app/components/CreatorPostRail.js": /posts\.filter\(\(post\) => isEmbeddable\("instagram", post\.url\)\)/,
   "app/components/sheets/Detail.js": /creatorVideosFor\(detail, locName\)\.filter\(\(v\) => isEmbeddable\(v\.platform, v\.url\)\)/,
   "app/components/CreatorVideoAction.js": /if \(!isEmbeddable\(platform, safeUrl\(url\)\)\) return null;/,
 };
 for (const [file, re] of Object.entries(surfaces)) ok(re.test(read(file)), `${file} only shows posts that play inside Wayfind`);
-const foodPost = read("app/guides/disney-world-holiday-food-guide-2026/FoodPost.js");
-ok(!/<a\b/.test(foodPost), "Disney food posts carry no link out to Instagram");
+const foodPost = read("app/components/CreatorPostRail.js") + read("app/components/CheckedCreatorPost.js") + read("app/guides/disney-world-holiday-food-guide-2026/FoodStop.js");
+ok(!/<a\b[^>]*post\.url/.test(foodPost) && !/<a\b/.test(read("app/components/CreatorPostRail.js") + read("app/components/CheckedCreatorPost.js")), "guide creator posts (Disney food guide) carry no link out to Instagram");
 ok(/<a\b/.test('<a href="x">'), "anchor probe detects a link (positive control)");
 
 if (fails.length) { console.error("test-instagram-plays-in-wayfind: FAIL\n  - " + fails.join("\n  - ")); process.exit(1); }

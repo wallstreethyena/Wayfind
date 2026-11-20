@@ -23,6 +23,9 @@ import styles from "./IllustratedParkMap.module.css";
 // opens at the smallest zoom step where no two pins are closer than PIN_GAP,
 // scrolled to the crowded pins. Visitors can still zoom out.
 export const PIN_GAP = 52;
+function reducedMotion() {
+  try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch { return false; }
+}
 const ZOOM_STEP = 0.5;
 export const MAX_ZOOM = 3;
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
@@ -54,7 +57,10 @@ export function scrollToCrowd(pins, widthPx, viewW, viewH, aspect, zoom) {
   return { left: Math.max(0, Math.min(w - viewW, cx - viewW / 2)), top: Math.max(0, Math.min(h - viewH, cy - viewH / 2)) };
 }
 
-export default function IllustratedParkMap({ image, pins = [], selectedId = null, onSelect, label, hint = "Tap a number to open it. Zoom in, then scroll to explore.", note = null, fallback = "The map image could not load. Choose a stop from the numbered list below." }) {
+// credit: { href, label } for the illustration (park maps default to their
+// OpenStreetMap-based credit); pass null for Wayfind's own drawn art.
+// pin.caption: optional short label printed beside the pin on the art.
+export default function IllustratedParkMap({ image, pins = [], selectedId = null, onSelect, label, hint = "Tap a number to see that stop. Use + and − to zoom.", note = null, fallback = "The map image could not load. Every stop is on the cards beside it.", credit = PARK_MAP_CREDIT }) {
   const [zoom, setZoom] = useState(1);
   const [failed, setFailed] = useState(false);
   const scroller = useRef(null);
@@ -72,19 +78,34 @@ export default function IllustratedParkMap({ image, pins = [], selectedId = null
     requestAnimationFrame(() => node.scrollTo(target));
     // Once per map: the parent keys this component by map.
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // The card rail moves the selection: keep the selected pin inside the view
+  // when the map is zoomed (no scroll when it is already visible).
+  const followed = useRef(false);
+  useEffect(() => {
+    const node = scroller.current;
+    // Skip the first run: on mount the crowd zoom above sets the view.
+    if (!followed.current) { followed.current = true; return; }
+    if (!node || selectedId == null || typeof node.scrollTo !== "function") return;
+    const pin = [...node.querySelectorAll("[data-map-pin]")].find((el) => el.getAttribute("data-map-pin") === String(selectedId));
+    if (!pin) return;
+    const view = node.getBoundingClientRect(), box = pin.getBoundingClientRect();
+    if (box.left >= view.left && box.right <= view.right && box.top >= view.top && box.bottom <= view.bottom) return;
+    node.scrollTo({ left: node.scrollLeft + (box.left + box.width / 2) - (view.left + view.width / 2), top: node.scrollTop + (box.top + box.height / 2) - (view.top + view.height / 2), behavior: reducedMotion() ? "auto" : "smooth" });
+  }, [selectedId, zoom]);
+  // Owner 2026-11-20: the zoom control sits INSIDE the map (top right, over the
+  // art) like a real map, and the map has no extra box around it: it drops into
+  // the shared guide map card (GuideMapExplorer) the same way the Apple map does.
   return <div className={styles.map} data-illustrated-map={image.src} data-zoom={zoom}>
-    <div className={styles.toolbar}>
-      <p className={styles.hint}>{hint}</p>
-      <div className={styles.zoom} role="group" aria-label="Map zoom">
-        <button type="button" disabled={zoom <= 1} aria-label="Zoom out" onClick={() => setZoom((z) => Math.max(1, z - ZOOM_STEP))}>−</button>
-        <button type="button" disabled={zoom >= MAX_ZOOM} aria-label="Zoom in" onClick={() => setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP))}>+</button>
-      </div>
+    <div className={styles.stage}>
+    <div className={styles.zoom} role="group" aria-label="Map zoom" data-map-zoom-inside="">
+      <button type="button" disabled={zoom >= MAX_ZOOM} aria-label="Zoom in" onClick={() => setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP))}>+</button>
+      <button type="button" disabled={zoom <= 1} aria-label="Zoom out" onClick={() => setZoom((z) => Math.max(1, z - ZOOM_STEP))}>−</button>
     </div>
     <div ref={scroller} className={styles.scroll} tabIndex={0} role="region" aria-label={label + ". Scroll to explore when zoomed."}>
       <div className={styles.canvas} style={{ width: zoom * 100 + "%", aspectRatio: image.width + " / " + image.height }}>
-        <img ref={art} data-guide-map-canvas className={styles.art} src={image.src} width={image.width} height={image.height} alt={image.alt} loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
+        <img ref={art} data-guide-map-canvas className={styles.art} src={image.src} srcSet={image.srcSet || undefined} sizes={image.srcSet ? (image.sizes || "(max-width: 820px) 100vw, 60vw") : undefined} width={image.width} height={image.height} alt={image.alt} loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
         {failed ? <p role="status" className={styles.failure}>{fallback}</p> : pins.map((pin) => {
-          const body = <><MapCategoryPin family={pin.family || "food"} height={44} /><span>{pin.number}</span></>;
+          const body = <><MapCategoryPin family={pin.family || "food"} height={44} /><span>{pin.number}</span>{pin.caption ? <em className={styles.caption} data-below={pin.top < 30 ? "true" : undefined} aria-hidden="true">{pin.caption}</em> : null}</>;
           const common = { className: styles.pin, style: { left: pin.left + "%", top: pin.top + "%" }, "data-map-pin": pin.id, "data-selected": selectedId === pin.id ? "true" : undefined };
           return pin.href
             ? <a key={pin.id} {...common} href={pin.href} aria-label={pin.number + ". " + pin.label} aria-current={selectedId === pin.id ? "location" : undefined} onClick={() => onSelect?.(pin.id)}>{body}</a>
@@ -92,6 +113,7 @@ export default function IllustratedParkMap({ image, pins = [], selectedId = null
         })}
       </div>
     </div>
-    <p className={styles.credit}><PhotoCreditLink href={PARK_MAP_CREDIT.href}>{PARK_MAP_CREDIT.label}</PhotoCreditLink>{note ? <> · {note}</> : null}</p>
+    </div>
+    <p className={styles.credit}>{hint ? <>{hint} </> : null}{credit ? <PhotoCreditLink href={credit.href}>{credit.label}</PhotoCreditLink> : null}{note ? <>{credit ? " · " : ""}{note}</> : null}</p>
   </div>;
 }

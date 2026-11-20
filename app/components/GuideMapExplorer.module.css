@@ -164,6 +164,20 @@
   min-height: 520px;
 }
 
+/* An illustrated park map (renderMap) keeps its own height and rounded art;
+   its credit line sits on the card, so the wrap adds no frame of its own. */
+.mapWrap[data-map-kind="illustrated"],
+.mapWrap[data-map-kind="illustrated"] > * {
+  min-height: 0;
+}
+
+.mapWrap[data-map-kind="illustrated"] {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
 .activeRail {
   min-width: 0;
   overflow: hidden;

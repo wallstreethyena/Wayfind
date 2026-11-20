@@ -61,7 +61,17 @@ export default function GuideMapExplorer({
   note = "Swipe the cards to move the selected pin. Tap a pin to jump back to its card.",
   accent = "#f97316",
   railIdPrefix = "guide-map",
+  // Optional: ({ active, visible, selectedId, onSelect }) => the map node, for a
+  // guide whose places sit on an illustrated park map (IllustratedParkMap)
+  // instead of the Apple map. Same card, chips, rail and pin sync either way
+  // (owner 2026-11-20: every guide map uses this one standard card). Spots on
+  // an illustrated map need no lat/lng.
+  renderMap = null,
+  // The page path, so a saved card from an illustrated map links back to its
+  // entry (pagePath + "#entry") instead of a bare page-relative hash.
+  pagePath = "",
 }) {
+  const illustrated = Boolean(renderMap);
   const FILTERS = useMemo(() => (Array.isArray(filters) && filters.length ? filters : deriveFilters(spots)), [filters, spots]);
   const GROUP_LABEL = useMemo(() => Object.fromEntries(FILTERS.map((f) => [f.id, f.label])), [FILTERS]);
   const hasFilters = FILTERS.length > 1;
@@ -78,9 +88,9 @@ export default function GuideMapExplorer({
 
   const rows = useMemo(
     () => (Array.isArray(spots) ? spots : []).filter((spot) =>
-      spot && spot.id && spot.name && Number.isFinite(spot.lat) && Number.isFinite(spot.lng)
+      spot && spot.id && spot.name && (illustrated || (Number.isFinite(spot.lat) && Number.isFinite(spot.lng)))
     ),
-    [spots],
+    [spots, illustrated],
   );
 
   const counts = useMemo(() => {
@@ -234,8 +244,10 @@ export default function GuideMapExplorer({
       ) : null}
 
       <div className={styles.mapRailStage}>
-        <div className={styles.mapWrap}>
-          <CreatorAppleMap places={visible} selectedId={selected?.id || null} onSelect={selectFromMap} />
+        <div className={styles.mapWrap} data-map-kind={renderMap ? "illustrated" : "apple"}>
+          {renderMap
+            ? renderMap({ active, visible, selectedId: selected?.id ?? null, onSelect: selectFromMap })
+            : <CreatorAppleMap places={visible} selectedId={selected?.id || null} onSelect={selectFromMap} />}
         </div>
 
         <div ref={railZone} className={styles.activeRail}>
@@ -262,7 +274,7 @@ export default function GuideMapExplorer({
                 hook: spot.detail || null,
               } : null;
               const cta = spot.href ? {
-                label: isExternal(spot.href) ? "Official details ↗" : "View details ↗",
+                label: isExternal(spot.href) ? "Official details ↗" : String(spot.href).startsWith("#") ? "See the details ↓" : "View details ↗",
                 href: spot.href,
                 external: isExternal(spot.href),
               } : null;
@@ -282,18 +294,29 @@ export default function GuideMapExplorer({
                   photo={photo}
                   photoAttr={spot.photoAttr || null}
                   photoAttrHref={spot.photoAttrHref || null}
+                  photoFallbackCategory={spot.photoFallbackCategory || undefined}
+                  placeholder={photo ? null : spot.placeholder || null}
                   place={place}
                   title={spot.name}
-                  eyebrow={GROUP_LABEL[Array.isArray(spot.groups) ? spot.groups[0] : active] || "Guide pick"}
-                  rank={index + 1}
+                  eyebrow={spot.eyebrow || GROUP_LABEL[Array.isArray(spot.groups) ? spot.groups[0] : active] || "Guide pick"}
+                  rank={spot.rank || index + 1}
                   facts={[spot.city || null, spot.when || null].filter(Boolean)}
                   take={spot.detail || null}
                   chips={spot.tip ? [{ key: "tip", icon: "✓", label: "Insider tip", title: spot.tip }] : []}
                   cta={cta}
                   href={spot.href || null}
                   external={isExternal(spot.href)}
-                  ariaLabel={"Open " + spot.name}
-                  actionItem={!place ? { id: spot.id, type: "event", title: spot.name, image: photo, url: spot.href || "" } : null}
+                  ariaLabel={spot.href ? "Open " + spot.name : "Show " + spot.name + " on the map"}
+                  onOpen={spot.href ? undefined : () => selectFromMap(spot.id)}
+                  actionItem={!place ? {
+                    // Illustrated-map spots are entries on one guide page: namespace the id
+                    // and save a link that returns to that entry.
+                    id: illustrated ? railIdPrefix + ":" + spot.id : spot.id,
+                    type: "event",
+                    title: spot.name,
+                    image: photo,
+                    url: String(spot.href || "").startsWith("#") ? pagePath + spot.href : (spot.href || pagePath),
+                  } : null}
                   eagerMedia={index < 2}
                 />
               );
