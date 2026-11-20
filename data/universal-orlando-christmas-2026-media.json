@@ -2,11 +2,20 @@
   "guide": "universal-orlando-christmas-2026",
   "reviewedAt": "2026-11-17",
   "map": {
-    "src": "/guides/universal-orlando-christmas-2026/universal-illustrated-map.webp",
-    "generation": "Owner-requested AI illustrated atlas, approved in chat November 17, 2026; approximate guide art, not exact geography.",
-    "originalChatGPTLibraryFileId": "libfile_4507af2bb6308191b1ecb5bad4c788db",
-    "originalLocalFileName": "exec-c4ad1021-d7b7-433c-9e53-cddd0dcf7e83.png",
-    "bytes": 734656
+    "src": [
+      "/guides/park-maps-2026/islands-of-adventure.webp",
+      "/guides/park-maps-2026/universal-studios-florida.webp",
+      "/guides/park-maps-2026/epic-universe.webp",
+      "/guides/park-maps-2026/citywalk.webp"
+    ],
+    "generation": "Owner-supplied illustrated park maps (wayfind-park-maps.zip, 'Holiday illustrations'), delivered in chat November 19, 2026 with the instruction to use them for the Universal and Disney guides; drawn over OpenStreetMap data (credit shown with each map). Printed legend band cropped and printed pin numbers blanked; the guide renders its own numbered pins. Approximate guide art, not exact geography.",
+    "registry": "lib/parkMaps2026.js",
+    "bytes": {
+      "islands-of-adventure": 473062,
+      "universal-studios-florida": 479996,
+      "epic-universe": 451616,
+      "citywalk": 530864
+    }
   },
   "photographs": {
     "nintendo-night": {
@@ -330,5 +339,13 @@
       "reviewNotes": "Official 2026 holiday press image, visually inspected. Provider-prepared 1024px rendition downloaded without alteration. Editorial reporting only; no marketing reuse. Complete image is displayed without cropping."
     }
   },
-  "notPublished": "Four Instagram screenshot crops removed. No source permission established for public reuse. Creator videos remain linked."
+  "notPublished": "Four Instagram screenshot crops removed. No source permission established for public reuse. Creator videos remain linked.",
+  "previousMap": {
+    "src": "/guides/universal-orlando-christmas-2026/universal-illustrated-map.webp",
+    "generation": "Owner-requested AI illustrated atlas, approved in chat November 17, 2026; approximate guide art, not exact geography.",
+    "originalChatGPTLibraryFileId": "libfile_4507af2bb6308191b1ecb5bad4c788db",
+    "originalLocalFileName": "exec-c4ad1021-d7b7-433c-9e53-cddd0dcf7e83.png",
+    "bytes": 734656,
+    "replacedAt": "2026-11-19"
+  }
 }

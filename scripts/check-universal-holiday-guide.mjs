@@ -9,6 +9,7 @@ import {JSDOM} from 'jsdom';
 const rel='app/guides/universal-orlando-christmas-2026/';
 const {default:Page}=await loadComponent(path.resolve(rel+'page.js'), process.cwd());
 const {UNIVERSAL_STOPS}=await loadComponent(path.resolve(rel+'UniversalHolidayMap.js'), process.cwd());
+const {UNIVERSAL_VIEW_MAPS,parkMapImage}=await import('../lib/parkMaps2026.js');
 const markup=renderToStaticMarkup(React.createElement(Page));
 const dom=new JSDOM(markup);const doc=dom.window.document;
 function verifyGuide(doc) {
@@ -17,9 +18,14 @@ assert.equal(new Set(ids).size,ids.length,'guide must have no duplicate IDs');
 for(const a of doc.querySelectorAll('a[href^="#"]'))assert.ok(doc.getElementById(a.hash.slice(1)),a.getAttribute('href'));
 assert.equal(doc.querySelectorAll('h1').length,1);
 assert.equal(UNIVERSAL_STOPS.length,17);
-for(const stop of UNIVERSAL_STOPS){assert.ok(doc.getElementById(stop.target),stop.target);assert.ok(doc.querySelector(`.mapHotspot[href="#${stop.target}"]`));}
+// Owner-supplied illustrated park maps (lib/parkMaps2026.js): one park per view,
+// Islands first. Every stop targets real guide content, sits inside its map,
+// and every view's illustration exists on disk.
+for(const stop of UNIVERSAL_STOPS){assert.ok(doc.getElementById(stop.target),stop.target);assert.ok(stop.x>2&&stop.x<98&&stop.y>4&&stop.y<99,'pin inside its map: '+stop.target);assert.ok(UNIVERSAL_VIEW_MAPS[stop.park],'stop park has a map view: '+stop.target);}
+for(const key of Object.values(UNIVERSAL_VIEW_MAPS))assert.ok(fs.existsSync('public'+parkMapImage(key).src),key);
+for(const stop of UNIVERSAL_STOPS.filter(s=>s.park==='islands'))assert.ok(doc.querySelector(`[data-map-pin="${stop.target}"][href="#${stop.target}"]`),'default Islands view pin: '+stop.target);
 assert.equal(doc.querySelectorAll('[data-guide-map-canvas]').length,1);
-assert.ok(doc.querySelector('[data-guide-map-canvas]').getAttribute('src').includes('universal-illustrated-map.webp'));
+assert.equal(doc.querySelector('[data-guide-map-canvas]').getAttribute('src'),'/guides/park-maps-2026/islands-of-adventure.webp');
 for(const im of doc.querySelectorAll('img[src^="/"]'))assert.ok(fs.existsSync('public'+im.getAttribute('src')),im.getAttribute('src'));
 assert.equal(doc.querySelectorAll('[data-universal-photo]').length,19); // 18 location images incl hero + 2 food photos; hero is outside this wrapper.
 assert.ok(doc.querySelector('[data-universal-photo="holiday-food-selection"] img'));
@@ -56,14 +62,19 @@ interactive.window.HTMLElement.prototype.scrollTo = function(options) { this.scr
 const { createRoot } = await import('react-dom/client');
 const root = createRoot(document.getElementById('root'));
 flushSync(() => { root.render(React.createElement(Page)); });
+const VIEW_TITLE = { islands: 'Islands', studios: 'Studios', epic: 'Epic', citywalk: 'CityWalk' };
+const showView = (park) => flushSync(() => { [...document.querySelectorAll('.mapViews button')].find(button => button.textContent === VIEW_TITLE[park]).click(); });
 for (const stop of UNIVERSAL_STOPS) {
-  flushSync(() => { document.querySelector(`.mapHotspot[href="#${stop.target}"]`).click(); });
+  showView(stop.park);
+  assert.equal(document.querySelector('[data-guide-map-canvas]').getAttribute('src'), parkMapImage(UNIVERSAL_VIEW_MAPS[stop.park]).src, 'view shows its park map');
+  flushSync(() => { document.querySelector(`[data-map-pin="${stop.target}"]`).click(); });
   assert.equal(document.activeElement.id, stop.target, 'map selection must open/focus ' + stop.target);
 }
 const buttons = [...document.querySelectorAll('.foodFilters button')];
 flushSync(() => { buttons.find(button => button.textContent === 'Studios').click(); });
 assert.equal(document.getElementById('le-gobelet-noir').hidden, true);
-flushSync(() => { document.querySelector('.mapHotspot[href="#le-gobelet-noir"]').click(); });
+showView('epic');
+flushSync(() => { document.querySelector('[data-map-pin="le-gobelet-noir"]').click(); });
 assert.equal(document.getElementById('le-gobelet-noir').hidden, false, 'map must reveal a previously filtered food entry');
 flushSync(() => { [...document.querySelectorAll('.mapViews button')].find(button => button.textContent === 'Epic').click(); });
 assert.equal(document.querySelectorAll('.mapStops a').length, 6, 'Epic close-up lists its six mapped stops');

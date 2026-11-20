@@ -38,7 +38,7 @@
 //
 // Registered in scripts/guards.txt; its reviewed expectation line lives in
 // scripts/lib/guard-expectations.tsv (check-guard-registry names any drift).
-import { readFileSync, readdirSync, statSync } from "fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -113,10 +113,8 @@ export function shellViolation(pageSrc, combinedSrc, cssSrc) {
 // SHRINKING baseline (GVS "Changing this standard": slugs may leave, never
 // join). Only for a route another lane is actively rebuilding, so this PR
 // does not collide with it; its own migration lands right behind that PR.
-const SHELL_MIGRATION_BASELINE = {
-  "disney-world-holiday-food-guide-2026": "being rebuilt in PR #2622 (Disney lane); its shell migration is stacked on that branch",
-};
-const MAX_BASELINE = 1;
+const SHELL_MIGRATION_BASELINE = {};
+const MAX_BASELINE = 0;
 if (Object.keys(SHELL_MIGRATION_BASELINE).length > MAX_BASELINE) fail("SHELL_MIGRATION_BASELINE grew — it may only shrink (lower MAX_BASELINE as entries leave)");
 
 // No second publishing surface. Guides and blog articles live under /guides
@@ -166,15 +164,15 @@ let checkedCardStandard = 0;
 
 for (const dir of guideDirs) {
   const dirPath = path.join(GUIDES_DIR, dir);
-  const pagePath = path.join(dirPath, "page.js");
-  let pageSrc;
-  try {
-    pageSrc = readFileSync(pagePath, "utf8");
-  } catch {
+  // Any Next route-file extension counts (a page.tsx guide used to be skipped
+  // silently: the 2026-11-19 guide audit found this hole).
+  const pageName = ["page.js", "page.jsx", "page.ts", "page.tsx", "page.mjs"].find((n) => existsSync(path.join(dirPath, n)));
+  if (!pageName) {
     // Not every entry under app/guides is a route (e.g. shared assets) —
-    // only a directory with its own page.js is a bespoke guide route.
+    // only a directory with its own page file is a bespoke guide route.
     continue;
   }
+  const pageSrc = readFileSync(path.join(dirPath, pageName), "utf8");
   checkedBespoke++;
 
   const jsFiles = listJsFiles(dirPath);
@@ -188,7 +186,7 @@ for (const dir of guideDirs) {
   if (shellProblem && SHELL_MIGRATION_BASELINE[dir]) {
     console.log(`check-guide-standard: baseline — app/guides/${dir} not yet on GuideStandardShell (${SHELL_MIGRATION_BASELINE[dir]})`);
   } else if (shellProblem) {
-    fail(`app/guides/${dir}/page.js: ${shellProblem}`);
+    fail(`app/guides/${dir}/${pageName}: ${shellProblem}`);
   } else if (SHELL_MIGRATION_BASELINE[dir]) {
     fail(`app/guides/${dir} now passes rule 1 — remove it from SHELL_MIGRATION_BASELINE (the list only shrinks)`);
   }
@@ -202,14 +200,14 @@ for (const dir of guideDirs) {
     // evaporated (the dir now renders place cards) must fail loudly, not
     // silently keep passing.
     if (usesApprovedCard || showsPlacePhoto) {
-      fail(`app/guides/${dir}/page.js: EXEMPT_NO_PLACE_CARDS says "${exemptReason}", but this directory now imports a card component or renders a place photo — remove the exemption and bring it onto the shared standard (rules 2/3 below)`);
+      fail(`app/guides/${dir}/${pageName}: EXEMPT_NO_PLACE_CARDS says "${exemptReason}", but this directory now imports a card component or renders a place photo — remove the exemption and bring it onto the shared standard (rules 2/3 below)`);
     }
     continue;
   }
 
   // Rule 3 — a hand-rolled place card (place photo, no approved component).
   if (showsPlacePhoto && !usesApprovedCard) {
-    fail(`app/guides/${dir}/page.js: renders place photos (/api/photo) without importing RailCard, GuidePlaceCard, IconicPlaceCard, or GuideMapExplorer — every guide place card must render through the shared RailCard`);
+    fail(`app/guides/${dir}/${pageName}: renders place photos (/api/photo) without importing RailCard, GuidePlaceCard, IconicPlaceCard, or GuideMapExplorer — every guide place card must render through the shared RailCard`);
   }
 
   if (!usesApprovedCard) continue; // no place cards on this route at all — rules 2 do not apply.
@@ -218,14 +216,14 @@ for (const dir of guideDirs) {
   // Rule 2a — shared place-card CSS, on the page itself (the CSS is injected
   // once per route, not per component).
   if (!WF_PLACE_CARD_CSS_IMPORT_RX.test(pageSrc)) {
-    fail(`app/guides/${dir}/page.js: renders place cards (RailCard/GuidePlaceCard/GuideMapExplorer) but never imports/renders WF_PLACE_CARD_CSS — the card ships as unstyled HTML`);
+    fail(`app/guides/${dir}/${pageName}: renders place cards (RailCard/GuidePlaceCard/GuideMapExplorer) but never imports/renders WF_PLACE_CARD_CSS — the card ships as unstyled HTML`);
   }
 
   // Rule 2b — the FTC disclosure, literally, somewhere in the route.
   // GuideStandardShell renders the disclosure for every route that uses it
   // (rule 1 already requires the shell, so this is the belt to its braces).
   if (!DISCLOSURE_RX.test(combinedSrc) && !SHELL_IMPORT_RX.test(pageSrc)) {
-    fail(`app/guides/${dir}/page.js: renders place cards with outbound links but carries no "may earn a commission" disclosure anywhere in the route`);
+    fail(`app/guides/${dir}/${pageName}: renders place cards with outbound links but carries no "may earn a commission" disclosure anywhere in the route`);
   }
 }
 

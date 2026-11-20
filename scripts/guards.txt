@@ -525,6 +525,7 @@ node scripts/test-provider-health.mjs
 node scripts/check-cuisine-sheet.mjs
 node scripts/check-tampa-bay-region.mjs
 node scripts/check-commerce-redirect.mjs
+node scripts/test-sold-out-handoffs.mjs
 node scripts/check-earning-integrations.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs
@@ -2719,6 +2720,10 @@ node scripts/test-santa-local-dates.mjs
 # 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
 node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
+# 2026-11-17: supervised OpenTable booking agent. Dark unless three switches are on. Local fixtures only.
+node scripts/check-booking-agent.mjs
+node scripts/test-booking-agent.mjs
+node scripts/test-booking-agent-browser.mjs
 node scripts/check-photo-rail-swipe.mjs
 node scripts/test-home-landing-thanksgiving.mjs
 
@@ -2734,8 +2739,13 @@ node scripts/check-portrait-photo-fit.mjs
 node scripts/test-metro-photo-coverage.mjs
 
 node scripts/test-disney-food-map.mjs
-node scripts/test-disney-geographic-map.mjs
 
 node scripts/test-disney-food-posts.mjs
+node scripts/test-park-maps-2026.mjs
+node scripts/test-park-maps-2026.mjs --red-prove
+node scripts/test-disney-food-post-states.mjs
+node scripts/test-disney-food-post-states.mjs --red-prove
+node scripts/check-no-conflict-markers.mjs
+node scripts/check-no-conflict-markers.mjs --red-prove
 # 2026-11-18: Homepage INP / slow-phone main-thread guard (offscreen containment, tracked horizontal snapshots, IO/rAF/2-card pitch rail observer, AffiliateCard/ThemeParkRail/suggestedView memoization, shared two-pass creator index).
 node scripts/test-home-inp-perf.mjs
