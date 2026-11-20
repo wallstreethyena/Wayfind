@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { resolvePlacePhoto } from "../lib/placePhotoServe.js";
+import { LICENSED_SOURCES } from "../lib/freePhoto.js";
 
 let checks = 0;
 const check = (value, message) => { assert.ok(value, message); checks++; };
@@ -101,6 +102,7 @@ let paidLogs = 0;
 const outcomes = [];
 const scheduled = [];
 globalThis.__sharedPhotoRoute = {
+  LICENSED_SOURCES,
   probe: false, free: null, result: { type: "redirect", reason: "google-stored", location: saved.src, credit: CREDIT },
   resolvePlacePhoto: async input => { check(input.retainGoogle === true && input.storedSurface === true, "public route enables retained credited results"); return globalThis.__sharedPhotoRoute.result; },
   recordPhotoOutcome: async cls => { outcomes.push(cls); await globalThis.__sharedPhotoRoute.outcomeWrite?.(cls); },
@@ -112,7 +114,7 @@ globalThis.__sharedPhotoRoute = {
 };
 const prelude = `const {resolvePlacePhoto,recordPhotoPurchase,recordPhotoOutcome,waitUntil}=globalThis.__sharedPhotoRoute;
 const NextResponse={json:(body,init={})=>new Response(JSON.stringify(body),init),redirect:(url,init={})=>new Response(null,{...init,headers:{...init.headers,location:String(url)}})};
-const gateShut=()=>true, isAutomatedPhotoReader=()=>globalThis.__sharedPhotoRoute.probe, creditedRequest=()=>true, placeIdFromRef=()=>'', findFreePhoto=async()=>globalThis.__sharedPhotoRoute.free;
+const gateShut=()=>true, isAutomatedPhotoReader=()=>globalThis.__sharedPhotoRoute.probe, creditedRequest=()=>true, placeIdFromRef=()=>'', findFreePhoto=async()=>globalThis.__sharedPhotoRoute.free, LICENSED_SOURCES=globalThis.__sharedPhotoRoute.LICENSED_SOURCES;
 const ledgerOutcomeClass=reason=>'ledger-'+reason, photosCeiling=()=>10000;
 const bucketHash=()=>'',idempotencyKey=()=>'',uaClass=()=>'';
 const PHOTO_REF_RX=/^places\\//, FALLBACK_PATH='/wf-photo-fallback.svg';

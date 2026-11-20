@@ -43,7 +43,7 @@
 import { readFileSync } from "node:fs";
 // Mirrors lib/placePhotoServe.js: an authorizer answers a boolean or { ok, reason }.
 const grantedOf = (g) => (g && typeof g === "object" ? !!g.ok : !!g);
-import { findFreePhoto, selectFreePhotoRow, preferPermittedRow } from "../lib/freePhoto.js";
+import { findFreePhoto, selectFreePhotoRow, preferPermittedRow, LICENSED_SOURCES } from "../lib/freePhoto.js";
 import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } from "../lib/spendGate.js";
 import { ledgerOutcomeClass } from "../lib/photoOutcomes.js";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } from "../lib/placePhotoServe.js";
@@ -227,6 +227,7 @@ async function sourceRoute(routeSource) {
     const resolvePlacePhoto = (...a) => globalThis.__wfFreePhotoTest.resolvePlacePhoto(...a);
     const findSamePlaceCachedPhoto = (...a) => globalThis.__wfFreePhotoTest.findSamePlaceCachedPhoto(...a);
     const findFreePhoto = (...a) => globalThis.__wfFreePhotoTest.findFreePhoto(...a);
+    const LICENSED_SOURCES = globalThis.__wfFreePhotoTest.LICENSED_SOURCES; // the REAL set from lib/freePhoto.js
     const recordReaderPhotoMiss = (...a) => globalThis.__wfFreePhotoTest.recordReaderPhotoMiss(...a);
     const gateShut = (...a) => globalThis.__wfFreePhotoTest.gateShut(...a);
     const spendAllow = (...a) => globalThis.__wfFreePhotoTest.spendAllow(...a);
@@ -245,6 +246,7 @@ async function sourceRoute(routeSource) {
 // are pure. The real lib/spendGate.js functions — no faking, ledger truth
 // comes from intercepting globalThis.fetch at exactly one URL below.
 globalThis.__wfFreePhotoTest = {
+  LICENSED_SOURCES,
   FALLBACK_PATH,
   isAutomatedPhotoReader, // real UA rule (lib/crawler.js): automated readers never buy
   creditedRequest, // real page-origin rule (lib/apiGuard.js)
