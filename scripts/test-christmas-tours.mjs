@@ -25,7 +25,7 @@ import {
   CHRISTMAS_TILE_TOUR_SURFACE,
 } from "../lib/christmasTours.js";
 import { readFileSync } from "node:fs";
-import { christmasBrowseCached, christmasBrowseFacets, christmasBrowsePills, parseChristmasBrowseQuery, withChristmasTourListings, christmasBrowseListings } from "../lib/christmasBrowse.js";
+import { christmasBrowseCached, christmasBrowseFacets, christmasBrowsePills, parseChristmasBrowseQuery, withChristmasTourListings, christmasBrowseListings, paidTier } from "../lib/christmasBrowse.js";
 import { attachBrowseTickets, christmasTicketsModel } from "../lib/christmasTickets.js";
 import { santaModelFromListings } from "../lib/santaChat.js";
 
@@ -103,7 +103,12 @@ const { page: augPage } = await christmasBrowseCached(parseChristmasBrowseQuery(
 const augTours = augPage.cards.filter((c) => c.kind === "tour");
 ok(augTours.length >= 3 && augTours.slice(0, 3).every((c) => c.city === "St. Augustine" && c.distMi != null && c.distMi < 5), "a St. Augustine reader gets the St. Augustine tours first, measured from where they start");
 const kwIdx = augPage.cards.findIndex((c) => c.id === CHRISTMAS_TOUR_ID_PREFIX + "5395P15");
-ok(kwIdx === -1 || augPage.cards.slice(kwIdx + 1).every((c) => c.distMi == null || c.distMi >= 300), "the Key West cruise sits in its far ring for a St. Augustine reader, not ahead of nearer cards");
+// Owner 2026-11-20: partner tickets Wayfind earns on lead; ring order holds inside that group.
+const paidIds = new Set(listings.filter((c) => paidTier(c) === 0).map((c) => c.id));
+const lastPaid = augPage.cards.map((c) => paidIds.has(c.id)).lastIndexOf(true);
+const firstUnpaid = augPage.cards.findIndex((c) => !paidIds.has(c.id));
+ok(firstUnpaid === -1 || lastPaid < firstUnpaid, "partner tickets Wayfind earns on come before everything else");
+ok(kwIdx === -1 || augPage.cards.slice(kwIdx + 1).filter((c) => paidIds.has(c.id)).every((c) => c.distMi == null || c.distMi >= 300), "the Key West cruise sits in its far ring for a St. Augustine reader, not ahead of nearer paid cards");
 const lightsPill = christmasBrowsePills(listings).find((p) => p.id === "lights");
 ok(!!lightsPill, "the Light shows pill is offered");
 const { page: lightsPage } = await christmasBrowseCached(parseChristmasBrowseQuery({ category: "lights" }), TODAY, async () => [], { fetchPlaces: async () => [], fetchTours: async () => failed });
