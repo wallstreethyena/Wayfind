@@ -7,12 +7,13 @@ import { createRoot } from "react-dom/client";
 import { C, sheetBg, sheet, Grabber, useDialogFocus } from "./kit";
 import { styleHtml } from "../../lib/styleHtml.js";
 
-// Every fixed Santa surface that sits above kit sheets: the dock (.wf-sd, z 930) and the proactive
-// "Build a day around this" offer bar (.wfp-so, z 936, app/components/PlannerSantaOffer.js). visibility:hidden
-// also stops them taking taps, so the sheet's own buttons (Open on OpenTable, Send) always get the touch.
-// + the plain planner offer card (.wfp-proactive, z 935, bottom 82px on phones; shown outside Santa season), which
-// covers the same bottom strip of the sheet.
-const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd,html[data-wf-reserve-open] .wfp-so,html[data-wf-reserve-open] .wfp-proactive{visibility:hidden}";
+// Every fixed Santa / planner surface that sits above kit sheets (z 900): the dock (.wf-sd, z 930), the
+// "Build a day around this" offer bar (.wfp-so, z 936, PlannerSantaOffer.js) and the plain planner offer card
+// (.wfp-proactive, z 935, bottom 82px on phones; shown outside Santa season). display:none, not visibility:hidden:
+// their looping animations (Santa's twinkling star, the wand) keep their own compositor layers, and a live 390x844
+// check showed those layers painting ghost squares over the message box while "hidden". display:none removes the
+// boxes, the layers and the tap targets; the bars come back (and replay their entrance) when the sheet closes.
+const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd,html[data-wf-reserve-open] .wfp-so,html[data-wf-reserve-open] .wfp-proactive{display:none!important}";
 
 export const mainBtn = { width: "100%", minHeight: 48, padding: "0 16px", background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" };
 export const quietBtn = { width: "100%", minHeight: 44, padding: "0 16px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
