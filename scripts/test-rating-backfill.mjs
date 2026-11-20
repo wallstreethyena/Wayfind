@@ -8,7 +8,7 @@
 //   3. effectiveCap gives the backfill SKU exactly its operator cap in free mode, null in shut,
 //      and leaves details_enterprise's free line unchanged.
 //   4. selectBackfillTargets keeps only unrated, unlocked, servable rows inside a held town.
-//   5. The route is not scheduled, checks gateShut, and grants every call from its own SKU.
+//   5. The route checks gateShut, grants every call from its own SKU, and any schedule is bounded.
 import { readFileSync } from "node:fs";
 
 let n = 0;
@@ -84,6 +84,14 @@ ok(/refundToLedger\(RATING_BACKFILL_SKU/.test(route), "route does not refund unb
 ok(/planEnterprise\(/.test(route), "route does not write through the refresh's enterprise plan");
 const vercel = JSON.parse(readFileSync("vercel.json", "utf8"));
 ok(Array.isArray(vercel.crons) && vercel.crons.length > 0, "vercel.json crons unreadable");
-ok(!vercel.crons.some((c) => /rating-backfill/.test(c.path)), "the paid backfill was scheduled (it must stay operator-run)");
+// The schedule only wakes the route; spend still needs both env switches (asserted above) and
+// each run is bounded. 2026-11-20: scheduled because CRON_SECRET is a sensitive Vercel value
+// no operator can read, so Vercel's own cron is the only caller that can authenticate.
+const sched = vercel.crons.filter((c) => /\/api\/cron\/rating-backfill(\?|$)/.test(c.path));
+ok(sched.length <= 1, "the paid backfill is scheduled more than once");
+for (const c of sched) {
+  const lim = Number(new URL("https://x" + c.path).searchParams.get("limit"));
+  ok(Number.isInteger(lim) && lim >= 1 && lim <= 60, "scheduled backfill run is not bounded to 60 lookups: " + c.path);
+}
 
-console.log(`test-rating-backfill: OK - ${n} assertions (enterprise plan keeps rating/reviews, switches fail closed, own ledger SKU, held-town targets, route unscheduled)`);
+console.log(`test-rating-backfill: OK - ${n} assertions (enterprise plan keeps rating/reviews, switches fail closed, own ledger SKU, held-town targets, route bounded)`);

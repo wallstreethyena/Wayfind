@@ -2,9 +2,9 @@
 //
 // Owner decision 2026-11-20 ("I approve the pay run ... I don't want to wait till
 // December 1st"): buy Google's rating + review count for the places in the five held
-// Florida towns that have none (lib/ratingBackfill.js picks them). OFF BY DEFAULT and
-// NOT scheduled in vercel.json: it runs only when an operator calls it with CRON_SECRET
-// AND both switches are valid:
+// Florida towns that have none (lib/ratingBackfill.js picks them). OFF BY DEFAULT. Vercel's
+// cron wakes it every 10 minutes (CRON_SECRET is a sensitive value only Vercel's cron can
+// send), but it spends nothing unless BOTH switches are valid:
 //   RATING_BACKFILL_PAID=1
 //   RATING_BACKFILL_MONTH_CAP=<positive integer>   paid lookups allowed this month
 // Every lookup takes one grant from its OWN ledger row (details_enterprise_backfill,
@@ -34,9 +34,9 @@ const PARALLEL = 5;
 const RUN_LIMIT_DEFAULT = 40;
 const SELECT = "place_id, category, refreshed_at, locked, status, excluded, lat, lng, signals, independent_coords";
 
+// BACKGROUND: a cron job, never a person waiting. Its SKU is not visitor-shared, so the
+// human reserve does not apply; the cap is its own ledger row.
 export async function GET(req) {
-  // BACKGROUND: an operator-run cron job, never a person waiting. Its SKU is not visitor-shared,
-  // so the human reserve does not apply; the cap is its own ledger row.
   return runWithTraffic(TRAFFIC.BACKGROUND, () => runRatingBackfill(req));
 }
 
@@ -44,9 +44,15 @@ async function runRatingBackfill(req) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });
-  if (gateShut()) return Response.json({ skipped: "gate shut", gate: "shut" });
+  if (gateShut()) {
+    await recordPulse("rating-backfill", { attempted: 0, succeeded: 0, failed: 0, note: "gate shut: no paid lookups" });
+    return Response.json({ skipped: "gate shut", gate: "shut" });
+  }
   const cap = ratingBackfillCap();
-  if (cap == null) return Response.json({ ok: true, skipped: "off (RATING_BACKFILL_PAID=1 and RATING_BACKFILL_MONTH_CAP are both required)" });
+  if (cap == null) {
+    await recordPulse("rating-backfill", { attempted: 0, succeeded: 0, failed: 0, note: "off: owner switch not set (expected outside an approved run)" });
+    return Response.json({ ok: true, skipped: "off (RATING_BACKFILL_PAID=1 and RATING_BACKFILL_MONTH_CAP are both required)" });
+  }
 
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
@@ -54,7 +60,10 @@ async function runRatingBackfill(req) {
   if (!url || !svc) return jobCannotRun("rating-backfill", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   if (!gkey) return jobCannotRun("rating-backfill", "GOOGLE_MAPS_SERVER_KEY is missing");
   const open = (await breakerOpen(BREAKER)) || (await breakerOpen(GOOGLE_DETAILS_DAILY_BREAKER));
-  if (open) return Response.json({ skipped: "breaker open", kind: open.kind });
+  if (open) {
+    await recordPulse("rating-backfill", { attempted: 0, succeeded: 0, failed: 0, note: `${open.kind}: breaker open, skipped` });
+    return Response.json({ skipped: "breaker open", kind: open.kind });
+  }
   const db = createClient(url, svc, { auth: { persistSession: false } });
 
   const u = new URL(req.url);
@@ -72,7 +81,10 @@ async function runRatingBackfill(req) {
     candidates.push(...(data || []));
   }
   const targets = selectBackfillTargets(candidates);
-  if (dryRun) return Response.json({ ok: true, dryRun: true, remaining: targets.length, cap });
+  if (dryRun) {
+    await recordPulse("rating-backfill", { attempted: 0, succeeded: 0, failed: 0, note: `dry run: ${targets.length} places still unrated` });
+    return Response.json({ ok: true, dryRun: true, remaining: targets.length, cap });
+  }
   if (!targets.length) {
     await recordPulse("rating-backfill", { attempted: 0, succeeded: 0, failed: 0, note: "no held-town place is missing a rating" });
     return Response.json({ ok: true, bought: 0, remaining: 0 });
