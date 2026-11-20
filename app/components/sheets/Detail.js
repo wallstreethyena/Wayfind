@@ -37,7 +37,8 @@ import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM, PLATFORM_RGB } from "../../../lib/creatorVideos";
 import { captionFor } from "../../../lib/creatorCaptions";
-import { resolveDetailCta, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
+import { resolveDetailCta, primaryCtaGap, CTA_GAP_REASONS, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
+import { placeEvidence } from "../../../lib/bookingResolve";
 import { emitCommerce, commerceHref, mintClickId } from "../../../lib/commerce";
 import { withClickId, isEarningGoHref } from "../../../lib/hubConversion";
 import { funnelProps } from "../../../lib/funnel";
@@ -856,7 +857,7 @@ export default function DetailSheet({ ctx }) {
   // Guard event: if the ladder ever fails to produce a primary CTA, record it.
   useEffect(() => {
     if (!primaryCta || !primaryCta.type) {
-      try { logEvent("primary_cta_null", detail, { city: ctaCity, category: ctaCategory }); } catch (e) {}
+      try { logEvent("primary_cta_null", detail, { surface: "detail", gap_reason: "no_primary_cta", city: ctaCity, category: ctaCategory }); } catch (e) {}
     }
   }, [detail && detail.id, primaryCta, ctaCity, ctaCategory, logEvent]);
 
@@ -1178,10 +1179,10 @@ export default function DetailSheet({ ctx }) {
   //
   // ONE PROVIDER PER CARD (owner's hard rule): exactly one rung wins, so exactly
   // one monetized href can occupy the primary slot.
-  // primary_cta_null: fires when no MONETIZABLE CTA resolved. Directions is the
-  // acknowledged non-monetized terminal and does NOT suppress the event — the
-  // point is to count the sheets where we had nothing to sell, which is the
-  // denominator for the attraction-ticket gap.
+  // commerce_impression below fires for every sheet with its cta_type, so the
+  // "sheets with no monetized CTA" denominator is commerce_impression where
+  // cta_type is not a partner type. primary_cta_null is NOT that count any more;
+  // see the primaryCtaGap block after this effect.
   const ctaFiredFor = useRef(null);
   useEffect(() => {
     if (!detail || !detail.id) return;
@@ -1189,9 +1190,37 @@ export default function DetailSheet({ ctx }) {
     ctaFiredFor.current = detail.id;
     try {
       logEvent("commerce_impression", detail, { place_type: placeKind(detail), cta_type: primaryCta.type });
-      if (!primaryCta.monetized) logEvent("primary_cta_null", detail, { place_type: placeKind(detail), terminal: primaryCta.type });
     } catch (e) {}
   }, [detail && detail.id, primaryCta.type, primaryCta.monetized]);
+
+  // primary_cta_null (redefined 2026-11-20, lib/detailCta.js primaryCtaGap): a place
+  // that SHOULD have a partner action showed only the Directions fallback, judged
+  // AFTER the inputs that can upgrade it have resolved (editorial / first-party
+  // actions, the website verdict, the Viator evidence for attractions). It used to
+  // fire on mount for every non-monetized sheet, before those landed, and so counted
+  // Official site, See admission and Ask about a table as "nothing". Dining waits
+  // for the timeout because its upgrade (the reserve list) has no separate done flag.
+  const ctaGap = primaryCtaGap({ detail: hydratedDetail, primaryCta, editorial: effectiveEditorialForTruth });
+  const [ctaSettleLate, setCtaSettleLate] = useState(false);
+  useEffect(() => {
+    setCtaSettleLate(false);
+    if (!detail || !detail.id) return undefined;
+    const t = setTimeout(() => setCtaSettleLate(true), 6000);
+    return () => clearTimeout(t);
+  }, [detail && detail.id]);
+  const ctaInputsSettled = ctaSettleLate || (
+    editorialLoaded
+    && (!verdictTargetUrl || websiteOk !== null)
+    && (ctaGap !== CTA_GAP_REASONS.attraction || placeEvidence(viaTours, detail && detail.id).resolved)
+    && ctaGap !== CTA_GAP_REASONS.dining
+  );
+  const ctaGapFiredFor = useRef(null);
+  useEffect(() => {
+    if (!detail || !detail.id || !ctaGap || !ctaInputsSettled) return;
+    if (ctaGapFiredFor.current === detail.id) return;
+    ctaGapFiredFor.current = detail.id;
+    try { logEvent("primary_cta_null", detail, { surface: "detail", place_type: placeKind(detail), terminal: primaryCta.type, gap_reason: ctaGap }); } catch (e) {}
+  }, [detail && detail.id, ctaGap, ctaInputsSettled]);
 
 
   // Shared credited answer, with bounded free-only recovery for a transient

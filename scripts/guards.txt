@@ -2746,3 +2746,5 @@ node scripts/check-no-conflict-markers.mjs
 node scripts/check-no-conflict-markers.mjs --red-prove
 # 2026-11-18: Homepage INP / slow-phone main-thread guard (offscreen containment, tracked horizontal snapshots, IO/rAF/2-card pitch rail observer, AffiliateCard/ThemeParkRail/suggestedView memoization, shared two-pass creator index).
 node scripts/test-home-inp-perf.mjs
+# 2026-11-20: primary_cta_null means "a bookable-class place showed only Directions after inputs settled" (primaryCtaGap), not "not monetized"; guides tagged surface=guide.
+node scripts/test-primary-cta-gap.mjs
