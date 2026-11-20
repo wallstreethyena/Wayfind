@@ -3,6 +3,7 @@
 import { useState } from "react";
 import GuidePhoto from "./GuidePhoto.js";
 import PhotoCreditLink from "./PhotoCreditLink.js";
+import SoldOutStamp, { SOLD_OUT_STAMP_CSS } from "./SoldOutStamp.js";
 import { emitCommerce, mintClickId } from "../../lib/commerce.js";
 import { planRowOrganizerClick } from "../../lib/partnerClick.js";
 import { secondaryTicketPrimaryMatches } from "../../lib/secondaryTicketPrimary.js";
@@ -79,7 +80,7 @@ export const XM_CARD_CSS = `
 .xm-actions>button[aria-pressed="true"] svg{color:#C0102A}
 .xm-actions>button:focus-visible,.xm-card button:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 .xm-card a:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
-`;
+${SOLD_OUT_STAMP_CSS}`;
 
 const SURFACE = "christmas_tickets";
 
@@ -116,6 +117,7 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
           <svg aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M24 5l4.5 14.5L43 24l-14.5 4.5L24 43l-4.5-14.5L5 24l14.5-4.5L24 5Z"/><path d="M39 5v8m-4-4h8M8 36v7m-3-3.5h6"/></svg>
           <b>{tile.label}</b>
         </div>
+        {row.price && row.price.soldOut ? <SoldOutStamp id={"xm-so-" + row.id} /> : null}
       </div>
     );
   }
@@ -145,6 +147,7 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
           </div>
         ))}
       </div>
+      {row.price && row.price.soldOut ? <SoldOutStamp id={"xm-so-" + row.id} /> : null}
       {photos.length > 1 ? (
         <div className="xm-dots" aria-hidden="true">
           {photos.map((photo, i) => <i key={photo.src} className={i === active ? "is-on" : ""} />)}

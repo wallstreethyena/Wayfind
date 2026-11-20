@@ -349,6 +349,7 @@ export default async function CuratedEventPage({ params }) {
       <EventSectionNav />
       <EventHeroPhotoProvider src={heroSrc}>
       <EventDetailShell
+        soldOut={soldOut}
         title={eventTitleWithYear(e.event_name, e.year)}
         facts={[
           { label: "When", value: `${datesLabel}${dateYearSuffix}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },
