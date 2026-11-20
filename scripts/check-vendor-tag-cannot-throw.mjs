@@ -140,7 +140,7 @@ for (const src of loaders) {
 const metaSnippets = [...META.matchAll(/\{`([^`]*)`\}/g)].map((m) => m[1]).filter((src) => src.includes("connect.facebook.net"));
 ok(metaSnippets.length === 1, "Meta: exactly one production pixel initializer was found");
 const metaSource = metaSnippets[0]?.replaceAll("${id}", "fixture-pixel");
-function runMeta(src, { scripts = 0, noHead = false, noRoot = false, headThrows = false, preexisting = false, twice = false } = {}) {
+function runMeta(src, { scripts = 0, noHead = false, noRoot = false, headThrows = false, preexisting = false, twice = false, host = "www.gowayfind.com" } = {}) {
   const appended = [];
   const existingCalls = [];
   const window = preexisting ? { fbq: (...args) => existingCalls.push(args) } : {};
@@ -151,7 +151,7 @@ function runMeta(src, { scripts = 0, noHead = false, noRoot = false, headThrows 
     head: noHead ? null : target,
     documentElement: noRoot ? null : target,
   };
-  const globals = { window, document };
+  const globals = { window, document, location: { hostname: host } };
   Object.defineProperty(globals, "fbq", { get: () => window.fbq });
   const ctx = vm.createContext(globals);
   let error = null;
@@ -177,6 +177,11 @@ if (metaSource) {
     ok(!result.error && result.appended.length === 0, `Meta: ${label} cannot throw into the page`);
   }
   ok(runMeta(metaSource, { twice: true }).appended.length === 1, "Meta: repeat initialization never inserts another script");
+  // Host gate (2026-11-20): previews and localhost never load the pixel or queue events.
+  for (const host of ["wayfind-abc123-wayfind2.vercel.app", "localhost", "127.0.0.1", ""]) {
+    const off = runMeta(metaSource, { host });
+    ok(!off.error && off.appended.length === 0 && off.calls.length === 0, `Meta: host ${JSON.stringify(host)} loads nothing and sends nothing`);
+  }
   const existing = runMeta(metaSource, { preexisting: true });
   ok(!existing.error && existing.appended.length === 0 && existing.calls.length === 2, "Meta: existing SDK still receives the two original calls without reinjection");
   const oldLoader = "var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(document.createElement('script'),s);";
