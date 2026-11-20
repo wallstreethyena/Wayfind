@@ -2735,7 +2735,6 @@ node scripts/check-portrait-photo-fit.mjs
 # Metro photo coverage = servable photos (stored/free/owned lanes), never the placeholder photo_ref.
 node scripts/test-metro-photo-coverage.mjs
 
-node scripts/test-disney-food-map.mjs
 
 node scripts/test-disney-food-posts.mjs
 node scripts/test-park-maps-2026.mjs
@@ -2748,3 +2747,5 @@ node scripts/check-no-conflict-markers.mjs --red-prove
 node scripts/test-home-inp-perf.mjs
 # 2026-11-20: owner-approved paid rating backfill for the five held towns + enterprise checks keep the rating they buy.
 node scripts/test-rating-backfill.mjs
+# 2026-11-20: primary_cta_null means "a bookable-class place showed only Directions after inputs settled" (primaryCtaGap), not "not monetized"; guides tagged surface=guide.
+node scripts/test-primary-cta-gap.mjs

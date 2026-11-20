@@ -140,7 +140,7 @@ ok(POST_HREF.test('<a href="https://www.instagram.com/reel/ABC/">') && POST_HREF
 const action = strip(read("app/components/CreatorVideoAction.js"));
 ok(!NEW_TAB.test(action) && !/<a[\s>]/.test(action), "the watch action never links out (no new-tab or anchor)");
 ok(/if \(!isEmbeddable\(platform, safeUrl\(url\)\)\) return null;/.test(action), "a post that cannot play here gets no watch button");
-const surfaces = ["app/christmas-in-florida/page.js", "app/florida-events/[slug]/page.js", "app/components/sheets/SocialFind.js", "app/components/CreatorMapPanel.js", "app/components/VideoFacade.js", "app/components/CreatorVideoPlayer.js", "app/components/CreatorCoverFacade.js"];
+const surfaces = ["app/components/CreatorPostRail.js", "app/components/CheckedCreatorPost.js", "app/christmas-in-florida/page.js", "app/florida-events/[slug]/page.js", "app/components/sheets/SocialFind.js", "app/components/CreatorMapPanel.js", "app/components/VideoFacade.js", "app/components/CreatorVideoPlayer.js", "app/components/CreatorCoverFacade.js"];
 for (const f of surfaces) {
   const src = strip(read(f));
   ok(!POST_LINK.test(src) && !POST_HREF.test(src), `${f}: no link sends a visitor to the creator post itself`);
@@ -151,16 +151,21 @@ for (const f of surfaces) {
 // Native attributed embeds replace the earlier cover-only contract. No media is copied.
 {
   const stop = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodStop.js"));
-  const post = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodPost.js"));
-  ok(/stop\.posts\.filter\(\(post\) => isEmbeddable\("instagram", post\.url\)\)\.map\(/.test(stop) && /<FoodPost\b/.test(stop), "every food source that plays here renders independently of a park inventory row");
+  const rail = strip(read("app/components/CreatorPostRail.js"));
+  const post = strip(read("app/components/CheckedCreatorPost.js"));
+  ok(/<CreatorPostRail\b[^>]*posts=\{stop\.posts\.map\(/.test(stop), "every food source renders independently of a park inventory row, in the shared creator rail");
+  ok(/posts\.filter\(\(post\) => isEmbeddable\("instagram", post\.url\)\)/.test(rail), "the shared creator rail shows only posts that play inside Wayfind");
+  ok(/<CreatorVideoRail\b/.test(rail), "guide creator posts use the site's horizontal creator rail");
   ok(!/placeId\s*\?\s*stop\.posts/.test(stop), "California sources are not dropped by the old Florida-place-id gate");
-  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=/.test(stop + post), "food media has no substituted park photo, generated illustration or unlicensed cover");
+  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=|<img\b/.test(stop + rail + post), "food media has no substituted park photo, generated illustration or unlicensed cover");
+  ok(!/<a[\s>]/.test(rail + post), "the guide creator rail never links out to Instagram");
   ok(/<CreatorVideoPlayer\b/.test(post), "food posts use the shared native in-page player");
-  ok(/IntersectionObserver/.test(post) && /entry\.isIntersecting/.test(post), "hidden parks do not immediately load all provider players");
-  ok(/Instagram controls playback/.test(post), "provider-controlled playback is disclosed, never promised");
-  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, CALIFORNIA_BONUS } = await import("../lib/guidesDisneyHolidayFood2026.js");
-  const posts = [...DISNEY_FOOD_STOPS, CALIFORNIA_BONUS].flatMap((s) => s.posts);
-  ok(posts.length === 9 && new Set(posts.map((p) => p.url)).size === 9, "all nine distinct food posts are retained");
+  ok(/useState\("idle"\)/.test(post) && /\{started \?/.test(post) && !/IntersectionObserver/.test(post), "no provider player loads until the reader taps");
+  ok(/Instagram controls playback/.test(rail), "provider-controlled playback is disclosed, never promised");
+  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, CALIFORNIA_BONUS, EPCOT_FESTIVAL } = await import("../lib/guidesDisneyHolidayFood2026.js");
+  const posts = [...DISNEY_FOOD_STOPS, CALIFORNIA_BONUS].flatMap((s) => s.posts).concat(EPCOT_FESTIVAL.post);
+  ok(posts.length === 10 && new Set(posts.map((p) => p.url)).size === 10, "all nine food posts and the festival post are retained");
+  ok(EPCOT_FESTIVAL.post.url === "https://www.instagram.com/p/DfpbdQwG23q/" && EPCOT_FESTIVAL.post.creator === "disneyfoodblog" && embedSrc("instagram", EPCOT_FESTIVAL.post.url), "the owner-requested festival post is credited and plays inside Wayfind");
   ok(posts.every((p) => p.creator && (embedSrc("instagram", p.url) || recordedHandoff("instagram", p.url))), "every food source has attribution and either plays here or is a recorded handoff the page hides");
   ok(posts.some((p) => embedSrc("instagram", p.url)), "at least one food post still plays inside Wayfind");
   ok(CALIFORNIA_BONUS.posts.some((p) => p.url === "https://www.instagram.com/reel/DfdaTVttmvV/"), "California Hawaiian rolls Reel is retained");

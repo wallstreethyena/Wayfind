@@ -1,18 +1,14 @@
 import locations from "../../../lib/disneyChristmasFoodLocations2026.json";
-import FoodPost from "./FoodPost";
-import { isEmbeddable } from "../../../lib/videoEmbed";
+import CreatorPostRail from "../../components/CreatorPostRail";
 import styles from "./page.module.css";
 
 export default function FoodStop({ stop }) {
   const point = locations[stop.id];
   return <section id={stop.id} tabIndex={-1} className={styles.stop} aria-labelledby={stop.id + "-heading"}>
     <p className={styles.kicker}>{stop.venue}</p>
-    <h2 id={stop.id + "-heading"}>{stop.title}</h2>
+    <h3 id={stop.id + "-heading"}>{stop.title}</h3>
     <p className={styles.summary}>{stop.summary}</p>
-    {/* Owner 2026-11-20: only posts that play inside Wayfind are shown. */}
-    <div className={styles.foodMedia}>{stop.posts.filter((post) => isEmbeddable("instagram", post.url)).map((post) =>
-      <FoodPost key={post.url} post={post} />
-    )}</div>
+    <CreatorPostRail posts={stop.posts.map((post) => ({ ...post, coverTitle: post.coverTitle || stop.title }))} label={"creator posts about " + stop.title} kicker={stop.venue} headingLevel={4} />
     <dl className={styles.stopFacts}>
       <div><dt>Find it</dt><dd>{stop.location}</dd></div>
       <div><dt>Reported price</dt><dd><strong>{stop.postedPrice}</strong> · {stop.priceDetail}</dd></div>
@@ -26,7 +22,7 @@ export default function FoodStop({ stop }) {
       {point && <a href={"https://maps.apple.com/?ll=" + point.lat + "," + point.lng + "&q=" + encodeURIComponent(point.label)} target="_blank" rel="noopener noreferrer">Open {point.label} in Maps ↗</a>}
       {stop.source && <a href={stop.source} target="_blank" rel="noopener noreferrer">Food and availability source ↗</a>}
       {stop.placeHref && <a href={stop.placeHref}>Open place card</a>}
-      <a href="#disney-food-map">Choose another park ↑</a>
+      <a href="#disney-food-map">Back to the food map ↑</a>
     </div>
   </section>;
 }
