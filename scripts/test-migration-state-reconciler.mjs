@@ -149,7 +149,14 @@ ok(
     env: {},
   });
   ok(offlineReport.allEntries.length >= 130, "workspace reconciler scans all repo + held migrations");
-  ok(offlineReport.countsByState.BLOCKED >= 3, "counsel-held and owner-held migrations remain BLOCKED");
+  // 2026-11-20: the owner released the #1627 Command Center KPI hold (superseded by
+  // 20261120140000_wf_cc_partner_clicks_commerce_mirror.sql), leaving the two #1809
+  // counsel-held migrations; they must stay BLOCKED.
+  for (const f of ["20261015180000", "20261015180100"]) {
+    const e = offlineReport.allEntries.find((x) => String(x.file || x.path || x.name || "").includes(f));
+    ok(e && e.status === "BLOCKED", `counsel-held ${f} remains BLOCKED (got ${e && e.status})`);
+  }
+  ok(offlineReport.countsByState.BLOCKED >= 2, "counsel-held migrations remain BLOCKED");
   ok(offlineReport.countsByState.PENDING_SAFE >= 4, "safe additive pending migrations identified");
 }
 
