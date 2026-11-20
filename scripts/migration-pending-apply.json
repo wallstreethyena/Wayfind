@@ -112,13 +112,6 @@
     "reason": "NOT APPLIED. New tables wf_booking_agent_runs, wf_booking_agent_events, wf_booking_agent_sites (RLS on, owner select on runs and events, service role writes, opentable seeded off). Additive. Unused until BOOKING_AGENT_ENABLED=1, BOOKING_AGENT_SITE_OPENTABLE=1 and the site row is on. Owner applies after review. Do not apply from this draft."
   },
   {
-    "file": "supabase/migrations/20261120140000_wf_cc_partner_clicks_commerce_mirror.sql",
-    "sha256": "29f221b01cb244889a9fd302f289f05675b8a6fddd6019c61613db7da404387c",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2662 (supersedes #1627)",
-    "reason": "Command Center partner clicks: counts the canonical commerce_cta_clicked mirror row (every booking button since 2026-10-26 22:45:35 UTC) and gates the legacy out actions to rows before it, so the owner briefing stops reporting 0 partner clicks (2026-11-19: 22 real clicks from 20 devices). Read-time only; supersedes held #1627. Owner released 2026-11-20 (\"Fix the report\"). Applied through the canonical path right after merge."
-  },
-  {
     "file": "supabase/migrations/20261117120000_wf_reserve_phone.sql",
     "sha256": "45a0d9ab8f1ff5da9fbf44d64e89803211afa9e3706504d459afff58d94911ce",
     "decision_owner": "wallstreethyena",

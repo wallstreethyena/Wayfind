@@ -63,6 +63,7 @@ export default function UniversalHolidayMap() {
       pagePath="/guides/universal-orlando-christmas-2026"
       note="Illustrated guide, approximate layout. Use the official resort maps for walking directions."
       railIdPrefix="universal-map"
+      filterForHash={(hash) => byTarget[hash]?.park || null}
       renderMap={({ active, visible, selectedId, onSelect }) => <IllustratedParkMap
         key={active}
         image={parkMapImage(UNIVERSAL_VIEW_MAPS[active])}
