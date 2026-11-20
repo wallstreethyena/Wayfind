@@ -20,11 +20,13 @@ import { createClient } from "@supabase/supabase-js";
 import { repairAffiliateUrl, hasCjPid } from "../../../../lib/deals.js";
 import { probeMerchant, trackedDeal, healthPatch, destinationHealth } from "../../../../lib/dealHealth.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
+import { recordPulse } from "../../../../lib/jobPulse.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+const JOB = "deals-health";
 const PARALLEL = 4;
 const FAIL_THRESHOLD = 2; // consecutive fails before we pull a deal (transient-blip tolerant)
 
@@ -44,7 +46,7 @@ export async function GET(req) {
   }
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
-  if (!url || !svc) return jobCannotRun("deals-health", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
+  if (!url || !svc) return jobCannotRun(JOB, "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   const db = createClient(url, svc, { auth: { persistSession: false } });
 
   const job = new URL(req.url).searchParams.get("job") || "all";
@@ -54,9 +56,17 @@ export async function GET(req) {
   if (job === "all" || job === "expiry") {
     const { data, error: expiryError } = await db.from("wf_deals").update({ active: false })
       .lte("ends_at", new Date().toISOString()).eq("active", true).select("id");
-    if (expiryError) return jobFailed("deals-health", "expiry update failed");
+    if (expiryError) return jobFailed(JOB, "expiry update failed");
     expired = Array.isArray(data) ? data.length : 0;
-    if (job === "expiry") return Response.json({ ok: true, job, expired }, { headers: { "Cache-Control": "no-store" } });
+    if (job === "expiry") {
+      await recordPulse(JOB, {
+        attempted: expired,
+        succeeded: expired,
+        failed: 0,
+        note: expired ? `expired ${expired} deal(s)` : "idle: no deals past ends_at",
+      });
+      return Response.json({ ok: true, job, expired }, { headers: { "Cache-Control": "no-store" } });
+    }
   }
 
   // (B) LINK-HEALTH — read the BASE table, not wf_deals_needs_check: that view
@@ -69,7 +79,7 @@ export async function GET(req) {
   const { data: all, error } = await db.from("wf_deals")
     .select("id, affiliate_url, dest_url, fail_count, link_ok, http_status, last_checked_at, ends_at")
     .eq("active", true);
-  if (error) return jobFailed("deals-health", "deals read failed", { expired });
+  if (error) return jobFailed(JOB, "deals read failed", { expired });
   const nowMs = Date.now();
   const rows = (all || []).filter((r) =>
     (r.link_ok === true && [403, 429].includes(r.http_status)) ||
@@ -103,6 +113,18 @@ export async function GET(req) {
     else { stats.failed++; if (patch.fail_count >= FAIL_THRESHOLD) stats.pulled++; }
   });
 
-  if (stats.write_errors || stats.untracked_skipped) return jobFailed("deals-health", "link validation or persistence failed", { expired, ...stats });
+  if (stats.write_errors || stats.untracked_skipped) return jobFailed(JOB, "link validation or persistence failed", { expired, ...stats });
+  await recordPulse(JOB, {
+    attempted: stats.checked,
+    succeeded: stats.ok + stats.repaired,
+    failed: stats.failed,
+    note: stats.checked === 0
+      ? (expired ? `expired ${expired} deal(s); no stale links` : "idle: all active deals fresh")
+      : stats.pulled
+      ? `${stats.pulled} deal(s) pulled; ${stats.unknown} blocked/unknown`
+      : stats.unknown
+      ? `${stats.unknown} blocked/unknown destination(s)`
+      : null,
+  });
   return Response.json({ ok: true, job, expired, ...stats, commission: "unknown" }, { headers: { "Cache-Control": "no-store" } });
 }

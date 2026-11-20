@@ -253,7 +253,6 @@ function scheduledRouteFiles() {
 
 // ── grandfathered pre-existing gaps (dated, reasoned — see header) ─────────
 const KNOWN_UNPULSED = {
-  "app/api/cron/deals-health/route.js": "2026-09-09, verify-offers pulse-visibility fix: same silent-success shape (jobCannotRun/jobFailed cover its error paths, but both success returns — the expiry-only early return and the final link-health return — never call recordPulse). Tracked, not fixed here.",
   "app/api/cron/route.js": "Pre-existing: the daily owner-briefing route never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/atlas-build/route.js": "Pre-existing false positive of THIS scanner, verified by hand: its `pulse(opts)` local helper (route.js:341-344) wraps recordPulse(\"atlas-refresh\"|\"atlas-retry\"|\"atlas-build\", opts) under a name this scanner does not special-case — scripts/test-job-pulse.mjs already locks real pulse coverage for this route by name. A handful of early gate/selector-unreachable returns above that helper are a separate, smaller pre-existing gap.",
   "app/api/cron/beach-water/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
@@ -355,22 +354,22 @@ const KNOWN_UNPULSED = {
 // ── prove the scanner still finds the real, currently-open gaps ───────────
 // (so KNOWN_UNPULSED cannot rot into hiding a checker that stopped working)
 {
-  for (const rel of ["app/api/cron/deals-health/route.js"]) {
+  for (const rel of ["app/api/cron/route.js"]) {
     const src = readFileSync(path.join(REPO, rel), "utf8");
     const res = analyzeRoute(src);
     ok(!res.error && res.violations.length > 0,
-      `${rel}: expected this scanner to still find an open violation here (it is the tracked, not-yet-fixed cousin of the verify-offers incident) — got ${res.error || "0 violations"}. Either it was fixed for real (remove its KNOWN_UNPULSED entry) or this scanner regressed.`);
+      `${rel}: expected this scanner to still find an open violation here — got ${res.error || "0 violations"}. Either it was fixed for real (remove its KNOWN_UNPULSED entry) or this scanner regressed.`);
   }
 }
 
-// ── prove verify-offers is now clean ───────────────────────────────────────
-{
-  const src = readFileSync(path.join(REPO, "app/api/cron/verify-offers/route.js"), "utf8");
+// ── prove verify-offers and deals-health are now clean ─────────────────────
+for (const rel of ["app/api/cron/verify-offers/route.js", "app/api/cron/deals-health/route.js"]) {
+  const src = readFileSync(path.join(REPO, rel), "utf8");
   const res = analyzeRoute(src);
-  ok(!res.error, "app/api/cron/verify-offers/route.js: GET handler not found — this scanner has lost its subject");
-  ok(res.returnCount >= 4, `app/api/cron/verify-offers/route.js: expected several terminal returns (401 gate, jobCannotRun, jobFailed, idle, success) — got ${res.returnCount}, this scanner may have lost its subject`);
+  ok(!res.error, `${rel}: GET handler not found — this scanner has lost its subject`);
+  ok(res.returnCount >= 4, `${rel}: expected several terminal returns (401 gate, jobCannotRun, jobFailed, idle/expiry, success) — got ${res.returnCount}, this scanner may have lost its subject`);
   ok(res.violations.length === 0,
-    `app/api/cron/verify-offers/route.js: expected zero unpulsed terminal paths after the 2026-09-09 fix, found ${res.violations.length}: ${JSON.stringify(res.violations)}`);
+    `${rel}: expected zero unpulsed terminal paths, found ${res.violations.length}: ${JSON.stringify(res.violations)}`);
 }
 
 // ── the real run ─────────────────────────────────────────────────────────
