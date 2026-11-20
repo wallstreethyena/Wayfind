@@ -261,7 +261,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     </div>
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
-      <span className="xm-sort-note">{ticketsFirst ? "Tickets first" : located ? "Top rated near you" : "Top rated and trending"}</span>
+      <span className="xm-sort-note">{ticketsFirst ? "Book online first, then tickets" : located ? "Book online first, then top rated near you" : "Book online first, then top rated and trending"}</span>
       <button type="button" className="xm-map-toggle" data-promoted={lightsView ? "" : undefined} aria-expanded={mapOpen} aria-controls="xm-map-panel" onClick={() => setMapOpen((v) => !v)}>
         {mapOpen ? "Hide the map" : lightsView ? "See the lights on a map" : "Map"}
       </button>
