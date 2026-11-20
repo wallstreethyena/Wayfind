@@ -136,7 +136,9 @@ for (const handle of slugs) {
   ok(/aria-label="[^"]* posts"[^>]*role="region"|role="region"[^>]*aria-label="[^"]* posts"/.test(markup) || /Swipe to find your next stop/.test(markup), `${handle}: cards sit in the swipe rail`);
   if (handle === "cindy.selects") ok(markup.includes("THE CINDY SELECTS EDIT"), "Cindy keeps her own label");
   else {
-    ok(markup.includes(`THE @${handle} EDIT`), `${handle}: cards carry the creator's own label`);
+    // Owner 2026-11-20: a post Instagram only links out for has no video tile, so a page
+    // whose posts are all handoffs has no tile to carry the label.
+    ok(expected === 0 || markup.includes(`THE @${handle} EDIT`), `${handle}: cards carry the creator's own label`);
     ok(!markup.includes("THE CINDY SELECTS EDIT") && !markup.includes("cindy-selects-portrait"), `${handle}: never Cindy's label or photo on another creator's page`);
   }
 }

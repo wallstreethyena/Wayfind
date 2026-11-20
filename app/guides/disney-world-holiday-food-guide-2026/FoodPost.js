@@ -64,7 +64,7 @@ export default function FoodPost({ post }) {
     <figcaption className={styles.foodPostCaption}>
       <span>{post.kind === "carousel" ? "Food photos" : "Food reel"}</span>
       <strong>{post.coverTitle || post.label}</strong>
-      <a href={post.url} target="_blank" rel="noopener noreferrer">@{post.creator} · Original post ↗</a>
+      <span data-food-post-credit="">@{post.creator} · Original post</span>
     </figcaption>
     {visible ? <div className={styles.foodPostShell}>
       <div className={styles.foodPostPlayer} aria-hidden={hidden ? true : undefined} inert={hidden ? "" : undefined}>
@@ -72,13 +72,11 @@ export default function FoodPost({ post }) {
       </div>
       {state === "ready" ? <button type="button" className={styles.foodPostReload} onClick={retry}>Reload post</button> : null}
       {state === "loading" ? <div className={styles.foodPostLoading} role="status">
-        <p>Loading the {kind} from Instagram…</p>
-        <a ref={loadingLink} href={post.url} target="_blank" rel="noopener noreferrer">Watch on Instagram ↗</a>
+        <p ref={loadingLink} tabIndex={-1}>Loading the {kind} from @{post.creator}…</p>
       </div> : null}
       {state === "unavailable" ? <div className={styles.foodPostCard} role="status">
-        <p><strong>The post didn’t load here.</strong> Instagram may block embeds on some browsers and networks. The {kind} is still on @{post.creator}’s post.</p>
+        <p><strong>The post didn’t load here.</strong> Your browser or network may be blocking it. Try again in a moment.</p>
         <div>
-          <a href={post.url} target="_blank" rel="noopener noreferrer">Watch on Instagram ↗</a>
           <button type="button" onClick={retry}>Try again</button>
         </div>
       </div> : null}

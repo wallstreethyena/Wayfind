@@ -245,6 +245,8 @@ const MODULES = {
   PortraitAwareImg: "app/components/PortraitAwareImg.js", portraitPhoto: "lib/portraitPhoto.js",
   EventPhotoRailControls: "app/components/EventPhotoRailControls.js", PhotoRailIndicators: "app/components/PhotoRailIndicators.js", PhotoLightbox: "app/components/PhotoLightbox.js",
   PhotoCreditLink: "app/components/PhotoCreditLink.js", PhotoFallbackTile: "app/components/PhotoFallbackTile.js",
+  // The shell draws a SOLD OUT stamp over sold out events (2026-11-20).
+  SoldOutStamp: "app/components/SoldOutStamp.js",
   EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js", CardPhoto: "app/components/CardPhoto.js", cardPhotoRecovery: "app/components/cardPhotoRecovery.js",
 };
 // lib/track (analytics) is stubbed: this harness proves photo rendering, and the

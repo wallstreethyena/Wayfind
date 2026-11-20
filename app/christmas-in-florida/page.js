@@ -61,7 +61,10 @@ const SOCIAL_LINK = { display: "block", color: "#efd0a6", fontSize: 14, fontWeig
 
 // Cover: the hand-picked poster when one exists, else our own credited photo of
 // the same place (lib/creatorCovers.js), so no tile is a blank box (owner, 2026-11-18).
-function ChristmasCreatorPosts({ posts, covers = {} }) {
+function ChristmasCreatorPosts({ posts: allPosts, covers = {} }) {
+  // Owner 2026-11-20: every creator post plays inside Wayfind. A post Instagram
+  // will not play here (it only links out) is left off the rail entirely.
+  const posts = (allPosts || []).filter((post) => isEmbeddable(post.platform, post.url));
   if (!posts.length) return null;
   const coverOf = (post) => christmasCreatorPoster(post.key) || covers[post.placeId] || null;
   const details = (post) => <>

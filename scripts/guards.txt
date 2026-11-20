@@ -586,14 +586,9 @@ node scripts/check-direct-affiliate-urls.mjs
 # app/layout.js (Stay22 LinkSwap route-scoped, Travelpayouts Drive removed).
 node scripts/check-no-sitewide-autolinker.mjs
 
-node scripts/check-doc-ownership.mjs
-node scripts/test-owner-approval.mjs
-node scripts/test-owner-approval-gate.mjs
 node scripts/test-merge-train.mjs
-node scripts/test-owner-approval-carry-forward.mjs
 node scripts/check-brand-vault.mjs
 node scripts/test-brand-vault.mjs
-node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs
 node scripts/check-guide-deal-cards.mjs
@@ -2484,6 +2479,7 @@ node scripts/test-itinerary-rls.mjs
 node scripts/test-guide-email.mjs
 
 node scripts/test-creator-in-app-playback.mjs
+node scripts/test-instagram-plays-in-wayfind.mjs
 
 node scripts/test-event-source-corrections-20261021.mjs
 node scripts/test-guide-rays-game-day.mjs

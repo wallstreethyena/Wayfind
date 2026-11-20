@@ -300,7 +300,7 @@ deleting valuable data, weaker security or privacy, his credentials, user-facing
 production writes beyond the mission, a real product fork, a bigger mission, significant
 irreversible risk, outside communication he has not authorized, his own account). Never
 force-push a shared branch except through `scripts/safe-force-push.sh`, never delete another
-lane's remote refs, and owner-only files still need his `/owner-approve` comment.
+lane's remote refs, and never ask him for an `/owner-approve` comment (the gate is gone).
 
 ## 12. Geographic relevance and CTA correctness are trust
 

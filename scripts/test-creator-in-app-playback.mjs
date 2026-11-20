@@ -108,7 +108,7 @@ primary.props.onClick({}); nodes(action(props)).find(n => n.type === "dialog").p
 assert.equal(nodes(action(props)).filter(n => n.type === PlayerStub).length, 0, "Escape unmounts player");
 for (const [platform, url, expected] of [
   ["instagram", props.url, "https://www.instagram.com/reel/De-lBfCIBGZ/embed/"],
-  ["instagram", "https://www.instagram.com/p/flyer/", "https://www.instagram.com/p/flyer/embed/"],
+  ["instagram", "https://www.instagram.com/p/DfutR5Fmrxt/", "https://www.instagram.com/p/DfutR5Fmrxt/embed/"],
   ["tiktok", "https://www.tiktok.com/@creator/video/6718335390845095173", "https://www.tiktok.com/player/v1/6718335390845095173"],
   ["youtube", "https://youtu.be/abcdefghijk", "https://www.youtube-nocookie.com/embed/abcdefghijk"],
 ]) {
@@ -124,14 +124,16 @@ for (const [platform, url, expected] of [
   assert.ok(nodes(player({ platform, url, label: "Fixture" })).some(n => n.type === "iframe"), "retry restores official player");
 }
 const unavailable = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": { embedSrc } });
+// Owner 2026-11-20: a reel Instagram only links out for never mounts a player (its iframe is the door to Instagram).
+assert.ok(!nodes(unavailable({ platform: "instagram", url: "https://www.instagram.com/reel/DfN3Hxph0jD/", label: "Handoff" })).some(n => n.type === "iframe" || n.type === "a"), "Instagram handoff reel stays in app without redirect");
 assert.ok(!nodes(unavailable({ platform: "facebook", url: "https://www.facebook.com/share/r/test/", label: "Unavailable" })).some(n => n.type === "iframe" || n.type === "a"), "unsupported post stays in app without redirect");
 // Exercise the real cover across every supported video URL format and layout.
 // A loaded iframe is intentionally absent until a reader activates the cover.
 for (const [platform, url, video] of [
   ["instagram", props.url, true],
-  ["instagram", "https://www.instagram.com/reels/test/", true],
-  ["instagram", "https://www.instagram.com/tv/test/", true],
-  ["instagram", "https://www.instagram.com/p/flyer/", false],
+  ["instagram", "https://www.instagram.com/reels/Dc50nKNB9pJ/", true],
+  ["instagram", "https://www.instagram.com/tv/Dc50nKNB9pJ/", true],
+  ["instagram", "https://www.instagram.com/p/DfutR5Fmrxt/", false],
   ["tiktok", "https://www.tiktok.com/@creator/video/6718335390845095173", true],
   ["youtube", "https://youtu.be/abcdefghijk", true],
 ]) for (const premium of [false, true]) {
