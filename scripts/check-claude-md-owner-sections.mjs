@@ -3,9 +3,8 @@
 // check-claude-md-owner-sections — owner instructions in CLAUDE.md cannot be
 // silently dropped (owner directive, 2026-11-12).
 //
-// CLAUDE.md left the owner-only list on 2026-11-14 (PR #2491). AGENTS.md,
-// .github/** and the gate scripts still need an "/owner-approve <head sha>"
-// comment. This guard pins what must stay in the rules text, so an edit cannot
+// CLAUDE.md left the owner-only list on 2026-11-14 (PR #2491), and the owner
+// comment gate was removed entirely on 2026-11-18. This guard pins what must stay in the rules text, so an edit cannot
 // quietly drop a rule:
 //   - the GABRIEL EXECUTION AUTONOMY section (the owner operating mode),
 //     exactly once, with its manual action format, its ten hard stops, its
@@ -43,7 +42,7 @@ export const SAFETY_SENTENCES = [
   "**Never weaken `geoConfirms()`**",
   "**Never weaken the beach exclusion**",
   "**Deterministic provider failures (billing/quota) never retry.**",
-  "**Merges are owner-gated.**",
+  "ships as a normal PR with green guards, then squash-merge.",
   "Full `npm run prebuild` green before commit.",
   "Never commit, stash,",
   "**Force-push only as a pinned compare-and-swap**",
@@ -55,7 +54,7 @@ const AUTONOMY_CLAUSES = [
   "**A tool confirmation dialog is not a new decision.**",
   "Never bypass, imitate or work around a denied action or a platform safety gate",
   "This section never relaxes any other rule in this file",
-  "`/owner-approve <head sha>`",
+  "There is no owner comment gate",
   "**Blocked does not mean stop.**",
   "**No implementation diary.**",
   "**Completion standard.**",
@@ -110,7 +109,7 @@ const AGENTS_11_CLAUSES = [
   "Outside an owner-approved mission, confirm with the owner first",
   'CLAUDE.md "GABRIEL EXECUTION AUTONOMY"',
   "Still ask first, even inside a mission",
-  "owner-only files still need his `/owner-approve` comment",
+  "never ask him for an `/owner-approve` comment",
 ];
 export function evaluateAgents(text) {
   const errors = [];
@@ -153,7 +152,7 @@ mutate("no-bypass clause removed", "Never bypass, imitate or work around a denie
 mutate("relaxes-nothing clause removed", "This section never relaxes any other rule in this file", "This section overrides");
 mutate("manual action format removed", "MANUAL ACTION REQUIRED", "Say go");
 mutate("booking safety section removed", sectionBody(real, "## Booking integrity") || "\u0000", "");
-mutate("owner-gated merges removed", "**Merges are owner-gated.**", "Merge freely.");
+mutate("green-guards merge rule removed", "ships as a normal PR with green guards, then squash-merge.", "merges whenever.");
 mutate("autonomy section duplicated", autonomy, autonomy + autonomy);
 
 if (fail.length) {

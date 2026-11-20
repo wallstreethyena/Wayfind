@@ -5,15 +5,15 @@
 # each kept their own pull request current raced forever. GitHub's merge queue
 # is not offered for personal-account repositories, so this workflow does the
 # same job from main: one queued pull request (auto-merge on) at a time is
-# brought up to date, tested ("guards" dispatched on its branch, "owner-approval"
-# judged by main's rule) and merged by auto-merge; then the next.
+# brought up to date, tested ("guards" dispatched on its branch) and merged by
+# auto-merge; then the next.
 # Logic and tests: scripts/lib/mergeTrain.mjs, scripts/merge-train.mjs,
 # scripts/test-merge-train.mjs. To pause the train: disable this workflow.
 #
 # SECURITY: every trigger here runs main's copy of this file and of the scripts.
 # The job checks out main only (never a pull request), installs nothing, and
-# reads pull requests as API data. The write token updates branches, dispatches
-# guards and posts the owner-approval check; it never merges or pushes to main.
+# reads pull requests as API data. The write token updates branches and
+# dispatches guards; it never merges or pushes to main.
 name: merge-train
 on:
   push:
@@ -28,7 +28,6 @@ permissions:
   contents: write
   pull-requests: write
   actions: write
-  checks: write
 concurrency:
   group: merge-train
   cancel-in-progress: false

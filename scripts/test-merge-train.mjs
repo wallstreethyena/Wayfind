@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // test-merge-train — the merge train's queue decision and wiring (2026-11-13).
-// Owner approval across train updates is tested in test-owner-approval-v2.mjs. Hermetic: no network, no git.
+// Hermetic: no network, no git. The owner approval check was retired 2026-11-18.
 import { readFileSync } from "node:fs";
-import { planTrain, checkState } from "./lib/mergeTrain.mjs";
+import { planTrain, checkState, REQUIRED_CHECKS } from "./lib/mergeTrain.mjs";
 
 let checks = 0;
 const ok = (cond, msg) => { checks++; if (!cond) { console.error(`test-merge-train: FAIL — ${msg}`); process.exit(1); } };
@@ -18,18 +18,19 @@ ok(checkState(undefined) === "missing" && checkState(running) === "running" && c
 // --- the queue
 let p = planTrain([]);
 ok(p.type === "idle", "empty queue is idle");
-p = planTrain([{ number: 5, behindBy: 2, mergeable: true, checks: { guards: pass, "owner-approval": pass } }, { number: 7, behindBy: 1, mergeable: true, checks: {} }]);
+p = planTrain([{ number: 5, behindBy: 2, mergeable: true, checks: { guards: pass } }, { number: 7, behindBy: 1, mergeable: true, checks: {} }]);
 ok(p.type === "update" && p.number === 5, "oldest behind pull request is brought up to date first");
-p = planTrain([{ number: 5, behindBy: 2, mergeable: true, checks: {} }, { number: 7, behindBy: 0, mergeable: true, checks: { guards: running, "owner-approval": pass } }]);
+p = planTrain([{ number: 5, behindBy: 2, mergeable: true, checks: {} }, { number: 7, behindBy: 0, mergeable: true, checks: { guards: running } }]);
 ok(p.type === "wait" && p.number === 7 && p.need.length === 0, "a current car with checks running holds the line: nothing else is updated (no race)");
 p = planTrain([{ number: 7, behindBy: 0, mergeable: true, checks: { guards: cancelled } }]);
-ok(p.type === "wait" && p.need.includes("guards") && p.need.includes("owner-approval"), "a current car with no live guards run gets guards dispatched and owner approval evaluated");
-p = planTrain([{ number: 7, behindBy: 0, mergeable: true, checks: { guards: fail, "owner-approval": pass } }, { number: 9, behindBy: 3, mergeable: true, checks: {} }]);
+ok(p.type === "wait" && JSON.stringify(p.need) === '["guards"]', "a current car with no live guards run gets guards dispatched, and nothing else");
+p = planTrain([{ number: 7, behindBy: 0, mergeable: true, checks: { guards: fail } }, { number: 9, behindBy: 3, mergeable: true, checks: {} }]);
 ok(p.type === "update" && p.number === 9 && p.skipped.some((s) => s.number === 7), "a car whose guards failed on the merged result is stopped and leaves the queue; the next car moves");
 p = planTrain([{ number: 7, behindBy: 4, mergeable: true, checks: { guards: fail } }, { number: 9, behindBy: 3, mergeable: false, checks: {} }, { number: 11, behindBy: 1, mergeable: true, checks: {} }]);
 ok(p.type === "update" && p.number === 11 && p.skipped.length === 2, "failed and conflicting pull requests are skipped, not retried in a loop");
-p = planTrain([{ number: 7, behindBy: 0, mergeable: true, checks: { guards: pass, "owner-approval": fail } }, { number: 9, behindBy: 3, mergeable: true, checks: {} }]);
-ok(p.type === "update" && p.number === 9 && p.skipped.some((s) => s.number === 7 && s.recheck), "a car waiting for an owner approval is rechecked every pass but does not block the line");
+ok(JSON.stringify(REQUIRED_CHECKS) === '["guards"]', "guards is the only required check (owner approval retired 2026-11-18)");
+p = planTrain([{ number: 7, behindBy: 0, mergeable: true, checks: { guards: pass, "owner-approval": fail } }]);
+ok(p.type === "wait" && p.number === 7 && p.need.length === 0 && p.skipped.length === 0, "a stale owner-approval result never holds or skips a car with green guards");
 
 // --- wiring
 const wf = readFileSync(new URL("../.github/workflows/merge-train.yml", import.meta.url), "utf8");
@@ -38,7 +39,7 @@ ok(/cancel-in-progress: false/.test(wf) && /group: merge-train/.test(wf), "one t
 const runner = readFileSync(new URL("./merge-train.mjs", import.meta.url), "utf8");
 const guardsWf = readFileSync(new URL("../.github/workflows/guards.yml", import.meta.url), "utf8");
 ok(/inputs\.pr/.test(guardsWf) && /GITHUB_EVENT_NAME=pull_request/.test(guardsWf) && /github\.sha/.test(guardsWf), "a train-dispatched guards run judges its own commit as that pull request (synthetic pull_request payload)");
-ok(/GITHUB_EVENT_NAME: "pull_request_target"/.test(runner) && /check-owner-approval-pr\.mjs/.test(runner), "owner approval for a train-updated head is judged by main's own gate script, unchanged");
+ok(!/owner-approval|check-owner-approval-pr|\/check-runs"/.test(runner) && !/checks: write/.test(wf), "the train neither evaluates nor posts an owner-approval check, and has no checks-write permission");
 ok(!/\/merge["`]/.test(runner) && !/git push|checkout/.test(runner.replace(/never checks out/g, "")), "the train never merges or pushes itself; auto-merge merges");
 ok(/actions\/workflows\/guards\.yml\/runs\?head_sha=/.test(runner) && /"queued", "in_progress"/.test(runner), "a guards run that is queued or running for the car's commit counts as running (no double dispatch)");
 const guardsTxt = readFileSync(new URL("./guards.txt", import.meta.url), "utf8");
