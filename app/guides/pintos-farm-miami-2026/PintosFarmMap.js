@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import MapCategoryPin from "../../components/MapCategoryPin";
+import GuideMapExplorer from "../../components/GuideMapExplorer";
+import IllustratedParkMap from "../../components/IllustratedParkMap";
 import styles from "./page.module.css";
 
 // Owner decision 2026-09-22: ONE map on this page, an illustrated farm map
@@ -12,8 +12,10 @@ import styles from "./page.module.css";
 const FARM_MAP = {
   src: "/guides/pintos-farm-miami-2026/farm-map-illustrated-2000.webp",
   srcSet: "/guides/pintos-farm-miami-2026/farm-map-illustrated-1200.webp 1200w, /guides/pintos-farm-miami-2026/farm-map-illustrated-2000.webp 2000w",
+  sizes: "(max-width: 820px) 100vw, 60vw",
   width: 2000,
   height: 1247,
+  alt: "Illustrated map of Pinto's Farm: the parking lot by SW 216th St, the Brewhouse, the pond with its island, the barns and paddocks, the play lawn and the open field",
 };
 
 // Verified 2026-09-22 against Apple Maps: the street address and the Pinto's
@@ -36,8 +38,6 @@ const ZONES = [
   { id: "pumpkin-patch", name: "Pumpkin patch", family: "event", x: 17, y: 24.3, note: "The fall pumpkin patch sets up on the open field. Seasonal layouts change, so check the day's map at the entrance." }
 ];
 
-const DEFAULT_ZONE = ZONES.find((zone) => zone.id === "petting-zoo");
-
 const SEASONAL = [
   ["Corn maze", "Included with regular fall admission"],
   ["Bounce pad", "Included with regular fall admission"],
@@ -48,130 +48,36 @@ const SEASONAL = [
   ["Oktoberfest", "Oct 3, 4 PM to 9 PM, age 21+"]
 ];
 
+// Owner 2026-11-20: every guide map uses the ONE shared guide map card
+// (GuideMapExplorer): the illustrated farm map with its labeled pins inside,
+// zoom on the map, and the spots in the standard card rail beside it.
+const SPOTS = ZONES.map((zone) => ({ id: zone.id, name: zone.name, eyebrow: "Approximate spot", detail: zone.note, groups: ["farm"], photoFallbackCategory: "attractions", placeholder: { icon: "🌾", label: "Farm spot", tint: "linear-gradient(160deg,#4A2A10,#1E1207)" } }));
+const BY_ID = Object.fromEntries(ZONES.map((zone) => [zone.id, zone]));
+
 export default function PintosFarmMap() {
-  const [selectedId, setSelectedId] = useState(DEFAULT_ZONE.id);
-  const selected = useMemo(() => ZONES.find((zone) => zone.id === selectedId) || DEFAULT_ZONE, [selectedId]);
-  const scrollerRef = useRef(null);
-  const listRef = useRef(null);
-
-  // On narrow screens the map is wider than the screen and scrolls sideways.
-  // Bring the chosen pin to the middle of the map window with map-local
-  // scrolling only, so the page itself never jumps away from the map.
-  const centerOn = useCallback((zone, animate) => {
-    const scroller = scrollerRef.current;
-    if (!scroller || !zone) return;
-    const max = scroller.scrollWidth - scroller.clientWidth;
-    if (max <= 1) return;
-    const left = Math.min(max, Math.max(0, (zone.x / 100) * scroller.scrollWidth - scroller.clientWidth / 2));
-    let smooth = animate;
-    try { if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) smooth = false; } catch (e) {}
-    scroller.scrollTo({ left, behavior: smooth ? "smooth" : "auto" });
-  }, []);
-
-  useEffect(() => { centerOn(DEFAULT_ZONE, false); }, [centerOn]);
-
-  // On phones the spot list is a sideways rail above the map; keep the chosen
-  // spot's chip in view inside that rail, again without moving the page.
-  const revealChip = useCallback((zone) => {
-    const list = listRef.current;
-    const chip = list && zone ? list.querySelector('[data-zone="' + zone.id + '"]') : null;
-    if (!list || !chip || list.scrollWidth - list.clientWidth <= 1) return;
-    const left = chip.offsetLeft - (list.clientWidth - chip.offsetWidth) / 2;
-    list.scrollTo({ left: Math.max(0, left), behavior: "auto" });
-  }, []);
-
-  const choose = (zone) => {
-    setSelectedId(zone.id);
-    centerOn(zone, true);
-    revealChip(zone);
-  };
-
   return (
-    <section className={styles.mapSection} aria-labelledby="farm-map-title">
-      <div className={styles.mapHeading}>
-        <div>
-          <p className={styles.kicker}>Plan the farm</p>
-          <h2 id="farm-map-title">Pinto's Farm map</h2>
-          <p>Where everything is, from the parking lot to the petting zoo. Pick a spot to see what is there.</p>
-        </div>
-        <div className={styles.mapProof}>
-          <span>Illustrated map</span>
-          <span>Not to scale</span>
-          <span>Seasonal zones can move</span>
-        </div>
-      </div>
-
-      <div className={styles.farmBoard}>
-        <div className={styles.farmMapFrame}>
-          <div ref={scrollerRef} className={styles.farmMapScroller}>
-            <div className={styles.farmMapCanvas}>
-              <img
-                data-guide-map-canvas
-                src={FARM_MAP.src}
-                srcSet={FARM_MAP.srcSet}
-                sizes="(max-width: 520px) 190vw, (max-width: 700px) 150vw, (max-width: 850px) 100vw, 780px"
-                width={FARM_MAP.width}
-                height={FARM_MAP.height}
-                alt="Illustrated map of Pinto's Farm: the parking lot by SW 216th St, the Brewhouse, the pond with its island, the barns and paddocks, the play lawn and the open field"
-                loading="lazy"
-                decoding="async"
-                draggable={false}
-                className={styles.farmMapImg}
-              />
-              <span className={styles.roadTag} aria-hidden="true">SW 216th St</span>
-              {ZONES.map((zone) => {
-                const active = zone.id === selected.id;
-                return (
-                  <button
-                    type="button"
-                    key={zone.id}
-                    className={styles.zonePin}
-                    data-active={active ? "true" : "false"}
-                    data-label={zone.y < 30 ? "below" : "above"}
-                    aria-pressed={active}
-                    aria-label={zone.name}
-                    style={{ left: zone.x + "%", top: zone.y + "%" }}
-                    onClick={() => choose(zone)}
-                  >
-                    <span className={styles.zonePinMark}><MapCategoryPin family={zone.family} height={34} /></span>
-                    <span className={styles.zoneLabel} aria-hidden="true">{zone.name}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.zoneDetail}>
-          <div aria-live="polite">
-            <div className={styles.zoneDetailTitle}>
-              <MapCategoryPin family={selected.family} height={34} />
-              <div><small>Approximate spot</small><strong>{selected.name}</strong></div>
-            </div>
-            <p>{selected.note}</p>
-          </div>
-          <p className={styles.mapCaveat}>Pins mark the approximate spot on an illustrated map. Pinto's can move seasonal setups, so check the day's layout at the entrance.</p>
-        </div>
-        <div ref={listRef} className={styles.zoneList} role="group" aria-label="Places on the farm">
-          {ZONES.map((zone) => {
-            const active = zone.id === selected.id;
-            return (
-              <button
-                type="button"
-                key={zone.id}
-                data-zone={zone.id}
-                className={styles.zoneChip}
-                data-active={active ? "true" : "false"}
-                aria-pressed={active}
-                onClick={() => choose(zone)}
-              >
-                <MapCategoryPin family={zone.family} height={18} />
-                <span>{zone.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    <div className={styles.mapSection}>
+      <GuideMapExplorer
+        spots={SPOTS}
+        filters={[{ id: "farm", label: "Farm spots", family: "outdoors" }]}
+        kicker="Pick a spot, then swipe"
+        heading="Where everything is on the farm."
+        description="From the parking lot to the petting zoo. Tap a pin or swipe the cards to see what is at each spot."
+        proof={["Illustrated map", "Not to scale", "Seasonal zones can move"]}
+        note="Pins mark the approximate spot on an illustrated map. Pinto's can move seasonal setups, so check the day's layout at the entrance."
+        railIdPrefix="pintos-farm"
+        pagePath="/guides/pintos-farm-miami-2026"
+        renderMap={({ visible, selectedId, onSelect }) => <IllustratedParkMap
+          image={FARM_MAP}
+          credit={null}
+          pins={visible.map((spot, index) => { const zone = BY_ID[spot.id]; return { id: zone.id, number: index + 1, label: zone.name, caption: zone.name, left: zone.x, top: zone.y, family: zone.family }; })}
+          selectedId={selectedId}
+          onSelect={onSelect}
+          label="Illustrated map of Pinto's Farm"
+          note="Main lot off SW 216th St, on the north side of the farm."
+          fallback="The farm map could not load. Every spot is on the cards beside it."
+        />}
+      />
 
       <div className={styles.seasonalBlock}>
         <div>
@@ -201,6 +107,6 @@ export default function PintosFarmMap() {
           </a>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

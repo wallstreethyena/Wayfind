@@ -60,5 +60,5 @@ for (const [id, key] of Object.entries(PAIRS)) {
 ok(christmasTaggedPhotos("mvmcp-2026", [shot("k", ["mvmcp-2026"])]).length === 1 && christmasTaggedPhotos("jollywood-nights-2026", [shot("k", ["mvmcp-2026"])]).length === 0, "Mickey's party tags never leak into JOLLYWOOD");
 // Route cache key bumped (payload shape changed).
 const route = readFileSync("app/api/events/christmas/route.js", "utf8").replace(/\/\/.*$/gm, "");
-ok(/`christmas-intents:v15:/.test(route) && !/christmas-intents:v1[234]:/.test(route), "the fast cache key is v15");
+ok(/`christmas-intents:v16:/.test(route) && !/christmas-intents:v1[2345]:/.test(route), "the fast cache key is v16");
 console.log("test-christmas-card-gallery: OK, " + checks + " assertions");

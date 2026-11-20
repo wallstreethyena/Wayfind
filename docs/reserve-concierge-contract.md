@@ -61,7 +61,8 @@ Response (`ok: true` always unless a 4xx input error):
 `card.type` is one of:
 - `times` — real open times (instant only). User taps one → client POSTs `/api/reserve/book` `{ placeId, date, time, partySize, idempotencyKey }` (profile fills name/phone server side).
 - `request` — `{ date, time, partySize }`; button "Send request" → same `/api/reserve/book` call; server routes to `wf_reserve_request`.
-- `handoff` — `{ url: "/api/reserve/go?placeId=..&date=..&time=..&party=..", label: "Open <name> on OpenTable", sentTime }`. Never says booked.
+- `handoff` — `{ url: "/api/reserve/go?placeId=..&date=..&time=..&party=..", label: "Open <name> on OpenTable", sentTime }`. Never says booked. When the booking agent is switched on (three flags, all off by default), the same turn also offers `agent_offer`, which carries this handoff card inside it. The handoff stays. The agent never replaces it.
+- `agent_offer` — only when the lane is `opentable_handoff` and the agent switches are on. The guest taps "Fill it in for me" which posts `/api/reserve/agent/start`. The model still does not book.
 - `profile` — `{ needs: ["name"] }`; client shows first/last name (+ optional mobile) and a "Save for future bookings" checkbox, PUTs `/api/reserve/profile` when checked, then resends the turn.
 - `signin` — the user must sign in to book on Wayfind.
 - `choose` — `{ restaurants: [{ placeId, name, address }] }` (ambiguous name).

@@ -1,7 +1,9 @@
 import { SITE_URL } from "../../lib/site";
 import { christmasCreatorPoster } from "../../lib/christmasCreatorPosters.js";
+import { creatorCoversFor } from "../../lib/creatorCovers.js";
 import SeasonalSearchHub, { seasonalSearchMetadata } from "../components/SeasonalSearchHub";
 import ChristmasBrowse from "../components/ChristmasBrowse";
+import ChristmasCityGuides from "../components/ChristmasCityGuides";
 import ChristmasTickets from "../components/ChristmasTickets";
 import FieldVitals from "../components/FieldVitals";
 import ShareButton from "../components/ShareButton";
@@ -28,21 +30,26 @@ import { christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, parse
 export const revalidate = 300;
 export const dynamic = "force-static";
 const seasonal = seasonalSearchMetadata("christmas-in-florida");
-const title = "Florida Christmas Lights, Shows and Event Tickets | Wayfind";
-const description = "Compare Florida Christmas light shows, theme park nights, parades and parties with prices, dates and hours. Book tickets from the organizer or a partner.";
+// 2026-11-19 (owner, SEO): the title leads with the query people type,
+// "christmas in florida", plus the year. No listing count in the title: the
+// count changes daily and a cached title would go stale.
+const title = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events | Wayfind";
+const description = "Plan Christmas in Florida 2026: light shows, theme park parties, boat parades, snow and holiday shows, with dates, hours and tickets across Orlando, Tampa Bay, Sarasota, St. Augustine and more.";
+const ogTitle = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events";
 export const metadata = {
   ...seasonal,
   title,
   description,
   alternates: { canonical: SITE_URL + "/christmas-in-florida" },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   openGraph: {
-    title,
+    title: ogTitle,
     description,
     url: SITE_URL + "/christmas-in-florida",
     siteName: "Wayfind",
-    images: [{ url: SITE_URL + "/api/og?t=" + encodeURIComponent("Florida Christmas Lights, Shows and Parties"), width: 1200, height: 630 }],
+    images: [{ url: SITE_URL + "/api/og?t=" + encodeURIComponent("Christmas in Florida 2026"), width: 1200, height: 630 }],
   },
-  twitter: { ...seasonal.twitter, title, description },
+  twitter: { ...seasonal.twitter, title: ogTitle, description, images: [SITE_URL + "/api/og?t=" + encodeURIComponent("Christmas in Florida 2026")] },
 };
 
 // 2026-11-03 (owner, "Fix it") — creator videos tagged with the christmas
@@ -52,8 +59,14 @@ const SOCIAL = { margin: "0 0 28px", padding: "16px", border: "1px solid #26303B
 const SOCIAL_POST = { flex: "0 0 min(78vw, 300px)", maxWidth: 300, scrollSnapAlign: "start", borderRadius: 20, overflow: "hidden", border: "1px solid #65443d", background: "linear-gradient(180deg,#302021,#191415)" };
 const SOCIAL_LINK = { display: "block", color: "#efd0a6", fontSize: 14, fontWeight: 800, textDecoration: "none", padding: "0 16px 18px" };
 
-function ChristmasCreatorPosts({ posts }) {
+// Cover: the hand-picked poster when one exists, else our own credited photo of
+// the same place (lib/creatorCovers.js), so no tile is a blank box (owner, 2026-11-18).
+function ChristmasCreatorPosts({ posts: allPosts, covers = {} }) {
+  // Owner 2026-11-20: every creator post plays inside Wayfind. A post Instagram
+  // will not play here (it only links out) is left off the rail entirely.
+  const posts = (allPosts || []).filter((post) => isEmbeddable(post.platform, post.url));
   if (!posts.length) return null;
+  const coverOf = (post) => christmasCreatorPoster(post.key) || covers[post.placeId] || null;
   const details = (post) => <>
     <div style={{ padding: "18px 16px 14px" }}>
       <h3 style={{ margin: "0 0 6px", color: "#fff", fontFamily: "Georgia,serif", fontSize: 22, lineHeight: 1.25 }}>{post.name}</h3>
@@ -72,7 +85,7 @@ function ChristmasCreatorPosts({ posts }) {
         {isEmbeddable(post.platform, post.url) ? <CreatorPlaybackDetails buttonStyle={{ color: "#efd0a6" }} details={details(post)}>
           <VideoFacade platform={post.platform} url={post.url}
             label={post.creator ? `@${post.creator}'s post about ${post.name}` : `Post about ${post.name}`}
-            poster={christmasCreatorPoster(post.key)?.src || null} posterCredit={christmasCreatorPoster(post.key)?.credit || null} fallbackPoster={null} coverTitle={post.name} coverCity={post.city}
+            poster={coverOf(post)?.src || null} posterCredit={coverOf(post)?.credit || null} fallbackPoster={null} placeId={post.placeId || null} coverTitle={post.name} coverCity={post.city}
             coverEyebrow={post.creator ? `THE @${post.creator} EDIT` : "CREATOR POST"} fallbackLabel="Place cover shown" />
         </CreatorPlaybackDetails> : details(post)}
       </article>)}
@@ -104,6 +117,8 @@ export default async function Page() {
   // script picks it before first paint.
   const featured = (await Promise.all(SOCIAL_AD_FEATURE_IDS.map((id) => christmasFeaturePickServable(listings, id, today)))).filter(Boolean);
   const topPicks = [...featured, ...christmasTopPicks(tickets).filter((r) => !featured.some((f) => f.id === r.id))];
+  const creatorPosts = seasonalCreatorVideos("christmas");
+  const creatorCovers = await creatorCoversFor(creatorPosts.filter((p) => !christmasCreatorPoster(p.key)).map((p) => p.placeId));
   return <>
     <script dangerouslySetInnerHTML={{ __html: SOCIAL_AD_SCRIPT }} />
     <FieldVitals />
@@ -111,7 +126,8 @@ export default async function Page() {
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
       <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} weekend={weekend} />
-      <ChristmasCreatorPosts posts={seasonalCreatorVideos("christmas")} />
+      <ChristmasCreatorPosts posts={creatorPosts} covers={creatorCovers} />
+      <ChristmasCityGuides today={today} />
 
     </>} />
     <SeasonalSearchHub slug="christmas-in-florida" today={today} seoOnly />

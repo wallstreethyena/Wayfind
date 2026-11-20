@@ -1,6 +1,6 @@
 {
   "audit_date": "2026-09-23",
-  "scope": "All current Wayfind /guides/[slug] entries on the audited source branch.",
+  "scope": "Rolling source snapshot of the Wayfind guide registry. The historical filename is retained; per-guide research dates are recorded in guide data. Dedicated routes require their own dated verification receipt.",
   "status_vocabulary": [
     "pass",
     "fail",
@@ -4848,8 +4848,8 @@
           "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
-          "status": "unknown",
-          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+          "status": "pass",
+          "evidence": "1 hand-reviewed related guide link(s): jacksonville-christmas-by-area-budget-2026."
         },
         "comparison_shortcut": {
           "status": "unknown",
@@ -5010,8 +5010,8 @@
           "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
-          "status": "unknown",
-          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): tampa-christmas-coffee-and-farm-outings-2026, jacksonville-christmas-by-area-budget-2026."
         },
         "comparison_shortcut": {
           "status": "pass",
@@ -5172,8 +5172,8 @@
           "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
-          "status": "unknown",
-          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): snowcat-ridge-vs-wunder-glow-2026, jacksonville-christmas-by-area-budget-2026."
         },
         "comparison_shortcut": {
           "status": "pass",
@@ -5253,8 +5253,8 @@
           "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
-          "status": "unknown",
-          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): orlando-christmas-concerts-and-santa-2026, st-augustine-christmas-coffee-snow-walk-2026."
         },
         "comparison_shortcut": {
           "status": "pass",
@@ -5334,8 +5334,8 @@
           "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
-          "status": "unknown",
-          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): jacksonville-christmas-by-area-budget-2026, st-augustine-christmas-coffee-snow-walk-2026."
         },
         "comparison_shortcut": {
           "status": "pass",
@@ -5772,60 +5772,222 @@
       "decision": "Plan Pinto's Farm in Miami for Fall at the Farm 2026: September 19 through November 8, included rides and animals, ticket choices, special dates, and a map of the farm.",
       "checks": {
         "source_route": {
-          "status": "pass",
-          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/pintos-farm-miami-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
         },
         "source_metadata": {
-          "status": "pass",
-          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/pintos-farm-miami-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
         },
         "source_canonical": {
-          "status": "pass",
-          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/pintos-farm-miami-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
         },
         "source_robots": {
-          "status": "pass",
-          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/pintos-farm-miami-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
         },
         "source_sitemap": {
           "status": "pass",
           "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
         },
         "source_crawlable_html": {
-          "status": "pass",
-          "evidence": "The server component renders the intro and picks as HTML."
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/pintos-farm-miami-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
         },
         "article_schema": {
-          "status": "pass",
-          "evidence": "Article wiring includes the reviewed image. datePublished (2026-09-22) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/pintos-farm-miami-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
         },
         "breadcrumb_schema": {
-          "status": "pass",
-          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/pintos-farm-miami-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
         },
         "social_metadata": {
-          "status": "pass",
-          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/pintos-farm-miami-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
         },
         "image_record": {
           "status": "pass",
           "evidence": "/guides/pintos-farm-miami-2026/hero-family-paddle-boat-lake.webp; 1048x954; Pinto's Farm; Used with permission of Pinto's Farm (owner-confirmed 2026-09-22); credit required."
         },
         "representative_image": {
-          "status": "pass",
-          "evidence": "The route and metadata use the same per-slug reviewed image."
+          "status": "unknown",
+          "evidence": "Reviewed art exists, but dedicated-route rendering needs its own verification."
         },
         "large_image_candidate": {
           "status": "unknown",
-          "evidence": "Reviewed source image is 1048x954; it is not claimed as a 1200px-wide Discover candidate."
+          "evidence": "Reviewed asset: 1048x954. Dedicated-route social delivery and crop are not certified by this source audit."
         },
         "contextual_guide_links": {
           "status": "unknown",
-          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+          "evidence": "Dedicated-route internal links need their own verification."
         },
         "comparison_shortcut": {
           "status": "unknown",
-          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+          "evidence": "Dedicated-route shortcut targets need their own verification."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "universal-orlando-christmas-2026",
+      "url": "https://www.gowayfind.com/guides/universal-orlando-christmas-2026",
+      "primary_query": "Universal Orlando Christmas 2026",
+      "geography": "Orlando",
+      "decision": "An illustrated interactive Universal Orlando holiday map, food photos, Grinchmas, the Macy’s parade, Epic Universe and practical park plans.",
+      "checks": {
+        "source_route": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_metadata": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_canonical": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_robots": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "article_schema": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "breadcrumb_schema": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "social_metadata": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/universal-orlando-christmas-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/universal-orlando-christmas-2026/nintendo-night.webp; 1600x900; Jeremy Thompson; CC BY 4.0."
+        },
+        "representative_image": {
+          "status": "unknown",
+          "evidence": "Reviewed art exists, but dedicated-route rendering needs its own verification."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Reviewed asset: 1600x900. Dedicated-route social delivery and crop are not certified by this source audit."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "Dedicated-route internal links need their own verification."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Dedicated-route shortcut targets need their own verification."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "disney-world-holiday-food-guide-2026",
+      "url": "https://www.gowayfind.com/guides/disney-world-holiday-food-guide-2026",
+      "primary_query": "Disney World holiday food guide 2026",
+      "geography": "Orlando",
+      "decision": "Explore Disney holiday food by park with interactive park maps, creator previews, park admission rules, reported snack prices and practical plans for Christmas 2026.",
+      "checks": {
+        "source_route": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/disney-world-holiday-food-guide-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_metadata": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/disney-world-holiday-food-guide-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_canonical": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/disney-world-holiday-food-guide-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_robots": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/disney-world-holiday-food-guide-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/disney-world-holiday-food-guide-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "article_schema": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/disney-world-holiday-food-guide-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "breadcrumb_schema": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/disney-world-holiday-food-guide-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "social_metadata": {
+          "status": "unknown",
+          "evidence": "Dedicated route app/guides/disney-world-holiday-food-guide-2026/page.js is not certified by the shared-template source check. See this guide's dated verification receipt."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/context/magic-kingdom-christmas.webp; 1280x853; Ivan Curra; CC BY-SA 3.0."
+        },
+        "representative_image": {
+          "status": "unknown",
+          "evidence": "Reviewed art exists, but dedicated-route rendering needs its own verification."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Reviewed asset: 1280x853. Dedicated-route social delivery and crop are not certified by this source audit."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "Dedicated-route internal links need their own verification."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Dedicated-route shortcut targets need their own verification."
         },
         "production_http": {
           "status": "unknown",
@@ -6474,6 +6636,411 @@
         "comparison_shortcut": {
           "status": "pass",
           "evidence": "3 choices point to existing article sections."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "snowcat-ridge-vs-wunder-glow-2026",
+      "url": "https://www.gowayfind.com/guides/snowcat-ridge-vs-wunder-glow-2026",
+      "primary_query": "snowcat ridge vs wunder glow",
+      "geography": "Dade City",
+      "decision": "Compare Snowcat Ridge snow tubing and Wunder Glow's walking light trail in Dade City, with separate tickets, calendars, parking and family planning tips.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-17) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/picks/florida-christmas-markets-and-towns-2026/dade-city-courthouse-christmas.jpg; 1280x853; Georgia Guercio; CC BY-SA 3.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): florida-snow-and-ice-2026, tampa-christmas-coffee-and-farm-outings-2026."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "tampa-christmas-coffee-and-farm-outings-2026",
+      "url": "https://www.gowayfind.com/guides/tampa-christmas-coffee-and-farm-outings-2026",
+      "primary_query": "tampa christmas outings 2026",
+      "geography": "Tampa Bay",
+      "decision": "Plan a small Tampa holiday outing around Centro Ybor or a cafe, with separate Plant City and Oxford farm options and clear notes on unconfirmed Christmas details.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-17) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/ybor-city-teco-streetcar-hero.webp; 1280x853; Pokemonprime; CC BY 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): snowcat-ridge-vs-wunder-glow-2026, florida-christmas-markets-and-towns-2026."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "orlando-christmas-concerts-and-santa-2026",
+      "url": "https://www.gowayfind.com/guides/orlando-christmas-concerts-and-santa-2026",
+      "primary_query": "orlando christmas concerts and santa 2026",
+      "geography": "Orlando",
+      "decision": "Choose Lake Eola's free holiday concerts or ICON Park's Santa photo experience, with dates, separate districts and the carousel offer's photo-purchase condition.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-17) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/unsplash/orlando-skyline-mick-haupt.webp; 1600x1067; Mick Haupt; Unsplash License."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): florida-santa-and-christmas-trains-2026, orlando-in-the-rain."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "jacksonville-christmas-by-area-budget-2026",
+      "url": "https://www.gowayfind.com/guides/jacksonville-christmas-by-area-budget-2026",
+      "primary_query": "jacksonville christmas events 2026",
+      "geography": "Jacksonville",
+      "decision": "Plan Jacksonville Christmas outings by area and budget, from Deck the Chairs and the boat parade to skating and markets, with 2026 dates and booking caveats.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-17) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/florida-new-years-eve-2026-hero.webp; 1280x853; Michel Curi; CC BY 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): st-augustine-christmas-coffee-snow-walk-2026, florida-christmas-boat-parades-2026."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "st-augustine-christmas-coffee-snow-walk-2026",
+      "url": "https://www.gowayfind.com/guides/st-augustine-christmas-coffee-snow-walk-2026",
+      "primary_query": "st augustine christmas coffee snow walk",
+      "geography": "St. Augustine",
+      "decision": "Plan a St. Augustine Christmas walk around St. George Street coffee, the Oldest Wooden School House and Nights of Lights, with snow and pop-up details to confirm.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-17) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/free-christmas-lights-florida-2026-hero.webp; 1280x853; Corvair Owner; CC BY-SA 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): jacksonville-christmas-by-area-budget-2026, free-christmas-lights-florida-2026."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
         },
         "production_http": {
           "status": "unknown",

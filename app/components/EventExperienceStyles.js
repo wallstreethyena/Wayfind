@@ -25,7 +25,11 @@ export const EVENT_EXPERIENCE_CSS = `
    off"), so every hero photo fills the card on its own and one swipe moves
    exactly one photo. The counter and dots (EventPhotoRailControls) say there
    are more photos; nothing peeks in and nothing moves on its own. */
-.wf-event-hero .wf-event-photo-rail{padding:0;gap:0;border-radius:0}.wf-event-hero .wf-event-photo{height:clamp(240px,42vw,440px);flex:0 0 100%;width:100%;border:0;border-radius:0}.wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}
+/* Owner, 2026-11-18 ("fix it globally"): the box was a fixed short height, so on
+   tablets and computers a normal 3:2 photo lost a third of its top and bottom.
+   The box now has the photo's own shape (3:2), capped so it never fills more
+   than ~72% of the screen. */
+.wf-event-hero .wf-event-photo-rail{padding:0;gap:0;border-radius:0}.wf-event-hero .wf-event-photo{height:auto;aspect-ratio:3/2;max-height:min(72vh,660px);flex:0 0 100%;width:100%;border:0;border-radius:0}.wf-event-hero .wf-event-photo:only-child{flex:0 0 100%;width:100%}
 .wf-event-hero .wf-event-photo-rail:has(>.wf-event-photo+.wf-event-photo){margin-bottom:26px}
 .wf-event-photo-rail[data-zoomable] .wf-event-photo img{cursor:zoom-in;-webkit-touch-callout:none}
 .wf-event-rail-arrow{position:absolute;z-index:3;display:none;width:44px;height:44px;border-radius:22px;border:1px solid rgba(255,255,255,.28);background:rgba(8,11,16,.72);color:#fff;font-size:26px;line-height:40px;cursor:pointer}

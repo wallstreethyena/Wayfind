@@ -6,7 +6,9 @@ import { getPlacePhoto } from "../../lib/photoAnswers.js";
 import { isGooglePlaceId, isPlaceOwnedPhotoUrl } from "../../lib/placePhoto.js";
 import { PLACE_DETAIL_PHOTO_STANDARD } from "../../lib/placeDetailPhotoStandard.js";
 import PhotoCredit from "./PhotoCredit.js";
+import PortraitAwareImg from "./PortraitAwareImg.js";
 import PhotoLightbox from "./PhotoLightbox.js";
+import { track } from "../../lib/track";
 import { RailCount, RailDots, scrollRailTo, useRailIndex } from "./PhotoRailIndicators.js";
 
 // Existing Google bytes only. The free lookup must never make an ephemeral
@@ -115,12 +117,12 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ph
       {(multi || pending || photo) ? <div data-place-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: "#101820" }}>
         {multi ? <div ref={setRail} data-place-detail-photo-rail style={{ position: "absolute", inset: 0, display: "flex", gap: 0, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
           {gallery.map((src, i) => (
-            <button key={src} type="button" onClick={() => setViewer({ src, source: "wayfind", credit: null, placeId, start: i })} aria-label={"View full photo of " + name + " (" + (i + 1) + " of " + gallery.length + ")"} style={{ flex: "0 0 100%", height: "100%", padding: 0, border: 0, scrollSnapAlign: "start", scrollSnapStop: "always", background: "transparent", cursor: "zoom-in" }}>
-              <img src={src} alt={name} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
+            <button key={src} type="button" onClick={() => { setViewer({ src, source: "wayfind", credit: null, placeId, start: i }); try { track("photo_viewer_open", { surface: "paid_landing", photo_index: i + 1, photo_count: gallery.length }); } catch {} }} aria-label={"View full photo of " + name + " (" + (i + 1) + " of " + gallery.length + ")"} style={{ flex: "0 0 100%", height: "100%", padding: 0, border: 0, scrollSnapAlign: "start", scrollSnapStop: "always", background: "transparent", cursor: "zoom-in" }}>
+              <PortraitAwareImg src={src} alt={name} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
             </button>
           ))}
         </div> : photo ? <button type="button" onClick={() => visible && setViewer(photo)} aria-label={"View full photo of " + name} disabled={!visible} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", padding: 0, border: 0, background: "transparent", cursor: visible ? "zoom-in" : "default" }}>
-          <img ref={photoRef} src={photo.src} alt={name} onLoad={() => setAnswer(previous => previous?.requestKey === requestKey && previous.photo === photo ? { ...previous, loaded: true } : previous)} onError={fail} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
+          <PortraitAwareImg imgRef={photoRef} src={photo.src} alt={name} onLoad={() => setAnswer(previous => previous?.requestKey === requestKey && previous.photo === photo ? { ...previous, loaded: true } : previous)} onError={fail} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
         </button> : <div data-place-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontSize: 12, color: "#94A3B8" }}>Loading photo…</div>}
         {multi && rail ? <>
           <RailCount index={railAt} count={railCount} onOpen={() => setViewer({ start: railAt })} style={{ position: "absolute", zIndex: 2, top: 10, right: 10 }} />

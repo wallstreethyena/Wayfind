@@ -3,15 +3,21 @@
 import { useState } from "react";
 import GuidePhoto from "./GuidePhoto.js";
 import PhotoCreditLink from "./PhotoCreditLink.js";
-import { emitCommerce } from "../../lib/commerce.js";
+import SoldOutStamp, { SOLD_OUT_STAMP_CSS } from "./SoldOutStamp.js";
+import { emitCommerce, mintClickId } from "../../lib/commerce.js";
+import { planRowOrganizerClick } from "../../lib/partnerClick.js";
 import { secondaryTicketPrimaryMatches } from "../../lib/secondaryTicketPrimary.js";
 import { useContentCardActions } from "../../lib/contentCardActions.js";
 import { openShareFlow } from "../../lib/shareFlow.js";
 import RemindMe from "./RemindMe.js";
 
+// Owner 2026-11-17: "make it look more like the Viator card" and "too long from top to bottom":
+// every card the same shape, the photo on top at full width (16:9, never a cropped portrait
+// sliver), chip, title (tap opens the event page), one line each for dates and city, the price
+// beside the one gold button, a short disclosure line with the event page link, one action row.
 // THE one Christmas card on /christmas-in-florida (owner direction 2026-11-01:
 // "I like the one from image 1 better but add the background similar to image
-// 2"). The dark ticket card layout (photo 40%, chip, title, when, city, price,
+// 2"). The dark ticket card (originally photo 40% left; photo on top since 2026-11-17: chip, title, when, city, price,
 // one button) wearing the red Christmas background. ChristmasTickets renders it
 // for the top ticket grid and ChristmasBrowse renders the same component for
 // every statewide result, including the "Show more" pages. There is no second
@@ -23,9 +29,10 @@ import RemindMe from "./RemindMe.js";
 // to the card height. Text uses the skin's warm light colours. The ticket
 // button is gold and cream with dark red text so it still stands out on red.
 export const XM_CARD_CSS = `
-.xm-card{--xm-cream:#FFF6F0;--xm-warm:#F7DCCB;--xm-soft:#E9C3B0;--xm-rose:#E8B48A;--xm-ink:#4A0610;display:grid;grid-template-columns:40% minmax(0,1fr);min-width:0;overflow:hidden;color:var(--xm-cream);background:#5A0712 url(/christmas/card-bg-640.webp?v=3) right top/auto 100% no-repeat;border:1px solid rgba(232,180,138,.9);border-radius:12px;box-shadow:0 10px 26px rgba(40,2,8,.55),0 0 14px rgba(192,16,42,.28);scroll-margin-top:12px}
+.xm-card{--xm-cream:#FFF6F0;--xm-warm:#F7DCCB;--xm-soft:#E9C3B0;--xm-rose:#E8B48A;--xm-ink:#4A0610;display:flex;flex-direction:column;height:100%;min-width:0;overflow:hidden;color:var(--xm-cream);background:#5A0712 url(/christmas/card-bg-640.webp?v=3) right top/auto 100% no-repeat;border:1px solid rgba(232,180,138,.9);border-radius:16px;box-shadow:0 10px 26px rgba(40,2,8,.55),0 0 14px rgba(192,16,42,.28);scroll-margin-top:12px}
 @media(min-resolution:1.5dppx){.xm-card{background-image:url(/christmas/card-bg-1100.webp?v=3)}}
-.xm-photo{position:relative;min-width:0;min-height:230px;height:100%;background:#3A0510;border-right:1px solid rgba(232,180,138,.85);overflow:hidden}
+.xm-card,.xm-card *,.xm-card *::before,.xm-card *::after{box-sizing:border-box}
+.xm-photo{position:relative;flex:0 0 auto;width:100%;aspect-ratio:16/9;min-width:0;background:#3A0510;border-bottom:1px solid rgba(232,180,138,.85);overflow:hidden}
 .xm-strip{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
 .xm-strip::-webkit-scrollbar{display:none}
 .xm-slide{position:relative;flex:0 0 100%;min-width:0;height:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden}
@@ -40,47 +47,52 @@ export const XM_CARD_CSS = `
 .xm-dots{position:absolute;left:0;right:0;bottom:8px;z-index:3;display:flex;justify-content:center;gap:5px;pointer-events:none}
 .xm-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,248,238,.45)}
 .xm-dots i.is-on{background:#FFF8EE}
-.xm-body{display:flex;flex-direction:column;gap:6px;min-width:0;padding:12px}
+.xm-body{flex:1 1 auto;display:flex;flex-direction:column;gap:5px;min-width:0;padding:10px 12px 12px}
 .xm-chip-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
-.xm-chip{align-self:flex-start;max-width:100%;padding:3px 9px;border-radius:999px;background:linear-gradient(180deg,#4A0610,#33040B);border:1px solid var(--xm-rose);color:#FFE9DC;font-size:12px;font-weight:700;line-height:1.4}
-.xm-temporal{padding:2px 8px;border-radius:999px;background:rgba(24,2,8,.55);border:1px solid rgba(232,180,138,.55);color:#FFD9AE;font-size:11px;font-weight:700;line-height:1.35}
+.xm-chip{align-self:flex-start;max-width:100%;padding:2px 8px;border-radius:999px;background:linear-gradient(180deg,#4A0610,#33040B);border:1px solid var(--xm-rose);color:#FFE9DC;font-size:11px;font-weight:700;line-height:1.4}
+.xm-temporal{padding:2px 8px;border-radius:999px;background:rgba(24,2,8,.55);border:1px solid rgba(232,180,138,.55);color:#FFD9AE;font-size:10.5px;font-weight:700;line-height:1.35}
 .xm-temporal[data-temporal-state="open_tonight_confirmed"]{background:rgba(31,107,52,.65);border-color:#7CE395;color:#EDFFF1}
-.xm-card :is(h2,h3){margin:0;font-size:16px;line-height:1.3;min-height:calc(1.3em * 2);font-weight:700;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7);overflow-wrap:anywhere}
+.xm-card :is(h2,h3){margin:0;font-size:17px;line-height:1.25;min-height:1.25em;font-weight:700;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7);overflow-wrap:anywhere}
 .xm-credit{position:absolute;left:6px;right:8px;bottom:6px;z-index:2;margin:0;padding:0;border:0;background:transparent;color:rgba(255,255,255,.6);font-size:9.5px;font-weight:500;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65);pointer-events:auto}
 .xm-photo:has(.xm-dots) .xm-credit{bottom:16px}
 .xm-credit a{color:inherit;text-decoration:none}
-.xm-pitch{margin:0;font-size:13px;line-height:1.4;color:var(--xm-cream);text-shadow:0 1px 2px rgba(40,0,6,.65);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.xm-line{display:flex;align-items:flex-start;gap:7px;margin:0;font-size:13px;line-height:1.4;color:var(--xm-warm);text-shadow:0 1px 2px rgba(40,0,6,.65);min-width:0;overflow-wrap:anywhere}
-.xm-line .xm-when{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.4em * 2)}
+.xm-line{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;line-height:1.4;color:var(--xm-warm);text-shadow:0 1px 2px rgba(40,0,6,.65);min-width:0;overflow-wrap:anywhere}
+.xm-line>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .xm-line svg{flex:0 0 auto;width:15px;height:15px;margin-top:1px}
-.xm-bottom{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:6px}
-.xm-pricerow{min-height:calc(1.2em + 12px * 1.2 + 2px)}
-.xm-pricerow{display:flex;flex-direction:column;align-items:flex-end;margin:0;min-width:0}
-.xm-from{font-size:12px;line-height:1.2;color:var(--xm-soft)}
-.xm-amt{text-align:right;font-size:22px;line-height:1.2;font-weight:800;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7)}
-.xm-note{margin:0;font-size:13px;line-height:1.35;color:var(--xm-soft);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:center;overflow-wrap:anywhere}
-.xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
-.xm-via{margin:0;font-size:11px;line-height:1.35;color:var(--xm-soft);text-align:center}
+.xm-bottom{margin-top:auto;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;row-gap:6px;align-items:center;padding-top:4px}
+.xm-bottom>*{grid-column:1/-1}
+.xm-bottom>.xm-pricerow{grid-column:1}
+.xm-bottom>.xm-pricerow+.xm-buy{grid-column:2}
+.xm-pricerow{display:flex;flex-direction:column;align-items:flex-start;gap:0;margin:0;min-width:0}
+.xm-from{font-size:11.5px;line-height:1.15;color:var(--xm-soft)}
+.xm-amt{font-size:21px;line-height:1.1;font-weight:800;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7)}
+.xm-note{margin:0;font-size:12.5px;line-height:1.35;color:var(--xm-soft);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:center;overflow-wrap:anywhere}
+.xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
+.xm-via{margin:0;font-size:11.5px;line-height:1.6;color:var(--xm-soft);text-align:center}
 .xm-opts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0}
 .xm-opt{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:4px 12px;border:1.5px solid rgba(245,196,81,.75);border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);font-size:12.5px;font-weight:700;line-height:1.1;white-space:nowrap;text-decoration:none}
-.xm-event{display:flex;align-items:center;justify-content:center;min-height:44px;color:#FFD9AE;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
-.xm-actions{display:flex;flex-wrap:wrap;gap:6px;margin:0;min-width:0}
-.xm-actions>button{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:max-content!important;min-height:44px;margin:0;padding:6px 8px;border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);border:1.5px solid rgba(245,196,81,.75);font:inherit;font-size:12.5px;font-weight:700;line-height:1.1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.xm-event{color:#FFD9AE;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.xm-title{color:inherit;text-decoration:none}
+.xm-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin:0;min-width:0}
+.xm-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:0!important;width:100%;min-height:44px;margin:0;padding:4px;border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);border:1.5px solid rgba(245,196,81,.75);font:inherit;font-size:12px;font-weight:700;line-height:1.1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .xm-actions>button svg{flex:0 0 auto;width:14px;height:14px;color:#F5C451}
 .xm-actions>button[aria-pressed="true"]{background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border-color:var(--xm-rose)}
 .xm-actions>button[aria-pressed="true"] svg{color:#C0102A}
 .xm-actions>button:focus-visible,.xm-card button:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 .xm-card a:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
-`;
+${SOLD_OUT_STAMP_CSS}`;
 
 const SURFACE = "christmas_tickets";
 
 // Organizer links (no affiliate, not one of our /go routes) are invisible to
 // CommerceClickBeacon, so the card records its own single tap. Our /go links
 // are recorded once by the beacon and never here.
+// Shared shape (lib/partnerClick.js planRowOrganizerClick): click_id, clean
+// merchant and canonical slug (2026-11-19 measurement audit).
 export function organizerTap(row) {
   try {
-    emitCommerce("commerce_cta_clicked", { surface: SURFACE, provider: "organizer", merchant: new URL(row.cta.href).hostname, content_id: row.id });
+    const plan = planRowOrganizerClick(row, SURFACE, { locationHost: typeof location !== "undefined" ? location.host : undefined, mint: mintClickId });
+    if (plan) emitCommerce("commerce_cta_clicked", plan.ctx);
   } catch { /* ignore */ }
 }
 
@@ -105,6 +117,7 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
           <svg aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M24 5l4.5 14.5L43 24l-14.5 4.5L24 43l-4.5-14.5L5 24l14.5-4.5L24 5Z"/><path d="M39 5v8m-4-4h8M8 36v7m-3-3.5h6"/></svg>
           <b>{tile.label}</b>
         </div>
+        {row.price && row.price.soldOut ? <SoldOutStamp id={"xm-so-" + row.id} /> : null}
       </div>
     );
   }
@@ -118,7 +131,7 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
               alt={photo.alt}
               width={photo.width}
               height={photo.height}
-              sizes="(min-width: 720px) 190px, 40vw"
+              sizes="(min-width: 720px) 470px, 100vw"
               loading={i === 0 && priority ? "eager" : "lazy"}
               fallbackClassName="xm-ph"
               fallbackText={(row.placeholder && row.placeholder.label) || "Christmas event"}
@@ -134,6 +147,7 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
           </div>
         ))}
       </div>
+      {row.price && row.price.soldOut ? <SoldOutStamp id={"xm-so-" + row.id} /> : null}
       {photos.length > 1 ? (
         <div className="xm-dots" aria-hidden="true">
           {photos.map((photo, i) => <i key={photo.src} className={i === active ? "is-on" : ""} />)}
@@ -232,8 +246,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
           <span className="xm-chip">{row.chip}</span>
           {row.temporalBadge ? <span className="xm-temporal" data-temporal-state={row.temporalState || undefined}>{row.temporalBadge}</span> : null}
         </div>
-        <Heading>{row.name}</Heading>
-        {row.pitch ? <p className="xm-pitch">{row.pitch}</p> : null}
+        <Heading>{row.eventHref ? <a className="xm-title" href={row.eventHref}>{row.name}</a> : row.name}</Heading>
         {row.when ? (
           <p className="xm-line">
             <svg viewBox="0 0 16 16" {...ICON}><circle cx="8" cy="8" r="6.2" /><path d="M8 4.6V8l2.3 1.5" /></svg>
@@ -267,7 +280,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
                 onClick={affiliate ? undefined : () => organizerTap(row)}
               >{cta.label}</a>
               {noteEl}
-              <p className="xm-via">{cta.via}</p>
+              <p className="xm-via">{cta.via}{row.eventHref ? <>{" · "}<a className="xm-event" href={row.eventHref}>{chrome.eventPage}</a></> : null}</p>
               {Array.isArray(row.options) && row.options.length ? (
                 <p className="xm-opts" data-ticket-options="">
                   {row.options.map((o) => (
@@ -283,7 +296,6 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
                   {" · "}{secondaryCta.via}
                 </p>
               ) : null}
-              {row.eventHref ? <a className="xm-event" href={row.eventHref}>{chrome.eventPage}</a> : null}
             </>
           ) : fallback ? (
             <>

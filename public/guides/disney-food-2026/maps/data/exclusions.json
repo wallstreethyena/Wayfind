@@ -1,0 +1,82 @@
+[
+  {
+    "park": "magic-kingdom",
+    "id": "9710009",
+    "tags": {
+      "highway": "pedestrian",
+      "ref": "Liberty Bell Courtyard",
+      "type": "multipolygon",
+      "wheelchair": "yes"
+    },
+    "member_count": 1,
+    "outer_count": 0,
+    "inner_count": 1,
+    "error": "relation/9710009: inner outside outer"
+  },
+  {
+    "park": "epcot",
+    "id": "8610102",
+    "tags": {
+      "area": "yes",
+      "highway": "pedestrian",
+      "layer": "-2",
+      "ref": "(S)WSC Promenade-South",
+      "type": "multipolygon",
+      "wheelchair": "yes"
+    },
+    "member_count": 65,
+    "outer_count": 4,
+    "inner_count": 61,
+    "error": "relation/8610102: inner outside outer"
+  },
+  {
+    "park": "epcot",
+    "id": "17751279",
+    "tags": {
+      "highway": "pedestrian",
+      "name": "WC SSE West",
+      "type": "multipolygon",
+      "wheelchair": "yes"
+    },
+    "member_count": 2,
+    "outer_count": 1,
+    "inner_count": 1,
+    "error": "relation/17751279: inner outside outer"
+  },
+  {
+    "park": "hollywood-studios",
+    "id": "7449597",
+    "tags": {
+      "landuse": "grass",
+      "type": "multipolygon"
+    },
+    "member_count": 1,
+    "outer_count": 0,
+    "inner_count": 1,
+    "error": "relation/7449597: inner outside outer"
+  },
+  {
+    "park": "disney-springs",
+    "id": "7932663",
+    "tags": {
+      "leisure": "garden",
+      "type": "multipolygon"
+    },
+    "member_count": 1,
+    "outer_count": 0,
+    "inner_count": 1,
+    "error": "relation/7932663: inner outside outer"
+  },
+  {
+    "park": "disney-springs",
+    "id": "14338474",
+    "tags": {
+      "landuse": "grass",
+      "type": "multipolygon"
+    },
+    "member_count": 17,
+    "outer_count": 7,
+    "inner_count": 10,
+    "error": "relation/14338474: inner outside outer"
+  }
+]

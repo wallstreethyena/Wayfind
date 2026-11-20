@@ -482,15 +482,6 @@
   line-height: 1.5;
 }
 
-.disclosure {
-  margin: 26px 2px 0;
-  padding: 12px 0 0;
-  border-top: 1px solid rgba(255,255,255,.10);
-  color: #8f8981;
-  font-size: 11px;
-  line-height: 1.5;
-}
-
 .section {
   margin-top: 42px;
 }
@@ -911,6 +902,17 @@
   background: rgba(255,255,255,.06);
 }
 
+.bucketRow {
+  display: flex;
+  flex-direction: column;
+  background: #111;
+}
+.bucketRow a {
+  background: transparent;
+  /* Every link in a row, the Directions link included, is a 44px tap target. */
+  min-height: 44px;
+  align-items: center;
+}
 .bucketList a,
 .regionLinks a {
   display: flex;

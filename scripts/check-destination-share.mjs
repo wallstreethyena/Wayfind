@@ -57,6 +57,7 @@ const strip = (src) => src
 // STANDARD: page -> the file that renders its ShareButton, or file#Function when
 // a renderer module serves several pages (the button must be in THAT function).
 const STANDARD = {
+  "app/guides/universal-orlando-christmas-2026/page.js": "app/guides/universal-orlando-christmas-2026/page.js",
   "app/fall-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/halloween-in-florida/page.js": "app/halloween-in-florida/page.js",
   "app/sarasota-halloween-crown/page.js": "app/sarasota-halloween-crown/page.js",
@@ -79,6 +80,7 @@ const STANDARD = {
   "app/guides/[slug]/page.js": "app/guides/[slug]/page.js",
   "app/guides/florida-fall-festivals-2026/page.js": "app/guides/florida-fall-festivals-2026/page.js",
   "app/guides/pintos-farm-miami-2026/page.js": "app/guides/pintos-farm-miami-2026/page.js",
+  "app/guides/disney-world-holiday-food-guide-2026/page.js": "app/guides/disney-world-holiday-food-guide-2026/page.js",
   "app/things-to-do/[city]/page.js": "lib/landingShare.js#landingShareAction",
   "app/restaurants/[city]/page.js": "lib/landingShare.js#landingShareAction",
   "app/beaches/[city]/page.js": "lib/landingShare.js#landingShareAction",
@@ -152,6 +154,7 @@ const EXEMPT = {
   "app/privacy/page.js": { kind: "policy", why: "legal page (privacy policy), not a destination" },
   "app/terms/page.js": { kind: "policy", why: "legal page (terms of use), not a destination" },
   "app/editorial-policy/page.js": { kind: "policy", why: "editorial policy page, not a destination" },
+  "app/booking-agent/page.js": { kind: "policy", why: "notice describing the supervised booking agent and how a site can ask us to stop; noindex and not in the nav, not a destination to share" },
   "app/how-wayfind-ranks/page.js": { kind: "policy", why: "methodology page" },
   "app/command-center/page.js": { kind: "internal", why: "owner-only operations console" },
   "app/badge/[id]/page.js": { kind: "internal", why: "noindex owner tool that hands a business its Top Rated badge embed code; the badge itself links to the shareable place page" },

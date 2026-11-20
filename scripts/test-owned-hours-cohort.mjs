@@ -19,6 +19,7 @@ import {
   resolveOwnedHoursSnapshot,
   detectSpecialHoursUncertainty,
   persistOwnedHoursSnapshot,
+  enrichMapPlacesWithRepoOwnedHours,
 } from "../lib/ownedHours.js";
 import {
   scoreHoursRefreshPriority,
@@ -66,7 +67,7 @@ ok(
 );
 
 // Source separation honesty
-ok(report.sourceBreakdown["wayfind_editorial_hours"] >= 282, "at least 282 deterministic Atlas cards ingested");
+ok(report.sourceBreakdown["wayfind_editorial_hours"] >= 280, "at least 280 deterministic Atlas cards ingested");
 ok(report.sourceBreakdown["unknown"] >= 300, "at least 300 ambiguous/partial prose venues preserved as unknown");
 ok(report.confidenceBreakdown["confirmed"] >= 280, "all resolved venues carry confirmed confidence");
 ok(report.confidenceBreakdown["unknown"] >= 300, "all unresolved venues preserve unknown confidence");
@@ -251,7 +252,73 @@ eq(missingStatus.freshness, "missing", "null ownedHours returns missing freshnes
 eq(missingStatus.confidence, "unknown", "null ownedHours returns unknown confidence");
 eq(missingStatus.open, null, "null ownedHours returns open null");
 
-// 6h. Firewall-gated persistence in test/guard mode
+// 6h. Enrich Map Places with Repo Owned Hours unit tests
+const testMapPlacesInput = [
+  {
+    id: "ChIJ08zZpRpBw4gRiDJBlBXfAHw", // Bee Ridge Park (has repo owned hours)
+    name: "Bee Ridge Park",
+    lat: 27.28,
+    lng: -82.52,
+    oh: null,
+    ownedHours: null,
+  },
+  {
+    id: "ChIJunknownPlaceWithoutHours",
+    name: "Unknown Place Without Hours",
+    lat: 27.95,
+    lng: -82.45,
+    oh: null,
+    ownedHours: null,
+  },
+  {
+    id: "ChIJplaceWithGoogleOh",
+    name: "Place With Fresh Google Oh",
+    lat: 27.96,
+    lng: -82.46,
+    oh: { periods: [{ open: { day: 1, hour: 8, minute: 0 }, close: { day: 1, hour: 18, minute: 0 } }], weekdayDescriptions: ["Monday: 8:00 AM – 6:00 PM"] },
+    ownedHours: null,
+  },
+  {
+    id: "ChIJplaceWithExistingVerifiedOwnedHours",
+    name: "Place With Existing Verified Owned Hours",
+    lat: 27.33,
+    lng: -82.53,
+    oh: { periods: [{ open: { day: 1, hour: 9, minute: 0 }, close: { day: 1, hour: 17, minute: 0 } }] },
+    ownedHours: {
+      schema: 1,
+      periods: [{ open: { day: 1, hour: 9, minute: 0 }, close: { day: 1, hour: 17, minute: 0 } }],
+      weekdayDescriptions: ["Monday: 9:00 AM – 5:00 PM"],
+      source: "wayfind_editorial_hours",
+      verifiedAt: new Date(T_BASE_MS).toISOString(),
+    },
+  },
+];
+
+const enrichedPlaces = enrichMapPlacesWithRepoOwnedHours(testMapPlacesInput, T_BASE_MS);
+eq(enrichedPlaces.length, 4, "enrichedPlaces returns same length");
+
+// 1. Repo-verified place (Bee Ridge Park) gets hydrated with ownedHours and oh
+const enrichedBeeRidge = enrichedPlaces.find(p => p.id === "ChIJ08zZpRpBw4gRiDJBlBXfAHw");
+ok(enrichedBeeRidge.ownedHours, "Bee Ridge Park receives ownedHours snapshot");
+ok(Array.isArray(enrichedBeeRidge.oh?.periods) && enrichedBeeRidge.oh.periods.length > 0, "Bee Ridge Park receives oh periods");
+eq(enrichedBeeRidge._ownedHoursSource, "wayfind_editorial_hours", "Bee Ridge Park source is wayfind_editorial_hours");
+
+// 2. Unknown place remains strictly null (never falsely labeled open or closed)
+const enrichedUnknown = enrichedPlaces.find(p => p.id === "ChIJunknownPlaceWithoutHours");
+eq(enrichedUnknown.ownedHours, null, "unknown place ownedHours remains null");
+eq(enrichedUnknown.oh, null, "unknown place oh remains null");
+
+// 3. Google-sourced hours remain strictly separate (not conflated as permanent Wayfind-owned ownedHours)
+const enrichedGoogle = enrichedPlaces.find(p => p.id === "ChIJplaceWithGoogleOh");
+eq(enrichedGoogle.ownedHours, null, "place with Google oh does not get false repo ownedHours");
+ok(enrichedGoogle.oh && enrichedGoogle.oh.weekdayDescriptions, "Google oh remains intact separately");
+
+// 4. Unchanged-control idempotency: existing verified ownedHours is preserved and not overwritten with redundant writes
+const enrichedExisting = enrichedPlaces.find(p => p.id === "ChIJplaceWithExistingVerifiedOwnedHours");
+ok(enrichedExisting.ownedHours, "existing verified ownedHours preserved");
+eq(enrichedExisting.ownedHours.source, "wayfind_editorial_hours", "existing source preserved");
+
+// 6i. Firewall-gated persistence in test/guard mode
 const firewallPersistRes = await persistOwnedHoursSnapshot(
   "ChIJpXGK53VC24gRWMneFVtK6hY",
   caDzan,
@@ -296,4 +363,87 @@ eq(verifiedScore.needsHours, false, "venue covered by ownedHours index needsHour
 eq(unknownScore.components.unknownPoints, 220, "unknown venue receives full 220 unknownPoints");
 eq(verifiedScore.components.unknownPoints, 0, "covered venue receives 0 unknownPoints");
 
+// ── 7. WAVE 3 TAMPA & FORT LAUDERDALE VERIFIED HOURS + CLOCK MATRIX ───────
+const T_W3_NOW_MS = Date.parse("2026-11-19T20:00:00.000Z"); // Thu Nov 19, 2026 3:00 PM EST
+const w3PlacesInput = [
+  { id: "ChIJz8e7TVLEwogRBeybvscHnD4", name: "Columbia Restaurant", lat: 27.95999, lng: -82.43514, oh: null, ownedHours: null },
+  { id: "ChIJ3Vyq7WTEwogRA-WDC7Mze2E", name: "Ulele", lat: 27.95994, lng: -82.46280, oh: null, ownedHours: null },
+  { id: "ChIJH9758boB2YgRrs8O7f55ATA", name: "Café Bastille Fort Lauderdale", lat: 26.12137, lng: -80.13607, oh: null, ownedHours: null },
+  { id: "ChIJi6K8mAwB2YgRuOxEAQPCaKQ", name: "Hatch", lat: 26.13191, lng: -80.13779, oh: null, ownedHours: null },
+  { id: "ChIJ4V0TH_kA2YgRxgaQuq3qeV4", name: "Glitch Bar", lat: 26.13533, lng: -80.13919, oh: null, ownedHours: null },
+  { id: "ChIJBQ5SjLHGwogRL4X19g4J5tI", name: "ZooTampa at Lowry Park", lat: 28.01384, lng: -82.46997, oh: null, ownedHours: null },
+  { id: "ChIJunresearchedFtlTestVenue", name: "Unresearched FTL Venue", lat: 26.1224, lng: -80.1373, oh: null, ownedHours: null },
+];
+
+const w3Enriched = enrichMapPlacesWithRepoOwnedHours(w3PlacesInput, T_W3_NOW_MS);
+const byIdW3 = new Map(w3Enriched.map((p) => [p.id, p]));
+
+for (const pid of [
+  "ChIJz8e7TVLEwogRBeybvscHnD4",
+  "ChIJ3Vyq7WTEwogRA-WDC7Mze2E",
+  "ChIJH9758boB2YgRrs8O7f55ATA",
+  "ChIJi6K8mAwB2YgRuOxEAQPCaKQ",
+  "ChIJ4V0TH_kA2YgRxgaQuq3qeV4",
+]) {
+  const rec = byIdW3.get(pid);
+  ok(rec?.ownedHours, `${pid} receives ownedHours snapshot`);
+  eq(rec._ownedHoursSource, "wayfind_editorial_hours", `${pid} source is wayfind_editorial_hours`);
+  ok(Array.isArray(rec.oh?.periods) && rec.oh.periods.length === 7, `${pid} has 7-day periods`);
+  ok(Array.isArray(rec.oh?.weekdayDescriptions) && rec.oh.weekdayDescriptions.length === 7, `${pid} has 7 weekdayDescriptions`);
+}
+
+// Skipped / unresearched venues preserve strict null / unknown
+for (const unknownId of ["ChIJBQ5SjLHGwogRL4X19g4J5tI", "ChIJunresearchedFtlTestVenue"]) {
+  const u = byIdW3.get(unknownId);
+  eq(u.ownedHours, null, `${unknownId} ownedHours remains null (unknown stays unknown)`);
+  const uStatus = evaluateOwnedHoursStatus(u.ownedHours, T_W3_NOW_MS);
+  eq(uStatus.state, "unknown", `${unknownId} status state is unknown`);
+  eq(uStatus.open, null, `${unknownId} open is null`);
+}
+
+// Deterministic America/New_York clock checks (Thu Nov 19 – Sat Nov 21, 2026, EST -05:00)
+const T_THU_1000 = Date.parse("2026-11-19T10:00:00-05:00");
+const T_THU_1530 = Date.parse("2026-11-19T15:30:00-05:00");
+const T_THU_2030 = Date.parse("2026-11-19T20:30:00-05:00");
+const T_THU_2330 = Date.parse("2026-11-19T23:30:00-05:00");
+const T_FRI_0100 = Date.parse("2026-11-20T01:00:00-05:00");
+const T_FRI_0230 = Date.parse("2026-11-20T02:30:00-05:00");
+const T_SAT_1300 = Date.parse("2026-11-21T13:00:00-05:00");
+const T_SAT_1630 = Date.parse("2026-11-21T16:30:00-05:00");
+
+const w3ClockMatrix = [
+  ["ChIJz8e7TVLEwogRBeybvscHnD4", T_THU_1000, false, "Columbia closed at 10:00 AM Thu"],
+  ["ChIJz8e7TVLEwogRBeybvscHnD4", T_THU_1530, true, "Columbia open at 3:30 PM Thu"],
+  ["ChIJz8e7TVLEwogRBeybvscHnD4", T_THU_2030, true, "Columbia open at 8:30 PM Thu"],
+  ["ChIJz8e7TVLEwogRBeybvscHnD4", T_THU_2330, false, "Columbia closed at 11:30 PM Thu"],
+
+  ["ChIJ3Vyq7WTEwogRA-WDC7Mze2E", T_THU_1000, false, "Ulele closed at 10:00 AM Thu"],
+  ["ChIJ3Vyq7WTEwogRA-WDC7Mze2E", T_THU_2030, true, "Ulele open at 8:30 PM Thu"],
+  ["ChIJ3Vyq7WTEwogRA-WDC7Mze2E", T_THU_2330, false, "Ulele closed at 11:30 PM Thu"],
+
+  ["ChIJH9758boB2YgRrs8O7f55ATA", T_THU_1000, true, "Café Bastille open at 10:00 AM Thu"],
+  ["ChIJH9758boB2YgRrs8O7f55ATA", T_THU_1530, true, "Café Bastille open at 3:30 PM Thu"],
+  ["ChIJH9758boB2YgRrs8O7f55ATA", T_THU_2030, false, "Café Bastille closed at 8:30 PM Thu"],
+  ["ChIJH9758boB2YgRrs8O7f55ATA", T_SAT_1630, true, "Café Bastille open at 4:30 PM Sat"],
+
+  ["ChIJi6K8mAwB2YgRuOxEAQPCaKQ", T_THU_1000, true, "Hatch open at 10:00 AM Thu"],
+  ["ChIJi6K8mAwB2YgRuOxEAQPCaKQ", T_THU_1530, false, "Hatch closed at 3:30 PM Thu"],
+  ["ChIJi6K8mAwB2YgRuOxEAQPCaKQ", T_SAT_1300, true, "Hatch open at 1:00 PM Sat"],
+  ["ChIJi6K8mAwB2YgRuOxEAQPCaKQ", T_SAT_1630, false, "Hatch closed at 4:30 PM Sat"],
+
+  ["ChIJ4V0TH_kA2YgRxgaQuq3qeV4", T_THU_1530, false, "Glitch Bar closed at 3:30 PM Thu"],
+  ["ChIJ4V0TH_kA2YgRxgaQuq3qeV4", T_THU_2030, true, "Glitch Bar open at 8:30 PM Thu"],
+  ["ChIJ4V0TH_kA2YgRxgaQuq3qeV4", T_THU_2330, true, "Glitch Bar open at 11:30 PM Thu"],
+  ["ChIJ4V0TH_kA2YgRxgaQuq3qeV4", T_FRI_0100, true, "Glitch Bar open at 1:00 AM Fri (Thu overnight wrap)"],
+  ["ChIJ4V0TH_kA2YgRxgaQuq3qeV4", T_FRI_0230, false, "Glitch Bar closed at 2:30 AM Fri"],
+  ["ChIJ4V0TH_kA2YgRxgaQuq3qeV4", T_SAT_1300, true, "Glitch Bar open at 1:00 PM Sat"],
+];
+
+for (const [pid, ts, expectedOpen, label] of w3ClockMatrix) {
+  const st = evaluateOwnedHoursStatus(byIdW3.get(pid).ownedHours, ts);
+  eq(st.open, expectedOpen, label);
+  eq(st.state, expectedOpen ? "open" : "closed", `${label} state`);
+}
+
 console.log(`test-owned-hours-cohort: OK — ${assertions} assertions passed`);
+

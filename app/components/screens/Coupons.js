@@ -24,7 +24,7 @@
 import { useEffect, useRef, useState } from "react";
 import CardPhoto from "../CardPhoto.js";
 import { parseCouponValue } from "../../../lib/couponValue";
-import { COUPONS, couponIsLive } from "../../../lib/coupons";
+import { COUPONS, couponIsLive, applyOfferHealthSnapshot } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { emitCommerce, rankBucket, mintClickId } from "../../../lib/commerce";
 import { useCommerceImpression } from "../useCommerceImpression";
@@ -290,6 +290,20 @@ function AreaBar({ state, metroName, ctx, open, setOpen, asked, setAsked }) {
 
 export default function CouponsScreen({ ctx }) {
   const { cpnOffers, center, savedCoupons, walletOpen, setWalletOpen, couponHandoff, user, setAuthOpen } = ctx;
+  const [, setHealthRev] = useState(0);
+  useEffect(() => {
+    if (typeof fetch !== "function") return undefined;
+    let cancelled = false;
+    fetch("/api/offers/health", { cache: "no-store" })
+      .then((r) => (r && r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data || !data.ok) return;
+        applyOfferHealthSnapshot(data);
+        setHealthRev((v) => v + 1);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [askedLoc, setAskedLoc] = useState(false);
   // Patience: once the screen has waited AREA_PATIENCE_MS with no center, an

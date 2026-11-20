@@ -1,0 +1,29 @@
+{
+ "read_at": "2026-11-17 (America/New_York), read only select",
+ "rows": [
+  {
+   "place_id": "ChIJr5B534biwogRAajykNa8968",
+   "name": "Clam Bayou Nature Park",
+   "hp": false,
+   "t": null,
+   "n": 0,
+   "hg": false
+  },
+  {
+   "place_id": "ChIJD0N73GTFwogRuJTf5jAk5B8",
+   "name": "Sparkman Wharf",
+   "hp": false,
+   "t": null,
+   "n": 0,
+   "hg": false
+  },
+  {
+   "place_id": "ChIJnW4wY-TxwogRQku5XIBxGao",
+   "name": "The BayCare Sound",
+   "hp": false,
+   "t": null,
+   "n": 0,
+   "hg": false
+  }
+ ]
+}

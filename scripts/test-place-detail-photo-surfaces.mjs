@@ -29,7 +29,7 @@ function host(props,source=file('app/components/PlaceDetailPhotoHeader.js'),imag
  const useState=initial=>{const i=cursor++;if(!(i in hooks))hooks[i]=initial;return[hooks[i],next=>{hooks[i]=typeof next==='function'?next(hooks[i]):next;dirty=true;}];};
  const useRef=initial=>{const i=cursor++;return hooks[i]||=( {current:imageState || initial} );};
  const useEffect=(fn,deps)=>{const i=cursor++,old=hooks[i];if(!old||deps.some((v,j)=>!Object.is(v,old.deps[j])))pending.push(()=>{old?.cleanup?.();hooks[i]={deps,cleanup:fn()};});};
- const context={React,useState,useEffect,useRef,getPlacePhoto,isGooglePlaceId,isPlaceOwnedPhotoUrl,PLACE_DETAIL_PHOTO_STANDARD,PhotoCredit:'credit',createPortal:x=>x,PhotoLightbox:'lightbox',RailCount:'railcount',RailDots:'raildots',scrollRailTo:()=>{},useRailIndex:()=>({count:0,index:0})};
+ const context={React,useState,useEffect,useRef,getPlacePhoto,isGooglePlaceId,isPlaceOwnedPhotoUrl,PLACE_DETAIL_PHOTO_STANDARD,PhotoCredit:'credit',PortraitAwareImg:'img',createPortal:x=>x,PhotoLightbox:'lightbox',RailCount:'railcount',RailDots:'raildots',scrollRailTo:()=>{},track:()=>{},useRailIndex:()=>({count:0,index:0})};
  const component=new Function(...Object.keys(context),compile(strip(source))+';return PlaceDetailPhotoHeader;')(...Object.values(context));
  const render=()=>{if(unmounted)return;let attempts=0;do{ok(++attempts<12,'header state settles');cursor=0;pending=[];dirty=false;tree=component(props);pending.forEach(fn=>fn());}while(dirty);};
  render();
@@ -97,7 +97,7 @@ try{
  const durableSource=compile(strip(file('lib/placePage.js')));
  const placeholder=()=>null;
  const data={id:A,name:'Durable Place',hours:[],category:'Food',lat:1,lng:2};
- const deps={React,notFound:()=>{throw new Error('unexpected404');},SITE_URL:'https://fixture.test',pageShareUrl:x=>x,ShareButton:placeholder,loadPlace:async()=>data,placePagePartner:()=>null,placeCity:()=>null,isIndexable:()=>false,badgeEligible:()=>false,listEligiblePlaces:async()=>[],featuredInFor:()=>null,PlacePageBookLink:placeholder,PlaceParkingMap:placeholder,placeLocalBusinessLd:()=>({}),PlaceDetailPhotoHeader:'shared-header'};
+ const deps={React,notFound:()=>{throw new Error('unexpected404');},SITE_URL:'https://fixture.test',pageShareUrl:x=>x,ShareButton:placeholder,loadPlace:async()=>data,placePagePartner:()=>null,placeCity:()=>null,isIndexable:()=>false,badgeEligible:()=>false,listEligiblePlaces:async()=>[],featuredInFor:()=>null,PlacePageBookLink:placeholder,PlaceParkingMap:placeholder,placeLocalBusinessLd:()=>({}),PlaceDetailPhotoHeader:'shared-header',PlaceDealOffer:placeholder,placeDealFor:()=>null,PLACE_PAGE_DEAL_SURFACE:'place_page_deal'};
  const page=new Function(...Object.keys(deps),durableSource+';return PlacePage;')(...Object.values(deps));const durable=walk(await page({id:A}));
  const mounted=durable.find(n=>n.type==='shared-header');ok(mounted,'durable page actually mounts shared header');eq(mounted.props.placeId,A,'durable exact identity');eq(mounted.props.name,data.name,'durable headline retained');ok(!durable.some(n=>n.type==='h1'),'durable headline owned once by header');
  // Extract actual paid dialog JSX via AST and execute it with an active place.

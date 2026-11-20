@@ -43,7 +43,7 @@ const SLOTS = ["17:30", "18:30", "18:45", "19:00", "19:15", "19:30", "20:00", "2
 // distinctive private values: the model must never see these
 const PROFILE = { first_name: "Zebediah", last_name: "Quillfeather", mobile_phone: "+19415550177", preferred_email: "zeb.quill@example.com", consent_at: "2026-11-01T00:00:00Z", default_party_size: 2 };
 
-function fakeRepo({ partners = PARTNERS, links = LINKS, inventory = INVENTORY, profile = PROFILE, slotsByPlace = { [KITCHEN]: SLOTS }, bookings = [] } = {}) {
+function fakeRepo({ partners = PARTNERS, links = LINKS, inventory = INVENTORY, profile = PROFILE, slotsByPlace = { [KITCHEN]: SLOTS }, bookings = [], agentSite = null } = {}) {
   const calls = [];
   const log = (n, a) => calls.push({ n, a });
   const store = [...bookings];
@@ -77,6 +77,7 @@ function fakeRepo({ partners = PARTNERS, links = LINKS, inventory = INVENTORY, p
     async listPartnerBookings(place) { return store.filter((b) => b.place_id === place && ["requested", "confirmed", "proposed"].includes(b.status)); },
     async getPartnerByManageHash(hash) { return partners.find((p) => p.manage_token_hash === hash) || null; },
     async readBookingProfile(u) { log("readBookingProfile", u); return profile; },
+    async readBookingAgentSite() { return agentSite; },
   };
 }
 function harness({ env = PROD, extra = {}, ...repoOpts } = {}) {
@@ -346,6 +347,23 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   ok(onFri.body.state.date === "2026-11-20" && !(onFri.body.card && onFri.body.card.type === "dates"), "G: next Friday said on a Friday is a week out: " + onFri.body.state.date);
   // Every review sentence names the exact calendar date.
   ok(/today, Wednesday, November 11/.test(later.body.say) && /Thursday, November 12/.test(mid.body.say), "G: every times sentence names the exact calendar date: " + later.body.say + " | " + mid.body.say);
+}
+
+// ---- H. booking agent offer stays beside the handoff, and the model still gets no profile PII ----
+{
+  const bodies = [];
+  const ai = (text) => ({ aiKey: () => "key", model: "m", breakerOpen: async () => false, tripBreaker: async () => {}, classifyProviderFailure: () => null, paidAnthropicRequest: async (init) => { bodies.push(init.body); return { ok: true, status: 200, json: async () => ({ content: [{ text }] }), text: async () => text }; } });
+  const modelJson = JSON.stringify({ restaurant: "Ulele", again: false, date: "2026-11-20", time: "19:00", partySize: 4, note: null, ask: null });
+  const envOn = { ...PROD, BOOKING_AGENT_ENABLED: "1", BOOKING_AGENT_SITE_OPENTABLE: "1" };
+  const siteOn = { site: "opentable", status: "on", paused_until: null, last_challenge_at: null, challenge_count_7d: 0 };
+  const h = harness({ env: envOn, extra: ai(modelJson), agentSite: siteOn });
+  const r = await say(h, "Book Ulele on November 20 at 7 for four");
+  ok(r.body.card?.type === "agent_offer" && r.body.card.handoff?.type === "handoff" && r.body.card.consentVersion === "agent-consent-v1", "H: agent offer keeps the handoff card beside it: " + JSON.stringify(r.body.card));
+  ok(/\/api\/reserve\/go\?/.test(r.body.card?.handoff?.url || "") && !/booked|available/i.test(r.body.say), "H: the handoff URL is still ours and the sentence does not say booked");
+  const sent = bodies.join("\n");
+  for (const secret of ["Zebediah", "Quillfeather", "9415550177", "zeb.quill", "example.com", USER]) ok(!sent.includes(secret), `H: the model request never contains ${secret}`);
+  const off = await say(harness({ env: envOn, extra: ai(modelJson), agentSite: { ...siteOn, status: "off" } }), "Book Ulele on November 20 at 7 for four");
+  ok(off.body.card?.type === "handoff" && !off.body.card.handoff, "H: a site switch that is off keeps the plain handoff card");
 }
 
 if (failed) { console.error(`test-reserve-concierge: ${failed} of ${count} assertions failed`); process.exit(1); }

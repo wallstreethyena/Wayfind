@@ -1,5 +1,6 @@
 "use client";
 import CreatorVideoAction from "../CreatorVideoAction";
+import { isEmbeddable } from "../../../lib/videoEmbed";
 import PlaceDistance, { usePlaceDistance } from "../PlaceDistance.js";
 // Extracted from app/home.js (G3, July 2026 decomposition). Render-only.
 // The place-detail bottom sheet — Wayfind's core, most-used UI surface.
@@ -36,7 +37,8 @@ import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM, PLATFORM_RGB } from "../../../lib/creatorVideos";
 import { captionFor } from "../../../lib/creatorCaptions";
-import { resolveDetailCta, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
+import { resolveDetailCta, primaryCtaGap, CTA_GAP_REASONS, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
+import { placeEvidence } from "../../../lib/bookingResolve";
 import { emitCommerce, commerceHref, mintClickId } from "../../../lib/commerce";
 import { withClickId, isEarningGoHref } from "../../../lib/hubConversion";
 import { funnelProps } from "../../../lib/funnel";
@@ -53,6 +55,7 @@ import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, detailHeroLayout } from "../../../lib/detailHero";
 import { PLACE_DETAIL_PHOTO_STANDARD } from "../../../lib/placeDetailPhotoStandard.js";
 import { railPhotoSrc } from "../../../lib/cardPhotoRequest.js";
+import CreatorPlaceCover from "../CreatorPlaceCover.js";
 import { acquireDetailPhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
 import PhotoCredit from "../PhotoCredit";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
@@ -854,7 +857,7 @@ export default function DetailSheet({ ctx }) {
   // Guard event: if the ladder ever fails to produce a primary CTA, record it.
   useEffect(() => {
     if (!primaryCta || !primaryCta.type) {
-      try { logEvent("primary_cta_null", detail, { city: ctaCity, category: ctaCategory }); } catch (e) {}
+      try { logEvent("primary_cta_null", detail, { surface: "detail", gap_reason: "no_primary_cta", city: ctaCity, category: ctaCategory }); } catch (e) {}
     }
   }, [detail && detail.id, primaryCta, ctaCity, ctaCategory, logEvent]);
 
@@ -1176,10 +1179,10 @@ export default function DetailSheet({ ctx }) {
   //
   // ONE PROVIDER PER CARD (owner's hard rule): exactly one rung wins, so exactly
   // one monetized href can occupy the primary slot.
-  // primary_cta_null: fires when no MONETIZABLE CTA resolved. Directions is the
-  // acknowledged non-monetized terminal and does NOT suppress the event — the
-  // point is to count the sheets where we had nothing to sell, which is the
-  // denominator for the attraction-ticket gap.
+  // commerce_impression below fires for every sheet with its cta_type, so the
+  // "sheets with no monetized CTA" denominator is commerce_impression where
+  // cta_type is not a partner type. primary_cta_null is NOT that count any more;
+  // see the primaryCtaGap block after this effect.
   const ctaFiredFor = useRef(null);
   useEffect(() => {
     if (!detail || !detail.id) return;
@@ -1187,9 +1190,37 @@ export default function DetailSheet({ ctx }) {
     ctaFiredFor.current = detail.id;
     try {
       logEvent("commerce_impression", detail, { place_type: placeKind(detail), cta_type: primaryCta.type });
-      if (!primaryCta.monetized) logEvent("primary_cta_null", detail, { place_type: placeKind(detail), terminal: primaryCta.type });
     } catch (e) {}
   }, [detail && detail.id, primaryCta.type, primaryCta.monetized]);
+
+  // primary_cta_null (redefined 2026-11-20, lib/detailCta.js primaryCtaGap): a place
+  // that SHOULD have a partner action showed only the Directions fallback, judged
+  // AFTER the inputs that can upgrade it have resolved (editorial / first-party
+  // actions, the website verdict, the Viator evidence for attractions). It used to
+  // fire on mount for every non-monetized sheet, before those landed, and so counted
+  // Official site, See admission and Ask about a table as "nothing". Dining waits
+  // for the timeout because its upgrade (the reserve list) has no separate done flag.
+  const ctaGap = primaryCtaGap({ detail: hydratedDetail, primaryCta, editorial: effectiveEditorialForTruth });
+  const [ctaSettleLate, setCtaSettleLate] = useState(false);
+  useEffect(() => {
+    setCtaSettleLate(false);
+    if (!detail || !detail.id) return undefined;
+    const t = setTimeout(() => setCtaSettleLate(true), 6000);
+    return () => clearTimeout(t);
+  }, [detail && detail.id]);
+  const ctaInputsSettled = ctaSettleLate || (
+    editorialLoaded
+    && (!verdictTargetUrl || websiteOk !== null)
+    && (ctaGap !== CTA_GAP_REASONS.attraction || placeEvidence(viaTours, detail && detail.id).resolved)
+    && ctaGap !== CTA_GAP_REASONS.dining
+  );
+  const ctaGapFiredFor = useRef(null);
+  useEffect(() => {
+    if (!detail || !detail.id || !ctaGap || !ctaInputsSettled) return;
+    if (ctaGapFiredFor.current === detail.id) return;
+    ctaGapFiredFor.current = detail.id;
+    try { logEvent("primary_cta_null", detail, { surface: "detail", place_type: placeKind(detail), terminal: primaryCta.type, gap_reason: ctaGap }); } catch (e) {}
+  }, [detail && detail.id, ctaGap, ctaInputsSettled]);
 
 
   // Shared credited answer, with bounded free-only recovery for a transient
@@ -1268,9 +1299,9 @@ export default function DetailSheet({ ctx }) {
               {expandedHero ? (
                 <div data-detail-photo-gallery style={{ position: "relative", paddingTop: "calc(52px + env(safe-area-inset-top))" }}>
                   <div data-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: C.bg }}>
-                    {showHero ? <div ref={galleryRef} onScroll={onGalleryScroll} style={{ position: "absolute", inset: 0, display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                    {showHero ? <div ref={galleryRef} onScroll={onGalleryScroll} style={{ position: "absolute", inset: 0, display: "flex", gap: 0, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                     {galleryPhotos.map((src, i) => (
-                      <FallbackImg defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: galleryPhotos.length > 1 ? "78%" : "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", scrollSnapStop: "always", cursor: "zoom-in" }} />
+                      <FallbackImg portraitFit defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => { setLightbox(src); try { logEvent("photo_viewer_open", detail, { surface: "place_sheet", photo_index: i + 1, photo_count: galleryPhotos.length }); } catch (e) {} }} style={{ width: "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", scrollSnapStop: "always", cursor: "zoom-in" }} />
                     ))}
                     </div> : <div data-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: C.muted, fontSize: 12 }}>Loading photo…</div>}
                   </div>
@@ -1659,7 +1690,8 @@ export default function DetailSheet({ ctx }) {
 
               {/* Featured creator video: curated UGC social proof, credited to the creator and linked out to their real video, placed below core decision intelligence so visitor logistics answer first. */}
               {!detail._event && (() => {
-                const cvs = creatorVideosFor(detail, locName);
+                // Owner 2026-11-20: only creator posts that play inside Wayfind get a tile.
+                const cvs = creatorVideosFor(detail, locName).filter((v) => isEmbeddable(v.platform, v.url));
                 if (!cvs.length) return null;
                 return (
                   <div style={{ marginBottom: 16 }}>
@@ -1677,7 +1709,8 @@ export default function DetailSheet({ ctx }) {
                            className="wf-social-glow"
                            style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, "--glow-rgb": PLATFORM_RGB[v.platform] || PLATFORM_RGB.tiktok }}>
                           <div style={{ position: "relative", flexShrink: 0, width: 88, height: 88, borderRadius: 11, overflow: "hidden", background: `linear-gradient(135deg, ${p.color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            {v.thumbnail && <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+                            {v.thumbnail ? <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                              : <CreatorPlaceCover placeId={detail.id} alt={detail.name || ""} compact />}
                             <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span>
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>

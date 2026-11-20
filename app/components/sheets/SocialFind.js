@@ -24,7 +24,7 @@ import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage, crea
 import { captionFor } from "../../../lib/creatorCaptions";
 import CreatorAvatar from "../CreatorAvatar";
 import CreatorVideoAction from "../CreatorVideoAction";
-import VideoFacade from "../VideoFacade";
+import CreatorCoverFacade from "../CreatorCoverFacade";
 import CreatorPlaybackDetails from "../CreatorPlaybackDetails";
 import { creatorLabel, AFFILIATION_DISCLOSURE, FEATURED_CREATOR_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 import { summaryFor } from "../../../lib/creatorArchetypes";
@@ -276,7 +276,7 @@ export default function SocialFindSheet({ ctx }) {
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: "flex", justifyContent: "center" }}>
                 {isEmbeddable(video.platform, video.url) ? <CreatorPlaybackDetails style={{ width: "100%", maxWidth: 300 }} details={curatedDetails}>
-                  <VideoFacade platform={video.platform} url={video.url} label={`${handle ? "@" + handle : plat.label + " creator"} post about ${place.name}`} />
+                  <CreatorCoverFacade placeId={curatedSpot.placeId || place.id} platform={video.platform} url={video.url} coverTitle={place.name} coverCity={place.city || curatedSpot.city || null} coverEyebrow={handle ? `THE @${handle} EDIT` : "CREATOR POST"} fallbackLabel="Place cover shown" label={`${handle ? "@" + handle : plat.label + " creator"} post about ${place.name}`} />
                 </CreatorPlaybackDetails> : curatedDetails}
               </div>
             </div>

@@ -1,0 +1,16 @@
+{
+  "version": "opentable.v1",
+  "status": "CAPTURED",
+  "source": "Captured via supervised local Chrome session against OpenTable restref (availability -> seating -> details). Synthetic fixture selectors kept as comma fallbacks for hermetic tests.",
+  "slotButton": "[data-test='slot-button'], [data-synthetic='slot-button']",
+  "seatingOption": "button:has-text('Standard'), [data-synthetic='seating-standard']",
+  "fields": {
+    "firstName": "#firstName, input[name='firstName'], [data-synthetic='first-name']",
+    "lastName": "#lastName, input[name='lastName'], [data-synthetic='last-name']",
+    "phone": "#phoneNumber, input[type='tel'], [data-synthetic='phone']",
+    "email": "#email, input[name='email'], [data-synthetic='email']"
+  },
+  "submit": "#complete-reservation, [data-test='complete-reservation-button'], [data-synthetic='submit']",
+  "smsCodeInput": "input[autocomplete='one-time-code'], input[name*='code' i], input[data-test*='code' i], [data-synthetic='sms-code']",
+  "smsCodeSubmit": "button[type='submit'], button:has-text('Verify'), button:has-text('Continue'), [data-synthetic='sms-submit']"
+}

@@ -55,7 +55,7 @@ These define the rules. Rules cannot stabilise while they are a merge target —
 overwrote the rest.
 
 To propose a rule change, write `docs/proposals/<lane>-<topic>.md` and say so in your lane
-file. The owner merges it. Enforced by `scripts/check-doc-ownership.mjs`.
+file, then ship it as a normal PR.
 
 ## Migration
 

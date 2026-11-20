@@ -1,0 +1,77 @@
+{
+  "slug": "orlando-christmas-concerts-and-santa-2026",
+  "picks": {
+    "SEA LIFE Orlando Aquarium: an optional indoor visit": {
+      "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/sea-life-orlando-under-the-wheel.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Sea life mural on the SEA LIFE Orlando Aquarium building beneath The Wheel at ICON Park",
+      "caption": "SEA LIFE Orlando Aquarium beneath The Wheel at ICON Park.",
+      "credit": "Benoît Prieur",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022_(2).JPG",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022_(2).JPG",
+      "author": "Benoît Prieur",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "commons",
+      "placeId": "ChIJmy7U4VJ-54gRi1LoS6wwFj0",
+      "verification": "Commons file titled SEA LIFE Orlando Aquarium en fevrier 2022 (2) shows the aquarium's ocean mural building directly under the ICON Park wheel. Live Commons licence checked: CC0 1.0 Universal.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "ICON Park: The Santa Workshop Experience": {
+      "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/icon-park-wheel-peppermint-christmas.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The Wheel at ICON Park lit in a red and white peppermint Christmas color scheme at night",
+      "caption": "The Wheel at ICON Park in its peppermint Christmas lights, International Drive.",
+      "credit": "Jared",
+      "creditHref": "https://www.flickr.com/photos/93283041@N00/28383791856",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://www.flickr.com/photos/93283041@N00/28383791856",
+      "author": "Jared",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG.",
+      "sourceKind": "flickr",
+      "placeId": "ChIJw5jVAVN-54gRScNxiRF16j4",
+      "verification": "Flickr title Orlando, Orlando Eye, Peppermint Christmas Color Scheme by Jared; the ICON Park observation wheel structure and capsules match. Live Flickr licence checked: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    },
+    "Lake Eola: DTOLive! for the Holidays": {
+      "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/lake-eola-christmas-tree.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A tall Christmas tree decorated with red ornaments under palm trees in Lake Eola Park in downtown Orlando",
+      "caption": "The Christmas tree in Lake Eola Park, downtown Orlando, in early December.",
+      "credit": "Michael Rivera",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Christmas_tree_in_Lake_Eola_park.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Christmas_tree_in_Lake_Eola_park.jpg",
+      "author": "Michael Rivera",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Wikimedia Commons file Christmas tree in Lake Eola park, taken in early December. Viewed the full image: the holiday tree in Lake Eola Park, the downtown Orlando park where DTOLive! for the Holidays plays. No overlay, logo or watermark. Live Commons licence checked: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-17"
+    }
+  },
+  "gaps": {
+    "Carousel on the Promenade: the nearby extra": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    },
+    "Madame Tussauds Orlando: another separate option": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJm-1TQ1N-54gRtKSCx6hQ8SU",
+      "note": "Creator screenshots are discovery evidence and do not grant image reuse. Use the established neutral fallback until an exact licensed or permissioned photo is available."
+    }
+  }
+}

@@ -51,14 +51,31 @@ let pass = 0;
 const failures = [];
 const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
 
-// ── the four guide entry points this guard covers, by name (task facts:
-// 43 guides through [slug], 2 dedicated) ───────────────────────────────────
-const ENTRY_POINTS = [
+// Guide entry points that must keep the shared editorial header: EVERY route
+// file under app/guides (any depth, any page extension), discovered from disk.
+// A hand-kept list missed universal-orlando-christmas-2026 (2026-11-19 audit),
+// and a new dedicated guide would have been skipped silently.
+const PAGE_FILE_RX = /^page\.(?:js|jsx|ts|tsx|mjs)$/;
+function findPages(dir, out = []) {
+  for (const name of readdirSync(dir)) {
+    const p = path.join(dir, name);
+    if (statSync(p).isDirectory()) findPages(p, out);
+    else if (PAGE_FILE_RX.test(name)) out.push(path.relative(REPO, p).split(path.sep).join("/"));
+  }
+  return out;
+}
+const ENTRY_POINTS = findPages(abs("app/guides")).sort();
+// Positive controls: discovery finds the template route, the index and every
+// guide the old hand list named (it can only grow), plus Universal.
+for (const must of [
   "app/guides/page.js",
   "app/guides/[slug]/page.js",
   "app/guides/pintos-farm-miami-2026/page.js",
+  "app/guides/disney-world-holiday-food-guide-2026/page.js",
   "app/guides/florida-fall-festivals-2026/page.js",
-];
+  "app/guides/universal-orlando-christmas-2026/page.js",
+]) ok(ENTRY_POINTS.includes(must), `entry-point discovery lost ${must}`);
+ok(PAGE_FILE_RX.test("page.tsx") && PAGE_FILE_RX.test("page.jsx") && !PAGE_FILE_RX.test("page.module.css") && !PAGE_FILE_RX.test("layout.js"), "red-proof: page-file detector matches route files only");
 
 // ── every guide-owned CSS file: app/guides/** *.css, plus the two shared
 // Guide* component stylesheets that live outside app/guides/ ─────────────
@@ -224,8 +241,11 @@ for (const rel of GUIDE_JS_FILES) {
 }
 
 // ── RULE 5 — every guide entry point imports the shared shell/figure ──────
-const SHELL_IMPORT_RX = /from\s+["'][^"']*\/(GuideArticleHero|GuideFigure)(?:\.js)?["']/;
+// GuideStandardShell renders GuideArticleHero (and its GuideFigure) for every
+// dedicated route, so importing the shell IS rendering through the shell.
+const SHELL_IMPORT_RX = /from\s+["'][^"']*\/(GuideArticleHero|GuideFigure|GuideStandardShell)(?:\.js)?["']/;
 ok(SHELL_IMPORT_RX.test('import GuideArticleHero from "../../components/GuideArticleHero";'), "red-proof: shell-import detector fires on a synthetic positive");
+ok(!SHELL_IMPORT_RX.test('import Hero from "../../components/SomeOtherHero";'), "red-proof: shell-import detector stays quiet on a synthetic negative");
 for (const rel of ENTRY_POINTS) {
   const src = read(rel);
   ok(SHELL_IMPORT_RX.test(src), `${rel}: does not import GuideArticleHero or GuideFigure — every guide entry point must render through the shared shell`);
@@ -303,7 +323,7 @@ for (const rel of ENTRY_POINTS) {
 // (executed against the real registry, not read) ──────────────────────────
 {
   const { GUIDES } = await import(path.join(REPO, "lib/guides.js"));
-  const { guidePickPhoto, guidePhotoForPlace } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
+  const { guidePickPhoto, guidePhotoForPlace, placePhotoReuseAllowed } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
   const { guideContextPhoto } = await import(path.join(REPO, "lib/guideContextPhotos.js"));
   const editorialCode = ts.transpileModule(read("app/guides/[slug]/GuideEditorial.js"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020 },
@@ -318,7 +338,7 @@ for (const rel of ENTRY_POINTS) {
     for (const pick of guide.picks || []) {
       picksChecked++;
       const media = guidePickFigureImage(slug, pick) || guidePickPhoto(slug, pick.name)
-        || guidePhotoForPlace(pick.placeId) || guideContextPhoto(slug, pick, guide);
+        || (placePhotoReuseAllowed(pick) ? guidePhotoForPlace(pick.placeId) : null) || guideContextPhoto(slug, pick, guide);
       // Image intent rule (owner, 2026-11-04): a pick with no intent-matching
       // photo renders the photo-less layout and is Picture Scrapper backlog.
       if (!media) continue;
@@ -382,4 +402,4 @@ if (failures.length) {
   for (const f of failures) console.error("  ✗ " + f);
   process.exit(1);
 }
-console.log(`check-guide-visual-standard: OK — ${pass} assertions; ${GUIDE_CSS_FILES.length} guide CSS files and ${GUIDE_JS_FILES.length} guide JS files scanned; ${baseline.slugs.length} slug(s) on the baseline`);
+console.log(`check-guide-visual-standard: OK — ${pass} assertions; ${GUIDE_CSS_FILES.length} guide CSS files and ${GUIDE_JS_FILES.length} guide JS files scanned; ${ENTRY_POINTS.length} guide entry points discovered on disk (every app/guides/**/page.*); ${baseline.slugs.length} slug(s) on the baseline`);

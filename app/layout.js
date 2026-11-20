@@ -1,5 +1,6 @@
 import Script from "next/script";
 import { Suspense } from "react";
+import { TRANSLATE_DOM_GUARD_SCRIPT } from "../lib/translateDomGuard.js";
 import SiteFeedback from "./components/SiteFeedbackEntry";
 import DocumentPosition from "./components/DocumentPosition";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -234,6 +235,11 @@ export default function RootLayout({ children }) {
             Built from lib/cardActionAttrs.js — the card renders the same
             constants, so the selector and the markup cannot drift apart. */}
         <script dangerouslySetInnerHTML={{ __html: cardActionBridgeScript() }} />
+        {/* Browser translation guard (WAYFIND-1X): Chrome's page translator
+            swaps React's text nodes for <font> wrappers, so React's later
+            removeChild/insertBefore throws and unmounts the route. Steps in
+            only where the DOM would throw. See lib/translateDomGuard.js. */}
+        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_DOM_GUARD_SCRIPT }} />
         {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
             'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy
             client SDK finishes loading; SentryClient replays this queue on load,
