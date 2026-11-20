@@ -69,7 +69,9 @@ const html = renderToStaticMarkup(createElement(HomeAffiliateActivityRail, {
 assert.equal((html.match(/data-offer=/g) || []).length, 30, "the real component renders all 30 exact-product links");
 assert.equal((html.match(/<article class="wf-place-card wf-rail-card"/g) || []).length, 30, "all 30 rendered products use the actual shared Wayfind card");
 assert.equal((html.match(/wf-place-card-book wf-rail-card-cta/g) || []).length, 30, "all 30 booking links use the shared full-width card CTA");
-assert.match(html, /30<\/b> ranked options/, "the rendered count tells the truth");
+assert.match(html, /30<\/b> options/, "the rendered count tells the truth");
+assert.match(html, /Affiliate links\. We may earn a commission\./, "the short affiliate disclosure stays visible text");
+assert.doesNotMatch(html, /highest-ranked tours and experiences/, "the rail carries no deck line (owner, 2026-11-20: less is more)");
 assert.match(html, /provider=viator&amp;offer=/, "rendered hrefs use the server-owned exact-product redirect");
 
 console.log("test-home-bookable: ok");
