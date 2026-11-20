@@ -321,3 +321,23 @@
     gap: 3px;
   }
 }
+
+/* Owner 2026-11-20 ("this should be below not next to it"): an illustrated park
+   map keeps the Robert's event page order on every screen size: the map, then
+   the card rail BELOW it at full width, never side by side. */
+.explorer[data-stack="true"] .mapRailStage {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.explorer[data-stack="true"] .mapWrap {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+@media (min-width: 821px) {
+  .explorer[data-stack="true"] .filterRow {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
