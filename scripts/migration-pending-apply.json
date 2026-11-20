@@ -112,11 +112,18 @@
     "reason": "NOT APPLIED. New tables wf_booking_agent_runs, wf_booking_agent_events, wf_booking_agent_sites (RLS on, owner select on runs and events, service role writes, opentable seeded off). Additive. Unused until BOOKING_AGENT_ENABLED=1, BOOKING_AGENT_SITE_OPENTABLE=1 and the site row is on. Owner applies after review. Do not apply from this draft."
   },
   {
-    "file": "supabase/migrations/20261120140000_wf_cc_partner_clicks_commerce_mirror.sql",
-    "sha256": "29f221b01cb244889a9fd302f289f05675b8a6fddd6019c61613db7da404387c",
+    "file": "supabase/migrations/20261117120000_wf_reserve_phone.sql",
+    "sha256": "45a0d9ab8f1ff5da9fbf44d64e89803211afa9e3706504d459afff58d94911ce",
     "decision_owner": "wallstreethyena",
-    "tracking": "#2662 (supersedes #1627)",
-    "reason": "Command Center partner clicks: counts the canonical commerce_cta_clicked mirror row (every booking button since 2026-10-26 22:45:35 UTC) and gates the legacy out actions to rows before it, so the owner briefing stops reporting 0 partner clicks (2026-11-19: 22 real clicks from 20 devices). Read-time only; supersedes held #1627. Owner released 2026-11-20 (\"Fix the report\"). Applied through the canonical path right after merge."
+    "tracking": "draft phone request, notification kinds from #2568 are not on main",
+    "reason": "NOT APPLIED. New tables wf_reserve_phone_places, wf_reserve_phone_requests, wf_reserve_phone_calls, and wf_reserve_phone_audit (RLS on, no policies, service role only). No audio or transcript columns. No seed rows: the allowlist stays empty until the owner names one restaurant. Additive; rollback = drop the four tables. Unused until RESERVE_PHONE_ENABLED=1, so applying it changes no behavior."
+  },
+  {
+    "file": "supabase/migrations/20261116223000_wf_reserve_notification_kinds.sql",
+    "sha256": "2f685f8b67ccbbb0626b2a23752a77b24204259795ead8b088948013bfb7236a",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2552 follow-up: reserve notification kinds beyond confirmation texts",
+    "reason": "NOT APPLIED. Additive only, and only after 20261116120000_wf_reserve_notifications.sql. Widens the kind check to request_received_sms, request_accepted_sms, request_declined_sms, opentable_handoff, cancellation_sms and failure_sms. Adds status recorded and channel none so a row we chose not to text is not left queued. Recipient may be null only when channel is none. No new table, no grant, RLS unchanged. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials."
   },
   {
     "file": "supabase/migrations/20261120220000_wf_place_photo_openverse_source.sql",

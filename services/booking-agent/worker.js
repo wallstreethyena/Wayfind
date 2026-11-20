@@ -17,7 +17,7 @@ export async function runWorker(deps = {}) {
     env,
     store,
     now: deps.now,
-    launch: deps.launch || ((opts) => launchHonestChromium(opts)),
+    launch: deps.launch || ((opts) => launchHonestChromium({ ...opts, mode: opts.mode || env.BOOKING_AGENT_BROWSER_MODE })),
     loadProfile: deps.loadProfile || (repository ? (userId) => repository.readBookingProfile(userId) : async () => null),
     placeName: deps.placeName || (repository ? async (id) => (await repository.getInventoryPlace(id))?.name || null : async () => null),
     log: deps.log || (() => {}),

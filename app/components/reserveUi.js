@@ -7,7 +7,12 @@ import { createRoot } from "react-dom/client";
 import { C, sheetBg, sheet, Grabber, useDialogFocus } from "./kit";
 import { styleHtml } from "../../lib/styleHtml.js";
 
-const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd{visibility:hidden}";
+// Every fixed Santa surface that sits above kit sheets: the dock (.wf-sd, z 930) and the proactive
+// "Build a day around this" offer bar (.wfp-so, z 936, app/components/PlannerSantaOffer.js). visibility:hidden
+// also stops them taking taps, so the sheet's own buttons (Open on OpenTable, Send) always get the touch.
+// + the plain planner offer card (.wfp-proactive, z 935, bottom 82px on phones; shown outside Santa season), which
+// covers the same bottom strip of the sheet.
+const HIDE_DOCK_CSS = "html[data-wf-reserve-open] .wf-sd,html[data-wf-reserve-open] .wfp-so,html[data-wf-reserve-open] .wfp-proactive{visibility:hidden}";
 
 export const mainBtn = { width: "100%", minHeight: 48, padding: "0 16px", background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" };
 export const quietBtn = { width: "100%", minHeight: 44, padding: "0 16px", background: "transparent", border: `1px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" };
@@ -34,8 +39,8 @@ export function Bubble({ role, children }) {
 export function Shell({ title, sub, onClose, extra, children, titleId = "wf-reserve-title" }) {
   const ref = useRef(null);
   useDialogFocus(true, ref, onClose);
-  // The fixed Santa dock (z 930) sits above every kit sheet (z 900). While a Reserve sheet is open it would cover the
-  // message box and Send on a phone, so hide it for the sheet's lifetime. Counted, so nested Reserve sheets are safe.
+  // The fixed Santa dock (z 930) and Santa's offer bar (z 936) sit above every kit sheet (z 900). While a Reserve sheet
+  // is open they would cover the OpenTable button, the message box and Send on a phone, so hide them for the sheet's lifetime. Counted, so nested Reserve sheets are safe.
   useEffect(() => {
     const html = typeof document !== "undefined" && document.documentElement;
     if (!html) return undefined;

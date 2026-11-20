@@ -313,7 +313,7 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   ok(!/repository\.(book|request)\s*\(|createReservation\s*\(/.test(concierge), "F: the concierge module has no call that books");
   ok(!/anthropic\.com|\bfetch\s*\(/.test(concierge + strip(src("lib/reserveProviders/index.js"))), "F: no direct network call in the concierge or the registry");
   const walk = (d) => readdirSync(d).flatMap((f) => { const q = d + "/" + f; return statSync(q).isDirectory() ? walk(q) : /\.(js|mjs)$/.test(q) ? [q] : []; });
-  ok(walk("lib/reserveProviders").length === 7, "F: all provider files exist (index, shared, direct, request, handoff, api, none)");
+  ok(walk("lib/reserveProviders").length === 8, "F: all provider files exist (index, shared, direct, request, handoff, api, phone, none)");
 }
 
 // ---- G. dates are exact and never guessed (America/New_York) ------------------------------------------------

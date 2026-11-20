@@ -239,7 +239,8 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
     const dlg = document.querySelector('[role="dialog"]');
     ok(opened === 0 && !!dlg && !!dlg.querySelector("[data-reserve-concierge]") && /Mario's Trattoria/.test(dlg.textContent), `${label}: tap opens the concierge sheet for the restaurant (card stays closed)`);
     ok(!!dlg && (dlg.querySelector("#wf-reserve-title") || {}).textContent === label, `${label}: the sheet title repeats the button, never a stronger promise (got ${(dlg && dlg.querySelector("#wf-reserve-title") || {}).textContent})`);
-    ok(document.documentElement.hasAttribute("data-wf-reserve-open") && /\.wf-sd\{visibility:hidden\}/.test(dlg.parentElement.innerHTML), `${label}: while the sheet is open the fixed Santa dock is hidden so it cannot cover the message box`);
+    ok(document.documentElement.hasAttribute("data-wf-reserve-open") && /html\[data-wf-reserve-open\] \.wf-sd,html\[data-wf-reserve-open\] \.wfp-so,html\[data-wf-reserve-open\] \.wfp-proactive\{visibility:hidden\}/.test(dlg.parentElement.innerHTML), `${label}: while the sheet is open the fixed Santa dock, Santa's "Build a day" offer bar AND the planner offer card are hidden so none covers the OpenTable button or the message box`);
+    ok(/className="wfp-so"/.test(fs.readFileSync(path.join(ROOT, "app/components/PlannerSantaOffer.js"), "utf8")), `${label}: Santa's offer bar still carries the .wfp-so class the Reserve hide rule targets`);
     const input = dlg && dlg.querySelector("#wf-reserve-msg");
     if (input) { Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, "value").set.call(input, "tomorrow at 7 for 2"); await act(async () => { input.dispatchEvent(new w.Event("input", { bubbles: true })); }); await act(async () => { dlg.querySelector("form:last-of-type").dispatchEvent(new w.Event("submit", { bubbles: true, cancelable: true })); await new Promise((r) => setTimeout(r, 80)); }); }
     const turnCall = calls.slice(before).find((c) => c.url === "/api/reserve/concierge");
@@ -438,10 +439,20 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   ok(!!go && go.tagName === "A" && go.getAttribute("href") === goUrl && go.getAttribute("target") === "_blank" && /noopener/.test(go.getAttribute("rel")) && go.textContent === "Open Mario's on OpenTable", "handoff card: link to card.url, target _blank, rel noopener, labelled card.label");
   ok(/You'll finish on OpenTable\. Wayfind hasn't booked this yet\./.test(m.host.textContent) && !/Booked/.test(m.host.textContent) && !/booked at|You're booked/i.test(m.host.textContent), "handoff card never says Booked and carries the finish-on-OpenTable note");
   ok(!/opentable\.com/i.test(m.host.innerHTML), "the client never builds an OpenTable address");
+  { const sum = m.host.querySelector("[data-reserve-handoff-summary]"); ok(!!sum && /7:00 PM/.test(sum.textContent) && /4 people/.test(sum.textContent) && !m.host.querySelector("[data-reserve-handoff-rounded]"), "handoff card shows the day, time and party before the tap; no rounding note when the time is already a half hour"); }
+  ok(!m.host.querySelector("[data-reserve-handoff-opened]") && !/Opened on OpenTable/.test(m.host.textContent), "no 'opened' feedback before the tap");
   go.addEventListener("click", (e) => e.preventDefault());
   await click(go);
   const hand = JSON.parse(localStorage.getItem("wf_reserve_handoffs") || "[]");
   ok(hand.length === 1 && hand[0].placeId === "partner-1" && hand[0].time === "19:00" && hand[0].party === 4, "tapping the handoff link logs it to wf_reserve_handoffs");
+  { const st = m.host.querySelector("[data-reserve-handoff-opened]"); ok(!!st && st.getAttribute("role") === "status" && st.textContent === "Opened on OpenTable. Saved to My reservations." && !/Booked/.test(m.host.textContent), "after the tap: a status line says it opened on OpenTable and was saved, never Booked"); }
+  await m.unmount();
+
+  // (d2) handoff with a rounded time: the card shows the half hour OpenTable receives and says why
+  reset();
+  routes["POST /api/reserve/concierge"] = turn({ type: "handoff", url: `/api/reserve/go?placeId=partner-1&date=${DAY}&time=19%3A15&party=2`, label: "Open Mario's on OpenTable", sentTime: "19:30" }, "Mario's books through OpenTable.");
+  m = await mountC({ initialMessage: "x" });
+  { const sum = m.host.querySelector("[data-reserve-handoff-summary]"); const rn = m.host.querySelector("[data-reserve-handoff-rounded]"); ok(!!sum && /7:30 PM/.test(sum.textContent) && /2 people/.test(sum.textContent) && !!rn && /half hour/.test(rn.textContent) && /7:30 PM/.test(rn.textContent), "rounded handoff: summary shows the sent half hour and a note explains the rounding"); }
   await m.unmount();
 
   // (e) profile card: save checkbox (checked), PUT /api/reserve/profile, then the turn is resent
