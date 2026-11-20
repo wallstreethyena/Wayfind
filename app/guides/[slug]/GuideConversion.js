@@ -57,11 +57,15 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
   // primary_cta_null fires on mount when nothing MONETIZABLE resolved. Directions
   // counts as null for this event by design — it is a real next step but earns
   // nothing, and conflating the two would hide how many guides have no revenue
-  // path at all.
+  // path at all. 2026-11-20: tagged surface "guide" because the SAME event name
+  // also comes from the place sheet, where it now means "a place that should be
+  // bookable showed only Directions" (lib/detailCta.js primaryCtaGap). A guide
+  // is an editorial page, not a place, so its null is a revenue-path inventory
+  // count and must never be summed with the place-sheet gap. Filter on surface.
   useEffect(() => {
     try {
       if (!cta || !cta.monetized) {
-        track("primary_cta_null", { slug, region, resolved: (cta && cta.kind) || "none", exact: !!(cta && cta.exact) });
+        track("primary_cta_null", { surface: "guide", slug, region, resolved: (cta && cta.kind) || "none", exact: !!(cta && cta.exact) });
       }
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps

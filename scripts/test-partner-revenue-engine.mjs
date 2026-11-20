@@ -210,10 +210,11 @@ function walkJsFiles(dir, out = []) {
     "Area 3.4: revenue claims strictly scoped to inspected Supabase CRM tables; affiliate revenue marked unknown_external_dashboards"
   );
   ok(
-    PRIMARY_CTA_NULL_DEFINITION.includes("Detail.js:1128-1140") &&
-      PRIMARY_CTA_NULL_DEFINITION.includes("!primaryCta.monetized") &&
+    PRIMARY_CTA_NULL_DEFINITION.includes("primaryCtaGap") &&
+      PRIMARY_CTA_NULL_DEFINITION.includes("2026-11-20") &&
+      PRIMARY_CTA_NULL_DEFINITION.includes("surface=guide") &&
       SCORE_SNAPSHOT_CONSISTENCY_NOTE.includes("2026-11-13"),
-    "Area 1.3 & 6.1: canonical primary_cta_null passive-mount and dated score-snapshot notes exported"
+    "Area 1.3 & 6.1: canonical primary_cta_null gap definition and dated score-snapshot notes exported"
   );
 
   const gap = loadMarketGapMatrix();
