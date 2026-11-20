@@ -1838,6 +1838,7 @@ node scripts/test-free-photo-serving.mjs
 # (10,028 cached Google photo URIs expiring 2026-09-25..2026-10-04 against
 # an exhausted 950/950 September photos ledger) this exists to make safe.
 node scripts/test-photo-vault.mjs
+node scripts/test-openverse-photos.mjs
 
 # 2026-09-09 the permanent photo VAULT's WIRING (separate from the vault
 # CORE above, which has its own guard): lib/freePhoto.js prefers the VAULT

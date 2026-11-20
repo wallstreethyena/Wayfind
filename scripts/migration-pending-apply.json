@@ -117,5 +117,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2662 (supersedes #1627)",
     "reason": "Command Center partner clicks: counts the canonical commerce_cta_clicked mirror row (every booking button since 2026-10-26 22:45:35 UTC) and gates the legacy out actions to rows before it, so the owner briefing stops reporting 0 partner clicks (2026-11-19: 22 real clicks from 20 devices). Read-time only; supersedes held #1627. Owner released 2026-11-20 (\"Fix the report\"). Applied through the canonical path right after merge."
+  },
+  {
+    "file": "supabase/migrations/20261120220000_wf_place_photo_openverse_source.sql",
+    "sha256": "60b8d39e0cd39b8b944e5497403a6698fc88253f2ee2f3b01cdba36a4e9dd803",
+    "decision_owner": "wallstreethyena",
+    "tracking": "this PR",
+    "reason": "Owner decision 2026-11-20: fill photo gaps from free licensed sources, no Google spend. Widens wf_place_photo_source_check by one value ('openverse'); no data rewritten, no RLS change. Apply before the Openverse lane deploys; receipt replaces this entry."
   }
 ]
