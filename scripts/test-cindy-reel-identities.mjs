@@ -87,5 +87,8 @@ for (const [id, name, city, code] of exclusions) {
 assert(creatorVideosFor({ id: 'ChIJK4UHeR1Bw4gRBlMVPK7epPo' }).some(v => v.creator === 'makayluhhhhh' && v.url.endsWith('/7228925232709471531')));
 assert(creatorVideosFor({ id: 'ChIJRyOEfAo5w4gR664aD_YYBLU' }).some(v => v.creator === 'manateelittlelocals' && v.url.endsWith('/7647673425548430605')));
 assert(allCreators().creators.some(c => c.handle === 'cindy.selects'), 'retain the public creator listing');
-assert.equal((html.match(/data-creator-embed-action="play"/g) || []).length, profile.spots.length, 'every Cindy post has an actual rendered playback control');
+// Owner 2026-11-20: a play control for every Cindy post Instagram plays inside Wayfind, none for a post it only links out for.
+const playableSpots = profile.spots.filter(s => embedSrc(s.video.platform, s.video.url)).length;
+assert.ok(playableSpots > 0, 'some Cindy posts play inside Wayfind');
+assert.equal((html.match(/data-creator-embed-action="play"/g) || []).length, playableSpots, 'every playable Cindy post has an actual rendered playback control');
 console.log('test-cindy-reel-identities: PASS (28 sources; 26 exact-ID associations; 1 preserved existing name/city association; 1 explicit hold; resolver, siblings, captions and rendered Cindy page)');
