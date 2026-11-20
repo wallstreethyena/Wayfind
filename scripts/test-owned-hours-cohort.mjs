@@ -12,6 +12,7 @@
 //      stale threshold (>90d owned, >21d Google), expired Google (>=30d), and firewall-gated persistence.
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   buildOwnedHoursRecord,
   isUsableOwnedHours,
@@ -25,6 +26,8 @@ import {
   scoreHoursRefreshPriority,
   rankHoursRefreshQueue,
 } from "../lib/hoursFreshnessQueue.js";
+import { parseOfficialEditorialFactsToHours } from "../lib/editorialHoursParser.js";
+import { PRECOMPILED_OWNED_HOURS } from "../lib/ownedHoursVerifiedData.js";
 import {
   buildHighDemandFloridaCohort,
   generateCohortReport,
@@ -218,8 +221,12 @@ eq(seasonalAfter.semanticState, "outside_seasonal_window", "semanticState is out
 // christmas-2026-research.json contains event entries whose place_id is a year-round host venue.
 // resolveOwnedHoursSnapshot must NEVER assign seasonal event times as host venue hours.
 eq(resolveOwnedHoursSnapshot("ChIJFY7wCsjD2YgRn8R_2IMRjtw"), null, "Zoo Miami preserves null/unknown rather than false outside_seasonal_window");
-eq(resolveOwnedHoursSnapshot("ChIJE5jqT1222YgR4STdDoStYPg"), null, "Vizcaya Museum preserves null/unknown rather than false outside_seasonal_window");
+eq(resolveOwnedHoursSnapshot("ChIJBQ5SjLHGwogRL4X19g4J5tI"), null, "ZooTampa preserves null/unknown rather than false outside_seasonal_window");
 eq(resolveOwnedHoursSnapshot("ChIJI0Ja3y4E3ogRoNdEL3xe4Ek"), null, "Brevard Zoo preserves null/unknown rather than false outside_seasonal_window");
+const vizcayaSnap = resolveOwnedHoursSnapshot("ChIJE5jqT1222YgR4STdDoStYPg");
+ok(vizcayaSnap && vizcayaSnap.source === "wayfind_editorial_hours", "Vizcaya Museum resolves year-round editorial hours");
+eq(vizcayaSnap.validFromDate, null, "Vizcaya Museum does not inherit seasonal event validFromDate");
+eq(vizcayaSnap.validThroughDate, null, "Vizcaya Museum does not inherit seasonal event validThroughDate");
 
 // 6e. Stale hours: >90d for owned non-Google, >21d for Google
 const tStaleOwnedMs = Date.parse("2027-04-01T12:00:00.000Z"); // >90d after 2026-11-13
@@ -443,6 +450,184 @@ for (const [pid, ts, expectedOpen, label] of w3ClockMatrix) {
   const st = evaluateOwnedHoursStatus(byIdW3.get(pid).ownedHours, ts);
   eq(st.open, expectedOpen, label);
   eq(st.state, expectedOpen ? "open" : "closed", `${label} state`);
+}
+
+// ── 8. WAVE 4 SIX-VENUE :30-MINUTE SURVIVAL, BOUNDARY CLOCKS & HOLIDAY CLOSURES ─
+const w4Pack = JSON.parse(
+  readFileSync(new URL("../docs/editorial/hours-tampa-fort-lauderdale-2026-11-19/pack-01.json", import.meta.url), "utf8"),
+);
+const w4SixIds = [
+  ["ChIJYWj9iZ_PwogRQebjN7pJ_Nw", "Armature Works", 27.95414, -82.46331, 7, 30],
+  ["ChIJ11hsiYXEwogRjDBv39F04J8", "Oxford Exchange", 27.94473, -82.46348, 7, 30],
+  ["ChIJzXMD72bDwogRUmY0GaY63xI", "Bulla Gastrobar Tampa", 27.93954, -82.48272, 11, 30],
+  ["ChIJ44sC7V4B2YgRY7AoBR2t48I", "Earls Kitchen + Bar", 26.11942, -80.13695, 11, 30],
+  ["ChIJx-Y0oZAB2YgRCjB0K5pdPfI", "Colombian Mountains Cafe", 26.12202, -80.14369, 8, 30],
+  ["ChIJFwgu6SUB2YgR0DCYTC7nHYc", "Voodoo Bayou", 26.11955, -80.13275, 11, 30],
+];
+
+for (const [pid, label, , , openHr, openMin] of w4SixIds) {
+  const cand = w4Pack.candidates.find((c) => c.place_id === pid);
+  ok(cand, `${label} present in pack-01.json`);
+  const parsed = parseOfficialEditorialFactsToHours(cand.editorial.facts);
+  ok(parsed && parsed.ok === true, `${label} parseOfficialEditorialFactsToHours succeeds`);
+  const pre = PRECOMPILED_OWNED_HOURS[pid];
+  ok(pre && Array.isArray(pre.periods) && pre.periods.length === 7, `${label} in PRECOMPILED_OWNED_HOURS with 7 periods`);
+  const monPeriod = pre.periods.find((p) => p.open?.day === 1);
+  eq(monPeriod?.open?.hour, openHr, `${label} Monday open hour is ${openHr}`);
+  eq(monPeriod?.open?.minute, openMin, `${label} Monday open minute is exact :${openMin}`);
+}
+
+const w4PlacesInput = [
+  ...w4SixIds.map(([id, name, lat, lng]) => ({ id, name, lat, lng, oh: null, ownedHours: null })),
+  { id: "ChIJBQ5SjLHGwogRL4X19g4J5tI", name: "ZooTampa at Lowry Park", lat: 28.01384, lng: -82.46997, oh: null, ownedHours: null },
+  { id: "ChIJi6K8mAwB2YgRuOxEAQPCaKQ", name: "Hatch", lat: 26.13191, lng: -80.13779, oh: null, ownedHours: null },
+];
+const w4Enriched = enrichMapPlacesWithRepoOwnedHours(w4PlacesInput, T_W3_NOW_MS);
+const byIdW4 = new Map(w4Enriched.map((p) => [p.id, p]));
+
+// Oxford Exchange also closes at 5:30 PM
+const oxfordFri = byIdW4.get("ChIJ11hsiYXEwogRjDBv39F04J8").ownedHours.periods.find((p) => p.open?.day === 5);
+eq(oxfordFri?.close?.hour, 17, "Oxford Exchange Friday close hour is 17");
+eq(oxfordFri?.close?.minute, 30, "Oxford Exchange Friday close minute is exact :30");
+
+// Bulla Gastrobar Tampa Saturday opens at 11:00 AM
+const bullaSat = byIdW4.get("ChIJzXMD72bDwogRUmY0GaY63xI").ownedHours.periods.find((p) => p.open?.day === 6);
+eq(bullaSat?.open?.hour, 11, "Bulla Gastrobar Tampa Saturday open hour is 11");
+eq(bullaSat?.open?.minute, 0, "Bulla Gastrobar Tampa Saturday open minute is :00");
+
+// ZooTampa remains strictly unknown
+const w4ZooTampa = byIdW4.get("ChIJBQ5SjLHGwogRL4X19g4J5tI");
+eq(w4ZooTampa.ownedHours, null, "Wave 4 ZooTampa ownedHours remains null");
+const w4ZooStatus = evaluateOwnedHoursStatus(w4ZooTampa.ownedHours, T_W3_NOW_MS);
+eq(w4ZooStatus.state, "unknown", "Wave 4 ZooTampa state remains unknown");
+eq(w4ZooStatus.open, null, "Wave 4 ZooTampa open remains null");
+
+// Exact :30 open/close and overnight boundary clock matrix (Thu Nov 19 – Sat Nov 21, 2026 EST -05:00)
+const w4ClockMatrix = [
+  // Armature Works: Mon-Thu 7:30 AM-10 PM, Fri 7:30 AM-12 AM, Sat 8 AM-12 AM
+  ["ChIJYWj9iZ_PwogRQebjN7pJ_Nw", Date.parse("2026-11-19T07:29:00-05:00"), false, "Armature Works closed at 7:29 AM Thu"],
+  ["ChIJYWj9iZ_PwogRQebjN7pJ_Nw", Date.parse("2026-11-19T07:30:00-05:00"), true, "Armature Works open at 7:30 AM Thu"],
+  ["ChIJYWj9iZ_PwogRQebjN7pJ_Nw", Date.parse("2026-11-20T23:30:00-05:00"), true, "Armature Works open at 11:30 PM Fri"],
+  ["ChIJYWj9iZ_PwogRQebjN7pJ_Nw", Date.parse("2026-11-21T00:05:00-05:00"), false, "Armature Works closed at 12:05 AM Sat"],
+
+  // Oxford Exchange: Mon-Fri 7:30 AM-5:30 PM
+  ["ChIJ11hsiYXEwogRjDBv39F04J8", Date.parse("2026-11-19T07:29:00-05:00"), false, "Oxford Exchange closed at 7:29 AM Thu"],
+  ["ChIJ11hsiYXEwogRjDBv39F04J8", Date.parse("2026-11-19T07:30:00-05:00"), true, "Oxford Exchange open at 7:30 AM Thu"],
+  ["ChIJ11hsiYXEwogRjDBv39F04J8", Date.parse("2026-11-19T17:29:00-05:00"), true, "Oxford Exchange open at 5:29 PM Thu"],
+  ["ChIJ11hsiYXEwogRjDBv39F04J8", Date.parse("2026-11-19T17:30:00-05:00"), false, "Oxford Exchange closed at 5:30 PM Thu"],
+  ["ChIJ11hsiYXEwogRjDBv39F04J8", Date.parse("2026-11-19T17:31:00-05:00"), false, "Oxford Exchange closed at 5:31 PM Thu"],
+
+  // Bulla Gastrobar Tampa: Fri 11:30 AM-11 PM, Sat 11 AM-11 PM
+  ["ChIJzXMD72bDwogRUmY0GaY63xI", Date.parse("2026-11-20T11:29:00-05:00"), false, "Bulla Gastrobar closed at 11:29 AM Fri"],
+  ["ChIJzXMD72bDwogRUmY0GaY63xI", Date.parse("2026-11-20T11:30:00-05:00"), true, "Bulla Gastrobar open at 11:30 AM Fri"],
+  ["ChIJzXMD72bDwogRUmY0GaY63xI", Date.parse("2026-11-20T22:30:00-05:00"), true, "Bulla Gastrobar open at 10:30 PM Fri"],
+  ["ChIJzXMD72bDwogRUmY0GaY63xI", Date.parse("2026-11-20T23:05:00-05:00"), false, "Bulla Gastrobar closed at 11:05 PM Fri"],
+  ["ChIJzXMD72bDwogRUmY0GaY63xI", Date.parse("2026-11-21T11:00:00-05:00"), true, "Bulla Gastrobar open at 11:00 AM Sat"],
+
+  // Earls Kitchen + Bar: Fri 11:30 AM-2 AM (overnight Sat)
+  ["ChIJ44sC7V4B2YgRY7AoBR2t48I", Date.parse("2026-11-20T11:29:00-05:00"), false, "Earls Kitchen + Bar closed at 11:29 AM Fri"],
+  ["ChIJ44sC7V4B2YgRY7AoBR2t48I", Date.parse("2026-11-20T11:30:00-05:00"), true, "Earls Kitchen + Bar open at 11:30 AM Fri"],
+  ["ChIJ44sC7V4B2YgRY7AoBR2t48I", Date.parse("2026-11-21T01:30:00-05:00"), true, "Earls Kitchen + Bar open at 1:30 AM Sat (Fri overnight)"],
+  ["ChIJ44sC7V4B2YgRY7AoBR2t48I", Date.parse("2026-11-21T02:05:00-05:00"), false, "Earls Kitchen + Bar closed at 2:05 AM Sat"],
+
+  // Colombian Mountains Cafe: Fri 8:30 AM-11 PM
+  ["ChIJx-Y0oZAB2YgRCjB0K5pdPfI", Date.parse("2026-11-20T08:29:00-05:00"), false, "Colombian Mountains Cafe closed at 8:29 AM Fri"],
+  ["ChIJx-Y0oZAB2YgRCjB0K5pdPfI", Date.parse("2026-11-20T08:30:00-05:00"), true, "Colombian Mountains Cafe open at 8:30 AM Fri"],
+  ["ChIJx-Y0oZAB2YgRCjB0K5pdPfI", Date.parse("2026-11-20T22:30:00-05:00"), true, "Colombian Mountains Cafe open at 10:30 PM Fri"],
+  ["ChIJx-Y0oZAB2YgRCjB0K5pdPfI", Date.parse("2026-11-20T23:05:00-05:00"), false, "Colombian Mountains Cafe closed at 11:05 PM Fri"],
+
+  // Voodoo Bayou: Fri 11:30 AM-1 AM (overnight Sat)
+  ["ChIJFwgu6SUB2YgR0DCYTC7nHYc", Date.parse("2026-11-20T11:29:00-05:00"), false, "Voodoo Bayou closed at 11:29 AM Fri"],
+  ["ChIJFwgu6SUB2YgR0DCYTC7nHYc", Date.parse("2026-11-20T11:30:00-05:00"), true, "Voodoo Bayou open at 11:30 AM Fri"],
+  ["ChIJFwgu6SUB2YgR0DCYTC7nHYc", Date.parse("2026-11-21T00:30:00-05:00"), true, "Voodoo Bayou open at 12:30 AM Sat (Fri overnight)"],
+  ["ChIJFwgu6SUB2YgR0DCYTC7nHYc", Date.parse("2026-11-21T01:05:00-05:00"), false, "Voodoo Bayou closed at 1:05 AM Sat"],
+];
+
+for (const [pid, ts, expectedOpen, label] of w4ClockMatrix) {
+  const st = evaluateOwnedHoursStatus(byIdW4.get(pid).ownedHours, ts);
+  eq(st.open, expectedOpen, label);
+  eq(st.state, expectedOpen ? "open" : "closed", `${label} state`);
+}
+
+// Verified dated closed holiday specialHours (Hatch Christmas Day; Voodoo Bayou Thanksgiving & Christmas Day)
+const hatchChristmas = evaluateOwnedHoursStatus(
+  byIdW4.get("ChIJi6K8mAwB2YgRuOxEAQPCaKQ").ownedHours,
+  Date.parse("2026-12-25T11:00:00-05:00"),
+);
+eq(hatchChristmas.state, "closed", "Hatch Christmas Day state is closed");
+eq(hatchChristmas.semanticState, "closed_holiday", "Hatch Christmas Day semanticState is closed_holiday");
+eq(hatchChristmas.open, false, "Hatch Christmas Day open is false");
+
+const hatchNormalThu = evaluateOwnedHoursStatus(
+  byIdW4.get("ChIJi6K8mAwB2YgRuOxEAQPCaKQ").ownedHours,
+  Date.parse("2026-11-19T10:00:00-05:00"),
+);
+eq(hatchNormalThu.state, "open", "Hatch normal Thursday state remains open");
+eq(hatchNormalThu.open, true, "Hatch normal Thursday open remains true");
+
+for (const [ts, holidayLabel] of [
+  [Date.parse("2026-11-26T17:00:00-05:00"), "Thanksgiving"],
+  [Date.parse("2026-12-25T17:00:00-05:00"), "Christmas Day"],
+]) {
+  const vbHoliday = evaluateOwnedHoursStatus(byIdW4.get("ChIJFwgu6SUB2YgR0DCYTC7nHYc").ownedHours, ts);
+  eq(vbHoliday.state, "closed", `Voodoo Bayou ${holidayLabel} state is closed`);
+  eq(vbHoliday.semanticState, "closed_holiday", `Voodoo Bayou ${holidayLabel} semanticState is closed_holiday`);
+  eq(vbHoliday.open, false, `Voodoo Bayou ${holidayLabel} open is false`);
+}
+
+// Hatch Thanksgiving has reduced hours (7 AM – 1 PM), NOT a closed: true entry in specialHours
+const hatchRec = byIdW4.get("ChIJi6K8mAwB2YgRuOxEAQPCaKQ").ownedHours;
+ok(
+  !(hatchRec.specialHours || []).some((sh) => sh && sh.date === "2026-11-26" && sh.closed === true),
+  "Hatch Thanksgiving 2026-11-26 is NOT falsely marked closed: true in specialHours",
+);
+
+// Lion Country Safari carries standalone "Closed Thanksgiving" specialHours (2026-11-26)
+const lionSnap = resolveOwnedHoursSnapshot("ChIJJYiDRgcx2YgRWQ9Vze8pUXk");
+ok(lionSnap && Array.isArray(lionSnap.specialHours), "Lion Country Safari resolves with specialHours");
+ok(
+  lionSnap.specialHours.some((sh) => sh.date === "2026-11-26" && sh.closed === true),
+  "Lion Country Safari specialHours includes 2026-11-26 Thanksgiving closure",
+);
+const lionThanksgiving = evaluateOwnedHoursStatus(lionSnap, Date.parse("2026-11-26T12:00:00-05:00"));
+eq(lionThanksgiving.state, "closed", "Lion Country Safari Thanksgiving state is closed");
+eq(lionThanksgiving.semanticState, "closed_holiday", "Lion Country Safari Thanksgiving semanticState is closed_holiday");
+eq(lionThanksgiving.open, false, "Lion Country Safari Thanksgiving open is false");
+const lionNormal = evaluateOwnedHoursStatus(lionSnap, Date.parse("2026-11-19T12:00:00-05:00"));
+eq(lionNormal.state, "open", "Lion Country Safari normal Thursday state is open");
+eq(lionNormal.open, true, "Lion Country Safari normal Thursday open is true");
+
+// Fail-closed guards: & Holidays weekend drop and conflicting multi-fact schedules stay null/unknown
+eq(
+  parseOfficialEditorialFactsToHours([
+    "Hours are Mon - Fri: 9:00 a.m. - 6:00 p.m. and Sat - Sun & Holidays: 10:00 a.m. - 5:00 p.m.",
+  ]),
+  null,
+  "Childrens Science Explorium (& Holidays) fails closed instead of false Sat-Sun: Closed",
+);
+eq(
+  parseOfficialEditorialFactsToHours([
+    "Cafe hours are Monday - Saturday 8:00 a.m. - 2:30 p.m. and Sundays 8:30 a.m. - 2:00 p.m.",
+    "Market hours are daily 9:00 a.m. - 3:00 p.m.",
+  ]),
+  null,
+  "Wildflower Cafe (Cafe vs Market conflict) fails closed",
+);
+eq(
+  parseOfficialEditorialFactsToHours([
+    "Hialeah Gardens hours are Mon-Thurs 8:00 a.m. to 9:00 p.m., Fri-Sat 8:00 a.m. to 11:00 p.m. and Sun 10:00 a.m. to 9:00 p.m.",
+    "Southwest Ranches hours are Sun-Thurs 11:00 a.m. to 10:00 p.m. and Fri-Sat 11:00 a.m. to 11:00 p.m.",
+  ]),
+  null,
+  "Adrian Fish Market (multi-location conflict) fails closed",
+);
+for (const [failPid, failLabel] of [
+  ["ChIJM7EA5MQd2YgR4kdF7VtPWMA", "Childrens Science Explorium"],
+  ["ChIJo-bXKb7wwogRvUOrkxHNOAk", "Wildflower Cafe"],
+  ["ChIJ6QiaDACn2YgR27VyEWRtltk", "Adrian Fish Market & Restaurant"],
+]) {
+  eq(PRECOMPILED_OWNED_HOURS[failPid], undefined, `${failLabel} absent from PRECOMPILED_OWNED_HOURS`);
+  eq(resolveOwnedHoursSnapshot(failPid), null, `${failLabel} resolveOwnedHoursSnapshot remains null`);
 }
 
 console.log(`test-owned-hours-cohort: OK — ${assertions} assertions passed`);

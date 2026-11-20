@@ -1,6 +1,8 @@
 // Delivery receipts for guest booking texts (lib/reserveSms.js). Called by the SMS provider, not by browsers, so it is
 // not behind the same-origin guard: every request must carry a valid provider signature over the exact configured
 // callback URL, from the configured account, or nothing is written. Status only moves forward.
+// Recorded kinds (an OpenTable handoff, a booking failure, a cancellation the guest did not agree to be texted
+// about) have no provider message id. A callback cannot turn one of those rows into a send.
 import { NextResponse } from "next/server";
 import { applySmsStatusCallback, smsConfig } from "../../../../lib/reserveSms.js";
 import { createReserveRepository, reserveConfiguration } from "../../../../lib/reserveRepository.js";
