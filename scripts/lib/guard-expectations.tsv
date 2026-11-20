@@ -743,6 +743,7 @@ scripts/test-event-reminder-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	f85
 scripts/test-event-reminder.mjs	0	CALL	blocks-ci-and-deploy	1	-	135	0	0	535413d828b8bf92817a71401e5e7c68164a9008adab02319a2efae7a5ba0aed
 scripts/test-event-safety.mjs	0	CALL	blocks-ci-and-deploy	1	-	132	0	0	47bed8821ca75d07dd77ad05eac0d33606069c04f9ae1d08ed140a54f0b11a73
 scripts/test-event-section-nav.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	6b4c731db2fbb850bfcd970312809bb6bf13f64f1a81dba40a64222add7aeebb
+scripts/test-event-seo-title.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	4e2db246a45bd7b03c6d4290f5156cfe40fe6d538d6d2b834574a4efdb44e91f
 scripts/test-event-source-corrections-20261021.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	597a8f03a8df6c3dc232e817f134664b3354b3e6dfa658647c55d241bde74ac5
 scripts/test-event-stays.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	fb81dd5fe3a9013daba42feef5d7e71abcbbf1b320dd72d744c031bcaac7e6fc
 scripts/test-event-truth-held-recheck.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	df8f23b3afc1faa055918159247c01896f5b24ea1f7a49993aa34ccfe9c2cdc6

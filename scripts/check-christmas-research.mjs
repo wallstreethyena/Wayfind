@@ -440,7 +440,7 @@ function CITIES() {
   ok(/ 2026$/.test(cocoaName) && /\b(\d{4}) \1$/.test(cocoaName + " 2026"), "positive control: the Cocoa Beach name already ends in 2026, so a plain append would double it");
   ok(doubled.length === 0, `no Christmas event page title repeats its year (${doubled.slice(0, 3).join(" | ")})`);
   const pageSrc = read("app/florida-events/[slug]/page.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  ok(!/\$\{e\.event_name\} \$\{e\.year\}/.test(pageSrc) && (pageSrc.match(/eventTitleWithYear\(e\.event_name, e\.year\)/g) || []).length === 4, "the page titles (metadata, answer box, share, footer share) all use eventTitleWithYear, 4 call sites (static)");
+  ok(!/\$\{e\.event_name\} \$\{e\.year\}/.test(pageSrc) && (pageSrc.match(/eventTitleWithYear\(e\.event_name, e\.year\)/g) || []).length === 3 && /const title = eventSeoTitle\(e\);/.test(pageSrc) && /const base = eventTitleWithYear\(e\.event_name, e\.year\);/.test(read("lib/eventSeoTitle.js")), "the page titles (answer box, share, footer share, and metadata through lib/eventSeoTitle.js) all use eventTitleWithYear (static)");
 
   // D. Watchlist twins: page stays, says 2026 not confirmed yet, no date, no
   //    Event JSON-LD, no dash, not in the sitemap. Every wf_events row whose
