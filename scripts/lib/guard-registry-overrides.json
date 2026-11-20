@@ -1255,6 +1255,14 @@
    "detail": "A test that followed a real booking URL would hit a live site from CI and could create or probe a real reservation."
   },
   "owner": "owner (Gabriel)"
+ },
+ "scripts/test-rating-backfill.mjs": {
+  "protects": "The owner-approved paid rating backfill stays off unless both switches are valid, spends only from its own capped ledger row, buys only unrated held-town places, and enterprise checks keep the rating and review count Google returns without blanking one or writing a score.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "A broken switch or ledger SKU would let a paid Google SKU run unmetered; a dropped rating write would waste paid lookups and keep the held towns unrankable."
+  },
+  "owner": "Revenue QA"
  }
 }
 

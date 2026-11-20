@@ -2750,3 +2750,5 @@ node scripts/check-no-conflict-markers.mjs
 node scripts/check-no-conflict-markers.mjs --red-prove
 # 2026-11-18: Homepage INP / slow-phone main-thread guard (offscreen containment, tracked horizontal snapshots, IO/rAF/2-card pitch rail observer, AffiliateCard/ThemeParkRail/suggestedView memoization, shared two-pass creator index).
 node scripts/test-home-inp-perf.mjs
+# 2026-11-20: owner-approved paid rating backfill for the five held towns + enterprise checks keep the rating they buy.
+node scripts/test-rating-backfill.mjs
