@@ -10,6 +10,10 @@
 // Product events (Lead / ViewContent / AddToWishlist / CompleteRegistration)
 // are forwarded from home.js's logEvent through lib/metaPixel.forwardToMeta.
 //
+// HOST GATE (2026-11-20): the init snippet runs only on gowayfind.com and its
+// subdomains, so previews and localhost never send events; the no-JS pixel
+// image renders only on the production deployment.
+//
 // NATIVE SHELL: no pixel at all. Same reasoning as GoogleTags: a third-party
 // advertising pixel inside the iOS app is "tracking" under Apple's definition,
 // and the app ships no ATT prompt. The gate sits BELOW every hook (hooks must
@@ -40,7 +44,8 @@ export default function MetaPixel() {
     <>
       <Script id="meta-pixel-init" strategy="afterInteractive">
         {`
-          try {
+          try { (function(){
+          if (!/(^|\.)gowayfind\.com$/i.test(String(location.hostname || ""))) return;
           !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
           n.callMethod.apply(n,arguments):n.queue.push(arguments)};
           if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
@@ -50,9 +55,10 @@ export default function MetaPixel() {
           'https://connect.facebook.net/en_US/fbevents.js');
           fbq('init', '${id}');
           fbq('track', 'PageView');
-          } catch(e) {}
+          })(); } catch(e) {}
         `}
       </Script>
+      {process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ? (
       <noscript>
         <img
           height="1"
@@ -62,6 +68,7 @@ export default function MetaPixel() {
           src={`https://www.facebook.com/tr?id=${id}&ev=PageView&noscript=1`}
         />
       </noscript>
+      ) : null}
     </>
   );
 }
