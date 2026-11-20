@@ -173,6 +173,15 @@ for (const f of surfaces) {
   ok(Object.keys(await posterCoversByPlace(["ChIJ-not-a-real-place"])).length === 0, "negative control: an unknown place gets no poster");
   ok(!!(await creatorCoversFor([SNOWCAT]))[SNOWCAT], "creatorCoversFor returns the poster even with no inventory read (event pages, in-app sheet)");
   const eventPage = strip(read("app/florida-events/[slug]/page.js"));
+  // Live check 2026-11-20: the Snowcat event row has a Wayfind-added place id, so the cover is found by the post itself.
+  const { posterCoverForPosts } = await import("../lib/creatorCovers.js");
+  const { eventSocialPosts } = await import("../lib/eventSocial.js");
+  const snowPosts = eventSocialPosts("snowcat-ridge-2026").map((p) => p.url);
+  ok(snowPosts.length >= 1, "positive control: the Snowcat Ridge event has creator posts");
+  const byPost = await posterCoverForPosts(snowPosts);
+  ok(!!byPost && /^\/place-photos\//.test(byPost.src) && /Snowcat Ridge/.test(byPost.credit), "the Snowcat Ridge event's own posts find the park's credited poster");
+  ok((await posterCoverForPosts(["https://www.instagram.com/reel/NOT-A-REAL-POST/"])) === null && (await posterCoverForPosts([])) === null, "negative control: an unknown post, or no post, gets no poster");
+  ok(/posterCoverForPosts\(socialPosts\.map\(/.test(strip(read("app/florida-events/[slug]/page.js"))), "the event page asks for the cover by its own posts");
   ok(/const socialPosterCredit = heroCover \? heroCoverCredit : venueCover\?\.credit \|\| null;/.test(eventPage), "an event tile covered by the hero photo carries the hero's credit");
   ok(/posterCredit=\{socialPosterCredit\}/.test(eventPage), "positive control: the event tile prints its cover credit");
 }
