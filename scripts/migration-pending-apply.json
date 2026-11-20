@@ -122,7 +122,7 @@
     "file": "supabase/migrations/20261120220000_wf_place_photo_openverse_source.sql",
     "sha256": "60b8d39e0cd39b8b944e5497403a6698fc88253f2ee2f3b01cdba36a4e9dd803",
     "decision_owner": "wallstreethyena",
-    "tracking": "this PR",
+    "tracking": "#2671",
     "reason": "Owner decision 2026-11-20: fill photo gaps from free licensed sources, no Google spend. Widens wf_place_photo_source_check by one value ('openverse'); no data rewritten, no RLS change. Apply before the Openverse lane deploys; receipt replaces this entry."
   }
 ]
