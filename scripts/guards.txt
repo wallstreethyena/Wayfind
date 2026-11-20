@@ -525,6 +525,7 @@ node scripts/test-provider-health.mjs
 node scripts/check-cuisine-sheet.mjs
 node scripts/check-tampa-bay-region.mjs
 node scripts/check-commerce-redirect.mjs
+node scripts/test-sold-out-handoffs.mjs
 node scripts/check-earning-integrations.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs
@@ -596,6 +597,8 @@ node scripts/test-doc-ownership-shallow.mjs
 node scripts/test-safe-force-push.mjs
 node scripts/check-locks.mjs
 node scripts/check-guide-deal-cards.mjs
+# 2026-11-19 a business's own verified deal (Clipp certificate or venue offer) shows on /places/<id>, under the guide pick that names it, and in guide place rails: identity only (Place ID, never a name), tracked surface place_page_deal / guide_pick_deal, no invented deadline, fail closed after the recheck date. Red-proven by mutation.
+node scripts/check-place-deal.mjs
 node scripts/check-intro-instrumentation.mjs
 node scripts/check-intro-gate.mjs
 node scripts/check-hub-conversion.mjs
@@ -2688,6 +2691,7 @@ node scripts/test-ai-itinerary-planner.mjs
 # 2026-11-13: Florida Partner Revenue Engine end-to-end lock (all 18 acceptance checks, editorial firewall red-team cases, synthetic QA isolation, outbound tracking, Command Center panel, and 25 verified Florida prospects).
 node scripts/test-partner-revenue-engine.mjs
 node scripts/test-planner-imessage.mjs
+node scripts/test-host-confident-voice.mjs
 node scripts/test-planner-host-voice.mjs
 node scripts/test-santa-one-thread.mjs
 # 2026-11-13: Wayfind Map Real-Time Spatial Decision Engine (7-way location truth, Near Me vs Explore Here, Hard Test Sarasota->Tampa Christmas tonight SSR, Florida water-barrier effort, hours closing feasibility, weather fit, score law, pairings/parking/backtracking, privacy, and cluster immunity).
@@ -2717,6 +2721,10 @@ node scripts/test-santa-local-dates.mjs
 # 2026-11-12: owner directive. CLAUDE.md keeps the GABRIEL EXECUTION AUTONOMY section and every safety section (an approved edit cannot silently drop a rule).
 node scripts/check-claude-md-owner-sections.mjs
 node scripts/test-reserve-sms.mjs
+# 2026-11-17: supervised OpenTable booking agent. Dark unless three switches are on. Local fixtures only.
+node scripts/check-booking-agent.mjs
+node scripts/test-booking-agent.mjs
+node scripts/test-booking-agent-browser.mjs
 node scripts/check-photo-rail-swipe.mjs
 node scripts/test-home-landing-thanksgiving.mjs
 
@@ -2732,8 +2740,13 @@ node scripts/check-portrait-photo-fit.mjs
 node scripts/test-metro-photo-coverage.mjs
 
 node scripts/test-disney-food-map.mjs
-node scripts/test-disney-geographic-map.mjs
 
 node scripts/test-disney-food-posts.mjs
+node scripts/test-park-maps-2026.mjs
+node scripts/test-park-maps-2026.mjs --red-prove
+node scripts/test-disney-food-post-states.mjs
+node scripts/test-disney-food-post-states.mjs --red-prove
+node scripts/check-no-conflict-markers.mjs
+node scripts/check-no-conflict-markers.mjs --red-prove
 # 2026-11-18: Homepage INP / slow-phone main-thread guard (offscreen containment, tracked horizontal snapshots, IO/rAF/2-card pitch rail observer, AffiliateCard/ThemeParkRail/suggestedView memoization, shared two-pass creator index).
 node scripts/test-home-inp-perf.mjs

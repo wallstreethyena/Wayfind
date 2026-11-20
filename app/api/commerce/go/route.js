@@ -49,6 +49,7 @@ import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayout
 import { attributedViatorDestination } from "../../../../lib/viatorAttribution.js";
 import { classifySyntheticTraffic } from "../../../../lib/productionWriteFirewall.js";
 import { ensureDurableClippEvidenceHydrated } from "../../../../lib/clippDurableStore.js";
+import { noSaleEvent, unavailableDestination } from "../../../../lib/ticketAvailability.js";
 
 const ATTRIBUTED_TP = new Set(["tiqets", "klook", "gocity"]);
 
@@ -152,6 +153,24 @@ export async function GET(req) {
     } });
   }
 
+  // AVAILABILITY (owner rule 2026-11-04; enforced here 2026-11-19). A click for
+  // an event wf_events marks sold out, off sale, cancelled or postponed never
+  // reaches a partner checkout, even from a cached page or a guide whose
+  // button was built before the status changed. The visitor lands on our own
+  // event page, which says so and offers available alternatives. A failed
+  // status read returns no entry, so ordinary clicks are never blocked by it.
+  if (contentId) {
+    const unavailable = await noSaleEvent(contentId, { timeoutMs: 1200 });
+    const dest = unavailableDestination(unavailable);
+    if (dest) {
+      try { emit("provider_redirect_refused", { refusal_class: "unavailable", refusal_reason: "event_" + unavailable.kind }); } catch {}
+      return new Response(null, { status: 302, headers: {
+        Location: new URL(dest, req.url).toString(),
+        ...noStoreHeaders(),
+        "Referrer-Policy": "no-referrer",
+      } });
+    }
+  }
 
   // The surface rides along as the provider's tracking sub-id, where the
   // network supports one (CityPASS/CJ today; every other provider ignores it).
@@ -166,7 +185,8 @@ export async function GET(req) {
     try { await ensureDurableClippEvidenceHydrated(); } catch {}
   }
   const campaign = provider === "viator" ? viatorCampaign({ page: pageHint, surface, offerId }) : null;
-  const { dest, sourceUrl, error } = await resolveOffer(provider, offerId, { subId: surface, campaign });
+  const evalNow = process.env.WF_COMMERCE_TEST_NOW ? new Date(process.env.WF_COMMERCE_TEST_NOW) : new Date();
+  const { dest, sourceUrl, error } = await resolveOffer(provider, offerId, { subId: surface, campaign, now: evalNow });
   if (error || !dest) return fail(error || "unresolved");
 
   let finalDest = dest;

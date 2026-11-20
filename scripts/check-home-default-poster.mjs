@@ -75,8 +75,8 @@ ok(/const force = defaultLanding\.current/.test(railCode) && /pcRef\.current, fo
 
 const cssRaw = readFileSync(path.join(REPO, "app/components/railMenuCss.js"), "utf8");
 const css = cssRaw.replace(/\s/g, "");
-ok(/\.wf8\.is-open \.wf8-mbar\{[^}]*position:sticky;top:0/.test(cssRaw),
-  "the existing open bar sticks while the collection is on screen");
+ok(/\.wf8\.is-open \.wf8-mbar\{/.test(cssRaw) && !/\.wf8-mbar\{[^}]*position:\s*(?:sticky|fixed)/.test(cssRaw),
+  "the open Showing bar scrolls away with the page; it never follows the reader (owner, 2026-11-20)");
 ok(/\.wf8-mthumb\{width:24px;height:24px/.test(css),
   "the header image is 24px, inside the existing 30px bar");
 ok(!/\.wf8-tile[^{.]*\.wf8-mthumb/.test(css),

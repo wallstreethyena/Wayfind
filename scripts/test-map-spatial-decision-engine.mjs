@@ -1777,25 +1777,31 @@ let mapComponentMod = null;
   assert.equal(evExpired.activeToday, false);
   assert.equal(evExpired.state, "ended");
 
-  // 6. Unknown schedule: Busch Gardens Christmas Town (select_nights: true, no T1 per-day list) -> unconfirmed_select_nights
-  const buschGardensChristmasTown = {
-    id: "event:christmas-town-2026",
+  // 6. Unknown / outdated schedule: ICON Park Santa Workshop (select_nights: true, outdated 2024 timetable, no T1 2026 dates) -> unconfirmed_select_nights
+  assert.equal(occurrenceDatesFor({ event_id: "santa-workshop-icon-park-2026" }), null, "Outdated 2024 schedule must stay out of verified occurrences");
+  const iconParkSanta = {
+    id: "event:santa-workshop-icon-park-2026",
     kind: "event",
-    event_id: "christmas-town-2026",
-    slug: "busch-gardens-christmas-town-2026",
-    event_name: "Busch Gardens Christmas Town",
-    lat: 28.0373,
-    lng: -82.4194,
+    event_id: "santa-workshop-icon-park-2026",
+    slug: "santa-workshop-icon-park-2026",
+    event_name: "The Santa Workshop Experience at ICON Park",
+    lat: 28.4436,
+    lng: -81.4682,
     start_date: "2026-11-13",
-    end_date: "2027-01-04",
+    end_date: "2026-12-24",
     select_nights: true,
-    schedule_note: "Select nights November 13 - January 4, included with park admission.",
+    schedule_note: "Reserve a current Santa session. Detailed daily timetable on event page is labeled 2024 and is not used for 2026; midnight-to-midnight calendar metadata is not an operating schedule.",
     seasonal: "christmas",
   };
-  const evBusch = evaluateEventEligibility(buschGardensChristmasTown, nov18EveningEst);
-  assert.equal(evBusch.activeToday, false);
-  assert.equal(evBusch.state, "unconfirmed_select_nights");
-  assert.ok(!buildMapDecisionReason(buschGardensChristmasTown, { eventEval: evBusch }).includes("Christmas event tonight"));
+  const evSanta = evaluateEventEligibility(iconParkSanta, nov18EveningEst);
+  assert.equal(evSanta.activeToday, false);
+  assert.equal(evSanta.state, "unconfirmed_select_nights");
+  assert.notEqual(evSanta.state, "closed");
+  assert.notEqual(evSanta.state, "closed_day");
+  assert.notEqual(evSanta.state, "canceled");
+  const santaReason = buildMapDecisionReason(iconParkSanta, { eventEval: evSanta });
+  assert.ok(!santaReason.includes("Christmas event tonight"));
+  assert.ok(!/closed|canceled|sold out/i.test(santaReason), `unknown must never become closed/canceled/sold out (got "${santaReason}")`);
 
   // 7. Timezone boundaries (ET vs UTC midnight, Panhandle CT vs ET) & midnight crossing carryover
   // 7a. 2026-11-19T02:30:00Z = 2026-11-18 21:30 EST (UTC is already 2026-11-19!)
@@ -1918,4 +1924,184 @@ let mapComponentMod = null;
   assert.deepEqual(mvmcpCard.canceled_dates, ["2026-12-01"]);
 }
 
-console.log("test-map-spatial-decision-engine: OK — all 9 spatial decision engine suites, 7 event schedule cases & Hard Test SSR verified");
+// ── 12. Wave 3 Verified T1 Dates, Non-Event Nights & Unconfirmed Evidence ─────
+{
+  const nov18EveningEst = Date.parse("2026-11-19T02:00:00Z"); // Wed 2026-11-18 21:00 EST
+  const nov19EveningEst = Date.parse("2026-11-20T00:30:00Z"); // Thu 2026-11-19 19:30 EST
+  const nov20EveningEst = Date.parse("2026-11-21T00:30:00Z"); // Fri 2026-11-20 19:30 EST
+  const nov30EveningEst = Date.parse("2026-12-01T00:30:00Z"); // Mon 2026-11-30 19:30 EST
+
+  // 1. Verified event nights (Busch Gardens Christmas Town, SeaWorld Christmas Celebration, MVMCP)
+  const bgOcc = occurrenceDatesFor({ event_id: "christmas-town-2026" });
+  assert.ok(Array.isArray(bgOcc) && bgOcc.length === 44, `Busch Gardens Christmas Town has 44 T1 dates (got ${bgOcc?.length})`);
+  assert.ok(bgOcc.includes("2026-11-19") && !bgOcc.includes("2026-11-18") && !bgOcc.includes("2026-11-30"));
+
+  const bgRow = {
+    id: "event:christmas-town-2026",
+    kind: "event",
+    event_id: "christmas-town-2026",
+    slug: "busch-gardens-christmas-town-2026",
+    event_name: "Busch Gardens Christmas Town",
+    lat: 28.0373,
+    lng: -82.4194,
+    start_date: "2026-11-13",
+    end_date: "2027-01-04",
+    select_nights: true,
+    occurrence_dates: bgOcc,
+    seasonal: "christmas",
+  };
+  const bgNov19 = evaluateEventEligibility(bgRow, nov19EveningEst);
+  assert.equal(bgNov19.activeToday, true);
+  assert.equal(bgNov19.occurrenceSource, "occurrence_dates");
+  assert.equal(buildMapDecisionReason(bgRow, { eventEval: bgNov19 }), "Christmas event tonight");
+
+  const swOcc = occurrenceDatesFor({ event_id: "seaworld-orlando-christmas-2026" });
+  assert.ok(Array.isArray(swOcc) && swOcc.length === 44, `SeaWorld Christmas Celebration has 44 T1 dates (got ${swOcc?.length})`);
+  assert.ok(!swOcc.includes("2026-11-19") && swOcc.includes("2026-11-20") && !swOcc.includes("2026-11-30"));
+
+  const swRow = {
+    id: "event:seaworld-orlando-christmas-2026",
+    kind: "event",
+    event_id: "seaworld-orlando-christmas-2026",
+    slug: "seaworld-orlando-christmas-celebration-2026",
+    event_name: "SeaWorld Orlando Christmas Celebration",
+    lat: 28.4112,
+    lng: -81.4612,
+    start_date: "2026-11-06",
+    end_date: "2027-01-04",
+    select_nights: true,
+    occurrence_dates: swOcc,
+    seasonal: "christmas",
+  };
+  const swNov20 = evaluateEventEligibility(swRow, nov20EveningEst);
+  assert.equal(swNov20.activeToday, true);
+  assert.equal(swNov20.occurrenceSource, "occurrence_dates");
+  assert.equal(buildMapDecisionReason(swRow, { eventEval: swNov20 }), "Christmas event tonight");
+
+  const mvmcpOcc = occurrenceDatesFor({ event_id: "mvmcp-2026" });
+  const mvmcpRow = {
+    id: "event:mvmcp-2026",
+    kind: "event",
+    event_id: "mvmcp-2026",
+    slug: "mickeys-very-merry-christmas-party-2026",
+    event_name: "Mickey's Very Merry Christmas Party",
+    lat: 28.41882,
+    lng: -81.58177,
+    start_date: "2026-11-08",
+    end_date: "2026-12-22",
+    start_time: "19:00:00",
+    select_nights: true,
+    occurrence_dates: mvmcpOcc,
+    seasonal: "christmas",
+  };
+  const mvmcpNov19 = evaluateEventEligibility(mvmcpRow, nov19EveningEst);
+  assert.equal(mvmcpNov19.activeToday, true);
+  assert.equal(mvmcpNov19.occurrenceSource, "occurrence_dates");
+
+  // 2. Non-event nights on verified select-dates runs -> never "Christmas event tonight"
+  const swNov19 = evaluateEventEligibility(swRow, nov19EveningEst);
+  assert.equal(swNov19.activeToday, false);
+  assert.equal(swNov19.state, "tomorrow");
+  assert.equal(swNov19.nextDate, "2026-11-20");
+  assert.ok(!buildMapDecisionReason(swRow, { eventEval: swNov19 }).includes("Christmas event tonight"));
+
+  const swNov18 = evaluateEventEligibility(swRow, nov18EveningEst);
+  assert.equal(swNov18.activeToday, false);
+  assert.equal(swNov18.state, "off_night");
+  assert.equal(swNov18.nextDate, "2026-11-20");
+  assert.ok(!buildMapDecisionReason(swRow, { eventEval: swNov18 }).includes("Christmas event tonight"));
+
+  const bgNov30 = evaluateEventEligibility(bgRow, nov30EveningEst);
+  assert.equal(bgNov30.activeToday, false);
+  assert.equal(bgNov30.state, "off_night");
+  assert.equal(bgNov30.nextDate, "2026-12-03");
+  assert.ok(!buildMapDecisionReason(bgRow, { eventEval: bgNov30 }).includes("Christmas event tonight"));
+
+  // 3. Missing or outdated evidence (ICON Park Santa Workshop + unconfirmed season span) -> unconfirmed, NEVER closed/canceled/sold out
+  assert.equal(occurrenceDatesFor({ event_id: "santa-workshop-icon-park-2026" }), null);
+  for (const scheduleNote of [
+    "Reserve a current Santa session. Detailed daily timetable on event page is labeled 2024 and is not used for 2026; midnight-to-midnight calendar metadata is not an operating schedule.",
+    "Reserve a current Santa session. The 2024 timetable on the event page is not used for 2026; midnight-to-midnight calendar metadata is not an operating schedule.",
+  ]) {
+    const santaRow = {
+      id: "event:santa-workshop-icon-park-2026",
+      kind: "event",
+      event_id: "santa-workshop-icon-park-2026",
+      slug: "santa-workshop-icon-park-2026",
+      event_name: "The Santa Workshop Experience at ICON Park",
+      lat: 28.4436,
+      lng: -81.4682,
+      start_date: "2026-11-13",
+      end_date: "2026-12-24",
+      select_nights: true,
+      schedule_note: scheduleNote,
+      seasonal: "christmas",
+    };
+    const ev = evaluateEventEligibility(santaRow, nov19EveningEst);
+    assert.equal(ev.activeToday, false);
+    assert.equal(ev.state, "unconfirmed_select_nights");
+    assert.notEqual(ev.state, "closed");
+    assert.notEqual(ev.state, "closed_day");
+    assert.notEqual(ev.state, "canceled");
+    const reason = buildMapDecisionReason(santaRow, { eventEval: ev });
+    assert.ok(!/closed|canceled|sold out|christmas event tonight/i.test(reason), `unexpected reason "${reason}"`);
+  }
+
+  const unconfirmedSpanRow = {
+    id: "event:christmas-at-gaylord-palms-2026",
+    kind: "event",
+    event_id: "christmas-at-gaylord-palms-2026",
+    event_name: "Christmas at Gaylord Palms",
+    lat: 28.3426,
+    lng: -81.5318,
+    start_date: "2026-11-13",
+    end_date: "2027-01-03",
+    schedule_note: "Select holiday attractions require tickets; check schedule.",
+    seasonal: "christmas",
+  };
+  const evSpan = evaluateEventEligibility(unconfirmedSpanRow, nov19EveningEst);
+  assert.equal(evSpan.activeToday, false);
+  assert.equal(evSpan.state, "unconfirmed_season_span");
+  assert.notEqual(evSpan.state, "closed");
+  assert.notEqual(evSpan.state, "closed_day");
+  assert.notEqual(evSpan.state, "canceled");
+  const spanReason = buildMapDecisionReason(unconfirmedSpanRow, { eventEval: evSpan });
+  assert.ok(!/closed|canceled|sold out|christmas event tonight/i.test(spanReason), `unexpected reason "${spanReason}"`);
+
+  // 4a. P0 hotfix: undated / stripped event card (no start_date/end_date/occurrence_dates/visit_schedule) MUST fail closed
+  const strippedEventCard = {
+    id: "event:seaworld-orlando-christmas-2026",
+    kind: "event",
+    name: "SeaWorld Orlando",
+    lat: 28.411,
+    lng: -81.461,
+  };
+  const evStripped = evaluateEventEligibility(strippedEventCard, nov19EveningEst);
+  assert.equal(evStripped.activeToday, false, "Undated/stripped event card must NEVER evaluate activeToday: true");
+  assert.equal(evStripped.state, "unconfirmed_select_nights");
+  assert.notEqual(evStripped.state, "closed");
+  assert.notEqual(evStripped.state, "closed_day");
+  assert.notEqual(evStripped.state, "canceled");
+  const strippedReason = buildMapDecisionReason(strippedEventCard, { eventEval: evStripped });
+  assert.ok(!/christmas event tonight|closed|canceled|sold out/i.test(strippedReason), `unexpected stripped event reason "${strippedReason}"`);
+
+  // 4b. P0 hotfix: ownedSearch() in app/home.js preserves /api/search event schedule & hours metadata
+  const homeSrc = readFileSync(fileURLToPath(new URL("../app/home.js", import.meta.url)), "utf8");
+  const ownedSearchMatch = homeSrc.match(/async function ownedSearch\([\s\S]*?\n  \}/);
+  assert.ok(ownedSearchMatch, "ownedSearch function exists in app/home.js");
+  const ownedSearchBody = ownedSearchMatch[0];
+  for (const requiredField of [
+    "occurrence_dates",
+    "start_date",
+    "end_date",
+    "select_nights",
+    "schedule_note",
+    "event_status",
+    "visit_schedule",
+    "ownedHours",
+  ]) {
+    assert.ok(ownedSearchBody.includes(requiredField), `ownedSearch() must preserve "${requiredField}" from /api/search cards`);
+  }
+}
+
+console.log("test-map-spatial-decision-engine: OK — all 9 spatial decision engine suites, 7 event schedule cases, Wave 3 verified occurrences & Hard Test SSR verified");

@@ -6,7 +6,7 @@ import RailHeading from "./RailHeading";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import { experienceWayfindScore } from "../../lib/experiencesData";
 import { toDisplayScore } from "../../lib/score";
-import { AFFILIATE_DISCLOSURE_TEXT } from "../../lib/affiliateDisclosure.js";
+import { AFFILIATE_DISCLOSURE_SHORT } from "../../lib/affiliateDisclosure.js";
 import { useStagedCards } from "../../lib/stagedMount.js";
 
 const RAIL_ID = "home-affiliate-activities";
@@ -66,11 +66,11 @@ export default function HomeAffiliateActivityRail({ items, contentId, onLog, sta
   if (!rows.length) return null;
   return (
     <section aria-labelledby="home-affiliate-activities-title" style={{ marginBottom: 18 }}>
-      <RailHeading id="home-affiliate-activities-title" title="Best bookable activities" description="Wayfind's highest-ranked tours and experiences within 120 miles.">
-        <RailNav railId={RAIL_ID} count={rows.length} unit="ranked options" total={rows.length} />
+      <RailHeading id="home-affiliate-activities-title" title="Top tours nearby">
+        <RailNav railId={RAIL_ID} count={rows.length} unit="options" total={rows.length} />
       </RailHeading>
-      <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: "#E6EDF3" }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
-      <div className="wf-rail" data-rail={RAIL_ID} aria-label="Best bookable activities">
+      <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: "#E6EDF3" }}>{AFFILIATE_DISCLOSURE_SHORT}</p>
+      <div className="wf-rail" data-rail={RAIL_ID} aria-label="Top tours nearby">
         {rows.slice(0, shown).map((item, index) => (
           <AffiliateCard key={item.code} item={item} rank={index + 1} contentId={contentId} onLogRef={onLogRef} />
         ))}
