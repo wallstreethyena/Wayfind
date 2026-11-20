@@ -865,6 +865,7 @@ scripts/test-home-first-paint.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	ac729
 scripts/test-home-inp-perf.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	68e90020af96da5ca35de268ceee9c309ca8935432e589a96815eef3e84c978a
 scripts/test-home-landing-thanksgiving.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	430e7283e381a360804fa9d1936a5ad9bef869fae3952e4d83cc013f5a0127fc
 scripts/test-home-rails-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	0dc30b1d7c570f2dc49842b589fa4d23e28da188da9ed9dcfe39a8947e5565a5
+scripts/test-host-confident-voice.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	f0f983cde1a73b8f9be7195e14bf359d6e62aa886a215ed6afc03dd2df11ccfd
 scripts/test-hotel-card-cta.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0	f615f69b91b217cb4cebdd884b4391d7e400cc27be368594101a67d02969574d
 scripts/test-hotel-cta-impression.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0	0	5caafc813520845839c8cbc998d1ff1719ea120e3fa0dcc7b70f4564f4b99306
 scripts/test-hotel-image-resolver.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0	0f0c965c5ce408a6c85fe4401f6e10e6a447efc66d198319575fd1e7c33769f6
