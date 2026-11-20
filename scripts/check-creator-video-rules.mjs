@@ -142,16 +142,19 @@ for (const f of surfaces) {
 // Native attributed embeds replace the earlier cover-only contract. No media is copied.
 {
   const stop = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodStop.js"));
-  const post = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodPost.js"));
-  ok(/stop\.posts\.map\(/.test(stop) && /<FoodPost\b/.test(stop), "every food source renders independently of a park inventory row");
+  const rail = strip(read("app/components/CreatorPostRail.js"));
+  const post = strip(read("app/components/CheckedCreatorPost.js"));
+  ok(/<CreatorPostRail\b[^>]*posts=\{stop\.posts\.map\(/.test(stop), "every food source renders independently of a park inventory row, in the shared creator rail");
+  ok(/<CreatorVideoRail\b/.test(rail) && /posts\.map\(/.test(rail), "guide creator posts use the site's horizontal creator rail");
   ok(!/placeId\s*\?\s*stop\.posts/.test(stop), "California sources are not dropped by the old Florida-place-id gate");
-  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=/.test(stop + post), "food media has no substituted park photo, generated illustration or unlicensed cover");
+  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=|<img\b/.test(stop + rail + post), "food media has no substituted park photo, generated illustration or unlicensed cover");
   ok(/<CreatorVideoPlayer\b/.test(post), "food posts use the shared native in-page player");
-  ok(/IntersectionObserver/.test(post) && /entry\.isIntersecting/.test(post), "hidden parks do not immediately load all provider players");
-  ok(/Instagram controls playback/.test(post), "provider-controlled playback is disclosed, never promised");
-  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, CALIFORNIA_BONUS } = await import("../lib/guidesDisneyHolidayFood2026.js");
-  const posts = [...DISNEY_FOOD_STOPS, CALIFORNIA_BONUS].flatMap((s) => s.posts);
-  ok(posts.length === 9 && new Set(posts.map((p) => p.url)).size === 9, "all nine distinct food posts are retained");
+  ok(/useState\("idle"\)/.test(post) && /\{started \?/.test(post) && !/IntersectionObserver/.test(post), "no provider player loads until the reader taps");
+  ok(/Instagram controls playback/.test(rail), "provider-controlled playback is disclosed, never promised");
+  const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, CALIFORNIA_BONUS, EPCOT_FESTIVAL } = await import("../lib/guidesDisneyHolidayFood2026.js");
+  const posts = [...DISNEY_FOOD_STOPS, CALIFORNIA_BONUS].flatMap((s) => s.posts).concat(EPCOT_FESTIVAL.post);
+  ok(posts.length === 10 && new Set(posts.map((p) => p.url)).size === 10, "all nine food posts and the festival post are retained");
+  ok(EPCOT_FESTIVAL.post.url === "https://www.instagram.com/p/DfpbdQwG23q/" && EPCOT_FESTIVAL.post.creator === "disneyfoodblog", "the owner-requested festival post is credited to its creator");
   ok(posts.every((p) => p.creator && embedSrc("instagram", p.url)), "every food source has attribution and an official embed");
   ok(CALIFORNIA_BONUS.posts.some((p) => p.url === "https://www.instagram.com/reel/DfdaTVttmvV/"), "California Hawaiian rolls Reel is retained");
   ok(DISNEY_FOOD_STOPS.every((s) => DISNEY_FOOD_PARKS.some((park) => park.id === s.parkId)), "all Florida stops belong to a selectable park");

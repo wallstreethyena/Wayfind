@@ -1,79 +1,65 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import DisneyIllustratedMap from "./DisneyIllustratedMap";
-import { revealFoodDestination } from "../../../lib/disneyFoodMapController.js";
-import locations from "../../../lib/disneyChristmasFoodLocations2026.json";
-import styles from "./DisneyFoodMap.module.css";
+import GuideMapExplorer from "../../components/GuideMapExplorer";
+import IllustratedParkMap from "../../components/IllustratedParkMap";
+import { DISNEY_FOOD_PINS, DISNEY_PARK_MAP, parkMapImage } from "../../../lib/parkMaps2026.js";
 
-const initialPark = "animal-kingdom";
+// The Disney food map on the ONE shared guide map card (GuideMapExplorer):
+// park chips, the park's illustrated map with numbered pins, and the standard
+// RailCard rail. Each card opens its full entry further down the page.
+// Owner 2026-11-20: no beige panel or green header around the map, zoom inside
+// the map, and the EPCOT Festival of the Holidays booths each on the map.
+// Designed artwork for cards without a licensed photo: announced as an
+// illustration (RailCard EventPlaceholderTile), never as a photo of the food.
+const TREAT_TILE = { icon: "🎄", label: "Holiday treat", tint: "linear-gradient(160deg,#7A0E1C,#2A040B)" };
+const BOOTH_TILE = { icon: "🍽️", label: "Festival booth", tint: "linear-gradient(160deg,#1E4A34,#0B1C14)" };
+const STOP_TILE = { icon: "🍽️", label: "Festival menu", tint: "linear-gradient(160deg,#1E4A34,#0B1C14)" };
+const PARK_ORDER = ["animal-kingdom", "epcot", "magic-kingdom", "hollywood-studios", "disney-springs"];
 
-
-export default function DisneyFoodMap({ parks, stops, panels }) {
-  const [parkId, setParkId] = useState(initialPark);
-
-  const [selectedId, setSelectedId] = useState(null);
-
-  function openStop(id) {
-    if (!id) return;
-    setSelectedId(id);
-    if (window.location.hash === "#" + id) revealFoodDestination(id);
-    else window.location.hash = id;
+export function disneyFoodSpots(stops, festival) {
+  const spots = [];
+  for (const parkId of PARK_ORDER) {
+    for (const stop of stops.filter((s) => s.parkId === parkId)) {
+      spots.push({ id: stop.id, name: stop.title, eyebrow: "Holiday treat", city: stop.venue, when: stop.postedPrice ? "Posted price " + stop.postedPrice : null, detail: stop.summary, tip: stop.tip || null, href: "#" + stop.id, groups: [parkId], photoFallbackCategory: "christmas", placeholder: TREAT_TILE });
+    }
+    if (festival && festival.parkId === parkId) {
+      for (const booth of festival.booths) {
+        spots.push({ id: booth.id, name: booth.name, eyebrow: booth.kind === "stop" ? "Festival menu stop" : booth.isNew ? "New festival booth" : "Festival booth", city: booth.where, detail: booth.items.join(", "), href: "#booth-" + booth.id, groups: [parkId], photoFallbackCategory: "christmas", placeholder: booth.kind === "stop" ? STOP_TILE : BOOTH_TILE });
+      }
+    }
   }
+  return spots;
+}
 
-  // Deep links and the browser's Back button also open the park containing the food.
-  useEffect(() => {
-    let frame;
-    const followHash = () => {
-      const id = window.location.hash.slice(1);
-      const stop = stops.find((item) => item.id === id);
-      const park = parks.find((item) => id === "park-" + item.id);
-      if (!stop && !park) return;
-      setParkId(stop ? stop.parkId : park.id);
-      setSelectedId(stop?.id || null);
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        if (stop) revealFoodDestination(id);
-        else document.getElementById(id)?.scrollIntoView({ block: "start" });
-      });
-    };
-    followHash();
-    window.addEventListener("hashchange", followHash);
-    return () => {
-      window.removeEventListener("hashchange", followHash);
-      cancelAnimationFrame(frame);
-    };
-  }, [parks, stops]);
+export function disneyMapPins(parkId, visible) {
+  const pins = DISNEY_FOOD_PINS[parkId] || {};
+  return visible.filter((spot) => pins[spot.id]).map((spot) => ({ id: spot.id, number: visible.indexOf(spot) + 1, label: spot.name, left: pins[spot.id][0], top: pins[spot.id][1], family: "food" }));
+}
 
-  function changePark(id) {
-    setParkId(id);
-    setSelectedId(null);
-    window.history.replaceState(window.history.state, "", "#park-" + id);
-  }
-
-  return <section id="disney-food-map" className={styles.explorer} aria-labelledby="disney-food-map-title">
-    <p className={styles.eyebrow}>Your holiday food atlas</p>
-    <h2 id="disney-food-map-title">A little magic. A real place.</h2>
-    <p className={styles.intro}>Choose your park, then tap a numbered pin for the treat, price and details. The illustrated maps show roughly where each counter is; follow park signs on the day.</p>
-    <div role="group" aria-label="Choose your park" className={styles.menu}>
-      {parks.map((park) => <label className={styles.choice} key={park.id}>
-        <input type="radio" name="disney-food-park" value={park.id} checked={parkId === park.id} onChange={() => changePark(park.id)} />
-        <span>{park.shortName}</span>
-      </label>)}
-    </div>
-    {parks.map((park) => {
-      const parkStops = stops.filter((stop) => stop.parkId === park.id);
-      return <div className={styles.panel} key={park.id} data-park={park.id} id={"park-" + park.id}>
-        <div className={styles.mapHeading}><h3>{park.shortName}</h3><span>{parkStops.length} food {parkStops.length === 1 ? "stop" : "stops"}</span></div>
-        {park.id === parkId && <div className={styles.geographicFrame} aria-label={"Food locations in " + park.name}>
-          <DisneyIllustratedMap parkId={parkId} parkName={park.name} stops={parkStops} selectedId={selectedId} onSelect={openStop} />
-        </div>}
-        <ol className={styles.keyList}>{parkStops.map((stop, index) => <li key={stop.id} data-selected={selectedId === stop.id}>
-          <a href={"#" + stop.id} onClick={event => { event.preventDefault(); openStop(stop.id); }}><span className={styles.stopNumber} aria-hidden="true">{index + 1}</span><span><strong>{stop.venue}</strong><small>{stop.title}</small></span><span aria-hidden="true">↗</span></a>
-          {locations[stop.id]?.landmark && <small className={styles.mapNote}>Pin at {locations[stop.id].label} · {locations[stop.id].landmark}</small>}
-        </li>)}</ol>
-        <div key={parkId === park.id ? "active" : "idle"}>{panels[park.id]}</div>
-      </div>;
-    })}
-  </section>;
+export default function DisneyFoodMap({ parks, stops, festival }) {
+  const byId = Object.fromEntries(parks.map((park) => [park.id, park]));
+  const filters = PARK_ORDER.filter((id) => byId[id]).map((id) => ({ id, label: byId[id].shortName, family: "food" }));
+  return <div id="disney-food-map">
+    <GuideMapExplorer
+      spots={disneyFoodSpots(stops, festival)}
+      pagePath="/guides/disney-world-holiday-food-guide-2026"
+      filters={filters}
+      kicker="Choose a park, then swipe"
+      heading="Holiday food, mapped by park."
+      description="Every card matches a numbered pin on the park map. Swipe the cards or tap a pin, then open a card for the treat, price and ticket details."
+      proof={["Creator posts", "Admission noted", "Festival menus mapped"]}
+      note="Illustrated park maps are not to scale. Follow park signs on the day."
+      railIdPrefix="disney-food"
+      renderMap={({ active, visible, selectedId, onSelect }) => <IllustratedParkMap
+        key={active}
+        image={parkMapImage(DISNEY_PARK_MAP[active])}
+        pins={disneyMapPins(active, visible)}
+        selectedId={selectedId}
+        onSelect={onSelect}
+        label={(byId[active]?.name || "Park") + " holiday food map"}
+        note={active === "epcot" ? "World Showcase pins sit on their pavilions. World Celebration pins are approximate." : null}
+        fallback="The map image could not load. Every stop is on the cards beside it."
+      />}
+    />
+  </div>;
 }
