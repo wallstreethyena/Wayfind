@@ -167,7 +167,7 @@ const nextConfig = {
   // (scripts/test-og-movie-function-size.mjs).
   outputFileTracingExcludes: {
     "/api/og/movie": [
-      "./public/place-photos/**", "./public/guides/**", "./public/florida-photos/**", "./public/brand/**",
+      "./public/place-photos/**", "./public/places/**", "./public/guides/**", "./public/florida-photos/**", "./public/brand/**",
       "./public/cards/**", "./public/cards-v8/**", "./public/events/**", "./public/partners/**", "./public/og/**",
     ],
   },
