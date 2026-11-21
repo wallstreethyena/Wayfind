@@ -338,7 +338,7 @@ async function loadVaultMutant(mutatedSrc) {
     "const oversized = false; /* MUTATED: oversized gate disabled */"
   );
   ok(mutated !== freePhotoRealSrc, "G2 setup: the oversized-gate line was found and mutated");
-  const rewritten = mutated.replace(/from "\.\/placePhotoServe\.js"/, `from ${JSON.stringify(new URL("../lib/placePhotoServe.js", import.meta.url).href)}`);
+  const rewritten = mutated.replace(/from "\.\/([a-zA-Z0-9_]+)\.js"/g, (_match, name) => `from ${JSON.stringify(new URL(`../lib/${name}.js`, import.meta.url).href)}`);
   const tmp = join(mkdtempSync(join(tmpdir(), "wf-photo-vault-rendition-mut-")), "freePhoto.mjs");
   writeFileSync(tmp, rewritten);
   let M;
