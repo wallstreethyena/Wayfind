@@ -127,7 +127,11 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   const m = await mount(React.createElement(Card, props("other-1", cafe)));
   ok(m.host.querySelectorAll("[data-reserve-cta]").length === 0 && !/Reserve a table/.test(m.host.innerHTML), "a walk in cafe has no reservation button of any kind");
   ok(m.host.querySelectorAll(".wf-place-card-cta").length === 0 && !m.host.querySelector(".wf-place-card").classList.contains("has-cta"), "…no empty slot and no has-cta class");
-  const server = renderToStaticMarkup(React.createElement(Card, props("other-1", cafe)));
+  // Compare through the same serializer so void elements such as <img>
+  // have identical syntax on the server and client sides of the assertion.
+  const serverTemplate = document.createElement("template");
+  serverTemplate.innerHTML = renderToStaticMarkup(React.createElement(Card, props("other-1", cafe)));
+  const server = serverTemplate.innerHTML;
   const clientHtml = m.host.innerHTML;
   // jsdom re-serialises inline styles (colours, spacing) and the live card sets data-wf-live after mount; neither is markup we changed, so structure, classes and text are compared.
   const norm = (s) => s.replace(/<!--.*?-->/g, "").replace(/ data-wf-live="1"/g, "").replace(/ style="[^"]*"/g, "").replace(/&#x27;/g, "'");
