@@ -297,8 +297,8 @@ for (const f of AWARD_SITES) {
     "each house card with a photoRef uses that place's own /api/photo URL");
   ok(!ownA.includes("place=ChIJ3SpvbYPhwogRS17En4FSzVI") && !ownB.includes("place=ChIJN1t_tDeuEmsRUsoyG83frY4"),
     "one place's photoRef must not appear on the other card");
-  ok([ownA, ownB].every((markup) => markup.includes('src="/place-photos/representative/arts.webp"') && markup.includes(">Representative photo<")),
-    "a pending museum photo request already displays a clearly labelled category image");
+  ok([ownA, ownB].every((markup) => /data-card-photo-request=/.test(markup) && !markup.includes("/place-photos/representative/")),
+    "pending venue requests wait for an exact result before loading a representative photo");
   const iconic = strip(read("app/components/IconicPlaceCard.js"));
   const homePc = (() => {
     const raw = strip(read("app/home.js"));

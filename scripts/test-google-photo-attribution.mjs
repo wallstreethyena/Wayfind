@@ -41,6 +41,7 @@ const h = React.createElement;
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
 const GOOGLE_IMG_RX = /<img[^>]+src="[^"]*(?:\/api\/photo|googleusercontent\.com|googleapis\.com)/;
 const CARD_REQUEST_RX = /data-card-photo-request="\/api\/photo\?place=[^"]*&amp;s=card&amp;fmt=json/;
+const ANY_IMG_RX = /<img[^>]+src="/;
 const LOCAL_REPRESENTATIVE_RX = /<img\b[^>]*src="\/place-photos\/representative\/[a-z]+\.webp"/;
 
 // 1. What counts as a Google photo (fail closed: every /api/photo src).
@@ -86,9 +87,9 @@ ok(iconicLicensed.includes('src="' + LICENSED + '"') && iconicLicensed.includes(
 // still mount metadata requests with nospend rather than raw uncredited images.
 const SAVED = `/api/photo/stored/${PLACE.id}?v=exactversion`;
 const railSaved = renderToStaticMarkup(h(fx.Rail, { strict: true, photo: SAVED, place: PLACE }));
-ok(CARD_REQUEST_RX.test(railSaved) && /nospend=1/.test(railSaved) && !GOOGLE_IMG_RX.test(railSaved) && LOCAL_REPRESENTATIVE_RX.test(railSaved), "saved Google rail card remains credited/read-only inside guide policy");
+ok(CARD_REQUEST_RX.test(railSaved) && /nospend=1/.test(railSaved) && !ANY_IMG_RX.test(railSaved), "saved Google rail card remains credited/read-only inside guide policy");
 const iconicSaved = renderToStaticMarkup(h(fx.Iconic, { strict: true, place: { ...GPLACE, photo: SAVED } }));
-ok(CARD_REQUEST_RX.test(iconicSaved) && /nospend=1/.test(iconicSaved) && !GOOGLE_IMG_RX.test(iconicSaved) && LOCAL_REPRESENTATIVE_RX.test(iconicSaved), "saved Google iconic card remains credited/read-only inside guide policy");
+ok(CARD_REQUEST_RX.test(iconicSaved) && /nospend=1/.test(iconicSaved) && !ANY_IMG_RX.test(iconicSaved), "saved Google iconic card remains credited/read-only inside guide policy");
 
 // 3. GuideFigure — the one guide surface that prints Google's credit.
 const GuideFigure = (await loadComponent(path.join(ROOT, "app/components/GuideFigure.js"), ROOT)).default;

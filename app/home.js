@@ -2110,7 +2110,7 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
   if (state === "fallback") return placeFallback || <BrandedImageFallback className={className} style={style} name={alt} icon={icon} category={category} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
-      {state === "skeleton" && (placeFallback ? <div style={{ position: "absolute", inset: 0 }}>{placeFallback}</div> : <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />)}
+      {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
       {portraitFit
         ? <PortraitAwareImg key={activeSrc} imgRef={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
         : <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />}

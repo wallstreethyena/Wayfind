@@ -594,12 +594,11 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 src={retrySrc || primaryPhoto}
                 data-fallback={samePlacePhotoFallback}
                 alt=""
-                placeholder={placeFallback}
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 // A stale ref gets one identity-safe retry through /api/photo
-                // by the SAME place id. If that also fails, use the monogram.
+                // by the same place ID. If it fails, show the labelled fallback.
                 onError={(ev) => {
                   const fb = ev.currentTarget.dataset.fallback;
                   if (fb) {

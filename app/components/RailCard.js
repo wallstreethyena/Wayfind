@@ -390,7 +390,7 @@ export function RailDots({ railId, count, layoutKey = 0 }) {
 
 /**
  * @param {object}   p
- * @param {string}   p.photo       image URL; a monogram tile stands in when absent
+ * @param {string}   p.photo       verified image URL, when available
  * @param {string}   p.photoFallback second src tried once if `photo` fails to load
  * @param {string}   p.photoAttr   photo credit line (e.g. a Wikimedia Commons
  *   author, "NPS", "Recreation.gov") — renders a small corner badge on the
@@ -651,7 +651,6 @@ export default function RailCard({
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={handleImageError}
                 fallbackCategory={photoFallbackCategory}
-                placeholder={placeFallback}
                 style={{ objectFit: "cover", objectPosition: photoPosition }}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />

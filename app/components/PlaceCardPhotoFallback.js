@@ -1,22 +1,22 @@
 // Display-only photography. Never store these paths against a place ID or
 // return them from a venue-photo resolver.
 const PHOTO_THEMES = [
-  ["beach", /^(beach|public_beach|beaches)$/],
+  ["beach", /^(public_)?beach(es)?$/],
   ["aquarium", /^(aquarium|aquariums)$/],
   ["themeparks", /^((amusement|theme)_parks?|amusement_center)$/],
   ["outdoors", /^(park|parks|outdoors|state_park|national_park|nature_preserve|wildlife_park|hiking_area|trails|botanical_garden|garden|gardens)$/],
-  ["arts", /^(art_gallery|art_museum|gallery|galleries|museum|museums|arts_and_culture)$/],
+  ["arts", /^((art_)?(galler(y|ies)|museums?)|arts_and_culture)$/],
   ["music", /^(live_music|live_music_venue|concert_hall|music_venue|concerts)$/],
-  ["family", /^(family|family_fun|family_activities|board_game_cafe|game_store)$/],
-  ["coffee", /^(coffee|coffee_shop|cafe|cafes|cafés?|tea_house|coffee_and_tea)$/],
+  ["family", /^family(_(fun|activities))?$/],
+  ["coffee", /^(coffee(_shop)?|caf[eé]s?|tea_house)$/],
   ["dessert", /^(baker(y|ies)|dessert(s|_shop)?|ice_cream(_shop)?|(donut|doughnut|cookie)_shop|confectionery)$/],
   ["breakfast", /^(breakfast|brunch)(_restaurant)?$/],
   ["pizza", /^(pizza|pizza_restaurant|pizzeria)$/],
   ["burger", /^(hamburger_restaurant|burger|burgers|fast_food|fast_food_restaurant|quick_bites)$/],
   ["dining", /^(dinner|fine_dining|fine_dining_restaurant)$/],
   ["food", /^(food|restaurant|lunch|deli|meal_takeaway)$/],
-  ["nightlife", /^(nightlife|night_out|bar|pub|brewery|cocktail_bar|night_club|wine_bar|brewpub|beer_garden|lounge)$/],
-  ["stays", /^(hotel|hotels|lodging|resort|resort_hotel|stays|motel|inn|bed_and_breakfast)$/],
+  ["nightlife", /^(nightlife|night_(out|club)|((cocktail|wine)_)?bar|pub|brew(ery|pub)|beer_garden|lounge)$/],
+  ["stays", /^(hotels?|lodging|resort(_hotel)?|stays|motel|inn|bed_and_breakfast)$/],
   ["shopping", /^(shopping|shop|store|shopping_mall|clothing_store|boutique|gift_shop|outlet_mall|department_store)$/],
 ];
 
