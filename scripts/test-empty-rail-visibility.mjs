@@ -199,8 +199,10 @@ const placeRails = [
 ];
 const guidedMarkup = renderWithGuide(placeRails);
 assert.equal((guidedMarkup.match(/data-guide-rail=/g) || []).length, 1, "a covered place renders one actual guide card");
-assert.match(guidedMarkup, /wf-rail-card/, "the guide renders as the standard rail place card");
-assert.doesNotMatch(guidedMarkup, /example.test\/credit|Illustrative/, "the guide card carries no stock photo credit or disclaimer");
+const guideMarkup = guidedMarkup.match(/<article\b[^>]*data-guide-id="fixture-local-guide"[\s\S]*?<\/article>/)?.[0] || "";
+assert.match(guideMarkup, /wf-rail-card/, "the guide renders with the standard rail card layout");
+assert.doesNotMatch(guideMarkup, /example.test\/credit|Illustrative/, "the guide card carries no stock photo credit or disclaimer");
+assert.match(guidedMarkup, /Illustrative photo for Covered Place/, "the actual place card labels its local fallback photo");
 assert.equal((guidedMarkup.match(/data-rail=/g) || []).length, 2, "the guide wrapper preserves both original place rails");
 assert.match(guidedMarkup, /Covered Place/);
 assert.match(guidedMarkup, /Other Place/);
