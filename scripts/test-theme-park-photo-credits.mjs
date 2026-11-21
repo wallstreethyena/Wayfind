@@ -117,8 +117,10 @@ const credited = applyThemeParkPhotoCredits([card(USF, "Universal Studios Florid
   ok(/<img[^>]+src="[^"]*place-photos\/ChIJdd8VlMN-54gRoaU0d_zYhfk\/a\.jpg/.test(html), "…on the credited image itself");
   const withheld = renderToStaticMarkup(h(Iconic, { place: applyThemeParkPhotoCredits([card(USF, "Universal Studios Florida")], null)[0] }));
   // CardPhoto defers an /api/photo src to a client JSON request (data-card-photo-request).
-  const loadsPhoto = (html) => /data-card-photo-request="\/api\/photo/.test(html) || /<img[^>]+src="[^"]*(?:\/api\/photo|place-photos)/.test(html);
-  ok(!loadsPhoto(withheld), "a withheld card requests no photo at all (no /api/photo fallback)");
+  const loadsPhoto = (html) => /data-card-photo-request="\/api\/photo/.test(html) || /<img[^>]+src="(?!\/place-photos\/representative\/)[^"]*(?:\/api\/photo|place-photos)/.test(html);
+  ok(!loadsPhoto(withheld), "a withheld card never requests uncredited venue photography");
+  ok(/src="\/place-photos\/representative\/themeparks\.webp"/.test(withheld) && withheld.includes(">Representative photo<"),
+    "the withheld card explicitly labels the local theme park photo");
   const control = renderToStaticMarkup(h(Iconic, { place: card(USF, "Universal Studios Florida") }));
   ok(loadsPhoto(control), "control: the same card un-withheld does request its /api/photo (so the absence above can fail)");
 }

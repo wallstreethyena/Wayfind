@@ -42,6 +42,7 @@ const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
 const GOOGLE_IMG_RX = /<img[^>]+src="[^"]*(?:\/api\/photo|googleusercontent\.com|googleapis\.com)/;
 const CARD_REQUEST_RX = /data-card-photo-request="\/api\/photo\?place=[^"]*&amp;s=card&amp;fmt=json/;
 const ANY_IMG_RX = /<img[^>]+src="/;
+const LOCAL_REPRESENTATIVE_RX = /<img\b[^>]*src="\/place-photos\/representative\/[a-z]+\.webp"/;
 
 // 1. What counts as a Google photo (fail closed: every /api/photo src).
 for (const s of [
@@ -66,7 +67,7 @@ const LICENSED = "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/pub
 const railOpen = renderToStaticMarkup(h(fx.Rail, { strict: false, photo: GOOGLE, place: PLACE }));
 ok(CARD_REQUEST_RX.test(railOpen) && !GOOGLE_IMG_RX.test(railOpen), "control: outside the policy RailCard mounts the credited lazy JSON request without an uncredited image");
 const railStrict = renderToStaticMarkup(h(fx.Rail, { strict: true, photo: GOOGLE, place: PLACE }));
-ok(!CARD_REQUEST_RX.test(railStrict) && !ANY_IMG_RX.test(railStrict) && /wf-place-card-monogram/.test(railStrict), "under the policy RailCard renders NO Google photo and NO Google fallback: monogram instead");
+ok(!CARD_REQUEST_RX.test(railStrict) && !GOOGLE_IMG_RX.test(railStrict) && LOCAL_REPRESENTATIVE_RX.test(railStrict) && /Representative photo/.test(railStrict), "under the policy RailCard renders NO Google photo and NO Google fallback: disclosed local representative photo");
 ok(!/data-fallback="\/api\/photo/.test(railStrict), "under the policy RailCard's same-place /api/photo fallback is gone too");
 const railLicensed = renderToStaticMarkup(h(fx.Rail, { strict: true, photo: LICENSED, photoAttr: "Jane Doe (CC BY-SA 4.0)", photoAttrHref: "https://commons.wikimedia.org/wiki/File:x.jpg", place: PLACE }));
 ok(railLicensed.includes('src="' + LICENSED + '"') && /wf-place-card-photo-attr/.test(railLicensed) && railLicensed.includes("Jane Doe (CC BY-SA 4.0)"), "under the policy a licensed photo renders with its licence credit");
@@ -78,7 +79,7 @@ const GPLACE = { ...PLACE, photoRef: "places/ChIJ3SpvbYPhwogRS17En4FSzVI/photos/
 const iconicOpen = renderToStaticMarkup(h(fx.Iconic, { strict: false, place: GPLACE }));
 ok(CARD_REQUEST_RX.test(iconicOpen) && !GOOGLE_IMG_RX.test(iconicOpen), "control: outside the policy IconicPlaceCard mounts the credited lazy JSON request");
 const iconicStrict = renderToStaticMarkup(h(fx.Iconic, { strict: true, place: GPLACE }));
-ok(!CARD_REQUEST_RX.test(iconicStrict) && !GOOGLE_IMG_RX.test(iconicStrict) && !/data-fallback="\/api\/photo/.test(iconicStrict) && /wf-place-card-monogram/.test(iconicStrict), "under the policy IconicPlaceCard renders no Google photo and no Google fallback");
+ok(!CARD_REQUEST_RX.test(iconicStrict) && !GOOGLE_IMG_RX.test(iconicStrict) && !/data-fallback="\/api\/photo/.test(iconicStrict) && LOCAL_REPRESENTATIVE_RX.test(iconicStrict) && /Representative photo/.test(iconicStrict), "under the policy IconicPlaceCard renders no Google photo and no Google fallback");
 const iconicLicensed = renderToStaticMarkup(h(fx.Iconic, { strict: true, place: { ...PLACE, photo: LICENSED }, photoAttr: "Jane Doe (CC BY 2.0)", photoAttrHref: "https://commons.wikimedia.org/wiki/File:y.jpg" }));
 ok(iconicLicensed.includes('src="' + LICENSED + '"') && iconicLicensed.includes("Jane Doe (CC BY 2.0)"), "under the policy IconicPlaceCard shows a licensed photo with its credit");
 

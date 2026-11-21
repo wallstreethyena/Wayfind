@@ -267,7 +267,7 @@ for (const f of AWARD_SITES) {
     "positive control: ThingsToDoList produced markup (got " + html.slice(0, 80) + ")");
 }
 
-// ── 7. Two photoless house cards must not share an <img>. Own photo or monogram. ─
+// ── 7. Place-card fallback photography stays clearly labelled. ─
 {
   const kids = renderToStaticMarkup(React.createElement(Iconic, {
     place: { id: "kids-empire", name: "Kids Empire Bradenton", types: ["playground"], city: "Parrish" },
@@ -279,26 +279,26 @@ for (const f of AWARD_SITES) {
     rank: 2,
     href: "/p/intense-escape",
   }));
-  ok(kids.includes("wf-place-card-monogram") && escape.includes("wf-place-card-monogram"),
-    "photoless house cards use the branded monogram, not a shared stock scene");
-  ok(!/<img\b/i.test(kids) && !/<img\b/i.test(escape),
-    "photoless house cards must not paint an <img> (that is how one beach sunset reused across Kids Empire + Intense Escape)");
+  ok(kids.includes('aria-label="Illustrative photo for Kids Empire Bradenton"') && escape.includes('aria-label="Illustrative photo for Intense Escape"'),
+    "uncategorized attractions disclose an illustrative photo with the venue name");
+  ok([kids, escape].every((markup) => markup.includes('src="/place-photos/representative/neutral.webp"') && !markup.includes("/api/market-photo")),
+    "uncategorized attractions use the local compass photo without a market photo lookup");
   const ownA = renderToStaticMarkup(React.createElement(Iconic, {
-    place: { id: "a", name: "Place A", photoRef: "places/AAA/photos/BBB", types: ["museum"] },
+    place: { id: "a", name: "Place A", photoRef: "places/ChIJN1t_tDeuEmsRUsoyG83frY4/photos/BBB", types: ["museum"] },
     rank: 1,
     href: "/p/a",
   }));
   const ownB = renderToStaticMarkup(React.createElement(Iconic, {
-    place: { id: "b", name: "Place B", photoRef: "places/CCC/photos/DDD", types: ["museum"] },
+    place: { id: "b", name: "Place B", photoRef: "places/ChIJ3SpvbYPhwogRS17En4FSzVI/photos/DDD", types: ["museum"] },
     rank: 2,
     href: "/p/b",
   }));
-  ok(ownA.includes("places%2FAAA") && ownB.includes("places%2FCCC"),
+  ok(ownA.includes("place=ChIJN1t_tDeuEmsRUsoyG83frY4") && ownB.includes("place=ChIJ3SpvbYPhwogRS17En4FSzVI"),
     "each house card with a photoRef uses that place's own /api/photo URL");
-  ok(!ownA.includes("places%2FCCC") && !ownB.includes("places%2FAAA"),
+  ok(!ownA.includes("place=ChIJ3SpvbYPhwogRS17En4FSzVI") && !ownB.includes("place=ChIJN1t_tDeuEmsRUsoyG83frY4"),
     "one place's photoRef must not appear on the other card");
-  ok((ownA.match(/src="[^"]+"/g) || [])[0] !== (ownB.match(/src="[^"]+"/g) || [])[0],
-    "two adjacent house cards with different placeIds must not emit the same photo URL");
+  ok([ownA, ownB].every((markup) => /data-card-photo-request=/.test(markup) && !markup.includes("/place-photos/representative/")),
+    "pending venue requests wait for an exact result before loading a representative photo");
   const iconic = strip(read("app/components/IconicPlaceCard.js"));
   const homePc = (() => {
     const raw = strip(read("app/home.js"));
@@ -311,4 +311,4 @@ for (const f of AWARD_SITES) {
     "home PlaceCard must not fetch a shared category+city stock photo");
 }
 
-console.log(`check-house-card: OK — ${pass} assertions (TOP {CATEGORY} PICK only; score on the card corner, rank on the photo; no Image-1 compact row; no gold BEST chip; no unbound FOCUS; no shared stock photo)`);
+console.log(`check-house-card: OK — ${pass} assertions (TOP {CATEGORY} PICK only; score on the card corner, rank on the photo; no Image-1 compact row; no gold BEST chip; no unbound FOCUS; no city stock photo API)`);

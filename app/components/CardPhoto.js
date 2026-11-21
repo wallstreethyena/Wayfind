@@ -84,7 +84,7 @@ function LinkedPhotoCredit({ anchor, photo, alt, open, compact }) {
 // never a broken glyph): pending = quiet tile, no photo / refused / network / decode
 // error = "Photo not available" tile. `fallbackIcon` / `fallbackCategory` only choose
 // the tile's art; they never reach the <img>.
-export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, fallbackIcon, fallbackCategory, missSrc, inLink = false, ...props }) {
+export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, fallbackIcon, fallbackCategory, missSrc, inLink = false, placeholder, ...props }) {
   // Linked cards remain read-only. Retained Google answers keep their exact
   // credit through a separate control without changing card geometry.
   const baseRequest = cardPhotoRequest(src);
@@ -161,7 +161,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     // (RailCard swaps src in the handler) so the <img> must stay mounted for it. With
     // no handler this component owns the outcome: an empty src or ONE decode error
     // swaps to the shared tile, and the handler is gone with the <img> (no loop).
-    if (!onError && (!src || rawFailed === src)) return <PhotoFallbackTile name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} style={style} />;
+    if (!onError && (!src || rawFailed === src)) return placeholder || <PhotoFallbackTile name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} style={style} />;
     return <img {...props} src={src} alt={alt} style={style} onError={onError || (() => setRawFailed(src))} onLoad={onLoad} onClick={onClick} />;
   }
   const visible = !!photo && failed !== request;
@@ -181,7 +181,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   return <>
     {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit && !inLink ? { cursor: "zoom-in", outlineOffset: -3, pointerEvents: "auto" } : {}) }} onLoad={onLoad} onError={onImageError} />
       : <span ref={anchor} data-card-photo-request={request} style={{ display: "block", width: "100%", height: "100%", minHeight: compact ? 40 : 60, overflow: "hidden", ...style, borderRadius: style?.borderRadius ?? "inherit" }}>
-          <PhotoFallbackTile pending={failed !== request} name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} />
+          {(failed === request && placeholder) || <PhotoFallbackTile pending={failed !== request} name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} />}
         </span>}
     {visible && !compact && !inLink && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
       <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", maxWidth: "100%", color: "rgba(255,255,255,.6)", textShadow: "0 1px 2px rgba(0,0,0,.65)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "Roboto, sans-serif", fontSize: 9.5, lineHeight: "12px", fontWeight: 500, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>

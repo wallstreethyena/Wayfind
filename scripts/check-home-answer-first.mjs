@@ -731,12 +731,12 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // exercised by scripts/test-fall-card-integration.mjs.
     // 2026-10-08: an EVENT card with no verified photo may pass a designed
     // category tile (lib/eventPlaceholder.js) instead of the monogram; place
-    // cards never pass one, so the monogram stays the genuine-miss fallback.
+    // cards use their separately labelled, local representative photo.
     const railPhotoContract = (source) => [
       /const shownPhoto = photoSrcFilter\(photo\);\s*const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;\s*const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/,
       /const samePlacePhoto = place\?\.id \? photoSrcFilter\(ownedPlacePhotoSrc\(place\.id, 640\)\) : "";\s*const resolvedPhotoFallback = photoSrcFilter\(photoFallback\) \|\| \(samePlacePhoto && samePlacePhoto !== shownPhoto \? samePlacePhoto : ""\);/,
       /const handleImageError = \(ev\) => \{\s*const fallback = ev\.currentTarget\.dataset\.fallback;\s*if \(fallback\) \{\s*ev\.currentTarget\.dataset\.fallback = "";\s*setFallbackPhoto\(\{ primary: shownPhoto, src: fallback \}\);\s*\} else setImgFailed\(shownPhoto\);\s*\};/,
-      /\{shownPhoto && imgFailed !== shownPhoto\s*\?\s*<CardPhoto\s+src=\{displayedPhoto\}\s+data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}[^>]*onError=\{handleImageError\}[^>]*\/>\s*:\s*(?:placeholder \? <EventPlaceholderTile tile=\{placeholder\} \/>\s*:\s*)?<div className="wf-place-card-monogram" aria-hidden="true">\{initialsOf\(title\)\}<\/div>\}/,
+      /\{shownPhoto && imgFailed !== shownPhoto\s*\?\s*<CardPhoto\s+src=\{displayedPhoto\}\s+data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}[^>]*onError=\{handleImageError\}[^>]*\/>\s*:\s*(?:placeholder \? <EventPlaceholderTile tile=\{placeholder\} \/>\s*:\s*)?placeFallback \|\| <div className="wf-place-card-monogram" aria-hidden="true">\{initialsOf\(title\)\}<\/div>\}/,
     ].every((probe) => probe.test(source));
     // The real source is the positive control; each red-prove changes a live
     // contract expression and must both apply and make the SAME probe reject.
@@ -756,7 +756,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
       return mutated !== RC && !railPhotoContract(mutated);
     });
     ok(railPhotoContract(RC) && rejectsPhotoRegressions,
-      "…and RailCard renders the policy-filtered venue photo or its owned one-shot fallback, with a branded monogram on a genuine miss (positive and mutation controls)");
+      "…and RailCard renders the policy-filtered venue photo or its owned one-shot fallback, with a labelled local photo on a genuine place miss (positive and mutation controls)");
     ok(/\/api\/photo\?ref=/.test(CF) && /REF_RX\.test\(ref\)/.test(CF),
       "the photo goes through the guarded /api/photo proxy with a shape-checked ref — never a bare Google URL");
     ok(/center=\{center\}/.test(HOME) || /center: center/.test(HOME),

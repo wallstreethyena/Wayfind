@@ -1,0 +1,3 @@
+.wf-place-representative{position:relative;isolation:isolate;width:100%;height:100%;overflow:hidden;background:#1c2230}
+.wf-place-representative>img{display:block;width:100%;height:100%;object-fit:cover}
+.wf-place-representative>span{position:absolute;inset:auto 0 0;padding:18px 4px 7px;background:linear-gradient(transparent,#080b11 90%);color:#fff;text-align:center;font-size:10px;font-weight:650;line-height:1.15}
