@@ -154,6 +154,24 @@ ok(/^[A-Za-z0-9_-]{10,}$/.test(PLACE_ID) && PLACE_ID.length > 10, "PROBE: the fi
     eq(r, null, "A12: a thrown fetchImpl resolves to null");
   }
 
+  // The menu fallback is exact-ID scoped and preserves active place photos.
+  {
+    const whataburger = "ChIJ73_jJQBn54gRyBzOZRlSfi4";
+    const fatShack = "ChIJO7VwBz5p54gR_CIr-tDYiOw";
+    const env = { SUPABASE_URL: "https://x.test", SUPABASE_SERVICE_ROLE_KEY: "k" };
+    const respondWith = (rows) => async () => ({ ok: true, json: async () => rows });
+    const emptyVault = { env, fetchImpl: respondWith([]) };
+    const photo = await findFreePhoto({ placeId: whataburger }, emptyVault);
+    eq(photo?.url, "https://www.gowayfind.com/places/food/whataburger-burger.webp", "the missing Whataburger photo uses the actual burger photo");
+    eq(photo?.attributionText, "Whataburger", "the menu fallback preserves its attribution");
+    const sandwich = await findFreePhoto({ placeId: fatShack }, emptyVault);
+    eq(sandwich?.url, "https://www.gowayfind.com/places/food/fat-shack-sandwich.webp", "the missing Fat Shack photo uses its own sandwich photo");
+    eq(sandwich?.license, "CC BY-SA 4.0", "the Fat Shack fallback preserves its license");
+    eq(await findFreePhoto({ placeId: PLACE_ID }, emptyVault), null, "an unlisted venue never inherits a menu photo");
+    const existing = await findFreePhoto({ placeId: whataburger }, { env, fetchImpl: respondWith([VALID_ROW]) });
+    eq(existing?.attributionText, VALID_ROW.attribution_text, "an active place photo takes precedence over the menu fallback");
+  }
+
   // A13 — read-only query shape: place_id + status=active, no write verb.
   {
     let seenUrl = "";
