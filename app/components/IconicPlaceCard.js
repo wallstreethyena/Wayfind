@@ -7,6 +7,7 @@ import { formatDistanceMiles } from "../../lib/deviceDistance.js";
 // means collection cards cannot quietly become a second, taller card system.
 import { WayfindScoreBadge } from "./kit";
 import CardPhoto from "./CardPhoto";
+import PlaceCardPhotoFallback from "./PlaceCardPhotoFallback.js";
 import { businessStatus } from "../../lib/businessStatus";
 import { coarseCat, humanTypeFallback } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
@@ -384,9 +385,6 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // It is the adjudicated display bucket; unordered Google secondary types
   // must not relabel an airboat as Shopping or a spring park as Hotels.
   const category = place ? (place.cardCategory || coarseCat(place) || humanTypeFallback(place.primaryType || place.primary_type || place.type) || "Local pick") : "";
-  // v8.49.1 — house cards do not share a category+city stock scene. A
-  // photoless indoor playground and a photoless escape room in the same
-  // town used to paint the same beach sunset. Own photo, or the monogram.
   // v8.22 (owner: "indicate in the pills that the row is scrollable — someone
   // looking at it won't know"). After hydration, measure the lane: when it
   // genuinely overflows, a small pulsing chevron sits at its right edge and
@@ -509,7 +507,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   const take = toHookLine(editorial, place.name);
   const validAiSummary = !take && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
   const hasTake = !!(take || validAiSummary);
-  const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+  const placeFallback = <PlaceCardPhotoFallback place={place} category={category} eager={eagerMedia} />;
   // 2026-10-29: NO ACTION IS A LINK ANY MORE — save included. The old
   // pre-hydration <a href="/p/{id}?action=save"> was followed by crawlers and
   // headless browsers, and the deep-link handler saved the place for them
@@ -572,8 +570,6 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
           .wf-place-card so the shared css.js rule anchors it to the card. */}
       {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div> : null}
       <div className="wf-place-card-layout">
-        {/* #956's own-photo-or-monogram rule is unchanged — no shared
-            category stock scene. Rank stays on the photo. */}
         <div className="wf-place-card-media">
         {/* v8.70 — LAZY IS OPT-OUT, because in one container it never
             fires at all and a lazy image there is a PERMANENTLY blank
@@ -598,6 +594,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 src={retrySrc || primaryPhoto}
                 data-fallback={samePlacePhotoFallback}
                 alt=""
+                placeholder={placeFallback}
                 loading={eagerMedia ? "eager" : "lazy"}
                 decoding="async"
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
@@ -614,16 +611,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 style={{ objectFit: "cover" }}
               />
             )
-            // Evergreen landing cards (photoNoSpend) may only show a photo
-            // already owned for that exact place, so many have none. Say so
-            // instead of leaving an unexplained letter tile: a visible caption
-            // and an image label naming the place. Other surfaces unchanged.
-            : place.photoNoSpend
-              ? <div className="wf-place-card-monogram" role="img" aria-label={(place.name || "This place") + ": no verified photo yet"}>
-                  {initials}
-                  <span aria-hidden="true" style={{ position: "absolute", left: 6, right: 6, bottom: 10, textAlign: "center", fontSize: 10.5, fontWeight: 700, letterSpacing: ".03em", color: "#94A3B8" }}>No verified photo yet</span>
-                </div>
-              : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
+            : placeFallback}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={award} />
           {/* Same on-photo credit line as RailCard.js. */}

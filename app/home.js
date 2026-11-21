@@ -279,6 +279,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, RADII, MOTION, TARGET, SHADOW } from "./components/kit";
+import PlaceCardPhotoFallback from "./components/PlaceCardPhotoFallback.js";
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
 import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt, searchEditorialCard } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
@@ -1991,7 +1992,7 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover", defer = false, portraitFit = false }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, placeFallback, onClick, fit = "cover", defer = false, portraitFit = false }) {
   // An unrelated fallback update must not hide an already decoded primary.
   // Keep outcomes attached to the URL that actually emitted the event.
   const [outcomes, setOutcomes] = useState(() => new Map());
@@ -2105,11 +2106,11 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
     };
   }, [activeSrc, state]);
   if (defer && !armed) return <div ref={holdRef} data-detail-photo-deferred="" style={style} />;
-  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} fallbackIcon={icon} fallbackCategory={category} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /></div>;
-  if (state === "fallback") return <BrandedImageFallback className={className} style={style} name={alt} icon={icon} category={category} />;
+  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} fallbackIcon={icon} fallbackCategory={category} placeholder={placeFallback} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /></div>;
+  if (state === "fallback") return placeFallback || <BrandedImageFallback className={className} style={style} name={alt} icon={icon} category={category} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
-      {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
+      {state === "skeleton" && (placeFallback ? <div style={{ position: "absolute", inset: 0 }}>{placeFallback}</div> : <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />)}
       {portraitFit
         ? <PortraitAwareImg key={activeSrc} imgRef={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
         : <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />}
@@ -12806,7 +12807,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // clamps at 100; see the comment at its declaration for why the clamp is the
   // whole fix rather than a nicety.
   const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(displayedWfScore(p));
-  const cardInitials = String(p.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const cardCuisine = Dining.cuisineOf(p);
   const cardShowsCuisine = (pcat === "Food" || pcat === "Nightlife") && cardCuisine;
   const cardPrimaryLabel = cardShowsCuisine ? cardCuisine : pcat;
@@ -12849,9 +12849,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       {dispScore != null && <div className="wf-place-card-score"><WayfindScoreBadge score={dispScore} /></div>}
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
         <div className="wf-place-card-media">
-          {cardPrimarySrc
-            ? <FallbackImg src={cardPrimarySrc} fallbackSrc={cardPlaceSrc && cardPlaceSrc !== cardPrimarySrc ? cardPlaceSrc : undefined} icon={iconForPlace(p)} />
-            : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
+          <FallbackImg src={cardPrimarySrc} fallbackSrc={cardPlaceSrc && cardPlaceSrc !== cardPrimarySrc ? cardPlaceSrc : undefined}
+            placeFallback={<PlaceCardPhotoFallback place={p} category={pcat} />} />
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={cardAward} />
         </div>

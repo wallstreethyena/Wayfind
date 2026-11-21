@@ -212,6 +212,9 @@ ${WF_SKELETON_CSS}
 .wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:var(--wf-place-card-media)!important;height:100%!important;min-height:176px!important}
 .wf-place-card-media>:first-child{display:block;width:100%!important;height:100%!important;min-height:100%!important;object-fit:cover}
 .wf-place-card.is-no-take .wf-place-card-layout{min-height:0}
+.wf-place-representative{position:relative;isolation:isolate;width:100%;height:100%;overflow:hidden;background:#1c2230}
+.wf-place-representative>img{display:block;width:100%;height:100%;object-fit:cover}
+.wf-place-representative>span{position:absolute;inset:auto 0 0;padding:18px 4px 7px;background:linear-gradient(transparent,#080b11 90%);color:#fff;text-align:center;font-size:10px;font-weight:650;line-height:1.15}
 .wf-rail .wf-place-card.wf-movie-card{--wf-place-card-media:150px}
 .wf-rail .wf-movie-card .wf-place-card-media>:first-child{object-position:50% 40%!important}
 .wf-place-card-monogram{

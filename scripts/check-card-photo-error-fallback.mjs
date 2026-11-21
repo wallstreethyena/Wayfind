@@ -178,11 +178,10 @@ function railRecoveryContract(src) {
     "…and the tour <img> wires onError to it");
 }
 
-/* ── 4. EVERY <img> INSIDE .wf-place-card-media STILL FALLS TO THE SAME
-        MONOGRAM ON EITHER FAILURE MODE (missing OR broken) ─────────────── */
+/* ── 4. PLACE-CARD MISSES RENDER THE SHARED REPRESENTATIVE PHOTO ────── */
 for (const [name, src] of [["RailCard.js", RAIL], ["IconicPlaceCard.js", ICONIC], ["ThingsToDoList.js", TTD]]) {
-  ok(/wf-place-card-monogram/.test(src),
-    `${name}: the monogram — an existing designed empty-state — is still what a failed OR missing photo falls to, never a second new fallback visual`);
+  ok(/<PlaceCardPhotoFallback\b/.test(src) && /:\s*(?:placeFallback|<PlaceCardPhotoFallback)/.test(src),
+    `${name}: a failed or missing venue photo renders the shared labelled fallback`);
 }
 
 /* ── 5. RED PROOFS — the assertions above can actually fail ──────────────── */
@@ -234,4 +233,4 @@ if (fails) {
   console.error(`check-card-photo-error-fallback: FAIL — ${fails} of ${pass + fails} assertions`);
   process.exit(1);
 }
-console.log(`check-card-photo-error-fallback: OK — ${pass} assertions; place cards retry the exact same place id before the monogram, and tour cards still fall back safely on image failure`);
+console.log(`check-card-photo-error-fallback: OK — ${pass} assertions; place cards retry the exact same place id before the labelled fallback, and all checked cards fall back safely on image failure`);

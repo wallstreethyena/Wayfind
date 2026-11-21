@@ -114,7 +114,7 @@ for (const def of CHRISTMAS_INTENT_RAIL_DEFS) {
   }
 }
 const placeHtml = renderToStaticMarkup(React.createElement(RailCard, { title: "Festive Cafe", place: { id: "fixture-festive-cafe" }, score: "9.1", facts: ["6 mi"], chips: [{ key: "season", label: "Nov 20 – Jan 3" }, { key: "proof", label: "Proof source", onClick: () => {} }], take: "A verified holiday menu." }));
-ok(placeHtml.includes("Nov 20 – Jan 3") && placeHtml.includes("Proof source") && placeHtml.includes("wf-place-card-monogram"), "hospitality place uses shared date chip, proof and safe media slots without hiding its score");
+ok(placeHtml.includes("Nov 20 – Jan 3") && placeHtml.includes("Proof source") && placeHtml.includes("data-place-photo-theme="), "hospitality place uses shared date chip, proof and safe media slots without hiding its score");
 ok(BADGE.test('<a class="wf-place-card-photo-attr">©</a>') && EMPTY_SPAN.test('<span data-card-photo-request="/api/photo?x"></span>'), "positive control: the badge and empty span probes match their markup");
 
 const rails = strip(read("app/components/ChristmasIntentRails.js")), browse = strip(read("app/components/ChristmasBrowse.js")), railCard = strip(read("app/components/RailCard.js"));

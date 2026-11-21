@@ -140,12 +140,11 @@ ok(/setDetail\(\s*p\s*\)/.test(home),
 ok(/setDetail\(\s*p\s*\)\s*;[\s\S]{0,120}setDetail\(\s*attachOfficialScoreReceipt/.test(home),
   "receipt attach is a same-turn follow-up after setDetail(p), not a replacement of the first paint");
 
-// List PlaceCard monogram is out of this cut — pin the existing branch so this
-// PR cannot silently redesign it.
-ok(/wf-place-card-monogram/.test(home),
-  "list PlaceCard monogram markup is still present");
-ok(/cardInitials/.test(home) && /split\(\/\\s\+\/\)/.test(home),
-  "list PlaceCard monogram initials logic is unchanged");
+// The detail hero stays separate from the main list-card photo policy.
+ok(/placeFallback=\{<PlaceCardPhotoFallback place=\{p\}/.test(home),
+  "list PlaceCard uses the labelled representative photo component");
+ok(!readFileSync(new URL("../app/components/PlaceDetailPhotoHeader.js", import.meta.url), "utf8").includes("PlaceCardPhotoFallback"),
+  "the detail hero does not use the list's representative photo component");
 
 // A /p/{id} arrival may keep the populated Home shell mounted for Back, but
 // an unrelated homepage poster must not be the visual backdrop of the shared

@@ -183,8 +183,8 @@ const CSS = strip(readFileSync(join(ROOT, "app/components/railMenuCss.js"), "utf
 /* ── 5. THE CARD STILL HAS SOMETHING TO SHOW ───────────────────────────────*/
 {
   const card = readFileSync(join(ROOT, "app/components/IconicPlaceCard.js"), "utf8");
-  ok(/wf-place-card-monogram/.test(card),
-    "a photoless card renders its monogram — an existing designed state, not an empty box. Without this the fix would trade a crash for the blank grey v8.70 removed");
+  ok(/<PlaceCardPhotoFallback\b/.test(card) && /:\s*placeFallback\}/.test(card),
+    "a photoless card in the virtualized window has a labelled representative photo");
   ok(
     /photoUrl\(place\)\s*\n?\s*\?/.test(card)
       || /\{photoUrl\(place\)/.test(card)

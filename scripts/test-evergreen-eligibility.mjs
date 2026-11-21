@@ -187,17 +187,17 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
     "no evergreen links for a LANDING_CITIES town, a near-miss name, or no region");
 }
 
-// ── 7. The no-photo tile is intentional on evergreen cards only ──────────────
+// ── 7. Evergreen and regular cards identify illustrative photos ───────────
 {
   const Card = card.default;
   // No id and no photo = no photo source at all, so the server render takes
-  // the monogram branch — the same branch a card reaches in the browser when
+  // the labelled fallback branch, also reached in the browser when
   // its nospend place photo 404s (onError -> setImgFailed).
   const base = { name: "Corkscrew Swamp Sanctuary", rating: 4.8, reviews: 3100, photo: null, cardCategory: "Things to Do" };
   const ev1 = renderToStaticMarkup(React.createElement(Card, { place: { ...base, photoNoSpend: true }, rank: 1 }));
-  ok(/role="img" aria-label="Corkscrew Swamp Sanctuary: no verified photo yet"/.test(ev1) && />No verified photo yet</.test(ev1), "evergreen card with no verified photo: labelled image + visible caption");
+  ok(/role="img" aria-label="Illustrative photo for Corkscrew Swamp Sanctuary"/.test(ev1) && />Illustrative photo</.test(ev1), "evergreen card with no verified photo has a labelled image and visible caption");
   const plain = renderToStaticMarkup(React.createElement(Card, { place: base, rank: 1 }));
-  ok(/class="wf-place-card-monogram" aria-hidden="true"/.test(plain) && !/No verified photo yet/.test(plain), "CONTROL: other surfaces keep the unchanged monogram");
+  ok(plain.includes('/place-photos/representative/neutral.webp') && />Illustrative photo</.test(plain), "the standard card gives uncategorized places the same honest illustrative photo");
 }
 
 ok(google === 0, `no Google request anywhere in this test (${google})`);

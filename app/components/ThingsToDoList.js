@@ -24,6 +24,7 @@ import { toDisplayScore } from "../../lib/score";
 import { toHookLine } from "../../lib/editorialHook";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
+import PlaceCardPhotoFallback from "./PlaceCardPhotoFallback.js";
 // v6.80: 823ebf7 added the viatorDirectUrl() call below (closing the `|| raw`
 // unattributed fallback) but not this import. A bare reference is valid
 // JavaScript until it RUNS — this would have been a ReferenceError on every
@@ -197,7 +198,7 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
         <div className="wf-place-card-media">
           {r.image_url && imgFailed !== r.image_url
             ? <img src={r.image_url} alt="" loading="lazy" onError={() => setImgFailed(r.image_url)} style={{ objectFit: "cover" }} />
-            : <div className="wf-place-card-monogram" aria-hidden="true">WF</div>}
+            : <PlaceCardPhotoFallback place={r} name={r.title} />}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>

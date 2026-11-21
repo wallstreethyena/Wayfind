@@ -49,6 +49,7 @@ import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useRef, useState } from "react";
 import CardPhoto from "./CardPhoto";
+import PlaceCardPhotoFallback from "./PlaceCardPhotoFallback.js";
 import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
 // thumbs were WORSE than a navigation: `onClick={... if (onLike) onLike(e)}`
@@ -540,6 +541,8 @@ export default function RailCard({
   // Saved Google bytes go through CardPhoto's read-only JSON/credit viewer.
   // Keep filtering other Google URLs on guide surfaces.
   const photoSrcFilter = (src) => typeof src === "string" && /^\/api\/photo\/stored\/[A-Za-z0-9_-]+(?:[?#]|$)/.test(src) ? src : routePhotoFilter(src);
+  const placeFallback = place && !visitFacts && !actionItem
+    ? <PlaceCardPhotoFallback place={place} category={eyebrow} name={title} eager={eagerMedia} /> : null;
   const shownPhoto = photoSrcFilter(photo);
   const usingFallback = !!fallbackPhoto && fallbackPhoto.primary === shownPhoto;
   const displayedPhoto = usingFallback ? fallbackPhoto.src : shownPhoto;
@@ -648,10 +651,11 @@ export default function RailCard({
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={handleImageError}
                 fallbackCategory={photoFallbackCategory}
+                placeholder={placeFallback}
                 style={{ objectFit: "cover", objectPosition: photoPosition }}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
-              : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
+              : placeFallback || <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={shownAward} />
           {/* CC-license credit for the free permanent photo lane. A tiny line

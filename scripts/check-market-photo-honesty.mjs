@@ -25,9 +25,9 @@ ok(/never the venue/i.test(mod), "the honesty line is documented where the next 
 // across every photoless venue in that town. Owner screenshot — Kids Empire
 // Bradenton and Intense Escape both painted the same beach sunset; later the
 // Speakeasies and Clubs rails repeated one cocktail/dance-floor scene across
-// different venue names. Every named card now uses the venue's own photo or
-// branded monogram. The ladder stays only for market-level chrome that does
-// not claim to depict a named venue.
+// different venue names. Named cards use exact place sources and then a
+// local, labelled taxonomy photo. The city stock-photo ladder stays only
+// for market-level chrome.
 const HOUSE = ["app/components/IconicPlaceCard.js", "app/components/RailCard.js", "app/home.js"];
 const rail = read("app/components/RailCard.js");
 for (const file of HOUSE) {
@@ -48,10 +48,10 @@ function railPhotoContract(src) {
     && /const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/.test(src)
     && /\{shownPhoto && imgFailed !== shownPhoto\s*\? <CardPhoto\s+src=\{displayedPhoto\}/.test(src)
     && imageSources.length === 1 && imageSources.every((value) => value === "{displayedPhoto}")
-    && /: <div className="wf-place-card-monogram"/.test(src);
+    && /: placeFallback \|\| <div className="wf-place-card-monogram"/.test(src);
 }
 ok(railPhotoContract(rail),
-  "RailCard renders the policy-filtered caller photo or its keyed recovery source, then its branded monogram (source contract)");
+  "RailCard renders the policy-filtered caller photo or its keyed recovery source, then its labelled place fallback (source contract)");
 for (const [label, from, to] of [
   ["an unfiltered primary", "const shownPhoto = photoSrcFilter(photo);", "const shownPhoto = photo;"],
   ["a fallback retained for a different primary", "fallbackPhoto.primary === shownPhoto", "fallbackPhoto.primary !== shownPhoto"],
@@ -63,6 +63,6 @@ for (const [label, from, to] of [
 }
 
 console.log(fail === 0
-  ? `check-market-photo-honesty: OK — ${pass} assertions (named place cards never share stock imagery)`
+  ? `check-market-photo-honesty: OK — ${pass} assertions (named place cards never use the city stock photo API)`
   : `check-market-photo-honesty: FAIL — ${fail} of ${pass + fail}`);
 process.exit(fail === 0 ? 0 : 1);
