@@ -356,7 +356,7 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   const bodies = [];
   const ai = (text) => ({ aiKey: () => "key", model: "m", breakerOpen: async () => false, tripBreaker: async () => {}, classifyProviderFailure: () => null, paidAnthropicRequest: async (init) => { bodies.push(init.body); return { ok: true, status: 200, json: async () => ({ content: [{ text }] }), text: async () => text }; } });
   const modelJson = JSON.stringify({ restaurant: "Ulele", again: false, date: "2026-11-20", time: "19:00", partySize: 4, note: null, ask: null });
-  const envOn = { ...PROD, BOOKING_AGENT_ENABLED: "1", BOOKING_AGENT_SITE_OPENTABLE: "1" };
+  const envOn = { ...PROD, BOOKING_AGENT_ENABLED: "1", BOOKING_AGENT_SITE_OPENTABLE: "1", BOOKING_AGENT_PLACE_ALLOWLIST: ULELE };
   const siteOn = { site: "opentable", status: "on", paused_until: null, last_challenge_at: null, challenge_count_7d: 0 };
   const h = harness({ env: envOn, extra: ai(modelJson), agentSite: siteOn });
   const r = await say(h, "Book Ulele on November 20 at 7 for four");
@@ -366,6 +366,8 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
   for (const secret of ["Zebediah", "Quillfeather", "9415550177", "zeb.quill", "example.com", USER]) ok(!sent.includes(secret), `H: the model request never contains ${secret}`);
   const off = await say(harness({ env: envOn, extra: ai(modelJson), agentSite: { ...siteOn, status: "off" } }), "Book Ulele on November 20 at 7 for four");
   ok(off.body.card?.type === "handoff" && !off.body.card.handoff, "H: a site switch that is off keeps the plain handoff card");
+  const other = await say(harness({ env: { ...envOn, BOOKING_AGENT_PLACE_ALLOWLIST: "ChIJother" }, extra: ai(modelJson), agentSite: siteOn }), "Book Ulele on November 20 at 7 for four");
+  ok(other.body.card?.type === "handoff" && !other.body.card.handoff, "H: a restaurant that is not on the allowlist keeps the plain handoff card");
 }
 
 if (failed) { console.error(`test-reserve-concierge: ${failed} of ${count} assertions failed`); process.exit(1); }

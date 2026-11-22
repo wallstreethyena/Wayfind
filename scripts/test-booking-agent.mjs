@@ -8,7 +8,7 @@ import { assertTransition } from "../lib/bookingAgent/stateMachine.js";
 import { classifyPage } from "../lib/bookingAgent/detectors.js";
 import { parseConfirmation, confirmationMatches } from "../lib/bookingAgent/confirmation.js";
 import { applyChallenge } from "../lib/bookingAgent/circuitBreaker.js";
-import { agentEnabled, refusalFor } from "../lib/bookingAgent/flags.js";
+import { agentEnabled, placeAllowed, refusalFor } from "../lib/bookingAgent/flags.js";
 import { redact } from "../lib/bookingAgent/redact.js";
 import { sentenceFor } from "../lib/bookingAgent/copy.js";
 import { AGENT_UA } from "../lib/bookingAgent/constants.js";
@@ -21,7 +21,7 @@ const ok = (cond, msg) => { count++; if (!cond) { failed++; console.error("test-
 const FIX = "tests/fixtures/booking-agent/opentable/";
 const html = (name) => readFileSync(FIX + name, "utf8");
 const PROFILE = { first_name: "Ada", last_name: "Lovelace", mobile_phone: "+19415550198", preferred_email: "ada.lovelace@example.com", consent_at: "2026-11-01T00:00:00Z" };
-const ON = { BOOKING_AGENT_ENABLED: "1", BOOKING_AGENT_SITE_OPENTABLE: "1" };
+const ON = { BOOKING_AGENT_ENABLED: "1", BOOKING_AGENT_SITE_OPENTABLE: "1", BOOKING_AGENT_PLACE_ALLOWLIST: "ChIJsyntheticgrill01" };
 const USER = "11111111-1111-4111-8111-111111111111";
 const OTHER = "22222222-2222-4222-8222-222222222222";
 const PLACE = "ChIJsyntheticgrill01";
@@ -107,6 +107,20 @@ const confirmed = { html: html("confirmation.html") };
     const { out } = await go(store, browser, env);
     ok(out.launched === false && browser.log.launched === 0 && out.status === "refused_flag_off", label + " never launches: " + out.status);
     ok(browser.log.closed === 0, label + " does not open a browser to close");
+  }
+  ok(placeAllowed({}, PLACE) === false, "an unset allowlist does not allow the synthetic restaurant");
+  ok(placeAllowed({ BOOKING_AGENT_PLACE_ALLOWLIST: "" }, PLACE) === false, "an empty allowlist allows no restaurant");
+  ok(placeAllowed({ BOOKING_AGENT_PLACE_ALLOWLIST: "ChIJother" }, PLACE) === false, "a different restaurant is not allowed");
+  ok(placeAllowed(ON, PLACE) === true, "the named restaurant is allowed");
+  for (const [label, env] of [
+    ["empty allowlist", { ...ON, BOOKING_AGENT_PLACE_ALLOWLIST: "" }],
+    ["other restaurant", { ...ON, BOOKING_AGENT_PLACE_ALLOWLIST: "ChIJother" }],
+  ]) {
+    const store = createMemoryStore({ status: "on" });
+    const browser = scripted([form]);
+    await seedRun(store);
+    const { out } = await go(store, browser, env);
+    ok(out.launched === false && browser.log.launched === 0 && out.status === "refused_flag_off", label + " never launches: " + out.status);
   }
 }
 
@@ -707,6 +721,56 @@ const confirmed = { html: html("confirmation.html") };
     threw = true;
   }
   ok(!threw && cOut && cOut.status === "cancelled_by_user" && cBrowser.log.clicks.length === 0 && cBrowser.log.closed === 1, "mid-flight user cancellation returns cancelled_by_user cleanly without throwing or submitting");
+}
+
+// ---- missing phone or a slot outside the window stops before submit ----
+{
+  const store = createMemoryStore({ status: "on" });
+  const browser = scripted([form]);
+  await seedRun(store);
+  const { out } = await go(store, browser, ON, {
+    loadProfile: async () => ({ ...PROFILE, mobile_phone: "", last_name: "" }),
+  });
+  const phoneSel = "[data-synthetic='phone']";
+  ok(out.status === "handback:phone_verification" && browser.log.clicks.length === 0, "a phone field with no number stops before submit: " + out.status);
+  ok(browser.log.fills.some((s) => s.includes("first-name")) && !browser.log.fills.some((s) => s.includes(phoneSel) || s.includes("phoneNumber")), "name and email can be filled and the phone field is left empty");
+}
+
+{
+  const slotsHtml = "<div data-test=\"slot-button\">6:30 PM</div>";
+  const noneHtml = "<div data-test=\"slot-button\">4:00 PM</div>";
+  async function slotRun(labels, pages) {
+    const store = createMemoryStore({ status: "on" });
+    await seedRun(store);
+    const clicked = [];
+    let step = 0;
+    const out = await runNext({
+      store,
+      env: { ...ON, BOOKING_AGENT_PICK_EARLIEST: "1", BOOKING_AGENT_SLOT_FROM: "18:00", BOOKING_AGENT_SLOT_TO: "20:30" },
+      now: () => NOW,
+      launch: async () => ({
+        userAgent: AGENT_UA,
+        async open() {
+          return {
+            async snapshot() { return { html: pages[Math.min(step, pages.length - 1)], httpStatus: 200, url: "https://www.opentable.com/restref/client/", title: "OpenTable" }; },
+            async listSlots() { return labels; },
+            async clickSlot(_sel, label) { clicked.push(label); step = 1; return true; },
+            async fill() {},
+            async click() { step += 1; },
+          };
+        },
+        async close() {},
+      }),
+      loadProfile: async () => PROFILE,
+      placeName: async () => "Synthetic Grill",
+    });
+    return { out, clicked, run: await store.getRun(out.id) };
+  }
+  const matched = "<h1>Reservation confirmed</h1><p>Confirmation number OTSYN1001</p><p>Restaurant Synthetic Grill</p><p>Date 2026-11-20</p><p>Time 18:30</p><p>Party 4</p>";
+  const early = await slotRun(["5:00 PM", "6:30 PM", "8:00 PM", "9:00 PM"], [slotsHtml, html("guest-form.html"), matched]);
+  ok(early.clicked[0] === "6:30 PM" && early.run.time === "18:30" && early.out.status === "confirmed", "earliest slot inside 6:00 to 8:30 is the one sent: " + early.clicked[0] + " " + early.out.status);
+  const none = await slotRun(["4:00 PM", "9:00 PM"], [noneHtml]);
+  ok(none.out.status === "handback:slot_unavailable" && none.clicked.length === 0 && Array.isArray(none.out.slotsShown) && none.out.slotsShown.length === 2, "no slot in the window stops and reports the slots shown");
 }
 
 // ---- BOOKING_AGENT_BROWSER_MODE=chrome opt-in ----
