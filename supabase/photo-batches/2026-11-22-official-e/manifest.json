@@ -1,0 +1,264 @@
+{
+ "batch": "2026-11-22-official-e",
+ "note": "Venue supplied official photos from each place's own official website, credited to the venue. Authorized by Gabe on 2026-11-22.",
+ "places": {
+  "ChIJVa5GVq_92IgRPN76YUTLEbE": {
+   "name": "Jellyfish Museum",
+   "locality": "Pompano Beach",
+   "metro": "broward",
+   "category": "attractions",
+   "site": "https://www.jellyfish-museum.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJVa5GVq_92IgRPN76YUTLEbE/of_c6c346d9b2454b99.jpg",
+     "bytes": 165931,
+     "phash": "cccc3b23c21fcccc",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.jellyfish-museum.com/",
+     "author": "Jellyfish Museum",
+     "title": "Jellyfish Museum official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.jellyfish-museum.com/",
+     "attribution_text": "Photo: Jellyfish Museum"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJVa5GVq_92IgRPN76YUTLEbE/of_a4ce16264017c76e.jpg",
+     "bytes": 150666,
+     "phash": "81e139b07aec745b",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.jellyfish-museum.com/",
+     "author": "Jellyfish Museum",
+     "title": "Jellyfish Museum official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.jellyfish-museum.com/",
+     "attribution_text": "Photo: Jellyfish Museum"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJVa5GVq_92IgRPN76YUTLEbE/of_ea5ff3b897e5f5d8.jpg",
+     "bytes": 98809,
+     "phash": "a6c7436b4b4ecc86",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.jellyfish-museum.com/",
+     "author": "Jellyfish Museum",
+     "title": "Jellyfish Museum official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.jellyfish-museum.com/",
+     "attribution_text": "Photo: Jellyfish Museum"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJVa5GVq_92IgRPN76YUTLEbE/of_be6a4706711e66f9.jpg",
+     "bytes": 108374,
+     "phash": "96927162cedb312d",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.jellyfish-museum.com/",
+     "author": "Jellyfish Museum",
+     "title": "Jellyfish Museum official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://www.jellyfish-museum.com/",
+     "attribution_text": "Photo: Jellyfish Museum"
+    }
+   ]
+  },
+  "ChIJ73e7e_5654gR8c-e_83IEDM": {
+   "name": "CityArts",
+   "locality": "Orlando",
+   "metro": "orlando",
+   "category": "attractions",
+   "site": "https://downtownartsdistrict.com/cityarts/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ73e7e_5654gR8c-e_83IEDM/of_67c47f8c70d4e4f2.jpg",
+     "bytes": 169497,
+     "phash": "e8825c259719ebb3",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://downtownartsdistrict.com/cityarts/",
+     "author": "CityArts",
+     "title": "CityArts official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://downtownartsdistrict.com/cityarts/",
+     "attribution_text": "Photo: CityArts"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ73e7e_5654gR8c-e_83IEDM/of_b32f13ed8e959c72.jpg",
+     "bytes": 172541,
+     "phash": "d07ca76be9863e08",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://downtownartsdistrict.com/cityarts/",
+     "author": "CityArts",
+     "title": "CityArts official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://downtownartsdistrict.com/cityarts/",
+     "attribution_text": "Photo: CityArts"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ73e7e_5654gR8c-e_83IEDM/of_f953632496b106bf.jpg",
+     "bytes": 165275,
+     "phash": "98d7623f1b40c5cd",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://downtownartsdistrict.com/cityarts/",
+     "author": "CityArts",
+     "title": "CityArts official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://downtownartsdistrict.com/cityarts/",
+     "attribution_text": "Photo: CityArts"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ73e7e_5654gR8c-e_83IEDM/of_5b499858e39fbc43.jpg",
+     "bytes": 166902,
+     "phash": "9fa02da5584dc2dd",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://downtownartsdistrict.com/cityarts/",
+     "author": "CityArts",
+     "title": "CityArts official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://downtownartsdistrict.com/cityarts/",
+     "attribution_text": "Photo: CityArts"
+    }
+   ]
+  },
+  "ChIJKT7-e-Tc3ogRM4_GfqrnoKA": {
+   "name": "Kiplinger Nature Preserve",
+   "locality": null,
+   "metro": "florida",
+   "category": "attractions",
+   "site": "https://www.martin.fl.us/Kiplinger",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJKT7-e-Tc3ogRM4_GfqrnoKA/of_9f2126e1fc51ab92.jpg",
+     "bytes": 174458,
+     "phash": "d366b6d9c9c53106",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.martin.fl.us/Kiplinger",
+     "author": "Kiplinger Nature Preserve",
+     "title": "Kiplinger Nature Preserve official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.martin.fl.us/Kiplinger",
+     "attribution_text": "Photo: Kiplinger Nature Preserve"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJKT7-e-Tc3ogRM4_GfqrnoKA/of_477e0ba2981604df.jpg",
+     "bytes": 171607,
+     "phash": "9ce2b1c8761bacc6",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.martin.fl.us/Kiplinger",
+     "author": "Kiplinger Nature Preserve",
+     "title": "Kiplinger Nature Preserve official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.martin.fl.us/Kiplinger",
+     "attribution_text": "Photo: Kiplinger Nature Preserve"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJKT7-e-Tc3ogRM4_GfqrnoKA/of_3f0cbc8ed228bca4.jpg",
+     "bytes": 171905,
+     "phash": "96271d8be23488fb",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.martin.fl.us/Kiplinger",
+     "author": "Kiplinger Nature Preserve",
+     "title": "Kiplinger Nature Preserve official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.martin.fl.us/Kiplinger",
+     "attribution_text": "Photo: Kiplinger Nature Preserve"
+    }
+   ]
+  },
+  "ChIJ59-__CZCw4gRzXUvtAcE-bU": {
+   "name": "Safe Harbor Siesta Key",
+   "locality": null,
+   "metro": "manatee-sarasota",
+   "category": "food",
+   "site": "https://safeharbor.com/locations/safe-harbor-siesta-key/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ59-__CZCw4gRzXUvtAcE-bU/of_fc207b4329d5a649.jpg",
+     "bytes": 168785,
+     "phash": "93a499bb2a956e98",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://safeharbor.com/locations/safe-harbor-siesta-key/",
+     "author": "Safe Harbor Siesta Key",
+     "title": "Safe Harbor Siesta Key official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://safeharbor.com/locations/safe-harbor-siesta-key/",
+     "attribution_text": "Photo: Safe Harbor Siesta Key"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ59-__CZCw4gRzXUvtAcE-bU/of_28c758e1f843935e.jpg",
+     "bytes": 172789,
+     "phash": "8b9907a7e6e0de81",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://safeharbor.com/locations/safe-harbor-siesta-key/",
+     "author": "Safe Harbor Siesta Key",
+     "title": "Safe Harbor Siesta Key official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://safeharbor.com/locations/safe-harbor-siesta-key/",
+     "attribution_text": "Photo: Safe Harbor Siesta Key"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ59-__CZCw4gRzXUvtAcE-bU/of_aa34ae02aa396f73.jpg",
+     "bytes": 171788,
+     "phash": "949ce580cb6ee467",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://safeharbor.com/locations/safe-harbor-siesta-key/",
+     "author": "Safe Harbor Siesta Key",
+     "title": "Safe Harbor Siesta Key official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://safeharbor.com/locations/safe-harbor-siesta-key/",
+     "attribution_text": "Photo: Safe Harbor Siesta Key"
+    }
+   ]
+  }
+ }
+}
