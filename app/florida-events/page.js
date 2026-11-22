@@ -122,6 +122,7 @@ export default async function FloridaEventsHub() {
       <ReturnToWayfind style={S.back} />
       <div style={S.kicker}>Wayfind Events</div>
       <h1 style={S.h1}>Florida Events</h1>
+      <p style={S.sub}>Plan this weekend in <a style={S.link} href="/events/tampa/this-weekend">Tampa Bay</a> or <a style={S.link} href="/events/sarasota/this-weekend">Sarasota &amp; Bradenton</a>.</p>
       <p style={S.sub}>
         Every date here was checked against the organiser&rsquo;s own site. When an event has not
         announced its next edition, we say so rather than moving last year&rsquo;s date forward twelve months.

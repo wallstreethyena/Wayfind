@@ -14,6 +14,7 @@ import EventSectionNav from "../../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import { unstable_cache } from "next/cache";
 import { resolveEventById, idFromSlug } from "../../../../lib/eventResolve.js";
 import { isTicketmasterFamily } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow, spreadAcrossDays } from "../../../../lib/eventsList.js";
@@ -35,11 +36,22 @@ import { eventPlaceholder } from "../../../../lib/eventPlaceholder.js";
 import { eventJsonLdDates } from "../../../../lib/eventTime.js";
 import { applyStoredStartCorrection } from "../../../../lib/eventStartRefresh.js";
 import { styleHtml } from "../../../../lib/styleHtml.js";
+import { fetchCuratedEvents } from "../../../../lib/curatedEvents.js";
+import { eventCostSummary, eventHoursOnDay } from "../../../../lib/eventVisitFacts.js";
+import { packForCache, unpackFromCache } from "../../../../lib/cachePack.js";
+import { eventInWeekendRegion, regionalWeekendPicks, weekendRegion } from "../../../../lib/regionalWeekend.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const CANON = "https://www.gowayfind.com";
+const readWeekendEvents = unstable_cache(
+  async (start, end) => packForCache("regional-weekend", await fetchCuratedEvents({
+    fresh: true, upcomingFrom: start, startsThrough: end,
+  })),
+  ["regional-weekend-events-v1"],
+  { revalidate: 900, tags: ["curated-events"] },
+);
 
 // v5.62 (audit Phase 5): the [slug] segment is shared — a known time-window
 // slug (this-weekend/tonight/this-month) renders the server-side event LIST
@@ -50,7 +62,7 @@ async function fetchCityEvents(citySlug) {
   const city = LANDING_CITIES[citySlug];
   if (!city) return null;
   try {
-    const h = headers();
+    const h = await headers();
     const host = h.get("x-forwarded-host") || h.get("host");
     const proto = h.get("x-forwarded-proto") || (host && host.startsWith("localhost") ? "http" : "https");
     const base = host ? `${proto}://${host}` : CANON;
@@ -97,13 +109,18 @@ async function getEvent(params) {
 }
 
 export async function generateMetadata({ params }) {
+  params = await params;
   if (isEventWindow(params.slug)) {
     const city = LANDING_CITIES[params.city];
     if (!city) return { title: "Events · Wayfind", robots: { index: false, follow: true } };
     const win = EVENT_WINDOWS[params.slug];
-    const title = `Events ${win.title} in ${city.name}, ${city.state} | Wayfind`;
-    const description = `Concerts, games, festivals and things to do ${win.label.toLowerCase()} in ${city.name}, ${city.state} — real, bookable events ranked by Wayfind.`;
-    const ogImg = `${CANON}/api/og?t=${encodeURIComponent("Events " + win.title + " in " + city.name)}&loc=${encodeURIComponent(city.name + ", " + city.state)}`;
+    const region = weekendRegion(params.city, params.slug);
+    const heading = region ? `Things to Do in ${region.name} This Weekend` : `Events ${win.title} in ${city.name}, ${city.state}`;
+    const title = `${heading} | Wayfind`;
+    const description = region
+      ? `Plan this weekend in ${region.name}. Find local event picks, free options, family outings and dates, with times, admission and parking details where available.`
+      : `Concerts, games, festivals and things to do ${win.label.toLowerCase()} in ${city.name}, ${city.state} — real, bookable events ranked by Wayfind.`;
+    const ogImg = `${CANON}/api/og?t=${encodeURIComponent(heading)}&loc=${encodeURIComponent((region?.name || city.name) + ", " + city.state)}`;
     return {
       title, description,
       alternates: { canonical: `${CANON}/events/${params.city}/${params.slug}` },
@@ -157,22 +174,37 @@ function fmtDay(dateStr) {
 
 async function EventListPage({ params }) {
   const win = EVENT_WINDOWS[params.slug];
-  const res = await fetchCityEvents(params.city);
+  const region = weekendRegion(params.city, params.slug);
+  const now = new Date();
+  const range = windowRange(params.slug, now);
+  const [res, curated] = await Promise.all([
+    fetchCityEvents(params.city),
+    region ? readWeekendEvents(range.start, range.end).then(unpackFromCache).catch((error) => {
+      console.error("Regional weekend picks unavailable", params.city, error);
+      return null;
+    }) : null,
+  ]);
   if (!res) notFound();
   const { city } = res;
-  const range = windowRange(params.slug);
+  const picks = curated ? regionalWeekendPicks(curated, region, now) : [];
+  const pickSlugs = new Set(picks.map(({ href }) => href));
+  const heading = region ? `Things to Do in ${region.name} This Weekend` : `Events ${win.title} in ${city.name}, ${city.state}`;
+  const dateLabel = range.start === range.end ? fmtDay(range.start) : `${fmtDay(range.start)} to ${fmtDay(range.end)}`;
   // Every day in the window gets a slot before any day gets a second one
   // (a plain slice(0, 60) of the date-ordered feed made this-month == this-weekend).
-  const events = spreadAcrossDays(filterByWindow(res.events, params.slug), 60);
+  const events = spreadAcrossDays(filterByWindow(res.events, params.slug, now).filter((event) =>
+    !pickSlugs.has(event.dest) && (!region || eventInWeekendRegion(event, region))), 60);
   const A = "#2EC9A6";
   const canonBase = `${CANON}/events/${params.city}/${params.slug}`;
   // ItemList + per-item Event schema (Phase 5). Only real, validated events.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `Events ${win.title} in ${city.name}`,
-    itemListElement: events.map((e, i) => ({
-      "@type": "ListItem", position: i + 1,
+    name: heading,
+    itemListElement: [...picks.map(({ event, href }, i) => ({
+      "@type": "ListItem", position: i + 1, name: event.event_name, url: `${CANON}${href}`,
+    })), ...events.map((e, i) => ({
+      "@type": "ListItem", position: picks.length + i + 1,
       item: {
         "@type": "Event", name: e.name,
         startDate: eventJsonLdDates(e).startDate,
@@ -181,21 +213,27 @@ async function EventListPage({ params }) {
         ...(e.venue ? { location: { "@type": "Place", name: e.venue, ...(e.city ? { address: e.city } : {}) } } : {}),
         ...(e.image && !isApiPhotoSrc(e.image) ? { image: [e.image] } : {}),
       },
-    })),
+    }))],
   };
   return (
     <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
       <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 20px 48px" }}>
         <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
-        <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, margin: "16px 0 4px" }}>Events {win.title} in {city.name}, {city.state}</h1>
-        <p style={{ fontSize: 14, color: "#94A3B8", lineHeight: 1.6, marginBottom: 8 }}>Concerts, games, festivals and things to do {win.label.toLowerCase()} near {city.name} — real, bookable events ranked by Wayfind.</p>
+        <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, margin: "16px 0 4px" }}>{heading}</h1>
+        {region ? (
+          <p style={{ fontSize: 14, color: "#CBD5E1", lineHeight: 1.6, marginBottom: 8 }}>
+            <strong>{dateLabel}</strong> · {region.cities}. Pick an outing and check the time, admission and parking before you go.
+          </p>
+        ) : (
+          <p style={{ fontSize: 14, color: "#94A3B8", lineHeight: 1.6, marginBottom: 8 }}>Concerts, games, festivals and things to do {win.label.toLowerCase()} near {city.name} — real, bookable events ranked by Wayfind.</p>
+        )}
         <div style={{ margin: "4px 0 10px" }}>
           <ShareButton
             url={pageShareUrl(`/events/${params.city}/${params.slug}`)}
-            title={`Events ${win.title} in ${city.name}, ${city.state}`}
-            text={`Events ${win.label.toLowerCase()} in ${city.name}: concerts, games, festivals and things to do. On Wayfind.`}
+            title={heading}
+            text={heading}
             label="Share"
             tone="dark"
             event="page_share"
@@ -208,13 +246,36 @@ async function EventListPage({ params }) {
             <a key={w} href={`/events/${params.city}/${w}`} style={{ padding: "7px 14px", borderRadius: 999, fontSize: 13, fontWeight: 700, textDecoration: "none", border: `1px solid ${w === params.slug ? A : "#263041"}`, color: w === params.slug ? "#0D1117" : "#CBD5E1", background: w === params.slug ? A : "transparent" }}>{EVENT_WINDOWS[w].label}</a>
           ))}
         </div>
-        {events.length === 0 ? (
+        {region && (
+          <section aria-labelledby="weekend-picks-title" style={{ margin: "24px 0 28px" }}>
+            <h2 id="weekend-picks-title" style={{ fontSize: 20, color: "#F1F5F9" }}>Weekend picks</h2>
+            {picks.length ? (
+              <ul style={{ padding: 0, listStyle: "none" }}>
+                {picks.map(({ event, day, href, label }) => (
+                  <li key={href} style={{ borderTop: "1px solid #263041", padding: "12px 0" }}>
+                    <span style={{ color: A, fontWeight: 700, fontSize: 13 }}>{label} · {event.city}</span>
+                    <h3 style={{ fontSize: 17, lineHeight: 1.4, margin: "2px 0" }}>
+                      <a href={href} style={{ color: "#F1F5F9", display: "inline-flex", alignItems: "center", minHeight: 44 }}>{event.event_name}</a>
+                    </h3>
+                    <p style={{ margin: "0 0 6px", fontSize: 14 }}>{event.card_hook}</p>
+                    <p style={{ margin: 0, color: "#A8B6CA", fontSize: 13, lineHeight: 1.6 }}>
+                      {fmtDay(day)} · {eventHoursOnDay({ ...event, occurrence_dates: [day] }, day) || "Check hours"} · {eventCostSummary(event)}
+                    </p>
+                    {event.parking_tip && <p style={{ margin: "4px 0 0", fontSize: 13 }}>{event.parking_tip}</p>}
+                  </li>
+                ))}
+              </ul>
+            ) : <p>{curated ? "More verified picks will appear here as dates are announced." : "The shortlist is temporarily unavailable."}</p>}
+            <a href={region.guide} style={{ color: A, fontWeight: 700 }}>More things to do in {region.name}</a>
+          </section>
+        )}
+        {events.length === 0 && !picks.length ? (
           <div style={{ textAlign: "center", padding: "48px 16px", color: "#94A3B8" }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: "#CBD5E1" }}>No events {win.label.toLowerCase()} in {city.name} yet</div>
             <p style={{ fontSize: 13.5, margin: "8px auto 16px", maxWidth: 360, lineHeight: 1.55 }}>We searched {range.start === range.end ? "today" : `${fmtDay(range.start)} – ${fmtDay(range.end)}`}. Try another window or browse everything nearby.</p>
             <a href="/events" style={{ display: "inline-block", background: A, color: "#0D1117", fontWeight: 800, fontSize: 14, borderRadius: 12, padding: "11px 20px", textDecoration: "none" }}>Browse all events</a>
           </div>
-        ) : (
+        ) : events.length ? (
           <div>
             <RailNav railId={`event-window-${params.city}-${params.slug}`} count={events.length} total={events.length} unit="events" />
             <div className="wf-rail" data-rail={`event-window-${params.city}-${params.slug}`} role="region" tabIndex={0} aria-label={`Events ${win.label.toLowerCase()} in ${city.name}`}>
@@ -240,7 +301,7 @@ async function EventListPage({ params }) {
             </div>
             <RailDots railId={`event-window-${params.city}-${params.slug}`} count={events.length} />
           </div>
-        )}
+        ) : null}
         <div style={{ marginTop: 18, fontSize: 11.5, color: "#64748B" }}>Every listing is a real, validated event — no dead links, no past dates. Times can change; confirm before you go.</div>
       </div>
     </div>
@@ -262,6 +323,7 @@ function eventLocationTrust(e) {
 }
 
 export default async function EventPage({ params }) {
+  params = await params;
   if (isEventWindow(params.slug)) return EventListPage({ params });
   const e = await getEvent(params);
   if (!e) notFound();

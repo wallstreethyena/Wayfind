@@ -4,9 +4,35 @@
 // right window.
 import { EVENT_WINDOWS, isEventWindow, windowRange, eventInWindow, filterByWindow, spreadAcrossDays } from "../lib/eventsList.js";
 import { readFileSync } from "node:fs";
+import { eventInWeekendRegion, regionalWeekendPicks, weekendRegion } from "../lib/regionalWeekend.js";
+import { eventHoursOnDay } from "../lib/eventVisitFacts.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-events-list: FAIL — " + m); failures++; };
+
+// The regional shortlist rolls over in Eastern time, excludes past shows
+// and requires a confirmed opening date for select-date events.
+{
+  const now = new Date("2026-11-29T02:00:00Z"); // Saturday 9 PM ET
+  const tampa = weekendRegion("tampa", "this-weekend");
+  const sarasota = weekendRegion("sarasota", "this-weekend");
+  const show = {
+    slug: "local-show", event_id: "local-show", state: "FL", county: "Pinellas County", city: "St. Petersburg",
+    event_status: "scheduled", source_tier: 1, verification_confidence: "high", card_hook: "An evening concert.",
+    start_date: "2026-11-28", end_date: "2026-11-29", start_time: "18:00", end_time: "20:00",
+    timezone: "America/New_York", select_nights: true, occurrence_dates: ["2026-11-28", "2026-11-29"],
+  };
+  const sunday = regionalWeekendPicks([show], tampa, now);
+  if (sunday.length !== 1 || sunday[0].day !== "2026-11-29") fail("Saturday's ended show should advance to its confirmed Sunday performance");
+  if (regionalWeekendPicks([{ ...show, occurrence_dates: ["2026-11-28"] }], tampa, now).length) fail("an already ended show must leave the shortlist");
+  if (regionalWeekendPicks([{ ...show, occurrence_dates: undefined, start_date: "2026-11-20" }], tampa, now).length) fail("an unconfirmed select weekend must not be inferred from its season range");
+  if (regionalWeekendPicks([{ ...show, event_status: "sold_out" }], tampa, now).length) fail("sold-out listings must not headline a weekend shortlist");
+  if (regionalWeekendPicks([show], sarasota, now).length) fail("Tampa Bay picks must not leak into the Sarasota–Bradenton shortlist");
+  if (!eventInWeekendRegion({ stateCode: "FL", city: "Bradenton" }, sarasota)) fail("Bradenton feed listings are local to the Sarasota–Bradenton weekend");
+  if (weekendRegion("tampa", "tonight") !== null) fail("the regional shortlist should only affect weekend pages");
+  const specialHours = { ...show, visit_schedule: { date_hours: { "2026-11-29": [["14:00", "16:00"]] } } };
+  if (eventHoursOnDay(specialHours, "2026-11-29") !== "2pm to 4pm") fail("show the selected day's verified hours before the default time");
+}
 
 // 1. Window slugs are recognized; a detail slug is not.
 if (!isEventWindow("this-weekend")) fail("this-weekend should be a window");
