@@ -1,0 +1,1956 @@
+{
+ "batch": "2026-11-22-official-d",
+ "note": "Venue supplied official photos from each place's own official website, credited to the venue. Authorized by Gabe on 2026-11-22.",
+ "places": {
+  "ChIJgSSOgDnx3ogRQZ4m2tnMRQM": {
+   "name": "Casa Pasta",
+   "locality": "Fort Pierce",
+   "metro": "florida",
+   "category": "food",
+   "site": "https://fortcasapasta.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJgSSOgDnx3ogRQZ4m2tnMRQM/of_4953c42c216da36c.jpg",
+     "bytes": 171011,
+     "phash": "d4bc851123de4eb9",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fortcasapasta.com/",
+     "author": "Casa Pasta",
+     "title": "Casa Pasta official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://fortcasapasta.com/",
+     "attribution_text": "Photo: Casa Pasta"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJgSSOgDnx3ogRQZ4m2tnMRQM/of_a0b4aa89ace94868.jpg",
+     "bytes": 134756,
+     "phash": "e88683198f5f9c63",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fortcasapasta.com/",
+     "author": "Casa Pasta",
+     "title": "Casa Pasta official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://fortcasapasta.com/",
+     "attribution_text": "Photo: Casa Pasta"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJgSSOgDnx3ogRQZ4m2tnMRQM/of_456f663c444084e8.jpg",
+     "bytes": 161722,
+     "phash": "c273b974334b524b",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fortcasapasta.com/",
+     "author": "Casa Pasta",
+     "title": "Casa Pasta official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://fortcasapasta.com/",
+     "attribution_text": "Photo: Casa Pasta"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJgSSOgDnx3ogRQZ4m2tnMRQM/of_89ac3c44f5674220.jpg",
+     "bytes": 167217,
+     "phash": "f9d076514caa4bac",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fortcasapasta.com/",
+     "author": "Casa Pasta",
+     "title": "Casa Pasta official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://fortcasapasta.com/",
+     "attribution_text": "Photo: Casa Pasta"
+    }
+   ]
+  },
+  "ChIJuRTMNQCr2YgRpsZZoosIuLM": {
+   "name": "Tiki Tiki",
+   "locality": "Hollywood",
+   "metro": "broward",
+   "category": "food",
+   "site": "https://www.letstikitiki.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJuRTMNQCr2YgRpsZZoosIuLM/of_d1f0d6438d749d89.jpg",
+     "bytes": 169489,
+     "phash": "bd7c435db086e4a2",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.letstikitiki.com/",
+     "author": "Tiki Tiki",
+     "title": "Tiki Tiki official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.letstikitiki.com/",
+     "attribution_text": "Photo: Tiki Tiki"
+    }
+   ]
+  },
+  "ChIJxR5dgPYK3YgRIfI0T1InDdE": {
+   "name": "Cherry Pocket Steak n Seafood",
+   "locality": null,
+   "metro": "florida",
+   "category": "food",
+   "site": "https://www.cherrypocket.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJxR5dgPYK3YgRIfI0T1InDdE/of_3b74e77ef8a37309.jpg",
+     "bytes": 171437,
+     "phash": "e0d71fa0ff8405ca",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.cherrypocket.com/",
+     "author": "Cherry Pocket Steak n Seafood",
+     "title": "Cherry Pocket Steak n Seafood official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.cherrypocket.com/",
+     "attribution_text": "Photo: Cherry Pocket Steak n Seafood"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJxR5dgPYK3YgRIfI0T1InDdE/of_e9ee64fb58420901.jpg",
+     "bytes": 163808,
+     "phash": "91d77a606ccfd510",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.cherrypocket.com/",
+     "author": "Cherry Pocket Steak n Seafood",
+     "title": "Cherry Pocket Steak n Seafood official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.cherrypocket.com/",
+     "attribution_text": "Photo: Cherry Pocket Steak n Seafood"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJxR5dgPYK3YgRIfI0T1InDdE/of_8f02ee236b81efee.jpg",
+     "bytes": 170517,
+     "phash": "8d9596a667b58949",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.cherrypocket.com/",
+     "author": "Cherry Pocket Steak n Seafood",
+     "title": "Cherry Pocket Steak n Seafood official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.cherrypocket.com/",
+     "attribution_text": "Photo: Cherry Pocket Steak n Seafood"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJxR5dgPYK3YgRIfI0T1InDdE/of_3bdd82037fe48e9c.jpg",
+     "bytes": 167966,
+     "phash": "bf85417bcab33301",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.cherrypocket.com/",
+     "author": "Cherry Pocket Steak n Seafood",
+     "title": "Cherry Pocket Steak n Seafood official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://www.cherrypocket.com/",
+     "attribution_text": "Photo: Cherry Pocket Steak n Seafood"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJxR5dgPYK3YgRIfI0T1InDdE/of_c98ff6ed67a37591.jpg",
+     "bytes": 162746,
+     "phash": "802d83962f7a8fc7",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.cherrypocket.com/",
+     "author": "Cherry Pocket Steak n Seafood",
+     "title": "Cherry Pocket Steak n Seafood official photo 5",
+     "storage_path": null,
+     "attribution_url": "https://www.cherrypocket.com/",
+     "attribution_text": "Photo: Cherry Pocket Steak n Seafood"
+    }
+   ]
+  },
+  "ChIJjycudD7W2IgR8BK2ac6fFGw": {
+   "name": "Nick's 50'S Diner",
+   "locality": null,
+   "metro": "palm-beach",
+   "category": "food",
+   "site": "https://www.nicks50diner.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJjycudD7W2IgR8BK2ac6fFGw/of_e8535f28dee9848d.jpg",
+     "bytes": 167182,
+     "phash": "ceb3c8d660c4c675",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.nicks50diner.com/",
+     "author": "Nick's 50'S Diner",
+     "title": "Nick's 50'S Diner official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.nicks50diner.com/",
+     "attribution_text": "Photo: Nick's 50'S Diner"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJjycudD7W2IgR8BK2ac6fFGw/of_553332f29d6538f6.jpg",
+     "bytes": 122480,
+     "phash": "c6b207d9c9791c0f",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.nicks50diner.com/",
+     "author": "Nick's 50'S Diner",
+     "title": "Nick's 50'S Diner official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.nicks50diner.com/",
+     "attribution_text": "Photo: Nick's 50'S Diner"
+    }
+   ]
+  },
+  "ChIJcUs5hh7f2IgRL2pcEw8sF3w": {
+   "name": "Prime Catch",
+   "locality": "Boynton Beach",
+   "metro": "palm-beach",
+   "category": "food",
+   "site": "https://primecatchboynton.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJcUs5hh7f2IgRL2pcEw8sF3w/of_419a2f39705c2e82.jpg",
+     "bytes": 168136,
+     "phash": "f8c6835596686ec3",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://primecatchboynton.com/",
+     "author": "Prime Catch",
+     "title": "Prime Catch official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://primecatchboynton.com/",
+     "attribution_text": "Photo: Prime Catch"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJcUs5hh7f2IgRL2pcEw8sF3w/of_d2bee51c4fc3143f.jpg",
+     "bytes": 169443,
+     "phash": "eca21fd42834dad5",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://primecatchboynton.com/about-us/",
+     "author": "Prime Catch",
+     "title": "Prime Catch official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://primecatchboynton.com/about-us/",
+     "attribution_text": "Photo: Prime Catch"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJcUs5hh7f2IgRL2pcEw8sF3w/of_85787240d255da55.jpg",
+     "bytes": 167100,
+     "phash": "f84257a73c0b86c7",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://primecatchboynton.com/about-us/",
+     "author": "Prime Catch",
+     "title": "Prime Catch official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://primecatchboynton.com/about-us/",
+     "attribution_text": "Photo: Prime Catch"
+    }
+   ]
+  },
+  "ChIJk9zfPVUd2YgRg2XXnwy1WYw": {
+   "name": "Fish Shack",
+   "locality": "Lighthouse Point",
+   "metro": "broward",
+   "category": "food",
+   "site": "https://fishshacklhp.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJk9zfPVUd2YgRg2XXnwy1WYw/of_2d624e09dc165ba9.jpg",
+     "bytes": 154662,
+     "phash": "ba9587c4e954d94c",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fishshacklhp.com/",
+     "author": "Fish Shack",
+     "title": "Fish Shack official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://fishshacklhp.com/",
+     "attribution_text": "Photo: Fish Shack"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJk9zfPVUd2YgRg2XXnwy1WYw/of_a671399a270046a7.jpg",
+     "bytes": 148567,
+     "phash": "f59a52696b296625",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fishshacklhp.com/",
+     "author": "Fish Shack",
+     "title": "Fish Shack official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://fishshacklhp.com/",
+     "attribution_text": "Photo: Fish Shack"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJk9zfPVUd2YgRg2XXnwy1WYw/of_04bb043b583aca93.jpg",
+     "bytes": 130112,
+     "phash": "8199b6ed8b9a8f21",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fishshacklhp.com/",
+     "author": "Fish Shack",
+     "title": "Fish Shack official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://fishshacklhp.com/",
+     "attribution_text": "Photo: Fish Shack"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJk9zfPVUd2YgRg2XXnwy1WYw/of_11f7d9095d840098.jpg",
+     "bytes": 158660,
+     "phash": "b83f06b61765cac4",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fishshacklhp.com/gallery",
+     "author": "Fish Shack",
+     "title": "Fish Shack official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://fishshacklhp.com/gallery",
+     "attribution_text": "Photo: Fish Shack"
+    }
+   ]
+  },
+  "ChIJo-MOKY7_5IgRZjWWQVyWr_k": {
+   "name": "Down Under Restaurant",
+   "locality": null,
+   "metro": "florida",
+   "category": "food",
+   "site": "https://downunderfb.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJo-MOKY7_5IgRZjWWQVyWr_k/of_2cde7aea8e8c1006.jpg",
+     "bytes": 168448,
+     "phash": "d2650e1a33c639b7",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://downunderfb.com/",
+     "author": "Down Under Restaurant",
+     "title": "Down Under Restaurant official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://downunderfb.com/",
+     "attribution_text": "Photo: Down Under Restaurant"
+    }
+   ]
+  },
+  "ChIJofgqBJYn5IgRVa-HQvp6KDk": {
+   "name": "Casa Maya",
+   "locality": "St. Augustine",
+   "metro": "florida",
+   "category": "food",
+   "site": "https://casamayasta.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJofgqBJYn5IgRVa-HQvp6KDk/of_bf25b9d7b4118c99.jpg",
+     "bytes": 146184,
+     "phash": "c738406ef849fbc8",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://casamayasta.com/",
+     "author": "Casa Maya",
+     "title": "Casa Maya official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://casamayasta.com/",
+     "attribution_text": "Photo: Casa Maya"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJofgqBJYn5IgRVa-HQvp6KDk/of_93f45d324143d1d7.jpg",
+     "bytes": 171811,
+     "phash": "8f8f03074bc99cb6",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://casamayasta.com/",
+     "author": "Casa Maya",
+     "title": "Casa Maya official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://casamayasta.com/",
+     "attribution_text": "Photo: Casa Maya"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJofgqBJYn5IgRVa-HQvp6KDk/of_3fe7bba724074639.jpg",
+     "bytes": 167198,
+     "phash": "8d5153cc27666747",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://casamayasta.com/",
+     "author": "Casa Maya",
+     "title": "Casa Maya official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://casamayasta.com/",
+     "attribution_text": "Photo: Casa Maya"
+    }
+   ]
+  },
+  "ChIJD61Y4wGx2YgR4v3Ffn7eTeA": {
+   "name": "Little Hen",
+   "locality": "Miami",
+   "metro": "miami-dade",
+   "category": "food",
+   "site": "https://littlehen.com/pages/locations",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJD61Y4wGx2YgR4v3Ffn7eTeA/of_ffd39d1657cfde7c.jpg",
+     "bytes": 173991,
+     "phash": "93b3cd454fc81363",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://littlehen.com/pages/locations",
+     "author": "Little Hen",
+     "title": "Little Hen official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://littlehen.com/pages/locations",
+     "attribution_text": "Photo: Little Hen"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJD61Y4wGx2YgR4v3Ffn7eTeA/of_1ebdaac36d22863d.jpg",
+     "bytes": 173326,
+     "phash": "b6a19c0b5c0b87de",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://littlehen.com/pages/locations",
+     "author": "Little Hen",
+     "title": "Little Hen official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://littlehen.com/pages/locations",
+     "attribution_text": "Photo: Little Hen"
+    }
+   ]
+  },
+  "ChIJ92EvdHrtwogRrQJ6U8SXaaw": {
+   "name": "Mystic Fish",
+   "locality": "Palm Harbor",
+   "metro": "tampa",
+   "category": "food",
+   "site": "https://www.mystic-fish.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ92EvdHrtwogRrQJ6U8SXaaw/of_b65571d082d73161.jpg",
+     "bytes": 170869,
+     "phash": "d5217996265bb326",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.mystic-fish.com/",
+     "author": "Mystic Fish",
+     "title": "Mystic Fish official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.mystic-fish.com/",
+     "attribution_text": "Photo: Mystic Fish"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ92EvdHrtwogRrQJ6U8SXaaw/of_b916c8b2d9a90800.jpg",
+     "bytes": 168978,
+     "phash": "92a0bc3f98c1d277",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.mystic-fish.com/about",
+     "author": "Mystic Fish",
+     "title": "Mystic Fish official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.mystic-fish.com/about",
+     "attribution_text": "Photo: Mystic Fish"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ92EvdHrtwogRrQJ6U8SXaaw/of_ed1fbe9743663f52.jpg",
+     "bytes": 172472,
+     "phash": "cfb0517fe804970e",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.mystic-fish.com/",
+     "author": "Mystic Fish",
+     "title": "Mystic Fish official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.mystic-fish.com/",
+     "attribution_text": "Photo: Mystic Fish"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ92EvdHrtwogRrQJ6U8SXaaw/of_49b10edc300270e3.jpg",
+     "bytes": 170509,
+     "phash": "8f05b170a32fb536",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.mystic-fish.com/",
+     "author": "Mystic Fish",
+     "title": "Mystic Fish official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://www.mystic-fish.com/",
+     "attribution_text": "Photo: Mystic Fish"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ92EvdHrtwogRrQJ6U8SXaaw/of_37e327250c5f62c5.jpg",
+     "bytes": 164932,
+     "phash": "e241537a7a3631b6",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.mystic-fish.com/",
+     "author": "Mystic Fish",
+     "title": "Mystic Fish official photo 5",
+     "storage_path": null,
+     "attribution_url": "https://www.mystic-fish.com/",
+     "attribution_text": "Photo: Mystic Fish"
+    }
+   ]
+  },
+  "ChIJbcHi5ixj54gRjKj_KXz-BFU": {
+   "name": "Fish On Fire",
+   "locality": null,
+   "metro": "orlando",
+   "category": "food",
+   "site": "https://fishonfireorlando.net/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJbcHi5ixj54gRjKj_KXz-BFU/of_7a696a533c7c34fe.jpg",
+     "bytes": 159626,
+     "phash": "efb0901f6ed820c7",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://fishonfireorlando.net/",
+     "author": "Fish On Fire",
+     "title": "Fish On Fire official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://fishonfireorlando.net/",
+     "attribution_text": "Photo: Fish On Fire"
+    }
+   ]
+  },
+  "ChIJi4NpbE276IgR3OI2W_23pJs": {
+   "name": "Las Margaritas",
+   "locality": "Gainesville",
+   "metro": "florida",
+   "category": "food",
+   "site": "https://lasmargaritasgnv.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJi4NpbE276IgR3OI2W_23pJs/of_219b3ba87d2b502d.jpg",
+     "bytes": 168772,
+     "phash": "d529c35342794f6c",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://lasmargaritasgnv.com/",
+     "author": "Las Margaritas",
+     "title": "Las Margaritas official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://lasmargaritasgnv.com/",
+     "attribution_text": "Photo: Las Margaritas"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJi4NpbE276IgR3OI2W_23pJs/of_f56712de8d8ff2c5.jpg",
+     "bytes": 173388,
+     "phash": "ff013f0de4920d4e",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://lasmargaritasgnv.com/",
+     "author": "Las Margaritas",
+     "title": "Las Margaritas official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://lasmargaritasgnv.com/",
+     "attribution_text": "Photo: Las Margaritas"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJi4NpbE276IgR3OI2W_23pJs/of_850b7978a548a9b6.jpg",
+     "bytes": 170853,
+     "phash": "d2061e386f6969d3",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://lasmargaritasgnv.com/",
+     "author": "Las Margaritas",
+     "title": "Las Margaritas official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://lasmargaritasgnv.com/",
+     "attribution_text": "Photo: Las Margaritas"
+    }
+   ]
+  },
+  "ChIJV85MA53X2IgR2ZxExp2nZY0": {
+   "name": "aioli",
+   "locality": "West Palm Beach",
+   "metro": "palm-beach",
+   "category": "food",
+   "site": "https://aioliwpb.com/?ref=aftership",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJV85MA53X2IgR2ZxExp2nZY0/of_6ed4220528841ef9.jpg",
+     "bytes": 165461,
+     "phash": "a6d08b27b437b471",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://aioliwpb.com/?ref=aftership",
+     "author": "aioli",
+     "title": "aioli official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://aioliwpb.com/?ref=aftership",
+     "attribution_text": "Photo: aioli"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJV85MA53X2IgR2ZxExp2nZY0/of_b7ffc8c5de42419f.jpg",
+     "bytes": 168530,
+     "phash": "a6c39e816587760f",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://aioliwpb.com/?ref=aftership",
+     "author": "aioli",
+     "title": "aioli official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://aioliwpb.com/?ref=aftership",
+     "attribution_text": "Photo: aioli"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJV85MA53X2IgR2ZxExp2nZY0/of_bb5f71acf1ca6fb8.jpg",
+     "bytes": 164837,
+     "phash": "fc83df2ce020931f",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://aioliwpb.com/?ref=aftership",
+     "author": "aioli",
+     "title": "aioli official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://aioliwpb.com/?ref=aftership",
+     "attribution_text": "Photo: aioli"
+    }
+   ]
+  },
+  "ChIJkWVqM1_EwogRnjYcxvKLzfE": {
+   "name": "Deputy Kotfila Memorial Dog Park",
+   "locality": "Tampa",
+   "metro": "tampa",
+   "category": "attractions",
+   "site": "https://www.tampa-xway.com/community-enhancement/selmon-greenway/deputy-kotfila-memorial-dog-park/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJkWVqM1_EwogRnjYcxvKLzfE/of_2c7741e333949aa4.jpg",
+     "bytes": 163680,
+     "phash": "ee8e6f4c5c989191",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://tampa-xway.com/community-enhancement/selmon-greenway/deputy-kotfila-memorial-dog-park/",
+     "author": "Deputy Kotfila Memorial Dog Park",
+     "title": "Deputy Kotfila Memorial Dog Park official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://tampa-xway.com/community-enhancement/selmon-greenway/deputy-kotfila-memorial-dog-park/",
+     "attribution_text": "Photo: Deputy Kotfila Memorial Dog Park"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJkWVqM1_EwogRnjYcxvKLzfE/of_dc1ec52e81af7cfe.jpg",
+     "bytes": 164084,
+     "phash": "e0a30b68dadad0be",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://tampa-xway.com/community-enhancement/selmon-greenway/deputy-kotfila-memorial-dog-park/",
+     "author": "Deputy Kotfila Memorial Dog Park",
+     "title": "Deputy Kotfila Memorial Dog Park official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://tampa-xway.com/community-enhancement/selmon-greenway/deputy-kotfila-memorial-dog-park/",
+     "attribution_text": "Photo: Deputy Kotfila Memorial Dog Park"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJkWVqM1_EwogRnjYcxvKLzfE/of_a986b9181b7298cf.jpg",
+     "bytes": 169278,
+     "phash": "eeaa4950d8f41d1d",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://tampa-xway.com/community-enhancement/selmon-greenway/deputy-kotfila-memorial-dog-park/",
+     "author": "Deputy Kotfila Memorial Dog Park",
+     "title": "Deputy Kotfila Memorial Dog Park official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://tampa-xway.com/community-enhancement/selmon-greenway/deputy-kotfila-memorial-dog-park/",
+     "attribution_text": "Photo: Deputy Kotfila Memorial Dog Park"
+    }
+   ]
+  },
+  "ChIJM7LT1UApw4gRPwn9xztqgHo": {
+   "name": "Southshore Bay Lagoon",
+   "locality": "Wimauma",
+   "metro": "tampa",
+   "category": "attractions",
+   "site": "https://metrodevelopmentgroup.com/southshore-bay/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJM7LT1UApw4gRPwn9xztqgHo/of_e4f70fcb5af5cce6.jpg",
+     "bytes": 172449,
+     "phash": "98a5afd83a87c8b8",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://metrodevelopmentgroup.com/southshore-bay/",
+     "author": "Southshore Bay Lagoon",
+     "title": "Southshore Bay Lagoon official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://metrodevelopmentgroup.com/southshore-bay/",
+     "attribution_text": "Photo: Southshore Bay Lagoon"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJM7LT1UApw4gRPwn9xztqgHo/of_231eecd6a5a9ea83.jpg",
+     "bytes": 165056,
+     "phash": "ca683d433aea4b36",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://metrodevelopmentgroup.com/southshore-bay/",
+     "author": "Southshore Bay Lagoon",
+     "title": "Southshore Bay Lagoon official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://metrodevelopmentgroup.com/southshore-bay/",
+     "attribution_text": "Photo: Southshore Bay Lagoon"
+    }
+   ]
+  },
+  "ChIJoc8zvSF754gRtQveUmPZASM": {
+   "name": "Greenwood Urban Wetlands",
+   "locality": "Orlando",
+   "metro": "orlando",
+   "category": "attractions",
+   "site": "https://www.orlando.gov/Parks-the-Environment/Directory/Greenwood-Urban-Wetlands",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJoc8zvSF754gRtQveUmPZASM/of_29880ace89a66075.jpg",
+     "bytes": 174983,
+     "phash": "cf894fd920fc805e",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.orlando.gov/Parks-the-Environment/Directory/Greenwood-Urban-Wetlands",
+     "author": "Greenwood Urban Wetlands",
+     "title": "Greenwood Urban Wetlands official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.orlando.gov/Parks-the-Environment/Directory/Greenwood-Urban-Wetlands",
+     "attribution_text": "Photo: Greenwood Urban Wetlands"
+    }
+   ]
+  },
+  "ChIJI6XkhXWy2YgRQ8XR8XgqeXo": {
+   "name": "Diver Mansion",
+   "locality": "North Miami",
+   "metro": "miami-dade",
+   "category": "attractions",
+   "site": "https://divermansion.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJI6XkhXWy2YgRQ8XR8XgqeXo/of_57460f35173e02bc.jpg",
+     "bytes": 163914,
+     "phash": "cd4e465379e60729",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://divermansion.com/",
+     "author": "Diver Mansion",
+     "title": "Diver Mansion official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://divermansion.com/",
+     "attribution_text": "Photo: Diver Mansion"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJI6XkhXWy2YgRQ8XR8XgqeXo/of_fbc1ad502a2458e7.jpg",
+     "bytes": 172994,
+     "phash": "d47c4c4d666668f2",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://divermansion.com/",
+     "author": "Diver Mansion",
+     "title": "Diver Mansion official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://divermansion.com/",
+     "attribution_text": "Photo: Diver Mansion"
+    }
+   ]
+  },
+  "ChIJe4HPHhsv2YgRalgAx4SUpXw": {
+   "name": "Calypso Bay Waterpark",
+   "locality": "Royal Palm Beach",
+   "metro": "palm-beach",
+   "category": "attractions",
+   "site": "https://calypsobaywaterpark.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJe4HPHhsv2YgRalgAx4SUpXw/of_67b8ebef5a7abf8c.jpg",
+     "bytes": 172849,
+     "phash": "811e6894d8e1cfee",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://calypsobaywaterpark.com/gallery",
+     "author": "Calypso Bay Waterpark",
+     "title": "Calypso Bay Waterpark official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://calypsobaywaterpark.com/gallery",
+     "attribution_text": "Photo: Calypso Bay Waterpark"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJe4HPHhsv2YgRalgAx4SUpXw/of_7a79a49d6aded4f2.jpg",
+     "bytes": 170871,
+     "phash": "95a1b192e4e66b4e",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://calypsobaywaterpark.com/gallery",
+     "author": "Calypso Bay Waterpark",
+     "title": "Calypso Bay Waterpark official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://calypsobaywaterpark.com/gallery",
+     "attribution_text": "Photo: Calypso Bay Waterpark"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJe4HPHhsv2YgRalgAx4SUpXw/of_b80f94ca115f5842.jpg",
+     "bytes": 172125,
+     "phash": "85f5b6f42e6d4881",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://calypsobaywaterpark.com/gallery",
+     "author": "Calypso Bay Waterpark",
+     "title": "Calypso Bay Waterpark official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://calypsobaywaterpark.com/gallery",
+     "attribution_text": "Photo: Calypso Bay Waterpark"
+    }
+   ]
+  },
+  "ChIJj1PNLp3hwogRY24SO2KKXPk": {
+   "name": "American Stage Theatre Company",
+   "locality": "St. Petersburg",
+   "metro": "st-pete",
+   "category": "attractions",
+   "site": "https://americanstage.org/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJj1PNLp3hwogRY24SO2KKXPk/of_cca4c57eade6891c.jpg",
+     "bytes": 170957,
+     "phash": "892a26786ec78d75",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.americanstage.org/about",
+     "author": "American Stage Theatre Company",
+     "title": "American Stage Theatre Company official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.americanstage.org/about",
+     "attribution_text": "Photo: American Stage Theatre Company"
+    }
+   ]
+  },
+  "ChIJLak3qiC32YgRLgUwpvrqlzc": {
+   "name": "Museum of Graffiti",
+   "locality": "Miami",
+   "metro": "miami-dade",
+   "category": "attractions",
+   "site": "https://museumofgraffiti.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJLak3qiC32YgRLgUwpvrqlzc/of_f12e9317c4d85fa2.jpg",
+     "bytes": 173782,
+     "phash": "81cfb658663e4b45",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://museumofgraffiti.com/",
+     "author": "Museum of Graffiti",
+     "title": "Museum of Graffiti official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://museumofgraffiti.com/",
+     "attribution_text": "Photo: Museum of Graffiti"
+    }
+   ]
+  },
+  "ChIJf5zE6CQJ2YgRQtpDyDv94U4": {
+   "name": "Young At Art Museum",
+   "locality": "Plantation",
+   "metro": "broward",
+   "category": "attractions",
+   "site": "https://youngatartmuseum.org/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJf5zE6CQJ2YgRQtpDyDv94U4/of_f2d7198d34efca0c.jpg",
+     "bytes": 170508,
+     "phash": "ad4d9012f3e44eda",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://youngatartmuseum.org/visit/",
+     "author": "Young At Art Museum",
+     "title": "Young At Art Museum official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://youngatartmuseum.org/visit/",
+     "attribution_text": "Photo: Young At Art Museum"
+    }
+   ]
+  },
+  "ChIJXYAPlTG42YgRNqaVKZBQXWs": {
+   "name": "City of West Miami - Edmund P. Cooper Park",
+   "locality": "Coral Terrace",
+   "metro": "miami-dade",
+   "category": "attractions",
+   "site": "https://cityofwestmiami.gov/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJXYAPlTG42YgRNqaVKZBQXWs/of_af3367bf06c4f7ed.jpg",
+     "bytes": 168555,
+     "phash": "f4bf2c0f49b92162",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://cityofwestmiami.gov/",
+     "author": "City of West Miami Edmund P. Cooper Park",
+     "title": "City of West Miami Edmund P. Cooper Park official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://cityofwestmiami.gov/",
+     "attribution_text": "Photo: City of West Miami Edmund P. Cooper Park"
+    }
+   ]
+  },
+  "ChIJM3ozmXR96IgRYiFqamuAFq0": {
+   "name": "Petting Zoo Ocala",
+   "locality": null,
+   "metro": "florida",
+   "category": "attractions",
+   "site": "https://pettingzooocala.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJM3ozmXR96IgRYiFqamuAFq0/of_5c49767d3d481cce.jpg",
+     "bytes": 160613,
+     "phash": "fc5444698da5f3b0",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://pettingzooocala.com/",
+     "author": "Petting Zoo Ocala",
+     "title": "Petting Zoo Ocala official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://pettingzooocala.com/",
+     "attribution_text": "Photo: Petting Zoo Ocala"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJM3ozmXR96IgRYiFqamuAFq0/of_72a7ad2a490ef249.jpg",
+     "bytes": 169389,
+     "phash": "ea0c345cb3aae517",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://pettingzooocala.com/about-us/",
+     "author": "Petting Zoo Ocala",
+     "title": "Petting Zoo Ocala official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://pettingzooocala.com/about-us/",
+     "attribution_text": "Photo: Petting Zoo Ocala"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJM3ozmXR96IgRYiFqamuAFq0/of_054c80b7465d63a5.jpg",
+     "bytes": 160434,
+     "phash": "cbd915e5318e2754",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://pettingzooocala.com/about-us/",
+     "author": "Petting Zoo Ocala",
+     "title": "Petting Zoo Ocala official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://pettingzooocala.com/about-us/",
+     "attribution_text": "Photo: Petting Zoo Ocala"
+    }
+   ]
+  },
+  "ChIJR4Ij1Veq2YgRFnUgN8EX3-M": {
+   "name": "MAD Arts",
+   "locality": "Dania Beach",
+   "metro": "broward",
+   "category": "attractions",
+   "site": "https://www.yeswearemadarts.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJR4Ij1Veq2YgRFnUgN8EX3-M/of_201064f863e5cdf9.jpg",
+     "bytes": 140803,
+     "phash": "af5131e6c6cb0bb0",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.yeswearemadarts.com/",
+     "author": "MAD Arts",
+     "title": "MAD Arts official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.yeswearemadarts.com/",
+     "attribution_text": "Photo: MAD Arts"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJR4Ij1Veq2YgRFnUgN8EX3-M/of_83d7342f218ed83d.jpg",
+     "bytes": 149713,
+     "phash": "9b4cf1a748b18e72",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.yeswearemadarts.com/",
+     "author": "MAD Arts",
+     "title": "MAD Arts official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.yeswearemadarts.com/",
+     "attribution_text": "Photo: MAD Arts"
+    }
+   ]
+  },
+  "ChIJUbi9qPS02YgRK-D8Zhm8LHc": {
+   "name": "Art Deco Tours",
+   "locality": "Miami Beach",
+   "metro": "miami-dade",
+   "category": "attractions",
+   "site": "https://www.artdecotours.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJUbi9qPS02YgRK-D8Zhm8LHc/of_1b50939975ebb54d.jpg",
+     "bytes": 164365,
+     "phash": "8382cde5d86a36ec",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.artdecotours.com/art-deco-walking-tour/",
+     "author": "Art Deco Tours",
+     "title": "Art Deco Tours official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.artdecotours.com/art-deco-walking-tour/",
+     "attribution_text": "Photo: Art Deco Tours"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJUbi9qPS02YgRK-D8Zhm8LHc/of_36cea1cfad6e3f9c.jpg",
+     "bytes": 169671,
+     "phash": "9def3c96006dd08e",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.artdecotours.com/",
+     "author": "Art Deco Tours",
+     "title": "Art Deco Tours official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.artdecotours.com/",
+     "attribution_text": "Photo: Art Deco Tours"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJUbi9qPS02YgRK-D8Zhm8LHc/of_05abbd13f531dfec.jpg",
+     "bytes": 166543,
+     "phash": "d9c2ba69802b3b3b",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.artdecotours.com/",
+     "author": "Art Deco Tours",
+     "title": "Art Deco Tours official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.artdecotours.com/",
+     "attribution_text": "Photo: Art Deco Tours"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJUbi9qPS02YgRK-D8Zhm8LHc/of_ade49f02847bb783.jpg",
+     "bytes": 165568,
+     "phash": "ba86319442ba3eeb",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.artdecotours.com/",
+     "author": "Art Deco Tours",
+     "title": "Art Deco Tours official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://www.artdecotours.com/",
+     "attribution_text": "Photo: Art Deco Tours"
+    }
+   ]
+  },
+  "ChIJEdWsSXEXw4gRpgNdaDgckZs": {
+   "name": "Bradenton Yacht Club",
+   "locality": "Palmetto",
+   "metro": "manatee-sarasota",
+   "category": "attractions",
+   "site": "https://bradentonyachtclub.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJEdWsSXEXw4gRpgNdaDgckZs/of_adcea38aad5cf384.jpg",
+     "bytes": 170957,
+     "phash": "ef00ba7875878378",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://bradentonyachtclub.com/",
+     "author": "Bradenton Yacht Club",
+     "title": "Bradenton Yacht Club official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://bradentonyachtclub.com/",
+     "attribution_text": "Photo: Bradenton Yacht Club"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJEdWsSXEXw4gRpgNdaDgckZs/of_23862b5b25f1f768.jpg",
+     "bytes": 173799,
+     "phash": "8fe45087a95ce791",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://bradentonyachtclub.com/",
+     "author": "Bradenton Yacht Club",
+     "title": "Bradenton Yacht Club official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://bradentonyachtclub.com/",
+     "attribution_text": "Photo: Bradenton Yacht Club"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJEdWsSXEXw4gRpgNdaDgckZs/of_af17cc95d1cb6561.jpg",
+     "bytes": 165417,
+     "phash": "cdb28d4b3c49928f",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://bradentonyachtclub.com/",
+     "author": "Bradenton Yacht Club",
+     "title": "Bradenton Yacht Club official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://bradentonyachtclub.com/",
+     "attribution_text": "Photo: Bradenton Yacht Club"
+    }
+   ]
+  },
+  "ChIJ-_E6_0VRw4gR-alZaOcrQqY": {
+   "name": "Encore Ramblers Rest",
+   "locality": null,
+   "metro": "manatee-sarasota",
+   "category": "attractions",
+   "site": "https://ramblersrestrv.com",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ-_E6_0VRw4gR-alZaOcrQqY/of_71a2a0c214ede786.jpg",
+     "bytes": 171023,
+     "phash": "dcc7d0f1f15c0ca4",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://ramblersrestrv.com/",
+     "author": "Encore Ramblers Rest",
+     "title": "Encore Ramblers Rest official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://ramblersrestrv.com/",
+     "attribution_text": "Photo: Encore Ramblers Rest"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ-_E6_0VRw4gR-alZaOcrQqY/of_076d593f583fb110.jpg",
+     "bytes": 169770,
+     "phash": "d00f73bd2019f32d",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://ramblersrestrv.com/",
+     "author": "Encore Ramblers Rest",
+     "title": "Encore Ramblers Rest official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://ramblersrestrv.com/",
+     "attribution_text": "Photo: Encore Ramblers Rest"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ-_E6_0VRw4gR-alZaOcrQqY/of_fe657da24f5f9ac8.jpg",
+     "bytes": 172116,
+     "phash": "e1e4f6c21e1a83e6",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://ramblersrestrv.com/",
+     "author": "Encore Ramblers Rest",
+     "title": "Encore Ramblers Rest official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://ramblersrestrv.com/",
+     "attribution_text": "Photo: Encore Ramblers Rest"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ-_E6_0VRw4gR-alZaOcrQqY/of_a4df82be690448d0.jpg",
+     "bytes": 174121,
+     "phash": "f2d0902ae5f59c4d",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://ramblersrestrv.com/",
+     "author": "Encore Ramblers Rest",
+     "title": "Encore Ramblers Rest official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://ramblersrestrv.com/",
+     "attribution_text": "Photo: Encore Ramblers Rest"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ-_E6_0VRw4gR-alZaOcrQqY/of_3a5236a1c8455117.jpg",
+     "bytes": 173808,
+     "phash": "d5c7f8304a44cd6b",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://ramblersrestrv.com/",
+     "author": "Encore Ramblers Rest",
+     "title": "Encore Ramblers Rest official photo 5",
+     "storage_path": null,
+     "attribution_url": "https://ramblersrestrv.com/",
+     "attribution_text": "Photo: Encore Ramblers Rest"
+    }
+   ]
+  },
+  "ChIJixrzU9-w2YgRybupVdVnXbc": {
+   "name": "The Historic Hampton House",
+   "locality": "Brownsville",
+   "metro": "miami-dade",
+   "category": "attractions",
+   "site": "https://www.historichamptonhouse.org/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJixrzU9-w2YgRybupVdVnXbc/of_e0f59f40844f52c6.jpg",
+     "bytes": 168826,
+     "phash": "8d5f32906fc3ce18",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.historichamptonhouse.org/",
+     "author": "The Historic Hampton House",
+     "title": "The Historic Hampton House official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.historichamptonhouse.org/",
+     "attribution_text": "Photo: The Historic Hampton House"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJixrzU9-w2YgRybupVdVnXbc/of_af9cd6ffd9b6cfa4.jpg",
+     "bytes": 171873,
+     "phash": "b07a4f4f1c479991",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.historichamptonhouse.org/",
+     "author": "The Historic Hampton House",
+     "title": "The Historic Hampton House official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.historichamptonhouse.org/",
+     "attribution_text": "Photo: The Historic Hampton House"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJixrzU9-w2YgRybupVdVnXbc/of_aa6782fa56a996e1.jpg",
+     "bytes": 162924,
+     "phash": "aa841a72912db1ff",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.historichamptonhouse.org/visit",
+     "author": "The Historic Hampton House",
+     "title": "The Historic Hampton House official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.historichamptonhouse.org/visit",
+     "attribution_text": "Photo: The Historic Hampton House"
+    }
+   ]
+  },
+  "ChIJuY71QeH3wogRZAWr8OPVKpY": {
+   "name": "Chadillac Adventures - Clearwater Beach",
+   "locality": "Clearwater",
+   "metro": "florida",
+   "category": "beach",
+   "site": "https://chadillacadventures.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJuY71QeH3wogRZAWr8OPVKpY/of_3d9533c1d8c406fd.jpg",
+     "bytes": 166147,
+     "phash": "c9926f5d00a1f66e",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://chadillacadventures.com/",
+     "author": "Chadillac Adventures Clearwater Beach",
+     "title": "Chadillac Adventures Clearwater Beach official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://chadillacadventures.com/",
+     "attribution_text": "Photo: Chadillac Adventures Clearwater Beach"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJuY71QeH3wogRZAWr8OPVKpY/of_02d6b204e3918353.jpg",
+     "bytes": 170914,
+     "phash": "e5473766dc81868d",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://chadillacadventures.com/",
+     "author": "Chadillac Adventures Clearwater Beach",
+     "title": "Chadillac Adventures Clearwater Beach official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://chadillacadventures.com/",
+     "attribution_text": "Photo: Chadillac Adventures Clearwater Beach"
+    }
+   ]
+  },
+  "ChIJ9f8tTj9B6IgR48fG0S4opck": {
+   "name": "Manatees in Paradise",
+   "locality": "Crystal River",
+   "metro": "florida",
+   "category": "attractions",
+   "site": "https://www.manateesinparadise.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ9f8tTj9B6IgR48fG0S4opck/of_46a88cabdbe79734.jpg",
+     "bytes": 170041,
+     "phash": "c413eec5e46655c3",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.manateesinparadise.com/",
+     "author": "Manatees in Paradise",
+     "title": "Manatees in Paradise official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.manateesinparadise.com/",
+     "attribution_text": "Photo: Manatees in Paradise"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ9f8tTj9B6IgR48fG0S4opck/of_ddca98d2bc25d028.jpg",
+     "bytes": 172527,
+     "phash": "d1d6ca4d4694b25d",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.manateesinparadise.com/",
+     "author": "Manatees in Paradise",
+     "title": "Manatees in Paradise official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.manateesinparadise.com/",
+     "attribution_text": "Photo: Manatees in Paradise"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ9f8tTj9B6IgR48fG0S4opck/of_b9b4896ff58e6cc6.jpg",
+     "bytes": 170419,
+     "phash": "d1a4cbe4dae072b8",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.manateesinparadise.com/",
+     "author": "Manatees in Paradise",
+     "title": "Manatees in Paradise official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.manateesinparadise.com/",
+     "attribution_text": "Photo: Manatees in Paradise"
+    }
+   ]
+  },
+  "ChIJJR2e0v222YgRDB0WIkJyH0o": {
+   "name": "Teatro 8",
+   "locality": "Miami",
+   "metro": "miami-dade",
+   "category": "attractions",
+   "site": "https://www.teatro8.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJJR2e0v222YgRDB0WIkJyH0o/of_aca936889f3c507d.jpg",
+     "bytes": 160289,
+     "phash": "887f7780d82e6371",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.teatro8.com/gallery",
+     "author": "Teatro 8",
+     "title": "Teatro 8 official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.teatro8.com/gallery",
+     "attribution_text": "Photo: Teatro 8"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJJR2e0v222YgRDB0WIkJyH0o/of_d4f44a43e0d6f701.jpg",
+     "bytes": 150478,
+     "phash": "80c3d3c10a7e1e7f",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.teatro8.com/about",
+     "author": "Teatro 8",
+     "title": "Teatro 8 official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.teatro8.com/about",
+     "attribution_text": "Photo: Teatro 8"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJJR2e0v222YgRDB0WIkJyH0o/of_3744f678e5523d98.jpg",
+     "bytes": 149837,
+     "phash": "8f8e7038e9618b79",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.teatro8.com/about",
+     "author": "Teatro 8",
+     "title": "Teatro 8 official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.teatro8.com/about",
+     "attribution_text": "Photo: Teatro 8"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJJR2e0v222YgRDB0WIkJyH0o/of_224d7a89e40e0bb6.jpg",
+     "bytes": 167288,
+     "phash": "aa6555aac53186ee",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.teatro8.com/about",
+     "author": "Teatro 8",
+     "title": "Teatro 8 official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://www.teatro8.com/about",
+     "attribution_text": "Photo: Teatro 8"
+    }
+   ]
+  },
+  "ChIJ3xxRd2RV5IgRfE_kc69UGIg": {
+   "name": "Jaybird Hammock Farm",
+   "locality": null,
+   "metro": "florida",
+   "category": "attractions",
+   "site": "https://www.jaybirdhammockfarm.com",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ3xxRd2RV5IgRfE_kc69UGIg/of_311f058c54288ff9.jpg",
+     "bytes": 174057,
+     "phash": "931aae3ecc6c1a96",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.jaybirdhammockfarm.com/",
+     "author": "Jaybird Hammock Farm",
+     "title": "Jaybird Hammock Farm official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.jaybirdhammockfarm.com/",
+     "attribution_text": "Photo: Jaybird Hammock Farm"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ3xxRd2RV5IgRfE_kc69UGIg/of_caf312a07f16b72d.jpg",
+     "bytes": 172362,
+     "phash": "86fef486038595ea",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.jaybirdhammockfarm.com/",
+     "author": "Jaybird Hammock Farm",
+     "title": "Jaybird Hammock Farm official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.jaybirdhammockfarm.com/",
+     "attribution_text": "Photo: Jaybird Hammock Farm"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ3xxRd2RV5IgRfE_kc69UGIg/of_20289c935ba14d4d.jpg",
+     "bytes": 173424,
+     "phash": "c1a6a5e5d2c4da66",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.jaybirdhammockfarm.com/",
+     "author": "Jaybird Hammock Farm",
+     "title": "Jaybird Hammock Farm official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.jaybirdhammockfarm.com/",
+     "attribution_text": "Photo: Jaybird Hammock Farm"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ3xxRd2RV5IgRfE_kc69UGIg/of_ccae22f3e01ecbcc.jpg",
+     "bytes": 172213,
+     "phash": "b9a1e9ded25344a8",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.jaybirdhammockfarm.com/",
+     "author": "Jaybird Hammock Farm",
+     "title": "Jaybird Hammock Farm official photo 4",
+     "storage_path": null,
+     "attribution_url": "https://www.jaybirdhammockfarm.com/",
+     "attribution_text": "Photo: Jaybird Hammock Farm"
+    }
+   ]
+  },
+  "ChIJE5NX8avYwogROIOOoL1LVzE": {
+   "name": "Little Harbor Marinas",
+   "locality": "Ruskin",
+   "metro": "tampa",
+   "category": "attractions",
+   "site": "https://littleharbormarinas.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJE5NX8avYwogROIOOoL1LVzE/of_11b788a961fadacb.jpg",
+     "bytes": 168901,
+     "phash": "b255ac695dea2456",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://littleharbormarinas.com/",
+     "author": "Little Harbor Marinas",
+     "title": "Little Harbor Marinas official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://littleharbormarinas.com/",
+     "attribution_text": "Photo: Little Harbor Marinas"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJE5NX8avYwogROIOOoL1LVzE/of_78021d0e8de3f09d.jpg",
+     "bytes": 169817,
+     "phash": "c6c926379992c778",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://littleharbormarinas.com/",
+     "author": "Little Harbor Marinas",
+     "title": "Little Harbor Marinas official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://littleharbormarinas.com/",
+     "attribution_text": "Photo: Little Harbor Marinas"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJE5NX8avYwogROIOOoL1LVzE/of_320fad94e0eda310.jpg",
+     "bytes": 169610,
+     "phash": "f08a3c6fd0bf6054",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://littleharbormarinas.com/",
+     "author": "Little Harbor Marinas",
+     "title": "Little Harbor Marinas official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://littleharbormarinas.com/",
+     "attribution_text": "Photo: Little Harbor Marinas"
+    }
+   ]
+  },
+  "ChIJX_ATx8AX3YgRhY1rxB1pKIA": {
+   "name": "Polk County History Center & Genealogical Library",
+   "locality": "Bartow",
+   "metro": "florida",
+   "category": "attractions",
+   "site": "https://polkhistorycenter.org/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJX_ATx8AX3YgRhY1rxB1pKIA/of_d5f830d51d6dbb2e.jpg",
+     "bytes": 170647,
+     "phash": "8781877eda25913e",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.polkfl.gov/things-to-do/history-center/",
+     "author": "Polk County History Center & Genealogical Library",
+     "title": "Polk County History Center & Genealogical Library official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.polkfl.gov/things-to-do/history-center/",
+     "attribution_text": "Photo: Polk County History Center & Genealogical Library"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJX_ATx8AX3YgRhY1rxB1pKIA/of_28a3ec29f1389a63.jpg",
+     "bytes": 166915,
+     "phash": "92fe3e444447c7a5",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.polkfl.gov/things-to-do/history-center/",
+     "author": "Polk County History Center & Genealogical Library",
+     "title": "Polk County History Center & Genealogical Library official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.polkfl.gov/things-to-do/history-center/",
+     "attribution_text": "Photo: Polk County History Center & Genealogical Library"
+    }
+   ]
+  },
+  "ChIJx1KzLQc824gRXwhbUI7KMhk": {
+   "name": "Beach Buddy Tours",
+   "locality": "Cape Coral",
+   "metro": "florida",
+   "category": "beach",
+   "site": "https://beachbuddytours.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJx1KzLQc824gRXwhbUI7KMhk/of_57c6a21223bface8.jpg",
+     "bytes": 174620,
+     "phash": "847ed381edb710e8",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://beachbuddytours.com/",
+     "author": "Beach Buddy Tours",
+     "title": "Beach Buddy Tours official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://beachbuddytours.com/",
+     "attribution_text": "Photo: Beach Buddy Tours"
+    }
+   ]
+  },
+  "ChIJ6Rd_CgC12YgRU_jQoowku50": {
+   "name": "Bayfront Park Water Fountain",
+   "locality": "Miami",
+   "metro": "miami-dade",
+   "category": "attractions",
+   "site": "https://www.bayfrontparkmiami.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ6Rd_CgC12YgRU_jQoowku50/of_55e4930c2a69c711.jpg",
+     "bytes": 170787,
+     "phash": "8be0887470d67f72",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.bayfrontparkmiami.com/",
+     "author": "Bayfront Park Water Fountain",
+     "title": "Bayfront Park Water Fountain official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.bayfrontparkmiami.com/",
+     "attribution_text": "Photo: Bayfront Park Water Fountain"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ6Rd_CgC12YgRU_jQoowku50/of_e9fa19d3368e718e.jpg",
+     "bytes": 174384,
+     "phash": "89b388e3aa9e3b8a",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.bayfrontparkmiami.com/",
+     "author": "Bayfront Park Water Fountain",
+     "title": "Bayfront Park Water Fountain official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.bayfrontparkmiami.com/",
+     "attribution_text": "Photo: Bayfront Park Water Fountain"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ6Rd_CgC12YgRU_jQoowku50/of_0e60236bd5fab317.jpg",
+     "bytes": 174618,
+     "phash": "8806e64d6d77991d",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.bayfrontparkmiami.com/",
+     "author": "Bayfront Park Water Fountain",
+     "title": "Bayfront Park Water Fountain official photo 3",
+     "storage_path": null,
+     "attribution_url": "https://www.bayfrontparkmiami.com/",
+     "attribution_text": "Photo: Bayfront Park Water Fountain"
+    }
+   ]
+  },
+  "ChIJNZDOU-8-6IgRgFPL-Fzhqgg": {
+   "name": "Riverhaven Marina",
+   "locality": "Homosassa",
+   "metro": "florida",
+   "category": "attractions",
+   "site": "https://www.riverhavenmarina.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJNZDOU-8-6IgRgFPL-Fzhqgg/of_b0b6a8388fc51651.jpg",
+     "bytes": 173979,
+     "phash": "95caaf99e841d307",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.riverhavenmarina.com/aboutus",
+     "author": "Riverhaven Marina",
+     "title": "Riverhaven Marina official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.riverhavenmarina.com/aboutus",
+     "attribution_text": "Photo: Riverhaven Marina"
+    }
+   ]
+  },
+  "ChIJHRXnHQ9Aw4gRH7mm8Db8e6I": {
+   "name": "Sarasota Orchestra",
+   "locality": "Sarasota",
+   "metro": "manatee-sarasota",
+   "category": "attractions",
+   "site": "https://sarasotaorchestra.org/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJHRXnHQ9Aw4gRH7mm8Db8e6I/of_e216ba9545fe87ab.jpg",
+     "bytes": 157943,
+     "phash": "96c97648766529e6",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://sarasotaorchestra.org/donate/special-events",
+     "author": "Sarasota Orchestra",
+     "title": "Sarasota Orchestra official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://sarasotaorchestra.org/donate/special-events",
+     "attribution_text": "Photo: Sarasota Orchestra"
+    }
+   ]
+  },
+  "ChIJkef_LGubwogRmEOPOn-BjlE": {
+   "name": "Skeleton Key Marina",
+   "locality": "Hudson",
+   "metro": "florida",
+   "category": "attractions",
+   "site": "https://skeletonkeymarina.com/",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJkef_LGubwogRmEOPOn-BjlE/of_fd99ead9c62c73f2.jpg",
+     "bytes": 172541,
+     "phash": "ffc0fd52a4916891",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://skeletonkeymarina.com/",
+     "author": "Skeleton Key Marina",
+     "title": "Skeleton Key Marina official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://skeletonkeymarina.com/",
+     "attribution_text": "Photo: Skeleton Key Marina"
+    }
+   ]
+  },
+  "ChIJ81OgGsgn5IgR7IQCrh8iVb4": {
+   "name": "St. Augustine History Museum",
+   "locality": "St. Augustine",
+   "metro": "florida",
+   "category": "attractions",
+   "site": "https://www.trolleytours.com/st-augustine/history-museum-stop",
+   "before": {
+    "photos": 0
+   },
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-22-official/ChIJ81OgGsgn5IgR7IQCrh8iVb4/of_eee894cba45c2844.jpg",
+     "bytes": 171268,
+     "phash": "b99b45c89b9398a5",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.trolleytours.com/st-augustine/history-museum-stop",
+     "author": "St. Augustine History Museum",
+     "title": "St. Augustine History Museum official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.trolleytours.com/st-augustine/history-museum-stop",
+     "attribution_text": "Photo: St. Augustine History Museum"
+    }
+   ]
+  }
+ }
+}
