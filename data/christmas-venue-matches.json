@@ -901,6 +901,222 @@
     "lng": -81.6436476
    },
    "target": "research"
+  },
+  {
+   "research_id": "santas-cove-morgans-cove-2026",
+   "place_id": "ChIJRxXOTQDFwogRwF74OMPdvhg",
+   "rail": "popup-bars",
+   "city": "Tampa",
+   "venue": "Morgan’s Cove",
+   "point": {
+    "lat": 27.9475445,
+    "lng": -82.4551713
+   },
+   "inventory": {
+    "name": "Morgan’s Cove",
+    "locality": "Tampa",
+    "lat": 27.9475445,
+    "lng": -82.4551713
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "santas-christmas-tree-forest-eustis-2026",
+   "place_id": "ChIJN3DIZgcK54gRMqXaoB5ateU",
+   "rail": "towns-markets",
+   "city": "Eustis",
+   "venue": "Santa’s Farm & Christmas Tree Forest",
+   "point": {
+    "lat": 28.8635653,
+    "lng": -81.516286
+   },
+   "inventory": {
+    "name": "Santa’s Farm & Christmas Tree Forest",
+    "locality": null,
+    "lat": 28.8635653,
+    "lng": -81.516286
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "susanas-cafe-brunch-coffee-santa-2026",
+   "place_id": "ChIJkZ_tZzyF3YgRDW2MkZjIw0w",
+   "rail": "parties",
+   "city": "Kissimmee",
+   "venue": "Susana's Cafe",
+   "point": {
+    "lat": 28.290988,
+    "lng": -81.4090743
+   },
+   "inventory": {
+    "name": "Susana's Cafe - Kissimmee",
+    "locality": "Kissimmee",
+    "lat": 28.290988,
+    "lng": -81.4090743
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "mi-cafecito-navideno-2026",
+   "place_id": "ChIJg6Eho03DwogRmH80oZcGWak",
+   "rail": "towns-markets",
+   "city": "Tampa",
+   "venue": "Mi Cafecito Colombian Coffee Bar",
+   "point": {
+    "lat": 27.9417211,
+    "lng": -82.4822349
+   },
+   "inventory": {
+    "name": "Mi Cafecito – Colombian Coffee Bar",
+    "locality": "Tampa",
+    "lat": 27.9417211,
+    "lng": -82.4822349
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "la-bodega-navidad-en-la-casa-2026",
+   "place_id": "ChIJ231qjvF754gRZX6vzhb2aCk",
+   "rail": "towns-markets",
+   "city": "Orlando",
+   "venue": "Great Southern Box Company",
+   "point": {
+    "lat": 28.570347,
+    "lng": -81.403904
+   },
+   "inventory": {
+    "name": "Great Southern Box Company",
+    "locality": "Orlando",
+    "lat": 28.570347,
+    "lng": -81.403904
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "lickety-split-holiday-desserts-2026",
+   "place_id": "ChIJRY7vsZx_3YgRwXQE-Nb1Ng8",
+   "rail": "seasonal-food",
+   "city": "Lake Buena Vista",
+   "venue": "Lickety Split at Four Seasons Resort Orlando",
+   "point": {
+    "lat": 28.4020088,
+    "lng": -81.5457021
+   },
+   "inventory": {
+    "name": "Lickety Split",
+    "locality": null,
+    "lat": 28.4020088,
+    "lng": -81.5457021
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "caribe-royale-chocolate-wonderland-2026",
+   "place_id": "ChIJrRH3g7WB3YgRalBdlspTvgI",
+   "rail": "shows-outings",
+   "city": "Orlando",
+   "venue": "Caribe Royale Orlando",
+   "point": {
+    "lat": 28.3579288,
+    "lng": -81.4929619
+   },
+   "inventory": {
+    "name": "Caribe Royale Orlando",
+    "locality": null,
+    "lat": 28.3579288,
+    "lng": -81.4929619
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "alfond-inn-gingerbread-workshop-2026",
+   "place_id": "ChIJFZzjLxtw54gRZ9sWI8w2jAE",
+   "rail": "seasonal-food",
+   "city": "Winter Park",
+   "venue": "The Alfond Inn",
+   "point": {
+    "lat": 28.5957556,
+    "lng": -81.3478028
+   },
+   "inventory": {
+    "name": "The Alfond Inn",
+    "locality": "Winter Park",
+    "lat": 28.5957556,
+    "lng": -81.3478028
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "cocos-naughty-village-2026",
+   "place_id": "ChIJ3X37JNb2wogRui0kn39UTk4",
+   "rail": "popup-bars",
+   "city": "Clearwater",
+   "venue": "Coco's Crush Bar Original",
+   "point": {
+    "lat": 27.9728767,
+    "lng": -82.828181
+   },
+   "inventory": {
+    "name": "Coco's Crush Bar Original",
+    "locality": "Clearwater",
+    "lat": 27.9728767,
+    "lng": -82.828181
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "ritz-carlton-coconut-grove-gingerbread-reveal-2026",
+   "place_id": "ChIJKYka48u32YgRf_i5mqV5VaU",
+   "rail": "shows-outings",
+   "city": "Miami",
+   "venue": "The Ritz-Carlton Coconut Grove, Miami",
+   "point": {
+    "lat": 25.7304471,
+    "lng": -80.2380563
+   },
+   "inventory": {
+    "name": "The Ritz-Carlton Coconut Grove, Miami",
+    "locality": "Miami",
+    "lat": 25.7304471,
+    "lng": -80.2380563
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "regatta-grove-holiday-harbour-2026",
+   "place_id": "ChIJ5zIAFK-32YgR2Qilsz6Sqv8",
+   "rail": "popup-bars",
+   "city": "Miami",
+   "venue": "Regatta Grove",
+   "point": {
+    "lat": 25.7290694,
+    "lng": -80.2330633
+   },
+   "inventory": {
+    "name": "Regatta Grove",
+    "locality": "Miami",
+    "lat": 25.7290694,
+    "lng": -80.2330633
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "winter-springs-winter-wonderland-drive-thru-2026",
+   "place_id": "ChIJ772bDGhs54gRMhdOFKf6f_I",
+   "rail": "lights",
+   "city": "Winter Springs",
+   "venue": "Central Winds Park",
+   "point": {
+    "lat": 28.70732,
+    "lng": -81.268635
+   },
+   "inventory": {
+    "name": "Central Winds Park",
+    "locality": "Winter Springs",
+    "lat": 28.70732,
+    "lng": -81.268635
+   },
+   "target": "research"
   }
  ]
 }
