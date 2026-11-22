@@ -701,7 +701,7 @@ scripts/test-detail-next-step.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	a2efbfd
 scripts/test-detail-open-once.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	c3dbbe48126179cfdfa036db7d3066d8de302810c2e1ddaf291d4c0d8ff146df
 scripts/test-detail-photo-acquisition.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	b36586e2ae25926bb107c1223d8598623e74fc94915bc4add29887273776a2d1
 scripts/test-detail-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	36c31a63bd229d4ff57a3c5a738513c38c43951def729074c81dbb6f2faa00f1
-scripts/test-detail-take.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	3878d5702d144f1a4cc8dd882b2dbc7de557218336567b762f6dc622a7ea750e
+scripts/test-detail-take.mjs	0	RENDER	blocks-ci-and-deploy	1	-	16	0	0	6c46aad757621bbad979da817b46ec800450a85363a4c9f0332374acbdd9bd41
 scripts/test-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	76	0	0	87daa2e91ce4f32b6924b8681f9769b95b19570e7bcf6859a5aa884567f72cff
 scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3b8c36e3e9fb01312d7d1a9cf9a6f856606ebda509f5a76eb640b136e
 scripts/test-direct-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	73	0	0	cb69c1cbdc990de5a00073c73413a8d2db011d0800d4c96c9081356f7fce831c
@@ -1104,7 +1104,7 @@ scripts/test-reserve-v2.mjs	0	CALL	blocks-ci-and-deploy	1	-	168	0	0	27945772748f
 scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	5a42f16bb1b72847758f21eef58dba011dcfa77ecdaa04f3eabe3088c3107fb1
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633
 scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0b678c1ae6a5ca8dd778a212c5c51ea2db88d85266cebea6d2103da1c4f61e01
-scripts/test-richness-loading-path.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	f7d60ea7b20a700e4f1f95642bf20ac26e9fc45aa61e2d309fb7ee4e6d011a15
+scripts/test-richness-loading-path.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	2d3c98ec02cfdf9f6b6078b93ffb42f43519ab2d9ce14a6e4c6a6adca6d1452b
 scripts/test-root-has-selectors.mjs	0	RENDER	blocks-ci-and-deploy	1	-	54	0	0	116b57d5bc97bea12b5f1064b2b50c05309e78c1890dce0377c29ae7067946dd
 scripts/test-run-guards.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	f740fb2fff07dd0a589144bd5b651165279e2f0f703e688b9e7e178015185e46
 scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6ab5a9bf5154763b7c14e422d56ec58f4fdbaab039ef805a0b1e0566d2

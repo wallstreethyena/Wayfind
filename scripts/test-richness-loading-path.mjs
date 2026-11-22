@@ -4,7 +4,7 @@
  * 1. Same-brand / different-location disambiguation (exact place_id + branch address isolation)
  * 2. Rich record, sparse record, unknown pricing, free place, and hotel with/without editorial
  * 3. Late-response / missing-enrichment preservation (mergePlacePage & toHookLine)
- * 4. WayfindTakeRail breakdown list: items.filter((_, i) => i !== active) preserves items[0] when active > 0
+ * 4. Event venue map dismissal
  * 5. Batch A (9 verified Atlas addresses + 1 retained chain restriction), Batch B (guide coordinates), Batch C (50 event-adjacent hotel hooks without unverified affiliate links)
  */
 import assert from "node:assert/strict";
@@ -212,17 +212,7 @@ ok(
   "Unenriched hotel returns empty string rather than generic boilerplate",
 );
 
-// 4. WayfindTakeRail breakdown non-duplication check in Detail.js
-const detailSrc = fs.readFileSync(
-  path.join(root, "app/components/sheets/Detail.js"),
-  "utf8",
-);
-ok(
-  detailSrc.includes("items.filter((_, i) => i !== active)"),
-  "Detail.js WayfindTakeRail must filter out active index rather than slicing index 0 unconditionally",
-);
-
-// 5. EventVenueMap Escape key dismissal check
+// 4. EventVenueMap Escape key dismissal check
 const mapSrc = fs.readFileSync(
   path.join(root, "app/components/EventVenueMap.js"),
   "utf8",

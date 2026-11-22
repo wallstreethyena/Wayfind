@@ -559,10 +559,6 @@
       "reason": "1 absence check(s) with no same-file positive control"
     },
     {
-      "file": "scripts/test-detail-take.mjs",
-      "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
-    },
-    {
       "file": "scripts/test-device-id.mjs",
       "reason": "STRUCTURAL, undeclared: pure regex/AST over source with no // STRUCTURAL-ONLY tag"
     },
