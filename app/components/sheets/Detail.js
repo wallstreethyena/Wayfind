@@ -193,9 +193,9 @@ function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
 // One aspect per card; the next peeks in and the dots track the swipe, so the
 // reader always sees there is more and what it is. Body is near-white and
 // regular-weight for readability.
-function WayfindTakeRail({ editorial, alreadyShown = null }) {
+export function WayfindTakeRail({ editorial, alreadyShown = null }) {
   const railRef = useRef(null);
-  const [active, setActive] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const SPEC = [
     ["why", "Why go", "🧭", C.accent], ["knownFor", "Known for", "⭐", C.gold],
     ["insiderMove", "Insider move", "🔑", C.gold], ["proMove", "Pro move", "⚡", C.green],
@@ -215,16 +215,26 @@ function WayfindTakeRail({ editorial, alreadyShown = null }) {
   const items = SPEC.map(([k, label, icon, color]) => ({ label, icon, color, body: editorial[k] }))
     .filter((x) => { const n = norm(x.body); if (!n || seen.has(n)) return false; seen.add(n); return true; });
   if (!items.length) return null;
+  const active = Math.min(activeIndex, items.length - 1);
   const multi = items.length > 1;
   const onScroll = () => {
     const el = railRef.current;
     const firstCard = el?.firstElementChild;
     if (!el || !firstCard) return;
     const w = firstCard.getBoundingClientRect().width + 12;
-    setActive(Math.max(0, Math.min(items.length - 1, Math.round(el.scrollLeft / w))));
+    setActiveIndex(Math.max(0, Math.min(items.length - 1, Math.round(el.scrollLeft / w))));
+  };
+  const showCard = (index) => {
+    const el = railRef.current;
+    const card = el?.children[index];
+    if (!card) return;
+    el.scrollTo({
+      left: card.offsetLeft - el.firstElementChild.offsetLeft,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
   };
   return (
-    <section style={{ marginBottom: 18, padding: "16px 0 14px", borderTop: "1px solid rgba(255,122,24,.22)", borderBottom: "1px solid rgba(255,255,255,.08)", background: "linear-gradient(180deg, rgba(255,122,24,.035), rgba(255,255,255,.012))" }}>
+    <section aria-label="Wayfind editorial" style={{ marginBottom: 18, padding: "16px 0 14px", borderTop: "1px solid rgba(255,122,24,.22)", borderBottom: "1px solid rgba(255,255,255,.08)", background: "linear-gradient(180deg, rgba(255,122,24,.035), rgba(255,255,255,.012))" }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12, padding: "0 2px" }}>
         <div>
           <div style={{ fontSize: 9.5, fontWeight: 900, color: C.accent, letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 4 }}>Wayfind editorial</div>
@@ -245,17 +255,11 @@ function WayfindTakeRail({ editorial, alreadyShown = null }) {
         ))}
       </div>
       {multi ? (
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 11 }}>
-          {items.map((it, i) => (<span key={i} title={it.label} style={{ width: i === active ? 20 : 5, height: 5, borderRadius: 999, background: i === active ? C.accent : "rgba(255,255,255,.2)", transition: "width .2s ease, background .2s ease" }} />))}
-        </div>
-      ) : null}
-      {multi ? (
-        <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: 14, background: "rgba(13,17,23,.55)", border: "1px solid rgba(255,255,255,.08)", display: "grid", gap: 9 }}>
-          {items.filter((_, i) => i !== active).map((it) => (
-            <div key={it.label} style={{ fontSize: 13, lineHeight: 1.5, color: "#CBD5E1" }}>
-              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: "1px", textTransform: "uppercase", color: it.color, marginRight: 7 }}>{it.icon} {it.label}:</span>
-              <span>{it.body}</span>
-            </div>
+        <div role="group" aria-label="Editorial cards" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", marginTop: 4 }}>
+          {items.map((it, i) => (
+            <button key={it.label} type="button" aria-label={`Show ${it.label}`} aria-current={i === active ? "true" : undefined} title={it.label} onClick={() => showCard(i)} style={{ display: "grid", placeItems: "center", width: 24, height: 24, padding: 0, border: 0, borderRadius: 4, background: "transparent", cursor: "pointer" }}>
+              <span aria-hidden="true" style={{ width: i === active ? 20 : 5, height: 5, borderRadius: 999, background: i === active ? C.accent : "rgba(255,255,255,.35)", transition: "width .2s ease, background .2s ease" }} />
+            </button>
           ))}
         </div>
       ) : null}
