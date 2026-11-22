@@ -1082,6 +1082,11 @@ export default async function GuidePage({ params }) {
         </p>
       ) : null}
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
+      {params.slug === "things-to-do-orlando-not-theme-parks" ? (
+        <p style={S.p}>
+          Follow the <a href="https://blog.gowayfind.com/orlando-day-itinerary-without-theme-parks" style={S.footerLink}>seven-stop Orlando itinerary</a> for a full day downtown and in Winter Park. If it rains, take the kids to <a href="/guides/orlando-in-the-rain#pick-6" style={S.footerLink}>Orlando Science Center</a>. Set aside a separate day for <a href="#pick-7" style={S.footerLink}>Kennedy Space Center</a>.
+        </p>
+      ) : null}
       <GuideFacts facts={g.facts} />
       {eventMap ? (
         <div className="wf-guide-event-map">
