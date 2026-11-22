@@ -124,5 +124,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2552 follow-up: reserve notification kinds beyond confirmation texts",
     "reason": "NOT APPLIED. Additive only, and only after 20261116120000_wf_reserve_notifications.sql. Widens the kind check to request_received_sms, request_accepted_sms, request_declined_sms, opentable_handoff, cancellation_sms and failure_sms. Adds status recorded and channel none so a row we chose not to text is not left queued. Recipient may be null only when channel is none. No new table, no grant, RLS unchanged. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials."
+  },
+  {
+    "file": "supabase/migrations/20261122011412_wayfind_holiday_planning_details.sql",
+    "sha256": "2a357c5d04c8f4a7de0d9113b37f9440f339270c1d9cd394f3523a37c7f21b0a",
+    "decision_owner": "wallstreethyena",
+    "tracking": "Holiday planning release #20261122",
+    "reason": "Owner-approved editorial update for the Gaylord Palms ICE event and the existing Tampa Bay and Sarasota-Bradenton holiday guides. Apply after merge, verify the live pages, then record the receipt."
   }
 ]
