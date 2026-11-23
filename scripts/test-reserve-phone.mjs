@@ -441,6 +441,38 @@ const storedBlob = (repo) => JSON.stringify({ requests: repo.requests, audits: r
   const closedDry = await startPhoneRequest({ repository: memoryRepo(CLOSED_NOW), env: dryEnv, request: ask({ phonePlace: placeRow(CLOSED_NOW) }), nowMs: NOW, telephony: closedTel });
   ok(closedDry.ok && closedTel.placed.length === 1, "a dry run is not blocked by restaurant hours");
 
+  const previewEnv = { ...dryEnv, VERCEL_ENV: "preview", RESERVE_PHONE_CALLBACK_BASE: preview, RESERVE_PHONE_ALLOWLIST: "" };
+  const conciergeRepo = memoryRepo();
+  const conciergeTel = fakeTelephony();
+  const askForDryRun = async (env, signedIn = true) => {
+    const handlers = createReserveHandlers({
+      env, now: () => NOW, repository: conciergeRepo, verifyUser: async () => ({ id: USER }), phoneTelephony: conciergeTel,
+    });
+    const headers = { origin: preview, "content-type": "application/json" };
+    if (signedIn) headers.authorization = "Bearer " + "x".repeat(20);
+    const response = await handlers.concierge(new Request(preview + "/api/reserve/concierge", {
+      method: "POST", headers, body: JSON.stringify({ messages: [
+        { role: "user", content: "Reserve a table at wf-phone-dry-run tomorrow at 7 pm for 2" },
+      ] }),
+    }));
+    return response.json();
+  };
+  const dryRunOffer = await askForDryRun(previewEnv);
+  ok(dryRunOffer.ok && dryRunOffer.state?.placeId === PHONE_DRY_RUN_PLACE_ID && dryRunOffer.card?.type === "phone_request" &&
+    dryRunOffer.card?.date === "2026-11-12" && dryRunOffer.card?.time === "19:00" && dryRunOffer.card?.partySize === 2,
+    "plain preview Concierge chat resolves the synthetic place and offers Confirm");
+  const offCases = await Promise.all([
+    askForDryRun({ ...previewEnv, RESERVE_PHONE_DRY_RUN_TO: "" }),
+    askForDryRun({ ...previewEnv, RESERVE_PHONE_ENABLED: "0" }),
+    askForDryRun({ ...previewEnv, RESERVE_PHONE_KILL: "1" }),
+    askForDryRun({ ...previewEnv, TWILIO_AUTH_TOKEN: "" }),
+    askForDryRun({ ...previewEnv, VERCEL_ENV: "production" }),
+    askForDryRun(previewEnv, false),
+  ]);
+  ok(offCases.every((turn) => turn.ok && turn.state?.placeId !== PHONE_DRY_RUN_PLACE_ID && turn.card?.type !== "phone_request"),
+    "the synthetic name stays unavailable without the preview dry run configuration or a signed-in guest");
+  ok(conciergeTel.placed.length === 0 && conciergeRepo.requests.length === 0, "asking for the dry run never dials or creates a request");
+
   const post = (body, env, repo, tel) => createReserveHandlers({
     env, now: () => NOW, repository: repo, fetchImpl: () => { throw new Error("network"); },
     verifyUser: async () => ({ id: USER }), phoneTelephony: tel,
