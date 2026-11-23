@@ -32,7 +32,7 @@ create table if not exists public.wf_booking_agent_runs (
   sms_code text check (sms_code is null or sms_code ~ '^[0-9]{4,8}$'),
   sms_code_attempts int not null default 0 check (sms_code_attempts between 0 and 5),
   sms_code_expires_at timestamptz,
-  live_view_url text check (live_view_url is null or live_view_url ~ '^https://www\.browserbase\.com/sessions/[A-Za-z0-9_-]+/debug'),
+  live_view_url text check (live_view_url is null or live_view_url ~ '^https://www\.browserbase\.com/(devtools(?:-fullscreen)?/inspector\.html|sessions/[A-Za-z0-9_-]+/debug)'),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint wf_booking_agent_runs_idem unique (idempotency_key)

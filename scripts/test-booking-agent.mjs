@@ -774,9 +774,9 @@ const confirmed = { html: html("confirmation.html") };
   try { bb.browserbaseConfig({ BROWSERBASE_API_KEY: "bb_live_test" }); } catch { missingProjThrew = true; }
   ok(missingKeyThrew && missingProjThrew, "browserbaseConfig fails loudly when API key or project ID is missing");
 
-  const validLv = "https://www.browserbase.com/sessions/sess_abc123/debug?fullscreen=true";
-  ok(bb.isSafeLiveViewUrl(validLv), "isSafeLiveViewUrl accepts valid Browserbase debug URL");
-  ok(!bb.isSafeLiveViewUrl("javascript:alert(1)") && !bb.isSafeLiveViewUrl("https://evil.example/sessions/1/debug"), "isSafeLiveViewUrl rejects non-Browserbase URLs");
+  const validLv = "https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/sess_abc123&debug=true";
+  ok(bb.isSafeLiveViewUrl(validLv), "isSafeLiveViewUrl accepts real Browserbase devtools-fullscreen inspector URL");
+  ok(!bb.isSafeLiveViewUrl("javascript:alert(1)") && !bb.isSafeLiveViewUrl("https://evil.example/devtools-fullscreen/inspector.html"), "isSafeLiveViewUrl rejects non-Browserbase URLs");
 
   const bbCalls = [];
   const mockBbFetch = async (url, init) => {
