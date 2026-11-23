@@ -848,6 +848,22 @@
    "verified_at": "2026-11-12",
    "size": "1200x900",
    "bytes": 152453
+  },
+  {
+   "event_id": "christmas-lane-plant-city-2026",
+   "slug": "christmas-lane-plant-city-2026",
+   "file": "/guides/picks/plant-city-christmas-2026/christmas-lane-festival-grounds.webp",
+   "commons_file": "File:Florida_Strawberry_Festival_from_FL_574-3.jpg",
+   "source_url": "https://commons.wikimedia.org/wiki/File:Florida_Strawberry_Festival_from_FL_574-3.jpg",
+   "license": "CC BY-SA 4.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+   "author": "DanTD",
+   "photo_year": 2020,
+   "subject_match": "venue",
+   "notes": "Arthur Boring Civic Center and Gate 10 on the Florida Strawberry Festival grounds in Plant City, where Christmas Lane is held. The light show is not pictured. Taken 11 December 2020. Kept as the last gallery slot after official Christmas Lane stills.",
+   "verified_at": "2026-11-23",
+   "size": "1280x853",
+   "bytes": 91556
   }
  ],
  "note": "lake-nona-oh-what-fun-2026 and lakeland-snowfest-2026 were dropped from this batch: batch-2026-11o (#2207) shipped Commons venue photos for them first."

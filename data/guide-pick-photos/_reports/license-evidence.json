@@ -3,9 +3,9 @@
   "verifiedAt": "2026-11-17",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 405,
-    "usages": 431,
-    "verified": 405,
+    "files": 406,
+    "usages": 432,
+    "verified": 406,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -4293,6 +4293,37 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/christmas-lane-mega-tree-light-arch.jpg",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Christmas Lane"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://christmaslane.com/media",
+        "title": "The outdoor mega tree at Christmas Lane, seen through a lit arch",
+        "author": "Christmas Lane",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://christmaslane.com/media"
+      },
+      "wayfind": {
+        "credit": "Christmas Lane",
+        "creditHref": "https://christmaslane.com/media",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://christmaslane.com/media",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
       "src": "/guides/picks/plant-city-christmas-2026/hero-downtown-collins-reynolds.webp",
