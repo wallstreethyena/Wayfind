@@ -3167,6 +3167,14 @@
       "mapLink": "https://www.google.com/maps/search/?api=1&query=Siesta%20Key%20Village%2C%20Ocean%20Boulevard%2C%20Siesta%20Key%2C%20Florida",
       "source": "reviewed-area"
     },
+    "plant-city-christmas-2026\tPlant City Christmas Parade": {
+      "area": true,
+      "reviewed": true,
+      "reason": "The Plant City Observer prints the start as Collins and Ball Streets and does not print one street door.",
+      "mapQuery": "Collins Street and Ball Street, Plant City, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Collins%20Street%20and%20Ball%20Street%2C%20Plant%20City%2C%20Florida",
+      "source": "reviewed-area"
+    },
     "sarasota-this-week-nov-23-2026\tDowntown Sarasota Black Friday and Shop Small Saturday": {
       "area": true,
       "reviewed": true,
