@@ -326,7 +326,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // caller passing it. A caller that never sets it gets byte-identical output
   // to before this prop existed.
   cta = null }) {
-  const scoredPlace = useCuratedPlace(place);
+  const scoredPlace = useCuratedPlace(cardActionsReadOnly ? null : place) || place;
   const userDistance = usePlaceDistance(place);
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an

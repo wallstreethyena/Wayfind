@@ -362,16 +362,22 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
     const root = createRoot(node);
     const noop = () => {};
     const place = { id: "standalone-curator-probe", name: "Curator Score Probe", wfScore: 81, rating: 4.5, reviews: 80, types: ["restaurant"] };
-    const score = () => node.querySelector(".wf-place-card-score").textContent;
-    const marked = () => !!node.querySelector(".wf-place-card.is-curator-pick");
+    // Published group plans have only the already-shown score and curator
+    // state. The live edit card must not rewrite that read-only snapshot.
+    const snapshot = { id: place.id, name: "Published Score Snapshot", governed_score: 81, _members: { ownerPick: false } };
+    const card = (i = 0) => node.querySelectorAll(".wf-place-card")[i];
+    const score = (i) => card(i).querySelector(".wf-place-card-score").textContent;
+    const marked = (i) => card(i).classList.contains("is-curator-pick");
     smoke.mergeServerSet([]);
-    await act(async () => root.render(React.createElement(smoke.IconicPlaceCard, {
-      place, onSave: noop, onLike: noop, onDislike: noop, onShare: noop,
-    })));
+    await act(async () => root.render(React.createElement(React.Fragment, null,
+      React.createElement(smoke.IconicPlaceCard, { place, onSave: noop, onLike: noop, onDislike: noop, onShare: noop }),
+      React.createElement(smoke.IconicPlaceCard, { place: snapshot, cardActionsReadOnly: true }),
+    )));
     ok(score().includes("8.1") && !marked(), "standalone card starts at 8.1 without a curator mark");
     picked = true;
     await act(async () => { smoke.trackCuratorWrite(place.id, true, Promise.resolve({}), undefined, false); await tick(); });
     ok(score().includes("8.8") && marked() && /curator.s pick/i.test(node.textContent), "settled owner like re-renders the SAME standalone card at 8.8 with the pick disclosure");
+    ok(score(1).includes("8.1") && !marked(1), "a published read-only card for the same place keeps its score and curator snapshot");
     picked = false;
     await act(async () => { smoke.trackCuratorWrite(place.id, false, Promise.resolve({}), undefined, true); await tick(); });
     ok(score().includes("8.1") && !marked(), "settled unlike restores the mounted card to 8.1 without a curator mark");

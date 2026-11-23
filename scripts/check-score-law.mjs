@@ -97,7 +97,7 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
 // SAME bump, and the SAME disclosure.
 {
   const ipc = readFileSync(path.resolve("app/components/IconicPlaceCard.js"), "utf8");
-  ok(/const scoredPlace = useCuratedPlace\(place\)/.test(ipc) && /Number\.isFinite\(scoredPlace\.governed_score\) \? scoredPlace\.governed_score/.test(ipc),
+  ok(/const scoredPlace = useCuratedPlace\(cardActionsReadOnly \? null : place\) \|\| place/.test(ipc) && /Number\.isFinite\(scoredPlace\.governed_score\) \? scoredPlace\.governed_score/.test(ipc),
     "IconicPlaceCard badge prefers governed_score — the number that ranked the row");
   ok(/place\.trending && place\.trend_reason \?/.test(ipc),
     "IconicPlaceCard renders the 🔥 trend reason in its facts row (the disclosure)");
