@@ -3,9 +3,9 @@
   "verifiedAt": "2026-11-23",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0), or a venue website photo owner-authorized on 23 November 2026 for restaurant guide picks; NC and ND never pass.",
   "summary": {
-    "files": 415,
-    "usages": 445,
-    "verified": 415,
+    "files": 426,
+    "usages": 456,
+    "verified": 426,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -15,7 +15,7 @@
       "CC BY 3.0": 22,
       "CC BY 2.0": 104,
       "CC0 1.0 Universal": 26,
-      "venue website photo, owner authorized Nov 23 2026 for guide picks": 8,
+      "venue website photo, owner authorized Nov 23 2026 for guide picks": 19,
       "CC BY-SA 2.0": 41,
       "Unsplash License": 4,
       "Public domain": 4,
@@ -801,6 +801,161 @@
       "verifiedAt": "2026-11-23"
     },
     {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/aloha-isle-santa-surf-shack-float.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Aloha Isle"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/backlot-express-life-day-wookiee-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Backlot Express"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/cosmic-rays-mickey-the-elf.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Cosmic Ray’s Starlight Café"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/epcot-hot-cocoa-funnel-cake.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Funnel Cake kiosk"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/epcot-maple-leaf-shortbread-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Yukon Holiday Kitchen"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
       "src": "/guides/picks/disney-world-holiday-food-guide-2026/epic-eats-cookie-butter-beignets.jpg",
       "usedBy": [
         {
@@ -863,6 +1018,99 @@
       "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/jock-lindseys-oh-christmas-brie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Jock Lindsey’s Hangar Bar"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/karamell-kuche-caramel-mickey-holiday-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Karamell-Küche"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/kusafiri-festive-chocolate-twist.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Kusafiri Coffee Shop & Bakery"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
       "src": "/guides/picks/disney-world-holiday-food-guide-2026/main-street-confectionery-holiday-cookie-popcorn.jpg",
       "usedBy": [
         {
@@ -886,6 +1134,37 @@
         "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
         "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
         "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/santas-grove-cookie-butter-milkshake.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Cookie Butter Milkshake at Santa’s Holiday Grove"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -925,6 +1204,37 @@
       "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/swirls-gingerbread-mickey-cone.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Swirls on the Water"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
       "src": "/guides/picks/disney-world-holiday-food-guide-2026/terra-treats-reindeer-sundae.jpg",
       "usedBy": [
         {
@@ -948,6 +1258,37 @@
         "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
         "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
         "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/woodys-hot-cocoa-lunch-box-tart.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Woody’s Lunch Box"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,

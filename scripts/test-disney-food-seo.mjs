@@ -16,8 +16,10 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { JSDOM } from "jsdom";
 import { loadComponent } from "./lib/jsxLoad.mjs";
-import { DISNEY_FOOD_SLUG, DISNEY_FOOD_STOPS, DISNEY_HOLIDAY_FOOD_GUIDES, EPCOT_FESTIVAL } from "../lib/guidesDisneyHolidayFood2026.js";
+import { DISNEY_FOOD_PARKS, DISNEY_FOOD_SLUG, DISNEY_FOOD_STOPS, DISNEY_HOLIDAY_FOOD_GUIDES, EPCOT_FESTIVAL } from "../lib/guidesDisneyHolidayFood2026.js";
 import { christmasCityGuides } from "../lib/christmasCityGuides.js";
+import { guidePickPhoto } from "../lib/guidePickPhotos.js";
+import { DISNEY_FOOD_PINS } from "../lib/parkMaps2026.js";
 
 const guide = DISNEY_HOLIDAY_FOOD_GUIDES[DISNEY_FOOD_SLUG];
 const { default: Page } = await loadComponent(path.resolve("app/guides/disney-world-holiday-food-guide-2026/page.js"), process.cwd());
@@ -60,6 +62,19 @@ assert.equal(doc.querySelectorAll("h1").length, 1);
 const rows = doc.querySelectorAll("table tbody tr");
 assert.ok(rows.length >= DISNEY_FOOD_STOPS.length + 1, "answer table lists every treat and the festival");
 for (const stop of DISNEY_FOOD_STOPS) assert.ok(doc.querySelector(`table a[href="#${stop.id}"]`), "answer table links " + stop.id);
+const expanded = DISNEY_FOOD_STOPS.filter((stop) => stop.coverage);
+for (const park of DISNEY_FOOD_PARKS) {
+  assert.ok(expanded.filter((stop) => stop.parkId === park.id).length >= 2, park.id + " has at least two new covered food picks");
+}
+for (const stop of expanded) {
+  const section = doc.querySelector(`#park-${stop.parkId} #${stop.id}`);
+  const photo = guidePickPhoto(DISNEY_FOOD_SLUG, stop.photoName || stop.venue);
+  assert.ok(photo?.src.endsWith("/" + stop.id + ".jpg") && photo.credit === "Walt Disney World", stop.id + " uses its own credited dish photo");
+  assert.ok(DISNEY_FOOD_PINS[stop.parkId]?.[stop.id] && section?.querySelector('a[href*="maps.apple.com"]'), stop.id + " has a pin and directions");
+  assert.ok([...section.querySelectorAll("a")].some((a) => a.href === stop.coverage.url), stop.id + " credits its coverage in the right park");
+}
+const epcotMappedStops = DISNEY_FOOD_STOPS.filter((stop) => stop.parkId === "epcot" && guidePickPhoto(DISNEY_FOOD_SLUG, stop.photoName || stop.venue));
+assert.equal(doc.querySelector("#" + EPCOT_FESTIVAL.id + " ol")?.start, epcotMappedStops.length + 1, "booth numbering continues after the photographed EPCOT map cards");
 assert.deepEqual(seoProblems(doc), []);
 const card = doc.querySelector('[data-deal-card="cpn-citypass-orlando"]');
 assert.ok(card && /\/api\/commerce\/go\?/.test(card.getAttribute("href")) && /sponsored/.test(card.getAttribute("rel") || ""), "park ticket card is the tracked, sponsored CityPASS row");
