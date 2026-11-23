@@ -52,6 +52,8 @@ import { governedWayfindScore } from "../../lib/wayfindScore";
 const spotIsFeatured = (spot) => !!(spot && spot.video && String(spot.video.creator || "").toLowerCase() === FEATURED_CREATOR);
 import { priceLabel } from "../../lib/price";
 import { businessStatus } from "../../lib/businessStatus";
+import { openShareFlow } from "../../lib/shareFlow.js";
+import { canonicalShareUrl } from "../../lib/site.js";
 
 const compactCount = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
 
@@ -83,6 +85,13 @@ function cardFacts(p) {
 // The post is a score disclosure on this card. The rail's browse action
 // opens the library; the place's own detail has any available media.
 const CREATOR_POST_CHIPS = [{ key: "creatorvideo", label: "Creator post" }];
+
+export function creatorFindHref(spot, resolvedId) {
+  const id = spot.placeId || resolvedId;
+  if (id) return "/p/" + encodeURIComponent(id) + "?t=" + encodeURIComponent(spot.name);
+  const query = spot.city ? spot.name + " in " + spot.city : spot.name;
+  return "/?q=" + encodeURIComponent(query);
+}
 
 // Cross-render cache so a scouted spot's resolved photo survives re-renders and
 // tab returns without re-hitting the search endpoint. Keyed by name|city.
@@ -135,9 +144,9 @@ async function resolveScoutedPlace(spot, center) {
     // Never attach a creator or score to Google's first fuzzy result. Resolve
     // the declared Place ID when available, otherwise require the exact venue
     // name. A miss stays an honest score-pending card.
-    const first = candidates.find((p) => wantedId && String(p.id || p.place_id || "") === wantedId)
-      || candidates.find((p) => normalizedName(p.name || (p.displayName && p.displayName.text)) === wantedName)
-      || null;
+    const first = wantedId
+      ? candidates.find((p) => String(p.id || p.place_id || "") === wantedId)
+      : candidates.find((p) => normalizedName(p.name || (p.displayName && p.displayName.text)) === wantedName);
     if (!first) { _scoutedPhotoCache.set(key, null); return null; }
     // THE HYDRATED SHAPE. Everything here was LOOKED UP against the real Google
     // place, so a rating or a type on this row is measured, not invented — the
@@ -335,7 +344,12 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
           const h = hydrated[entry.key] || null;
           const v = s0 && s0.video;
           const plat = v && PLATFORM[v.platform];
-          const openRegistry = () => { try { onLog && onLog("creator_find_open", { id: h && h.id ? h.id : entry.key, name: s0.name }, { pos: i, creator: (v && v.creator) || null, hydrated: h ? "resolved" : "registry" }); } catch (e) {} if (h && h.id && onOpenPlace) onOpenPlace({ ...h, primaryType: (h.types || [])[0] || null }); else if (onBrowse) onBrowse(); };
+          const spotHref = creatorFindHref(s0, h?.id);
+          const openRegistry = () => {
+            try { onLog?.("creator_find_open", { id: h?.id || s0.placeId || entry.key, name: s0.name }, { pos: i, creator: v?.creator || null, hydrated: h ? "resolved" : "registry" }); } catch (e) {}
+            if (h?.id && onOpenPlace) onOpenPlace({ ...h, primaryType: (h.types || [])[0] || null });
+            else if (typeof window !== "undefined") window.location.assign(spotHref);
+          };
           return (
             <RailCard
               key={entry.key || i}
@@ -349,7 +363,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
               chips={CREATOR_POST_CHIPS}
               ariaLabel={"Open " + s0.name}
               onOpen={openRegistry}
-              onShare={() => { if (onBrowse) onBrowse(); }}
+              onShare={() => openShareFlow({ title: s0.name, city: s0.city, url: canonicalShareUrl(spotHref) })}
             />
           );
         })}

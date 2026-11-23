@@ -40,6 +40,15 @@ const ok = (c, m) => { pass++; if (!c) fails.push(m); };
 const mod = await load("app/components/CreatorFinds.js");
 const CreatorFinds = mod.default || mod;
 const creatorSearchPlace = mod.creatorSearchPlace;
+const creatorFindHref = mod.creatorFindHref;
+const scoredSpot = { name: "A & B Café", city: "Sarasota", placeId: "CuratedPlace" };
+const unscoredSpot = { name: "A & B Café", city: "Sarasota" };
+ok(creatorFindHref(scoredSpot, "OtherPlace") === "/p/CuratedPlace?t=A%20%26%20B%20Caf%C3%A9",
+  "open and share prefer the reviewed place identity");
+ok(creatorFindHref(unscoredSpot, "ResolvedPlace") === "/p/ResolvedPlace?t=A%20%26%20B%20Caf%C3%A9",
+  "a resolved venue opens and shares its own place");
+ok(creatorFindHref(unscoredSpot) === "/?q=A%20%26%20B%20Caf%C3%A9%20in%20Sarasota",
+  "unresolved creator finds open and share a venue-specific search");
 
 const byCity = [
   { city: "Bradenton", distMi: 4, spots: [
