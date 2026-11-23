@@ -80,14 +80,26 @@
       "verification": "Commons file Plant_City_FL_Downtown_Comm_Dist03.JPG is titled as the Downtown Plant City Commercial Historic District, credited to Ebyabe under CC BY-SA 3.0, dated 26 February 2011, native 3264 x 2448. Direct inspection shows the hanging Plant City Historic Downtown sign and a row of historic shop fronts. The Christmas parade is not pictured. Parked vehicles occupy the lower edge and are not the subject. No recognizable children. No overlays or watermarks. Distinct buildings and angle from the hero (Dist01 at Collins and Reynolds).",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-23"
-    }
-  },
-  "gaps": {
+    },
     "Apollo Beach Lighted Boat Parade": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/plant-city-christmas-2026/apollo-beach-tss-clubhouse-and-basin.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Aerial view of the Tampa Sailing Squadron clubhouse, parking area, dry-sailed boats and docks on the Apollo Beach basin",
+      "caption": "The Tampa Sailing Squadron clubhouse, docks and basin at 1250 Apollo Beach Blvd in Apollo Beach, the starting point of the lighted boat parade. The parade itself is not pictured.",
+      "credit": "Tampa Sailing Squadron",
+      "creditHref": "https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594",
+      "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+      "licenseUrl": "https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594",
+      "sourceUrl": "https://images.clubexpress.com/109032/graphics/dji_fly_20240209_151804_56_1707510018538_photo_optimized_41696071.jpg",
+      "author": "Tampa Sailing Squadron",
+      "position": "50% 35%",
+      "modificationNotice": "Resized and cropped for display.",
+      "sourceKind": "permission",
       "placeId": null,
-      "needsPermissionFrom": "Tampa Sailing Squadron",
-      "note": "Fresh search on 23 November 2026 again found no licensed photo of the parade, the Tampa Sailing Squadron club house at 1250 Apollo Beach Blvd, or the Apollo Beach south basin. Wikimedia Commons, Openverse, and a Commons geosearch within 2 km of the club house were checked. Commons results for Apollo Beach, Florida were the TECO Big Bend power plant and Manatee Viewing Center (Roman Eugeniusz panoramio set, Appollo Beach1 by Ssriram mt, and the 2024 viewing center set), 1959 aerials, or Canaveral National Seashore Apollo Beach (CNS files by Ebyabe). Those are the wrong place. Openverse returned no commercial license hits for the parade or the squadron. The organizer event page is https://tampasailingsquadron.com/content.aspx?page_id=4091&club_id=109032&item_id=3005333 (Saturday, 12 December 2026, 5:00 PM to 11:00 PM, TSS Club House). The squadron photo gallery at https://sail-tss.org/content.aspx?club_id=109032&page_id=187 lists member albums, not a confirmed club house or parade still that can be used without a separate OK for event picks. A CGTN 2017 news video of the parade is not a licensed still. What would unblock it: a freely licensed photo of this parade, this club house, or the south basin, or Gabe's OK to use a verified organizer or venue website photo credited Photo: Tampa Sailing Squadron."
+      "verification": "Viewed the JPEG: an overhead daytime drone still of the Tampa Sailing Squadron clubhouse (white building with a gray roof), the parking lot, a row of dry-sailed dinghies, and the docks and basin behind the clubhouse. One person stands beside a car in the lot, seen from almost directly above; no face is visible and no children are in the frame. No logos, overlays or watermarks. The still is the official Facilities page photo at tampasailingsquadron.com (module_id=244594), filename dji_fly_20240209_151804_56, taken 9 February 2024. Two further official gallery stills from the Welcome to TSS album (album 255795, photographer Lem Berkstresser) show the same basin and docks, with the TECO Big Bend plant visible across the water, confirming Apollo Beach; they are used in the event gallery, not as the cover. Gabe authorized a verified Tampa Sailing Squadron website photo for this pick, credited Photo: Tampa Sailing Squadron, on 23 November 2026 at 1:37 PM ET. The official gallery's Boat Parade category is empty, and the 2022 through 2026 event pages carry no stills of the lighted boats, so the allowed clubhouse and basin fallback is used.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-23"
     }
   }
 }

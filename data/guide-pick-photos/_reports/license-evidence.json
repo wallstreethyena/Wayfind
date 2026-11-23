@@ -3,9 +3,9 @@
   "verifiedAt": "2026-11-17",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 406,
-    "usages": 432,
-    "verified": 406,
+    "files": 407,
+    "usages": 433,
+    "verified": 407,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -4263,6 +4263,37 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/apollo-beach-tss-clubhouse-and-basin.jpg",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Apollo Beach Lighted Boat Parade"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://images.clubexpress.com/109032/graphics/dji_fly_20240209_151804_56_1707510018538_photo_optimized_41696071.jpg",
+        "title": "The Tampa Sailing Squadron clubhouse, docks and basin",
+        "author": "Tampa Sailing Squadron",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594"
+      },
+      "wayfind": {
+        "credit": "Tampa Sailing Squadron",
+        "creditHref": "https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
       "src": "/guides/picks/plant-city-christmas-2026/christmas-lane-festival-grounds.webp",

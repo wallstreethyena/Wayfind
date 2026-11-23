@@ -242,6 +242,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## plant-city-christmas-2026
 
+- `/guides/picks/plant-city-christmas-2026/apollo-beach-tss-clubhouse-and-basin.jpg` — plant-city-christmas-2026: Apollo Beach Lighted Boat Parade. [Tampa Sailing Squadron](https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594); [venue website photo, owner authorized Nov 23 2026 for guide picks](https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594).
 - `/guides/picks/plant-city-christmas-2026/christmas-lane-mega-tree-light-arch.jpg` — plant-city-christmas-2026: Christmas Lane. [Christmas Lane](https://christmaslane.com/media); [venue website photo, owner authorized Nov 23 2026 for guide picks](https://christmaslane.com/media).
 - `/guides/picks/plant-city-christmas-2026/lights-of-love-union-depot-mccall-park.webp` — plant-city-christmas-2026: Lights of Love tree lighting. [Ebyabe](https://commons.wikimedia.org/wiki/File:Plant_City_FL_Union_Depot01.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/plant-city-christmas-2026/plant-city-christmas-parade-historic-downtown.webp` — plant-city-christmas-2026: Plant City Christmas Parade. [Ebyabe](https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist03.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
