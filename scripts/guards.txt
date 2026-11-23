@@ -2760,3 +2760,11 @@ node scripts/test-primary-cta-gap.mjs
 node scripts/test-indexnow.mjs
 # 2026-11-23 SEO engine: Sarasota guide and Christmas hub headlines carry the searched words, real picks only.
 node scripts/test-seo-money-headlines.mjs
+
+node scripts/test-thanksgiving-dates.mjs
+
+node scripts/test-thanksgiving-planner.mjs
+
+node scripts/test-thanksgiving-client.mjs --browser
+
+node scripts/test-thanksgiving-editorial.mjs
