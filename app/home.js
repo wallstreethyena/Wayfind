@@ -12972,7 +12972,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank }));
   return (
-    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}${ReserveSlot || isTrueLodging(p) || (cardProduct && cardProduct.url) ? " has-cta" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
@@ -13001,7 +13001,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               {(() => { const where = storedPlaceHeader(p); return where ? <div className="wf-place-card-where">{where}</div> : null; })()}
             </div>
           </div>
-          <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
+          <div className="wf-place-card-meta">
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {!offer && (() => { const cpn = couponForPlace(p); /* Identity-first, location-safe deal lookup shared with every other place-card renderer. */ return cpn ? <span className="wf-place-card-deal" title={cpn.title}>🏷️ Deal</span> : null; })()}
             {/* v6.48: the "★ Wayfind Pick" chip that used to sit HERE is now the
@@ -13068,7 +13068,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               not fit drops out WHOLE and the lowest value chip is the one that
               goes. Scoped to this card only: IconicPlaceCard keeps its swipe lane
               because its LAST pill is the partner ticket link. */}
-          <div className="wf-place-card-highlights wf-chip-fit" style={{ display: "flex", gap: 6, marginBottom: 7 }}>
+          <div className="wf-place-card-highlights wf-chip-fit">
             {badges.map((b) => (
               <button key={b.key} onClick={(e) => {
                 e.stopPropagation();
@@ -13081,15 +13081,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 if (b.key === "creatorvideo") { if (onDetail) onDetail(); return; }
                 if (b.key === "cuisine") { if (onCuisineTap) onCuisineTap(b.label, p); return; }
                 if (onBadge) onBadge(b.key);
-              }} style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
+              }} style={{ pointerEvents: "auto", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
+            {Array.isArray(p._children) && p._children.length ? <span>+{p._children.length} inside</span> : null}
+            {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <AffiliateChip provider={_prov} /> : null; })()}
           </div>
-          {curatedHook ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{curatedHook}</div>
-          ) : knownForHook ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{knownForHook}</div>
+          {(curatedHook || knownForHook) ? (
+            <div className="wf-place-card-take">{curatedHook || knownForHook}</div>
           ) : aiSummary ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>
+            <div className="wf-place-card-take">
               <div>{aiSummary.card_line_1}</div>
               <div style={{ marginTop: 2 }}>{aiSummary.card_line_2}</div>
             </div>
@@ -13107,14 +13107,22 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (Book on Viator) that the sheet cards never do; css.js adds a
               :has(.wf-place-card-book) 5-column variant so that case stays
               consistent too, rather than breaking under the 4-column grid. */}
-          {/* v8.34 — the creator credit sits in the bottom band, directly above
-              the actions (see css.js .wf-place-card-credit). The sibling rule
-              there zeroes the inline marginTop below with !important, which is
-              why the credit's own margin-top:auto is what bottom-anchors the
-              pair. */}
+          {/* v8.34 — the creator credit sits directly above the bottom
+              interactive band (CTA + actions), matching IconicPlaceCard and
+              RailCard so all three renderers share one locked slot order. */}
           <CreatorCardMark videos={cardCreatorVideos} />
-          {ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
-          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
+          {/* v8.57 (owner, 2026-09-22: "make sure our hotel place card are wire
+              to the affiliate so we can generate revenue"). Rendered inside the
+              shared .wf-place-card-cta slot ABOVE .wf-place-card-actions (same
+              position as EventStayCards and ReserveSlot) so it never gets
+              clipped below the fixed 268px card edge. */}
+          {isTrueLodging(p) ? (
+            <div className="wf-place-card-cta" style={{ pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
+              <BookingCTA variant="primary" detail={p} kind="hotels" label="Check rates" city={city} locName={city} />
+            </div>
+          ) : null}
+          {!isTrueLodging(p) && ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
+          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ pointerEvents: "auto" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
                 className="wf-place-card-book"
@@ -13123,7 +13131,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 surface="place_card"
                 rank={rank}
                 onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}
               >{/* v8.23 (owner, on Robinson Preserve: "not sure why robinson
                   preserve has a book it with viator link"). The product behind
                   this button IS verified (wf_place_products rn=1) — but on a
@@ -13154,67 +13161,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 IconicPlaceCard's HeartIcon and RailCard's/ThingsToDoList's
                 HeartGlyph, so it is one drawing across the app, not four
                 that almost match. */}
-            <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}><svg className="wf-save-heart" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z" /></svg>{saved ? "Saved" : "Save"}</button>
+            <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }}><svg className="wf-save-heart" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z" /></svg>{saved ? "Saved" : "Save"}</button>
             {onLike && (
-              <button className={`wf-place-card-like${liked ? " is-active" : ""}`} onClick={onLike} aria-label={liked ? "Remove like" : "Like this place"} aria-pressed={liked} title={liked ? "Remove like" : "Like this place"} style={{ display: "inline-flex", alignItems: "center", background: liked ? "#34D399" : "transparent", border: `1.5px solid ${liked ? "#34D399" : C.border}`, borderRadius: 999, color: liked ? "#06231A" : C.muted, padding: "5px 11px", cursor: "pointer" }}><svg viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></svg></button>
+              <button className={`wf-place-card-like${liked ? " is-active" : ""}`} onClick={onLike} aria-label={liked ? "Remove like" : "Like this place"} aria-pressed={liked} title={liked ? "Remove like" : "Like this place"}><svg viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></svg></button>
             )}
             {onDislike && (
-              <button className={`wf-place-card-dislike${disliked ? " is-active" : ""}`} onClick={onDislike} aria-label={disliked ? "Remove dislike" : "Not for me"} aria-pressed={disliked} title={disliked ? "Remove dislike" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", background: disliked ? "#F87171" : "transparent", border: `1.5px solid ${disliked ? "#F87171" : C.border}`, borderRadius: 999, color: disliked ? "#2A0A0A" : C.muted, padding: "5px 11px", cursor: "pointer" }}><svg viewBox="0 0 24 24" fill={disliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></svg></button>
+              <button className={`wf-place-card-dislike${disliked ? " is-active" : ""}`} onClick={onDislike} aria-label={disliked ? "Remove dislike" : "Not for me"} aria-pressed={disliked} title={disliked ? "Remove dislike" : "Not for me"}><svg viewBox="0 0 24 24" fill={disliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></svg></button>
             )}
-            <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} askShareIntent({ name: p.name, city: "", id: p.id, kind: placeKinds(p), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEventAnon("share", p, { kind: "invite", from: "place_card" }); } catch (er) {} }), onPlain: () => shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr())) }); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
+            <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} askShareIntent({ name: p.name, city: "", id: p.id, kind: placeKinds(p), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEventAnon("share", p, { kind: "invite", from: "place_card" }); } catch (er) {} }), onPlain: () => shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr())) }); }}>↗ Share</button>
           </div>
-          {/* Restored 2026-07-25: the per-card affiliate disclosure (spec Sec.2,
-              shipped v6.67) was dropped from the homepage in the design-release-01
-              rewrite -- lib/cardAffiliate.js + AffiliateChip.js were untouched and
-              still work, only this render call was lost. Owner-audit mode
-              (NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT=1) still surfaces coverage gaps;
-              production hides an absent chip, so this is a pure disclosure add. */}
-          {/* v8.57 (owner, 2026-09-22: "make sure our hotel place card are wire
-              to the affiliate so we can generate revenue"). A lodging card used
-              to carry NO earning link at all: the Stay22/Booking handoff only
-              appeared one tap deeper, inside the Detail sheet, so every user who
-              browsed stays and never opened a card was a lost commission. The
-              stay rails (EventStayCards, TripConnections) already shipped this
-              button; the browse card — the surface most stays are seen on — did
-              not. Rendered through <BookingCTA>, never a hand-built href: the
-              booking-integrity contract (scripts/check-booking-cta.mjs) allows
-              exactly one place to turn a place into a booking URL. The gate is
-              isTrueLodging, the SAME predicate the stays rail filters on, so a
-              restaurant can never grow a "Check rates" button; BookingCTA itself
-              refuses any place lib/affiliates.hotelGoUrl will not build (no
-              address, campground/outfitter names), so the button cannot appear
-              on a card that would land the user on a useless search. The wrapper
-              stops click propagation because the card body opens the Detail
-              sheet — without it the sheet would open UNDER the outbound
-              navigation. The commission line rides along: a card that earns must
-              disclose on the same surface (FTC, spec Sec.2). */}
-          {isTrueLodging(p) ? (
-            <div style={{ marginTop: 9, display: "flex", flexDirection: "column", pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
-              <BookingCTA variant="primary" detail={p} kind="hotels" label="Check rates" city={city} locName={city} />
-            </div>
-          ) : null}
-          {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
-          {/* What's inside. Rides and in-park venues used to occupy their own
-              cards, so one theme park could fill half the feed and a visitor had
-              to scroll past four rows describing the same place. They live here
-              now: a ride is not somewhere you can go, it is a REASON to pick the
-              park. Tapping one opens the park (that is the bookable thing), so
-              this adds decision detail without adding dead ends. */}
-          {Array.isArray(p._children) && p._children.length ? (
-            <div style={{ marginTop: 10, paddingTop: 9, borderTop: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.muted, marginBottom: 7 }}>
-                Top rated inside
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {p._children.slice(0, 6).map((c) => (
-                  <span key={c.id || c.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 600, color: C.light, maxWidth: "100%" }}>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150 }}>{c.name}</span>
-                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}{"\u2605"}</span> : null}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </div>
       </div>
     </div>

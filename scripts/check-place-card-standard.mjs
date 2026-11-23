@@ -238,13 +238,24 @@ async function chromiumLaunchOptions() {
 // Export the real home function from its compiled test module. Never create
 // a second application source file: later repository censuses must see only
 // the shipped renderers, even when a test process is interrupted.
-async function loadHomePlaceCard() {
+async function loadHomePlaceCard({ sourceOverrides, hydrateBooking = false } = {}) {
   const entry = path.join(ROOT, "app/home.js");
-  const module = await loadComponent(entry, ROOT, { onGraph(graph) {
+  const module = await loadComponent(entry, ROOT, { sourceOverrides, onGraph(graph) {
     const compiled = graph.get(entry);
     assert.ok(compiled, "home adapter compiled the actual app/home.js");
-    const source = readFileSync(compiled, "utf8");
+    let source = readFileSync(compiled, "utf8");
     assert.match(source, /function PlaceCard\(/, "actual PlaceCard declaration exists");
+    if (hydrateBooking) {
+      source = source
+        .replace(
+          "const cardProduct = usePlaceProduct(p && p.id);",
+          "const cardProduct = (p && p._testCardProduct) || usePlaceProduct(p && p.id);"
+        )
+        .replace(
+          /React\.createElement\(BookingCTA,/g,
+          "React.createElement(globalThis.__WF_STD_BOOKING_CTA,"
+        );
+    }
     writeFileSync(compiled, source + "\nexport { PlaceCard };\n");
   } });
   assert.equal(typeof module.PlaceCard, "function");
@@ -289,8 +300,20 @@ if (!browserConfig) {
   ok(!REQUIRE_BROWSER, "Chromium is REQUIRED for this invocation but no executable is available");
   if (!REQUIRE_BROWSER) console.log("  RENDERED CHECK NOT RUN — Chromium is unavailable; structural card-law assertions ran");
 } else {
-  const Iconic = (await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT)).default;
-  const RailCard = (await loadComponent(path.join(ROOT, "app/components/RailCard.js"), ROOT)).default;
+  const ReserveCtaSlot = !MUTATION ? (await loadComponent(path.join(ROOT, "app/components/ReserveCta.js"), ROOT)).default : null;
+  const BookingCTA = !MUTATION ? (await loadComponent(path.join(ROOT, "app/components/BookingCTA.js"), ROOT)).default : null;
+  globalThis.__WF_STD_RESERVE_SLOT = ReserveCtaSlot;
+  globalThis.__WF_STD_BOOKING_CTA = BookingCTA;
+  const reserveClientOverride = !MUTATION ? new Map([[
+    path.join(ROOT, "lib/reserveClient.js"),
+    `export function useReservePartner() { return false; }
+export function useReserveEntry(place) {
+  const lane = place && place._testReserveLane;
+  return lane ? { lane, Slot: globalThis.__WF_STD_RESERVE_SLOT } : false;
+}`,
+  ]]) : undefined;
+  const Iconic = (await loadComponent(path.join(ROOT, "app/components/IconicPlaceCard.js"), ROOT, { sourceOverrides: reserveClientOverride })).default;
+  const RailCard = (await loadComponent(path.join(ROOT, "app/components/RailCard.js"), ROOT, { sourceOverrides: reserveClientOverride })).default;
   const EventPlaceRail = (await loadComponent(path.join(ROOT, "app/components/EventPlaceRail.js"), ROOT)).default;
   const EventNearbyCards = (await loadComponent(path.join(ROOT, "app/components/EventNearbyCards.js"), ROOT)).default;
   const EventStayCards = (await loadComponent(path.join(ROOT, "app/components/EventStayCards.js"), ROOT)).default;
@@ -368,9 +391,65 @@ if (!browserConfig) {
   ok(!!sponsorRow, "PROBE: real sponsored registry row exists for the rendered sponsor adapter");
   const sponsorPick = sponsorRow ? hydrateSponsoredPlace(sponsorRow, { lat: sponsorRow.lat, lng: sponsorRow.lng }) : null;
   const sponsor = sponsorPick ? React.createElement(SponsoredPlaceCard, { pick: sponsorPick }) : null;
-  const HomePlaceCard = await loadHomePlaceCard();
+  const HomePlaceCard = await loadHomePlaceCard({ sourceOverrides: reserveClientOverride, hydrateBooking: !MUTATION });
   ok(typeof HomePlaceCard === "function", "PROBE: actual home PlaceCard compiled for its rendered adapter");
   const homeCard = HomePlaceCard ? React.createElement(HomePlaceCard, { p: place("home"), rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: null, onBadge: noop, city: "Sarasota" }) : null;
+  // 2026-11-23: hydrated dense-card lock across HomePlaceCard, IconicPlaceCard,
+  // and RailCard. Client-hydrated slots (ReserveCtaSlot via useReserveEntry,
+  // home.js hotel BookingCTA, Viator cardProduct) used to return false during
+  // SSR, letting stacked AwardBand + CreatorCardMark + 38px Reserve button push
+  // the action row out of the locked 268px card while CI stayed green.
+  const denseKekes = {
+    id: "ChIJvdrqPr85w4gRA6C9TTnUdnY", name: "Keke's Breakfast Cafe",
+    locality: "Lakewood Ranch", city: "Lakewood Ranch", state: "FL",
+    address: "8205 Natures Way, Lakewood Ranch, FL 34202",
+    rating: 4.8, reviews: 3845, priceNum: 1, priceLevel: "PRICE_LEVEL_INEXPENSIVE",
+    types: ["breakfast_restaurant", "restaurant"], primaryType: "breakfast_restaurant",
+    governed_score: 96, wfScore: 96, lat: 27.43396, lng: -82.42557, distMi: 12.9,
+    tags: ["breakfast", "coffee", "value"], _testReserveLane: "handoff",
+  };
+  const denseCracker = {
+    id: "ChIJs8X39n07w4gR0NEp6j5PNdc", name: "Cracker Barrel Old Country Store",
+    locality: "Bradenton", city: "Bradenton", state: "FL",
+    address: "636 67th Street Circle East, Bradenton, FL 34208",
+    rating: 4.5, reviews: 5847, priceNum: 2, priceLevel: "PRICE_LEVEL_MODERATE",
+    types: ["american_restaurant", "breakfast_restaurant", "restaurant"], primaryType: "american_restaurant",
+    governed_score: 93, wfScore: 93, lat: 27.49, lng: -82.47, distMi: 9.5,
+    tags: ["breakfast", "value"], _testReserveLane: "request",
+  };
+  const denseAtria = {
+    id: "ChIJA-QkamE7w4gRfdzcxEHyPls", name: "ATRIA Cafe & Artisanal Sourdough Kitchen",
+    locality: "Lakewood Ranch", city: "Lakewood Ranch", state: "FL",
+    address: "4120 Lakewood Ranch Blvd, Bradenton, FL 34211",
+    rating: 4.9, reviews: 1245, priceNum: 2, priceLevel: "PRICE_LEVEL_MODERATE",
+    types: ["breakfast_restaurant", "restaurant"], primaryType: "breakfast_restaurant",
+    governed_score: 97, wfScore: 97, lat: 27.41, lng: -82.44, distMi: 7.4,
+    tags: ["breakfast", "coffee", "value"], _testReserveLane: "instant",
+  };
+  const denseAtriaNoCta = { ...denseAtria, types: ["cafe", "coffee_shop"], primaryType: "cafe", _testReserveLane: null };
+  const denseHotel = {
+    id: "wfh-days-inn-bradenton-near-the-gulf-27469", name: "Days Inn Bradenton - Near the Gulf Waterfront Suites",
+    locality: "Bradenton", city: "Bradenton", state: "FL",
+    address: "3506 1st Street West, Bradenton, FL 34205",
+    rating: 4.4, reviews: 812, priceNum: 2, priceLevel: "PRICE_LEVEL_MODERATE",
+    types: ["lodging", "hotel"], primaryType: "hotel",
+    governed_score: 88, wfScore: 88, lat: 27.4989, lng: -82.5748, distMi: 6.2,
+  };
+  const denseViator = {
+    ...place("dense-viator"), locality: "Sarasota", city: "Sarasota", state: "FL",
+    _testCardProduct: { url: "https://viator.example/tour", title: "Clear Kayak Mangrove Tour", code: "12345P1" },
+  };
+  const DENSE_SPECIMENS = !MUTATION ? [
+    { id: "home-award-where-reserve", cls: "wf-place-card-list", expectCta: true, expectAward: true, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseKekes, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Big buttermilk pancakes and Belgian waffles", onBadge: noop, city: "Parrish" }) },
+    { id: "home-creator-toppick-reserve", cls: "wf-place-card-list", expectCta: true, expectAward: true, expectCredit: true, el: React.createElement(HomePlaceCard, { p: denseCracker, rank: 2, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Home-style country food and made-from-scratch biscuits served all day", onBadge: noop, city: "Parrish" }) },
+    { id: "home-winner-creator-reserve", cls: "wf-place-card-list", expectCta: true, expectAward: true, expectCredit: true, el: React.createElement(HomePlaceCard, { p: denseAtria, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Handcrafted sourdough loaves and creative breakfast tartines", onBadge: noop, city: "Parrish" }) },
+    { id: "home-winner-creator-nocta", cls: "wf-place-card-list", expectCta: false, expectAward: true, expectCredit: true, el: React.createElement(HomePlaceCard, { p: denseAtriaNoCta, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Handcrafted sourdough loaves and creative breakfast tartines", onBadge: noop, city: "Parrish" }) },
+    { id: "home-hotel-check-rates", cls: "wf-place-card-list", expectCta: true, expectAward: false, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseHotel, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Practical stay close to Bradenton beaches and downtown", onBadge: noop, city: "Parrish" }) },
+    { id: "home-viator-book", cls: "wf-place-card-list", expectCta: false, expectBook: true, expectAward: false, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseViator, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Guided kayak paddle through coastal mangrove tunnels", onBadge: noop, city: "Parrish" }) },
+    { id: "iconic-award-reserve", cls: "wf-rail", expectCta: true, expectAward: true, expectCredit: false, el: React.createElement(Iconic, { place: denseKekes, rank: 1, href: `/p/${denseKekes.id}`, editorial: "Big buttermilk pancakes and Belgian waffles", onSave: noop, onLike: noop, onDislike: noop, onShare: noop }) },
+    { id: "iconic-winner-creator-reserve", cls: "wf-rail", expectCta: true, expectAward: true, expectCredit: true, el: React.createElement(Iconic, { place: denseAtria, rank: 1, href: `/p/${denseAtria.id}`, editorial: "Handcrafted sourdough loaves and creative breakfast tartines", onSave: noop, onLike: noop, onDislike: noop, onShare: noop }) },
+    { id: "rail-winner-creator-reserve", cls: "wf-rail", expectCta: true, expectAward: true, expectCredit: true, el: React.createElement(RailCard, { title: denseAtria.name, score: 9.7, rank: 1, href: `/p/${denseAtria.id}`, eyebrow: "Food", facts: ["4.9★ (1,245)", "$$", "7.4 mi"], take: "Handcrafted sourdough loaves and creative breakfast tartines", chips: [{ label: "Breakfast", icon: "🥞" }, { label: "Coffee", icon: "☕" }], creatorVideos: [{ creator: "cindy.selects", platform: "instagram" }], place: denseAtria, onSave: noop, onLike: noop, onDislike: noop, onShare: noop }) },
+  ] : [];
   const section = (adapter, body, cls = "wf-rail") => `<section data-adapter="${adapter}"><div class="${cls}">${renderToStaticMarkup(body)}</div></section>`;
   const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{padding:0 13px;color:#fff;font:12px Inter,sans-serif}section[data-adapter]{display:block;margin:12px 0 24px}section[data-adapter]::before{content:attr(data-adapter);display:block;margin-bottom:6px;color:#86efac;font-weight:800}${WF_PLACE_CARD_CSS}</style></head><body style="margin:0;background:#040810">
   ${section("iconic", React.createElement(React.Fragment, null, iconic("iconic-a"), iconic("iconic-b")))}
@@ -384,6 +463,7 @@ if (!browserConfig) {
   ${section("sponsored", React.createElement(React.Fragment, null, sponsor, sponsor))}
   <section data-adapter="guide-list-slot"><ol class="wf-place-card-list"><li class="wf-place-card-slot"><ul class="wf-place-card-slot-list">${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-a"), rank: 1, editorial: "A verified local favorite." }))}</ul></li><li class="wf-place-card-slot"><ul class="wf-place-card-slot-list">${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-b"), rank: 2, editorial: "A verified local favorite." }))}</ul></li></ol></section>
   ${Object.entries(SKIN_VARIANTS).map(([skin, markup]) => `<section data-skin="${skin}"><div class="wf-rail">${markup}</div></section>`).join("\n  ")}
+  ${DENSE_SPECIMENS.map((s) => `<section data-dense-card="${s.id}"><div class="${s.cls}">${renderToStaticMarkup(s.el)}</div></section>`).join("\n  ")}
   ${MUTATION ? '<style>.wf-event-place-rail .wf-place-card{--wf-card-h:340px}.wf-event-place-rail .wf-place-card-name{font-size:22px}</style>' : ""}
   </body></html>`;
   const temp = mkdtempSync(path.join(ROOT, ".wf-card-standard-"));
@@ -416,10 +496,38 @@ if (!browserConfig) {
             const cs = getComputedStyle(card), contentCss = content ? getComputedStyle(content) : null, nameCss = name ? getComputedStyle(name) : null, actionCss = actions ? getComputedStyle(actions) : null;
             const headingCss = heading ? getComputedStyle(heading) : null;
             const headingTextWidth = name ? name.getBoundingClientRect().width - parseFloat(nameCss.paddingLeft || "0") - parseFloat(nameCss.paddingRight || "0") : null;
-            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit,.wf-event-card-cost")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book,.wf-place-card-remind")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), hasRemind: !!card.querySelector('.wf-place-card-remind'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
+            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-place-card-cta,.wf-rail-card-cta,.wf-place-card-credit,.wf-event-card-cost")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book,.wf-place-card-remind")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), hasRemind: !!card.querySelector('.wf-place-card-remind'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
           }),
         }));
-        return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters };
+        const dense = [...document.querySelectorAll("[data-dense-card]")].map((host) => {
+          const card = host.querySelector(".wf-place-card");
+          if (!card) return { id: host.getAttribute("data-dense-card"), missing: true };
+          const content = card.querySelector(".wf-place-card-content");
+          const score = card.querySelector(".wf-place-card-score");
+          const name = card.querySelector(".wf-place-card-name");
+          const cta = card.querySelector(".wf-place-card-cta");
+          const ctaInteractive = cta ? cta.querySelector("button,a") : null;
+          const credit = card.querySelector(".wf-place-card-credit");
+          const award = card.querySelector(".wf-place-card-award");
+          const actions = card.querySelector(".wf-place-card-actions");
+          const book = card.querySelector(".wf-place-card-actions > .wf-place-card-book");
+          return {
+            id: host.getAttribute("data-dense-card"),
+            box: box(card),
+            contentScrollH: content ? content.scrollHeight : 0,
+            contentClientH: content ? content.clientHeight : 0,
+            score: score ? box(score) : null,
+            nameBox: name ? box(name) : null,
+            cta: cta ? box(cta) : null,
+            ctaPointerEvents: ctaInteractive ? getComputedStyle(ctaInteractive).pointerEvents : null,
+            credit: credit ? box(credit) : null,
+            award: award ? box(award) : null,
+            actions: actions ? box(actions) : null,
+            hasBook: !!book,
+            controls: [...card.querySelectorAll(".wf-place-card-actions > *")].map(box),
+          };
+        });
+        return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters, dense };
       });
       renderedMetrics.push({ width, ...measured });
       if (REQUIRE_BROWSER && !MUTATION && [320, 390, 1440].includes(width)) {
@@ -570,6 +678,35 @@ if (!browserConfig) {
         ok(Math.max(...union) - Math.min(...union) <= 1, `${width}px: list/rail skeleton and hydrated cards share one 268px height`);
       }
       ok(measured.scrollWidth <= width + 1, `${width}px: fixture has no horizontal page overflow (scrollWidth ${measured.scrollWidth})`);
+      if (!MUTATION) {
+        const denseById = new Map((measured.dense || []).map((item) => [item.id, item]));
+        ok(denseById.size === DENSE_SPECIMENS.length, `PROBE ${width}px dense: all ${DENSE_SPECIMENS.length} hydrated dense place-card specimens rendered (got ${denseById.size})`);
+        const overlaps = (a, b) => Math.min(a.right, b.right) - Math.max(a.x, b.x) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.y, b.y) > 1;
+        const insideCard = (el, card) => el.x >= card.x - 1 && el.right <= card.right + 1 && el.y >= card.y - 1 && el.bottom <= card.bottom + 1;
+        for (const spec of DENSE_SPECIMENS) {
+          const d = denseById.get(spec.id);
+          ok(!!d && !d.missing && Math.abs(d.box.h - PLACE_CARD_HEIGHT_PX) <= 1, `${width}px dense ${spec.id}: keeps locked ${PLACE_CARD_HEIGHT_PX}px standard height (got ${d && d.box ? d.box.h : "missing"})`);
+          if (!d || d.missing) continue;
+          if (spec.expectCta) {
+            ok(!!d.cta && d.cta.h >= 24, `PROBE ${width}px dense ${spec.id}: in-card CTA rendered with visible height (got ${d.cta ? d.cta.h.toFixed(1) : "none"})`);
+            ok(d.ctaPointerEvents === "auto", `${width}px dense ${spec.id}: CTA is interactive (pointer-events:auto even inside home.js pointer-events:none layout, got ${d.ctaPointerEvents})`);
+          }
+          if (spec.expectBook) ok(d.hasBook, `PROBE ${width}px dense ${spec.id}: inline Book CTA rendered inside action row`);
+          if (spec.expectAward) ok(!!d.award && d.award.h > 0, `PROBE ${width}px dense ${spec.id}: award band rendered inside dense card`);
+          if (spec.expectCredit) ok(!!d.credit && d.credit.h > 0, `PROBE ${width}px dense ${spec.id}: creator credit rendered inside dense card`);
+          ok(d.contentScrollH <= d.contentClientH + 2, `${width}px dense ${spec.id}: card content does not vertically overflow the 268px box (scrollH ${d.contentScrollH} vs clientH ${d.contentClientH})`);
+          ok(d.controls.length >= 4 && d.controls.every((c) => c.h >= 24 && insideCard(c, d.box)), `${width}px dense ${spec.id}: all ${d.controls.length} action buttons stay completely inside the 268px card`);
+          if (d.cta) {
+            ok(insideCard(d.cta, d.box) && d.controls.every((c) => !overlaps(d.cta, c)), `${width}px dense ${spec.id}: CTA stays inside the 268px card and clear of action controls`);
+            if (d.actions) ok(d.cta.bottom <= d.actions.y + 1, `${width}px dense ${spec.id}: CTA sits above the bottom action row (cta.bottom ${d.cta.bottom.toFixed(1)} vs actions.top ${d.actions.y.toFixed(1)})`);
+          }
+          if (d.credit) {
+            ok(insideCard(d.credit, d.box) && d.controls.every((c) => !overlaps(d.credit, c)), `${width}px dense ${spec.id}: creator credit stays inside the 268px card and clear of action controls`);
+            if (d.cta) ok(d.credit.bottom <= d.cta.y + 1 && !overlaps(d.credit, d.cta), `${width}px dense ${spec.id}: creator credit sits cleanly above CTA without overlap`);
+          }
+          if (d.score && d.nameBox) ok(!overlaps(d.score, d.nameBox), `${width}px dense ${spec.id}: score badge never overlaps title`);
+        }
+      }
     }
 
     // ── RED-PROOF: the font-substitution flake, forced and re-checked ──────
