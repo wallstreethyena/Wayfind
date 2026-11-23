@@ -138,6 +138,16 @@ const timedResult = await client.createThanksgivingRequestManager((url, init) =>
 ok(timedResult.status === "error" && timedSignal.aborted, "hung transport reaches a retryable timeout and is aborted");
 eq((await client.createThanksgivingRequestManager(async () => response(payload({ status: "partial" }))).load(request)).data.status, "partial", "partial health remains visible");
 
+// Match the existing reserve fixtures: JSDOM has no BroadcastChannel. Node's
+// channel belongs to another realm and keeps a MessagePort alive when valid
+// Supabase configuration starts the card store, even after window.close().
+const broadcastChannelDescriptor = Object.getOwnPropertyDescriptor(globalThis, "BroadcastChannel");
+const restoreBroadcastChannel = () => {
+  if (broadcastChannelDescriptor) Object.defineProperty(globalThis, "BroadcastChannel", broadcastChannelDescriptor);
+  else delete globalThis.BroadcastChannel;
+};
+Object.defineProperty(globalThis, "BroadcastChannel", { value: undefined, configurable: true, writable: true });
+process.once("exit", restoreBroadcastChannel);
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', { url: "https://www.gowayfind.com/", pretendToBeVisual: true });
 for (const field of ["window", "document", "navigator", "HTMLElement", "Element", "Node", "MutationObserver", "Event", "CustomEvent", "getComputedStyle"]) Object.defineProperty(globalThis, field, { value: field === "window" ? dom.window : dom.window[field], configurable: true, writable: true });
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -352,6 +362,8 @@ try {
   globalThis.Date = RealDate;
 }
 dom.window.close();
+restoreBroadcastChannel();
+process.removeListener("exit", restoreBroadcastChannel);
 if (process.argv.includes("--browser")) {
   const browser = await launchRequiredChromium();
   try {
