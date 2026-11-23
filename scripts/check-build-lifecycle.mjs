@@ -43,10 +43,11 @@ ok(/run:\s*node scripts\/check-bundle\.mjs/.test(ymlCode),
 
 const home = read("app/home.js");
 const events = read("app/components/screens/Events.js");
+const areaInsight = read("app/components/AreaInsight.js");
 const culture = read("lib/culture.js");
-ok(!/cultureHubs/.test(home) && !/cultureHubs/.test(events),
-  "homepage client (home.js / Events.js) must not import cultureHubs — SEO slugs are server-only so they stay off the 500KB ratchet");
-ok(!/cultureCorpus/.test(home) && !/cultureCorpus/.test(events),
+ok(!/cultureHubs/.test(home) && !/cultureHubs/.test(events) && !/cultureHubs/.test(areaInsight),
+  "homepage client (home.js / Events.js / AreaInsight.js) must not import cultureHubs — SEO slugs are server-only so they stay off the 500KB ratchet");
+ok(!/cultureCorpus/.test(home) && !/cultureCorpus/.test(events) && !/cultureCorpus/.test(areaInsight),
   "homepage client must not import cultureCorpus — the metro cards are server HTML");
 ok(!/(?:export const)\s+CULTURE\s*=/.test(culture),
   "lib/culture.js must not declare CULTURE — that object is cultureCorpus.js so the homepage client does not ship every metro card");
@@ -54,10 +55,11 @@ ok(/(?:export const)\s+CULTURE_TITLES\s*=/.test(culture),
   "lib/culture.js declares CULTURE_TITLES — the only culture field AreaInsight reads on the client");
 ok(!/from\s*["']\.\/cultureNotes\.js["']/.test(culture),
   "lib/culture.js must not import or re-export cultureNotes — a re-export rides the homepage client import and puts the notes back on the ratchet");
-ok(/import\s*\(\s*["'][^"']*cultureNotes\.js["']\s*\)/.test(home),
-  "app/home.js defers culture notes with import(), so the prose is not in the first homepage graph");
-ok(!/from\s*["'][^"']*cultureNotes(?:\.js)?["']/.test(home),
-  "app/home.js must not statically import cultureNotes");
+ok(/const AreaInsight = nextDynamic\(\(\) => import\(["']\.\/components\/AreaInsight["']\), \{ ssr: false, loading: \(\) => null \}\)/.test(home)
+  && /import\s*\(\s*["'][^"']*cultureNotes\.js["']\s*\)/.test(areaInsight),
+  "Home defers AreaInsight and its category/Events guide defers culture notes, so neither renderer nor prose enters the first homepage graph");
+ok(!/from\s*["'][^"']*cultureNotes(?:\.js)?["']/.test(home + "\n" + areaInsight),
+  "neither Home nor its extracted guide may statically import cultureNotes");
 
 if (fail.length) {
   console.error("check-build-lifecycle: FAIL — " + fail.join("; "));
