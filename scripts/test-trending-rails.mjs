@@ -3,7 +3,7 @@
 // 2026-11-05). Asserted by CALL: selectPosterEvents("trending") is invoked on
 // fixture events and splitTrendingPlaces on fixture places.
 import { selectPosterEvents } from "../lib/posterEvents.js";
-import { splitTrendingPlaces, trendingEventRail, trendingPlaceRail, trendRailFromTags, inTrendingWindow, TRENDING_RAIL_IDS } from "../lib/trendingRails.js";
+import { localTrendingIntelligence, splitTrendingPlaces, trendingEventRail, trendingPlaceRail, trendRailFromTags, inTrendingWindow, TRENDING_RAIL_IDS } from "../lib/trendingRails.js";
 import { orderFor } from "../lib/dayparts.js";
 import { readFileSync } from "node:fs";
 
@@ -64,6 +64,45 @@ ok(split.parties.length === 1 && split.food.length === 1 && split.shows.length =
   "places sort onto Parties / Food / Shows / Everything Else, never Festivals, deduped");
 ok(trendingPlaceRail({ types: ["restaurant", "bar"] }) === "parties", "a bar restaurant reads as nightlife");
 
+const today = "2026-11-23";
+const nearbyEvent = {
+  kind: "event", name: "Florida Turkey Trot", scope: "local", distMi: 14.8,
+  startDate: "2026-11-26", endDate: "2026-11-26", isHolidayMatch: true,
+  facts: "A Thanksgiving 5K around the rowing lake.",
+  why: "Unnecessary editorial rewrite", href: "/florida-events/no-published-page",
+};
+const nearbyPlace = { kind: "place", scope: "local", distMi: 27, placeId: "p1", sourcesCount: 2, why: "An actual sourced reason." };
+const options = { today, radiusMi: 27 };
+const packet = {
+  ok: true, stale: false, today,
+  trendingPicks: [
+    { ...nearbyEvent, scope: "statewide", name: "Far-away Turkey Trot" },
+    { ...nearbyEvent, endDate: "2026-11-22", name: "Finished event" },
+    { ...nearbyEvent, distMi: null, name: "Unknown location" },
+    { ...nearbyEvent, isHolidayMatch: false, name: "Uncorroborated calendar row" },
+    nearbyEvent,
+    { ...nearbyPlace, placeId: "too-far", distMi: 27.1 },
+    { ...nearbyPlace, placeId: "review-only", sourcesCount: 0 },
+    nearbyPlace,
+    { ...nearbyPlace, why: "Duplicate does not override the first source." },
+  ],
+};
+const intel = localTrendingIntelligence(packet, options);
+ok(intel.leadEvent?.name === nearbyEvent.name && intel.leadEvent.why === nearbyEvent.facts && !intel.leadEvent.href,
+  "a current nearby event leads with verified facts and never exposes an unpublished URL");
+ok(localTrendingIntelligence({ ...packet, trendingPicks: [{ ...nearbyEvent, aiGrounded: true, why: "A grounded local event explanation." }] }, options).leadEvent?.why === "A grounded local event explanation.",
+  "the event lead can use validated intelligence even if there is no nearby venue match");
+ok(intel.whyByPlaceId.size === 1 && intel.whyByPlaceId.get("p1") === nearbyPlace.why,
+  "only locally measured place evidence is indexed by exact place ID, without duplicate overrides");
+for (const rejected of [{ ...packet, stale: true }, { ...packet, today: "2026-11-22" }, { ...packet, ok: false }, null]) {
+  const result = localTrendingIntelligence(rejected, options);
+  ok(!result.available && !result.leadEvent && !result.whyByPlaceId.size, "an absent, failed, stale or previous-day packet cannot produce a lead or place note");
+}
+ok(localTrendingIntelligence({ ...packet, trendingPicks: [] }, options).available,
+  "a healthy feed with no candidates is distinct from a failed feed");
+ok(localTrendingIntelligence({ ...packet, trendingPicks: [nearbyEvent] }, options).leadEvent?.name === nearbyEvent.name,
+  "the nearby lead is available with events only, without a place pool or AI-generated copy");
+
 const order = orderFor("afternoon", ["augtober", "christmas", "break", "trending", "season"], "2026-11-05");
 ok(order[0] === "christmas" && order[1] === "augtober" && order[2] === "trending", `Trending Now sits immediately right of Fall in Florida, Christmas first (got ${order.slice(0, 3)})`);
 const noFall = orderFor("afternoon", ["christmas", "break", "trending", "season"], "2026-11-30");
@@ -73,4 +112,14 @@ ok(summer[0] !== "christmas", "outside the Christmas window the static order is 
 
 const dpr = readFileSync("app/components/DaypartRail.js", "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 ok(/selRail\.id === "trending" \? \(\s*<TrendingRails[\s/>]/.test(dpr), "the trending drop mounts TrendingRails");
+ok(/<TrendingRails\s+active\s+center=\{center\?\.hasLocalOrigin \? center : null\}/.test(dpr),
+  "the open poster passes an actual local center to intelligence, never a bootstrap point");
+const home = readFileSync("app/home.js", "utf8");
+ok(/hasLocalOrigin:\s*Boolean\(locResolved && center && \(\s*!isSeedCenter\(center\) \|\| manualRef\.current \|\| \(deviceLoc\?\.lat === center\.lat && deviceLoc\?\.lng === center\.lng\)/.test(home),
+  "the default point can only qualify after an explicit selection or a matching device fix");
+const surface = readFileSync("app/components/TrendingRails.js", "utf8");
+ok(/intelUrl = active &&/.test(surface) && /fetchJsonWithDeadline\(intelUrl\)/.test(surface),
+  "the bounded read runs only for the open poster with a valid center");
+ok(/if \(current\) setIntelligence/.test(surface) && /return \(\) => \{ current = false; \}/.test(surface) && /intelligence\?\.url === intelUrl/.test(surface),
+  "a closed or superseded request cannot write and a previous center cannot display");
 console.log(`test-trending-rails: OK — ${pass} assertions (shelf routing, evidence gate incl. marquee venues, window, place split, poster order) by CALL`);

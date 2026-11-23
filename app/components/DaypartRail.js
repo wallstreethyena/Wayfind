@@ -2230,6 +2230,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "trending" ? (
             <TrendingRails
               active
+              center={center?.hasLocalOrigin ? center : null}
               places={dropList}
               placesPending={isPending(railLoad)}
               hasMore={selectedHasMore}
