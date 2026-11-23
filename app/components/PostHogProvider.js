@@ -9,16 +9,16 @@
 // connect-src, worker-src all set) and needed no change.
 //
 // `defaults: "2026-05-30"` opts into PostHog's current dated default
-// bundle. That default sets capture_pageview to "history_change", which
-// records a later client navigation and never the document that just loaded.
-// The landing $pageview is sent by earlyPageviewScript in app/layout.js,
-// before hydration. When that beacon lands, init keeps history_change so the
-// landing is not counted again. When it does not, init captures the initial
-// view itself.
+// bundle. That default's capture_pageview is the string "history_change".
+// The string is truthy, so the SDK still records the landing pageview and
+// then records history changes. The head script already sends the landing
+// pageview, so init sets capture_pageview to false. A later in-site
+// navigation is counted once by captureSpaPageview. If the head beacon
+// never left, init sends the one landing pageview itself.
 // `person_profiles: "identified_only"` is deliberate: Wayfind traffic is
 // mostly anonymous, and we don't want to pay for a person profile per
 // drive-by visitor — only identify() calls (real sign-ins) create one.
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { isGroupPlanPath } from "../../lib/groupPlanPrivacy.js";
@@ -26,7 +26,9 @@ import {
   EARLY_DISTINCT_KEY,
   EARLY_PAGEVIEW_FLAG,
   EARLY_SESSION_KEY,
+  PRE_READY_QUEUE_KEY,
   analyticsSuppressionReason,
+  captureSpaPageview,
   clearPreReadyQueue,
   createPageVisitTracker,
   dispatchEarlyPageview,
@@ -130,14 +132,12 @@ export default function PostHogProvider({ children }) {
           if (isAnalyticsUuidV7(sessionId)) next.sessionID = sessionId;
           if (Object.keys(next).length) bootstrap = next;
         } catch (e) {}
-        const earlyPageview = !!(typeof window !== "undefined" && window[EARLY_PAGEVIEW_FLAG]);
         ph.init(key, {
           api_host: "https://us.i.posthog.com",
           defaults: "2026-05-30",
-          // history_change keeps SPA navigations and does not repeat the
-          // landing view the head script already sent. true is the fallback
-          // when that beacon never left the browser.
-          capture_pageview: earlyPageview ? "history_change" : true,
+          // false, not "history_change". That string is truthy, so the SDK
+          // would capture the landing again on top of the head beacon.
+          capture_pageview: false,
           ...(bootstrap ? { bootstrap } : {}),
           person_profiles: "identified_only",
           // Preserve the existing automatic signals, but prevent their DOM
@@ -171,7 +171,17 @@ export default function PostHogProvider({ children }) {
           ph.capture(event, properties, { timestamp });
         }
         // App captures (emitCommerce, logEvent, track) that fired before init.
+        const queued = window[PRE_READY_QUEUE_KEY];
+        const queuedPageview = Array.isArray(queued) && queued.some((row) => row && row[0] === "$pageview");
         drainPreReadyQueue(window, ph);
+        // One landing pageview. The head beacon already set the flag when it
+        // was accepted. A navigation that happened first is the queued
+        // pageview and must not be captured again here.
+        if (!window[EARLY_PAGEVIEW_FLAG] && !queuedPageview) {
+          try { ph.capture("$pageview"); } catch (e) {}
+          window[EARLY_PAGEVIEW_FLAG] = 1;
+          try { window.__WF_LAST_PAGEVIEW_PATH = window.location.pathname; } catch (e) {}
+        }
       } catch (e) {}
     }).catch(() => {});
 
@@ -217,12 +227,17 @@ export default function PostHogProvider({ children }) {
     };
   }, []);
 
+  const landingPageview = useRef(false);
   useEffect(() => {
     if (isGroupPlanPath(pathname)) {
       try { window.__WF_ANALYTICS_SUPPRESSED="private_group_plan";window.posthog?.opt_out_capturing();window.__WF_PAGE_TRACKER?.stop({emitExit:false});clearPreReadyQueue(window); } catch (e) {}
       return;
     }
     try { if (window.__WF_PAGE_TRACKER) window.__WF_PAGE_TRACKER.navigate(pathname); } catch (e) {}
+    // The document that just loaded is the head beacon (or the one capture
+    // in boot). Only a later pathname is another pageview.
+    if (!landingPageview.current) { landingPageview.current = true; return; }
+    try { captureSpaPageview(window); } catch (e) {}
   }, [pathname]);
 
   return children;
