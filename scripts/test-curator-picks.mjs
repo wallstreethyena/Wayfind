@@ -12,7 +12,7 @@ import React, { act } from "react";
 import { createRoot } from "react-dom/client";
 import { JSDOM } from "jsdom";
 import { loadComponent } from "./lib/jsxLoad.mjs";
-import { GET as getLikes } from "../app/api/signals/likes/route.js";
+import { execFileSync } from "node:child_process";
 import {
   applyCuratorPicks, applyCuratorPicksRanked, getCuratorPicks, mergeServerSet, noteSessionOwner,
   beginCuratorToggle, settleCuratorToggle, __resetCuratorPicksForTest,
@@ -297,17 +297,18 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   ok(!/searchParams/.test(route), "the pick-set route reads NO query params — the owner is env-only");
 }
 
-// The route must distinguish unknown from a confirmed unlike, and accept
-// only real auth identity. This executes GET against a fake Supabase boundary.
+// Exercise the actual GET handler against a fake transport and an explicit,
+// isolated child environment. No shell config may determine a guard result.
 {
-  const originalFetch = globalThis.fetch;
-  const names = ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "WF_OWNER_USER_ID"];
-  const prev = names.map((key) => process.env[key]);
-  Object.assign(process.env, { SUPABASE_URL: "https://test.invalid", SUPABASE_SERVICE_ROLE_KEY: "service-stub", NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-stub", WF_OWNER_USER_ID: "" });
-  const req = () => new Request("https://wayfind.test/api/signals/likes?ids=route-probe&fresh=1", { headers: { authorization: "Bearer valid-length-fake-bearer" } });
-  const founder = (await import("../lib/ownerIdentity.js")).OWNER_ACCOUNT_EMAIL;
-  let mode = "unavailable";
-  try {
+  const route = new URL("../app/api/signals/likes/route.js", import.meta.url).href;
+  const identity = new URL("../lib/ownerIdentity.js", import.meta.url).href;
+  const probe = `
+    import { GET } from ${JSON.stringify(route)};
+    import { OWNER_ACCOUNT_EMAIL } from ${JSON.stringify(identity)};
+    const req = () => new Request("https://wayfind.test/api/signals/likes?ids=route-probe&fresh=1", {
+      headers: { authorization: "Bearer valid-length-fake-bearer" },
+    });
+    let mode;
     globalThis.fetch = async (input) => {
       const url = new URL(input);
       if (url.pathname === "/rest/v1/likes") {
@@ -316,26 +317,26 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
       }
       if (url.pathname === "/rest/v1/events") return new Response(null, { status: 503 });
       if (url.pathname === "/auth/v1/user") return Response.json(mode === "verified" ?
-        { id: "fixture-user", email: founder } : { id: "fixture-user", user_metadata: { email: founder } });
+        { id: "fixture-user", email: OWNER_ACCOUNT_EMAIL } : { id: "fixture-user", user_metadata: { email: OWNER_ACCOUNT_EMAIL } });
       if (url.pathname.startsWith("/auth/v1/admin/users/")) return Response.json({ id: "fixture-user", email: "ordinary@example.test" });
       throw new Error("unexpected route probe");
     };
-    let response = await getLikes(req());
-    ok(response.status === 503 && response.headers.get("Cache-Control") === "no-store", "a failed member read is unavailable, not a public empty owner verdict");
-    ok(curatorVerdictFromLikes(await response.json(), "route-probe") === "unknown", "the client leaves the score alone during a failed owner read");
-    mode = "empty";
-    response = await getLikes(req());
-    ok(response.ok && curatorVerdictFromLikes(await response.json(), "route-probe") === "off", "a real empty successful read still confirms unlike");
-    mode = "unverified";
-    let body = await (await getLikes(req())).json();
-    ok(!body.sessionOwner && !body.owner["route-probe"] && body.counts["route-probe"] === 1, "profile metadata does not make an ordinary member an owner");
-    mode = "verified";
-    body = await (await getLikes(req())).json();
-    ok(body.sessionOwner && body.owner["route-probe"], "verified owner identity still works when the env id is absent and anonymous events are unavailable");
-  } finally {
-    globalThis.fetch = originalFetch;
-    names.forEach((key, i) => { if (prev[i] == null) delete process.env[key]; else process.env[key] = prev[i]; });
-  }
+    const rows = [];
+    for (mode of ["unavailable", "empty", "unverified", "verified"]) {
+      const res = await GET(req());
+      rows.push({ status: res.status, cache: res.headers.get("Cache-Control"), body: await res.json() });
+    }
+    process.stdout.write(JSON.stringify(rows));
+  `;
+  const [failed, empty, ordinary, verified] = JSON.parse(execFileSync(process.execPath, ["--no-warnings", "--input-type=module", "-e", probe], {
+    env: { SUPABASE_URL: "https://test.invalid", SUPABASE_SERVICE_ROLE_KEY: "service-stub", NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-stub", WF_OWNER_USER_ID: "" },
+    encoding: "utf8", timeout: 15000,
+  }));
+  ok(failed.status === 503 && failed.cache === "no-store", "a failed member read is unavailable, not a public empty owner verdict");
+  ok(curatorVerdictFromLikes(failed.body, "route-probe") === "unknown", "the client leaves the score alone during a failed owner read");
+  ok(empty.status === 200 && curatorVerdictFromLikes(empty.body, "route-probe") === "off", "a real empty successful read still confirms unlike");
+  ok(!ordinary.body.sessionOwner && !ordinary.body.owner["route-probe"] && ordinary.body.counts["route-probe"] === 1, "profile metadata does not make an ordinary member an owner");
+  ok(verified.body.sessionOwner && verified.body.owner["route-probe"], "verified owner identity still works when the env id is absent and anonymous events are unavailable");
 }
 
 // Render a standalone score-bearing IconicPlaceCard with a static parent prop,
@@ -356,7 +357,7 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
     Object.assign(globalThis, { window: dom.window, document: dom.window.document, localStorage: dom.window.localStorage, IS_REACT_ACT_ENVIRONMENT: true });
     globalThis.fetch = async (input) => String(input).includes("/api/signals/likes?")
       ? Response.json({ counts: {}, owner: picked ? { "standalone-curator-probe": true } : {} })
-      : String(input).includes("/api/signals/curator-picks") ? Response.json({ ids: [] }) : new Response(null, { status: 404 });
+      : String(input).includes("/api/signals/curator-picks") ? Response.json({ ids: [] }) : Response.json({});
     const node = dom.window.document.getElementById("root");
     const root = createRoot(node);
     const noop = () => {};
