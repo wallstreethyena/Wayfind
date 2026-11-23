@@ -16,6 +16,7 @@ import { spookySkinLive } from "../../../lib/spookySkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { rankExperiences } from "../../../lib/experiencesData";
 import { partnerTicketLabel } from "../../../lib/partnerCopy";
+import { railClickContext } from "../../../lib/posterTickets.js";
 import RailCard, { RailDots, RailNav } from "../RailCard";
 // Events pipeline integrity, Phase 2 (EVENTS_PIPELINE_DIAGNOSIS.md): the
 // title, image, and body are ONE semantic link to the event's resolved
@@ -36,6 +37,8 @@ function EventCard({ e, onVenue, ctx }) {
   const href = internal ? e.dest : ticketUrl(e.dest, { surface: "events_grid_card", offerId: e.id });
   const externalTickets = internal && e.url ? ticketUrl(e.url, { surface: "events_grid_tickets", offerId: e.id }) : null;
   const actionHref = externalTickets || href;
+  const actionSurface = externalTickets ? "events_grid_tickets" : "events_grid_card";
+  const ticketClick = railClickContext(actionHref, actionSurface, e.id);
   const actionExternal = Boolean(externalTickets || !internal);
   const actionLabel = e.ticketVia ? partnerTicketLabel(e.ticketVia, { product: e.ticketProduct, arrow: false, card: true }) : e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
   // Fall events (flagged server-side by app/api/events) never wear generic
@@ -70,7 +73,7 @@ function EventCard({ e, onVenue, ctx }) {
     href={href}
     external={!internal}
     actionItem={{ id: e.id, type: "event", title: e.name, image, url: href, provider: e.source || null }}
-    cta={hasCta ? { label: `${actionLabel} ↗`, href: actionHref, external: actionExternal, sponsored: !!e.ticketVia, onClick: () => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch {} } } : undefined}
+    cta={hasCta ? { label: `${actionLabel} ↗`, href: actionHref, external: actionExternal, sponsored: !!e.ticketVia || !!ticketClick, disclose: !!ticketClick, commerce: ticketClick, onClick: () => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch {} } } : undefined}
     ariaLabel={`Open ${e.name}`}
     onOpen={() => {
       try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "events_grid" }); } catch {}

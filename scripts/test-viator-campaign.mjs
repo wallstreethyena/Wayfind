@@ -35,6 +35,11 @@ ok(viatorPageHint({ refererPath: "/guides/things-to-do-sarasota", surface: "inte
 ok(viatorPageHint({ refererPath: "https://evil.example/guides/x", surface: "intent_partner_rail" }) === "", "a non-path referer is ignored");
 ok(viatorPageKey("") === "na" && viatorPageKey("/") === "home", "missing/root page");
 ok(viatorPlacementCode("iconic_place_card") === "card" && viatorPlacementCode("home_rail") === "home", "placement codes");
+ok(viatorPlacementCode("night_out_night_tours") === "nightout", "a night out rail is not truncated and is not home");
+ok(viatorPlacementCode("date_night_livemusic") === "datenight", "date night keeps its rail");
+ok(viatorPlacementCode("home_affiliate_activity_rail") === "activities", "the home activity rail is not collapsed to home");
+ok(viatorCampaign({ page: "/", surface: "night_out_night_tours", offerId: "136885P3" }) === "wf-home-nightout-136885p3", "home night out campaign keeps page, rail and offer");
+ok(viatorCampaign({ page: "/", surface: "home_rail", offerId: "136885P3" }) === "wf-home-home-136885p3", "a generic home surface still uses the home placement");
 
 // 2. tracking: medium preserved per link type, campaign only added
 const u = new URL(withViatorTracking(RAW, undefined, { campaign: tag }));

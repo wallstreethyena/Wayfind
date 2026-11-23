@@ -26,6 +26,11 @@ import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../l
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
+import { attractionTicketOffer } from "../../lib/attractionTickets.js";
+import { commerceHref } from "../../lib/commerce.js";
+import { railPlacementCode } from "../../lib/railCampaign.js";
+
+const ATTRACTION_TICKET_RAILS = new Set(["activities", "water", "parks"]);
 
 const COLORS = { text: "#F1F5F9", muted: "#8b93a1" };
 const compact = (value) => Number(value) >= 1000 ? Math.round(Number(value) / 100) / 10 + "k" : String(Number(value) || 0);
@@ -92,12 +97,23 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
           const band = rail.id === "beaches" ? beachWaterBand(place.water) : "unknown";
           const chips = band !== "unknown" ? [{ key: "water", icon: "💧", label: WATER_LABEL[band], title: beachDecisionReason(place.water) || WATER_LABEL[band] }] : [];
           const directions = directionsUrl(place);
+          const ticket = ATTRACTION_TICKET_RAILS.has(rail.id) ? attractionTicketOffer(place) : null;
+          const ticketSurface = "today_" + rail.id;
+          const ticketHref = ticket ? commerceHref({ provider: ticket.provider, offerId: ticket.offerId, surface: ticketSurface, contentId: place.id }) : null;
+          const ticketRail = railPlacementCode(ticketSurface);
           return <RailCard key={place.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
             photo={photo} photoAttr={place.photo === photo ? place.photoAttr || undefined : undefined} photoAttrHref={place.photo === photo ? place.photoAttrHref || undefined : undefined} place={place} title={place.name} eyebrow={rail.title} rank={rank}
             score={toDisplayScore(railScoreOf(place))} facts={facts} chips={chips}
             award={topPickAward({ category: rail.title.toLowerCase(), rank })}
             take={place.water && beachDecisionReason(place.water) ? beachDecisionReason(place.water) : (toHookLine(place.editorial, place.name) || null)}
-            cta={null}
+            cta={ticketHref ? {
+              label: "Tickets",
+              href: ticketHref,
+              external: true,
+              sponsored: true,
+              disclose: true,
+              commerce: { surface: ticketSurface, ...(ticketRail ? { rail: ticketRail } : {}), provider: ticket.provider, offer_id: ticket.offerId, content_id: place.id, merchant: ticket.merchant },
+            } : null}
             ariaLabel={"Open " + place.name} onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
             saved={isSaved ? !!isSaved(place.id) : undefined}
             liked={isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined}

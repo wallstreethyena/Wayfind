@@ -67,6 +67,8 @@ import { useContentCardActions } from "../../lib/contentCardActions";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { railPosition } from "../../lib/railPosition.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
+import { emitCommerce, mintClickId } from "../../lib/commerce.js";
+import { RAIL_CARD_COMMISSION_LINE } from "../../lib/affiliateDisclosure.js";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { useSiteToday } from "../../lib/siteDayClock.js";
@@ -454,6 +456,9 @@ export default function RailCard({
   // `<RailCard ref={…}>`, so a prop avoids forwardRef's wrapper cost for the
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
+  // Paid rail buttons only. Visible commission line, inside the card, and a
+  // commerce click when `cta.commerce` names the surface, rail and offer.
+  disclose = false,
 }) {
   const distanceLabel = formatDistanceMiles(usePlaceDistance(place));
   // Reservation entry (lib/reserveCapability.js): fills the money-action slot ONLY when the caller left it empty
@@ -743,9 +748,26 @@ export default function RailCard({
               className="wf-place-card-book wf-rail-card-cta"
               href={ctaHref || cta.href || "#"}
               {...(cta.external ? { target: "_blank", rel: cta.sponsored ? "sponsored nofollow noopener" : "noreferrer" } : {})}
-              onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}
+              data-commerce-owner={cta.commerce ? "RailCard" : undefined}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (cta.commerce) {
+                  const clickId = mintClickId();
+                  try {
+                    const raw = e.currentTarget.getAttribute("href") || "";
+                    const url = new URL(raw, "https://gowayfind.com");
+                    if (url.pathname.startsWith("/api/") && url.pathname.endsWith("/go")) {
+                      url.searchParams.set("click_id", clickId);
+                      e.currentTarget.setAttribute("href", url.pathname + "?" + url.searchParams.toString());
+                    }
+                  } catch (err) {}
+                  try { emitCommerce("commerce_cta_clicked", { ...cta.commerce, click_id: clickId }); } catch (err) {}
+                }
+                if (cta.onClick) cta.onClick(e);
+              }}
             >{spooky ? <span className="wf-spooky-ghost" aria-hidden="true">{"\u{1F47B}"}</span> : null}{cta.label}</a>
           ) : (ReserveSlot ? <ReserveSlot place={place} surface="rail_card" lane={reserveEntry.lane} /> : null))}
+          {(disclose || (cta && cta.disclose)) ? <p className="wf-rail-earn">{RAIL_CARD_COMMISSION_LINE}</p> : null}
 
           {/* Every card exposes the same four controls. Non-place cards use
               contentCardActions; place cards keep the ranking-aware store. */}

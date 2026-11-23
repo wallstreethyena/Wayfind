@@ -32,6 +32,7 @@ const AffiliateCard = memo(function AffiliateCard({ item, rank, contentId, onLog
         ...(item.chips || []),
       ].filter(Boolean)}
       eagerMedia={rank <= 4}
+      disclose
       actionItem={{ id: item.code, type: "experience", title: item.title, image: item.image || null, url: item.url || item.bookingUrl || "", provider: "viator" }}
       ariaLabel={`Book ${item.title} with Viator`}
       onOpen={(event) => {

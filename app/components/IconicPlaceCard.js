@@ -15,6 +15,8 @@ import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
+import { commerceSurfaceForPlaceCard, railPlacementCode } from "../../lib/railCampaign.js";
+import { RAIL_CARD_COMMISSION_LINE } from "../../lib/affiliateDisclosure.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { spookyOverFall } from "../../lib/spookySkin.js";
@@ -539,10 +541,12 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // layout effect, so a queued tap always meets the CURRENT handlers.
   handlersRef.current = { like: doLike, dislike: doDislike, save: doSave, share: doShare, place };
   const partner = placePartnerPick(place, pinQ);
+  const partnerSurface = commerceSurfaceForPlaceCard(surface);
+  const partnerRail = railPlacementCode(partnerSurface);
   const partnerHref = partner ? commerceHref({
     provider: partner.provider,
     offerId: partner.offerId,
-    surface: "iconic_place_card",
+    surface: partnerSurface,
     contentId: place.id,
   }) : null;
   // v8.33 — never let a curation lookup take a card down. creatorVideosFor()
@@ -732,9 +736,9 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 title="Partner link. Wayfind may earn a commission; rankings never change."
                 onClick={(event) => {
                   const clickId = mintClickId();
-                  const live = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "iconic_place_card", contentId: place.id, clickId });
+                  const live = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: partnerSurface, contentId: place.id, clickId });
                   if (live && event.currentTarget) event.currentTarget.href = live;
-                  try { emitCommerce("commerce_cta_clicked", { surface: "iconic_place_card", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: place.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch {}
+                  try { emitCommerce("commerce_cta_clicked", { surface: partnerSurface, ...(partnerRail ? { rail: partnerRail } : {}), provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: place.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch {}
                 }}
                 className="wf-ticket-pill"
               >{/* v8.22 (owner: "it doesn't have to have so many letters —
@@ -765,6 +769,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               measurably overflows and the reader is not at its end. */}
           {laneMore ? <span className="wf-pill-more" aria-hidden="true">›</span> : null}
           </div>
+          {partnerHref && partnerRail ? <p className="wf-rail-earn">{RAIL_CARD_COMMISSION_LINE}</p> : null}
           {/* v8.89 — TWO TIERS, ONE SLOT. The accent bar is how Wayfind says
               "this is our read", so it belongs to copy Wayfind wrote or
               verified. The descriptive tier — the wf_inventory line and the

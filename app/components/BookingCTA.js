@@ -25,6 +25,7 @@ import * as Aff from "../../lib/affiliates";
 // Detail.js) keep working untouched.
 
 import { emitCommerce, commerceHref, mintClickId, rankBucket } from "../../lib/commerce";
+import { railPlacementCode } from "../../lib/railCampaign.js";
 import { withClickId } from "../../lib/hubConversion";
 import { rankExperiences } from "../../lib/experiencesData";
 import { partnerTicketLabel } from "../../lib/partnerCopy";
@@ -220,9 +221,11 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           const offerId = verifiedUrl
             ? (verifiedOfferId || primaryPlaceId)
             : primaryPlaceId;
+          const hotelRail = tu.startsWith("/api/hotels/go?") ? railPlacementCode(commerceSurface) : "";
           try {
             emitCommerce("commerce_cta_clicked", {
               surface: (tu.startsWith("/api/hotels/go?") && commerceSurface) || "detail_primary",
+              ...(hotelRail ? { rail: hotelRail } : {}),
               provider: tu.startsWith("/api/hotels/go?") ? "stay22" : "viator",
               offer_id: offerId,
               city_id: primaryCity || null,

@@ -265,6 +265,7 @@ import * as Tags from "../lib/tags";
 import { resolveMetro, CULTURE_TITLES } from "../lib/culture";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
+import { railClickContext } from "../lib/posterTickets.js";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import { activeHoliday as _holActive, worldCup as _holWc, worldCupDaysToNext as _holWcDays, worldCupMatchToday as _holWcToday, themeFor as _holTheme, contentFor as _holContent } from "../lib/holidays";
@@ -3087,13 +3088,13 @@ function eventGenreLabel(e, seg) {
   return raw;
 }
 
-function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onSave, onLike, onDislike, onCopied, onCategory, onLog = NOLOG }) {
+function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onSave, onLike, onDislike, onCopied, onCategory, onLog = NOLOG, ticketSurface = "home_events" }) {
   if (!event || !event.dest) return null;
   const f = formatEventDate(event.date, event.time);
   const seg = eventSegmentMeta(event.segment, event.genre, event.name);
   const bucket = eventBucket(event);
   const internal = event.destKind === "internal";
-  const href = internal ? event.dest : ticketUrl(event.dest);
+  const href = internal ? event.dest : ticketUrl(event.dest, { surface: ticketSurface, contentId: event.id, offerId: event.id });
   const venue = cleanVenueName(event.venue) || event.city || "Nearby";
   // v6.99 (P1 speed): rail cards render the right-sized thumb the API now
   // ships (smallest 16:9 ≥ 320px); the 1024px pick stays hero-only.
@@ -3102,7 +3103,9 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   const railImage = eventUseImage(event) ? (event.thumb || event.image) : "";
   const placeholder = eventPlaceholder(bucket, event);
   const cta = eventCTA(event);
-  const tix = internal && event.url ? ticketUrl(event.url) : null;
+  const tix = internal && event.url ? ticketUrl(event.url, { surface: ticketSurface, contentId: event.id, offerId: event.id }) : null;
+  const actionHref = tix || href;
+  const ticketClick = railClickContext(actionHref, ticketSurface, event.id);
   // The badge: relative when the event is close enough that "Tonight" is more
   // useful than a date, otherwise the real date. Tone is read off the same
   // label — no separate clock, no second definition of "soon".
@@ -3176,9 +3179,11 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
       }}
       cta={{
         label: cta.show ? cta.label : "See event ↗",
-        href: tix || href,
+        href: actionHref,
         external: !internal || !!tix,
-        sponsored: !!event.ticketVia,
+        sponsored: !!event.ticketVia || !!ticketClick,
+        disclose: !!ticketClick,
+        commerce: ticketClick,
         onClick: () => { try { onLog("ticket", null, { src: "rail_card", id: event.id }); } catch (e) {} },
       }}
       saved={saved}
@@ -10657,11 +10662,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // ranks by stature then imminence; RAIL_CHAIN's category order is
     // still what the events TAB runs. See lib/frontEvents.js.
     const shown = bestFirst(fp.usable, eventBucket, fp.featured).filter((e) => eventSignals.disliked[e.id] !== true).slice(0, 24);
-    const renderEventCard = (e, rank) => (
+    const renderEventCard = (e, rank, ticketSurface = "home_events") => (
       <EventRailCard onLog={logEvent}
         key={e.id}
         event={e}
         rank={rank}
+        ticketSurface={ticketSurface}
         relativeLabel={eventWhenLabel(e)}
         saved={!!savedEvents[e.id]}
         liked={eventSignals.liked[e.id] === true}
@@ -10673,13 +10679,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         onCopied={() => showToast("Event link copied")}
       />
     );
+    const posterSurface = (modeName, railId) => {
+      if (modeName === "night-out") return "night_out_" + railId;
+      if (modeName === "date-night") return "date_night_" + railId;
+      if (modeName === "summer-sports") return "summer_" + railId;
+      if (modeName === "today-entertainment") return "today_" + railId;
+      if (modeName === "trending") return "trending_" + railId;
+      return "home_events_" + railId;
+    };
     if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) {
       const rows = typeof selectPosterEvents === "function" ? selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket }) : {};
       return {
         pending: false,
         failed: foryouEventsFailed,
         byRail: Object.fromEntries(Object.entries(rows).map(([id, events]) => [
-          id, events.map((event, index) => renderEventCard(event, index + 1)),
+          id, events.map((event, index) => renderEventCard(event, index + 1, posterSurface(mode, id))),
         ])),
       };
     }
@@ -10714,7 +10728,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         <div style={{ fontSize: 13.5, fontWeight: 800, color: "#E7EDF6", margin: "10px 0 4px" }}>{g.title}</div>
         <RailNav railId={"events-" + g.key} count={g.rows.length} unit={g.title.toLowerCase() + " near you"} />
         <div className={"wf-rail wf-rail-events"} data-rail={"events-" + g.key} tabIndex={0} role="region" aria-label={g.title} style={{ minHeight: EV_RAIL_MIN_H }}>
-          {g.rows.map((e, i) => renderEventCard(e, i + 1))}
+          {g.rows.map((e, i) => renderEventCard(e, i + 1, "home_events_" + g.key))}
         </div>
         {g.rows.length > 1 ? <RailDots railId={"events-" + g.key} count={g.rows.length} /> : null}
       </div>

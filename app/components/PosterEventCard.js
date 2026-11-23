@@ -7,6 +7,7 @@
 import RailCard from "./RailCard";
 import { eventWhenLabel } from "../../lib/eventTime.js";
 import { openShareFlow } from "../../lib/shareFlow.js";
+import { railClickContext, trackedEventTicketHref } from "../../lib/posterTickets.js";
 
 function dateLabel(event) {
   if (!event?.date) return "";
@@ -35,6 +36,12 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
     : null;
   const internal = event.destKind === "internal" || String(event.dest).startsWith("/");
   const image = event.thumb || event.image || null;
+  const ticketOpts = { surface, offerId: event.id, contentId: event.id };
+  const opened = trackedEventTicketHref(event.dest, ticketOpts);
+  const cardHref = opened && opened.affiliate ? opened.href : event.dest;
+  const cardExternal = opened && opened.affiliate ? true : !internal;
+  const ticket = event.ticketed && event.url ? trackedEventTicketHref(event.url, ticketOpts) : null;
+  const ticketClick = ticket && ticket.affiliate ? railClickContext(ticket.href, surface, event.id) : null;
   const facts = [event.venue || event.city || null, event.price || (event.ticketed === false ? "Free" : null)].filter(Boolean);
   const eventIso = typeof event.date === "string" ? event.date.slice(0, 10) : "";
   const chips = [
@@ -64,10 +71,17 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
     when={when}
     facts={facts}
     chips={chips}
-    href={event.dest}
-    external={!internal}
+    href={cardHref}
+    external={cardExternal}
     ariaLabel={`Open ${event.name}`}
-    cta={event.ticketed && event.url ? { label: "Tickets ↗", href: event.url, external: true, sponsored: !!event.ticketVia } : null}
+    cta={ticket ? {
+      label: "Tickets ↗",
+      href: ticket.href,
+      external: true,
+      sponsored: ticket.affiliate || !!event.ticketVia,
+      disclose: !!ticketClick,
+      commerce: ticketClick,
+    } : null}
     actionItem={{ id: event.id, type: "event", title: event.name, image, url: event.dest, provider: event.source || null }}
     surface={surface}
   />;
