@@ -1939,6 +1939,7 @@ node scripts/check-guide-visual-standard.mjs
 # licence + licence URL, Commons provenance), the manifest in sync with its
 # source JSON, and the loader's sameAsCardPhoto dedupe executed.
 node scripts/check-guide-pick-photos.mjs
+node scripts/check-guide-pick-photos-required.mjs
 # VISUAL COVERAGE, not image safety (2026-10-15): every guide pick resolves to
 # an exact-place photo or a labelled, credited context photo, never text only;
 # no gap note may promise a fallback that no longer exists (the #1697 Coquina

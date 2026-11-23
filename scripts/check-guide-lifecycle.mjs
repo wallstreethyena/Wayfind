@@ -12,7 +12,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
 import { guideRegions } from "../lib/guideIndex.js";
-import { guideEndsOn, isGuidePast, currentGuides, pastGuides, endedLabel } from "../lib/guideLifecycle.js";
+import { guideEndsOn, isGuidePast, isGuideWithheld, currentGuides, pastGuides, endedLabel } from "../lib/guideLifecycle.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 
 let checks = 0;
@@ -52,11 +52,14 @@ for (const g of Object.values(GUIDES)) { const e = guideEndsOn(g); if (e) { prob
 for (const day of probeDays) {
   const cur = Object.keys(currentGuides(GUIDES, day));
   const past = pastGuides(GUIDES, day).map((r) => r.slug);
-  ok(cur.length + past.length === ALL.length && new Set([...cur, ...past]).size === ALL.length, `${day}: current + past covers every guide exactly once`);
+  // A guide waiting on photos is neither current nor past. Owner, 2026-11-23.
+  const withheld = ALL.filter((slug) => !past.includes(slug) && isGuideWithheld(slug, GUIDES[slug]));
+  ok(cur.length + past.length + withheld.length === ALL.length && new Set([...cur, ...past, ...withheld]).size === ALL.length, `${day}: current + past + photo-withheld covers every guide exactly once`);
   for (const slug of ALL) {
     const e = guideEndsOn(GUIDES[slug]);
     const shouldBePast = Boolean(e) && day > e;
-    ok(past.includes(slug) === shouldBePast && cur.includes(slug) === !shouldBePast, `${day}: ${slug} is ${shouldBePast ? "past" : "current"} (endsOn ${e || "none"})`);
+    const waiting = !shouldBePast && isGuideWithheld(slug, GUIDES[slug]);
+    ok(past.includes(slug) === shouldBePast && cur.includes(slug) === (!shouldBePast && !waiting), `${day}: ${slug} is ${shouldBePast ? "past" : waiting ? "withheld" : "current"} (endsOn ${e || "none"})`);
   }
   // Past guides cannot leak back into the hub's grouped index.
   const hubSlugs = guideRegions(currentGuides(GUIDES, day)).flatMap((r) => r.guides.map((x) => x.slug));

@@ -134,11 +134,11 @@ const E = await import("../lib/experiment.js");
   ok(culture.indexOf("<ExploreBridge") > 0 && culture.indexOf('pageType="culture"') > 0, "culture pages mount the bridge");
   const bridgeBeforePicks = (source) => {
     const bridge = source.indexOf("<ExploreBridge");
-    const body = source.indexOf('{g.picks.map((pick, i) => {');
+    const body = source.indexOf('{shippingPicks.map(({ pick, index: i }, visibleIndex) => {');
     return bridge >= 0 && body >= 0 && bridge < body;
   };
   ok(bridgeBeforePicks(guide), "the bridge renders ABOVE the guide's long-form body");
-  ok(!bridgeBeforePicks('{g.picks.map((pick, i) => { ... <ExploreBridge'), "red proof: a bridge below rendered picks fails even if preprocessing maps occur earlier");
+  ok(!bridgeBeforePicks('{shippingPicks.map(({ pick, index: i }, visibleIndex) => { ... <ExploreBridge'), "red proof: a bridge below rendered picks fails even if preprocessing maps occur earlier");
   // The experiment must not make either surface unindexable. Guide SEO now
   // carries an explicit index/follow directive so large image previews can be
   // enabled without leaving crawlability implicit; culture remains unchanged.

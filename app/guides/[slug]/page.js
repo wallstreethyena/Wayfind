@@ -10,6 +10,7 @@ import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
 import { DEDICATED_GUIDE_ROUTES } from "../../../lib/guideDedicatedRoutes";
 import { isGuidePast, currentGuides, guideEndsOn, endedLabel } from "../../../lib/guideLifecycle";
+import { guideAwaitingPhotos, guidePickAwaitingPhoto } from "../../../lib/guidePhotoGate";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorProductGoUrl } from "../../../lib/affiliates";
 import { productCtaLabel } from "../../../lib/guideProductResolve";
@@ -478,7 +479,7 @@ export async function generateMetadata({ params }) {
   const heroV = art && art.kind !== "unavailable" && art.reviewedAt
     ? "&v=" + encodeURIComponent(art.reviewedAt + "." + HERO_CARD_DESIGN_V) : "";
   const heroUrl = `${SITE_URL}/api/og/hero?kind=guide&id=${encodeURIComponent(params.slug)}&t=${encodeURIComponent(g.title)}&cat=Guide&loc=${encodeURIComponent(g.region || "")}${heroV}`;
-  const indexable = !isGuidePast(g);
+  const indexable = !isGuidePast(g) && !guideAwaitingPhotos(params.slug, g);
   return {
     title: `${g.title} | Wayfind`,
     description: g.description,
@@ -531,6 +532,11 @@ export default async function GuidePage({ params }) {
   // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
   if (!g) notFound();
+  // Picks with no registered photo stay in the record and off the page
+  // (owner, 2026-11-23). They must not render "Photo unavailable".
+  const shippingPicks = (Array.isArray(g.picks) ? g.picks : [])
+    .map((pick, index) => ({ pick, index }))
+    .filter(({ pick }) => !guidePickAwaitingPhoto(params.slug, pick, g));
   const chrome = guideCommerceChrome(g);
   // PLACE-INTENT DEEP LINK. A guide's "Open in Wayfind" names a SPECIFIC
   // place, but a bare "/?q=" ran the app's area-first search: "Airboat the
@@ -874,13 +880,13 @@ export default async function GuidePage({ params }) {
   // v4.18: FAQ structured data — makes these guides eligible for expanded
   // FAQ rich results in search, which lifts click-through beyond position.
   const guideUrl = SITE_URL + "/guides/" + params.slug;
-  const itemListLd = Array.isArray(g.picks) && g.picks.length >= 3 ? {
+  const itemListLd = shippingPicks.length >= 3 ? {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: g.title,
-    numberOfItems: g.picks.length,
+    numberOfItems: shippingPicks.length,
     itemListOrder: "https://schema.org/ItemListOrderAscending",
-    itemListElement: Array.from(g.picks, (pick, i) => ({
+    itemListElement: shippingPicks.map(({ pick }, i) => ({
       "@type": "ListItem",
       position: i + 1,
       name: pick.name,
@@ -1093,7 +1099,7 @@ export default async function GuidePage({ params }) {
           <EventWhere {...eventMap} />
         </div>
       ) : null}
-      <GuideReadingNav guide={g} />
+      <GuideReadingNav guide={{ ...g, picks: shippingPicks.map(({ pick }) => pick) }} />
       {chrome.exploreBridge ? <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" /> : null}
       {/* AUDIT F2 (2026-08-02) — guides took ~276 of the 685 visitors across
           the top 25 pages (40%, and a floor, since that list truncates at 25)
@@ -1203,7 +1209,7 @@ export default async function GuidePage({ params }) {
           railIdPrefix={params.slug}
         />
       ) : null}
-      {g.picks.map((pick, i) => {
+      {shippingPicks.map(({ pick, index: i }, visibleIndex) => {
         const resolved = pickPlaces[i];
         const noSale = unavailableFor(pick.eventSlug);
         const ticket = noSale ? null : guidePickTicket(pick.ticket);
@@ -1211,8 +1217,8 @@ export default async function GuidePage({ params }) {
         // otherwise use the same venue-owned source as discovery cards.
         const pickImage = curatedPickImages[i] || editorialImages.get(pickPlaceIds[i]);
         return (
-          <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
-            <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
+          <section key={i} id={"pick-" + (visibleIndex + 1)} className="wf-guide-pick">
+            <div className="wf-guide-number">{String(visibleIndex + 1).padStart(2, "0")}</div>
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
