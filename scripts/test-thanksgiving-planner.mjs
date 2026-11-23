@@ -4,7 +4,8 @@ import {
   buildThanksgivingPlan, parseThanksgivingQuery, readThanksgivingTable,
   serveThanksgivingPlan, thanksgivingResponse,
 } from "../lib/thanksgivingPlanner.js";
-import { experienceWayfindScore } from "../lib/experiencesData.js";
+import { experienceWayfindScore, milesBetween } from "../lib/experiencesData.js";
+import { MARQUEE_DAY_TRIPS } from "../lib/marqueeDayTrips.js";
 import {
   createThanksgivingViatorReader, thanksgivingProductBelongs, thanksgivingProductArea, thanksgivingViatorMarkets,
   THANKSGIVING_VIATOR_MARKETS, THANKSGIVING_VIATOR_TTL_MS,
@@ -41,13 +42,15 @@ function equal(actual, expected, message) { assert.deepEqual(actual, expected, m
 
 for (const bad of [
   { ...origin, lat: 40 }, { ...origin, lat: "28junk" }, { ...origin, lng: "" },
-  { ...origin, mi: 121 }, { ...origin, mi: 0 }, { ...origin, year: 2026.5 },
+  { ...origin, mi: 121 }, { ...origin, mi: 0 }, { ...origin, mi: 61 }, { ...origin, mi: 120 },
+  { ...origin, mi: 1.5 }, { ...origin, mi: true }, { ...origin, mi: " " }, { ...origin, year: 2026.5 },
   { ...origin, date: "2026-11-25" }, { ...origin, date: "2026-02-30" },
 ]) {
   assert.throws(() => parseThanksgivingQuery(bad, { now })); checks++;
 }
 equal(parseThanksgivingQuery({ lat: origin.lat, lng: origin.lng }, { now }).year, 2026, "current holiday year comes from Eastern date");
 equal(parseThanksgivingQuery({ lat: origin.lat, lng: origin.lng }, { now: new Date("2026-11-30T06:00:00Z") }).year, 2027, "after Thanksgiving Sunday use next year's window");
+for (const mi of [1, 15, 30, 45, 60, "17"]) equal(parseThanksgivingQuery({ ...origin, mi }, { now }).radiusMi, Number(mi), "every shared slider distance is accepted as whole miles");
 
 const base = buildThanksgivingPlan(origin, catalogs(), { now });
 equal(base.events.map((r) => r.event_id), ["valid"], "verified date overlap appears");
@@ -64,6 +67,9 @@ equal(base.counts.mappable, 0, "mappable count uses permitted coordinates only")
 equal(base.unmappedCount, 2, "unmapped count counts selected items, not deduplicated venues");
 check(base.experiences[0].url.startsWith("/api/viator/go?product="), "booking uses existing exact-product attributed redirect");
 equal(base.experiences[0].dateAvailability, "unknown", "live search is not a date-availability promise");
+equal(base.experiences[0].distanceMi, Math.round(milesBetween(origin, venue()) * 10) / 10, "matched venue supplies approximate sort distance");
+equal(base.experiences[0].distanceIsApproximate, true, "experience distance is explicitly approximate");
+check(!("lat" in base.experiences[0]) && !("lng" in base.experiences[0]), "sort distance never exposes product coordinates");
 
 const proven = buildThanksgivingPlan(origin, catalogs({ venues: [venue({ independent_coords: [{ source: "official_venue", lat: 28.541, lng: -81.381, observed_at: now.toISOString() }] })] }), { now });
 equal(proven.mapPlaces[0].lat, 28.541, "explicit independently sourced coordinate can be drawn");
@@ -105,6 +111,8 @@ equal(closed.events, [], "event at a known permanently closed venue is hidden");
 equal(closed.mapPlaces, [], "closed venue can never become a map stop");
 const fuzzy = buildThanksgivingPlan(origin, catalogs({ currentExperiences: [summary("90001P1", { title: "Orlando Boat Adventures sightseeing trolley tour" })] }), { now });
 equal(fuzzy.experiences[0].venuePlaceId, null, "fuzzy DB candidate cannot manufacture an exact tour meeting point");
+check(Number.isFinite(fuzzy.experiences[0].distanceMi) && fuzzy.experiences[0].distanceMi >= 0, "unmapped experience retains known destination-area sort distance");
+equal(fuzzy.experiences[0].mapEligible, false, "destination-area sort distance never grants a map point");
 const wrongCity = buildThanksgivingPlan(origin, catalogs({ venues: [venue({ postal_city: "Miami", lat: 25.76, lng: -80.19 })] }), { now });
 equal(wrongCity.experiences[0].venuePlaceId, null, "namesake in a different market never supplies a map identity");
 const ranked = buildThanksgivingPlan(origin, catalogs({
@@ -175,6 +183,8 @@ equal(thanksgivingProductBelongs(kscProduct, market, { ...marketQuery, radiusMi:
 equal(thanksgivingProductBelongs(winterHavenProduct, market, { ...marketQuery, radiusMi: 25 }), false, "real Winter Haven outing is outside Orlando25 despite an Orlando provider URL");
 check(thanksgivingProductBelongs(kscProduct, market, marketQuery), "KSC is a valid wider Orlando60 outing");
 equal(thanksgivingProductArea(kscProduct, market, marketQuery).label, "Merritt Island area", "wider KSC outing uses known venue town rather than marketing destination label");
+const kscDistance = Math.round(milesBetween(origin, MARQUEE_DAY_TRIPS.find((anchor) => anchor.key === "kennedy_space_center")) * 10) / 10;
+equal(thanksgivingProductArea(kscProduct, market, marketQuery).distanceMi, kscDistance, "KSC distance uses its known Cape Canaveral area rather than Orlando marketing center");
 equal(thanksgivingProductArea(winterHavenProduct, market, marketQuery).label, "Winter Haven area", "named town uses existing marquee town evidence");
 check(thanksgivingProductBelongs(product(), market, { ...marketQuery, radiusMi: 5 }), "generic downtown Orlando product does not inherit outlying Orlando attraction points");
 check(thanksgivingProductBelongs(product({ title: "Disney Hollywood Studios Admission", productUrl: "https://www.viator.com/tours/Orlando/Disney-Hollywood-Studios-Admission/d663-90001P1" }), market, { ...marketQuery, radiusMi: 25 }), "Disney Hollywood Studios is not confused with Hollywood Florida city");
@@ -182,6 +192,9 @@ const namedAreaReader = createThanksgivingViatorReader({ clock: () => now.getTim
 const widerAreas = await namedAreaReader(marketQuery);
 const widerPlan = buildThanksgivingPlan(origin, catalogs({ events: [], experiences: [], currentExperiences: widerAreas.rows, venues: [], links: [] }), { now });
 equal(widerPlan.experiences.find((row) => row.code === "3170P99")?.locationLabel, "Merritt Island area", "normalized live experience carries actual known area label");
+equal(widerAreas.rows.find((row) => row.product_code === "3170P99")?.area_distance_mi, kscDistance, "provider normalization retains only the known itinerary-area distance");
+equal(widerPlan.experiences.find((row) => row.code === "3170P99")?.distanceMi, kscDistance, "closest-first distance preserves the actual KSC area through the planner");
+check(kscDistance > 35, "KSC cannot sort as a downtown Orlando outing");
 equal(widerPlan.mapPlaces, [], "known itinerary area anchors never become product map points");
 const narrowAreas = await namedAreaReader({ ...marketQuery, radiusMi: 25 });
 equal(narrowAreas.rows, [], "cached search is re-filtered against each caller's narrower radius");
@@ -288,6 +301,8 @@ const unavailable = await thanksgivingResponse(new Request("https://example.org/
 equal(unavailable.status, 503, "total owned/provider failure fails loudly");
 const invalid = await thanksgivingResponse(new Request("https://example.org/api/holidays/thanksgiving?lat=40&lng=-81&year=2026"), requestDeps);
 equal(invalid.status, 400, "HTTP request validates geography");
+const invalidRadius = await thanksgivingResponse(new Request("https://example.org/api/holidays/thanksgiving?lat=28.5384&lng=-81.3789&year=2026&mi=61"), requestDeps);
+equal(invalidRadius.status, 400, "HTTP request rejects a distance beyond the shared slider");
 const route = await readFile(new URL("../app/api/holidays/thanksgiving/route.js", import.meta.url), "utf8");
 check(/thanksgivingResponse\(request\)/.test(route), "route uses tested injected request boundary");
 console.log(`Thanksgiving planner: ${checks} checks passed.`);

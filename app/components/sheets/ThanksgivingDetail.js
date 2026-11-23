@@ -18,7 +18,6 @@ import { createThanksgivingRequestManager, openThanksgivingMap, thanksgivingLoca
   thanksgivingSharePath, thanksgivingVisibleGroups, thanksgivingVisibleMapPlaces } from "../../../lib/thanksgivingClient.js";
 
 const categories = [["all", "All picks"], ["experiences", "Viator experiences"], ["events", "Holiday events"], ["places", "Easy local outings"]];
-const distances = [[25, "Nearby · 25 mi"], [60, "Wider area · 60 mi"], [120, "Day trips · 120 mi"]];
 const button = { border: `1px solid ${C.border}`, borderRadius: 999, background: C.card, color: C.light, padding: "9px 14px", fontSize: 13, fontWeight: 750, cursor: "pointer" };
 const filterButton = { ...button, padding: "8px 11px", fontSize: 12, whiteSpace: "nowrap" };
 const row = { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" };
@@ -57,6 +56,7 @@ function HolidayExperienceCard({ experience, rank, contentId, page }) {
 }
 
 export default function ThanksgivingDetail({ ctx }) {
+  const SortControl = ctx.SortControl;
   const today = useSiteToday();
   const detail = ctx.hookDetail || {};
   const initial = useRef(null);
@@ -66,6 +66,7 @@ export default function ThanksgivingDetail({ ctx }) {
   const [year, setYear] = useState(initial.current.year);
   const [date, setDate] = useState(initial.current.date);
   const [mi, setMi] = useState(initial.current.mi);
+  const [sortBy, setSortBy] = useState(["near", "rated", "price"].includes(detail.holidaySort) ? detail.holidaySort : "rated");
   const [category, setCategory] = useState("all");
   const [retry, setRetry] = useState(0);
   const [result, setResult] = useState({ key: "", status: "waiting", data: null });
@@ -85,7 +86,7 @@ export default function ThanksgivingDetail({ ctx }) {
   const data = expired ? null : candidate;
   const loading = !!requestKey && (!data && (result.key !== requestKey || result.status === "loading" || expired));
   const failed = !!requestKey && result.key === requestKey && result.status === "error";
-  const groups = thanksgivingVisibleGroups(data, category);
+  const groups = thanksgivingVisibleGroups(data, category, sortBy);
   const visibleCount = groups.experiences.length + groups.events.length + groups.places.length;
   const mapPlaces = thanksgivingVisibleMapPlaces(data, category);
   const currentYear = thanksgivingYearForDate(today);
@@ -138,7 +139,7 @@ export default function ThanksgivingDetail({ ctx }) {
   const close = () => { manager.current.cancel(); ctx.setHookDetail(null); };
   const chooseLocation = () => {
     manager.current.cancel();
-    if (ctx.chooseThanksgivingLocation) ctx.chooseThanksgivingLocation({ year, date, mi });
+    if (ctx.chooseThanksgivingLocation) ctx.chooseThanksgivingLocation({ year, date, mi, sort: sortBy });
     else { close(); ctx.setScopeOpen?.(true); }
   };
   const share = () => {
@@ -151,8 +152,11 @@ export default function ThanksgivingDetail({ ctx }) {
     style={{ position: "fixed", inset: 0, zIndex: 950, background: C.bg, color: C.text, overflowY: "auto", overscrollBehavior: "contain" }}>
     <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
     <div style={{ maxWidth: 920, margin: "0 auto", padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 14px", boxSizing: "border-box", background: `linear-gradient(155deg, ${C.accent}22, ${C.bg} 70%)` }}>
-      <div style={{ ...row, justifyContent: "space-between", marginBottom: 12 }}>
-        <button ref={backRef} style={{ ...button, color: C.accent }} onClick={close}>‹ Back</button>
+      <div style={{ ...row, position: "relative", justifyContent: "space-between", marginBottom: 12 }}>
+        <div style={row}>
+        <button ref={backRef} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: "8px 15px" }} onClick={close}>‹ Back</button>
+        <SortControl sortBy={sortBy} onSort={setSortBy} mi={mi} onMi={setMi} where={locationKey ? location.split(",")[0] : "your selected location"} menuAtRowStart />
+        </div>
         <button style={button} onClick={share} aria-label="Share Thanksgiving picks">Share ↗</button>
       </div>
       <div style={{ color: C.accent, fontSize: 10, letterSpacing: "1.4px", fontWeight: 900, textTransform: "uppercase", marginBottom: 6 }}>🦃 Thanksgiving picks</div>
@@ -163,14 +167,13 @@ export default function ThanksgivingDetail({ ctx }) {
         <button onClick={chooseLocation} style={button}>📍 {locationKey ? "Change location" : "Choose location"}</button>
       </div>
       <div role="group" aria-label="Thanksgiving dates" style={{ ...row, flexWrap: "nowrap", gap: 5, overflowX: "auto", overscrollBehaviorX: "contain", marginBottom: 10 }}>{[["all", "All weekend"], ...window.days.map((day) => [day, dateLabel(day, { weekday: "short", month: "short", day: "numeric" })])].map(([value, label]) => <button key={value} aria-label={label} aria-pressed={date === value} onClick={() => setDate(value)} style={{ ...filterButton, padding: "8px 9px", color: date === value ? C.accent : C.light, borderColor: date === value ? C.accent : C.border }}>{value === "all" ? label : dateLabel(value, { weekday: "short", day: "numeric" })}</button>)}</div>
-      <div role="group" aria-label="Distance" style={{ ...row, gap: 6, marginBottom: 10 }}>{distances.map(([value, label]) => <button key={value} aria-label={label} aria-pressed={mi === value} onClick={() => setMi(value)} style={{ ...filterButton, color: mi === value ? C.accent : C.light, borderColor: mi === value ? C.accent : C.border }}>{value} mi</button>)}</div>
       <div role="group" aria-label="Types of Thanksgiving picks" style={{ ...row, gap: 6, marginBottom: 10 }}>{categories.filter(([value]) => value !== "places" || data?.places?.length).map(([value, label]) => <button key={value} aria-label={label} aria-pressed={category === value} onClick={() => setCategory(value)} style={{ ...filterButton, background: category === value ? C.accent + "20" : C.card, color: category === value ? C.accent : C.light }}>{{ all: "All", experiences: "Experiences", events: "Events", places: "Outings" }[value]}</button>)}</div>
       <p style={{ color: C.muted, fontSize: 12, lineHeight: 1.5, margin: "0 0 10px" }}>Relevant Viator experiences first. Check dates and meeting points.</p>
       <div style={row}><button disabled={!mapPlaces.length} onClick={() => openThanksgivingMap(ctx, data, category)} style={{ ...button, color: mapPlaces.length ? C.accent : C.muted, opacity: mapPlaces.length ? 1 : .6, cursor: mapPlaces.length ? "pointer" : "default" }}>Map verified stops{mapPlaces.length ? ` · ${mapPlaces.length} ${mapPlaces.length === 1 ? "venue" : "venues"}` : ""}</button>
         {data ? <span style={{ color: C.muted, fontSize: 12 }}>{visibleCount} picks in this view</span> : null}</div>
       {data ? <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, margin: "6px 0" }}>Matched venues only; some picks have no map point.</p> : null}
       {data ? <details style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginTop: 6 }}><summary style={{ cursor: "pointer", color: C.light, fontWeight: 750 }}>About these picks</summary>
-        <p>Picks keep their quality order within each group. Only matched venues from this view go to the map; pins appear only when a venue location is available. Check available dates and the operator’s meeting point.</p>
+        <p>Your selected sort applies within each group. Unrated picks and unknown prices or distances follow known values. Area distances are approximate. Only matched venues from this view go to the map; pins appear only when a venue location is available. Check available dates and the operator’s meeting point.</p>
         {data.counts ? <p>Library considered: {Number(data.counts.libraryEvents || 0).toLocaleString()} event records · {Number(data.counts.libraryExperiences || 0).toLocaleString()} experience records. {Number(data.counts.localEvents || 0).toLocaleString()} events and {Number(data.counts.localExperiences || 0).toLocaleString()} experiences match this area and weekend. Viator results are a bounded nearby selection.</p> : null}
         {searchedMarkets.length ? <p>Viator search areas: {searchedMarkets.join(", ")}. More experiences may be available.</p> : null}
         {data.sourceStatus?.experiences?.reason === "no-nearby-market" ? <p>Viator search has no supported nearby market for this location.</p> : null}

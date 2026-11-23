@@ -322,8 +322,10 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import { useReserveEntry } from "../lib/reserveClient.js";
-import LocalEdit from "./components/LocalEdit";
-import ThisWeekEvents from "./components/ThisWeekEvents";
+// Guide links sit below the discovery rails. Keep their rendering and location
+// gate unchanged while loading their client code separately from the menu.
+const LocalEdit = nextDynamic(() => import("./components/LocalEdit"), { loading: () => null });
+const ThisWeekEvents = nextDynamic(() => import("./components/ThisWeekEvents"), { loading: () => null });
 import { MARKETS, marketForLocation } from "../lib/destinations";
 // v9 (2026-09-02, WO9 bundle fix) — from lib/creatorSignals.js, not
 // lib/creatorVideos.js. Both remaining call sites (hasCreatorVideo() at the
@@ -2320,12 +2322,12 @@ function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
   );
 }
 
-function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals }) {
+function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals, menuAtRowStart = false }) {
   const [openMenu, setOpenMenu] = useState(false);
   const OPTIONS = [["near", "Closest first"], ["rated", "Top rated"], ["price", "Price: low to high"]]; // v4.83: "Best experiences" removed — it duplicated Top rated in practice; "near" is the default everywhere
   const current = (OPTIONS.find(([k]) => k === sortBy) || OPTIONS[0])[1];
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div style={{ position: menuAtRowStart ? "static" : "relative", display: "inline-block" }}>
       <div onClick={(e) => { e.stopPropagation(); setOpenMenu((o) => !o); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${openMenu ? C.accent : C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: "8px 14px" }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
         <span>{sortBy === "near" && mi ? `Within ${mi} mi` : current}</span>
@@ -5054,7 +5056,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       const options = thanksgivingLocationReturn.options;
       setThanksgivingLocationReturn(null);
       setScopeOpen(false);
-      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: options.year, holidayDate: options.date, holidayMi: options.mi });
+      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: options.year, holidayDate: options.date, holidayMi: options.mi, holidaySort: options.sort });
     } else if (decision === "cancel") setThanksgivingLocationReturn(null);
   }, [thanksgivingLocationReturn, center, locResolved, scopeOpen, screen, hookDetail, detail]);
   useEffect(() => {
