@@ -286,27 +286,19 @@ export const ASK_CSS = `
   color:#FFFFFF;border-radius:10px;padding:0 12px;font-family:inherit;font-size:12px;font-weight:850;
   cursor:pointer;letter-spacing:.02em}
 
-/* Live Santa Calling Update Banner */
-.wfx-call-card{width:100%;margin-top:10px;border-radius:16px;padding:10px 13px;
-  background:linear-gradient(135deg,rgba(16,38,44,.94) 0%,rgba(22,15,44,.96) 100%);
-  border:1px solid rgba(0,245,212,.55);box-shadow:0 10px 24px rgba(0,245,212,.14);
-  text-align:left;animation:wfxPop .25s cubic-bezier(.2,1.4,.3,1)}
-.wfx-call-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.wfx-call-left{display:flex;align-items:center;gap:10px;min-width:0}
-.wfx-call-ring{position:relative;flex-shrink:0;width:36px;height:36px;border-radius:50%;
-  background:rgba(0,245,212,.15);border:1.5px solid #00F5D4;display:flex;align-items:center;justify-content:center;
-  animation:wfxRingPulse 1.4s ease-out infinite}
-.wfx-call-dot{width:10px;height:10px;border-radius:50%;background:#00F5D4;box-shadow:0 0 10px #00F5D4}
-@keyframes wfxRingPulse{
-  0%{box-shadow:0 0 0 0 rgba(0,245,212,.55)}
-  70%{box-shadow:0 0 0 9px rgba(0,245,212,0)}
-  100%{box-shadow:0 0 0 0 rgba(0,245,212,0)}}
-.wfx-call-status{font-size:10.5px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:#00F5D4}
-.wfx-call-title{font-size:13.5px;font-weight:800;color:#FFFFFF;line-height:1.25}
-.wfx-call-transcript{margin-top:7px;padding:7px 10px;border-radius:10px;
-  background:rgba(10,6,22,.6);border:1px solid rgba(255,255,255,.1);
-  color:#F5E6FF;font-size:12.5px;font-weight:650;line-height:1.4}
-.wfx-call-transcript b{color:#FFD166;font-style:normal}
+/* Warm Comic Speech Bubble above the Santa & Elf Phone-Call Theatre Stage */
+.wfx-santa-bubble{position:relative;max-width:360px;margin:0 0 12px;padding:10px 16px;
+  border-radius:20px;background:#FFF8FF;border:3px solid #23143B;
+  color:#23143B;font-size:13.5px;font-weight:800;line-height:1.38;text-align:center;
+  box-shadow:0 10px 26px rgba(15,6,32,.48),0 0 0 4px rgba(255,209,102,.32);
+  animation:wfxBubblePop .34s cubic-bezier(.22,1.5,.36,1)}
+.wfx-santa-bubble:after{content:"";position:absolute;left:50%;bottom:-10px;width:14px;height:14px;
+  background:#FFF8FF;border-right:3px solid #23143B;border-bottom:3px solid #23143B;
+  transform:translateX(-50%) rotate(45deg)}
+.wfx-santa-bubble b{color:#D81B60;font-weight:900}
+.wfx-santa-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;margin-bottom:4px;
+  border-radius:999px;background:#FFE8A3;border:1.5px solid #23143B;
+  color:#23143B;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
 
 .wfx-mark{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;
   color:#D5C2FF;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-shadow:0 2px 8px rgba(12,5,26,.5)}
@@ -347,7 +339,7 @@ export const ASK_CSS = `
   0%,100%{transform:translate(-2%,3%) scale(1.02,.97)}
   50%{transform:translate(2%,3%) scale(.98,1.02)}}
 
-/* Articulated bell, ears, arms, star-wink, and pleading hands */
+/* Articulated bell, ears, arms, star-wink, pleading hands, held props, and Santa phone */
 .wfc-bell{animation:wfcBellSwing .68s ease-in-out infinite}
 .wfc-earL{animation:wfcEarL .72s ease-in-out infinite}
 .wfc-earR{animation:wfcEarR .72s ease-in-out infinite}
@@ -355,6 +347,20 @@ export const ASK_CSS = `
 .wfc-armR{animation:wfcArmR .68s ease-in-out infinite}
 .wfc-starwink{animation:wfcStarWink .9s ease-in-out infinite}
 .wfc-plead-hands{animation:wfcPlead .42s ease-in-out infinite}
+.wfc-prop-pop{animation:wfcPropBounce .65s cubic-bezier(.34,1.56,.64,1) infinite}
+.wfc-santa-phone{animation:wfcPhoneRock .48s ease-in-out infinite}
+.wfc-phone-wave1{animation:wfcWavePulse .8s ease-out infinite}
+.wfc-phone-wave2{animation:wfcWavePulse .8s ease-out .25s infinite}
+@keyframes wfcPropBounce{
+  0%,100%{transform:translate(176px,112px) translateY(0) rotate(-4deg) scale(1)}
+  50%{transform:translate(176px,112px) translateY(-6px) rotate(6deg) scale(1.08)}}
+@keyframes wfcPhoneRock{
+  0%,100%{transform:rotate(-5deg) translateY(0)}
+  50%{transform:rotate(6deg) translateY(-3px)}}
+@keyframes wfcWavePulse{
+  0%{opacity:.2;transform:translateX(0) scale(.92)}
+  50%{opacity:1;transform:translateX(3px) scale(1.06)}
+  100%{opacity:.15;transform:translateX(6px) scale(1.12)}}
 
 .wfc-mood-worried .wfc-earL,.wfc-mood-teary .wfc-earL,.wfc-mood-crying .wfc-earL,
 .wfc-mood-heartbroken .wfc-earL,.wfc-mood-curled .wfc-earL{animation:wfcEarDroopL .85s ease-in-out infinite}

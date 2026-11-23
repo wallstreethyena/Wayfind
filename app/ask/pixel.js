@@ -181,7 +181,7 @@ function BooDropGlyph({ x, y, scale = 1, className = "" }) {
  * Wayfind's adorable Chibi Elf mascot in the Official Mascot Bible vector style.
  * Keeps the `Cat` export name so every caller and test imports it seamlessly.
  */
-export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false, delay = 0, look, fidget = 0, snuggle = false }) {
+export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false, delay = 0, look, fidget = 0, snuggle = false, prop = "" }) {
   const pal = P[tone] || P.cream;
   const m = MOODS[mood] || MOODS.hopeful;
   const lx = look && typeof look.x === "number" ? Math.max(-1, Math.min(1, look.x)) : 0;
@@ -636,6 +636,65 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
         ? <BooDropGlyph x={72} y={140} scale={0.82} className="wfc-tear1" /> : null}
       {m.extra === "tears"
         ? <BooDropGlyph x={168} y={140} scale={0.82} className="wfc-tear2" /> : null}
+
+      {/* ── ANIMATED ACTIVITY & DATE PROPS HELD BY ELF ── */}
+      {prop === "tonight" ? (
+        <g className="wfc-prop-pop" transform="translate(182 110)">
+          <path d="M 4 2 L 38 2 L 24 22 L 24 38 L 34 40 L 8 40 L 18 38 L 18 22 Z" fill="#FFF8FF" stroke="#23143B" strokeWidth="4.2" strokeLinejoin="round" />
+          <path d="M 9 7 L 33 7 L 22 20 L 20 20 Z" fill="#FF2A85" />
+          <circle cx="34" cy="4" r="7" fill="#FFD166" stroke="#23143B" strokeWidth="3.5" />
+          <circle cx="18" cy="-4" r="3" fill="#00F5D4" className="wfc-xheart" />
+          <circle cx="26" cy="-11" r="2.4" fill="#FFD166" className="wfc-xheart" />
+        </g>
+      ) : null}
+      {prop === "dinner" ? (
+        <g className="wfc-prop-pop" transform="translate(174 118)">
+          <ellipse cx="24" cy="28" rx="24" ry="6" fill="#FFF8FF" stroke="#23143B" strokeWidth="4" />
+          <path d="M 4 26 C 4 8 44 8 44 26 Z" fill="#FFD166" stroke="#23143B" strokeWidth="4.2" strokeLinejoin="round" />
+          <circle cx="24" cy="7" r="4.5" fill="#FF2A85" stroke="#23143B" strokeWidth="3.2" />
+          <BooHeartGlyph x={24} y={-14} scale={0.45} className="wfc-xheart" />
+        </g>
+      ) : null}
+      {prop === "bite" ? (
+        <g className="wfc-prop-pop" transform="translate(178 114)">
+          <path d="M 28 14 C 38 14 38 28 28 28" fill="none" stroke="#23143B" strokeWidth="4.5" strokeLinecap="round" />
+          <rect x="6" y="10" width="24" height="24" rx="7" fill="#FFF2F7" stroke="#23143B" strokeWidth="4.2" />
+          <rect x="6" y="17" width="24" height="9" fill="#FF7597" />
+          <BooHeartGlyph x={18} y={-8} scale={0.42} className="wfc-xheart" />
+        </g>
+      ) : null}
+      {prop === "hidden" ? (
+        <g className="wfc-prop-pop" transform="translate(178 106)">
+          <circle cx="22" cy="22" r="18" fill="#FFD166" stroke="#23143B" strokeWidth="4.5" />
+          <circle cx="22" cy="22" r="12" fill="#1B1030" />
+          <BooStar cx={22} cy={22} r={9} fill="#00F5D4" />
+          <BooStar cx={36} cy={4} r={6} fill="#FF2A85" />
+        </g>
+      ) : null}
+      {prop === "drive" ? (
+        <g className="wfc-prop-pop" transform="translate(174 114)">
+          <path d="M 4 26 L 44 26 C 46 18 38 12 28 12 L 16 12 C 8 12 2 18 4 26 Z" fill="#FF2A85" stroke="#23143B" strokeWidth="4" strokeLinejoin="round" />
+          <circle cx="13" cy="28" r="6" fill="#FFD166" stroke="#23143B" strokeWidth="3.5" />
+          <circle cx="35" cy="28" r="6" fill="#FFD166" stroke="#23143B" strokeWidth="3.5" />
+          <BooStar cx={24} cy={0} r={7} fill="#00F5D4" />
+        </g>
+      ) : null}
+      {prop === "surprise" ? (
+        <g className="wfc-prop-pop" transform="translate(178 110)">
+          <rect x="6" y="14" width="28" height="24" rx="5" fill="#FF2A85" stroke="#23143B" strokeWidth="4.2" />
+          <rect x="3" y="8" width="34" height="9" rx="4" fill="#FFD166" stroke="#23143B" strokeWidth="4" />
+          <rect x="17" y="8" width="6" height="30" fill="#FFD166" stroke="#23143B" strokeWidth="3" />
+          <BooStar cx={20} cy={-5} r={8} fill="#00F5D4" />
+        </g>
+      ) : null}
+      {prop === "calendar" ? (
+        <g className="wfc-prop-pop" transform="translate(176 108)">
+          <rect x="4" y="8" width="34" height="32" rx="7" fill="#FFF8FF" stroke="#23143B" strokeWidth="4.2" />
+          <path d="M 4 17 L 38 17" stroke="#23143B" strokeWidth="3.8" />
+          <rect x="6" y="10" width="30" height="6" rx="2" fill="#FF2A85" />
+          <BooHeartGlyph x={21} y={20} scale={0.42} className="wfc-xheart" />
+        </g>
+      ) : null}
     </svg>
     </span>
   );
@@ -687,6 +746,8 @@ export const Elf = Cat;
 /**
  * Wayfind Santa AI wingman avatar for /ask — drawn directly in app/ask/pixel.js
  * so the entire /ask cast is self-contained with unique per-instance gradient IDs.
+ * When `calling` is true, Santa holds a gleaming golden retro handset to his ear
+ * with animated golden soundwave arcs radiating out.
  */
 export function SantaConciergeSvg({ calling = false }) {
   let raw = "";
@@ -715,13 +776,15 @@ export function SantaConciergeSvg({ calling = false }) {
         <path d="M50 246 C80 256 160 256 190 246 L190 266 C160 276 80 276 50 266Z" fill={OL} />
         <rect x="104" y="246" width="32" height="24" rx="6" fill="#ffd34d" stroke={OL} strokeWidth="3.5" />
       </g>
-      <g className="s-rarm">
-        <path d="M206 214 L222 120" stroke={OL} strokeWidth="16" strokeLinecap="round" />
-        <path d="M206 214 L222 120" stroke="#fff" strokeWidth="10" strokeLinecap="round" />
-        <path d="M206 214 L222 120" stroke="#ff4d5e" strokeWidth="10" strokeLinecap="round" strokeDasharray="7 7" />
-        <path d="M223 86 L231 104 L250 105 L235 117 L240 137 L223 126 L206 137 L211 117 L196 105 L215 104Z" fill="#ffd34d" stroke={OL} strokeWidth="3.5" strokeLinejoin="round" />
-        <circle cx={208} cy={204} r="15" fill="#3fbf7f" stroke={OL} strokeWidth="4" />
-      </g>
+      {!calling ? (
+        <g className="s-rarm">
+          <path d="M206 214 L222 120" stroke={OL} strokeWidth="16" strokeLinecap="round" />
+          <path d="M206 214 L222 120" stroke="#fff" strokeWidth="10" strokeLinecap="round" />
+          <path d="M206 214 L222 120" stroke="#ff4d5e" strokeWidth="10" strokeLinecap="round" strokeDasharray="7 7" />
+          <path d="M223 86 L231 104 L250 105 L235 117 L240 137 L223 126 L206 137 L211 117 L196 105 L215 104Z" fill="#ffd34d" stroke={OL} strokeWidth="3.5" strokeLinejoin="round" />
+          <circle cx={208} cy={204} r="15" fill="#3fbf7f" stroke={OL} strokeWidth="4" />
+        </g>
+      ) : null}
       <g className="s-head">
         <ellipse cx="120" cy="128" rx="66" ry="58" fill={skin} stroke={OL} strokeWidth="4.5" />
         <path d="M58 140 C46 160 52 186 70 196 C74 214 96 222 108 214 C114 226 126 226 132 214 C144 222 166 214 170 196 C188 186 194 160 182 140 C170 156 150 160 120 160 C90 160 70 156 58 140Z" fill={fluff} stroke={OL} strokeWidth="4.5" strokeLinejoin="round" />
@@ -730,7 +793,7 @@ export function SantaConciergeSvg({ calling = false }) {
         <ellipse cx={92} cy="126" rx="14" ry="18" fill="#1a1033" />
         <circle cx={96.5} cy="119" r="5.8" fill="#fff" />
         {calling ? (
-          <path d="M136 128 Q148 118 160 128" stroke={OL} strokeWidth="5.5" fill="none" strokeLinecap="round" />
+          <path d="M136 128 Q148 114 160 128" stroke={OL} strokeWidth="6" fill="none" strokeLinecap="round" />
         ) : (
           <>
             <ellipse cx={148} cy="126" rx="14" ry="18" fill="#1a1033" />
@@ -743,8 +806,42 @@ export function SantaConciergeSvg({ calling = false }) {
         <circle cx="206" cy="102" r="16" fill={fluff} stroke={OL} strokeWidth="4" />
         <path d="M48 96 C48 80 70 76 120 76 C170 76 192 80 192 96 C192 112 170 112 120 110 C70 112 48 112 48 96Z" fill={fluff} stroke={OL} strokeWidth="4.5" />
       </g>
+      {calling ? (
+        <g className="wfc-santa-phone" style={{ transformOrigin: "44px 146px" }}>
+          {/* Golden Vintage Receiver Held to Santa's Outer Left Ear */}
+          <rect x="36" y="102" width="26" height="30" rx="10" transform="rotate(18 49 117)" fill="#FFD166" stroke={OL} strokeWidth="4.5" />
+          <path d="M 46 122 C 30 136 30 158 48 172" fill="none" stroke="#FFD166" strokeWidth="14" strokeLinecap="round" />
+          <path d="M 46 122 C 30 136 30 158 48 172" fill="none" stroke={OL} strokeWidth="4.5" strokeLinecap="round" />
+          <rect x="42" y="160" width="26" height="30" rx="10" transform="rotate(-18 55 175)" fill="#FFD166" stroke={OL} strokeWidth="4.5" />
+          <circle cx="42" cy="148" r="14" fill="#3fbf7f" stroke={OL} strokeWidth="4" />
+          {/* Animated Soundwave Arcs */}
+          <path className="wfc-phone-wave1" d="M 22 112 Q 6 136 22 162" fill="none" stroke="#00F5D4" strokeWidth="5" strokeLinecap="round" />
+          <path className="wfc-phone-wave2" d="M 8 100 Q -12 136 8 174" fill="none" stroke="#FFD166" strokeWidth="4.5" strokeLinecap="round" />
+        </g>
+      ) : null}
     </svg>
   );
 }
+
+/**
+ * Movie-like Duet Theatre Scene when Santa AI calls the date to lock in an upgrade:
+ * Chibi Santa holding the golden phone receiver on the left + cheering Chibi Elf on the right,
+ * surrounded by floating hearts and sound-wave sparkles inside the glowing stage medallion.
+ */
+export function SantaCallStage({ size = 60 }) {
+  const s = Math.round(size * 1.28);
+  return (
+    <div className="wfc-couple">
+      <div className="wfc-hugL" style={{ width: s, height: Math.round(s * 1.12), marginRight: "-6%" }}>
+        <SantaConciergeSvg calling />
+      </div>
+      <div className="wfc-heart"><Heart size={26} tone="cream" /></div>
+      <div className="wfc-heart-smL"><Heart size={15} tone="bear" /></div>
+      <div className="wfc-heart-smR"><Heart size={15} tone="cream" /></div>
+      <div className="wfc-hugR"><Cat tone="cream" mood="love" size={s} flip snuggle /></div>
+    </div>
+  );
+}
+
 
 
