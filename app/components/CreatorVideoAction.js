@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import CreatorVideoPlayer from "./CreatorVideoPlayer";
 import { safeUrl } from "../../lib/links";
-import { isEmbeddable } from "../../lib/videoEmbed";
+import { creatorPostActionLabel } from "../../lib/videoEmbed";
 
 // A native modal lives in the top layer, above even a transformed detail sheet.
 // It supplies focus containment, Escape handling and focus return. Closing
@@ -15,18 +15,20 @@ export default function CreatorVideoAction({ platform, url, label, children, sty
   // Owner rule 2026-11-18: creator videos play inside gowayfind and never send
   // the visitor to Instagram or TikTok. A post that cannot play here gets no
   // watch button at all (an empty player would be a dead end).
-  if (!isEmbeddable(platform, safeUrl(url))) return null;
+  const actionLabel = creatorPostActionLabel(platform, safeUrl(url));
+  if (!actionLabel) return null;
+  const closeLabel = actionLabel === "View post" ? "Close post" : "Close video";
   return <>
     <button {...props} type="button" className={className} data-creator-video-action="in-app" aria-haspopup="dialog" aria-label={label} onClick={(event) => {
       onClick?.(event);
       setOpen(true);
       dialogRef.current?.showModal();
-    }} style={{ font: "inherit", textAlign: "left", color: "inherit", background: "transparent", border: 0, padding: 0, cursor: "pointer", ...style }}>{children || "Watch in Wayfind"}</button>
+    }} style={{ font: "inherit", textAlign: "left", color: "inherit", background: "transparent", border: 0, padding: 0, cursor: "pointer", ...style }}>{children || actionLabel}</button>
     <dialog ref={dialogRef} aria-label={label} onCancel={close} onClose={() => setOpen(false)} onClick={(event) => { if (event.target === event.currentTarget) close(); }} style={{ padding: 0, width: "min(440px, calc(100vw - 24px))", maxHeight: "90dvh", border: "1px solid #26303B", borderRadius: 16, background: "#0D1117", color: "#F1F5F9", overflowY: "auto" }}>
       <div onClick={(event) => event.stopPropagation()}>
         <div style={{ position: "sticky", top: 0, zIndex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "10px 14px", background: "#0D1117" }}>
-          <span style={{ fontSize: 14, fontWeight: 800 }}>Watch in Wayfind</span>
-          <button type="button" autoFocus onClick={close} aria-label="Close video" style={{ minWidth: 44, minHeight: 44, border: 0, borderRadius: 99, background: "#161B22", color: "#fff", cursor: "pointer", fontSize: 22 }}>×</button>
+          <span style={{ fontSize: 14, fontWeight: 800 }}>{actionLabel}</span>
+          <button type="button" autoFocus onClick={close} aria-label={closeLabel} style={{ minWidth: 44, minHeight: 44, border: 0, borderRadius: 99, background: "#161B22", color: "#fff", cursor: "pointer", fontSize: 22 }}>×</button>
         </div>
         {open ? <CreatorVideoPlayer platform={platform} url={url} label={label} /> : null}
       </div>

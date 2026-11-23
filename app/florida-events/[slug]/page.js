@@ -308,9 +308,7 @@ export default async function CuratedEventPage({ params }) {
       <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the post here to see more."}</p>
     </div>
     <CreatorVideoAction platform={post.platform} url={post.url} style={S.socialLink}
-      label={`Open @${post.creator}'s post about ${e.event_name} in Wayfind`}>
-      Watch @{post.creator}&rsquo;s post in Wayfind
-    </CreatorVideoAction>
+      label={`Open @${post.creator}'s post about ${e.event_name} in Wayfind`} />
   </>;
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
