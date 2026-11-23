@@ -776,9 +776,11 @@ ok(html.includes("data-christmas-filter") && html.includes("Full menu") && html.
   // Owner 2026-11-17 ("more like the Viator card"): photo on top at full width, one card shape.
   ok(/\.xm-card\{[^}]*display:flex;flex-direction:column;height:100%/.test(cardSrc) && !/grid-template-columns:40% minmax\(0,1fr\)/.test(cardSrc), "the card stacks the photo above the body at every width");
   ok(/\.xm-photo\{[^}]*width:100%;aspect-ratio:16\/9/.test(cardSrc), "the photo is full width at a fixed 16:9 shape, so every card's photo is the same size");
-  // Owner 2026-11-17 ("too long from top to bottom"): one line per fact, price beside the button.
+  // Owner 2026-11-17 ("too long from top to bottom"): one line per fact.
+  // Owner 2026-11-23: the footer is one column pinned to the bottom. The price
+  // is its own full-width line, never beside the button.
   ok(/\.xm-line>span\{[^}]*white-space:nowrap[^}]*text-overflow:ellipsis/.test(cardSrc) && !/className="xm-pitch"/.test(cardSrc), "dates and city take one line each and the card carries no pitch paragraph");
-  ok(/\.xm-bottom>\.xm-pricerow\+\.xm-buy\{grid-column:2\}/.test(cardSrc), "the price sits beside the ticket button, not on its own row");
+  ok(/\.xm-bottom\{[^}]*margin-top:auto;display:flex;flex-direction:column/.test(cardSrc) && /\.xm-buy\{[^}]*width:100%/.test(cardSrc) && !/grid-column:2/.test(cardSrc), "the footer is a full-width column pinned to the bottom, and the price is not beside the button");
   ok(/sizes="\(min-width: 720px\) 470px, 100vw"/.test(cardSrc), "the photo requests a full-width image, never a 40vw thumbnail");
   ok(!/Directions/i.test(cardSrc + browseSrc), "no Directions button");
 

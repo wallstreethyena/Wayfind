@@ -21,15 +21,18 @@ const CSS = `
 .xw-group{margin:18px 0 0}.xw-label{margin:0 0 8px;color:#E8B48A;font-size:11px;font-weight:750;letter-spacing:1.3px;text-transform:uppercase}
 .xw-tiles{display:flex;gap:10px;margin:0 -16px;padding:2px 16px 8px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;list-style:none}
 .xw-tile{flex:0 0 min(72vw,260px);scroll-snap-align:start;min-width:0;display:flex}
-.xw-card{display:flex;flex-direction:column;width:100%;box-sizing:border-box;overflow:hidden;border:1px solid #E8B48A40;border-radius:16px;background:linear-gradient(160deg,#3E0C19,#230710 80%);color:#FFF7ED}
+.xw-card{display:flex;flex-direction:column;width:100%;height:100%;box-sizing:border-box;overflow:hidden;border:1px solid #E8B48A40;border-radius:16px;background:linear-gradient(160deg,#3E0C19,#230710 80%);color:#FFF7ED}
 .xw-open{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;color:inherit;text-decoration:none}
 .xw-open:focus-visible,.xw-buy:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xw-photo{display:block;width:100%;height:118px;object-fit:cover;background:#2A0A12}
-.xw-body{display:block;padding:11px 13px 13px}
+.xw-body{display:block;padding:11px 13px 8px}
 .xw-title{display:block;color:#FFF7ED;font-family:Georgia,serif;font-size:17px;line-height:1.25}
 .xw-meta{display:block;margin-top:5px;color:#E1C6B6;font-size:13px;line-height:1.4}
 .xw-dist{color:#E8B48A}
-.xw-buy{display:flex;align-items:center;justify-content:center;width:calc(100% - 26px);min-height:44px;margin:0 13px 13px;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border:2px solid #E8B48A;border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
+.xw-foot{margin-top:auto;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:0 13px 13px}
+.xw-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;margin:0;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border:2px solid #E8B48A;border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
+.xw-price,.xw-via{display:flex;align-items:center;justify-content:center;min-height:1.4em;margin:0;color:#E1C6B6;font-size:13px;line-height:1.4;text-align:center}
+.xw-via{min-height:1.6em;font-size:11.5px}
 @media(min-width:720px){.xw-tiles{margin:0;padding:2px 2px 8px}}
 `;
 
@@ -53,6 +56,16 @@ export function weekendTileHref(card) {
 }
 function tileWhen(card) {
   return (card.ticketRow && card.ticketRow.when) || card.when || card.seasonalWhen || "";
+}
+function weekendPriceLine(card) {
+  const price = card.ticketRow && card.ticketRow.price;
+  if (!price) return "";
+  if (price.kind === "from") return ["from", price.text, price.unit].filter(Boolean).join(" ");
+  return price.text || "";
+}
+function weekendViaLine(card) {
+  const via = card.ticketRow && card.ticketRow.cta && card.ticketRow.cta.via;
+  return via || "";
 }
 
 // A photo that fails to load falls back to nothing visible rather than a broken icon.
@@ -155,14 +168,18 @@ export default function ChristmasWeekendRow({ initial, lat, lng }) {
               {href
                 ? <a className="xw-open" href={href} onClick={onTile} {...(href.startsWith("/") ? {} : { target: "_blank", rel: "noopener noreferrer" })}>{open}</a>
                 : <div className="xw-open">{open}</div>}
-              {cta ? <a
-                className="xw-buy"
-                href={cta.href}
-                target="_blank"
-                rel={cta.kind === "affiliate" ? "sponsored nofollow noopener" : "nofollow noopener"}
-                data-commerce-owner={cta.kind === "affiliate" ? undefined : "ChristmasWeekendRow"}
-                onClick={cta.kind === "affiliate" ? undefined : () => organizerTap(card, cta)}
-              >{cta.label}</a> : null}
+              {cta ? <div className="xw-foot">
+                <a
+                  className="xw-buy"
+                  href={cta.href}
+                  target="_blank"
+                  rel={cta.kind === "affiliate" ? "sponsored nofollow noopener" : "nofollow noopener"}
+                  data-commerce-owner={cta.kind === "affiliate" ? undefined : "ChristmasWeekendRow"}
+                  onClick={cta.kind === "affiliate" ? undefined : () => organizerTap(card, cta)}
+                >{cta.label}</a>
+                <p className="xw-price">{weekendPriceLine(card)}</p>
+                <p className="xw-via">{weekendViaLine(card)}</p>
+              </div> : null}
             </div>
           </li>;
         })}

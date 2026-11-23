@@ -157,7 +157,7 @@ const html = renderToStaticMarkup(createElement(ChristmasWeekendRow, {
       id: "lights",
       label: "Light shows",
       cards: [
-        { id: "with", title: "River of Lights", city: "Tampa", image: "/events/christmas/river.webp", detailHref: "/florida-events/river", ticketRow: { cta: { kind: "affiliate", href: go, label: "Undercover Tourist", provider: "undercover_tourist" } } },
+        { id: "with", title: "River of Lights", city: "Tampa", image: "/events/christmas/river.webp", detailHref: "/florida-events/river", ticketRow: { price: { kind: "note", text: "See price on the ticket page" }, cta: { kind: "affiliate", href: go, label: "Undercover Tourist", via: "Event tickets at Undercover Tourist", provider: "undercover_tourist" } } },
         { id: "plain", title: "Park Lights", city: "Tampa", image: "/events/christmas/park.webp", detailHref: "/florida-events/park" },
         { id: "blank", title: "No Photo", city: "Tampa", detailHref: "/florida-events/blank", ticketRow: { cta: { kind: "affiliate", href: "/api/commerce/go?provider=viator&offer=1P1&surface=christmas_tours", label: "Viator", provider: "viator" } } },
       ],
@@ -170,6 +170,10 @@ ok(html.includes(">Undercover Tourist<") && !html.includes(">Park Lights<") === 
 ok(html.includes(">Undercover Tourist<") && (html.match(/class="xw-buy"/g) || []).length === 1, "only the card with a ticket way in gets a button");
 ok(!html.includes("No Photo") && !html.includes(">Viator<"), "a tile with no real photo is dropped, button and all");
 ok(html.includes("surface=" + CHRISTMAS_WEEKEND_SURFACE) && html.includes('rel="sponsored nofollow noopener"'), "the button is the tracked sponsored redirect");
+const buyAt = html.indexOf('class="xw-buy"');
+const priceAt = html.indexOf("See price on the ticket page");
+const viaAt = html.indexOf("Event tickets at Undercover Tourist");
+ok(buyAt > 0 && priceAt > buyAt && viaAt > priceAt && html.includes('class="xw-foot"'), "the weekend footer is a full-width button, then the price, then the partner line");
 ok(!/data-commerce-owner=/.test(html), "an affiliate button is left for the page beacon");
 
 const officialHtml = renderToStaticMarkup(createElement(ChristmasWeekendRow, {
