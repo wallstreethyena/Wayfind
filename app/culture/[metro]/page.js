@@ -101,7 +101,7 @@ export default async function CulturePage({ params }) {
     } catch (e) { bridgePicks = []; }
   }
   return (
-    <main style={S.page}>
+    <main style={S.page} className="wf-page-canvas">
       {/* v5.75: the Article + Breadcrumb JSON-LD used to sit ONLY in the
           not-found branch (which crashed), so the REAL culture pages shipped
           with no structured data. Moved here, onto the actual page Google reads. */}

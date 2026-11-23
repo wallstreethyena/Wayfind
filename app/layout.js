@@ -36,6 +36,8 @@ import BooCompanionLoader from "./components/BooCompanionLoader";
 import { SANTA_DOCK_ROOT_CSS } from "./components/santaDockMetrics.js";
 import { styleHtml } from "../lib/styleHtml.js";
 import WayfindPlannerLoader from "./components/WayfindPlannerLoader";
+import ChristmasSiteBackdrop from "./components/ChristmasSiteBackdrop";
+import { christmasBackdropActive, christmasBackdropBootScript } from "../lib/christmasBackdrop.js";
 
 // Origin of the Supabase photo vault, for the preconnect hint below. Server-only
 // read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
@@ -140,7 +142,7 @@ export default function RootLayout({ children }) {
     // Asserted by scripts/check-no-sideways-scroll.mjs, which ALSO sweeps the
     // live routes in headless Chromium and fails if documentElement.scrollWidth
     // ever exceeds clientWidth. A CSS rule nobody measures is a rule that rots.
-    <html lang="en" className={fontVariables} style={{ overflowX: "clip", maxWidth: "100%" }}>
+    <html lang="en" data-wf-xmas={christmasBackdropActive() ? "on" : "off"} suppressHydrationWarning className={fontVariables} style={{ overflowX: "clip", maxWidth: "100%" }}>
       <head>
         {/* CHUNK-LOAD RECOVERY (2026-09-30) — in <head>, AHEAD of Next's own
             <script async src="/_next/static/..."> tags. Measured: from <body>
@@ -158,8 +160,13 @@ export default function RootLayout({ children }) {
             for idle. A paid visit that leaves in the first seconds would
             otherwise never count. */}
         <script dangerouslySetInnerHTML={{ __html: earlyPageviewScript(process.env.NEXT_PUBLIC_POSTHOG_KEY) }} />
+        {/* Christmas backdrop clock. Blocking, in head, so a cached page compares
+            the end instant before first paint and cannot keep the red up past
+            2026-12-26 00:00 ET. The server attribute above is the no-JS fallback. */}
+        <script dangerouslySetInnerHTML={{ __html: christmasBackdropBootScript() }} />
       </head>
       <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "clip", overscrollBehaviorX: "none", maxWidth: "100vw", fontFamily: "var(--wf-sans)" }}>
+        <ChristmasSiteBackdrop />
         {/* Stale-tab watch: a long-lived tab silently runs yesterday's bundle
             forever, so shipped fixes never reach it (see the component's
             header for the 2026-08-07 incident). Renders nothing. */}
@@ -386,7 +393,7 @@ export default function RootLayout({ children }) {
             treatment ProofVeil already gives the SSR proof block above.
             Article routes are unaffected and render it normally. */}
         <FooterVeil>
-        <footer style={{ background: "#040810", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "var(--wf-sans)" }}>
+        <footer className="wf-site-footer" style={{ background: "#040810", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "var(--wf-sans)" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
             <SeasonalSearchNav />
             <nav aria-label="Guides and cities" style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>

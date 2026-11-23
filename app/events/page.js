@@ -183,7 +183,7 @@ export default async function Page() {
     })),
   };
   return (
-    <div style={S.page}>
+    <div style={S.page} className="wf-page-canvas">
       <GoScreen screen="events" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div style={S.kicker}>Wayfind Events</div>

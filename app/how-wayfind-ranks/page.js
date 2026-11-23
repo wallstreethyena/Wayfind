@@ -27,7 +27,7 @@ const S = {
 
 export default function Page() {
   return (
-    <article style={S.page}>
+    <article style={S.page} className="wf-page-canvas">
       <div style={S.kicker}>How Wayfind ranks</div>
       <h1 style={S.h1}>Ranked on merit, never for money</h1>
       <p style={S.lede}>Every list on Wayfind is ordered by one thing: how good we think a place is for what you want right now. Nobody can pay to be on a list or to move up one.</p>
