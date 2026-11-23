@@ -936,6 +936,7 @@ const confirmed = { html: html("confirmation.html") };
 // ---- Serverless Live Browser (/api/reserve/browser) for Toast, Resy, SevenRooms, Tock ----
 {
   const lb = await import("../lib/bookingAgent/liveBrowser.js");
+  const { navigateBrowserbasePage } = await import("../lib/bookingAgent/cdpNavigate.js");
   ok(lb.providerLabelForUrl("https://tables.toasttab.com/restaurants/demo") === "Toast", "recognizes Toast Tables URL");
   ok(lb.providerLabelForUrl("https://resy.com/cities/bradenton-fl/venues/obricks") === "Resy", "recognizes Resy URL");
   ok(lb.providerLabelForUrl("https://www.sevenrooms.com/reservations/room901florida") === "SevenRooms", "recognizes SevenRooms URL");
@@ -944,13 +945,36 @@ const confirmed = { html: html("confirmation.html") };
 
   const validLv = "https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/sess_live1&debug=true";
   let navigatedTo = null;
+  let sessionOptions = null;
+  let navigationError = null;
+  let disconnected = false;
   let releasedId = null;
+  let debugStatus = 200;
+  class MockCdpSocket {
+    constructor() { queueMicrotask(() => this.onopen()); }
+
+    send(rawMessage) {
+      const { id, method, params } = JSON.parse(rawMessage);
+      let result = {};
+      if (method === "Target.getTargets") result = { targetInfos: [{ type: "page", targetId: "page1" }] };
+      if (method === "Target.attachToTarget") result = { sessionId: "cdp1" };
+      if (method === "Page.navigate") {
+        navigatedTo = params.url;
+        result = { frameId: "frame1", errorText: navigationError };
+      }
+      queueMicrotask(() => this.onmessage({ data: JSON.stringify({ id, result }) }));
+    }
+
+    close() { disconnected = true; }
+  }
+
   const mockFetch = async (url, init) => {
     if (url.endsWith("/sessions") && init?.method === "POST") {
+      sessionOptions = JSON.parse(init.body);
       return new Response(JSON.stringify({ id: "sess_live1", connectUrl: "wss://connect.browserbase.com?sessionId=sess_live1" }), { status: 201 });
     }
     if (url.endsWith("/sessions/sess_live1/debug")) {
-      return new Response(JSON.stringify({ debuggerFullscreenUrl: validLv }), { status: 200 });
+      return new Response(JSON.stringify({ debuggerFullscreenUrl: validLv }), { status: debugStatus });
     }
     if (url.endsWith("/sessions/sess_live1") && init?.method === "POST") {
       releasedId = "sess_live1";
@@ -961,16 +985,19 @@ const confirmed = { html: html("confirmation.html") };
   const lbHandlers = lb.createLiveBrowserHandlers({
     env: { BROWSERBASE_API_KEY: "bb_test_key", BROWSERBASE_PROJECT_ID: "proj_test" },
     fetchImpl: mockFetch,
-    navigate: async (_ws, targetUrl) => { navigatedTo = targetUrl; return { navigated: true }; },
+    navigate: (ws, targetUrl) => navigateBrowserbasePage(ws, targetUrl, { WebSocketImpl: MockCdpSocket }),
   });
 
-  const openRes = await lbHandlers.open(new Request("https://www.gowayfind.com/api/reserve/browser", {
+  const openRequest = () => new Request("https://www.gowayfind.com/api/reserve/browser", {
     method: "POST",
     headers: { origin: "https://www.gowayfind.com", "content-type": "application/json", "sec-fetch-site": "same-origin" },
     body: JSON.stringify({ url: "https://www.sevenrooms.com/reservations/room901florida", restaurantName: "Room 901" }),
-  }));
+  });
+  const openRes = await lbHandlers.open(openRequest());
   const openBody = await openRes.json();
   ok(openRes.status === 201 && openBody.ok && openBody.provider === "SevenRooms" && openBody.liveViewUrl === validLv && navigatedTo === "https://www.sevenrooms.com/reservations/room901florida", "POST /api/reserve/browser creates session, navigates via CDP, and returns liveViewUrl");
+  ok(disconnected && sessionOptions?.keepAlive === true && sessionOptions.timeout === 300 && !releasedId, "Live View stays open after CDP disconnect and has a five-minute deadline");
+  ok(sessionOptions?.browserSettings?.solveCaptchas === false && sessionOptions.browserSettings.recordSession === false && sessionOptions.browserSettings.logSession === false, "Live View leaves challenges to the guest and disables Browserbase recordings and logs");
 
   const badRes = await lbHandlers.open(new Request("https://www.gowayfind.com/api/reserve/browser", {
     method: "POST",
@@ -993,6 +1020,17 @@ const confirmed = { html: html("confirmation.html") };
   });
   ok(ids.includes("ChIJresy12345") && !ids.includes("ChIJsite12345") && !ids.includes("ChIJot1234567"), "listLiveBrowserPlaceIds returns only verified online booking platform places (never generic homepages or OpenTable)");
   ok(lb.listLiveBrowserPlaceIds().includes("ChIJqQsqj80Xw4gRev0L3y4_-lM"), "listLiveBrowserPlaceIds loads bundled first-party-actions.json (O'Bricks on Resy)");
+
+  releasedId = null;
+  navigationError = "net::ERR_HTTP2_PROTOCOL_ERROR";
+  const failedNavigation = await lbHandlers.open(openRequest());
+  const failedNavigationBody = await failedNavigation.json();
+  ok(failedNavigation.status === 502 && failedNavigationBody.error === "NAVIGATION_FAILED" && !failedNavigationBody.liveViewUrl && releasedId === "sess_live1", "Page.navigate errorText fails the handoff and releases the session");
+
+  releasedId = null;
+  debugStatus = 503;
+  const failedDebug = await lbHandlers.open(openRequest());
+  ok(failedDebug.status === 503 && releasedId === "sess_live1", "Browserbase debug errors release the session");
 }
 
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }
