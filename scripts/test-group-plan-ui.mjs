@@ -125,7 +125,7 @@ try {
    const frame=markup(UI.GroupFrame,{children:"Fixture"});matches(frame,/--wf-place-card/);matches(frame,/My group votes/);matches(frame,/alt="Wayfind"/);absent(frame,/>wayfind</);
  });
  await test("create form essentials, caps, quiet local zone and no unavailable email",()=>{
-   const html=markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}});matches(html,/Invite up to 10 people/);matches(html,/Pick up to 3 times/);matches(html,/Nothing is sent yet/);matches(html,/Times shown in your local time/);matches(html,/Add end time/);matches(html,/Reply deadline &amp; updates/);absent(html,/Timezone<select|Repeated clock times|Email updates are not available|type="checkbox"/);eq((html.match(/type="datetime-local"/g)||[]).length,2,"only start and optional details deadline, no end field");
+   const html=markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}});matches(html,/Invite up to 10 people/);matches(html,/Pick up to 3 times/);matches(html,/Nothing is sent to friends yet/);matches(html,/Times shown in your local time/);matches(html,/Add end time/);matches(html,/Reply deadline &amp; updates/);matches(html,/Build it myself/);matches(html,/Let Santa pick for me/);absent(html,/Timezone<select|Repeated clock times|Email updates are not available|type="checkbox"/);eq((html.match(/type="datetime-local"/g)||[]).length,2,"only start and optional details deadline, no end field");
    const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}},{effects:false});h.render();for(let i=1;i<10;i++){button(h.tree,"Add a friend").props.onClick();h.render();}eq(button(h.tree,"Add a friend"),undefined);eq(nodes(h.tree).filter(n=>n.type==="input"&&n.props.autoComplete==="off").length,10);h.dispose();
  });
  await test("create submission is UTC, stable retry identity and doubletap gated",async()=>{
@@ -157,7 +157,7 @@ try {
    const session={user:{email:"organizer@example.test"}},base={placeId:"place-1",session,onCreated(){},emailAvailable:true,hasVerifiedEmail:true};
    const html=markup(UI.GroupCreateForm,base);matches(html,/Sent to organizer@example\.test/);matches(html,/Email me when voting closes/);
    matches(markup(UI.GroupCreateForm,{...base,emailAvailable:false}),/Email updates aren’t available right now/);matches(markup(UI.GroupCreateForm,{...base,hasVerifiedEmail:false}),/Verify your account email/);
-   for(const extra of [{emailAvailable:false},{hasVerifiedEmail:false},{session:{user:{}}}]){const hidden=markup(UI.GroupCreateForm,{...base,...extra});absent(hidden,/Email me when voting closes|type="checkbox"/);matches(hidden,/Review my plan/);}
+   for(const extra of [{emailAvailable:false},{hasVerifiedEmail:false},{session:{user:{}}}]){const hidden=markup(UI.GroupCreateForm,{...base,...extra});absent(hidden,/Email me when voting closes|type="checkbox"/);matches(hidden,/Create group vote/);}
    const calls=[];const h=hooks(UI.GroupCreateForm,{...base,request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-10-28T18:00",end:null}],{},true,false,""]});h.render({...base,emailAvailable:false,request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}});await h.tree.props.onSubmit({preventDefault(){}});eq(calls[0].emailConsent,false,"lost email availability cannot submit stale consent");h.dispose();
  });
  await test("ambiguous time recovery is local to the failing field",async()=>{

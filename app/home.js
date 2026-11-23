@@ -356,7 +356,7 @@ import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlen
 import { canonicalShareUrl } from "../lib/site";
 import { shareOut } from "../lib/shareOut.js";
 import { openShareFlow } from "../lib/shareFlow.js";
-import { inShareChoice } from "../lib/shareContext.js";
+import { inShareChoice, experienceGroupId } from "../lib/shareContext.js";
 // Keep the existing shell adapter callable from its legacy place callbacks.
 // The common entry helper also uses this same menu. Its subsequent native
 // choice has a fresh tap, so this adapter never spends native activation.
@@ -1339,7 +1339,7 @@ function offerRedeemable(o) {
 function openExternal(url) { return safeOpenExternal(url); }
 // Returns true only when visible share UI opened. No path silently copies,
 // opens Messages underneath another sheet, or claims a message was delivered.
-function shareLink(title, url, onCopied, text, onShared) {
+function shareLink(title, url, onCopied, text, onShared, extra) {
   let credited = false;
   const credit = () => {
     if (credited) return;
@@ -1347,7 +1347,7 @@ function shareLink(title, url, onCopied, text, onShared) {
     try { onShared?.(); } catch {}
   };
   const start = inShareChoice() ? shareOut : openShareFlow;
-  const how = start({ title, url, text }, () => {
+  const how = start({ title, url, text, ...(extra && typeof extra === "object" ? extra : null) }, () => {
     try { onCopied?.(); } catch {}
     _sharePath("copied");
     credit();
@@ -10863,6 +10863,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
               () => showToast("Link copied"),
               fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr()),
               () => { try { giveawayMark(p.id); addShared(p); } catch (er) {} },
+              { placeId: p.id, city: (ctx && ctx.city) || "" },
             );
           } catch (er) {}
         }}
@@ -11523,7 +11524,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   onShare={(p) => {
                     if (!p || !p.id) return;
                     try { logEvent("share", p, { kind: "sponsored_place_card" }); } catch (er) {}
-                    try { shareLink(p.name, placeShareUrl(p, "", ""), () => showToast("Link copied"), fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr()), () => { try { giveawayMark(p.id); addShared(p); } catch (er) {} }); } catch (er) {}
+                    try { shareLink(p.name, placeShareUrl(p, "", ""), () => showToast("Link copied"), fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr()), () => { try { giveawayMark(p.id); addShared(p); } catch (er) {} }, { placeId: p.id }); } catch (er) {}
                   }} />
               ) : null}
               {/* v6.62 (2026-08-08, owner: "add this to the top of the page"),
@@ -11796,7 +11797,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                       next to hotels, a movie ticket next to things to do. Both are
                       scope='national', so geoFilterDeals keeps them for every user and
                       orderDealsByScope holds them below the local inventory. */}
-                  {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} city={cityNow} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const offer = r.product_code || r.code; const path = offer ? commerceHref({ provider: "viator", offerId: offer, surface: "ttd_share", contentId: cityNow }) : Aff.experienceGoUrl(r.title, cityNow, "attractions", r.id, { surface: "ttd_share", contentId: cityNow }); const u = r.kind === "experience" && path ? originUrl(path) : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
+                  {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} city={cityNow} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const offer = r.product_code || r.code; const path = offer ? commerceHref({ provider: "viator", offerId: offer, surface: "ttd_share", contentId: cityNow }) : Aff.experienceGoUrl(r.title, cityNow, "attractions", r.id, { surface: "ttd_share", contentId: cityNow }); const u = r.kind === "experience" && path ? originUrl(path) : originUrl("/p/" + encodeURIComponent(r.id)); const subject = r.kind === "experience" ? { groupId: experienceGroupId(String(offer || r.id || "")) } : { placeId: r.place_id || r.id }; shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied"), null, null, subject); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}

@@ -93,14 +93,16 @@ await test("returning invitee sees saved choice; picking another card moves the 
   eq(nodes(tree).find(n => n.type === Options).props.selected,"place-3");
 });
 
-await test("alternatives are stacked, at most two, and absent when there are none",() => {
+await test("alternatives are stacked, at most four (five total), and absent when there are none",() => {
   eq(count(markup(Ballot,props(view(open3))),/<section class="gb-card/g),3);
   eq(count(markup(Ballot,props(view(open2))),/<section class="gb-card/g),2);
   const solo = markup(Ballot,props(view(open1)));
   eq(count(solo,/<section class="gb-card/g),1); absent(solo,/Or vote for one of these instead/,"no padding text for zero alternatives");
   eq(count(solo,/Your vote/g),1);
-  const wide = view(open3); wide.places = [...wide.places,{...wide.places[2],id:"place-4",name:"Fixture place 4"}];
-  eq(count(markup(Ballot,props(wide)),/<section class="gb-card/g),3,"never more than original + 2 alternatives");
+  const five = view(open3); five.places = [...five.places,{...five.places[2],id:"place-4",name:"Fixture place 4"},{...five.places[2],id:"place-5",name:"Fixture place 5"}];
+  eq(count(markup(Ballot,props(five)),/<section class="gb-card/g),5,"allows up to 5 options total");
+  const wide = {...five, places:[...five.places,{...five.places[2],id:"place-6",name:"Fixture place 6"}]};
+  eq(count(markup(Ballot,props(wide)),/<section class="gb-card/g),5,"never more than original + 4 alternatives");
   yes(/\.gb-options\{display:flex;flex-direction:column/.test(UI.GROUP_BALLOT_CSS),"one column");
 });
 

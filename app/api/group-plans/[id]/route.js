@@ -6,7 +6,12 @@ export async function POST(req,{params}) {
   return groupPost(req,async({config,service},body)=>{
     const credentials=await groupCredentials(req,body,config);
     if(body.action==="view") return groupReply({ok:true,plan:await service.read(id,credentials)});
-    if(body.action==="command") return groupReply({ok:true,plan:await service.command(id,body.command,credentials)});
+    if(body.action==="command") {
+      const plan = await service.command(id,body.command,credentials);
+      const slotToken = plan && plan.slotToken ? plan.slotToken : undefined;
+      if (slotToken) delete plan.slotToken;
+      return groupReply({ok:true,plan,...(slotToken ? { slotToken } : {})});
+    }
     return groupReply({ok:false,error:"INVALID_ACTION",message:"Choose a supported group action."},400);
   });
 }

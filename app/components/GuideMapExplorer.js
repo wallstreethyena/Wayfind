@@ -330,6 +330,7 @@ export default function GuideMapExplorer({
                     // Illustrated-map spots are entries on one guide page: namespace the id
                     // and save a link that returns to that entry.
                     id: illustrated ? railIdPrefix + ":" + spot.id : spot.id,
+                    placeId: spot.placeId || spot.place_id || "",
                     type: "event",
                     title: spot.name,
                     image: photo,

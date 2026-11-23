@@ -367,6 +367,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   const cardHref = place && place.id ? normalizePlaceCardHref(href, place.id) : href;
   const content = useContentCardActions(cardActionsReadOnly && place ? {
     id: place.id,
+    placeId: place.id,
     type: "experience",
     title: place.name,
     image: photoUrl(place),

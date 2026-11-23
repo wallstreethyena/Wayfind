@@ -130,7 +130,7 @@ export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, like
     pick.mapsHref ? { key: "map", label: "Directions", href: pick.mapsHref, external: true } : null,
     pick.pagePath ? { key: "share", label: "Share", onTap: () => {
       const url = "https://www.gowayfind.com" + pick.pagePath + "?utm_source=wayfind&utm_medium=sponsored_card_share";
-      openShareFlow({ title: pick.name, url });
+      openShareFlow({ title: pick.name || pick.advertiser, url, placeId: (place && place.id) || pick.placeId || "" });
     } } : null,
     pick.pagePath ? { key: "page", label: "Full details", href: pick.pagePath } : null,
   ].filter(Boolean);

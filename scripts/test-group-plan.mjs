@@ -1,7 +1,7 @@
 // Focused executable contract for truthful results, privacy and terminal races.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { GroupPlanError, createGroupPlan, applyGroupPlanCommand, settleGroupPlan, summarizeGroupPlan, participantPlanView, organizerPlanView } from '../lib/groupPlan.js';
+import { GroupPlanError, createGroupPlan, applyGroupPlanCommand, settleGroupPlan, summarizeGroupPlan, participantPlanView, organizerPlanView, groupPlanView } from '../lib/groupPlan.js';
 
 let count = 0;
 const NOW = '2026-10-04T12:00:00.000Z';
@@ -44,12 +44,12 @@ rejects(() => make({ invitees: [] }, { slotIds: [] }), 'INVALID_INVITEE_COUNT');
 rejects(() => make({ invitees: [{ name: '' }, { name: 'Bob' }] }), 'INVALID_INPUT');
 rejects(() => make({ places: [input.places[0], input.places[0]] }), 'DUPLICATE_PLACE');
 rejects(() => make({ places: [] }), 'INVALID_PLACE_COUNT');
-eq(make({ places: [...input.places, { id: 'place-3', name: 'Third option' }] }).places.length, 3, 'three proposed places allowed');
+eq(make({ places: [...input.places, { id: 'place-3', name: 'Third option' }, { id: 'place-4', name: 'Fourth option' }, { id: 'place-5', name: 'Fifth option' }] }).places.length, 5, 'up to five proposed places allowed');
 eq(make({ invitees: [{ name: 'Only guest' }], times: [input.times[0]] }, { slotIds: ['guest-1'], timeIds: ['time-1'] }).invitees.length, 1, 'one invitee and one time is valid');
 eq(make({ times: [...input.times, { startsAt: '2026-10-12T18:00:00Z', endsAt: '2026-10-12T20:00:00Z' }] }, { timeIds: ['time-1', 'time-2', 'time-3'] }).times.length, 3, 'three nonoverlapping times allowed');
 rejects(() => make({ times: [...input.times, { startsAt: '2026-10-12T18:00:00Z', endsAt: '2026-10-12T20:00:00Z' }, { startsAt: '2026-10-13T18:00:00Z', endsAt: '2026-10-13T20:00:00Z' }] }, { timeIds: ['time-1', 'time-2', 'time-3', 'time-4'] }), 'INVALID_TIME_COUNT');
 eq(make({ deadline: '2026-10-18T12:00:00Z', times: [{ startsAt: '2026-10-19T18:00:00Z', endsAt: '2026-10-19T20:00:00Z' }] }, { timeIds: ['time-1'] }).deadline, '2026-10-18T12:00:00.000Z', 'exact fourteen-day deadline is allowed');
-rejects(() => make({ places: [...input.places, { id: 'p3', name: 'Three' }, { id: 'p4', name: 'Four' }] }), 'INVALID_PLACE_COUNT');
+rejects(() => make({ places: [...input.places, { id: 'p3', name: 'Three' }, { id: 'p4', name: 'Four' }, { id: 'p5', name: 'Five' }, { id: 'p6', name: 'Six' }] }), 'INVALID_PLACE_COUNT');
 rejects(() => make({ originalPlaceId: 'place-2' }), 'INVALID_ORIGINAL_PLACE');
 rejects(() => make({}, { slotIds: ['same', 'same'] }), 'INVALID_IDS');
 rejects(() => make({}, { timeIds: ['same', 'same'] }), 'INVALID_IDS');
@@ -255,6 +255,27 @@ const hugeFinal = apply(largest, finalize());
 eq(hugeFinal.recentCommands.length, 99, 'finalization fits reserved ledger capacity');
 yes(apply(hugeFinal, { id: 'withdraw-0-0', type: 'withdraw', slotId: 'plan-1:guest:1' }) === hugeFinal, 'oldest successful command is still replay-safe, never evicted');
 rejects(() => apply(hugeFinal, { id: 'withdraw-0-0', type: 'withdraw', slotId: 'plan-1:guest:2' }), 'COMMAND_ID_CONFLICT');
+// Single-link group mode (1 person or whole group): 0 initial invitees, join_respond, early close, zero roster leak.
+const openGrpDraft = make({ shareMode: 'group', openGroup: true, invitees: [] }, { slotIds: [] });
+eq(openGrpDraft.shareMode, 'group', 'group shareMode recorded');
+eq(openGrpDraft.openGroup, true, 'openGroup enabled for empty initial invitees');
+const openGrp = start(openGrpDraft);
+rejects(() => apply(openGrp, { id: 'close-zero', type: 'close' }), 'CANNOT_CLOSE_EARLY');
+const afterFirstJoin = apply(openGrp, { id: 'join-1', type: 'join_respond', slotId: 'joined-1', guestName: 'Maya', placeId: 'place-2', availableTimeIds: ['time-1'], declined: false });
+eq(afterFirstJoin.status, 'open', 'openGroup stays open after first voter joins');
+eq(afterFirstJoin.invitees.length, 1, 'join_respond appends voter slot');
+eq(afterFirstJoin.invitees[0].name, 'Maya', 'join_respond saves voter name');
+const grpProjection = groupPlanView(afterFirstJoin, { now: NOW });
+yes(!JSON.stringify(grpProjection).includes('Maya'), 'groupPlanView never leaks other voters names');
+eq(grpProjection.invitee, null, 'groupPlanView has no pre-assigned slot');
+const earlyClosed = apply(afterFirstJoin, { id: 'close-group', type: 'close' });
+eq(earlyClosed.status, 'closed', 'organizer may close group-mode plan once at least one reply arrived');
+// Pre-listed named friend joining via group link matches existing unvoted slot case-insensitively.
+const namedGrp = start(make({ shareMode: 'group', openGroup: false, invitees: [{ name: 'Alice Private' }, { name: 'Bob Private' }] }));
+const matchedAlice = apply(namedGrp, { id: 'join-alice', type: 'join_respond', slotId: 'unused-id', guestName: 'alice private', placeId: 'place-1', availableTimeIds: ['time-1'], declined: false });
+eq(matchedAlice.invitees.length, 2, 'case-insensitive match reuses pre-listed unvoted slot');
+eq(matchedAlice.invitees[0].response.placeId, 'place-1', 'matched slot receives vote');
+
 const source = readFileSync(new URL('../lib/groupPlan.js', import.meta.url), 'utf8');
 yes(!/Date\.now\(|Math\.random\(|fetch\(|process\.env/.test(source), 'domain has no ambient clock/random/network/config');
 console.log(`test-group-plan: ${count} assertions passed`);

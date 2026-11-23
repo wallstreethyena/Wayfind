@@ -140,7 +140,7 @@ export const ChristmasRailCard = memo(function ChristmasRailCard({ card, index, 
     creatorVideos={isEvent ? card.creatorReels : undefined}
     href={eventBodyHref} external={eventBodyExternal}
     ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
-    actionItem={isEvent ? { id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: eventBodyHref || card.url || "", provider: card.source || null } : null}
+    actionItem={isEvent ? { id: card.id, placeId: card.place_id || "", type: "event", title: card.title || card.name, image: card.image || null, url: eventBodyHref || card.url || "", provider: card.source || null } : null}
     saved={saved}
     liked={liked}
     disliked={disliked}

@@ -165,7 +165,7 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
             take={card.hook || (card.shotLocation ? `${card.shotLocation}. ${card.take} ${card.fallReason || ""}`.trim() : card.take) || null} cta={cta}
             href={eventBodyHref} external={eventBodyExternal}
             ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref || card.officialOnly ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
-            actionItem={isEvent ? { id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: eventBodyHref || card.url || "", provider: card.source || null } : null}
+            actionItem={isEvent ? { id: card.id, placeId: card.place_id || "", type: "event", title: card.title || card.name, image: card.image || null, url: eventBodyHref || card.url || "", provider: card.source || null } : null}
             saved={place && isSaved ? !!isSaved(place.id) : undefined}
             liked={place && (isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined)}
             disliked={place && (isDisliked ? !!isDisliked(place.id) : disliked ? !!disliked[place.id] : undefined)}

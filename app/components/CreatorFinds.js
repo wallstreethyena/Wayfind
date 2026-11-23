@@ -354,8 +354,9 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
               chips={[{ key: "video", icon: "🎬", label: "Creator post", onClick: () => { if (onBrowse) onBrowse(); } }]}
               ariaLabel={"Open " + s0.name}
+              place={h && h.id ? { ...h, name: h.name || s0.name } : undefined}
               onOpen={openRegistry}
-              onShare={() => { if (onBrowse) onBrowse(); }}
+              onShare={h && h.id && onShare ? () => onShare({ ...h, name: h.name || s0.name }) : (h && h.id ? undefined : () => { if (onBrowse) onBrowse(); })}
             />
           );
         })}
