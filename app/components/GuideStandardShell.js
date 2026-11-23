@@ -8,19 +8,17 @@
 //
 // The custom module goes INSIDE as children. scripts/check-guide-standard.mjs
 // fails the build when a dedicated route skips this shell or GuideSection.
-import ReturnToWayfind from "./ReturnToWayfind";
-import GuideArticleHero from "./GuideArticleHero";
+import EditorialStandard, { EditorialHeroMedia, EditorialHeroCredit } from "./EditorialStandard.js";
 import { WF_PLACE_CARD_CSS } from "./css";
 import { GUIDE_STANDARD_CSS } from "../../lib/guideStandardCss.js";
+import { guideEditorialFacts, guideEditorialWhere, NEARBY_EMPTY } from "../../lib/editorialStandard.js";
+import EventWhere from "./EventWhere.js";
 import { GUIDE_EDITORIAL_CSS } from "../guides/[slug]/GuideEditorial";
 import { SITE_URL } from "../../lib/site";
 import { styleHtml } from "../../lib/styleHtml.js";
 
 export const GUIDE_DISCLOSURE_TEXT = "We may earn a commission when you book through partner links. It never changes our rankings.";
 
-const BACK_PILL = { display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" };
-// Same values as S.page / S.meta in app/guides/[slug]/page.js.
-const PAGE = { maxWidth: 1080, margin: "0 auto", padding: "0 18px 72px", background: "#040810", color: "#F1F5F9", fontFamily: "var(--wf-sans)", lineHeight: 1.6 };
 const META = { fontSize: 13, color: "#94A3B8", marginBottom: 18 };
 const EYEBROW = { fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" };
 
@@ -88,26 +86,39 @@ export default function GuideStandardShell({
   quick = null, intro = null, contents = [], lead = null, extraLd = [], css = "", children,
 }) {
   if (!slug || !title || !updated) throw new Error("GuideStandardShell needs slug, title and updated");
+  const record = { title, region, intro: typeof intro === "string" ? intro : description, description };
   return (
-    <div style={PAGE} className="wf-guide-editorial" data-guide-standard={slug}>
-      <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
-        <ReturnToWayfind style={BACK_PILL} />
-      </nav>
-      <style dangerouslySetInnerHTML={styleHtml(GUIDE_STANDARD_CSS + WF_PLACE_CARD_CSS + GUIDE_EDITORIAL_CSS + css)} />
-      {[...guideStandardLd({ slug, title, description, published, updated, image }), ...extraLd].map((ld, i) => (
-        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={ldJson(ld)} />
-      ))}
-      <GuideArticleHero backHref="/guides" backLabel="All guides" category={category} region={region} title={title} description={description} image={image} jumpHref={jumpHref} jumpLabel={jumpLabel} actions={actions}>
+    <EditorialStandard
+      backHref="/guides"
+      backLabel="All guides"
+      heroSrc={typeof image === "string" ? image : (image && image.src) || ""}
+      title={title}
+      facts={guideEditorialFacts(record)}
+      media={<EditorialHeroMedia image={image} />}
+      credit={<EditorialHeroCredit image={image} />}
+      note={GUIDE_DISCLOSURE_TEXT}
+      actions={actions}
+      story={<>
+        {typeof intro === "string" ? <p className="wf-guide-intro" data-editorial-summary="">{intro}</p> : intro || (description ? <p data-editorial-summary="">{description}</p> : <p data-editorial-summary="">{title}</p>)}
         {quick}
-      </GuideArticleHero>
-      <article id="guide" className="wf-guide-article">
-        <div style={META}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {published ? <>Published {longDate(published)} · </> : null}Updated {longDate(updated)}</div>
-        {typeof intro === "string" ? <p className="wf-guide-intro">{intro}</p> : intro}
-        <GuideContents items={contents} />
-        <GuideDisclosure />
-        {lead}
-        {children}
-      </article>
-    </div>
+      </>}
+      where={<EventWhere {...guideEditorialWhere(record, slug)} />}
+      afterWhere={<section data-editorial-nearby="" aria-label="Before and after"><h2>Before and after</h2><p>{NEARBY_EMPTY}</p></section>}
+      leading={<>
+        <style dangerouslySetInnerHTML={styleHtml(GUIDE_STANDARD_CSS + WF_PLACE_CARD_CSS + GUIDE_EDITORIAL_CSS + css)} />
+        {[...guideStandardLd({ slug, title, description, published, updated, image }), ...extraLd].map((ld, i) => (
+          <script key={i} type="application/ld+json" dangerouslySetInnerHTML={ldJson(ld)} />
+        ))}
+      </>}
+    >
+      <div className="wf-guide-editorial" data-guide-standard={slug}>
+        <article id="guide" className="wf-guide-article">
+          <div style={META}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {published ? <>Published {longDate(published)} · </> : null}Updated {longDate(updated)}</div>
+          <GuideContents items={contents} />
+          {lead}
+          {children}
+        </article>
+      </div>
+    </EditorialStandard>
   );
 }

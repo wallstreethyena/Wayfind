@@ -94,22 +94,13 @@ ok(/chrome\.chooseQuickly && quickChoices\.length/.test(code), "Choose quickly i
 // screen and a half down on a phone, where most phone visitors never reach it.
 {
   const at = (src, needle, what) => { const i = src.indexOf(needle); ok(i >= 0, `${what} still contains ${JSON.stringify(needle)} (order probe)`); return i; };
-  const heroOpen = at(code, "<GuideArticleHero", "page");
+  const shellOpen = at(code, "<EditorialStandard", "page");
   const quick = at(code, 'className="wf-guide-quick"', "page");
-  const heroClose = at(code, "</GuideArticleHero>", "page");
   const article = at(code, '<article id="guide"', "page");
-  ok(heroOpen < quick && quick < heroClose, "Choose quickly is passed to the hero as children");
-  ok(heroClose < article, "the article starts after the hero, so nothing in it can precede Choose quickly");
+  ok(shellOpen < quick && quick < article, "Choose quickly sits in the standard frame, above the article");
   ok(code.split('className="wf-guide-quick"').length === 2, "Choose quickly is rendered exactly once");
-  const hero = readFileSync(new URL("../app/components/GuideArticleHero.js", import.meta.url), "utf8");
-  const copy = at(hero, "className={styles.copy}", "hero");
-  const below = at(hero, "{children ? <div className={styles.below}", "hero");
-  const figure = at(hero, "<GuideFigure", "hero");
-  ok(copy < below && below < figure, "the hero renders children after the title block and before the photo (phone: above the photo)");
-  const css = readFileSync(new URL("../app/components/GuideArticleHero.module.css", import.meta.url), "utf8");
-  ok(/\.withBelow \.below\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/.test(css), "wide screens: the children block spans a full row under the title and the photo");
-  ok(/@media \(max-width: 760px\)[\s\S]*\.withBelow \.below\s*\{[^}]*grid-row:\s*auto/.test(css), "phones: the children block returns to natural order between the title block and the photo");
-  ok(!/\.copy\s*\{[^}]*grid-row/.test(css.replace(/\.withBelow[^{]*\{[^}]*\}/g, "")), "a hero with no children keeps its original layout (placement rules are scoped to .withBelow)");
+  const frame = readFileSync(new URL("../app/components/EventDetailShell.js", import.meta.url), "utf8");
+  ok(frame.indexOf("{media}") < frame.indexOf("<h1>"), "the shared frame renders the photo before the title, matching the UTC page");
 }
 ok(/chrome\.liveNow && nowHeadline/.test(code), "the weather Right now block is gated on the helper");
 ok(/chrome\.keepExploring \?/.test(code) && /<DiscoveryPaths/.test(code), "Keep exploring is gated on the helper");

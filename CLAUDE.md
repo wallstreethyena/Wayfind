@@ -364,6 +364,9 @@ one production chunk was swept.
   `scripts/test-christmas-ticketmaster.mjs`; any new card surface follows the same pattern.
 - **Paid API proxies** are guarded in `middleware.js` (`lib/apiGuard.js`); add any new
   metered/scrape proxy to the matcher. `/api/eats/go` is GET-302 → `rateLimitOnly`.
+- **Guide and blog pages** use the UTC Holidays frame (`docs/GUIDE_BLOG_STANDARD.md`,
+  `app/components/EditorialStandard.js`). `scripts/check-editorial-standard.mjs` must stay
+  green. Do not give a guide, blog, or `/florida-events` page its own layout.
 
 ## Notifications — Expected-State Rule (owner directive, 2026-11-13)
 

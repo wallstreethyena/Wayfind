@@ -241,14 +241,15 @@ for (const rel of GUIDE_JS_FILES) {
 }
 
 // ── RULE 5 — every guide entry point imports the shared shell/figure ──────
-// GuideStandardShell renders GuideArticleHero (and its GuideFigure) for every
-// dedicated route, so importing the shell IS rendering through the shell.
-const SHELL_IMPORT_RX = /from\s+["'][^"']*\/(GuideArticleHero|GuideFigure|GuideStandardShell)(?:\.js)?["']/;
+// EditorialStandard is the page frame (docs/GUIDE_BLOG_STANDARD.md).
+// GuideStandardShell renders it for every dedicated route, so importing the
+// shell IS rendering through the frame. Pick photos still come through GuideFigure.
+const SHELL_IMPORT_RX = /from\s+["'][^"']*\/(GuideArticleHero|GuideFigure|GuideStandardShell|EditorialStandard)(?:\.js)?["']/;
 ok(SHELL_IMPORT_RX.test('import GuideArticleHero from "../../components/GuideArticleHero";'), "red-proof: shell-import detector fires on a synthetic positive");
 ok(!SHELL_IMPORT_RX.test('import Hero from "../../components/SomeOtherHero";'), "red-proof: shell-import detector stays quiet on a synthetic negative");
 for (const rel of ENTRY_POINTS) {
   const src = read(rel);
-  ok(SHELL_IMPORT_RX.test(src), `${rel}: does not import GuideArticleHero or GuideFigure — every guide entry point must render through the shared shell`);
+  ok(SHELL_IMPORT_RX.test(src), `${rel}: does not import EditorialStandard, GuideStandardShell, or GuideFigure — every guide entry point must render through the shared frame`);
 }
 
 // ── RULE 6 — GVS-5, executed: a pick's photo is always GATED, and

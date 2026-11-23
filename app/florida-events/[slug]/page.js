@@ -14,10 +14,9 @@ import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 //
 // The answer box comes FIRST. Nobody wants 500 words before the date.
 import EventPlacePhoto from "../../components/EventPlacePhoto.js";
-import { EventHeroPhotoProvider, EventHeroCredit } from "../../components/EventHeroPhotoContext.js";
+import { EventHeroCredit } from "../../components/EventHeroPhotoContext.js";
 import EventDetailShell from "../../components/EventDetailShell.js";
-import EventSectionNav from "../../components/EventSectionNav.js";
-import EventExperienceStyles from "../../components/EventExperienceStyles.js";
+import EditorialStandard from "../../components/EditorialStandard.js";
 import { notFound, permanentRedirect } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
@@ -330,30 +329,16 @@ export default async function CuratedEventPage({ params }) {
   };
 
   return (
-    <main className="wf-event-experience"><EventExperienceStyles />{crownTracked ? <CrownOutbound slug={params.slug} /> : <CommerceClickBeacon surface="florida_event_page" />}<div className="wf-event-wrap">
+    <EditorialStandard
+      heroSrc={heroSrc}
+      beacon={crownTracked ? <CrownOutbound slug={params.slug} /> : <CommerceClickBeacon surface="florida_event_page" />}
+      homeLink={<ReturnToWayfind style={S.back} />}
+      backExtra={<a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>}
+      leading={<>
       {ld ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
-
-      {/* v8.88 — THE WAY BACK (owner: "you need to put a way to go back to
-          Wayfind from that page … there's no way to get back").
-          Every route into this page was one-way: the paid rail card on the
-          homepage, the augtober drop, /florida-events, and every shared link.
-          Browser back covers the first three and covers NOTHING for the reader
-          who arrived from a text message — which, for an event page, is most of
-          them, because sharing is the whole point of the surface (there are two
-          share controls on this page and were zero ways out).
-
-          Two doors, because they answer different questions: the product, and
-          the shelf this event sits on. */}
-      <div className="wf-event-brand"><a href="/" aria-label="Wayfind home"><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="145" height="42" /></a><div style={S.backRow}>
-        <ReturnToWayfind style={S.back} />
-        <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
-      </div>
-
-      </div>
-      <EventSectionNav />
-      <EventHeroPhotoProvider src={heroSrc}>
-      <EventDetailShell
+      </>}
+      overview={<EventDetailShell
         soldOut={soldOut}
         title={eventTitleWithYear(e.event_name, e.year)}
         facts={[
@@ -370,8 +355,8 @@ export default async function CuratedEventPage({ params }) {
         story={<>
           {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
           {e.visit_cost?.note ? <p style={S.note}>{e.visit_cost.note}</p> : null}
-          {e.card_hook ? <p style={S.hook}>{e.card_hook}</p> : null}
-          {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
+          {e.card_hook ? <p style={S.hook} data-editorial-summary="">{e.card_hook}</p> : null}
+          {e.editorial_summary ? <p style={S.p} data-editorial-summary="">{e.editorial_summary}</p> : null}
           {e.why_go ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></> : null}
         </>}
         actions={<>
@@ -501,9 +486,8 @@ export default async function CuratedEventPage({ params }) {
           style={S.credit}
           linkStyle={S.link}
         />}
-      />
-      </EventHeroPhotoProvider>
-
+      />}
+      between={<>
       {/* A Fall card that names a creator must pay that promise off before the
           map and nearby recommendations. The map can be more than a viewport
           tall on mobile; placing the post after it made the card marker look
@@ -538,11 +522,8 @@ export default async function CuratedEventPage({ params }) {
           </CreatorVideoRail>
         </section>
       ) : null}
-
-      {/* v8.99 — WHERE IT IS, ON A MAP, WITH YOUR ROUTE AND WHAT IS NEARBY.
-          One shared block (app/components/EventWhere.js) — the rule for every
-          event page, curated or live. Sits right under the answer box because
-          "where" is part of the answer. */}
+      </>}
+      where={(
       <EventWhere
         venue={e.venue || e.event_name}
         address={where}
@@ -556,13 +537,15 @@ export default async function CuratedEventPage({ params }) {
         location={{ trust: "verified" }}
         placeId={isSnowcatTicketPage({ event_id: e.event_id, slug: params.slug }) ? SNOWCAT_PLACE_ID : ""}
       />
-      {pairingResult.unavailable ? (
+      )}
+      afterWhere={pairingResult.unavailable ? (
         <p role="status" style={{ ...S.p, maxWidth: 820, margin: "12px auto 24px", color: "#aab4c2" }}>
           Nearby picks are temporarily unavailable.
         </p>
       ) : null}
-
-      <div className="wf-event-content" id="event-planning" data-event-section={e.skip_if || e.insider_tip || e.parking_tip || e.fun_fact || e.pairing ? "Planning tips" : undefined} tabIndex={-1}>
+      contentId="event-planning"
+      contentSection={e.skip_if || e.insider_tip || e.parking_tip || e.fun_fact || e.pairing ? "Planning tips" : undefined}
+      >
       {e.skip_if ? (<><h2 style={S.h2}>Who should skip it</h2><p style={S.p}>{e.skip_if}</p></>) : null}
       {e.insider_tip ? (<><h2 style={S.h2}>The move</h2><p style={S.p}>{e.insider_tip}</p></>) : null}
       {e.parking_tip ? (<><h2 style={S.h2}>Getting there</h2><p style={S.p}>{e.parking_tip}</p></>) : null}
@@ -606,7 +589,6 @@ export default async function CuratedEventPage({ params }) {
         {safeUrl(e.source_url) ? <>{" "}<a style={S.link} href={safeUrl(e.source_url)} rel="nofollow noopener" target="_blank">Verification source</a>.</> : null}
         {" "}More in <a style={S.link} href="/florida-events">Florida Events</a>.
       </p>
-      </div></div>
-    </main>
+    </EditorialStandard>
   );
 }

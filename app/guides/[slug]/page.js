@@ -1,5 +1,5 @@
-import ReturnToWayfind from "../../components/ReturnToWayfind";
 import SeasonalSearchNav from "../../components/SeasonalSearchNav";
+import ReturnToWayfind from "../../components/ReturnToWayfind";
 import { seasonalHubsForGuide } from "../../../lib/seasonalSearch";
 // v4.16 — Server-rendered SEO guide pages. No "use client": these render to
 // HTML at build time so search engines index the full content. Each pick can
@@ -417,7 +417,7 @@ import { guidePickMayResolvePlaceCard, resolveGuidePickPlaceId } from "../../../
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import { GUIDE_STANDARD_CSS } from "../../../lib/guideStandardCss.js";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
-import GuideArticleHero from "../../components/GuideArticleHero";
+import EditorialStandard, { EditorialHeroMedia, EditorialHeroCredit } from "../../components/EditorialStandard.js";
 import GuideFigure from "../../components/GuideFigureWithFallback.js";
 import GuideNeutralFigure from "../../components/GuideNeutralFigure.js";
 import { guideFinalRung, guideUsesNeutralFallback } from "../../../lib/guideNeutralFallback.js";
@@ -441,6 +441,7 @@ import { fetchCuratedEventBySlug, eventWebsiteUrl } from "../../../lib/curatedEv
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
 import { pairingHref } from "../../../lib/eventPairings";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
+import { guideEditorialFacts, guideEditorialWhere, NEARBY_EMPTY, NEARBY_ON_MAP } from "../../../lib/editorialStandard.js";
 
 // 15 minutes. Long enough that the weather fetch is nearly free, short enough
 // that "97° right now" is never a lie. A guide whose live block is stale is
@@ -935,13 +936,10 @@ export default async function GuidePage({ params }) {
     } catch (e) { bridgePicks = []; }
   }
 
+  const art = guideHero(params.slug);
+  const standardWhere = eventMap || guideEditorialWhere(g, params.slug, pickPlaces);
   return (
-    <div style={S.page} className="wf-guide-editorial">
-      {/* v8.22 — same rule as the /guides hub: every guide page carries a
-          visible way back into the app. */}
-      <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
-        <ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }} />
-      </nav>
+    <>
       <style dangerouslySetInnerHTML={styleHtml(`
         /* RIGHT NOW block — server-rendered, so it is in the indexed HTML. */
         .wf-guide-now{margin:26px 0 8px;padding:18px 20px;border-radius:14px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.30)}
@@ -990,41 +988,16 @@ export default async function GuidePage({ params }) {
         <strong style={{ color: "#F4DECB" }}>This already happened{guideEndsOn(g) ? <> · ended {endedLabel(guideEndsOn(g))}</> : null}</strong>
         <p style={{ margin: "6px 0 0" }}>This guide is kept as an archive, so its dates, prices and schedules may no longer apply. For what is on now, <a href="/florida-events" style={{ color: "#FDBA74" }}>see upcoming Florida events</a>. <a href="/guides/past" style={{ color: "#FDBA74" }}>More past guides</a>.</p>
       </aside> : null}
-      <GuideArticleHero
-        // v8.23 — ONE destination each. "All guides" used to appear twice on
-        // every guide page: here, and again in the breadcrumb above. The
-        // breadcrumb keeps "‹ Back to Wayfind" (check-guides pins that anchor);
-        // the hero chrome keeps "‹ All guides" (check-hero-chrome pins this
-        // prop). Neither guard was wrong — the page was just carrying both.
+      <EditorialStandard
+        homeLink={<ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }} />}
         backHref="/guides"
         backLabel="All guides"
-        category="Local guide"
-        region={g.region || "Florida"}
+        heroSrc={art && art.src ? art.src : ""}
         title={g.title}
-        description={g.dek || g.description}
-        image={guideHero(params.slug)}
-        // v8.23 — "Personalize these picks" is GONE, on the owner's call: "this
-        // button makes no sense, a user clicked on it and it went back to the
-        // main page — lets get rid of these buttons that dont serve a purpose on
-        // the blogs globally."
-        //
-        // It sent "/?intent=" + g.keyword, and g.keyword is an SEO PHRASE. 21 of
-        // 39 of them name no place at all ("birthday freebies bradenton
-        // sarasota", "things to do in orlando besides theme parks"), so the
-        // search the homepage runs for them can only come back empty — and the
-        // effect that runs it is gated on `center`, so a visitor who has not
-        // granted location gets literally nothing. Two independent reasons the
-        // promise could not be kept.
-        //
-        // What is left is what actually works: the guide itself, one tap down.
-        // The money CTA is unchanged and still lives once, in GuideConversion.
-        jumpHref="#guide"
-        jumpLabel={params.slug === "fall-events-orlando-2026" ? "Explore the events" : "Explore the guide"}
-        // v8.23 (owner: "why is it that none of these blog has a share button
-        // ... i want a share button on all of them"). Third action, quiet tone:
-        // it must not out-shout the CTA that earns. The URL is resolved on the
-        // SERVER from SITE_URL — never from window.location, which on a preview
-        // deploy is a host the recipient cannot open (lib/site.js).
+        facts={guideEditorialFacts(g)}
+        media={<EditorialHeroMedia image={art} />}
+        credit={<EditorialHeroCredit image={art} />}
+        note="We may earn a commission when you book through partner links. It never changes our rankings."
         actions={<ShareButton
           url={shareUrl}
           title={g.title}
@@ -1033,49 +1006,38 @@ export default async function GuidePage({ params }) {
           event="guide_share"
           meta={{ slug: params.slug, region: g.region || null, placement: "hero" }}
         />}
+        story={<>
+          {g.teaser ? (
+            <p className="wf-guide-teaser" style={{ margin: "0 0 14px", fontSize: 16.5, lineHeight: 1.5, color: "#FBBF24", fontWeight: 650 }}>
+              {g.teaser}
+            </p>
+          ) : null}
+          <p className="wf-guide-intro" style={S.p} data-editorial-summary="">{g.intro}</p>
+          {params.slug === "things-to-do-orlando-not-theme-parks" ? (
+            <p style={S.p}>
+              Follow the <a href="https://blog.gowayfind.com/orlando-day-itinerary-without-theme-parks" style={S.footerLink}>seven-stop Orlando itinerary</a> for a full day downtown and in Winter Park. If it rains, take the kids to <a href="/guides/orlando-in-the-rain#pick-6" style={S.footerLink}>Orlando Science Center</a>. Set aside a separate day for <a href="#pick-7" style={S.footerLink}>Kennedy Space Center</a>.
+            </p>
+          ) : null}
+          {chrome.chooseQuickly && quickChoices.length ? (
+            <section className="wf-guide-quick" aria-labelledby="guide-quick-title" style={{ margin: 0 }}>
+              <h2 id="guide-quick-title">Choose quickly</h2>
+              <div>{quickChoices.map((choice) => (
+                <a key={choice.href} href={choice.href}><span>{choice.need}</span><strong>{choice.label}</strong></a>
+              ))}</div>
+            </section>
+          ) : null}
+        </>}
+        where={<EventWhere {...standardWhere} />}
+        afterWhere={<section data-editorial-nearby="" aria-label="Before and after">
+          <h2>Before and after</h2>
+          <p>{eventMap && eventMap.picks && eventMap.picks.length ? NEARBY_ON_MAP : NEARBY_EMPTY}</p>
+        </section>}
       >
-        {/* 2026-11-11 (owner: "Choose quickly directly under the title, in the
-            first phone screen"). It rendered below the intro, the facts and the
-            event map: 1,147 to 1,428px down at 390x844, where most phone
-            visitors never reach. It is now the hero's children, so on a phone
-            it sits between the title block and the photo. Same markup, same
-            styles, same on/off rule; static server HTML, so nothing shifts.
-            The choices are authored in lib/guideSeo.js (each quotes its guide)
-            and audited by scripts/check-guide-seo-audit.mjs. */}
-        {chrome.chooseQuickly && quickChoices.length ? (
-          <section className="wf-guide-quick" aria-labelledby="guide-quick-title" style={{ margin: 0 }}>
-            <h2 id="guide-quick-title">Choose quickly</h2>
-            <div>{quickChoices.map((choice) => (
-              <a key={choice.href} href={choice.href}><span>{choice.need}</span><strong>{choice.label}</strong></a>
-            ))}</div>
-          </section>
-        ) : null}
-      </GuideArticleHero>
+      <div className="wf-guide-editorial">
       <article id="guide" className="wf-guide-article">
       <SeasonalSearchNav hubs={seasonalHubsForGuide(params.slug)} />
       <div style={S.meta}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {g.published ? <>Published {g.published} · </> : null}Updated {g.updated}</div>
-      {/* §2 OPEN LOOP, above the fold. One honest line the body resolves — a
-          reader who wants the answer scrolls. Every teaser is derived from that
-          guide's own tips (lib/guides.js) and check-guide-teasers.mjs proves the
-          grounding, because a teaser promising something the body never delivers
-          is the dark pattern the directive rules out. */}
-      {g.teaser ? (
-        <p className="wf-guide-teaser" style={{ margin: "0 0 14px", fontSize: 16.5, lineHeight: 1.5, color: "#FBBF24", fontWeight: 650 }}>
-          {g.teaser}
-        </p>
-      ) : null}
-      <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
-      {params.slug === "things-to-do-orlando-not-theme-parks" ? (
-        <p style={S.p}>
-          Follow the <a href="https://blog.gowayfind.com/orlando-day-itinerary-without-theme-parks" style={S.footerLink}>seven-stop Orlando itinerary</a> for a full day downtown and in Winter Park. If it rains, take the kids to <a href="/guides/orlando-in-the-rain#pick-6" style={S.footerLink}>Orlando Science Center</a>. Set aside a separate day for <a href="#pick-7" style={S.footerLink}>Kennedy Space Center</a>.
-        </p>
-      ) : null}
       <GuideFacts facts={g.facts} />
-      {eventMap ? (
-        <div className="wf-guide-event-map">
-          <EventWhere {...eventMap} />
-        </div>
-      ) : null}
       <GuideReadingNav guide={{ ...g, picks: shippingPicks.map(({ pick }) => pick) }} />
       {chrome.exploreBridge ? <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" /> : null}
       {/* AUDIT F2 (2026-08-02) — guides took ~276 of the 685 visitors across
@@ -1109,7 +1071,6 @@ export default async function GuidePage({ params }) {
       {params.slug === "things-to-do-orlando-not-theme-parks" ? (
         <GuidePickOffer entry={orlandoExactTiqetsEntry()} slug={params.slug} />
       ) : null}
-      <div className="wf-guide-disclosure">We may earn a commission when you book through partner links. It never changes our rankings.</div>
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
           "Check tours & tickets" + "Check rates" + "Open in Wayfind"; measured
           dwell here is 0-25s and bounce ~50%, so almost nobody reached the end
@@ -1350,6 +1311,8 @@ export default async function GuidePage({ params }) {
       </section>
       <GuideEmailCapture slug={params.slug} region={g.region || "Orlando"} />
       </article>
-    </div>
+      </div>
+    </EditorialStandard>
+    </>
   );
 }

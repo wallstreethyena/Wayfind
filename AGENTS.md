@@ -379,3 +379,25 @@ size, dimensions, and established look. This is a product rule, not a suggestion
 
 See `docs/ui/place-card-standard.md` for the contract and
 `docs/ui/place-card-audit.md` for the surfaces audited when this rule was added.
+
+## 15. Guide and blog pages use the UTC Holidays frame
+
+Owner instruction, 2026-11-23: every guide and blog page looks and is structured
+like https://www.gowayfind.com/florida-events/utc-holidays-2026. That appearance
+is locked. Do not invent a second guide layout.
+
+- The frame is `app/components/EditorialStandard.js`. `/guides/[slug]`, dedicated
+  guide routes (through `GuideStandardShell`), and `/florida-events/[slug]` all
+  render through it. In this repo, blog articles are the guides. `/blog` redirects
+  to the separate blog host and is not a second template.
+- Required sections: hero photo with a `Photo:` credit, one H1, the When / Where /
+  Cost / Who it is for facts, a short summary, the booking note, Where it is
+  (venue, address, and Plan your drive when a real map point exists), and Before
+  and after. The contract is `docs/GUIDE_BLOG_STANDARD.md`.
+- `scripts/check-editorial-standard.mjs` fails the build when a page skips the
+  frame or a fixture is missing a required section. A red result is the standard
+  holding. Do not delete the check, exclude a route, or restyle one guide to get
+  around it.
+- Keep the older rules: every pick still needs a real photo (no "Photo unavailable"
+  placeholder), guide addresses and map links stay on `GuidePickWhere` (PR 2581),
+  new chrome copy has no dashes, and nothing in this frame links `/date-night`.
