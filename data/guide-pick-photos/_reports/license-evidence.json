@@ -3,14 +3,14 @@
   "verifiedAt": "2026-11-17",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 401,
-    "usages": 427,
-    "verified": 401,
+    "files": 405,
+    "usages": 431,
+    "verified": 405,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 98,
-      "CC BY-SA 3.0": 82,
+      "CC BY-SA 4.0": 99,
+      "CC BY-SA 3.0": 85,
       "CC BY 4.0": 22,
       "CC BY 3.0": 21,
       "CC BY 2.0": 103,
@@ -4263,6 +4263,125 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/christmas-lane-festival-grounds.webp",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Christmas Lane"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Florida_Strawberry_Festival_from_FL_574-3.jpg",
+        "title": "Florida Strawberry Festival from FL 574-3",
+        "author": "DanTD",
+        "dateTaken": "2020-12-11 12:12:12",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "DanTD",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Florida_Strawberry_Festival_from_FL_574-3.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/hero-downtown-collins-reynolds.webp",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "hero"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist01.JPG",
+        "title": "Plant City FL Downtown Comm Dist01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-02-26 11:02:32",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist01.JPG",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped to 1280 by 853 and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/lights-of-love-union-depot-mccall-park.webp",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Lights of Love tree lighting"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Union_Depot01.JPG",
+        "title": "Plant City FL Union Depot01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-02-26 11:08:13",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Union_Depot01.JPG",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/plant-city-christmas-parade-historic-downtown.webp",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Plant City Christmas Parade"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist03.JPG",
+        "title": "Plant City FL Downtown Comm Dist03",
+        "author": "Ebyabe",
+        "dateTaken": "2011-02-26 11:03:13",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist03.JPG",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/florida-s-stake-in-the-final.webp",

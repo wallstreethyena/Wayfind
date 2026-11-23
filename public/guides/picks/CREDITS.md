@@ -240,6 +240,13 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/pinecraft-sarasota-amish-village/pinecraft-amish-church.webp` — pinecraft-sarasota-amish-village: The village itself. [Witherpshins](https://commons.wikimedia.org/wiki/File:Pinecraft_Amish_Church,_1325_Hines_Street_4-2-2012.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/pinecraft-sarasota-amish-village/yoders-restaurant-sign.webp` — pinecraft-sarasota-amish-village: Yoder's Restaurant. [Jared](https://www.flickr.com/photos/93283041@N00/8778985834); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
+## plant-city-christmas-2026
+
+- `/guides/picks/plant-city-christmas-2026/christmas-lane-festival-grounds.webp` — plant-city-christmas-2026: Christmas Lane. [DanTD](https://commons.wikimedia.org/wiki/File:Florida_Strawberry_Festival_from_FL_574-3.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/plant-city-christmas-2026/lights-of-love-union-depot-mccall-park.webp` — plant-city-christmas-2026: Lights of Love tree lighting. [Ebyabe](https://commons.wikimedia.org/wiki/File:Plant_City_FL_Union_Depot01.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/plant-city-christmas-2026/plant-city-christmas-parade-historic-downtown.webp` — plant-city-christmas-2026: Plant City Christmas Parade. [Ebyabe](https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist03.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/plant-city-christmas-2026/hero-downtown-collins-reynolds.webp` — plant-city-christmas-2026: hero image. [Ebyabe](https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist01.JPG); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## red-bull-dance-your-style-tampa-2026
 
 - `/guides/picks/red-bull-dance-your-style-tampa-2026/florida-s-stake-in-the-final.webp` — red-bull-dance-your-style-tampa-2026: Florida's stake in the final. [Eric Statzer](https://commons.wikimedia.org/wiki/File:Tampa_Riverwalk_along_the_Convention_Center_Waterfront_-_Eric_Statzer.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -248,6 +255,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/red-bull-dance-your-style-tampa-2026/tampa-convention-center.webp` — red-bull-dance-your-style-tampa-2026: Saturday: the National Final. [Gart69](https://commons.wikimedia.org/wiki/File:Tampa_Convention_Center,_Featuring_Pirate_Ship_-_February_8,_2026.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 - `/guides/picks/red-bull-dance-your-style-tampa-2026/the-16-dancers-in-the-final.webp` — red-bull-dance-your-style-tampa-2026: The 16 dancers in the final. [Ebyabe](https://commons.wikimedia.org/wiki/File:Tampa_Ybor_City04.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/red-bull-dance-your-style-tampa-2026/hero-tampa-convention-center.webp` — red-bull-dance-your-style-tampa-2026: hero image. [Zeng8r](https://commons.wikimedia.org/wiki/File:Tampa_Convention_Center.JPG); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+
+## restaurants-open-thanksgiving-tampa-bay-2026
+
+- `/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp` — restaurants-open-thanksgiving-tampa-bay-2026: Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ## robinson-preserve-bradenton
 

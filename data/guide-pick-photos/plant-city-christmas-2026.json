@@ -1,30 +1,93 @@
 {
   "slug": "plant-city-christmas-2026",
-  "picks": {},
-  "gaps": {
+  "hero": {
+    "src": "/guides/picks/plant-city-christmas-2026/hero-downtown-collins-reynolds.webp",
+    "width": 1280,
+    "height": 853,
+    "alt": "The intersection of Collins Street and Reynolds Street in historic downtown Plant City, with both street signs visible on the Heritage Law Group corner building",
+    "caption": "Historic downtown Plant City at Collins Street and Reynolds Street, on the Christmas parade route. This is a daytime street scene, not the parade or holiday lights.",
+    "credit": "Ebyabe",
+    "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist01.JPG",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist01.JPG",
+    "author": "Ebyabe",
+    "position": "50% 45%",
+    "modificationNotice": "Resized, cropped to 1280 by 853 and converted to WebP. The adaptation is released under the same licence.",
+    "sourceKind": "commons",
+    "placeId": null,
+    "verification": "Commons file Plant_City_FL_Downtown_Comm_Dist01.JPG is titled as downtown Plant City, credited to Ebyabe under CC BY-SA 3.0, dated 26 February 2011, native 3264 x 2448. Direct inspection of the original shows readable Collins Street and Reynolds Street signs on the Heritage Law Group corner. The 2026 Plant City Christmas Parade route uses Collins Street and Reynolds Street; the parade itself is not pictured. One adult pedestrian is at the far right edge and is not the subject. No recognizable children. No overlays or watermarks. This replaces a reused Marie Selby Botanical Gardens photograph that was captioned as not Plant City.",
+    "sameAsCardPhoto": false,
+    "reviewedAt": "2026-11-23"
+  },
+  "picks": {
     "Christmas Lane": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/plant-city-christmas-2026/christmas-lane-festival-grounds.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "The Arthur Boring Civic Center and Gate 10 at the Florida Strawberry Festival grounds in Plant City, seen from the street",
+      "caption": "The Arthur Boring Civic Center at the Florida Strawberry Festival grounds in Plant City, where Christmas Lane is held. The light show is not pictured.",
+      "credit": "DanTD",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Florida_Strawberry_Festival_from_FL_574-3.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Florida_Strawberry_Festival_from_FL_574-3.jpg",
+      "author": "DanTD",
+      "position": "45% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 23, 2026: the event page has organizer photos. No Creative Commons guide photograph was verified for this pick. Held for the Picture Scrapper."
+      "verification": "Commons file Florida_Strawberry_Festival_from_FL_574-3.jpg is described as the Arthur Boring Civic Center on the Florida Strawberry Festival grounds, credited to DanTD under CC BY-SA 4.0, taken 11 December 2020, native 3648 x 2736. Direct inspection shows the civic center sign, a Florida Strawberry Festival line on the same sign, Gate 10, and the grounds fence. Christmas Lane is held on these grounds at 2508 W Oak Ave. The light show is not pictured. No people in the frame. No overlays or watermarks. This is a place photo, not an event photo.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-23"
     },
     "Lights of Love tree lighting": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/plant-city-christmas-2026/lights-of-love-union-depot-mccall-park.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "The Plant City Union Depot Welcome Center beside McCall Park, with the Welcome Center Historic Downtown sign over a brick walk",
+      "caption": "The Plant City Union Depot and Welcome Center, next to McCall Park in downtown Plant City. The Lights of Love tree is not pictured.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Union_Depot01.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Union_Depot01.JPG",
+      "author": "Ebyabe",
+      "position": "40% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 23, 2026: no Creative Commons photograph of this lighting was verified. Held for the Picture Scrapper."
+      "verification": "Commons file Plant_City_FL_Union_Depot01.JPG is titled as the Plant City Union Depot, credited to Ebyabe under CC BY-SA 3.0, dated 26 February 2011, native 3264 x 2448. Direct inspection shows the Plant City Welcome Center Historic Downtown sign on the depot canopy, the brick walk, and tracks. The depot stands at 102 N Palmer St, immediately beside McCall Park at 100 N Collins St, the Lights of Love site. The tree is not pictured. No recognizable children. No overlays or watermarks.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-23"
     },
     "Plant City Christmas Parade": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/plant-city-christmas-2026/plant-city-christmas-parade-historic-downtown.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "Historic commercial buildings in downtown Plant City with a hanging Plant City Historic Downtown sign",
+      "caption": "Shop fronts in historic downtown Plant City. The Christmas parade is not pictured.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist03.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist03.JPG",
+      "author": "Ebyabe",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 23, 2026: no Creative Commons photograph of this parade was verified. Held for the Picture Scrapper."
-    },
+      "verification": "Commons file Plant_City_FL_Downtown_Comm_Dist03.JPG is titled as the Downtown Plant City Commercial Historic District, credited to Ebyabe under CC BY-SA 3.0, dated 26 February 2011, native 3264 x 2448. Direct inspection shows the hanging Plant City Historic Downtown sign and a row of historic shop fronts. The Christmas parade is not pictured. Parked vehicles occupy the lower edge and are not the subject. No recognizable children. No overlays or watermarks. Distinct buildings and angle from the hero (Dist01 at Collins and Reynolds).",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-23"
+    }
+  },
+  "gaps": {
     "Apollo Beach Lighted Boat Parade": {
       "reason": "no-verified-source",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 23, 2026: no Creative Commons photograph of this parade was verified. Held for the Picture Scrapper."
+      "needsPermissionFrom": "Tampa Sailing Squadron",
+      "note": "November 23, 2026: no licensed photo of the parade, the Tampa Sailing Squadron, or the Apollo Beach south basin was verified (Wikimedia Commons, Openverse, and Flickr checked). TECO Big Bend / Manatee Viewing Center photos and Canaveral National Seashore Apollo Beach photos were rejected as the wrong place. Venue photo page candidates, not used: https://sail-tss.org/content.aspx?club_id=109032&page_id=187 and the 2026 event page https://tampasailingsquadron.com/content.aspx?page_id=4091&club_id=109032&item_id=3005333"
     }
   }
 }
