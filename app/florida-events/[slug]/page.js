@@ -330,7 +330,7 @@ export default async function CuratedEventPage({ params }) {
   };
 
   return (
-    <main className="wf-event-experience"><EventExperienceStyles />{crownTracked ? <CrownOutbound slug={params.slug} /> : <CommerceClickBeacon surface="florida_event_page" />}<div className="wf-event-wrap">
+    <main className="wf-event-experience wf-page-canvas"><EventExperienceStyles />{crownTracked ? <CrownOutbound slug={params.slug} /> : <CommerceClickBeacon surface="florida_event_page" />}<div className="wf-event-wrap">
       {ld ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
 

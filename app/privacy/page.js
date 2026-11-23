@@ -15,7 +15,7 @@ const S = {
 
 export default function Privacy() {
   return (
-    <div style={S.page}>
+    <div style={S.page} className="wf-page-canvas">
       <div style={S.wrap}>
         <h1 style={S.h1}>Privacy &amp; Disclosures</h1>
         <div style={S.date}>Wayfind &middot; Operated by WAYFIND LLC &middot; Effective August 1, 2026 &middot; Updated November 13, 2026</div>

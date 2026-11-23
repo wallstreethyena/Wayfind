@@ -16,7 +16,7 @@ const a = { color: "#CBD5E1", textDecoration: "none", fontWeight: 700 };
 
 export default function Terms() {
   return (
-    <div style={{ background: "#0D1117", minHeight: "100dvh" }}>
+    <div className="wf-page-canvas" style={{ background: "#0D1117", minHeight: "100dvh" }}>
       <div style={wrap}>
         <ReturnToWayfind style={{ ...a, fontSize: 13 }} />
         <h1 style={{ ...h1, marginTop: 18 }}>Terms of Service</h1>

@@ -2351,6 +2351,8 @@ node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+# Site-wide Christmas field and garland, off at 2026-12-26 00:00 ET without a redeploy.
+node scripts/test-christmas-site-backdrop.mjs
 node scripts/test-christmas-city-guides.mjs
 node scripts/test-christmas-ticketmaster.mjs
 node scripts/test-snowcat-tickets.mjs

@@ -216,7 +216,7 @@ async function EventListPage({ params }) {
     }))],
   };
   return (
-    <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
+    <div className="wf-page-canvas" style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
       <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 20px 48px" }}>
