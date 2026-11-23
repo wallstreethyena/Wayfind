@@ -1,11 +1,11 @@
 {
   "generatedBy": "scripts/build-guide-photo-license-evidence.mjs",
   "verifiedAt": "2026-11-17",
-  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
+  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0), or a venue website photo owner-authorized on 23 November 2026 for restaurant guide picks; NC and ND never pass.",
   "summary": {
-    "files": 406,
-    "usages": 434,
-    "verified": 406,
+    "files": 409,
+    "usages": 437,
+    "verified": 409,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -18,7 +18,8 @@
       "CC BY 3.0": 21,
       "Unsplash License": 4,
       "Public domain": 3,
-      "CC BY-SA 2.5": 2
+      "CC BY-SA 2.5": 2,
+      "venue website photo, owner authorized Nov 23 2026 for guide picks": 3
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -4763,6 +4764,37 @@
       "verifiedAt": "2026-11-23"
     },
     {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/holiday-train.jpg",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Holiday train by Dolphin Nursery"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://seaworld.com/orlando/events/christmas-celebration/shows/",
+        "title": "SeaWorld",
+        "author": "SeaWorld",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://seaworld.com/orlando/events/christmas-celebration/shows/"
+      },
+      "wayfind": {
+        "credit": "SeaWorld",
+        "creditHref": "https://seaworld.com/orlando/events/christmas-celebration/shows/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://seaworld.com/orlando/events/christmas-celebration/shows/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
       "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/main-entrance.webp",
       "usedBy": [
         {
@@ -4823,6 +4855,37 @@
       "verifiedAt": "2026-11-23"
     },
     {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/rudolphs-christmastown.jpg",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Rudolph's Christmastown"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "title": "SeaWorld",
+        "author": "SeaWorld",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf"
+      },
+      "wayfind": {
+        "credit": "SeaWorld",
+        "creditHref": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
       "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/sunny-day-carousel-sign.webp",
       "usedBy": [
         {
@@ -4851,6 +4914,37 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/winter-wonderland-on-ice.jpg",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Winter Wonderland on Ice"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "title": "SeaWorld",
+        "author": "SeaWorld",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf"
+      },
+      "wayfind": {
+        "credit": "SeaWorld",
+        "creditHref": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
       "src": "/guides/picks/siesta-key-drum-circle/parking-without-the-meltdown.webp",
