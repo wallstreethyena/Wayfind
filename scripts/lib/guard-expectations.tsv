@@ -105,7 +105,7 @@ scripts/check-creator-signals-fresh.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	1	
 scripts/check-creator-summary-counts.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	07842d94301d1930c17550ebdce17a8bc3a63cf9d9671d88cabda12edeeb34dc
 scripts/check-creator-tile-navigates.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	5f9a0c3a9d9d54963ced643531b28b55f391a70e8b936173bebc8bcf30f1869a
 scripts/check-creator-video-boost.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	70c0797f5f9ecbe6a1a7b4fafb1f44f454b817f7fe2fa70a05aa989515897a69
-scripts/check-creator-video-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	298db5f05d2c79431ebea0b4d5fa24ebda974b745b44de0b3215290d9c6ee127
+scripts/check-creator-video-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	b58790f981ecdcd0f5679561d57b2b1400f255a3b02f21a01d18878591d47832
 scripts/check-credential-discipline.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	1065b2ebcbf17da1077c4e64cb24f23dc4542a1d7d23b67e0d9817a5aa2ff345
 scripts/check-credentialed-paths.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	27	0	0	c0caa8075db9050fdd4a16517950ea1d5f87b7a410efc9a291520aa640bf2f11
 scripts/check-cron-failclosed.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	557c093f0330dca7030d09f2e7cbcfef04c91f4c41e4445265802effdf9fd7bc
@@ -669,7 +669,7 @@ scripts/test-creator-archetypes.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	1	2	aae83
 scripts/test-creator-card-mark.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	10d1708f177f33f3108eea54994f0fa9f81e2f2d248fce74d864a2b1db72d73f
 scripts/test-creator-corroboration.mjs	0	CALL	blocks-ci-and-deploy	1	-	71	0	0	d33e4a6fdb97c1e42ec3f8bbed595ddbb422b2a11b09dd06a5bee76f51c965f6
 scripts/test-creator-finds-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0	13e489db347c4bd1d4cbeeea1acbc9738379983ee71d30c1fb4b2be54abde00d
-scripts/test-creator-in-app-playback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	64	0	0	864c2d04af0fdcc9c7ed5df4fd703c958f0d96a76fb4dc47bc0c51fa497180d0
+scripts/test-creator-in-app-playback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	e046205ef106177f2f66b69df269ef02a9a42af375bc25df99b1f380c47e42fb
 scripts/test-creator-name-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	dd79f925ccbadbb88913f52aff06ec4d49a7b26fd295eaef8a4050e6c73d9d73
 scripts/test-creator-pages.mjs	0	RENDER	blocks-ci-and-deploy	1	-	119	0	0	36763991b2e1494705acf93b811e0ac56309d5e011b11285c3a30441de6ea5f6
 scripts/test-creator-picks-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	86a898ffbd56d280d06c35b04be76d32b0e7455a94a6ab0cae2876f234d00460
@@ -706,7 +706,7 @@ scripts/test-detail-take.mjs	0	RENDER	blocks-ci-and-deploy	1	-	16	0	0	6c46aad757
 scripts/test-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	76	0	0	87daa2e91ce4f32b6924b8681f9769b95b19570e7bcf6859a5aa884567f72cff
 scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3b8c36e3e9fb01312d7d1a9cf9a6f856606ebda509f5a76eb640b136e
 scripts/test-direct-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	73	0	0	cb69c1cbdc990de5a00073c73413a8d2db011d0800d4c96c9081356f7fce831c
-scripts/test-disney-food-post-states.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	e3ede3e7d6e6de15419ce8161da20fc77ad2339d02ffa2c58e3ec8db04250461
+scripts/test-disney-food-post-states.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	0d4a000f07454b4ffbe4983354a2565fc8e754efdb53678ad398aca82cdf88fe
 scripts/test-disney-food-posts.mjs	0	RENDER	blocks-ci-and-deploy	1	-	37	0	0	d8c803232ecbd0787a623a9de999f9623b29078332318cd880665d40c491250a
 scripts/test-disney-food-seo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	1a589199ad0bbe3cb0ed255ec4bde977ef9a87cb5e2d1da7b0f9b474242e8b18
 scripts/test-document-position.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	9d3cf23d98d16e3a52711f8e129fa02eee755e9f1a897ad918f29070e874b47e
