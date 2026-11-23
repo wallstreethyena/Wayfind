@@ -930,7 +930,7 @@ export default function AskClient({ inv, bad = false }) {
                 {BUBBLES[Math.min(nos - 1, BUBBLES.length - 1)]}
               </div>
             ) : null}
-            <Portrait size={124}><Cat tone="cream" mood={moodAt(nos)} size={110} key={nos} look={look} /></Portrait>
+            <Portrait size={168}><Cat tone="cream" mood={moodAt(nos)} size={154} key={nos} look={look} /></Portrait>
             <h1 className="wfx-h1" key={step}>{askHeadline(inv)}</h1>
             {from ? <p className="wfx-sub">from {from}</p> : null}
 
@@ -958,7 +958,7 @@ export default function AskClient({ inv, bad = false }) {
 
         {step === "declined" && (
           <>
-            <Portrait><Cat tone="cream" mood={moodAt(nos || 1)} size={104} look={look} /></Portrait>
+            <Portrait size={152}><Cat tone="cream" mood={moodAt(nos || 1)} size={138} look={look} /></Portrait>
             <h1 className="wfx-h1" key={step}>No worries. Thanks for letting me know.</h1>
             <p className="wfx-sub">
               {from
@@ -1014,7 +1014,7 @@ export default function AskClient({ inv, bad = false }) {
 
         {step === "yay" && (
           <>
-            <Portrait size={132}><Couple size={64} /></Portrait>
+            <Portrait size={164}><Couple size={78} /></Portrait>
             <h1 className="wfx-h1" key={step}>· YAY! ·</h1>
             <p className="wfx-sub">{yayLine(inv)}</p>
             <button className="wfx-quiet" onClick={(e) => { burst(e); setStep("activity"); }}>Continue →</button>
@@ -1026,8 +1026,8 @@ export default function AskClient({ inv, bad = false }) {
             <div className="wfx-bubble" key={"act-" + (activity || "dinner")} role="status" aria-live="polite">
               {ACTIVITY_BUBBLES[activity || "dinner"] || "Pick the vibe you want for our date! ✨"}
             </div>
-            <Portrait size={116}>
-              <Cat tone="cream" mood="love" size={104} look={look} fidget={eager} prop={activity || "dinner"} key={"cat-" + (activity || "dinner")} />
+            <Portrait size={138}>
+              <Cat tone="cream" mood="love" size={126} look={look} fidget={eager} prop={activity || "dinner"} key={"cat-" + (activity || "dinner")} />
             </Portrait>
             <h1 className="wfx-h1" key={step}>What would you like to do?</h1>
             <p className="wfx-sub">
@@ -1073,8 +1073,8 @@ export default function AskClient({ inv, bad = false }) {
                     : `Ooh, ${dayLabel} works way better—Santa’s calling it in! 🎅📅`)
                 : "Tap any day on the calendar that works best for you! 📅✨"}
             </div>
-            <Portrait size={116}>
-              <Cat tone="panda" mood="happy" size={104} look={look} fidget={eager} prop="calendar" key={"calcat-" + (dayIso || "none")} />
+            <Portrait size={138}>
+              <Cat tone="panda" mood="happy" size={126} look={look} fidget={eager} prop="calendar" key={"calcat-" + (dayIso || "none")} />
             </Portrait>
             <h1 className="wfx-h1" key={step}>Pick a date</h1>
             <p className="wfx-sub">
@@ -1178,8 +1178,8 @@ export default function AskClient({ inv, bad = false }) {
         {step === "done" && (
           <>
             {renderSantaCallCard()}
-            <Portrait size={112}>
-              {planWasModified ? <SantaCallStage size={56} /> : <Couple size={54} />}
+            <Portrait size={132}>
+              {planWasModified ? <SantaCallStage size={66} /> : <Couple size={64} />}
             </Portrait>
             <h1 className="wfx-h1" key={step}>It's a date</h1>
             <p className="wfx-sub">
