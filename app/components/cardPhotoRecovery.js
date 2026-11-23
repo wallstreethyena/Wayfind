@@ -33,3 +33,23 @@ export function recoverCardImage({ request, photo, inLink, recovery, setAnswer, 
     });
   }, IMAGE_RECOVERY_DELAYS_MS[tries - 1]) };
 }
+
+export function observeLinkedBounds(image, setBounds) {
+  const update = () => {
+    const r = image.getBoundingClientRect();
+    let left = Math.max(0, r.left), right = Math.min(window.innerWidth, r.right);
+    let top = Math.max(0, r.top), bottom = Math.min(window.innerHeight, r.bottom);
+    for (let parent = image.parentElement; parent; parent = parent.parentElement) {
+      const css = getComputedStyle(parent), box = parent.getBoundingClientRect();
+      if (/(hidden|clip|auto|scroll)/.test(css.overflowX)) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
+      if (/(hidden|clip|auto|scroll)/.test(css.overflowY)) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
+    }
+    setBounds(right - left >= 44 && bottom - top >= 32 ? { left, right, top, bottom } : null);
+  };
+  update();
+  window.addEventListener("scroll", update, true);
+  window.addEventListener("resize", update);
+  const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+  observer?.observe(image);
+  return () => { window.removeEventListener("scroll", update, true); window.removeEventListener("resize", update); observer?.disconnect(); };
+}

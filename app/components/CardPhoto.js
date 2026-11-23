@@ -8,7 +8,24 @@ import { cardPhotoRequest, fetchCardPhoto, photoPlaceIdFromSrc } from "../../lib
 import { MAX_ATTEMPTS, RETRY_DELAY_MS, photoAnswerStatus } from "../../lib/photoAnswers.js";
 
 const control = { background: "#101820", color: "#fff", border: "1px solid #64748b", borderRadius: 6, cursor: "pointer", pointerEvents: "auto" };
+const creditLine = { color: "rgba(255,255,255,.6)", textShadow: "0 1px 2px rgba(0,0,0,.65)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "Roboto, sans-serif", fontSize: 9.5, lineHeight: "12px", fontWeight: 500 };
+const stop = (e) => e.stopPropagation();
 const safe = (href) => typeof href === "string" && /^https:\/\//.test(href) ? href : undefined;
+const activateKey = (fn) => (e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") fn(e); };
+const withRecovery = (fn, onErr) => typeof window !== "undefined" && window.__cardPhotoRecovery
+  ? fn(window.__cardPhotoRecovery)
+  : import("./cardPhotoRecovery.js").then(fn, onErr || (() => {}));
+
+function nonGoogleCreditLabel(photo) {
+  const c = photo?.credit, name = typeof c?.name === "string" ? c.name.trim() : "";
+  if (!name || photo?.source === "google") return "";
+  const r = typeof c.license === "string" ? c.license.trim() : "";
+  const m = /^cc(?:-?(by(?:-(?:sa|nd|nc(?:-sa|-nd)?))?|0))[- ]?(\d(?:\.\d)?)?$/i.exec(r);
+  const lic = m ? `CC${m[1].toUpperCase() === "0" ? "0" : " " + m[1].toUpperCase()}${m[2] ? " " + m[2] : ""}`
+    : /^(?:pd|public[- ]domain)$/i.test(r) ? "Public domain" : /^cc\b/i.test(r) ? r : "";
+  const n = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  return lic && !n(name).includes(n(lic)) ? `${name} (${lic})` : name;
+}
 
 function PhotoViewer({ photo, alt, close }) {
   const dialog = useRef(null);
@@ -22,15 +39,15 @@ function PhotoViewer({ photo, alt, close }) {
   const c = photo.credit || {};
   const authors = c.authors?.length ? c.authors : [{ name: c.name, uri: c.uri }];
   return createPortal(
-    <dialog ref={dialog} aria-label="Photo viewer" onKeyDown={(e) => e.stopPropagation()} onCancel={(e) => { e.preventDefault(); close(); }} onClick={(e) => { e.stopPropagation(); if (e.target === e.currentTarget) close(); }} style={{ width: "min(94vw, 1100px)", maxHeight: "94dvh", padding: 16, border: "1px solid #64748b", borderRadius: 12, background: "#101820", color: "#fff" }}>
+    <dialog ref={dialog} aria-label="Photo viewer" onKeyDown={stop} onCancel={(e) => { e.preventDefault(); close(); }} onClick={(e) => { stop(e); if (e.target === e.currentTarget) close(); }} style={{ width: "min(94vw, 1100px)", maxHeight: "94dvh", padding: 16, border: "1px solid #64748b", borderRadius: 12, background: "#101820", color: "#fff" }}>
       <button autoFocus type="button" onClick={close} style={{ ...control, minHeight: 44, padding: "8px 16px", float: "right", marginBottom: 8 }}>Close photo</button>
       <img src={photo.src} alt={alt || "Place photo"} style={{ display: "block", width: "100%", height: "auto", maxHeight: "68dvh", objectFit: "contain", clear: "both" }} />
       <div data-card-photo-full-credit style={{ paddingTop: 12, fontSize: 14, lineHeight: 1.5 }}>
         {authors.map((a, i) => <div key={i} style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {safe(a.photoUri) ? <img src={a.photoUri} alt="" width={32} height={32} style={{ borderRadius: "50%" }} /> : null}
-          {a.name ? <PhotoCreditLink href={safe(a.uri)} target="_blank" rel="noopener noreferrer" style={{ color: "#fff" }}>{a.name}</PhotoCreditLink> : null}
+          {a.name ? <PhotoCreditLink href={safe(a.uri)} rel="noreferrer" style={{ color: "#fff" }}>{a.name}</PhotoCreditLink> : null}
         </div>)}
-        {photo.source === "google" ? <PhotoCreditLink href={safe(c.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" style={{ display: "inline-block", color: "#fff", fontFamily: "Roboto, sans-serif", fontSize: 14, fontWeight: 400 }}>Google Maps</PhotoCreditLink> : c.license ? <div>{c.license}</div> : null}
+        {photo.source === "google" ? <PhotoCreditLink href={safe(c.mapsUri)} rel="noreferrer" translate="no" style={{ display: "inline-block", color: "#fff", fontFamily: creditLine.fontFamily, fontSize: 14, fontWeight: 400 }}>Google Maps</PhotoCreditLink> : c.license ? <div>{c.license}</div> : null}
       </div>
     </dialog>, document.body,
   );
@@ -38,38 +55,25 @@ function PhotoViewer({ photo, alt, close }) {
 
 // Lives outside the linked card DOM: no attribution control nests inside
 // its navigation anchor/button. The image still follows the card.
-function LinkedPhotoCredit({ anchor, photo, alt, open, compact }) {
+function LinkedPhotoCredit({ anchor, photo, alt, open }) {
   const [bounds, setBounds] = useState(null);
   useEffect(() => {
     const image = anchor.current;
     if (!image) return;
-    const update = () => {
-      const r = image.getBoundingClientRect();
-      let left = Math.max(0, r.left), right = Math.min(window.innerWidth, r.right);
-      let top = Math.max(0, r.top), bottom = Math.min(window.innerHeight, r.bottom);
-      for (let parent = image.parentElement; parent; parent = parent.parentElement) {
-        const css = getComputedStyle(parent), box = parent.getBoundingClientRect();
-        if (/(hidden|clip|auto|scroll)/.test(css.overflowX)) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
-        if (/(hidden|clip|auto|scroll)/.test(css.overflowY)) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
-      }
-      setBounds(right - left >= 44 && bottom - top >= 32 ? { left, right, top, bottom } : null);
-    };
-    update();
-    window.addEventListener("scroll", update, true);
-    window.addEventListener("resize", update);
-    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
-    observer?.observe(image);
-    return () => { window.removeEventListener("scroll", update, true); window.removeEventListener("resize", update); observer?.disconnect(); };
+    let cleanup = null, disposed = false;
+    withRecovery((mod) => { if (!disposed && mod.observeLinkedBounds) cleanup = mod.observeLinkedBounds(image, setBounds); });
+    return () => { disposed = true; cleanup?.(); };
   }, [anchor, photo]);
-  if (!bounds) return null;
+  const label = bounds ? (photo.source === "google" ? "Google Maps" : nonGoogleCreditLabel(photo)) : "";
+  if (!label) return null;
   // Owner rule 2026-11-04: the credit is a tiny line on the photo, bottom left.
   // It stays a portal so the control never nests inside the card's link, and it
   // still opens the full credit viewer. No pill, badge, or background.
   return createPortal(<button type="button" data-linked-photo-credit aria-haspopup="dialog"
     aria-label={alt ? "View photo and photographer credit for " + alt : "View photo and photographer credit"}
-    onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); }}
-    onClick={open} style={{ ...control, position: "fixed", zIndex: 30, left: bounds.left + 6, top: Math.max(bounds.top + 2, bounds.bottom - 18), maxWidth: Math.max(44, bounds.right - bounds.left - 12), minHeight: 0, height: 12, lineHeight: "12px", padding: 0, fontSize: 9.5, fontWeight: 500, fontFamily: "Roboto, sans-serif", color: "rgba(255,255,255,.6)", textShadow: "0 1px 2px rgba(0,0,0,.65)", background: "transparent", border: 0, borderRadius: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "left" }}>
-    Google Maps
+    onKeyDown={activateKey(open)}
+    onClick={open} style={{ ...control, ...creditLine, position: "fixed", zIndex: 30, left: bounds.left + 6, top: Math.max(bounds.top + 2, bounds.bottom - 18), maxWidth: Math.max(44, bounds.right - bounds.left - 12), minHeight: 0, height: 12, padding: 0, background: "transparent", border: 0, borderRadius: 0, textAlign: "left" }}>
+    {label}
   </button>, document.body);
 }
 
@@ -99,8 +103,8 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   const [failed, setFailed] = useState(null);
   const [viewer, setViewer] = useState(null);
   const [rawFailed, setRawFailed] = useState(null);
-  const answered = answer?.request === request ? answer.photo : null;
-  const photo = inLink && answered?.source === "google" && !answered.src?.startsWith("/api/photo/stored/") ? null : answered;
+  const allow = (p) => inLink && p?.source === "google" && !p.src?.startsWith("/api/photo/stored/") ? null : p;
+  const photo = answer?.request === request ? allow(answer.photo) : null;
   const notifyError = () => {
     if (!onErrorRef.current || missSrc) return;
     const fbRaw = fallbackAttrRef.current || "";
@@ -125,19 +129,15 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     const run = (attempt) => {
       fetchCardPhoto(request).then((result) => {
         if (disposed) return;
-        const usable = inLink && result?.source === "google" && !result.src?.startsWith("/api/photo/stored/") ? null : result;
+        const usable = allow(result);
         setAnswer({ request, photo: usable });
         setFailed(usable ? null : request);
-        const retryable = !result && attempt + 1 < MAX_ATTEMPTS && photoAnswerStatus(pid, { nospend }).retryable;
-        if (retryable) retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);
-        else if (!usable) notifyError();
+        if (!result && attempt + 1 < MAX_ATTEMPTS && photoAnswerStatus(pid, { nospend }).retryable) {
+          retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);
+        } else if (!usable) notifyError();
       });
     };
-    const load = () => {
-      if (started) return;
-      started = true;
-      run(0);
-    };
+    const load = () => { if (!started) { started = true; run(0); } };
     const observer = !eager && typeof IntersectionObserver !== "undefined" ? new IntersectionObserver((entries) => {
       if (entries.some((e) => e.isIntersecting && e.intersectionRatio > 0)) { observer.disconnect(); load(); }
     }) : null;
@@ -148,14 +148,10 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   // and cancels any pending recovery (no stale photo can land on a new place).
   const recovery = useRef({ request: null, tries: 0, timer: null });
   useEffect(() => () => { clearTimeout(recovery.current.timer); recovery.current = { request: null, tries: 0, timer: null }; }, [request]);
-  const onImageError = () => {
-    const run = (mod) => mod.recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed, onTerminalFail: notifyError });
-    // The rendered guards eval this file as a classic script and supply the module.
-    if (typeof window !== "undefined" && window.__cardPhotoRecovery) { run(window.__cardPhotoRecovery); return; }
-    // A harness that evals this file as a classic script and does not inject the
-    // module must still land on the unavailable tile, never an uncaught error.
-    import("./cardPhotoRecovery.js").then(run, () => { setFailed(request); notifyError(); });
-  };
+  const onImageError = () => withRecovery(
+    (mod) => mod.recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed, onTerminalFail: notifyError }),
+    () => { setFailed(request); notifyError(); },
+  );
   if (!request) {
     // Ordinary owned/partner image. A caller that passes onError owns its own ladder
     // (RailCard swaps src in the handler) so the <img> must stay mounted for it. With
@@ -176,17 +172,19 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     "aria-label": alt ? "View larger photo of " + alt + " and photographer credit" : "View larger photo and photographer credit",
     "aria-haspopup": "dialog",
     onClick: open,
-    onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); },
+    onKeyDown: activateKey(open),
   } : { onClick };
+  const isGoogle = photo?.source === "google";
+  const creditLabel = visible && photo?.credit ? (isGoogle ? "Google Maps" : nonGoogleCreditLabel(photo)) : "";
   return <>
     {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit && !inLink ? { cursor: "zoom-in", outlineOffset: -3, pointerEvents: "auto" } : {}) }} onLoad={onLoad} onError={onImageError} />
       : <span ref={anchor} data-card-photo-request={request} style={{ display: "block", width: "100%", height: "100%", minHeight: compact ? 40 : 60, overflow: "hidden", ...style, borderRadius: style?.borderRadius ?? "inherit" }}>
           {(failed === request && placeholder) || <PhotoFallbackTile pending={failed !== request} name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} />}
         </span>}
-    {visible && !compact && !inLink && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
-      <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", maxWidth: "100%", color: "rgba(255,255,255,.6)", textShadow: "0 1px 2px rgba(0,0,0,.65)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "Roboto, sans-serif", fontSize: 9.5, lineHeight: "12px", fontWeight: 500, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>
+    {!compact && !inLink && creditLabel ? <div data-card-photo-credit onKeyDown={stop} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
+      <PhotoCreditLink href={safe(isGoogle ? photo.credit.mapsUri : photo.credit.uri)} rel="noreferrer" translate={isGoogle ? "no" : undefined} onClick={stop} style={{ ...creditLine, display: "inline-block", maxWidth: "100%", fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>{creditLabel}</PhotoCreditLink>
     </div> : null}
-    {visible && inLink && photo.source === "google" && photo.credit ? <LinkedPhotoCredit anchor={anchor} photo={photo} alt={alt} open={open} compact={compact} /> : null}
+    {inLink && creditLabel ? <LinkedPhotoCredit anchor={anchor} photo={photo} alt={alt} open={open} /> : null}
     {viewer && viewer.request === request && viewer.photo === photo && visible ? <PhotoViewer photo={viewer.photo} alt={alt} close={() => setViewer(null)} /> : null}
   </>;
 }
