@@ -231,3 +231,31 @@ console.log('test-address-search: OK — real handlers: exact/ambiguous/address/
  assert.equal(state.query,''); assert.equal(state.detail.id,'old','clearing suppresses a late result');
  assert.equal(state.suggestions.length,0); assert.equal(state.searchFeedback,'');
 }
+// Map screen city + category natural search routing (Owner 2026-11-23).
+for (const [q, cityRx, expectedCat, expectedSub] of [
+  ['food parrish', /Parrish/i, 'food', 'all'],
+  ['breakfast in parrish', /Parrish/i, 'food', 'breakfast'],
+  ['coffee near tampa', /Tampa/i, 'food', 'cafes'],
+  ['parks in sarasota', /Sarasota/i, 'attractions', 'outdoors'],
+  ['best ice cream around st pete', /St\.?\s*Pete/i, 'food', 'dessert'],
+]) {
+  const { ctx, state } = harness(q);
+  ctx.screen = 'map';
+  ctx.categoryChosenRef = { current: false };
+  await ctx.submitSearch(q, { keepMapScreen: true });
+  assert.equal(state.calls.length, 0, `${q} on /map resolves locally without hitting /api/search`);
+  assert.equal(state.screen, 'map', `${q} stays on /map`);
+  assert.match(state.locName, cityRx, `${q} moves map center to ${cityRx}`);
+  assert.equal(state.cat, expectedCat, `${q} selects category ${expectedCat}`);
+  assert.equal(state.sub, expectedSub, `${q} selects subfilter ${expectedSub}`);
+  assert.equal(ctx.manualRef.current, true, `${q} preserves manualRef.current = true`);
+  assert.ok(state.mapCatRev >= 1, `${q} bumps mapCatRev to clear allCategories`);
+  oneOutcome(state, 'city_changed');
+}
+{
+  // Venue names starting with a category word ("Food + Beer") must NOT be hijacked into a city search.
+  const { ctx, state } = harness('Food + Beer');
+  ctx.screen = 'map';
+  await ctx.submitSearch('Food + Beer', { keepMapScreen: true });
+  assert.equal(state.calls.length, 1, 'Food + Beer falls through to /api/search rather than hijacking as city+category');
+}

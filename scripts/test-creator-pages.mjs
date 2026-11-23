@@ -307,6 +307,37 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   // and the map renders a single pin instead of the whole category (shipped
   // 2026-09-22 on /guides/florida-fall-festivals-2026, nine pins became one).
   ok(drawn.every(pin => pin.calloutEnabled === false), "no pin asks Apple Maps to position a callout it cannot measure");
+  const addedSingle = [];
+  const removedSingle = [];
+  const userMapkit = {
+    ...mapkit,
+    Map: class {
+      addAnnotations(a) { drawn = [...a]; }
+      addAnnotation(a) { addedSingle.push(a); }
+      removeAnnotation(a) { removedSingle.push(a); }
+      showItems(a) { fitted = [...a]; }
+      addEventListener(t, fn) { listeners[t] = fn; }
+      removeEventListener(t, fn) { delete listeners[t]; }
+      destroy() { destroyed = true; }
+    },
+  };
+  let userSel = "unchanged";
+  const uCtrl = createCreatorAppleMap({
+    mapkit: userMapkit, container: {},
+    places: [
+      { id: "cafe", name: "Coffee", lat: 27, lng: -82, primary_type: "coffee_shop" },
+      { id: "park", name: "Park", lat: 28, lng: -81, primary_type: "park" },
+    ],
+    onSelect: id => { userSel = id; },
+  });
+  ok(addedSingle.length === 0 && fitted.length === 2, "creator map draws zero user dot without a real deviceLoc (no synthetic centroid)");
+  uCtrl.setUserLocation({ lat: 27.5, lng: -82.4 });
+  ok(addedSingle.length === 1 && addedSingle[0].__wayfindOrigin === true && addedSingle[0].calloutEnabled === false && addedSingle[0].enabled === false && decodeURIComponent(addedSingle[0].image[1]).includes("#F97316"), "setUserLocation adds one non-interactive Wayfind Orange dot without altering showItems(pins)");
+  ok(fitted.length === 2, "setUserLocation never alters creator map framing");
+  listeners.select?.({ annotation: addedSingle[0] });
+  ok(userSel === "unchanged", "selecting the orange user dot never fires onSelect");
+  uCtrl.destroy();
+  ok(removedSingle.length === 1 && removedSingle[0] === addedSingle[0], "destroy cleans up the creator map user location annotation");
   controller.destroy(); ok(destroyed, "map is destroyed when filters change or page unmounts");
   const { RAILS } = await import("../lib/rails.js");
   ok(RAILS.find(r => r.id === "lunchcity").posterHidden === true, "Lunch poster is hidden");
