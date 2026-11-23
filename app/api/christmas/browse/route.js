@@ -39,8 +39,8 @@ export async function GET(request) {
       const withPlanTickets = await withBrowseTicketPhotos(attachBrowseTickets(planPage, listings, today, dealsById), listings, today, dealsById);
       return Response.json({ today, ids: items.map((c) => c.id), ...withPlanTickets }, { headers: { "cache-control": "public, s-maxage=300, stale-while-revalidate=3600" } });
     }
-    // group=weekend: the "This weekend" row, top 3 per category (lib/christmasWeekend.js),
-    // the same card shape as the list.
+    // group=weekend: the "This weekend" row, up to 10 per category (lib/christmasWeekend.js),
+    // the same card shape as the list. The tile reads ticketRow.cta.
     if (params.get("group") === "weekend") {
       const weekend = christmasWeekendGroups(listings, today, { lat: query.lat, lng: query.lng });
       const groups = await Promise.all(weekend.groups.map(async (g) => {

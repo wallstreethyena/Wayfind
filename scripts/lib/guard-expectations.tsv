@@ -624,7 +624,7 @@ scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	356	0	0	1dc
 scripts/test-christmas-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	Revenue QA	66	0	0	d251c652e40a6f973d209812083f066aaaa50e6a30f51c6b965edc431ac62822
 scripts/test-christmas-twins.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	6de79401688c1183e17dbce51c7b7c1c817b8d7d7f2e1c430adf53d3b54eadaf
 scripts/test-christmas-unservable-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	de04257d5b85d82cfe75b9ecefb2c0b79ee2fd1b0da8f4ff380aa6ac0af30e49
-scripts/test-christmas-weekend.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	eb23a6aaeb94db0cd067c69c087e1aa66e14fa2c8ac46b4c185c61ec46825964
+scripts/test-christmas-weekend.mjs	0	RENDER	blocks-ci-and-deploy	1	-	93	0	0	bd8d4aacafa8dc4043948199a68e65d5c70e273f6547a2aacea2e57c87f74474
 scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	77	0	0	d3a442fc69ea5673ca33b6090c435ee81b03498f796d36e40a3fd6b681032086
 scripts/test-chunk-warmup.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	34cfae56b42c0d4c9970b557ae1bf1ff05cdd03f2976a84bc9335f95ccd37b06
 scripts/test-cindy-reel-identities.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0	f4688ada7075e601c5fc3ea12f641bee1d19f15811fae70fb03e5385ba1181b9
