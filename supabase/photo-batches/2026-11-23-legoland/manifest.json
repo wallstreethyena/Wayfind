@@ -1,0 +1,181 @@
+{
+  "batch": "2026-11-23-legoland",
+  "note": "Replace close child face photos and entrance sign photos on the LEGOLAND Holidays event page gallery with official LEGOLAND Florida Resort holiday photos. Credit Photo: LEGOLAND Florida Resort. Guarded apply only when the current gallery matches the 23 Nov 2026 snapshot. Approved to prepare by Gabe at 2:54 PM ET (t150s997). Do not run until the files are live and Gabe approves the apply.",
+  "place_id": "wfadd_legoland_florida",
+  "name": "LEGOLAND Florida Resort",
+  "event_ids": [
+    "legoland-fl-holidays-2026",
+    "holidays-at-legoland-florida-2026",
+    "legoland-christmas-bricktacular-2026"
+  ],
+  "credit": "Photo: LEGOLAND Florida Resort",
+  "attribution_url": "https://www.legoland.com/florida/things-to-do/seasonal-events/holidays-at-legoland/",
+  "removed": [
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/xmas_5d7a0dda91619967.jpg",
+      "reason": "Close faces of three children in the brick wreath. This was the event page cover."
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/xmas_8568dd4afcd2c7e4.jpg",
+      "reason": "Close faces of two girls with the LEGO Santa figure."
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/c988da2b5e07018ef713d0a6.jpg",
+      "reason": "Daytime entrance welcome sign, not a holiday photo."
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/6b01f3f31999fa51b59c79e8.jpg",
+      "reason": "Daytime entrance sign and Happy Brickday cake, not a holiday photo."
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/389efb9fd183ce0333bbb797.jpg",
+      "reason": "Daytime entrance plaza and sign, not a holiday photo."
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/50794ddc6b889f510b939f98.jpg",
+      "reason": "Close crop of the LEGOLAND Florida entrance sign."
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/4e646c37fe3689343b52c9b5.jpg",
+      "reason": "Daytime entrance crowd and sign, not a holiday photo."
+    }
+  ],
+  "kept_restandardized": [
+    {
+      "original": "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/xmas_a451e65e4ab7d1db.jpg",
+      "reason": "Official fireworks shot of guests from behind. No close faces of children. Recompressed to at most 200KB."
+    },
+    {
+      "original": "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/xmas_a88896626dab04e6.jpg",
+      "reason": "Official fireworks with no people and no text overlay. Kept as a standardized 1280x853 JPEG."
+    }
+  ],
+  "photos": [
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11y/wfadd_legoland_florida/xmas_ec172debd1249eb4.jpg",
+      "bytes": 163284,
+      "width": 1280,
+      "height": 853,
+      "cover": true,
+      "source": "official_site",
+      "license": "Courtesy of venue",
+      "source_ref": "https://www.legoland.com/florida/media/ra1daflx/lego-christmas-tree.png",
+      "original_url": "https://www.legoland.com/florida/media/ra1daflx/lego-christmas-tree.png",
+      "storage_path": null,
+      "attribution_url": "https://www.legoland.com/florida/things-to-do/seasonal-events/holidays-at-legoland/",
+      "attribution_text": "Photo: LEGOLAND Florida Resort",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026",
+        "holidays-at-legoland-florida-2026",
+        "legoland-christmas-bricktacular-2026"
+      ],
+      "title": "Brick Christmas tree at LEGOLAND Florida Resort",
+      "note": "Official brick built Christmas tree. Cover. No people."
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11y/wfadd_legoland_florida/xmas_2cd4959d3fba4f91.jpg",
+      "bytes": 193318,
+      "width": 1280,
+      "height": 853,
+      "cover": false,
+      "source": "official_site",
+      "license": "Courtesy of venue",
+      "source_ref": "https://www.legoland.com/florida/media/k0vbfvx4/5-2-carousel-family-with-tree-version.jpg",
+      "original_url": "https://www.legoland.com/florida/media/k0vbfvx4/5-2-carousel-family-with-tree-version.jpg",
+      "storage_path": null,
+      "attribution_url": "https://www.legoland.com/florida/things-to-do/seasonal-events/holidays-at-legoland/",
+      "attribution_text": "Photo: LEGOLAND Florida Resort",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026",
+        "holidays-at-legoland-florida-2026",
+        "legoland-christmas-bricktacular-2026"
+      ],
+      "title": "Lit brick Christmas tree at night",
+      "note": "Cropped to the official night tree and lights. People at the fence were left out of the crop."
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11y/wfadd_legoland_florida/xmas_097d00fde63fcb32.jpg",
+      "bytes": 185810,
+      "width": 1280,
+      "height": 853,
+      "cover": false,
+      "source": "official_site",
+      "license": "Courtesy of venue",
+      "source_ref": "https://www.legoland.com/florida/media/ruqhahla/knye-1000x1000.png",
+      "original_url": "https://www.legoland.com/florida/media/ruqhahla/knye-1000x1000.png",
+      "storage_path": null,
+      "attribution_url": "https://www.legoland.com/florida/things-to-do/seasonal-events/holidays-at-legoland/",
+      "attribution_text": "Photo: LEGOLAND Florida Resort",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026",
+        "holidays-at-legoland-florida-2026",
+        "legoland-christmas-bricktacular-2026"
+      ],
+      "title": "Holiday fireworks over the water",
+      "note": "Official fireworks with brick shapes in the bursts. No text overlay and no people."
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11y/wfadd_legoland_florida/xmas_f73ed668c0aa0dd3.jpg",
+      "bytes": 199197,
+      "width": 1280,
+      "height": 853,
+      "cover": false,
+      "source": "official_site",
+      "license": "Courtesy of venue",
+      "source_ref": "https://www.legoland.com/florida/media/c0ldtrb2/family-fireworks-1.jpg",
+      "original_url": "https://www.legoland.com/florida/media/c0ldtrb2/family-fireworks-1.jpg",
+      "storage_path": null,
+      "attribution_url": "https://www.legoland.com/florida/things-to-do/seasonal-events/holidays-at-legoland/",
+      "attribution_text": "Photo: LEGOLAND Florida Resort",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026",
+        "holidays-at-legoland-florida-2026",
+        "legoland-christmas-bricktacular-2026"
+      ],
+      "title": "Guests watch holiday fireworks from behind",
+      "note": "Official holiday fireworks. People are seen from behind, no close faces of children."
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11y/wfadd_legoland_florida/xmas_c33cfce648251840.jpg",
+      "bytes": 196128,
+      "width": 1280,
+      "height": 853,
+      "cover": false,
+      "source": "official_site",
+      "license": "Courtesy of venue",
+      "source_ref": "https://www.legoland.com/florida/media/ny5hs3rh/2019-12-08_legolandfl_holidays059sm.jpg",
+      "original_url": "https://www.legoland.com/florida/media/ny5hs3rh/2019-12-08_legolandfl_holidays059sm.jpg",
+      "storage_path": null,
+      "attribution_url": "https://www.legoland.com/florida/things-to-do/seasonal-events/holidays-at-legoland/",
+      "attribution_text": "Photo: LEGOLAND Florida Resort",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026",
+        "holidays-at-legoland-florida-2026",
+        "legoland-christmas-bricktacular-2026"
+      ],
+      "title": "Holiday elf show with a brick Christmas tree",
+      "note": "Official holiday show with two adult performers, gifts, and a brick Christmas tree. No children."
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11y/wfadd_legoland_florida/xmas_40794367bdfa7de3.jpg",
+      "bytes": 191951,
+      "width": 1280,
+      "height": 853,
+      "cover": false,
+      "source": "official_site",
+      "license": "Courtesy of venue",
+      "source_ref": "https://www.legoland.com/florida/media/5hmdpkiy/lego-snowman.jpg",
+      "original_url": "https://www.legoland.com/florida/media/5hmdpkiy/lego-snowman.jpg",
+      "storage_path": null,
+      "attribution_url": "https://www.legoland.com/florida/things-to-do/seasonal-events/holidays-at-legoland/",
+      "attribution_text": "Photo: LEGOLAND Florida Resort",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026",
+        "holidays-at-legoland-florida-2026",
+        "legoland-christmas-bricktacular-2026"
+      ],
+      "title": "LEGOLAND snowman character",
+      "note": "Official snowman character. No people."
+    }
+  ]
+}
