@@ -2762,3 +2762,5 @@ node scripts/test-primary-cta-gap.mjs
 node scripts/test-indexnow.mjs
 # 2026-11-23 SEO engine: Sarasota guide and Christmas hub headlines carry the searched words, real picks only.
 node scripts/test-seo-money-headlines.mjs
+# 2026-11-23 Card photo delivery: wf_inventory signals.photo_gallery serves exact-place photos with license/venue credit and zero Google spend.
+node scripts/test-inventory-gallery-card-photo.mjs

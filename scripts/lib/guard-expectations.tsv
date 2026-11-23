@@ -888,6 +888,7 @@ scripts/test-intl-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	5b0a244c74a2e
 scripts/test-inventory-all-adult.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	6ae755d3b086a2e1cc272ebf28abf6c5515585029a9b8d78ac34ac7f43b31f0b
 scripts/test-inventory-batch-concurrency.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	5e792872c76b8f69c8ad369827096f677f320acd4c494f65304d0d29f9efb356
 scripts/test-inventory-free-refresh.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	6a9da018a172f0649009e192ce9f1c1f8a6ca8410c7e45c4a98f41d8d9e381d7
+scripts/test-inventory-gallery-card-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	6a0ad2844b340e3ec2aebf561c01060b7140207bfbd34a1d4032d0ad9da113f1
 scripts/test-inventory-row-card-fields.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	358a8d386b62c0c8abb658d0d3be9088c3c10670ba4d02c08bf9fd93b84452e8
 scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	aa21f75f53d5223eb9334a6d755172239f1ae348d4da4e994b128846bea5310f
 scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	69b2842b1e6984e7515c77c884a4b3806816a49af40b65168337598e45577bdb

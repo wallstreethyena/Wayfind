@@ -308,9 +308,13 @@ async function handlePhotoGet(req) {
     if (wantJson) {
       if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);
       const c = result.credit || {};
-      return result.reason === "google" || result.reason === "google-stored"
-        ? jsonAnswer({ src: result.location, source: "google", credit: { name: c.name || "", uri: c.uri || null, mapsUri: c.mapsUri || null, authors: c.authors || [] } }, "private, no-store", result.reason)
-        : jsonAnswer({ src: result.location, source: "wayfind", credit: null }, "private, max-age=300", result.reason || "inventory");
+      if (result.reason === "google" || result.reason === "google-stored") {
+        return jsonAnswer({ src: result.location, source: "google", credit: { name: c.name || "", uri: c.uri || null, mapsUri: c.mapsUri || null, authors: c.authors || [] } }, "private, no-store", result.reason);
+      }
+      if (c.name && c.uri && c.license) {
+        return jsonAnswer({ src: result.location, source: result.photoSource || "permitted", credit: { name: c.name, uri: c.uri, license: c.license } }, "public, max-age=" + FREE_REDIRECT_TTL + ", s-maxage=" + FREE_REDIRECT_TTL, result.reason || "inventory");
+      }
+      return jsonAnswer({ src: result.location, source: "wayfind", credit: null }, "private, max-age=300", result.reason || "inventory");
     }
     // "google" is the ONLY redirect reason that means a real ledger grant was
     // just taken (lib/placePhotoServe.js's other redirect reasons — cache,
