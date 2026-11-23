@@ -249,6 +249,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/red-bull-dance-your-style-tampa-2026/the-16-dancers-in-the-final.webp` — red-bull-dance-your-style-tampa-2026: The 16 dancers in the final. [Ebyabe](https://commons.wikimedia.org/wiki/File:Tampa_Ybor_City04.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/red-bull-dance-your-style-tampa-2026/hero-tampa-convention-center.webp` — red-bull-dance-your-style-tampa-2026: hero image. [Zeng8r](https://commons.wikimedia.org/wiki/File:Tampa_Convention_Center.JPG); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 
+## restaurants-open-thanksgiving-tampa-bay-2026
+
+- `/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp` — restaurants-open-thanksgiving-tampa-bay-2026: Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
 ## robinson-preserve-bradenton
 
 - `/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp` — robinson-preserve-bradenton: Flat miles for wheels. [Mark Hewitt](https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -272,6 +276,15 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## sarasota-restaurants
 
 - `/guides/picks/things-to-do-in-sarasota-florida/owen-s-fish-camp.webp` — sarasota-restaurants: Owen's Fish Camp. [Carol VanHook](https://www.flickr.com/photos/97651299@N00/35463538942); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## seaworld-orlando-christmas-celebration-2026
+
+- `/guides/picks/seaworld-orlando-christmas-celebration-2026/holiday-reflections.webp` — seaworld-orlando-christmas-celebration-2026: Holiday Reflections. [Matt Keefe](https://www.flickr.com/photos/60243770@N00/923516901); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/seaworld-orlando-christmas-celebration-2026/main-entrance.webp` — seaworld-orlando-christmas-celebration-2026: Main entrance. [ThrillZing](https://commons.wikimedia.org/wiki/File:The_Park_Entrance_gate_at_SeaWorld_Orlando_with_the_Sky_Tower_behind_it,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/seaworld-orlando-christmas-celebration-2026/manta-over-lagoon.webp` — seaworld-orlando-christmas-celebration-2026: Mako and Manta. [ThrillZing](https://commons.wikimedia.org/wiki/File:Manta's_track_sweeping_over_the_lagoon_with_pink_flowers_in_the_foreground_under_a_clear_blue_sky,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/seaworld-orlando-christmas-celebration-2026/bayside-stadium.webp` — seaworld-orlando-christmas-celebration-2026: Public ice skating at Bayside Stadium. [Adog104](https://commons.wikimedia.org/wiki/File:Bayside_Stadium.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/florida-theme-park-christmas-2026/seaworld-orlando-sea-of-trees.jpg` — seaworld-orlando-christmas-celebration-2026: Sea of Trees. [simon17964](https://www.flickr.com/photos/7474760@N03/25026709865); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/seaworld-orlando-christmas-celebration-2026/sunny-day-carousel-sign.webp` — seaworld-orlando-christmas-celebration-2026: Sesame Street Christmas Parade. [HyenaWaltz](https://commons.wikimedia.org/wiki/File:Sunny_Day_Carousel_sign.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 
 ## siesta-key-drum-circle
 

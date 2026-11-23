@@ -3,19 +3,19 @@
   "verifiedAt": "2026-11-17",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 401,
-    "usages": 427,
-    "verified": 401,
+    "files": 406,
+    "usages": 434,
+    "verified": 406,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 98,
+      "CC BY 2.0": 104,
+      "CC BY-SA 4.0": 99,
       "CC BY-SA 3.0": 82,
-      "CC BY 4.0": 22,
-      "CC BY 3.0": 21,
-      "CC BY 2.0": 103,
-      "CC0 1.0 Universal": 26,
       "CC BY-SA 2.0": 40,
+      "CC0 1.0 Universal": 27,
+      "CC BY 4.0": 24,
+      "CC BY 3.0": 21,
       "Unsplash License": 4,
       "Public domain": 3,
       "CC BY-SA 2.5": 2
@@ -2441,6 +2441,15 @@
           "slug": "florida-theme-park-christmas-2026",
           "role": "pick",
           "pick": "SeaWorld Orlando Christmas Celebration"
+        },
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Sea of Trees"
+        },
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "hero"
         }
       ],
       "source": {
@@ -4691,6 +4700,157 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-17"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/bayside-stadium.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Public ice skating at Bayside Stadium"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Bayside_Stadium.jpg",
+        "title": "Bayside Stadium",
+        "author": "Adog104",
+        "dateTaken": "2018-09-22 15:48:07",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Adog104",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Bayside_Stadium.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/holiday-reflections.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Holiday Reflections"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/60243770@N00/923516901",
+        "title": "More Fireworks",
+        "author": "Matt Keefe",
+        "displayName": "M. Keefe",
+        "dateTaken": "2007-07-14 21:10:14",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "Matt Keefe",
+        "creditHref": "https://www.flickr.com/photos/60243770@N00/923516901",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/main-entrance.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Main entrance"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:The_Park_Entrance_gate_at_SeaWorld_Orlando_with_the_Sky_Tower_behind_it,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+        "title": "The Park Entrance gate at SeaWorld Orlando with the Sky Tower behind it, SeaWorld Orlando, March 2021 - ThrillZing",
+        "author": "ThrillZing",
+        "dateTaken": "2021-03-10",
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0"
+      },
+      "wayfind": {
+        "credit": "ThrillZing",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:The_Park_Entrance_gate_at_SeaWorld_Orlando_with_the_Sky_Tower_behind_it,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/manta-over-lagoon.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Mako and Manta"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Manta's_track_sweeping_over_the_lagoon_with_pink_flowers_in_the_foreground_under_a_clear_blue_sky,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+        "title": "Manta's track sweeping over the lagoon with pink flowers in the foreground under a clear blue sky, SeaWorld Orlando, March 2021 - ThrillZing",
+        "author": "ThrillZing",
+        "dateTaken": "2021-03-10",
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0"
+      },
+      "wayfind": {
+        "credit": "ThrillZing",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Manta's_track_sweeping_over_the_lagoon_with_pink_flowers_in_the_foreground_under_a_clear_blue_sky,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/sunny-day-carousel-sign.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Sesame Street Christmas Parade"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Sunny_Day_Carousel_sign.jpg",
+        "title": "Sunny Day Carousel sign",
+        "author": "HyenaWaltz",
+        "dateTaken": "2024-01-11 15:11:48",
+        "licence": "CC0 1.0 Universal",
+        "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+      },
+      "wayfind": {
+        "credit": "HyenaWaltz",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Sunny_Day_Carousel_sign.jpg",
+        "license": "CC0 1.0 Universal",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/siesta-key-drum-circle/parking-without-the-meltdown.webp",
