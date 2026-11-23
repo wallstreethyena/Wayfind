@@ -13,14 +13,14 @@ const root = process.cwd();
 const { default: Section } = await loadComponent(path.join(root, "app/components/ChristmasCityGuides.js"), root);
 
 const all = CHRISTMAS_CITY_GUIDES.flatMap((g) => g.links);
-assert.equal(all.length, 25, "22 blog posts + 3 Nov 17 guides");
+assert.equal(all.length, 27, "22 blog posts + 3 Nov 17 guides + the Disney food and Universal Christmas guides");
 assert.equal(new Set(all.map((l) => l.href)).size, all.length, "no duplicate links");
 for (const link of all) {
   assert.match(link.href, /^(https:\/\/blog\.gowayfind\.com\/[a-z0-9-]+|\/guides\/[a-z0-9-]+)$/, "clean URL, no query or fragment: " + link.href);
   assert.match(link.endsOn, /^\d{4}-\d{2}-\d{2}$/, "every link expires: " + link.href);
 }
 assert.throws(() => christmasCityGuides(""));
-assert.equal(christmasCityGuides("2026-11-19").flatMap((g) => g.links).length, 25);
+assert.equal(christmasCityGuides("2026-11-19").flatMap((g) => g.links).length, 27);
 assert.ok(!christmasCityGuides("2026-12-01").flatMap((g) => g.links).some((l) => l.href.includes("thanksgiving")), "Thanksgiving posts leave after the weekend");
 assert.equal(christmasCityGuides("2027-02-01").length, 0, "nothing stale after the season");
 

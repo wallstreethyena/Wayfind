@@ -2742,6 +2742,8 @@ node scripts/test-metro-photo-coverage.mjs
 
 
 node scripts/test-disney-food-posts.mjs
+node scripts/test-disney-food-seo.mjs
+node scripts/test-disney-food-seo.mjs --red-prove
 node scripts/test-park-maps-2026.mjs
 node scripts/test-park-maps-2026.mjs --red-prove
 node scripts/test-disney-food-post-states.mjs

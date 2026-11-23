@@ -9,13 +9,17 @@ import { SITE_URL } from "../../../lib/site";
 import { CALIFORNIA_BONUS, DISNEY_FOOD_SLUG, DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, DISNEY_HOLIDAY_FOOD_GUIDES, EPCOT_FESTIVAL } from "../../../lib/guidesDisneyHolidayFood2026";
 import DisneyFoodMap from "./DisneyFoodMap";
 import FestivalBooths from "./FestivalBooths";
+import GuideDealCards from "../[slug]/GuideDealCards";
+import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
+import { guideDealCommerce } from "../../../lib/guideDeals";
+import { siteTodayStr } from "../../../lib/siteTime";
 import styles from "./page.module.css";
 
 const guide = DISNEY_HOLIDAY_FOOD_GUIDES[DISNEY_FOOD_SLUG];
 const path = "/guides/" + DISNEY_FOOD_SLUG;
 const canonical = SITE_URL + path;
 const hero = guideHero(DISNEY_FOOD_SLUG);
-const shareImage = SITE_URL + "/api/og/hero?kind=guide&id=" + DISNEY_FOOD_SLUG + "&t=" + encodeURIComponent("Disney holiday food, mapped") + "&cat=Guide&loc=Orlando&v=" + hero.reviewedAt + "." + HERO_CARD_DESIGN_V;
+const shareImage = SITE_URL + "/api/og/hero?kind=guide&id=" + DISNEY_FOOD_SLUG + "&t=" + encodeURIComponent("Disney Christmas food 2026, mapped") + "&cat=Guide&loc=Orlando&v=" + hero.reviewedAt + "." + HERO_CARD_DESIGN_V;
 
 export const revalidate = 900;
 const baseMetadata = {
@@ -32,12 +36,58 @@ export function generateMetadata() {
 
 // Standard frame: GuideStandardShell emits the Article + BreadcrumbList pair;
 // the guide's own questions add FAQPage, the same as template guides.
+// ItemList of every treat and booth on the page, and the festival as an Event.
+// Both describe only what the page shows (Google spam policy: markup matches the page).
+const PARK_NAME = Object.fromEntries(DISNEY_FOOD_PARKS.map((park) => [park.id, park.name]));
+const itemListLd = { "@context": "https://schema.org", "@type": "ItemList", name: "Disney World Christmas food 2026", itemListElement: [
+  ...DISNEY_FOOD_STOPS.map((stop) => ({ name: stop.title + " at " + stop.venue + ", " + PARK_NAME[stop.parkId], url: canonical + "#" + stop.id })),
+  ...EPCOT_FESTIVAL.booths.map((booth) => ({ name: booth.name + ", EPCOT Festival of the Holidays", url: canonical + "#booth-" + booth.id })),
+].map((item, i) => ({ "@type": "ListItem", position: i + 1, ...item })) };
+const festivalLd = { "@context": "https://schema.org", "@type": "Event", name: EPCOT_FESTIVAL.name + " 2026", startDate: "2026-11-27", endDate: "2026-12-30",
+  eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  description: EPCOT_FESTIVAL.summary + " " + EPCOT_FESTIVAL.admission, url: canonical + "#" + EPCOT_FESTIVAL.id,
+  location: { "@type": "Place", name: "EPCOT, Walt Disney World Resort", address: { "@type": "PostalAddress", streetAddress: "200 Epcot Center Dr", addressLocality: "Lake Buena Vista", addressRegion: "FL", postalCode: "32821", addressCountry: "US" } },
+  organizer: { "@type": "Organization", name: "Walt Disney World Resort" } };
+
+// Park tickets: the registered, tracked Orlando CityPASS row (lib/coupons), the
+// same card and tracking as template guides. Only shown while the row is live.
+function ticketDeals() {
+  const today = siteTodayStr();
+  return COUPONS.filter((c) => c && c.id === "cpn-citypass-orlando" && couponIsLive(c, today)).map((c) => ({
+    id: c.id, business: c.business, title: c.title, details: c.details, area: c.area, badge: c.badge || null, cta: c.cta || null, image: c.image || null, category: "attractions",
+    url: (guideDealCommerce(c.url) || {}).href || c.url, commerce: (guideDealCommerce(c.url) || {}).ctx || null, external: !String(c.url || "").startsWith("/"), ends: couponEndsLabel(c) || null,
+  }));
+}
+
+// The answer first: every treat with its park, price and ticket, then the festival.
+function QuickAnswer() {
+  return <div className={styles.quickAnswer}>
+    <p className={styles.answerLead}><strong>The short answer:</strong> the 2026 Disney World Christmas food worth planning around is spread across four parks and Disney Springs, and the EPCOT International Festival of the Holidays adds 16 food spots from {EPCOT_FESTIVAL.dates}. Here is every pick, where it is and what you need to get in.</p>
+    <div className={styles.answerTable}><table>
+      <thead><tr><th scope="col">Treat</th><th scope="col">Where</th><th scope="col">Posted price</th><th scope="col">Ticket</th></tr></thead>
+      <tbody>
+        {DISNEY_FOOD_STOPS.map((stop) => <tr key={stop.id}><th scope="row"><a href={"#" + stop.id}>{stop.title}</a></th><td data-label="Where">{stop.venue}, {PARK_NAME[stop.parkId]}</td><td data-label="Posted price">{stop.postedPrice || "Not listed"}</td><td data-label="Ticket">{stop.admission}</td></tr>)}
+        <tr><th scope="row"><a href={"#" + EPCOT_FESTIVAL.id}>EPCOT Festival of the Holidays (16 booths)</a></th><td data-label="Where">World Showcase and World Celebration, EPCOT</td><td data-label="Posted price">Not listed</td><td data-label="Ticket">EPCOT admission</td></tr>
+      </tbody>
+    </table></div>
+  </div>;
+}
+
 const faqLd = guide.faq?.length ? { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: guide.faq.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) } : null;
 
+// Section headings carry what people search for (owner 2026-11-23: come up
+// whenever someone searches for Disney food). Every heading names its park.
+const PARK_HEADINGS = {
+  "animal-kingdom": "Animal Kingdom Christmas snacks",
+  "epcot": "EPCOT holiday food and Festival of the Holidays booths",
+  "magic-kingdom": "Magic Kingdom Christmas treats",
+  "hollywood-studios": "Hollywood Studios holiday food at Jollywood Nights",
+  "disney-springs": "Disney Springs holiday desserts, no park ticket",
+};
 // One numbered section per park, in the same order as the map's park chips.
 const PARK_SECTIONS = ["animal-kingdom", "epcot", "magic-kingdom", "hollywood-studios", "disney-springs"]
   .map((id) => DISNEY_FOOD_PARKS.find((park) => park.id === id)).filter(Boolean)
-  .map((park) => ({ id: "park-" + park.id, parkId: park.id, eyebrow: park.id === "disney-springs" ? "No theme park ticket" : "Theme park admission", title: park.name }));
+  .map((park) => ({ id: "park-" + park.id, parkId: park.id, eyebrow: park.id === "disney-springs" ? "No theme park ticket" : "Theme park admission", title: PARK_HEADINGS[park.id] || park.name }));
 const EPCOT_STOP_COUNT = DISNEY_FOOD_STOPS.filter((stop) => stop.parkId === "epcot").length;
 
 const SECTIONS = [
@@ -52,8 +102,8 @@ export default function DisneyHolidayFoodGuidePage() {
   const past = isGuidePast(guide);
   return <GuideStandardShell
     slug={DISNEY_FOOD_SLUG}
-    title="Disney World holiday food guide 2026"
-    description="Cookie butter beignets, Christmas croissants and the sweets worth planning around. Choose your park to find the counter, see the treat and check which ticket you need."
+    title="Disney World Christmas food guide 2026"
+    description="Holiday snacks at every Walt Disney World park, with prices and the ticket you need, plus all 16 EPCOT Festival of the Holidays food booths on the map."
     image={hero}
     region="Walt Disney World"
     category="Holiday food guide 2026"
@@ -61,13 +111,13 @@ export default function DisneyHolidayFoodGuidePage() {
     updated={guide.updated}
     jumpHref="#disney-food-map"
     jumpLabel="Explore the food map"
-    actions={<ShareButton url={pageShareUrl("/guides/disney-world-holiday-food-guide-2026")} title={guide.title} text="The Disney holiday food guide: park maps and creator videos. On Wayfind." tone="dark" event="guide_share" meta={{ slug: DISNEY_FOOD_SLUG, placement: "hero" }} />}
-    intro={past ? <p className={styles.calmNote}>This is the archived 2026 holiday guide. Its seasonal windows have ended; use current menus before planning a new visit. <a href="/guides">Browse current guides →</a></p> : null}
+    actions={<ShareButton url={pageShareUrl("/guides/disney-world-holiday-food-guide-2026")} title={guide.title} text="Disney Christmas food 2026: every park, prices and the EPCOT festival booths on a map. On Wayfind." tone="dark" event="guide_share" meta={{ slug: DISNEY_FOOD_SLUG, placement: "hero" }} />}
+    intro={past ? <p className={styles.calmNote}>This is the archived 2026 holiday guide. Its seasonal windows have ended; use current menus before planning a new visit. <a href="/guides">Browse current guides →</a></p> : <QuickAnswer />}
     contents={SECTIONS.map((s) => ({ href: "#" + s.id, label: s.title }))}
     // The shared guide map card (park chips, illustrated map, card rail) sits in
     // the shell's lead slot, above the numbered park sections it links to.
-    lead={<DisneyFoodMap parks={DISNEY_FOOD_PARKS} stops={DISNEY_FOOD_STOPS} festival={EPCOT_FESTIVAL} />}
-    extraLd={faqLd ? [faqLd] : []}
+    lead={<><DisneyFoodMap parks={DISNEY_FOOD_PARKS} stops={DISNEY_FOOD_STOPS} festival={EPCOT_FESTIVAL} />{past ? null : <GuideDealCards slug={DISNEY_FOOD_SLUG} region="Orlando" deals={ticketDeals()} />}</>}
+    extraLd={[itemListLd, festivalLd, ...(faqLd ? [faqLd] : [])]}
   >
     <div className={styles.body}>
       {PARK_SECTIONS.map((section, i) => <GuideSection key={section.id} index={i + 1} id={section.id} eyebrow={section.eyebrow} title={section.title}>
