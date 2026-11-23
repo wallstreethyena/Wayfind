@@ -253,7 +253,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## restaurants-open-thanksgiving-tampa-bay-2026
 
+- `/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/bon-appetit-restaurant-marina.jpg` — restaurants-open-thanksgiving-tampa-bay-2026: Bon Appetit Restaurant. [Bon Appétit Restaurant](https://bonappetitrestaurant.com/); [venue website photo, owner authorized Nov 23 2026 for guide picks](https://bonappetitrestaurant.com/).
 - `/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp` — restaurants-open-thanksgiving-tampa-bay-2026: Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- `/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/gratzzi-italian-grille-dining-room.jpg` — restaurants-open-thanksgiving-tampa-bay-2026: Gratzzi Italian Grille. [Gratzzi Italian Grille](https://gratzzigrille.com/photos/); [venue website photo, owner authorized Nov 23 2026 for guide picks](https://gratzzigrille.com/photos/).
+- `/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/parkshore-grill-dining-room.jpg` — restaurants-open-thanksgiving-tampa-bay-2026: Parkshore Grill. [Parkshore Grill](https://www.parkshoregrill.com/private-dining.html); [venue website photo, owner authorized Nov 23 2026 for guide picks](https://www.parkshoregrill.com/private-dining.html).
 
 ## river-of-lights-tampa-2026
 
