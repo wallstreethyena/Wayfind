@@ -267,6 +267,7 @@ function PhoneOutcomeCard({ card }) {
   return (
     <div data-reserve-card="phone_outcome" data-reserve-status={phone.outcome || "calling"} data-reserve-booked="0" style={box}>
       <div style={{ fontSize: 16, fontWeight: 800, color: phone.outcome === "confirmed" ? C.green : C.text, lineHeight: 1.35, overflowWrap: "anywhere" }}>{line}</div>
+      {phone.outcome === "confirmed" && phone.confirmationDetail ? <Note>The restaurant gave us <strong>{phone.confirmationDetail}</strong> for your reservation.</Note> : null}
     </div>
   );
 }
