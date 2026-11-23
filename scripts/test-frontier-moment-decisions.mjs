@@ -613,12 +613,14 @@ const eq = (a, b, msg) => { assert.deepEqual(a, b, msg); checks++; };
 
   const mapSrc = readFileSync(path.join(ROOT, "app/components/screens/Map.js"), "utf8");
   ok(mapSrc.includes('html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(78px + env(safe-area-inset-bottom)) !important; }') && mapSrc.includes('@media (min-width: 1024px) { html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; } }'), "MapScreen coordinates container padding-bottom with SantaDock lift (78px mobile/tablet, 118px desktop) so all overlays and attribution bands rise together");
-  // The status pill used to be a fourth bottom: 76. It now lifts to 138 while
-  // the collapsed results pill occupies that slot (52px sheet + air), and
-  // stays at 76 when the slot is empty. The other three surfaces do not move.
+  // Owner 2026-11-23: the collapsed Browse-list bottom pill was deleted in favor
+  // of the right-edge circular List toggle (data-wf-map-list-toggle), so the
+  // status pill no longer lifts to 138 to clear a collapsed pill — all four
+  // bottom-slot surfaces (status pill, place preview, event preview, open
+  // results drawer) stay aligned at bottom: 76.
   const bottom76Count = (mapSrc.match(/\bbottom:\s*76\b/g) || []).length;
-  eq(bottom76Count, 3, "place preview, event preview, and the Browse-list pill stay at bottom: 76");
-  ok(/bottom: view\.length && !mapDrawer && !mapPreview \? 138 : 76/.test(mapSrc), "the status pill stays in the sheet slot and lifts to 138 only while the collapsed results pill is there");
+  eq(bottom76Count, 4, "status pill, place preview, event preview, and open results drawer stay aligned at bottom: 76");
+  ok(!mapSrc.includes("Browse list") && mapSrc.includes("data-wf-map-list-toggle") && /data-wf-map-empty-state=[\s\S]{0,400}bottom: 76/.test(mapSrc), "collapsed Browse-list pill is gone, right-rail list toggle is wired, and the status pill sits cleanly at bottom: 76");
 
   const homeSrc = readFileSync(path.join(ROOT, "app/home.js"), "utf8");
   ok(!/^import\s+\{[^}]*resolveSearchIntent[^}]*\}\s+from/m.test(homeSrc), "app/home.js lazy-loads resolveSearchIntent out of the eager homepage bundle");
