@@ -427,6 +427,8 @@ const storedBlob = (repo) => JSON.stringify({ requests: repo.requests, audits: r
   await createTwilioVoiceAdapter({ config: cfg, fetchImpl }).placeCall({ to: DRY, script, requestId: "33333333-3333-4333-8333-333333333333" });
   const form = new URLSearchParams(seen[0].body);
   ok(form.get("StatusCallback") === preview + "/api/reserve/phone-status" && form.get("Twiml").includes("requestId") && form.get("Record") === "false", "the status callback uses the configured origin and the relay is told the request id");
+  const callbackEvents = form.getAll("StatusCallbackEvent");
+  ok(callbackEvents.length === 1 && callbackEvents[0] === "completed", "Twilio receives the completed event, which reports every terminal call status");
 
   const tel = fakeTelephony();
   const dryEnv = { ...BASE, RESERVE_PHONE_DRY_RUN_TO: DRY };
