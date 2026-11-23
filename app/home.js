@@ -7618,11 +7618,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // Cloud sync is a second writer behind itinerary_v2 + itinerary_sync. With
   // the flags off this stays the browser store it has always been.
   useEffect(() => {
+    let owned = false;
     try {
-      if (localStorage.getItem("wayfind_trips_owner")) return;
-      const raw = localStorage.getItem("wayfind_trips");
-      if (raw) setTrips(JSON.parse(raw) || {});
+      owned = !!localStorage.getItem("wayfind_trips_owner");
+      if (!owned) {
+        const raw = localStorage.getItem("wayfind_trips");
+        if (raw) setTrips(JSON.parse(raw) || {});
+      }
     } catch {}
+    if (owned) return undefined;
+    let cancel = false;
+    import("../lib/trips.js").then((m) => {
+      if (cancel) return;
+      try {
+        const store = safeLocalStorage();
+        if (!store || store.getItem("wayfind_trips_owner")) return;
+        const merged = m.readMergedTripStores(store);
+        if (merged && Object.keys(merged).length) setTrips(merged);
+      } catch {}
+    }).catch(() => {});
+    return () => { cancel = true; };
   }, []);
   const tripsHydrated = useRef(false);
   useEffect(() => {
@@ -7652,6 +7667,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     } catch {}
   }, [screen, detail, activeTrip, trips]);
   useEffect(() => {
+    const sess = safeSessionStorage();
+    if (!sess) return;
+    try {
+      const city = locName && !/^this map area$/i.test(locName) ? String(locName).split(",")[0].trim().slice(0, 40) : "";
+      const date = typeof eventDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(eventDate) ? eventDate : "";
+      const q = String(query || "").trim().slice(0, 80);
+      sess.setItem("wf_planner_browse_v1", JSON.stringify({
+        city,
+        date,
+        query: q,
+        screen: screen || "",
+        path: window.location.pathname,
+        at: Date.now(),
+      }));
+    } catch {}
+  }, [locName, eventDate, query, screen]);
+  useEffect(() => {
     let stop = false;
     const read = () => { if (!stop) { try { const next = readItineraryFlags(window.posthog); setItineraryFlags((prev) => nextItineraryFlags(prev, next)); } catch (e) {} } };
     read();
@@ -7673,6 +7705,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (!owner || owner === String(user.id)) {
           const raw = localStorage.getItem("wayfind_trips");
           if (raw) setTrips(JSON.parse(raw) || {});
+          const userId = String(user.id);
+          import("../lib/trips.js").then((m) => {
+            try {
+              const store = safeLocalStorage();
+              if (!store) return;
+              const ownerNow = store.getItem("wayfind_trips_owner");
+              if (ownerNow && ownerNow !== userId) return;
+              const merged = m.readMergedTripStores(store);
+              if (merged && Object.keys(merged).length) setTrips(merged);
+            } catch {}
+          }).catch(() => {});
         }
       } catch {}
     }
@@ -8436,6 +8479,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         }
         return;
       }
+      // A date plan arrives as /itinerary?city=&date=&plan=1. Keep the city and
+      // the dates in the address bar (events and map already keep theirs) and
+      // open the planner once when the visitor asked to build the day.
+      if (go === "itinerary") {
+        const search = window.location.search;
+        import("../lib/itineraryHandoff.js").then((m) => {
+          try {
+            const arrival = m.itineraryArrivalDetail(search);
+            window.history.replaceState({ wf: "screen" }, "", arrival.href);
+            if (arrival.detail) {
+              window.__wfPendingPlannerOpen = arrival.detail;
+              window.dispatchEvent(new CustomEvent("wf:planner-open", { detail: arrival.detail }));
+            }
+          } catch (err) {}
+        }).catch(() => {});
+        return;
+      }
       // v5.78 (B1): the other standalone screens restore their OWN path (was:
       // stripped to "/", which lost the view on refresh/share).
       const scr = valid[go];
@@ -8468,6 +8528,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           if (eventDate !== "all") sp.set("date", eventDate);
           if (eventCat !== "auto") sp.set("cat", eventCat);
           if (sp.toString()) target += "?" + sp.toString();
+        } else if (screen === "itinerary") {
+          // Keep city and date on /itinerary. The landing cleaner lives in
+          // itineraryHandoff.js and is loaded only for ?go=itinerary.
+          if (window.location.pathname === "/itinerary" && window.location.search) target += window.location.search;
         } else if (screen === "map") {
           const curSp = new URLSearchParams(window.location.search);
           const safeSp = new URLSearchParams();
