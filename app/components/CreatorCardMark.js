@@ -23,9 +23,8 @@
 // map's bottom card), three of which route every tap through one card-level
 // handler and one of which (RailCard) hard-blocks in-card navigation by
 // contract (lib/railReaction.js). A new interactive target inside them is the
-// exact shape of the v8.29 "a like became a navigation" bug. The video is one
-// tap away either way: the card opens the detail sheet, which is where the
-// player and the creator credit live.
+// exact shape of the v8.29 "a like became a navigation" bug. When an eligible
+// video is available, the card opens the detail sheet that contains the player.
 //
 // GEOMETRY — v8.34, and this is the SECOND placement. v8.33 laid the avatar
 // over the bottom-left of the photo. Owner, on the shipped result: "i want her
@@ -84,6 +83,9 @@ export default function CreatorCardMark({ videos }) {
   const extra = heads.length - shown.length;
   const lead = shown[0];
   const leadPlatform = PLATFORM[lead.platform] || PLATFORM.tiktok;
+  const leadHandle = lead.handle.toLowerCase();
+  const leadCanPlay = videos.some((video) => video?.playable === true && video.platform === lead.platform
+    && typeof video.creator === "string" && video.creator.trim().toLowerCase() === leadHandle);
 
   // Truthful, and it is the ONLY text this component contributes to the page:
   // "Found on TikTok" is creatorLabel()'s sanctioned wording, and naming the
@@ -91,7 +93,8 @@ export default function CreatorCardMark({ videos }) {
   const label =
     creatorLabel(leadPlatform.label) +
     " — a post by @" + lead.handle +
-    (extra > 0 ? ` and ${extra} other creator${extra === 1 ? "" : "s"}` : shown[1] ? ` and @${shown[1].handle}` : "");
+    (extra > 0 ? ` and ${extra} other creator${extra === 1 ? "" : "s"}` : shown[1] ? ` and @${shown[1].handle}` : "") +
+    (leadCanPlay ? ". Video available in details" : "");
 
   const leadRgb = PLATFORM_RGB[lead.platform] || PLATFORM_RGB.tiktok;
 
@@ -107,10 +110,9 @@ export default function CreatorCardMark({ videos }) {
                   without making the row taller than the space that was already
                   empty there. */}
               <CreatorAvatar handle={h.handle} platform={h.platform} size={26} color={meta.color} />
-              {/* The play mark rides the LEAD head, not the stack, so a second
-                  head can never sit under it. It is what turns a portrait into
-                  "there is a video here" at a glance. */}
-              {i === 0 ? (
+              {/* The play mark describes a video from the lead creator on the
+                  displayed platform. Other posts still get credit. */}
+              {i === 0 && leadCanPlay ? (
                 <span className="wf-pcc-play" style={{ "--pcc-ring": leadPlatform.color }} aria-hidden="true">
                   <svg viewBox="0 0 10 10" width="6" height="6" fill="currentColor" aria-hidden="true"><path d="M2 1.2v7.6L8.6 5z" /></svg>
                 </span>

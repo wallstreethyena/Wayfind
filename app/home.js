@@ -12792,15 +12792,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   }).map((c) => c.kind === "cuisine" ? { key: "cuisine", icon: "🍴", label: _chipCuisine }
     // Owner, 2026-10-29: a cindy.selects video carries its own score term, so
     // the disclosure names it (she is Wayfind's own creator series).
-    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: hasFeaturedCreatorVideoAt(p) ? "Cindy Selects pick" : "Creator post" }
+    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "👤", label: hasFeaturedCreatorVideoAt(p) ? "Cindy Selects pick" : "Creator pick" }
     : c.key === "featured" ? { key: "featured", icon: "🏅", label: "Featured" }
     : { key: c.key, icon: EXPERIENCES[c.key].icon, label: EXPERIENCES[c.key].label });
-  // v8.33 (owner, 2026-08-22) — the SAME resolved set the "Creator video" chip
-  // above is derived from (hasCreatorVideo() is creatorVideosFor().length > 0),
-  // so the face on the photo and the chip in the pills lane can never disagree
-  // about whether this place has a video. The chip stays: it is the ranking
-  // DISCLOSURE the score law requires to be visible, and a portrait discloses
-  // nothing on its own. See app/components/CreatorCardMark.js.
+  // The chip discloses the ranking signal. CreatorCardMark uses the same
+  // curated credit, adding a play cue only for an eligible in-app video.
   let cardCreatorVideos = [];
   try { cardCreatorVideos = creatorVideosFor(p) || []; } catch (e) { cardCreatorVideos = []; }
   const pcat = primaryCategory(p);
@@ -12986,8 +12982,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 // happened"). ROOT CAUSE: openExperience() no-ops on any key
                 // absent from EXPERIENCES, and "creatorvideo" is a score
                 // DISCLOSURE, not an experience — so the tap died silently.
-                // The honest destination for that chip is the place's own
-                // detail, where the creator video actually plays.
+                // The chip opens place details, including any available posts.
                 if (b.key === "creatorvideo") { if (onDetail) onDetail(); return; }
                 if (b.key === "cuisine") { if (onCuisineTap) onCuisineTap(b.label, p); return; }
                 if (onBadge) onBadge(b.key);

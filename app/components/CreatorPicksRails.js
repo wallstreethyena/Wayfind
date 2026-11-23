@@ -72,7 +72,7 @@ export default function CreatorPicksRails({
               rank={rank}
               score={toDisplayScore(score)}
               facts={facts}
-              award={{ tone: "creator", icon: "🎬", label: `@${rail.handle}${platform ? ` on ${platform.label}` : ""}` }}
+              award={{ tone: "creator", icon: "👤", label: `@${rail.handle}${platform ? ` on ${platform.label}` : ""}` }}
               take={toHookLine(place.editorial, place.name) || null}
               cta={null}
               ariaLabel={`Open ${place.name}`}
