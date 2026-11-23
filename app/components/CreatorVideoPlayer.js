@@ -5,7 +5,7 @@ import { creatorPostKind, embedSrc } from "../../lib/videoEmbed";
 
 // Used by both inline facades and the modal. Mount only after a reader's tap.
 // Loading an iframe is not evidence of playback; providers own availability.
-export default function CreatorVideoPlayer({ platform, url, label, onLoad }) {
+export default function CreatorVideoPlayer({ platform, url, label, onLoad, showRetry = true }) {
   const src = embedSrc(platform, url);
   const isPost = creatorPostKind(platform, url) === "post";
   const [attempt, setAttempt] = useState(0);
@@ -17,7 +17,7 @@ export default function CreatorVideoPlayer({ platform, url, label, onLoad }) {
     </div> : <p role="status" style={{ padding: 20, lineHeight: 1.5 }}>This post is unavailable here. You can close it and keep exploring Wayfind.</p>}
     {src ? <div style={{ padding: "9px 12px", fontSize: 12, lineHeight: 1.5 }}>
       {isPost ? "Instagram may limit how this post is displayed." : platform === "instagram" ? "Tap the post’s video to play. Instagram may limit playback for some posts." : "Use the video controls to play."}
-      <button type="button" onClick={retry} style={{ display: "block", marginTop: 6, border: 0, background: "transparent", padding: "6px 0", color: "#FF9B50", font: "inherit", cursor: "pointer" }}>{isPost ? "Reload post" : "Reload player"}</button>
+      {showRetry ? <button type="button" onClick={retry} style={{ display: "block", marginTop: 6, border: 0, background: "transparent", padding: "6px 0", color: "#FF9B50", font: "inherit", cursor: "pointer" }}>{isPost ? "Reload post" : "Reload player"}</button> : null}
     </div> : null}
   </div>;
 }

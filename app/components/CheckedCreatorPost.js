@@ -74,7 +74,7 @@ export default function CheckedCreatorPost({ post, kicker = null }) {
   </>;
   return <div ref={host} className={styles.post} data-creator-post={post.url} data-creator-post-state={state}>
     {started ? <div className={styles.player} aria-hidden={hidden ? true : undefined} inert={hidden ? "inert" : undefined}>
-      <CreatorVideoPlayer key={attempt} platform="instagram" url={post.url} label={post.label} />
+      <CreatorVideoPlayer key={attempt} platform="instagram" url={post.url} label={post.label} showRetry={false} />
     </div> : null}
     {state === "idle" ? <button type="button" className={styles.cover} onClick={start} aria-label={(photos ? "View post" : "Play in Wayfind") + ": @" + post.creator + "’s " + kind + ", " + title}>
       {cover}
