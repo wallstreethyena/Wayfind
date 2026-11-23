@@ -12972,7 +12972,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank }));
   return (
-    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}${ReserveSlot || isTrueLodging(p) || (cardProduct && cardProduct.url) ? " has-cta" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
@@ -13083,6 +13083,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 if (onBadge) onBadge(b.key);
               }} style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
+            {Array.isArray(p._children) && p._children.length ? <span>+{p._children.length} inside</span> : null}
+            {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <AffiliateChip provider={_prov} /> : null; })()}
           </div>
           {curatedHook ? (
             <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{curatedHook}</div>
@@ -13107,14 +13109,22 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (Book on Viator) that the sheet cards never do; css.js adds a
               :has(.wf-place-card-book) 5-column variant so that case stays
               consistent too, rather than breaking under the 4-column grid. */}
-          {/* v8.34 — the creator credit sits in the bottom band, directly above
-              the actions (see css.js .wf-place-card-credit). The sibling rule
-              there zeroes the inline marginTop below with !important, which is
-              why the credit's own margin-top:auto is what bottom-anchors the
-              pair. */}
+          {/* v8.34 — the creator credit sits directly above the bottom
+              interactive band (CTA + actions), matching IconicPlaceCard and
+              RailCard so all three renderers share one locked slot order. */}
           <CreatorCardMark videos={cardCreatorVideos} />
-          {ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
-          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
+          {/* v8.57 (owner, 2026-09-22: "make sure our hotel place card are wire
+              to the affiliate so we can generate revenue"). Rendered inside the
+              shared .wf-place-card-cta slot ABOVE .wf-place-card-actions (same
+              position as EventStayCards and ReserveSlot) so it never gets
+              clipped below the fixed 268px card edge. */}
+          {isTrueLodging(p) ? (
+            <div className="wf-place-card-cta" style={{ pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
+              <BookingCTA variant="primary" detail={p} kind="hotels" label="Check rates" city={city} locName={city} />
+            </div>
+          ) : null}
+          {!isTrueLodging(p) && ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
+          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ pointerEvents: "auto" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
                 className="wf-place-card-book"
@@ -13163,58 +13173,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             )}
             <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} askShareIntent({ name: p.name, city: "", id: p.id, kind: placeKinds(p), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEventAnon("share", p, { kind: "invite", from: "place_card" }); } catch (er) {} }), onPlain: () => shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr())) }); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>
-          {/* Restored 2026-07-25: the per-card affiliate disclosure (spec Sec.2,
-              shipped v6.67) was dropped from the homepage in the design-release-01
-              rewrite -- lib/cardAffiliate.js + AffiliateChip.js were untouched and
-              still work, only this render call was lost. Owner-audit mode
-              (NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT=1) still surfaces coverage gaps;
-              production hides an absent chip, so this is a pure disclosure add. */}
-          {/* v8.57 (owner, 2026-09-22: "make sure our hotel place card are wire
-              to the affiliate so we can generate revenue"). A lodging card used
-              to carry NO earning link at all: the Stay22/Booking handoff only
-              appeared one tap deeper, inside the Detail sheet, so every user who
-              browsed stays and never opened a card was a lost commission. The
-              stay rails (EventStayCards, TripConnections) already shipped this
-              button; the browse card — the surface most stays are seen on — did
-              not. Rendered through <BookingCTA>, never a hand-built href: the
-              booking-integrity contract (scripts/check-booking-cta.mjs) allows
-              exactly one place to turn a place into a booking URL. The gate is
-              isTrueLodging, the SAME predicate the stays rail filters on, so a
-              restaurant can never grow a "Check rates" button; BookingCTA itself
-              refuses any place lib/affiliates.hotelGoUrl will not build (no
-              address, campground/outfitter names), so the button cannot appear
-              on a card that would land the user on a useless search. The wrapper
-              stops click propagation because the card body opens the Detail
-              sheet — without it the sheet would open UNDER the outbound
-              navigation. The commission line rides along: a card that earns must
-              disclose on the same surface (FTC, spec Sec.2). */}
-          {isTrueLodging(p) ? (
-            <div style={{ marginTop: 9, display: "flex", flexDirection: "column", pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
-              <BookingCTA variant="primary" detail={p} kind="hotels" label="Check rates" city={city} locName={city} />
-            </div>
-          ) : null}
-          {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
-          {/* What's inside. Rides and in-park venues used to occupy their own
-              cards, so one theme park could fill half the feed and a visitor had
-              to scroll past four rows describing the same place. They live here
-              now: a ride is not somewhere you can go, it is a REASON to pick the
-              park. Tapping one opens the park (that is the bookable thing), so
-              this adds decision detail without adding dead ends. */}
-          {Array.isArray(p._children) && p._children.length ? (
-            <div style={{ marginTop: 10, paddingTop: 9, borderTop: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.muted, marginBottom: 7 }}>
-                Top rated inside
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {p._children.slice(0, 6).map((c) => (
-                  <span key={c.id || c.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 600, color: C.light, maxWidth: "100%" }}>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150 }}>{c.name}</span>
-                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}{"\u2605"}</span> : null}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </div>
       </div>
     </div>

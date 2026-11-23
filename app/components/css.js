@@ -138,6 +138,19 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 const XMAS_SCOPES = [".wf-christmas .wf-place-card:not(.wf-guide-card)", ".wf-place-card.wf-christmas-card:not(.wf-guide-card)"];
 const XMAS = (tail = "", scopeTail = "") => XMAS_SCOPES.map((scope) => scope + scopeTail + (tail ? " " + tail : "")).join(",");
 const XMAS_ROSE = "#E8B48A";
+// 2026-11-23 — GLOBAL CARD INTEGRITY LOCK. Any card carrying an in-card primary
+// CTA (Reserve / Ask about a table, Hotel Check rates, Rail CTA, or Viator Book)
+// shares ONE compact vertical rhythm across every renderer (home.js PlaceCard,
+// IconicPlaceCard, RailCard, ThingsToDoList) so the fixed 268px card can NEVER
+// push the CTA or Save/Like/Dislike/Share action row past the bottom edge.
+// Matched by both explicit .has-cta and :has(...) so a future renderer cannot
+// drift even if it forgets the root class. Rules below always keep a space
+// before `{` so base-rule regex guards keep matching the base selectors.
+const HAS_CTA = (tail = "", scopeTail = "") => [
+  ".wf-place-card.has-cta:not(.wf-guide-card)",
+  ".wf-place-card:not(.wf-guide-card):has(.wf-place-card-cta,.wf-rail-card-cta,.wf-place-card-book)",
+].map((scope) => scope + scopeTail + (tail ? " " + tail : "")).join(",");
+const DENSE = (tail) => HAS_CTA(tail) + ",.wf-place-card:not(.wf-guide-card):has(.wf-place-card-award):has(.wf-place-card-credit) " + tail;
 export const WF_PLACE_CARD_CSS = `
 ${WF_SKELETON_CSS}
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
@@ -160,7 +173,8 @@ ${WF_SKELETON_CSS}
 .wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{flex:0 0 var(--wf-place-card-width);height:var(--wf-card-h);--wf-place-card-media:${PLACE_CARD_MEDIA_PX}px}
 .wf-place-card-layout{height:100%;box-sizing:border-box}
 .wf-place-card-monogram{height:100%;box-sizing:border-box}
-.wf-place-card-content{display:flex;flex-direction:column;height:100%;box-sizing:border-box}
+.wf-place-card-content{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;box-sizing:border-box}
+.wf-place-card-content>*{flex-shrink:0}
 .wf-place-card-name{display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .wf-place-card-meta{flex-wrap:wrap!important;overflow:visible;white-space:normal;row-gap:2px!important;min-width:0}.wf-place-card .wf-place-card-meta>span{white-space:normal;max-width:100%;min-width:0;overflow-wrap:anywhere}
 .wf-place-card-highlights{display:flex;flex-wrap:nowrap;align-items:center;max-height:30px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;mask-image:linear-gradient(90deg,#000 90%,transparent 99.5%);-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent 99.5%)}.wf-place-card-highlights::-webkit-scrollbar{display:none}.wf-place-card-highlights-wrap{position:relative;min-width:0}.wf-pill-more{position:absolute;right:-2px;top:50%;transform:translateY(-50%);pointer-events:none;color:#F97316;font-size:15px;font-weight:800;line-height:1;text-shadow:0 0 8px rgba(11,14,26,.9);animation:wfPillMore 1.8s ease-in-out 3}@keyframes wfPillMore{0%,100%{opacity:.85;transform:translateY(-50%) translateX(0)}50%{opacity:1;transform:translateY(-50%) translateX(3px)}}@media (prefers-reduced-motion:reduce){.wf-pill-more{animation:none}}.wf-place-card-highlights>button,.wf-place-card-highlights>span,.wf-place-card-highlights>a{flex:0 0 auto;white-space:nowrap;align-self:center;max-height:100%}
@@ -365,8 +379,8 @@ ${WF_SKELETON_CSS}
 .wf-fall .wf-place-card .wf-place-card-highlights>button,.wf-fall .wf-place-card .wf-place-card-highlights>span,.wf-fall .wf-place-card .wf-place-card-highlights>a,.wf-place-card.wf-fall-card .wf-place-card-highlights>button,.wf-place-card.wf-fall-card .wf-place-card-highlights>span,.wf-place-card.wf-fall-card .wf-place-card-highlights>a{background:rgba(59,26,5,.62)!important;border:1px solid rgba(255,196,110,.6)!important;color:#FFE9CB!important;box-shadow:none!important}
 .wf-fall .wf-place-card .wf-place-card-highlights,.wf-place-card.wf-fall-card .wf-place-card-highlights{mask-image:linear-gradient(90deg,#000 94%,transparent 100%);-webkit-mask-image:linear-gradient(90deg,#000 94%,transparent 100%)}
 ${XMAS()}{background:#5A0712 url(/christmas/card-bg-top-640.webp?v=3) right top/auto 100% no-repeat!important;box-shadow:0 10px 26px rgba(40,2,8,.55),0 0 14px rgba(192,16,42,.28)!important;overflow:hidden}
-${XMAS("", ":not(:has(.wf-rail-card-cta)):not(:has(.wf-place-card-book))")}{background-image:url(/christmas/card-bg-640.webp?v=3)!important}
-@media(min-resolution:1.5dppx){${XMAS()}{background-image:url(/christmas/card-bg-top-1100.webp?v=3)!important}${XMAS("", ":not(:has(.wf-rail-card-cta)):not(:has(.wf-place-card-book))")}{background-image:url(/christmas/card-bg-1100.webp?v=3)!important}}
+${XMAS("", ":not(:has(.wf-rail-card-cta)):not(:has(.wf-place-card-book)):not(:has(.wf-place-card-cta))")}{background-image:url(/christmas/card-bg-640.webp?v=3)!important}
+@media(min-resolution:1.5dppx){${XMAS()}{background-image:url(/christmas/card-bg-top-1100.webp?v=3)!important}${XMAS("", ":not(:has(.wf-rail-card-cta)):not(:has(.wf-place-card-book)):not(:has(.wf-place-card-cta))")}{background-image:url(/christmas/card-bg-1100.webp?v=3)!important}}
 ${XMAS("", ":not(.is-liked):not(.is-disliked)")}{border:1px solid rgba(232,180,138,.9)!important}
 ${XMAS(".wf-place-card-media")}{background:#3A0510;border-right:1px solid rgba(232,180,138,.85)}
 ${XMAS(".wf-place-card-rank")}{background:rgba(42,3,10,.86)!important;border:1px solid ${XMAS_ROSE}!important;color:#FFF4EE!important}
@@ -442,7 +456,8 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   line-height:1!important;
 }
 .wf-place-card-meta{display:flex!important;align-items:center;gap:4px 12px!important;margin:8px 0 6px!important;color:#A8B2C2}
-.wf-place-card-meta>span{position:relative;font-size:10.5px!important;white-space:nowrap}
+.wf-place-card-meta>span{position:relative;font-size:10.5px!important;line-height:1.25;white-space:nowrap}
+.wf-place-card-meta>span>span{font-size:inherit!important;line-height:inherit!important}
 .wf-place-card-meta>span+span:before{content:"·";position:absolute;left:-8px;color:#4E5A6D}
 .wf-place-card-meta>span[style*="color: rgb(34, 197, 94)"],.wf-place-card-meta>span[style*="#22C55E"]{color:#4CE0B3!important}
 .wf-place-card-award{
@@ -489,16 +504,16 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 .wf-place-card-award.is-wayfind-award{border-color:rgba(252,110,9,.62);background:linear-gradient(110deg,rgba(252,110,9,.24),rgba(252,110,9,.05));color:#FFB27A}
 .wf-place-card-award.is-wayfind-award .wf-place-card-award-icon{background:linear-gradient(145deg,#FFB067,#FC6E09 55%,#B44400);color:#1F0B00}
 .wf-place-card.is-award-winner{border-color:rgba(252,110,9,.7)!important;box-shadow:0 0 0 1px rgba(252,110,9,.25),0 0 18px rgba(252,110,9,.12)!important}
-.wf-place-card-award.is-wayfind-award{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-height:0;padding:3px 9px 4px;border-radius:12px;text-transform:none;letter-spacing:0;font-weight:700;line-height:1.15;color:#FFF3E0}
-.wf-place-card-award.is-wayfind-award .wf-award-text{display:flex;flex-direction:column;min-width:0;max-width:100%;overflow:hidden}
-.wf-place-card-award.is-wayfind-award .wf-award-eyebrow{font-size:11px;font-weight:700;letter-spacing:.2em;color:#FC6E09;white-space:nowrap}
-.wf-place-card-award.is-wayfind-award .wf-award-name{font-size:13px;font-weight:900;color:#FFF3E0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wf-place-card-award.is-wayfind-award .wf-award-detail{font-size:10.5px;font-weight:600;color:#F6C76B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wf-place-card-award.is-wayfind-award{display:flex;flex-direction:column;align-items:flex-start;gap:0;min-height:0;margin:0 0 5px;padding:3px 9px;border-radius:10px;text-transform:none;letter-spacing:0;font-weight:700;line-height:1.18;color:#FFF3E0}
+.wf-place-card-award.is-wayfind-award .wf-award-text{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:baseline;column-gap:6px;row-gap:1px;min-width:0;max-width:100%;overflow:hidden}
+.wf-place-card-award.is-wayfind-award .wf-award-eyebrow{font-size:9px;font-weight:850;letter-spacing:.12em;color:#FC6E09;white-space:nowrap}
+.wf-place-card-award.is-wayfind-award .wf-award-name{font-size:11.5px;font-weight:900;color:#FFF3E0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wf-place-card-award.is-wayfind-award .wf-award-detail{grid-column:1/-1;font-size:9.5px;font-weight:650;color:#F6C76B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wf-award-sticker{position:absolute;z-index:5;left:5px;top:5px;display:block;width:min(84px,calc(100% - 10px));aspect-ratio:1;box-sizing:border-box;padding:3px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,.35) 70%,transparent);filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));pointer-events:none}
 .wf-awards-rail-scroll::-webkit-scrollbar{display:none}
 .wf-place-card.is-award-winner .wf-place-card-rank{display:none!important}
 .wf-place-card.is-award-winner .wf-place-card-category{display:inline-flex;vertical-align:middle}
-.wf-award-listrank{display:inline-flex;align-items:center;vertical-align:middle;margin:0 0 4px 6px;padding:1px 7px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#C9D1DC;font-size:9.5px;font-weight:700;line-height:1.4;white-space:nowrap}
+.wf-award-listrank{display:inline-flex;align-items:center;vertical-align:middle;margin:0 0 3px 5px;padding:0 6px;border:1px solid rgba(255,255,255,.18);border-radius:999px;color:#C9D1DC;font-size:9px;font-weight:700;line-height:1.35;white-space:nowrap}
 .wf-award-sticker>svg{display:block;width:100%;height:100%}
 .wf-place-card-highlights{gap:5px!important;margin-bottom:6px!important}
 .wf-place-card-highlights>button,.wf-place-card-highlights>span{
@@ -616,9 +631,25 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 .wf-place-card-more>span{font-size:12px;letter-spacing:0;transition:transform .15s ease}
 .wf-place-card-more:hover>span,.wf-place-card-more:focus-visible>span{transform:translateX(2px)}
 .wf-place-card-more:focus-visible{outline:2px solid #FDBA74;outline-offset:2px;border-radius:3px}
-.wf-place-card.has-cta .wf-place-card-name{-webkit-line-clamp:2!important}
-.wf-place-card-cta{display:flex;width:100%;margin-top:6px}
-.wf-place-card-cta>a{flex:1;width:100%;min-height:38px!important;height:38px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wf-place-card-cta{display:flex;width:100%;margin-top:auto;padding-top:4px;pointer-events:auto}
+.wf-place-card-cta>a,.wf-place-card-cta>button{flex:1;width:100%;min-height:30px!important;height:30px!important;padding:0 12px!important;border-radius:11px!important;font-size:11.5px!important;font-weight:800!important;line-height:1!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.wf-place-card-cta~.wf-place-card-actions,.wf-rail-card-cta~.wf-place-card-actions{margin-top:0!important;padding-top:5px}
+.wf-place-card-credit~.wf-place-card-cta{margin-top:0!important;padding-top:3px}
+.wf-place-card-credit~.wf-rail-card-cta{margin-top:3px!important}
+.wf-place-card-cta~.wf-place-card-credit,.wf-rail-card-cta~.wf-place-card-credit{margin-top:0!important;padding-top:3px}
+.wf-place-card.has-cta .wf-place-card-name,.wf-place-card:not(.wf-guide-card):has(.wf-place-card-cta,.wf-place-card-actions>.wf-place-card-book) .wf-place-card-name,.wf-place-card:not(.wf-guide-card):has(.wf-rail-card-cta):has(.wf-place-card-award,.wf-place-card-credit,.wf-place-card-where) .wf-place-card-name {-webkit-line-clamp:2!important}
+${DENSE(".wf-place-card-meta")} {margin:4px 0 3px!important}
+${HAS_CTA(".wf-place-card-award")} {min-height:21px;margin:0 0 4px;padding:2px 8px 2px 4px}
+${HAS_CTA(".wf-place-card-award.is-wayfind-award")} {min-height:0;margin:0 0 4px;padding:2px 8px 3px}
+${DENSE(".wf-place-card-highlights")} {margin-bottom:4px!important}
+${DENSE(".wf-place-card-highlights.wf-chip-fit")} {max-height:24px;row-gap:24px!important}
+${DENSE(".wf-place-card-take")} {-webkit-line-clamp:1!important;line-height:1.3!important}
+${DENSE(".wf-place-card-credit")} {gap:6px;padding-top:2px}
+${DENSE(".wf-pcc-head>div")} {width:20px!important;height:20px!important;font-size:7px!important}
+${DENSE(".wf-pcc-play")} {width:11px;height:11px}
+${HAS_CTA(".wf-place-card-take", ":has(.wf-place-card-award):has(.wf-place-card-credit)")} {display:none!important}
+${HAS_CTA(".wf-place-card-where", ":has(.wf-place-card-award):has(.wf-place-card-credit)")} {display:none!important}
+.wf-place-card:not(.wf-guide-card):has(.wf-place-card-award.is-wayfind-award):has(.wf-place-card-where) .wf-place-card-take {-webkit-line-clamp:1!important}
 .wf-place-card-actions{--wf-act-h:38px;align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .wf-place-card-actions>a,.wf-place-card-actions>button,.wf-place-card-actions>span{
   display:inline-flex!important;
@@ -678,7 +709,7 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 .wf-sheet-card-actions>.wf-place-card-share{min-width:0!important;margin-left:0!important;padding-inline:8px!important}
 .wf-sheet-card-actions>span{min-width:0!important;overflow:hidden}
 .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(64px,.9fr) 42px 42px minmax(76px,1fr)}
-.wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1}
+.wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1;min-height:30px!important;height:30px!important}
 .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
 .wf-place-card-remind{gap:4px;min-width:0!important}
 .wf-sheet-card-actions>.wf-place-card-remind{padding-inline:4px!important}
@@ -687,18 +718,34 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading{position:relative}
   .wf-place-card-score~.wf-place-card-layout .wf-place-card-category{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .wf-place-card-score~.wf-place-card-layout .wf-award-listrank{position:absolute;left:0;top:17px;margin:0;padding:0 5px;font-size:8.5px;line-height:1.45}
   .wf-place-card-score~.wf-place-card-layout .wf-place-card-name{width:calc(100% + var(--wf-card-badge-w) + 10px);margin-top:32px}
+  .wf-place-card-score~.wf-place-card-layout .wf-place-card-where{width:calc(100% + var(--wf-card-badge-w) + 10px)}
   .wf-place-card-score~.wf-place-card-layout .wf-place-card-heading:not(:has(>.wf-place-card-category)) .wf-place-card-name{margin-top:42px}
   .wf-place-card-content{padding:10px 10px 8px!important}
   .wf-place-card-name{font-size:15px!important}
-  .wf-place-card-meta{margin:3px 0 2px!important}
-  .wf-place-card-meta>span{font-size:9.75px!important}
+  .wf-place-card-meta{margin:3px 0 2px!important;line-height:1.2!important}
+  .wf-place-card-meta>span{font-size:9.75px!important;line-height:1.2!important}
   .wf-place-card-award{min-height:22px;margin:0 0 2px;padding:2px 7px 2px 4px}
+  .wf-place-card-award.is-wayfind-award{min-height:0;margin:0 0 2px;padding:2px 7px}
   .wf-place-card-highlights{margin-bottom:2px!important}
+  .wf-place-card .wf-place-card-highlights.wf-chip-fit,.wf-fall .wf-place-card .wf-place-card-highlights.wf-chip-fit,.wf-place-card.wf-fall-card .wf-place-card-highlights.wf-chip-fit{max-height:22px;row-gap:24px!important}
   .wf-place-card-highlights>button,.wf-place-card-highlights>span{min-height:21px;padding:1px 7px!important}
   .wf-place-card-highlights>button{font-size:9px!important}
-  .wf-rail-card-cta{min-height:30px!important}
+  .wf-place-card-cta{padding-top:2px}
+  .wf-place-card-cta>a,.wf-place-card-cta>button{min-height:28px!important;height:28px!important;padding:0 10px!important;border-radius:10px!important;font-size:11px!important}
+  .wf-place-card-credit~.wf-place-card-cta{padding-top:2px}
+  .wf-place-card-cta~.wf-place-card-actions,.wf-rail-card-cta~.wf-place-card-actions{padding-top:3px}
+  .wf-rail-card-cta{min-height:28px!important}
+  .wf-sheet-card-actions>.wf-place-card-book{min-height:28px!important;height:28px!important}
+  ${DENSE(".wf-place-card-meta")} {margin:2px 0 2px!important}
+  ${HAS_CTA(".wf-place-card-award")} {min-height:20px;margin:0 0 2px;padding:1px 7px 1px 4px}
+  ${HAS_CTA(".wf-place-card-award.is-wayfind-award")} {min-height:0;margin:0 0 2px;padding:1px 7px}
+  ${DENSE(".wf-place-card-highlights")} {margin-bottom:2px!important}
+  ${HAS_CTA(".wf-place-card-take", ":has(.wf-place-card-credit,.wf-place-card-remind)")} {display:none!important}
+  ${HAS_CTA(".wf-place-card-take", ":has(.wf-place-card-award):has(.wf-place-card-where)")} {display:none!important}
   .wf-place-card-actions{--wf-act-h:34px;padding-top:4px}
   .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:4px!important}
   .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:44px 26px 26px minmax(0,1fr)}
@@ -706,6 +753,9 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   .wf-sheet-card-actions>.wf-place-card-share{padding-inline:1px!important}
   .wf-sheet-card-actions>.wf-place-card-save{padding-inline:0!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
+}
+@media(max-width:360px){
+  ${HAS_CTA(".wf-place-card-take", ":has(.wf-place-card-award)")} {display:none!important}
 }
 ` +
 // 2026-10-14 — ONE small-width law for every action label in a place card (production 320px measurements:
