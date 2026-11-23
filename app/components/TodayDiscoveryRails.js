@@ -93,7 +93,7 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
           const chips = band !== "unknown" ? [{ key: "water", icon: "💧", label: WATER_LABEL[band], title: beachDecisionReason(place.water) || WATER_LABEL[band] }] : [];
           const directions = directionsUrl(place);
           return <RailCard key={place.id} className="wf-exploding-primary" domRef={index === sentinelIndex ? sentinelRef : undefined}
-            photo={photo} place={place} title={place.name} eyebrow={rail.title} rank={rank}
+            photo={photo} photoAttr={place.photo === photo ? place.photoAttr || undefined : undefined} photoAttrHref={place.photo === photo ? place.photoAttrHref || undefined : undefined} place={place} title={place.name} eyebrow={rail.title} rank={rank}
             score={toDisplayScore(railScoreOf(place))} facts={facts} chips={chips}
             award={topPickAward({ category: rail.title.toLowerCase(), rank })}
             take={place.water && beachDecisionReason(place.water) ? beachDecisionReason(place.water) : (toHookLine(place.editorial, place.name) || null)}
