@@ -7,6 +7,7 @@ import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard";
 import { isGuidePast } from "../../../lib/guideLifecycle";
 import { SITE_URL } from "../../../lib/site";
 import { CALIFORNIA_BONUS, DISNEY_FOOD_SLUG, DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, DISNEY_HOLIDAY_FOOD_GUIDES, EPCOT_FESTIVAL } from "../../../lib/guidesDisneyHolidayFood2026";
+import { guidePickPhoto } from "../../../lib/guidePickPhotos";
 import DisneyFoodMap from "./DisneyFoodMap";
 import FestivalBooths from "./FestivalBooths";
 import GuideDealCards from "../[slug]/GuideDealCards";
@@ -98,6 +99,12 @@ const SECTIONS = [
   { id: "sources", eyebrow: "Sources and credits", title: "Menu research, with the creators credited." },
 ];
 
+const stopPhotos = Object.fromEntries(DISNEY_FOOD_STOPS.flatMap((stop) => {
+  const entry = guidePickPhoto(DISNEY_FOOD_SLUG, stop.venue);
+  if (!entry?.src) return [];
+  return [[stop.id, { src: entry.src, credit: entry.credit, creditHref: entry.creditHref, position: entry.position || "50% 50%" }]];
+}));
+
 export default function DisneyHolidayFoodGuidePage() {
   const past = isGuidePast(guide);
   return <GuideStandardShell
@@ -116,7 +123,7 @@ export default function DisneyHolidayFoodGuidePage() {
     contents={SECTIONS.map((s) => ({ href: "#" + s.id, label: s.title }))}
     // The shared guide map card (park chips, illustrated map, card rail) sits in
     // the shell's lead slot, above the numbered park sections it links to.
-    lead={<><DisneyFoodMap parks={DISNEY_FOOD_PARKS} stops={DISNEY_FOOD_STOPS} festival={EPCOT_FESTIVAL} />{past ? null : <GuideDealCards slug={DISNEY_FOOD_SLUG} region="Orlando" deals={ticketDeals()} />}</>}
+    lead={<><DisneyFoodMap parks={DISNEY_FOOD_PARKS} stops={DISNEY_FOOD_STOPS} festival={EPCOT_FESTIVAL} stopPhotos={stopPhotos} />{past ? null : <GuideDealCards slug={DISNEY_FOOD_SLUG} region="Orlando" deals={ticketDeals()} />}</>}
     extraLd={[itemListLd, festivalLd, ...(faqLd ? [faqLd] : [])]}
   >
     <div className={styles.body}>
