@@ -1184,7 +1184,7 @@ scripts/test-taste.mjs	0	CALL	blocks-ci-and-deploy	1	-	126	0	0	1c6e163694a085102
 scripts/test-taxonomy-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	137	0	0	cb13c584eda7142470a8147ed03c2369827568cdf1602bc1e91dfba4936dde9c
 scripts/test-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	436a1c75313e7ad7e7707408eb719a937cf1bfcf3f8d877a26499e93d3abff9d
 scripts/test-thanksgiving-client.mjs	0	RENDER	blocks-ci-and-deploy	1	-	93	0	0	6e31f57c33501f7b5125bf630b7b83f045611e79de239f1bd8ad7acf9901b87c
-scripts/test-thanksgiving-dates.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	23a38216548ea41c23c316da62c0c784c7c59d463ca2cdd27531b6269a9becdd
+scripts/test-thanksgiving-dates.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	89ddf08d3b7c65a9f154c0e6bf94e216e78bd6172a35267b08d64a7b1ade3602
 scripts/test-thanksgiving-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	7a2c7d7c83effce78b911c7c97c7d0fba12768288ff07e2e18f4d0ab8c1fa3db
 scripts/test-thanksgiving-planner.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	c32dcf8fc5e788736fd594a4a1479612ac7e484c0d652fa9d06fd5a178172571
 scripts/test-theme-park-core.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	79	0	0	4ef98d3b45db30f5e3fd859d84a58fa4f765512880fac0fe6db030b26a27d992
