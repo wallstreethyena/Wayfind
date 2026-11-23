@@ -346,12 +346,12 @@ function CITIES() {
   }
   // 3. An opened run with no published closing date stays open, labelled, never invented.
   const lane = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => r.event_id === "christmas-lane-plant-city-2026");
-  ok(lane && lane.start_date === "2026-11-27" && lane.end_date === null && lane.closing_unannounced === true, "Christmas Lane opens Nov 27 with no invented closing date");
+  ok(lane && lane.start_date === "2026-11-27" && lane.end_date === "2026-12-24" && lane.closing_unannounced !== true, "Christmas Lane opens Nov 27 and the organizer page now ends the nightly run on Dec 24");
   const laneCard = cards.find((c) => c.christmas_research_id === "christmas-lane-plant-city-2026");
-  ok(laneCard && christmasHonestyChips(laneCard, TODAY).some((x) => x.label === "Closing date not announced"), "its card says Closing date not announced");
-  ok(christmasPageRow(lane).when_label === "Opens Nov 27, 2026, closing date not announced", "its page says so where the date goes");
+  ok(laneCard && !christmasHonestyChips(laneCard, TODAY).some((x) => x.label === "Closing date not announced"), "its card no longer says the closing date is unannounced");
+  ok(christmasPageRow(lane).when_label === "Nov 27, 2026 to Dec 24, 2026", "its page uses the published Nov 27 to Dec 24 run");
   const live = (today) => composeChristmasIntentRails(cards, [], { lat: 28.0158, lng: -82.1183, today }).rails.find((r) => r.id === "lights").cards.some((c) => c.christmas_research_id === "christmas-lane-plant-city-2026");
-  ok(live("2026-12-20") && live("2027-01-06") && !live("2027-01-07"), "an open ended run stays through the season (Jan 6) and not a day longer");
+  ok(live("2026-12-20") && !live("2026-12-25") && !live("2027-01-06"), "the published run is still on Dec 20 and off on Dec 25");
   const weekly = researchEvent({ id: "x-weekly", state: "confirmed_dated", start_date: "2026-11-27", end_date: null, schedule: "Opens Nov 27; Thursdays to Sundays", times: "6 PM", price: "unannounced", event_name: "Y", city: "Naples", primary_rail: "lights" });
   const single = researchEvent({ id: "x-single", state: "confirmed_dated", start_date: "2026-12-05", end_date: null, schedule: "single date", times: "6 PM", price: "unannounced", event_name: "Z", city: "Naples", primary_rail: "parades" });
   ok(weekly.end_date === null && weekly.closing_unannounced === true && single.end_date === "2026-12-05" && !single.closing_unannounced, "a weekly run keeps an open end; a single date ends that day");
@@ -467,11 +467,11 @@ function CITIES() {
   ok(twins.every((t) => !smKept.some((r) => r.url === "https://x/florida-events/" + t.slug)) && smKept.some((r) => r.url === "https://x/florida-events/db-only-market-2026") && smKept.some((r) => r.url === "https://x/florida-events/christmas-town-2026"), `the sitemap drops every twin (${twins.length}) and keeps the other events`);
   ok(/withoutChristmasWatchlistTwins\(events, eventRows, SITE_URL\)/.test(read("app/sitemap.js")), "app/sitemap.js filters the wf_events rows through withoutChristmasWatchlistTwins (static)");
 
-  // E. Florida Botanical Gardens ends Jan 2, 2027 (the page's Nightly
-  //    Illumination schedule and its 37 night count; re-read 2026-10-14).
+  // E. Florida Botanical Gardens ends Jan 3, 2027. Re-read 2026-11-22:
+  //    the header and the Nightly Illumination block both say Jan 3.
   const fbg = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => r.event_id === "florida-botanical-gardens-holiday-lights-2026");
   const fbgRaw = RAW.find((r) => r.id === "florida-botanical-gardens-holiday-lights-2026");
-  ok(fbg && fbg.start_date === "2026-11-27" && fbg.end_date === "2027-01-02" && /Jan 2, 2027/.test(fbgRaw.evidence_quote) && /37 nights/.test(fbgRaw.evidence_quote), "Florida Botanical Gardens runs Nov 27, 2026 to Jan 2, 2027, with the evidence quote recorded");
+  ok(fbg && fbg.start_date === "2026-11-27" && fbg.end_date === "2027-01-03" && /Jan 3, 2027/.test(fbgRaw.evidence_quote), "Florida Botanical Gardens runs Nov 27, 2026 to Jan 3, 2027, with the evidence quote recorded");
 }
 
 // ── 9. Server only ──────────────────────────────────────────────────────────

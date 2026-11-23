@@ -13,6 +13,7 @@ assert.equal(isFullStreetAddress(""), false);
 assert.equal(isFullStreetAddress("14501 S. Orange Blossom Trail, Orlando, Florida 32837"), true);
 assert.equal(isFullStreetAddress("29th Ave S & Miriam St S, Gulfport, FL 33711"), true);
 assert.equal(isFullStreetAddress("1340C State Road A1A, St. Augustine, FL 32080"), true);
+assert.equal(isFullStreetAddress("110 W Gasparilla Plaza, Tampa, FL 33602"), true);
 assert.equal(postalLine("Bean Point Beach, 793 N Shore Dr, Anna Maria, FL 34216"), "793 N Shore Dr, Anna Maria, FL 34216");
 assert.equal(isFullStreetAddress("Sarasota, FL 34241"), false);
 assert.equal(isFullStreetAddress("Bay Lake, FL 32836"), false);
