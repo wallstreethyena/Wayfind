@@ -18,6 +18,7 @@ import { eventNearbyPlaces } from '../lib/eventNearbyPlaces.js';
 import * as eventVisitFacts from '../lib/eventVisitFacts.js';
 import * as eventTimeReal from '../lib/eventTime.js';
 import * as crownCampaign from '../lib/crownCampaign.js';
+import * as videoEmbed from '../lib/videoEmbed.js';
 let event, curated, photographs, social = [];
 let mapPicks, nearbyPicks;
 const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
@@ -50,8 +51,7 @@ function page(file) {
   eventPairings:async()=>Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2})),
   cachedEventPairings:async()=>({places:Array.from({length:6},(_,i)=>({id:'fixture-place-'+i,name:['A long nearby restaurant name that should wrap cleanly','Nearby coffee and breakfast','A nearby dinner spot'][i%3],lat:27.3+i*.01,lng:-82.5,cat:'Restaurant',wfScore:98,distMi:1.2})),unavailable:false}),pairingHref:()=>'/p/fixture',clockLabel:()=>null,
   eventSocialPosts:()=>social,
-  isEmbeddable:()=>true,
-  embedSrc:()=>"https://www.instagram.com/reel/fixture/embed/", PLATFORM:{instagram:{label:"Instagram",color:"#E1306C"}},
+  PLATFORM:{instagram:{label:"Instagram",color:"#E1306C"}},
   eventDetailTicketAction:()=>curated?.is_free?null:{kind:'affiliate',href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
   eventTicketCta:()=>curated?.is_free?null:{href:'/api/commerce/go?offer=test',label:'Get tickets ↗'},
   isTicketmasterFamily:()=>true,eventStoryEvidence:x=>x,eventStoryFallback:()=>({whyGo:longReason,bestFor:'People making a real plan together',expect:'A busy entrance and a full evening'}),
@@ -61,6 +61,7 @@ function page(file) {
  const require=(spec)=>{
   if(spec==='react')return React;
   if(spec.includes('eventVisitFacts'))return eventVisitFacts;
+  if(/\blib\/videoEmbed(?:\.js)?$/.test(spec))return videoEmbed;
   if(spec.endsWith('lib/eventTime.js'))return eventTimeReal;
   if(spec.includes('placeRecommendationOrder'))return {orderPlaceRecommendations};
   if(spec.includes('lib/eventNearbyPlaces'))return {eventNearbyPlaces};
@@ -204,7 +205,7 @@ console.log(`test-event-experience: OK — ${checks} assertions across 14 real p
 
 // Render the real event/facade chain: the cover must already be visible before
 // any image load event (including a cached image that precedes hydration).
-social=[{platform:'instagram',creator:'fixturecreator',url:'https://www.instagram.com/reel/fixture/'}];
+social=[{platform:'instagram',creator:'fixturecreator',url:'https://www.instagram.com/reel/De-lBfCIBGZ/'}];
 curated={...curated,is_free:false,hero_image:'/venue-cover.jpg'};
 for(const owned of [true,false]) {
  photographs=owned?{hero:{src:'/event-cover.jpg',alt:'Event cover',w:1200,h:630},photos:[]}:null;

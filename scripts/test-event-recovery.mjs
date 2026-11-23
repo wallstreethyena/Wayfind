@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import * as videoEmbed from '../lib/videoEmbed.js';
 const require = createRequire(import.meta.url);
 const ts = require('typescript');
 const React = require('react');
@@ -29,8 +30,8 @@ for (const [poster, complete, naturalWidth, expected] of [['/cover.jpg', true, 6
   const effects = [];
   const ref = { current: { complete, naturalWidth } };
   const hooks = { ...React, useState: value => { const index = stateIndex++; return [value, next => writes.push([index, next])]; }, useRef: () => ref, useEffect: fn => effects.push(fn) };
-  const Facade = load('app/components/VideoFacade.js', { react: hooks, './CreatorVideoPlayer': { default: () => null }, '../../lib/cardPhotoRequest.js': { isApiPhotoSrc: (s) => typeof s === 'string' && s.startsWith('/api/photo') }, './CreatorPlaybackDetails': { usePlaybackDetails: () => null }, '../../lib/creatorPlatforms': { PLATFORM: { instagram: { label: 'Instagram', color: '#aa2255' } } }, '../../lib/videoEmbed': { embedSrc: () => 'https://www.instagram.com/reel/test/embed/' }, './CreatorPlaceCover.js': { default: () => null, creatorPlaceCoverSrc: () => null } });
-  const facade = Facade({ platform: 'instagram', url: 'https://www.instagram.com/reel/test/', label: 'Test post', poster });
+  const Facade = load('app/components/VideoFacade.js', { react: hooks, './CreatorVideoPlayer': { default: () => null }, '../../lib/cardPhotoRequest.js': { isApiPhotoSrc: (s) => typeof s === 'string' && s.startsWith('/api/photo') }, './CreatorPlaybackDetails': { usePlaybackDetails: () => null }, '../../lib/creatorPlatforms': { PLATFORM: { instagram: { label: 'Instagram', color: '#aa2255' } } }, '../../lib/videoEmbed': videoEmbed, './CreatorPlaceCover.js': { default: () => null, creatorPlaceCoverSrc: () => null } });
+  const facade = Facade({ platform: 'instagram', url: 'https://www.instagram.com/reel/De-lBfCIBGZ/', label: 'Test post', poster });
   assert.equal(facade.type, 'button');
   effects.forEach(fn => fn());
   assert.deepEqual(writes, expected === 'loaded' ? [[2, poster]] : expected === 'failed' ? [[1, poster]] : []);
