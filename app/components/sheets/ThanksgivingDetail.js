@@ -77,9 +77,9 @@ export default function ThanksgivingDetail({ ctx }) {
   const backRef = useRef(null);
   const window = thanksgivingWindow(year);
   const locationKey = thanksgivingLocationReady(ctx) ? thanksgivingLocationKey(ctx.center) : "";
-  const requestKey = locationKey ? [locationKey, year, date, mi, retry].join("|") : "";
-  // The render gate matters as much as abort: changing city hides the old
-  // city's cards immediately, before React runs the next request effect.
+  const requestKey = locationKey ? [locationKey, year, date, mi, today, retry].join("|") : "";
+  // The render gate matters as much as abort: changing city or the site day
+  // hides the old plan immediately, before React runs the next request effect.
   const candidate = result.key === requestKey && result.status === "ready" ? result.data : null;
   const expiresAt = thanksgivingExperienceExpiry(candidate);
   const expired = !!expiresAt && Date.now() >= expiresAt;

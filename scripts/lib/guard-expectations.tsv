@@ -1185,7 +1185,7 @@ scripts/test-tags.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0	aa2b7807203284b8279
 scripts/test-taste.mjs	0	CALL	blocks-ci-and-deploy	1	-	126	0	0	1c6e163694a085102698cdfd651e621768b25b7d41431dadf4abb3a7bf48c54b
 scripts/test-taxonomy-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	137	0	0	cb13c584eda7142470a8147ed03c2369827568cdf1602bc1e91dfba4936dde9c
 scripts/test-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	436a1c75313e7ad7e7707408eb719a937cf1bfcf3f8d877a26499e93d3abff9d
-scripts/test-thanksgiving-client.mjs	0	RENDER	blocks-ci-and-deploy	1	-	124	0	0	e24d454c5499aad058d8271b69379ef0095cc964a5edf9f956393496a8bee5b3
+scripts/test-thanksgiving-client.mjs	0	RENDER	blocks-ci-and-deploy	1	-	136	0	0	653dee118d187f6d8f3dcafc06e8a412729c195e2131a4e7fb9708d15bc4e07f
 scripts/test-thanksgiving-dates.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	ba0b7df22bb4605eda1f5ea2d5739be08871895e7f16a28b7f8f6c82db7353b2
 scripts/test-thanksgiving-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	7a2c7d7c83effce78b911c7c97c7d0fba12768288ff07e2e18f4d0ab8c1fa3db
 scripts/test-thanksgiving-planner.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	c32dcf8fc5e788736fd594a4a1479612ac7e484c0d652fa9d06fd5a178172571

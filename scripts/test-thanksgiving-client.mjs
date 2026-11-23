@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { JSDOM } from "jsdom";
 import ts from "typescript";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -145,7 +145,8 @@ globalThis.IntersectionObserver = class { observe() {} unobserve() {} disconnect
 const React = (await import("react")).default;
 const { createRoot } = await import("react-dom/client");
 const repo = fileURLToPath(new URL("..", import.meta.url));
-const { default: Sheet } = await loadComponent(fileURLToPath(new URL("../app/components/sheets/ThanksgivingDetail.js", import.meta.url)), repo);
+let sheetGraph;
+const { default: Sheet } = await loadComponent(fileURLToPath(new URL("../app/components/sheets/ThanksgivingDetail.js", import.meta.url)), repo, { onGraph: (graph) => { sheetGraph = graph; } });
 const { C, KB_CLICK } = await loadComponent(fileURLToPath(new URL("../app/components/kit.js", import.meta.url)), repo);
 const controlSource = ts.transpileModule(homeFunction("RadiusSlider") + "\n" + homeFunction("SortControl"), { compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ES2020 } }).outputText;
 const SortControl = new Function("React", "useState", "C", "KB_CLICK", "styleHtml", controlSource + "\nreturn SortControl;")(React, React.useState, C, KB_CLICK, styleHtml);
@@ -309,6 +310,46 @@ for (const [search, clicked, expected] of [
   const params = new URL(calls.at(-1).url, dom.window.location.origin).searchParams;
   eq({ year: params.get("year"), date: params.get("date"), mi: params.get("mi") }, expected, "actual sheet validates raw Home controls and preserves the clicked holiday year");
   await React.act(async () => { openingRoot.unmount(); });
+}
+
+// Drive the sheet's actual shared Eastern-day store across midnight. Provider
+// summaries remain fresh, so only the planning-day change can hide/refetch it.
+const clockPath = fileURLToPath(new URL("../lib/siteDayClock.js", import.meta.url));
+ok(!!sheetGraph.get(clockPath), "midnight fixture reaches the sheet's actual site-day clock");
+const { useSiteToday } = await import(pathToFileURL(sheetGraph.get(clockPath)).href);
+const SiteDayProbe = () => React.createElement("output", { "data-site-day-probe": true }, useSiteToday());
+const RealDate = globalThis.Date;
+let boundaryNow = RealDate.parse("2026-11-27T04:59:59.500Z");
+class BoundaryDate extends RealDate {
+  constructor(...args) { super(...(args.length ? args : [boundaryNow])); }
+  static now() { return boundaryNow; }
+}
+const boundaryRoot = createRoot(host);
+globalThis.Date = BoundaryDate;
+try {
+  const boundaryContext = { ...current, center: origin, locResolved: true, locName: "Parrish, FL", hookDetail: { hol: "thanksgiving", holidayYear: 2026, holidayDate: "all", holidayMi: 30, holidaySort: "price" } };
+  await React.act(async () => { boundaryRoot.render(React.createElement(React.Fragment, null, React.createElement(SiteDayProbe), React.createElement(Sheet, { ctx: boundaryContext }))); });
+  eq(host.querySelector("[data-site-day-probe]").textContent, "2026-11-26", "mounted sheet starts before Eastern midnight");
+  const oldDayCall = calls.at(-1);
+  const expiresAt = new RealDate(boundaryNow + 3600000).toISOString();
+  await React.act(async () => { oldDayCall.resolve(response(payload({ radiusMi: 30, events: [{ ...payload().events[0], name: "Thursday midnight market", date: "2026-11-26" }], sourceStatus: { experiences: { expiresAt } } }))); }); await flush();
+  ok(host.textContent.includes("Thursday midnight market"), "the open sheet displays the still-current day's event");
+  const readsBeforeMidnight = calls.length;
+  boundaryNow += 1000;
+  await React.act(async () => { document.dispatchEvent(new window.Event("visibilitychange")); });
+  eq(host.querySelector("[data-site-day-probe]").textContent, "2026-11-27", "actual site-day subscription advances across Eastern midnight");
+  ok(RealDate.parse(expiresAt) > Date.now(), "provider TTL has not expired at the day boundary");
+  eq(host.querySelectorAll(".wf-place-card").length, 0, "the new site day immediately hides the old day's picks while replacement loads");
+  eq(calls.length, readsBeforeMidnight + 1, "site-day advance triggers exactly one fresh planning request");
+  eq(calls.at(-1).url, oldDayCall.url, "midnight refresh preserves selected location, year, date and radius");
+  eq(host.querySelector('select[aria-label="Thanksgiving year"]').value, "2026", "midnight refresh preserves the selected year");
+  eq(host.querySelector('button[aria-label="All weekend"]').getAttribute("aria-pressed"), "true", "midnight refresh preserves the selected date");
+  ok([...host.querySelectorAll('[role="button"]')].some((node) => node.textContent.startsWith("Price: low to high")), "midnight refresh preserves selected sort");
+  await React.act(async () => { calls.at(-1).resolve(response(payload({ radiusMi: 30, events: [{ ...payload().events[0], name: "Friday holiday market" }], sourceStatus: { experiences: { expiresAt } } }))); }); await flush();
+  ok(!host.textContent.includes("Thursday midnight market") && host.textContent.includes("Friday holiday market"), "fresh planning results replace the old day's event");
+} finally {
+  await React.act(async () => { boundaryRoot.unmount(); });
+  globalThis.Date = RealDate;
 }
 dom.window.close();
 if (process.argv.includes("--browser")) {
