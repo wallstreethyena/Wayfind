@@ -10833,12 +10833,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // was 200 in 0.44s while the client sat on LOAD_PENDING). When a real
   // center arrives, firstPaintRailOrigin returns it and the rail refetches.
   const inlineRail = readInlineRailHints();
-  const railCenter = firstPaintRailOrigin({
-    resolved: center,
-    locResolved,
-    prime: inlineRail.prime,
-    stored: inlineRail.stored,
-  });
+  const railCenter = {
+    ...firstPaintRailOrigin({ resolved: center, locResolved, prime: inlineRail.prime, stored: inlineRail.stored }),
+    // A denied GPS and refused IP lookup can adopt the seed to start search.
+    // Keep serving that bootstrap path without giving its pin a local brief.
+    hasLocalOrigin: Boolean(locResolved && center && (
+      !isSeedCenter(center) || manualRef.current || (deviceLoc?.lat === center.lat && deviceLoc?.lng === center.lng)
+    )),
+  };
 
   // Live event poster tiles (Sporting Events, Concerts). They ride the
   // ordinary poster rail below at the same size as every other poster, and
