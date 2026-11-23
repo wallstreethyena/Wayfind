@@ -99,11 +99,22 @@ ok(/if \(id === cat && !allCategories\) setFiltersExpanded\(\(v\) => !v\)/.test(
   "tapping the active category tab collapses or reopens sub-filters");
 ok(/if \(subsVisible\) setFiltersExpanded\(false\)/.test(map) && /else setFilterBarCollapsed\(true\)/.test(map) && /Hide \\u25B4/.test(map),
   "Less collapses sub-filters, and Hide collapses the whole bar into the slim pill");
-// The lens row is in normal flow under the category panel. The score button is
-// absolutely placed at the collapsed-panel slot (164). On a phone that slot
-// sits on the lens row once sub-filters open, so the button has to drop.
-ok(/data-wf-all-places/.test(map) && /top: subsVisible \? 220 : 164/.test(map),
-  "All places · 9.2+ stays at 164 until sub-filters open, then drops to 220 so it clears the lens row");
+// Owner 2026-11-23: replaced the floating "All places · 9.2+" pill with a clean
+// inline `All` chip (`data-wf-all-places`) inside compact CategoryMenu right
+// before Food, keeping shared home CategoryMenu call sites untouched.
+{
+  const compactStart = home.indexOf("if (compact) {");
+  const compactEnd = home.indexOf("if (nav) {", compactStart + 1);
+  const compactBlock = compactStart > 0 && compactEnd > compactStart
+    ? home.slice(compactStart, compactEnd)
+    : "";
+  ok(/data-wf-all-places/.test(compactBlock) && /<span>All<\/span>/.test(compactBlock),
+    "Owner 2026-11-23: inline All chip (data-wf-all-places) lives inside compact CategoryMenu");
+  ok(/allActive=\{allCategories\}/.test(map) && /onAll=\{/.test(map),
+    "Map.js wires allActive and onAll into compact CategoryMenu");
+  ok(!/All places · 9\.2\+/.test(map),
+    "Owner 2026-11-23: the old floating All places · 9.2+ pill is gone from Map.js");
+}
 
 // ── ticket 2c: the seventh 'Search' tile is gone ─────────────────────────
 ok(!/aria-label="Search"/.test(map), "the Search tile is back in the category row — there is a search bar directly above it");

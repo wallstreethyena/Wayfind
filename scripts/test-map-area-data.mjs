@@ -6,7 +6,7 @@ import { loadComponent } from './lib/jsxLoad.mjs';
 import { stampOwnerPick } from '../lib/ownerBump.js';
 import { applyCuratorPicks } from '../lib/curatorPicks.js';
 import { readCompleteMapArea } from '../lib/mapAreaRead.js';
-import { MAP_AREA_PAGE_SIZE, mergeMapAreaContext, keepMapPreview, mapInventoryPlace, readMapAreaPage, selectMapPlaces, validMapBounds } from '../lib/mapAreaData.js';
+import { MAP_AREA_PAGE_SIZE, MAP_SPARSE_FALLBACK_MIN_SCORE, mergeMapAreaContext, keepMapPreview, mapInventoryPlace, readMapAreaPage, selectMapPlaces, selectMapPlacesSparseFallback, validMapBounds } from '../lib/mapAreaData.js';
 const now = Date.parse('2026-09-10T12:00:00Z');
 const origin = { lat: 28.5, lng: -81.5 };
 const bounds = { north: 29, south: 28, east: -81, west: -82 };
@@ -221,4 +221,30 @@ const apiQuery = new URLSearchParams({ ...bounds, originLat: origin.lat, originL
 const unavailable = await route.GET(new Request('https://example.org/api/places/map?' + apiQuery));
 assert.equal(unavailable.status, 503, 'missing owned source is a visible failure rather than normal empty');
 assert.equal(unavailable.headers.get('cache-control'), 'private, no-store');
-console.log('Map area data: 1203-place traversal, six categories, post-context 9.0→9.6 admission/curator fallback/creator continuity, freshness, geo, dedupe, shared filters, fetch/body deadlines and cancellation verified.');
+
+// Owner 2026-11-23: sparse-area fallback (e.g. Parrish Food -> Breakfast when 9.2+ is empty).
+{
+  assert.equal(MAP_SPARSE_FALLBACK_MIN_SCORE, 7.5);
+  const parrishBounds = { north: 27.7, south: 27.5, east: -82.3, west: -82.6 };
+  const parrishCafe = { id: 'parrish-bistro', name: 'Parrish Breakfast Cafe', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant', 'cafe'], lat: 27.58, lng: -82.42, wfScore: 84, governed_score: 84 };
+  const parrishDiner = { id: 'parrish-diner', name: 'Countryside Diner', category: 'food', primaryType: 'diner', types: ['diner', 'restaurant'], lat: 27.59, lng: -82.41, wfScore: 75, governed_score: 75 };
+  const fastFoodSubpar = { id: 'subpar-fast', name: 'Highway Drive-Thru Breakfast', category: 'food', primaryType: 'fast_food_restaurant', types: ['fast_food_restaurant', 'breakfast_restaurant'], lat: 27.58, lng: -82.43, wfScore: 74, governed_score: 74 };
+  const lunchOnly = { id: 'lunch-steak', name: 'Parrish Steakhouse', category: 'food', primaryType: 'steak_house', types: ['steak_house', 'restaurant'], lat: 27.58, lng: -82.44, wfScore: 89, governed_score: 89 };
+  const sparsePool = [parrishCafe, parrishDiner, fastFoodSubpar, lunchOnly];
+
+  assert.equal(selectMapPlaces(sparsePool, 'food', parrishBounds, 'breakfast').length, 0, 'strict 9.2+ yields 0 matches in sparse Parrish Breakfast');
+  const fallback = selectMapPlacesSparseFallback(sparsePool, 'food', parrishBounds, 'breakfast');
+  assert.deepEqual(fallback.map(x => x.id), ['parrish-bistro', 'parrish-diner'], 'sparse fallback surfaces >= 7.5 local Breakfast spots and excludes < 7.5 and non-breakfast spots');
+
+  // Strict 9.2+ stays strict whenever 9.2+ matches exist.
+  const eliteSpot = { ...parrishCafe, id: 'elite-brunch', name: 'Elite Brunch House', wfScore: 93, governed_score: 93 };
+  const strictWithElite = selectMapPlaces([...sparsePool, eliteSpot], 'food', parrishBounds, 'breakfast');
+  assert.deepEqual(strictWithElite.map(x => x.id), ['elite-brunch'], 'when 9.2+ exists, strict selection never admits < 9.2');
+
+  // keepMapPreview respects allowSparseFallback.
+  assert.equal(keepMapPreview(parrishCafe, fallback, 'food', 'ready'), false, 'keepMapPreview rejects < 9.2 without allowSparseFallback');
+  assert.equal(keepMapPreview(parrishCafe, fallback, 'food', 'ready', { allowSparseFallback: true }), true, 'keepMapPreview keeps sparse fallback card when allowSparseFallback=true');
+  assert.equal(keepMapPreview(fastFoodSubpar, fallback, 'food', 'ready', { allowSparseFallback: true }), false, 'keepMapPreview still rejects < 7.5 even with allowSparseFallback=true');
+}
+
+console.log('Map area data: 1203-place traversal, six categories, post-context 9.0→9.6 admission/curator fallback/creator continuity, freshness, geo, dedupe, shared filters, sparse-area fallback, fetch/body deadlines and cancellation verified.');
