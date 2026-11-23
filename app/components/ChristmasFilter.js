@@ -68,7 +68,6 @@ export default function ChristmasFilter({ query, facets, onSet, onNear, onReset 
   const dates = Array.isArray(facets.dates) ? facets.dates : [];
   const regions = Array.isArray(facets.regions) ? facets.regions : [];
   const pills = Array.isArray(facets.pills) ? facets.pills : [];
-  const label = tickets ? "Tickets first" : near ? "Best near you" : "Best rated";
   const active = [query.category, query.when || query.date, query.region].filter(Boolean).length;
 
   useEffect(() => {
@@ -98,8 +97,8 @@ export default function ChristmasFilter({ query, facets, onSet, onNear, onReset 
   return <div data-christmas-filter="" data-collection-filter="">
     <style dangerouslySetInnerHTML={styleHtml(CSS)} />
     <button ref={trigger} type="button" className="xm-filter-trigger" aria-expanded={open} aria-haspopup="dialog" aria-controls={open ? id : undefined} onClick={() => setOpen(true)}>
-      <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5h16v5a2 2 0 0 0 0 4v5H4v-5a2 2 0 0 0 0-4V5Z"/><path d="M15 5v3m0 3v2m0 3v3"/></svg>
-      {label}{active ? <span className="xm-filter-badge" aria-label={active + " filters on"}>{active}</span> : null}
+      <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      Full menu{active ? <span className="xm-filter-badge" aria-label={active + " filters on"}>{active}</span> : null}
       <span aria-hidden="true" className="xm-filter-caret">▾</span>
     </button>
     {open ? createPortal(<div className="xm-menu-overlay" onClick={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>

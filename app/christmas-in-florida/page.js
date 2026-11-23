@@ -36,6 +36,11 @@ const seasonal = seasonalSearchMetadata("christmas-in-florida");
 const title = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events | Wayfind";
 const description = "Plan Christmas in Florida 2026: light shows, theme park parties, boat parades, snow and holiday shows, with dates, hours and tickets across Orlando, Tampa Bay, Sarasota, St. Augustine and more.";
 const ogTitle = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events";
+// Versioned first-party artwork keeps shared links in the page's festive theme.
+const christmasShareImage = {
+  url: SITE_URL + "/christmas/share-christmas-v1.png",
+  alt: "Christmas in Florida by Wayfind, with colorful holiday lights, snow and a decorated tree on a burgundy background.",
+};
 export const metadata = {
   ...seasonal,
   title,
@@ -47,9 +52,9 @@ export const metadata = {
     description,
     url: SITE_URL + "/christmas-in-florida",
     siteName: "Wayfind",
-    images: [{ url: SITE_URL + "/api/og?t=" + encodeURIComponent("Christmas in Florida 2026"), width: 1200, height: 630 }],
+    images: [{ ...christmasShareImage, width: 1200, height: 630 }],
   },
-  twitter: { ...seasonal.twitter, title: ogTitle, description, images: [SITE_URL + "/api/og?t=" + encodeURIComponent("Christmas in Florida 2026")] },
+  twitter: { ...seasonal.twitter, card: "summary_large_image", title: ogTitle, description, images: [christmasShareImage] },
 };
 
 // 2026-11-03 (owner, "Fix it") — creator videos tagged with the christmas
