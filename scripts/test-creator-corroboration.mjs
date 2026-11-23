@@ -23,7 +23,7 @@ import {
   TREND_THRESHOLD, TREND_REASONS, TREND_SOURCE_WEIGHTS,
   CORROBORATION_MIN_CREATORS, CORROBORATION_FULL_CREATORS,
 } from "../lib/trendSignal.js";
-import { creatorCountFor, creatorVideosFor, allCreators as allCreatorsFn } from "../lib/creatorVideos.js";
+import { __CURATED_FOR_CODEGEN__, creatorCountFor, creatorVideosFor, allCreators as allCreatorsFn } from "../lib/creatorVideos.js";
 import { governedWayfindScore, wayfindScore, TRENDING_BONUS } from "../lib/wayfindScore.js";
 import { governedScoreOf } from "../lib/lawfulOrder.js";
 import { readFileSync, readdirSync } from "node:fs";
@@ -268,7 +268,12 @@ for (const junk of [null, undefined, NaN, "3", -4, Infinity, {}]) {
     "the two held sources retain recovered native URLs and precise blockers outside the app");
   ok(sourceAudit.slots.length === 38 && sourceAudit.summary.attachmentReady === 36 && sourceAudit.slots.every((slot) => slot.final),
     "all 38 original research slots have a final source disposition; 36 are prepared and two remain held");
+  const curatedUrls = new Set(__CURATED_FOR_CODEGEN__.flatMap((entry) => entry.videos.map((video) => video.url)));
   for (const source of sourceAudit.release.activated) {
+    if (source.withdrawnOn) {
+      ok(!curatedUrls.has(source.nativeUrl), `withdrawn source is absent from the published library: ${source.slotId}`);
+      continue;
+    }
     ok(creatorVideosFor({ id: source.placeId }).some((video) => video.url === source.nativeUrl && video.creator === source.creator), `recovered source resolves on its exact reviewed ID: ${source.slotId}`);
     ok(!creatorVideosFor({ id: "ChIJwrongBacklogIdentity123", name: source.name, city: source.city }).some((video) => video.url === source.nativeUrl), `recovered source cannot cross Google identities: ${source.slotId}`);
   }
