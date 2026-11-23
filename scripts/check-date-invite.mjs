@@ -270,8 +270,8 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const styleRaw = readFileSync(path.join(REPO, "app/ask/style.js"), "utf8");
   ok(/inv\.place \|\| suggestedActivityLabel/.test(askClientRaw),
      "AskClient must render the proposed plan preview for activity-only invitations too");
-  ok(/setNos\(\(n\)\s*=>\s*n\s*\+\s*1\)/.test(askClientRaw) && /style=\{\{\s*"--s":\s*1\s*\}\}/.test(askClientRaw) && /style=\{\{\s*"--n":\s*1\s*\}\}/.test(askClientRaw),
-     "pressing No must reveal playful Elf reactions without coercively shrinking No or enlarging YES");
+  ok(/setNos\(\(n\)\s*=>\s*n\s*\+\s*1\)/.test(askClientRaw) && /yesScale\(nos\)/.test(askClientRaw) && /noScale\(nos\)/.test(askClientRaw),
+     "pressing No must grow the YES button via yesScale(nos) and shrink No via noScale(nos) while revealing playful Elf reactions");
   ok(/Maybe another day/.test(askClientRaw) && /Suggest something else/.test(askClientRaw) && /No thanks/.test(askClientRaw) && /\.wfx-pivots/.test(styleRaw),
      "pressing No must reveal respectful pivot choices (Maybe another day, Suggest something else, No thanks)");
 
