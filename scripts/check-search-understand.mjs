@@ -25,9 +25,9 @@ ok(UNDERSTAND_TIMEOUT_MS === 1500, "the filter times out at 1.5s");
 
 const understand = read("lib/searchUnderstand.js");
 const understandCode = codeOnly(understand);
-ok(!/api\.anthropic\.com/.test(understandCode), "the filter does not call Anthropic except through paidAi");
-ok(/paidAnthropicRequest/.test(understandCode), "the filter spends through paidAnthropicRequest");
-ok(/ANTHROPIC_MONTHLY_REQUEST_CAP/.test(understand) || /paidAnthropicRequest/.test(understandCode), "the monthly cap stays on the paidAi path");
+ok(!/generativelanguage\.googleapis\.com|api\.anthropic\.com/.test(understandCode), "the filter does not call Gemini or Anthropic directly");
+ok(/paidGeminiRequest/.test(understandCode), "the filter spends through paidGeminiRequest");
+ok(/GEMINI_MONTHLY_REQUEST_CAP/.test(understand) || /paidGeminiRequest/.test(understandCode), "the monthly cap stays on the paidGemini path");
 ok(/WAYFIND_SEARCH_UNDERSTAND/.test(understandCode), "the flag is read from WAYFIND_SEARCH_UNDERSTAND");
 
 const rank = codeOnly(read("lib/searchRank.js"));

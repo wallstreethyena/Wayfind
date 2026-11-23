@@ -130,8 +130,8 @@ assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "true" }), fal
 const FLAG_ON = {
   WAYFIND_SEARCH_UNDERSTAND: "on",
   WAYFIND_GATE: "open",
-  ANTHROPIC_MONTHLY_REQUEST_CAP: "10",
-  ANTHROPIC_API_KEY: "sk-ant-test-not-a-real-key",
+  GEMINI_MONTHLY_REQUEST_CAP: "10",
+  GEMINI_API_KEY: "AIza-test-not-a-real-key",
   SUPABASE_URL: "https://search.example.co",
   SUPABASE_SERVICE_ROLE_KEY: "service-test-key",
 };
@@ -145,15 +145,15 @@ try {
     failureCalls.push(target);
     if (target.includes("/rest/v1/rpc/wf_spend_take")) return json(true);
     if (target.includes("/rpc/wf_search_documents_query")) return json({ error: "missing" }, 404);
-    if (target.includes("api.anthropic.com")) {
-      return json({ content: [{ type: "text", text: "Visit Joe's Crab Shack tonight." }] });
+    if (target.includes("generativelanguage.googleapis.com")) {
+      return json({ candidates: [{ content: { parts: [{ text: "Visit Joe's Crab Shack tonight." }] } }] });
     }
     return json([]);
   };
   const failed = await searchLibrary({ query: "scalloping", ...SARASOTA, env: FLAG_ON });
   assert.equal(failed.meta.understand, "invalid");
   assert.equal(failed.meta.called, true);
-  assert.ok(failureCalls.some((url) => url.includes("api.anthropic.com")), "a non-phrase query with the flag on calls Claude");
+  assert.ok(failureCalls.some((url) => url.includes("generativelanguage.googleapis.com")), "a non-phrase query with the flag on calls Gemini");
   assert.ok(failed.results.some((row) => row.href === "/guides/florida-scalloping-crystal-river-homosassa"), "an invalid model payload falls back to the catalog");
   assert.ok(failed.results.every((row) => !/Joe's Crab Shack/.test(row.title)), "model prose is never a result");
 
@@ -162,7 +162,7 @@ try {
     const target = String(url);
     capCalls.push(target);
     if (target.includes("/rest/v1/rpc/wf_spend_take")) return json(false);
-    if (target.includes("api.anthropic.com")) throw new Error("cap must stop before the model");
+    if (target.includes("generativelanguage.googleapis.com")) throw new Error("cap must stop before the model");
     if (target.includes("/rpc/wf_search_documents_query")) return json({ error: "missing" }, 404);
     return json([]);
   };
@@ -170,7 +170,7 @@ try {
   assert.equal(capped.meta.understand, "cap");
   assert.equal(capped.meta.called, false);
   assert.ok(capCalls.some((url) => url.includes("wf_spend_take")), "the cap check uses the monthly ledger");
-  assert.ok(!capCalls.some((url) => url.includes("api.anthropic.com")), "a denied grant never reaches Claude");
+  assert.ok(!capCalls.some((url) => url.includes("generativelanguage.googleapis.com")), "a denied grant never reaches Gemini");
   assert.ok(capped.results.some((row) => row.href === "/guides/florida-scalloping-crystal-river-homosassa"), "a hit cap still returns catalog results");
 
   const slowCalls = [];
@@ -178,7 +178,7 @@ try {
     const target = String(url);
     slowCalls.push(target);
     if (target.includes("/rest/v1/rpc/wf_spend_take")) return json(true);
-    if (target.includes("api.anthropic.com")) {
+    if (target.includes("generativelanguage.googleapis.com")) {
       await new Promise((resolve, reject) => {
         const timer = setTimeout(resolve, 5000);
         init.signal?.addEventListener("abort", () => {
@@ -188,7 +188,7 @@ try {
           reject(error);
         }, { once: true });
       });
-      return json({ content: [] });
+      return json({ candidates: [] });
     }
     return json([]);
   };
@@ -198,7 +198,7 @@ try {
   assert.equal(timed.meta.understand, "timeout");
   assert.ok(elapsed < 4000, `timeout must land near 1.5s, took ${elapsed}ms`);
   assert.ok(timed.results.some((row) => row.href === "/guides/florida-scalloping-crystal-river-homosassa"), "a timed-out model falls back to the catalog");
-  assert.ok(slowCalls.some((url) => url.includes("api.anthropic.com")));
+  assert.ok(slowCalls.some((url) => url.includes("generativelanguage.googleapis.com")));
 } finally {
   globalThis.fetch = previousFetch;
   for (const key of Object.keys(FLAG_ON)) delete process.env[key];
