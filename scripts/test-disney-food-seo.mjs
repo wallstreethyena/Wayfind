@@ -64,5 +64,9 @@ assert.deepEqual(seoProblems(doc), []);
 const card = doc.querySelector('[data-deal-card="cpn-citypass-orlando"]');
 assert.ok(card && /\/api\/commerce\/go\?/.test(card.getAttribute("href")) && /sponsored/.test(card.getAttribute("rel") || ""), "park ticket card is the tracked, sponsored CityPASS row");
 assert.ok(/may earn a commission/.test(doc.body.textContent), "affiliate disclosure on the page");
+// The ticket card is server HTML: importing the client GuideDealCards island here
+// reshuffled the chunks the homepage loads and broke the deploy budget (2026-11-23).
+const fs = await import("node:fs");
+assert.ok(!/GuideDealCards/.test(fs.readFileSync("app/guides/disney-world-holiday-food-guide-2026/page.js", "utf8").replace(/\/\/.*$/gm, "")), "ticket card stays server rendered (no GuideDealCards import)");
 assert.ok(christmasCityGuides("2026-11-23").flatMap((g) => g.links).some((l) => l.href === "/guides/" + DISNEY_FOOD_SLUG), "Christmas in Florida hub links the guide");
 console.log("test-disney-food-seo: OK — title " + guide.title.length + " chars, answer table, " + (DISNEY_FOOD_STOPS.length + EPCOT_FESTIVAL.booths.length) + " ItemList entries anchored, festival Event matches, tracked ticket card, hub link");
