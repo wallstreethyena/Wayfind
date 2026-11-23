@@ -668,7 +668,7 @@ scripts/test-covered-markets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	a14be3
 scripts/test-creator-archetypes.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	1	2	aae8354a209ba76c6109e957d046e00a873bf558ec927346f2cd5add39b6c93b
 scripts/test-creator-card-mark.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	10d1708f177f33f3108eea54994f0fa9f81e2f2d248fce74d864a2b1db72d73f
 scripts/test-creator-corroboration.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0	5827ae9cbfdf8099b26102ce9ae8f3510b442db3be94a016b5f3e79e450ac4c5
-scripts/test-creator-finds-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0	13e489db347c4bd1d4cbeeea1acbc9738379983ee71d30c1fb4b2be54abde00d
+scripts/test-creator-finds-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	8f35c591500408993bcea7501b3f5c6fb2d12a9dcaab44badf7351c47a71ea52
 scripts/test-creator-in-app-playback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	e046205ef106177f2f66b69df269ef02a9a42af375bc25df99b1f380c47e42fb
 scripts/test-creator-name-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	dd79f925ccbadbb88913f52aff06ec4d49a7b26fd295eaef8a4050e6c73d9d73
 scripts/test-creator-pages.mjs	0	RENDER	blocks-ci-and-deploy	1	-	124	0	0	6885b3f2dd4eb6de5204f6fe678d6418c5db427e2f3ac53dfe6ff3614e3b35b1

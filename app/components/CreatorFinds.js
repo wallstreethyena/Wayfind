@@ -80,15 +80,9 @@ function cardFacts(p) {
   ].filter(Boolean);
 }
 
-// Two chips, because a 318px card fits two. The creator video leads (it is why
-// this row exists), then the strongest evidence-bound experience tag.
-function creatorChips(p, onExperience) {
-  // v7.15 (owner, 2026-08-11): the experience-tag bubble is gone; the creator
-  // video chip stays because it is the row's identity and a score disclosure.
-  return [
-    { key: "creatorvideo", icon: "🎬", label: "Creator post", onClick: onExperience ? () => onExperience("creatorvideo", p) : null },
-  ];
-}
+// The post is a score disclosure on this card. The rail's browse action
+// opens the library; the place's own detail has any available media.
+const CREATOR_POST_CHIPS = [{ key: "creatorvideo", label: "Creator post" }];
 
 // Cross-render cache so a scouted spot's resolved photo survives re-renders and
 // tab returns without re-hitting the search endpoint. Keyed by name|city.
@@ -161,7 +155,7 @@ async function resolveScoutedPlace(spot, center) {
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
 export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory };
 
-export default function CreatorFinds({ items, byCity, center, excludePlaceIds, onVisibleIds, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, bare }) {
+export default function CreatorFinds({ items, byCity, center, excludePlaceIds, onVisibleIds, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, bare }) {
   // v7.07 — ONE INVENTORY. Registry spots used to be a FALLBACK: scoutedSpots()
   // returned [] unless the pool was completely empty, so a reader with three
   // pool finds saw three cards while the registry held twenty more within the
@@ -311,7 +305,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
                 facts={cardFacts(p)}
                 take={verifiedTake(p.id, p.name)}
                 award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
-                chips={creatorChips(p, onExperience)}
+                chips={CREATOR_POST_CHIPS}
                 ariaLabel={"Open " + p.name}
                 place={p}
                 onOpen={open}
@@ -352,7 +346,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
               facts={h ? cardFacts({ reviews: h.reviews, priceLevel: h.priceLevel, oh: h.oh, utcOffset: h.utcOffset }) : [s0.city || null].filter(Boolean)}
               take={verifiedTake(h && h.id, s0.name)}
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
-              chips={[{ key: "video", icon: "🎬", label: "Creator post", onClick: () => { if (onBrowse) onBrowse(); } }]}
+              chips={CREATOR_POST_CHIPS}
               ariaLabel={"Open " + s0.name}
               onOpen={openRegistry}
               onShare={() => { if (onBrowse) onBrowse(); }}
