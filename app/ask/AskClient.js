@@ -3,6 +3,10 @@ import { shareOut } from "../../lib/shareOut.js";
 import { concreteSharePlaceId, groupPlanHref } from "../../lib/shareContext.js";
 import { addStopToStoredTrips } from "../../lib/itineraryAdd.js";
 import { track, recordInviteRecipient } from "../../lib/track.js";
+import { setLocal } from "../../lib/localStore.js";
+import { mergeTripMaps } from "../../lib/trips.js";
+import { safeLocalStorage, safeSessionStorage } from "../../lib/safeStorage.js";
+import { itineraryPlanHref, writePlannerHandoff } from "../../lib/itineraryHandoff.js";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
@@ -387,6 +391,12 @@ export default function AskClient({ inv, bad = false }) {
             }
           }
           window.localStorage.setItem("wf_trips_v1", JSON.stringify(nextTrips));
+          try {
+            const store = safeLocalStorage();
+            const existing = store ? JSON.parse(store.getItem("wayfind_trips") || "null") : null;
+            const merged = mergeTripMaps(existing && typeof existing === "object" ? existing : {}, nextTrips);
+            setLocal("wayfind_trips", JSON.stringify(merged));
+          } catch (mergeErr) {}
         }
         if (res && Array.isArray(res.events)) {
           for (const ev of res.events) {
@@ -418,10 +428,19 @@ export default function AskClient({ inv, bad = false }) {
       has_place: Boolean(effectiveInv && effectiveInv.place),
     });
     try {
-      const q = [];
-      if (city) q.push("city=" + encodeURIComponent(city));
-      if (dayIso && /^\d{4}-\d{2}-\d{2}$/.test(dayIso)) q.push("date=" + encodeURIComponent(dayIso));
-      window.location.href = "/itinerary" + (q.length ? "?" + q.join("&") : "");
+      writePlannerHandoff(safeSessionStorage(), {
+        source: "date",
+        city,
+        date: dayIso,
+        activity,
+        placeName: (itineraryStop && itineraryStop.name) || "",
+      });
+      window.location.href = itineraryPlanHref({
+        city,
+        date: dayIso,
+        activity,
+        build: true,
+      });
     } catch (e) {}
   };
 
