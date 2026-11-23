@@ -1720,6 +1720,10 @@ node scripts/test-geocode-owned-fallback.mjs
 # ledger for the same numbers with the switch on. One grant == one outbound
 # Google request across the whole media/Details/self-heal fan-out.
 node scripts/test-photos-paid-cap.mjs
+# 2026-11-23 one off Google cover backfill (owner approved build, $45 cap): fails
+# closed on every missing or garbled switch, allowlisted places only, cover by
+# place id only, month cap clamped to 6,400, hour line, refunds never hit `photos`.
+node scripts/test-google-photo-backfill.mjs
 scripts/check-photo-cap-parses.mjs
 scripts/check-photo-outcome-provenance.mjs
 # 2026-09-28: promotion-only paid details ceiling — must never widen to another SKU.
