@@ -122,6 +122,17 @@ ok(samClosureDates.includes("2026-11-26"), "SAM closed Thanksgiving 2026");
 ok(samClosureDates.includes("2026-12-25"), "SAM closed Christmas 2026");
 ok(samClosureDates.includes("2027-01-01"), "SAM closed New Year's Day 2027");
 
+// Orange Blossom's 2026 notice was for a specific date. Never derive 2027
+// availability from the old banner or keep it in current visit advice.
+const orangeBlossomId = "ChIJPfVM-xIXw4gRiT1_XuUakks";
+const orangeBlossom = resolveOwnedHoursSnapshot(orangeBlossomId, { nowMs: T_BASE_MS });
+eq(orangeBlossom?.periods.find((p) => p.open?.day === 1)?.close?.hour, 12, "Orange Blossom still closes at noon on Mondays");
+eq(orangeBlossom?.specialHours, null, "Orange Blossom has no current reviewed holiday schedule");
+const orangeBlossomCard = JSON.parse(readFileSync(new URL("../data/atlas/editorial-cards.json", import.meta.url), "utf8"))
+  .find((card) => card.placeId === orangeBlossomId);
+ok(orangeBlossomCard?.hours?.includes("Tuesday–Saturday") && !/Labor Day|Sept 7/i.test(JSON.stringify(orangeBlossomCard)),
+  "Orange Blossom's visitor-facing card shows regular hours without the expired closure");
+
 // ── 4. LATE-NIGHT OPERATING HOURS: OAK & STONE AND ARCADE MONSTERS ────────
 const oakStone = resolveOwnedHoursSnapshot("ChIJASGZttk4w4gRJaBZXzV3-Fw", { nowMs: T_BASE_MS });
 ok(oakStone, "Oak & Stone resolves from owned hours index");

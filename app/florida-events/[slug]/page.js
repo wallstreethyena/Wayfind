@@ -308,14 +308,16 @@ export default async function CuratedEventPage({ params }) {
       <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the post here to see more."}</p>
     </div>
     <CreatorVideoAction platform={post.platform} url={post.url} style={S.socialLink}
-      label={`Open @${post.creator}'s post about ${e.event_name} in Wayfind`}>
-      Watch @{post.creator}&rsquo;s post in Wayfind
-    </CreatorVideoAction>
+      label={`Open @${post.creator}'s post about ${e.event_name} in Wayfind`} />
   </>;
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
   // They render inside <EventWhere> (numbered cards + the same numbers as pins).
-  const pairingResult = await cachedEventPairings(e);
+  // Nearby inventory does not tell us which park gates an event ticket opens
+  // or whether a ride is available after the party. Use the verified entry note.
+  const pairingResult = e.christmas_park_admission_note
+    ? { places: [], unavailable: false }
+    : await cachedEventPairings(e);
   const pairings = pairingResult.places.map((p) => ({ ...p, href: pairingHref(p) }));
   // Event JSON-LD only with a real date: a confirmed season with no dates yet
   // gets none (it would publish a fake startDate).
@@ -370,6 +372,7 @@ export default async function CuratedEventPage({ params }) {
         story={<>
           {e.schedule_note ? <p style={S.note}>{e.schedule_note}</p> : null}
           {e.visit_cost?.note ? <p style={S.note}>{e.visit_cost.note}</p> : null}
+          {e.christmas_park_admission_note ? <p style={S.note}>{e.christmas_park_admission_note}</p> : null}
           {e.card_hook ? <p style={S.hook}>{e.card_hook}</p> : null}
           {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
           {e.why_go ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></> : null}

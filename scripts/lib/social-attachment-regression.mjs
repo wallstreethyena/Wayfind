@@ -318,14 +318,16 @@ export function checkSocialAttachments(repo) {
 
   const eventPage = readFileSync(path.join(repo, "app/florida-events/[slug]/page.js"), "utf8");
   ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<CreatorVideoRail/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the shared premium rail and click-to-load facade");
-  ensure(/<CreatorVideoAction platform=\{post\.platform\} url=\{post\.url\}/.test(eventPage) && /Watch @\{post\.creator\}&rsquo;s post in Wayfind/.test(eventPage), "event posts must retain attribution and open the shared in-app player");
+  ensure(/<CreatorVideoAction platform=\{post\.platform\} url=\{post\.url\}/.test(eventPage) && eventPage.includes("Open @${post.creator}'s post about ${e.event_name} in Wayfind"), "event posts must retain attribution and open the shared in-app player");
   ensure(eventPage.indexOf('aria-label="Creator posts about this event"') < eventPage.indexOf("\n      <EventWhere\n"), "event creator posts must appear before the map and nearby recommendations");
   ensure(/poster=\{socialPoster\}/.test(eventPage) && /fallbackPoster=\{socialPosterFallback\}/.test(eventPage), "event creator facades must open with the event's available hero cover");
 
   const facade = readFileSync(path.join(repo, "app/components/VideoFacade.js"), "utf8");
   ensure(/from "\.\.\/\.\.\/lib\/creatorPlatforms"/.test(facade) && !/from "\.\.\/\.\.\/lib\/creatorVideos"/.test(facade), "the facade must not pull the full creator registry into an event-page chunk");
   ensure(/if \(play\)/.test(facade) && /<CreatorVideoPlayer platform=\{platform\}/.test(facade), "the third-party iframe must remain behind an explicit play/view action");
-  ensure(facade.includes('const instagramPost = platform === "instagram" && /\\/p\\//.test(url)') && facade.includes("data-creator-play-icon") && facade.includes("data-creator-post-icon"), "video covers must show a play triangle while ambiguous /p/ posts retain a distinct post control");
+  ensure(facade.includes("creatorPostKind(platform, url)") && facade.includes('const instagramPost = kind === "post"')
+    && facade.includes("data-creator-play-icon") && facade.includes("data-creator-post-icon"),
+  "video covers must show a play triangle while ambiguous posts retain a distinct post control");
   const detail = readFileSync(path.join(repo, "app/components/sheets/Detail.js"), "utf8");
   ensure(detail.includes("Watch ${handle}'s video about ${detail.name}") && !detail.includes("Watch ${handle}'s visit to ${detail.name}"), "creator video headlines must describe the source without inventing a personal visit for a district guide or roundup");
 

@@ -140,7 +140,7 @@ ok(POST_LINK.test('<a href={post.url}>Watch</a>') && POST_LINK.test('<a href={se
 ok(POST_HREF.test('<a href="https://www.instagram.com/reel/ABC/">') && POST_HREF.test("<a href='https://www.tiktok.com/@x/video/1'>"), "probe: a hard-coded post link is detected (positive control)");
 const action = strip(read("app/components/CreatorVideoAction.js"));
 ok(!NEW_TAB.test(action) && !/<a[\s>]/.test(action), "the watch action never links out (no new-tab or anchor)");
-ok(/if \(!isEmbeddable\(platform, safeUrl\(url\)\)\) return null;/.test(action), "a post that cannot play here gets no watch button");
+ok(/const actionLabel = creatorPostActionLabel\(platform, safeUrl\(url\)\);\s*if \(!actionLabel\) return null;/.test(action), "a post that cannot open here gets no watch or view button");
 const surfaces = ["app/components/CreatorPostRail.js", "app/components/CheckedCreatorPost.js", "app/christmas-in-florida/page.js", "app/florida-events/[slug]/page.js", "app/components/sheets/SocialFind.js", "app/components/CreatorMapPanel.js", "app/components/VideoFacade.js", "app/components/CreatorVideoPlayer.js", "app/components/CreatorCoverFacade.js"];
 for (const f of surfaces) {
   const src = strip(read(f));

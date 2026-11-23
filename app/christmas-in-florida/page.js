@@ -79,9 +79,7 @@ function ChristmasCreatorPosts({ posts: allPosts, covers = {} }) {
       <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>{post.creator ? `Seen by @${post.creator}. ` : ""}Open the post here to see more.</p>
     </div>
     <CreatorVideoAction platform={post.platform} url={post.url} style={SOCIAL_LINK}
-      label={post.creator ? `Open @${post.creator}'s post about ${post.name} in Wayfind` : `Open the post about ${post.name} in Wayfind`}>
-      {post.creator ? <>Watch @{post.creator}&rsquo;s post in Wayfind</> : "Watch the post in Wayfind"}
-    </CreatorVideoAction>
+      label={post.creator ? `Open @${post.creator}'s post about ${post.name} in Wayfind` : `Open the post about ${post.name} in Wayfind`} />
   </>;
   return <section id="christmas-creators" data-christmas-section="Creator posts" style={SOCIAL} aria-label="Creator posts about Christmas in Florida">
     <h2 style={{ marginTop: 0 }}>Seen from local creators</h2>

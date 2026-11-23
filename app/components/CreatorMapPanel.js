@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { eventMapFamily } from "../../lib/eventMapPlaces.js";
 import { styleHtml } from "../../lib/styleHtml.js";
+import { isEmbeddable } from "../../lib/videoEmbed.js";
 
 const CreatorAppleMap = dynamic(() => import("./CreatorAppleMap"), { ssr: false });
 
@@ -75,6 +76,7 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
     [shown, selectedId],
   );
 
+  const hasSelectedPost = isEmbeddable(selected?.videoPlatform, selected?.videoUrl);
   if (!rows.length) return null;
 
   return (
@@ -127,11 +129,11 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
             <a href={`/p/${encodeURIComponent(selected.id)}`} style={{ fontSize: 13.5, fontWeight: 800, color: "#F97316", textDecoration: "none", marginRight: 16 }}>
               Open in Wayfind →
             </a>
-            {selected.videoUrl ? (
+            {hasSelectedPost ? (
               <CreatorVideoAction platform={selected.videoPlatform} url={selected.videoUrl} label={`Open @${handle}’s post in Wayfind`} style={{ fontSize: 13.5, fontWeight: 800, color: "#CBD5E1", textDecoration: "none" }}>
                 View @{handle}&apos;s post in Wayfind
               </CreatorVideoAction>
-            ) : null}
+            ) : selected.videoUrl ? <span data-creator-post-unavailable="" style={{ color: "#94A3B8", fontSize: 12.5 }}>Post unavailable in Wayfind</span> : null}
           </div>
         </div>
       ) : (

@@ -9,7 +9,7 @@ import { loadComponent } from "./lib/jsxLoad.mjs";
 import { createRequire } from "node:module";
 import React from "react";
 import ts from "typescript";
-import { embedSrc } from "../lib/videoEmbed.js";
+import * as videoEmbed from "../lib/videoEmbed.js";
 import { experienceVideoFor } from "../lib/experienceVideos.js";
 const require = createRequire(import.meta.url);
 const component = (file, mocks) => {
@@ -90,7 +90,7 @@ assert.match(ttdHtml, /Selling fast/);
 assert.match(ttdHtml, /wf-place-card-award/, "attached tour keeps its earned rank award");
 assert.doesNotMatch(ttdHtml, /<a\b[^>]*>[\s\S]*?<button[\s\S]*?<\/a>/, "video button must not be nested in booking link");
 assert.doesNotMatch(render(TtdCard, { r: { ...ttdFixture, id: "another-tour" }, rank: 1 }), /data-experience-video=/);
-const action = harness("app/components/CreatorVideoAction.js", { "./CreatorVideoPlayer": { default: PlayerStub }, "../../lib/links": { safeUrl: s => s.startsWith("https://") ? s : null }, "../../lib/videoEmbed": { isEmbeddable: (p, u) => !!embedSrc(p, u) } }, { showModal() { opens++; }, close() { closes++; } });
+const action = harness("app/components/CreatorVideoAction.js", { "./CreatorVideoPlayer": { default: PlayerStub }, "../../lib/links": { safeUrl: s => s.startsWith("https://") ? s : null }, "../../lib/videoEmbed": videoEmbed }, { showModal() { opens++; }, close() { closes++; } });
 const props = { ...operatorTree.props, onClick: () => logs++ };
 let tree = action(props);
 let all = nodes(tree);
@@ -106,13 +106,20 @@ all.find(n => n.props?.["aria-label"] === "Close video").props.onClick();
 assert.equal(closes, 1); assert.equal(nodes(action(props)).filter(n => n.type === PlayerStub).length, 0, "close unmounts video/audio");
 primary.props.onClick({}); nodes(action(props)).find(n => n.type === "dialog").props.onCancel();
 assert.equal(nodes(action(props)).filter(n => n.type === PlayerStub).length, 0, "Escape unmounts player");
+const photoAction = { platform: "instagram", url: "https://www.instagram.com/p/DbgRMv0lcsL/", label: "Mayfair Grill post" };
+const photoNodes = nodes(action(photoAction));
+const photoButton = photoNodes.find(n => n.props?.["data-creator-video-action"]);
+assert.equal(photoButton.props.children, "View post", "an eligible carousel opens as a post");
+assert.ok(photoNodes.some(n => n.type === "span" && n.props?.children === "View post"), "dialog title agrees with the button");
+assert.ok(photoNodes.some(n => n.props?.["aria-label"] === "Close post"), "carousel dialog has a post-specific close action");
+assert.equal(action({ ...photoAction, url: "https://www.instagram.com/reel/DdJuoujCqvS/" }), null, "Orange Blossom handoff gets no modal action");
 for (const [platform, url, expected] of [
   ["instagram", props.url, "https://www.instagram.com/reel/De-lBfCIBGZ/embed/"],
   ["instagram", "https://www.instagram.com/p/DfutR5Fmrxt/", "https://www.instagram.com/p/DfutR5Fmrxt/embed/"],
   ["tiktok", "https://www.tiktok.com/@creator/video/6718335390845095173", "https://www.tiktok.com/player/v1/6718335390845095173"],
   ["youtube", "https://youtu.be/abcdefghijk", "https://www.youtube-nocookie.com/embed/abcdefghijk"],
 ]) {
-  const player = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": { embedSrc } });
+  const player = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": videoEmbed });
   let rendered = nodes(player({ platform, url, label: "Fixture" }));
   const frame = rendered.find(n => n.type === "iframe");
   assert.ok(frame.props.src.startsWith(expected)); assert.ok(frame.props.allow.includes("fullscreen"));
@@ -123,7 +130,7 @@ for (const [platform, url, expected] of [
   rendered.find(n => n.type === "button").props.onClick();
   assert.ok(nodes(player({ platform, url, label: "Fixture" })).some(n => n.type === "iframe"), "retry restores official player");
 }
-const unavailable = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": { embedSrc } });
+const unavailable = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": videoEmbed });
 // Owner 2026-11-20: a reel Instagram only links out for never mounts a player (its iframe is the door to Instagram).
 assert.ok(!nodes(unavailable({ platform: "instagram", url: "https://www.instagram.com/reel/DfN3Hxph0jD/", label: "Handoff" })).some(n => n.type === "iframe" || n.type === "a"), "Instagram handoff reel stays in app without redirect");
 assert.ok(!nodes(unavailable({ platform: "facebook", url: "https://www.facebook.com/share/r/test/", label: "Unavailable" })).some(n => n.type === "iframe" || n.type === "a"), "unsupported post stays in app without redirect");
@@ -140,7 +147,7 @@ for (const [platform, url, video] of [
   let collapsed = 0;
   const facade = harness("app/components/VideoFacade.js", {
     "./CreatorVideoPlayer": { default: PlayerStub },
-    "../../lib/videoEmbed": { embedSrc },
+    "../../lib/videoEmbed": videoEmbed,
     "../../lib/creatorPlatforms": { PLATFORM: {} },
     "../../lib/cardPhotoRequest.js": { isApiPhotoSrc: () => false },
     "./CreatorPlaybackDetails": { usePlaybackDetails: () => () => collapsed++ },
@@ -166,7 +173,7 @@ for (const [platform, url, video] of [
   const placePhoto = "/api/photo?place=" + placeId;
   const facade = harness("app/components/VideoFacade.js", {
     "./CreatorVideoPlayer": { default: PlayerStub },
-    "../../lib/videoEmbed": { embedSrc },
+    "../../lib/videoEmbed": videoEmbed,
     "../../lib/creatorPlatforms": { PLATFORM: {} },
     "../../lib/cardPhotoRequest.js": { isApiPhotoSrc: () => false },
     "./CreatorPlaybackDetails": { usePlaybackDetails: () => null },

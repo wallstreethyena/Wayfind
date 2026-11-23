@@ -80,7 +80,10 @@ function verifyStates(root, variant, Component) {
   assert.equal(state(), "ready", "the post's own frame reporting MOUNTED reveals it");
   assert.equal(photo(), null, "once playback is visible its cover is removed");
   assert.equal(fig().querySelector("[inert]"), null, "revealed player is interactive");
-  flushSync(() => [...fig().querySelectorAll("button")].find((b) => b.textContent === "Reload post").click());
+  const retries = [...fig().querySelectorAll("button")].filter((b) => /^Reload (post|player)$/.test(b.textContent));
+  assert.equal(retries.length, 1, "the cover and player share one reload action");
+  assert.equal(retries[0].textContent, "Reload post");
+  flushSync(() => retries[0].click());
   flushSync(() => {});
   assert.equal(state(), "loading");
   assertCover();
@@ -99,6 +102,7 @@ if (process.argv.includes("--red-prove")) {
     "origin check removed": src.replace("if (event.origin !== IG_ORIGIN) return;", ""),
     "frame check removed": src.replace("if (!frame || event.source !== frame.contentWindow) return;", ""),
     "cover removed": src.replace("{photo && failedPhoto !== photoSrc ? <>", "{false ? <>"),
+    "duplicate reload": src.replace(" showRetry={false}", ""),
   };
   for (const [name, code] of Object.entries(mutants)) {
     assert.notEqual(code, src, "mutation applied: " + name);
@@ -113,7 +117,7 @@ if (process.argv.includes("--red-prove")) {
   const real = path.resolve(dir + "CheckedCreatorPost.js");
   const { default: Same } = await loadComponent(real, process.cwd(), { sourceOverrides: new Map([[real, src]]) });
   run("on-time", Same);
-  console.log("test-disney-food-post-states --red-prove: OK — removed cover, origin check and frame check each fail the test");
+  console.log("test-disney-food-post-states --red-prove: OK — removed cover, origin check, frame check or reload deduplication each fails the test");
   process.exit(0);
 }
 run("late");
