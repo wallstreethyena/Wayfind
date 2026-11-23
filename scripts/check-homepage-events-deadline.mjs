@@ -87,6 +87,7 @@ const deps = {
   "../lib/guideDiscoveryIndex": { guideDiscoveryIndex },
   "../lib/thisWeekEvents": { weeklyTrendGuideCard },
   "../lib/christmasHubCard": { christmasHubStripCard },
+  "../lib/floridaIntelligenceServer": { readFloridaIntelligence: async () => null },
   "../lib/railsData": { railMenuData: async slug => {
     railCalls.push(slug);
     if (resolveRailCity(slug, {}) !== null) throw new Error("Unexpected location-specific homepage work");

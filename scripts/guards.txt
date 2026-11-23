@@ -2764,3 +2764,5 @@ node scripts/test-indexnow.mjs
 node scripts/test-seo-money-headlines.mjs
 # 2026-11-23 Card photo delivery: wf_inventory signals.photo_gallery serves exact-place photos with license/venue credit and zero Google spend.
 node scripts/test-inventory-gallery-card-photo.mjs
+# 2026-11-23: Gemini AI Florida trending & holiday intelligence monitor (fail-closed gateway, closure-risk holiday curation, grounding validator, wiring).
+node scripts/test-gemini-florida-intelligence.mjs

@@ -40,7 +40,7 @@ ok(validateDailyTrendReport(wrongMetric).ok === false, "an invented search volum
 
 const route = readFileSync(new URL("../app/api/command-center/[panel]/route.js", import.meta.url), "utf8");
 const ui = readFileSync(new URL("../app/command-center/ui.js", import.meta.url), "utf8");
-ok(route.includes('case "intelligence": data = intelligence(now); break;'), "the owner only API exposes the intelligence panel through its authenticated choke point");
+ok(/case "intelligence": data = (?:await )?intelligence\(now\); break;/.test(route), "the owner only API exposes the intelligence panel through its authenticated choke point");
 ok(ui.includes('<IntelligenceSection auth={auth} />'), "the Command Center renders Intelligence and Leads");
 
 console.log(`test-daily-trend-intelligence: OK, ${pass} assertions`);
