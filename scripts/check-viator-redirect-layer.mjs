@@ -21,7 +21,8 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { isValidViatorProduct, sanitizeClientClickId, GET } from "../app/api/viator/go/route.js";
-import { mintClickId } from "../lib/commerce.js";
+import { commerceHref, mintClickId } from "../lib/commerce.js";
+import { guidePickOffers } from "../lib/guidePickOffers.js";
 import { experienceGoUrl, viatorProductGoUrl } from "../lib/affiliates.js";
 import { CULTURE } from "../lib/cultureCorpus.js";
 import { withClickId } from "../lib/hubConversion.js";
@@ -140,13 +141,25 @@ for (const [metro, name, href] of [
   ["keys", "Mallory Square sunset", "https://www.sunsetcelebration.org/visitor-info/"],
 ]) {
   const item = CULTURE[metro].do.find((row) => row.name === name);
-  ok(item?.info?.href === href && item.info.label && !item.query && !item.viatorUrl,
+  ok(item?.info?.href === href && item.info.label && !item.query && !item.viatorUrl && !item.viatorPick,
     `${name} offers exact visitor information, with no unrelated partner query or product`);
 }
 const reviewedProducts = Object.values(CULTURE).flatMap((entry) => entry.do).filter((item) => item.viatorUrl);
-ok(reviewedProducts.length >= 2 && reviewedProducts.every((item) =>
-  isValidViatorProduct(item.viatorUrl) && item.viatorLabel && !item.info && !item.query),
-  "reviewed partner destinations stay tracked and carry their own product or attraction label");
+ok(reviewedProducts.length > 0 && reviewedProducts.every((item) =>
+  isValidViatorProduct(item.viatorUrl) && item.viatorLabel && !item.info && !item.query && !item.viatorPick),
+  "reviewed Viator attractions keep their tracked destinations and their own attraction label");
+const airboat = CULTURE.orlando.do.find((item) => item.name === "Airboat ride on the headwaters of the Everglades");
+const boggy = airboat?.viatorPick && guidePickOffers(airboat.viatorPick.guideSlug, { id: airboat.viatorPick.pickId }, "2026-11-23")
+  ?.offers.find((offer) => offer.provider === "viator" && offer.role === "primary");
+ok(boggy?.offerId === "5039P5" && boggy.operator === "Boggy Creek Airboat Adventures"
+  && airboat.viatorLabel && !airboat.viatorUrl && !airboat.query,
+  "the Orlando culture item references the existing exact Boggy Creek offer");
+const boggyHref = withClickId(commerceHref({ provider: boggy?.provider, offerId: boggy?.offerId,
+  surface: "culture", contentId: "orlando", page: "culture-orlando" }), "wf-boggy-fixture");
+ok(boggyHref === "/api/commerce/go?provider=viator&offer=5039P5&surface=culture&content=orlando&page=culture-orlando&click_id=wf-boggy-fixture"
+  && /commerceHref\(\{ provider: offer\.provider, offerId: offer\.offerId/.test(culture)
+  && /offerId=\{offer\?\.offerId/.test(culture),
+  "the exact Boggy Creek SKU is the tracked commerce destination and click join key");
 
 /* ── 4b. the REAL handler, INVOKED ────────────────────────────────────────── */
 // Reading the route's source proves it looks right. Calling it proves it

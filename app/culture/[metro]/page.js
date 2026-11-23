@@ -12,6 +12,8 @@ import { SITE_URL } from "../../../lib/site";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
 import ShareButton from "../../components/ShareButton";
 import { viatorProductGoUrl, experienceGoUrl } from "../../../lib/affiliates";
+import { commerceHref } from "../../../lib/commerce";
+import { guidePickOffers } from "../../../lib/guidePickOffers";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
 import HubConversion from "../../components/HubConversion";
 import TrackedOfferLink from "../../components/TrackedOfferLink";
@@ -141,8 +143,12 @@ export default async function CulturePage({ params }) {
       {c.do.map((x, i) => {
         // A city match says nothing about what the product includes. Only a
         // reviewed destination gets a direct product link. Search stays search.
-        const url = x.viatorUrl ? viatorProductGoUrl(x.viatorUrl, c.title, "culture", "culture")
-          : experienceGoUrl(x.query, c.title, "culture", null, { surface: "culture" });
+        const offer = x.viatorPick && guidePickOffers(x.viatorPick.guideSlug, { id: x.viatorPick.pickId })
+          ?.offers.find((pick) => pick.role === "primary" && pick.provider === "viator");
+        const url = offer
+          ? commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: "culture", contentId: params.metro, page: "culture-" + params.metro })
+          : (x.viatorUrl ? viatorProductGoUrl(x.viatorUrl, c.title, "culture", "culture")
+            : experienceGoUrl(x.query, c.title, "culture", null, { surface: "culture" }));
         return (
           <div key={x.name} style={S.item}>
             <p style={S.name}>{x.name}</p>
@@ -150,14 +156,14 @@ export default async function CulturePage({ params }) {
             {x.info ? <a href={x.info.href} style={S.book}>{x.info.label} ↗</a> : url ? (
               <TrackedOfferLink
                 href={url}
-                label={x.viatorUrl ? x.viatorLabel : `Search Viator for ${x.query} ↗`}
+                label={x.viatorLabel || `Search Viator for ${x.query} ↗`}
                 surface="culture"
                 slugKey="culture_slug"
                 slug={params.metro}
                 city={c.title}
                 category="tours"
                 provider="viator"
-                offerId={x.viatorUrl ? "product:" + x.name : "search:" + x.query}
+                offerId={offer?.offerId || (x.viatorUrl ? "product:" + x.name : "search:" + x.query)}
                 variant="culture_item_v1"
                 position={i + 1}
                 style={S.book}
