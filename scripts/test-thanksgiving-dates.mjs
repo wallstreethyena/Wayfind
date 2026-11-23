@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { thanksgivingWindow, validThanksgivingDate, thanksgivingYearForDate, thanksgivingScopeKey } from "../lib/thanksgivingDates.js";
 import { activeHoliday } from "../lib/holidays.js";
+import { siteTodayStr, utcCalendarDateKey } from "../lib/siteTime.js";
 
 assert.deepEqual(thanksgivingWindow(2026).days, ["2026-11-26", "2026-11-27", "2026-11-28", "2026-11-29"]);
 assert.deepEqual(thanksgivingWindow(2024).days, ["2024-11-28", "2024-11-29", "2024-11-30", "2024-12-01"]);
@@ -15,6 +16,10 @@ assert.equal(thanksgivingYearForDate("2026-11-29"), 2026);
 assert.equal(thanksgivingYearForDate("2026-11-30"), 2027);
 assert.equal(thanksgivingYearForDate("2024-12-01"), 2024);
 assert.equal(thanksgivingYearForDate("2024-12-02"), 2025);
+assert.equal(thanksgivingYearForDate(siteTodayStr(new Date("2026-11-30T02:00:00Z"))), 2026);
+assert.equal(thanksgivingYearForDate(siteTodayStr(new Date("2026-11-30T05:00:00Z"))), 2027);
+assert.equal(utcCalendarDateKey(Date.UTC(2024, 11, 1)), "2024-12-01");
+assert.throws(() => utcCalendarDateKey(), RangeError);
 assert.equal(validThanksgivingDate(2026, "2026-11-27"), true);
 assert.equal(validThanksgivingDate(2026, "2026-11-30"), false);
 assert.equal(validThanksgivingDate(2026, "2027-11-25"), false);
