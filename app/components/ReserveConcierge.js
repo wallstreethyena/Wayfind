@@ -467,7 +467,7 @@ export function LiveBrowserCard({ card }) {
             style={{ width: "100%", height: "100%", border: 0, display: "block" }}
           />
         </div>
-        <button type="button" data-live-browser-close="1" style={{ ...quietBtn, marginTop: 10 }} onClick={close}>Done — close browser</button>
+        <button type="button" data-live-browser-close="1" style={{ ...quietBtn, marginTop: 10 }} onClick={close}>Done, close browser</button>
       </div>
     );
   }
