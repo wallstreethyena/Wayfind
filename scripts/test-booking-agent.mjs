@@ -456,10 +456,10 @@ const confirmed = { html: html("confirmation.html") };
   ok(noSlotRes.status === "handback:slot_unavailable", "missing exact time slot on Step 1 hands back slot_unavailable");
 }
 
-// ---- Defect 1: HTTP/2 / ERR_BLOCKED on open trips breaker; cancellation/no-show fee stops as payment_required; active challenge vs hidden v3 ----
+// ---- Connection failures pause new runs and still allow the guest to retrieve the handoff ----
 {
   const store = createMemoryStore({ status: "on" });
-  await seedRun(store);
+  const run = await seedRun(store);
   const { out } = await go(store, {
     async launch({ userAgent }) {
       return {
@@ -470,7 +470,16 @@ const confirmed = { html: html("confirmation.html") };
     },
   });
   const site = await store.getSite("opentable");
-  ok(out.status === "handback:challenge" && site.status === "paused" && site.challenge_count_7d === 1, "ERR_HTTP2_PROTOCOL_ERROR on open classifies as challenge and trips breaker");
+  ok(out.status === "handback:challenge" && site.status === "paused" && site.challenge_count_7d === 1, "ERR_HTTP2_PROTOCOL_ERROR on open trips the breaker");
+  const statusUrl = ORIGIN + "/api/reserve/agent/status?id=" + run.id;
+  const statusReq = () => new Request(statusUrl, { headers: { "sec-fetch-site": "same-origin" } });
+  const handlerDeps = { store, registry: {}, readProfile: async () => PROFILE, env: ON, now: () => NOW };
+  const handlers = createBookingAgentHandlers({ ...handlerDeps, verifyUser: async () => ({ id: USER }) });
+  const response = await handlers.status(statusReq());
+  const body = await response.json();
+  ok(response.status === 200 && body.run.reason === "connection_failed" && body.run.sentence.includes("couldn't open OpenTable") && body.run.handoffUrl.includes("/api/reserve/go"), "the guest sees the connection failure and direct handoff even while bookings are paused");
+  const stranger = createBookingAgentHandlers({ ...handlerDeps, verifyUser: async () => ({ id: OTHER }) });
+  ok((await stranger.status(statusReq())).status === 404, "the paused site still hides a run from other guests");
 
   for (const phrase of [
     "A $25 cancellation fee applies within 24 hours.",
