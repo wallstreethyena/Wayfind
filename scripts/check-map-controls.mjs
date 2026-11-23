@@ -68,20 +68,20 @@ ok(all.length > 2000 && /MapView/.test(map), "the sources did not load — every
 const mapSrc = src["app/components/screens/Map.js"];
 const ctrls = [...mapSrc.matchAll(/position: "absolute", top: (\d+), (left|right): (\d+), zIndex: 5, width: 46/g)]
   .map((m) => ({ top: Number(m[1]), side: m[2] }));
-ok(ctrls.length === 3, `expected 3 floating 46px controls (search / near-me / 3D, v7.19), found ${ctrls.length} — under 3 and the rules below read nothing`);
-ok(ctrls.every((c) => c.side === "right"), "the floating controls are not both top-right");
-if (ctrls.length === 2) {
-  const gap = Math.abs(ctrls[0].top - ctrls[1].top);
-  ok(gap >= 56, `the two controls are ${gap}px apart and would overlap or trip the header/overlap invariant (need >= 56)`);
-  ok(gap <= 62, `the two controls are ${gap}px apart — they should read as one stack, not two strays`);
-}
+// Owner 2026-11-23: 4th circular 46px control (data-wf-map-list-toggle at top: 332)
+// replaces the deleted collapsed "Browse list" bottom pill on the unified right rail.
+ok(ctrls.length === 4, `Owner 2026-11-23: expected 4 floating 46px controls (near-me / 3D / search / list toggle), found ${ctrls.length}`);
+ok(ctrls.every((c) => c.side === "right"), "the floating controls are not all top-right");
+const sortedTops = ctrls.map((c) => c.top).sort((a, b) => a - b);
+ok(sortedTops.join(",") === "164,220,276,332", `expected unified 56px right-rail rhythm 164,220,276,332, got ${sortedTops.join(",")}`);
 ok(!/background: "rgba\(10,16,27,\.88\)"[^}]*zIndex: 5, width: 4/.test(mapSrc), "a floating control is dark again");
-ok((mapSrc.match(/inset 0 1px 0 rgba\(255,255,255,\.9\)/g) || []).length >= 2, "a control lost its inset top highlight — it is what sells a raised control, and BOTH need it");
-ok((mapSrc.match(/linear-gradient\(160deg, rgba\(255,255,255,\.97\)/g) || []).length >= 2, "a control is no longer lighter than the basemap — BOTH must be");
-// Both need a REAL active state, not just a colour swap on an icon.
+ok((mapSrc.match(/inset 0 1px 0 rgba\(255,255,255,\.9\)/g) || []).length >= 4, "a control lost its inset top highlight — all 4 raised controls need it");
+ok((mapSrc.match(/linear-gradient\(160deg, rgba\(255,255,255,\.97\)/g) || []).length >= 4, "a control is no longer lighter than the basemap — all 4 must be");
+// Active controls need a REAL active state, not just a colour swap on an icon.
 ok((mapSrc.match(/aria-pressed=/g) || []).length >= 2, "the controls do not expose a pressed state");
 ok(/deviceLoc \? \{ background: "linear-gradient\(160deg, #FDBA74/.test(mapSrc), "recenter has no active fill when locked to the user");
 ok(/map3D \? \{ background: "linear-gradient\(160deg, #FDBA74/.test(mapSrc), "the 3D toggle has no active fill when 3D is on");
+ok(/mapDrawer \? \{ background: "linear-gradient\(160deg, #FDBA74/.test(mapSrc), "the list toggle has no active fill when the drawer is open");
 // An empty control container must not float on the map.
 ok(/\(MAP_EVENTS_ON \|\| Hol\.worldCup\(new Date\(\)\)\) && <div/.test(mapSrc),
   "the Events/FIFA container mounts with no buttons in it — an empty dark box on the map");

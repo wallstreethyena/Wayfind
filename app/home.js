@@ -570,7 +570,7 @@ const WF_DESTINATIONS = [
   { id: "map", icon: "map", label: "Map", href: "/map" },
 ];
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, panelCollapsed = false, onExpandPanel, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, panelCollapsed = false, onExpandPanel, allActive = false, onAll, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -645,9 +645,9 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           <div className="wf-mapfp-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 8px" }}>
             <button type="button" onClick={expandPanel} style={{ background: "none", border: 0, padding: "4px 2px", color: "#FFFFFF", fontSize: 12.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7 }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.accent, color: "#0B0F14", padding: "3px 10px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
-                {activeTile ? activeTile.label : "All categories"}
+                {allActive ? "All" : (activeTile ? activeTile.label : "All")}
               </span>
-              {activeSubObj && activeSubObj.id !== "all" ? <span style={{ color: C.accent, fontSize: 11.5, fontWeight: 700 }}>· {activeSubObj.label}</span> : null}
+              {!allActive && activeSubObj && activeSubObj.id !== "all" ? <span style={{ color: C.accent, fontSize: 11.5, fontWeight: 700 }}>· {activeSubObj.label}</span> : null}
             </button>
             <button type="button" className="wf-mapfp-tap" onClick={expandPanel} aria-expanded="false">
               <span className="wf-mapfp-pill"><span>{"Filters \u25BE"}</span></span>
@@ -658,7 +658,15 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
         <div className="wf-mapfp-row">
           <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
             <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
-              {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
+              {typeof onAll === "function" ? (
+                <button key="__all" type="button" role="tab" data-wf-all-places aria-selected={allActive ? "true" : "false"} aria-pressed={allActive ? "true" : "false"} className="wf-mapfp-tap" onClick={onAll}>
+                  <span className="wf-mapfp-pill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={allActive ? "#0B0F14" : "#FFFFFF"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+                    <span>All</span>
+                  </span>
+                </button>
+              ) : null}
+              {Cats.CATEGORY_TILES.map((m) => { const on = !allActive && activeCat === m.id; return (
                 <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
                   onClick={() => tapCat(m.id, m.label)}>
                   <span className="wf-mapfp-pill">
@@ -8463,18 +8471,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         } else if (screen === "map") {
           const curSp = new URLSearchParams(window.location.search);
           const safeSp = new URLSearchParams();
+          const coldHydrating = !!pendingColdMapUrlRef.current || prev !== "map";
           const coldCity = pendingColdMapUrlRef.current?.city;
           const cleanCity = (coldCity && !/^this map area$/i.test(coldCity))
             ? coldCity
             : ((locName && !/^this map area$/i.test(locName)) ? locName.split(",")[0].trim() : (curSp.get("city") || ""));
           if (cleanCity && /^[A-Za-z0-9 .,\x27-]{2,64}$/.test(cleanCity)) safeSp.set("city", cleanCity);
-          const c = cat && cat !== "all" && cat !== "attractions" ? cat : curSp.get("cat");
+          const c = coldHydrating
+            ? (cat && cat !== "all" && cat !== "attractions" ? cat : curSp.get("cat"))
+            : (cat && cat !== "all" && cat !== "attractions" ? cat : null);
           if (c && ["food", "nightlife", "attractions", "beach", "hotels", "shopping"].includes(c)) safeSp.set("cat", c);
-          const s = sub && sub !== "all" ? sub : curSp.get("sub");
+          const s = coldHydrating
+            ? (sub && sub !== "all" ? sub : curSp.get("sub"))
+            : (sub && sub !== "all" ? sub : null);
           if (s && /^[a-z0-9_-]{2,32}$/.test(s)) safeSp.set("sub", s);
-          const l = mapUrlLens || curSp.get("lens");
+          const l = mapUrlLens || (coldHydrating ? curSp.get("lens") : null);
           if (l) safeSp.set("lens", l);
-          const p = mapUrlPlaceId || curSp.get("place");
+          const p = mapUrlPlaceId || (coldHydrating ? curSp.get("place") : null);
           if (p && /^[A-Za-z0-9_:-]{6,180}$/.test(p)) safeSp.set("place", p);
           if (mapSearch && mapSearch.query) {
             safeSp.set("q", String(mapSearch.query).trim().slice(0, 120));
@@ -9627,14 +9640,37 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       const ql = q.toLowerCase();
       const parkIntent = themeParkIntent(q);
       if (!options.placeIntent && !parkIntent) {
-        const category = /^(restaurants?|restaurantes?|food)$/.test(ql) ? "food" : /^(hotels?|stays?)$/.test(ql) ? "hotels" : null;
+        const nearbyTrimmed = ql
+          .replace(/^(?:best|good|great|top|find|show(?:\s+me)?)\s+/i, "")
+          .replace(/\s+(?:near\s+me|near\s+by|nearby|around\s+(?:me|here)|close\s+by|in\s+the\s+area|here)$/i, "")
+          .trim();
+        const mapCategoryHit = onMapScreen ? (
+          /^(?:restaurants?|restaurantes?|food|places?\s+to\s+eat|dining|eats?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "all" }
+          : /^(?:breakfast|brunch|breakfast\s+spots?|brunch\s+spots?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "breakfast" }
+          : /^(?:coffee|cafes?|cafés?|coffee\s+shops?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "cafes" }
+          : /^(?:lunch|lunch\s+spots?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "lunch" }
+          : /^(?:dinner|dinner\s+spots?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "dinner" }
+          : /^(?:desserts?|ice\s+cream|bakeries|bakery)$/.test(nearbyTrimmed) ? { cat: "food", sub: "dessert" }
+          : /^(?:bars?|nightlife|night\s+out|drinks?|cocktails?)$/.test(nearbyTrimmed) ? { cat: "nightlife", sub: "all" }
+          : /^(?:things?\s+to\s+do|activities|attractions?)$/.test(nearbyTrimmed) ? { cat: "attractions", sub: "all" }
+          : /^(?:hotels?|stays?|places?\s+to\s+stay|resorts?)$/.test(nearbyTrimmed) ? { cat: "hotels", sub: "all" }
+          : /^(?:shopping|shops?|malls?)$/.test(nearbyTrimmed) ? { cat: "shopping", sub: "all" }
+          : null
+        ) : null;
+        const category = mapCategoryHit
+          ? mapCategoryHit.cat
+          : (/^(restaurants?|restaurantes?|food)$/.test(nearbyTrimmed) ? "food" : /^(hotels?|stays?)$/.test(nearbyTrimmed) ? "hotels" : null);
         if (category) {
           closeSearchLayers();
           setQuery("");
           if (onMapScreen) {
+            categoryChosenRef.current = true;
             setMapSearch(null);
             setMapSearchOpen(false);
+            setMapBrowse(true);
             setCat(category);
+            setSub(mapCategoryHit ? mapCategoryHit.sub : "all");
+            setVibe("all");
           } else {
             pickCat(category);
           }

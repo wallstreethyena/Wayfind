@@ -82,7 +82,7 @@ import {
 import { createMapSessionTracker } from "../lib/mapAnalytics.js";
 import { searchResultCards } from "../lib/searchCards.js";
 import { pairsWellWith } from "../lib/pairsWellWith.js";
-import { mapInventoryPlace, mapListIds, readMapPlacesByIds, mergeMapAreaContext } from "../lib/mapAreaData.js";
+import { mapInventoryPlace, mapListIds, readMapPlacesByIds, mergeMapAreaContext, selectMapPlaces, selectMapPlacesSparseFallback, keepMapPreview } from "../lib/mapAreaData.js";
 import { readCompleteMapArea } from "../lib/mapAreaRead.js";
 import { createAppleExplorerController } from "../lib/appleExplorerMap.js";
 import { toDisplayScore } from "../lib/score.js";
@@ -850,14 +850,21 @@ let mapComponentMod = null;
     Math.abs(mapCameraRef.current.center.lat - 27.95) < 0.02,
     "mapCameraRef tracks Tampa viewport center for map-anchored search"
   );
-  // Preview card renders Sarasota -> Tampa distance (~42.6 mi straight-line), Wayfind Score 9.5, and + trip button!
+  // Owner 2026-11-23: Preview card renders IconicPlaceCard in .wf-map-preview-shell with Wayfind Score 9.5 and Parking & nearby;
+  // resolvePlaceDistanceSemantics computes Sarasota -> Tampa physical user distance (~42.6 mi straight-line, from_you).
   const expectedStraightMi = haversineMiles(SARASOTA_GPS, selectedTampaPlace);
   assert.ok(expectedStraightMi > 40 && expectedStraightMi < 50);
-  assert.ok(html.includes('data-wf-distance-mode="from_you"'), "Preview card labels distance mode as from_you");
-  assert.ok(html.includes(`${Math.round(expectedStraightMi)} mi`) || html.includes(`${expectedStraightMi.toFixed(1)} mi`), "Preview card displays Sarasota -> Tampa physical user distance");
+  const previewDist = resolvePlaceDistanceSemantics(selectedTampaPlace, {
+    verifiedDeviceLoc: SARASOTA_GPS,
+    areaCenter: TAMPA_CENTER,
+    allowAreaFallback: false,
+  });
+  assert.equal(previewDist?.kind, "from_you", "Distance semantics labels Sarasota->Tampa distance as from_you");
+  assert.ok(previewDist?.miles > 40 && previewDist?.miles < 50, "Distance semantics computes Sarasota -> Tampa physical user distance");
+  assert.ok(html.includes('data-iconic-place-card') && html.includes(`data-wf-map-preview-card="${selectedTampaPlace.id}"`), "Preview renders IconicPlaceCard inside .wf-map-preview-shell");
   assert.ok(html.includes("9.5"), "Public Wayfind Score 9.5 is unchanged");
-  assert.ok(html.includes("Park · Pair"), "Compact preview action bar exposes Park · Pair");
-  assert.ok(html.includes('Add Tampa Riverwalk Holiday Market to trip plan'), "Compact preview card exposes 1-tap itinerary add");
+  assert.ok(html.includes("Parking &amp; nearby"), "Preview micro-bar exposes Parking & nearby");
+  assert.ok(html.includes("Save Tampa Riverwalk Holiday Market"), "IconicPlaceCard exposes Save action");
 }
 
 // ── 6. Pairings Hygiene & Multi-Stop Backtracking Optimizer ─────────────────
@@ -2104,4 +2111,77 @@ let mapComponentMod = null;
   }
 }
 
-console.log("test-map-spatial-decision-engine: OK — all 9 spatial decision engine suites, 7 event schedule cases, Wave 3 verified occurrences & Hard Test SSR verified");
+// ── 10. Owner 2026-11-23: Sparse-Area Fallback, "food near by" & URL Sync ────
+{
+  const parrishBounds = { north: 27.7, south: 27.5, east: -82.3, west: -82.6 };
+  const parrishBreakfast = {
+    id: "parrish-egg",
+    name: "Parrish Farmhouse Breakfast",
+    category: "food",
+    primaryType: "breakfast_restaurant",
+    types: ["breakfast_restaurant", "restaurant"],
+    lat: 27.58,
+    lng: -82.42,
+    wfScore: 81,
+    governed_score: 81,
+  };
+  const parrishFastFood = {
+    id: "parrish-ff",
+    name: "Highway Burger Express",
+    category: "food",
+    primaryType: "fast_food_restaurant",
+    types: ["fast_food_restaurant", "breakfast_restaurant"],
+    lat: 27.58,
+    lng: -82.43,
+    wfScore: 73,
+    governed_score: 73,
+  };
+  const eliteBreakfast = {
+    ...parrishBreakfast,
+    id: "elite-bfast",
+    name: "Elite Morning Bistro",
+    wfScore: 94,
+    governed_score: 94,
+  };
+
+  assert.equal(selectMapPlaces([parrishBreakfast, parrishFastFood], "food", parrishBounds, "breakfast").length, 0,
+    "strict 9.2+ yields 0 matches in sparse Parrish Food -> Breakfast");
+  const sparseOut = selectMapPlacesSparseFallback([parrishBreakfast, parrishFastFood], "food", parrishBounds, "breakfast");
+  assert.deepEqual(sparseOut.map((p) => p.id), ["parrish-egg"],
+    "selectMapPlacesSparseFallback surfaces >= 7.5 local Breakfast spot and excludes < 7.5 fast food");
+  assert.deepEqual(selectMapPlaces([eliteBreakfast, parrishBreakfast, parrishFastFood], "food", parrishBounds, "breakfast").map((p) => p.id), ["elite-bfast"],
+    "9.2+ stays strict whenever 9.2+ matches exist");
+  assert.equal(keepMapPreview(parrishBreakfast, sparseOut, "food", "ready"), false,
+    "keepMapPreview rejects < 9.2 unless allowSparseFallback is enabled");
+  assert.equal(keepMapPreview(parrishBreakfast, sparseOut, "food", "ready", { allowSparseFallback: true }), true,
+    "keepMapPreview preserves sparse fallback preview when allowSparseFallback is true");
+
+  const homeSrc = readFileSync(fileURLToPath(new URL("../app/home.js", import.meta.url)), "utf8");
+  const routeSliceStart = homeSrc.indexOf("const nearbyTrimmed = ql");
+  const routeSliceEnd = homeSrc.indexOf("if (category) {", routeSliceStart);
+  assert.ok(routeSliceStart > 0 && routeSliceEnd > routeSliceStart, "app/home.js nearby category routing block exists");
+  const routeFn = new Function("ql", "onMapScreen",
+    homeSrc.slice(routeSliceStart, routeSliceEnd) + "\nreturn { nearbyTrimmed, mapCategoryHit, category };");
+  assert.deepEqual(routeFn("food near by", true).mapCategoryHit, { cat: "food", sub: "all" },
+    '"food near by" on /map routes directly to Food');
+  assert.deepEqual(routeFn("food nearby", true).mapCategoryHit, { cat: "food", sub: "all" },
+    '"food nearby" on /map routes directly to Food');
+  assert.deepEqual(routeFn("restaurants nearby", true).mapCategoryHit, { cat: "food", sub: "all" },
+    '"restaurants nearby" on /map routes directly to Food');
+  assert.deepEqual(routeFn("breakfast nearby", true).mapCategoryHit, { cat: "food", sub: "breakfast" },
+    '"breakfast nearby" on /map routes directly to Food -> Breakfast');
+  assert.deepEqual(routeFn("coffee nearby", true).mapCategoryHit, { cat: "food", sub: "cafes" },
+    '"coffee nearby" on /map routes directly to Food -> Cafes');
+  assert.equal(routeFn("food near by", false).category, "food",
+    '"food near by" off-map still resolves Food category');
+
+  const urlSyncStart = homeSrc.indexOf("const coldHydrating = !!pendingColdMapUrlRef.current || prev !== \"map\";");
+  assert.ok(urlSyncStart > 0, "app/home.js clears stale cat/sub query params after map cold hydration");
+  const urlSyncSlice = homeSrc.slice(urlSyncStart, urlSyncStart + 1200);
+  assert.ok(/const c = coldHydrating[\s\S]{0,200}?: \(cat && cat !== "all" && cat !== "attractions" \? cat : null\)/.test(urlSyncSlice),
+    "switching to Activities or All on /map drops stale cat= URL param");
+  assert.ok(/const s = coldHydrating[\s\S]{0,200}?: \(sub && sub !== "all" \? sub : null\)/.test(urlSyncSlice),
+    "switching sub to all on /map drops stale sub= URL param");
+}
+
+console.log("test-map-spatial-decision-engine: OK — all 10 spatial decision engine suites, 7 event schedule cases, Wave 3 verified occurrences & Hard Test SSR verified");

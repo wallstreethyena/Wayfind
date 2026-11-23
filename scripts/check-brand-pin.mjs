@@ -54,11 +54,15 @@ const view = readFileSync(at("app/components/MapView.js"), "utf8");
 // vs a ranked teardrop sprite. That invariant is asserted below and is now
 // stronger than it was, because an emoji cannot be mistaken for our own sprite.
 // 2026-09-19 owner supersedes emoji: reference blue ring pin identifies location.
-ok(view.includes('label === "Your location" ? "location" : "other"'), "location and search center must remain distinct within the shared teardrop standard");
+// 2026-11-23 owner supersedes teardrop location pin: Apple Maps pulsing blue dot
+// (createLocationDotElement, center-anchored on deviceLoc) identifies "Your location",
+// while Search center remains a distinct bottom-anchored teardrop.
+ok(view.includes('if (label === "Your location") return createLocationDotElement({ label });') && view.includes('el.innerHTML = mapPinSvg("other")'),
+  "Owner 2026-11-23: Your location renders the Apple Maps blue dot (createLocationDotElement), distinct from Search center");
 ok(!/\/brand\/wayfind-pin-neon\.svg/.test(view), "the neon brand pin is back on the map — v8.23.3 replaced it with the emoji");
-// anchor:"bottom" is what puts the TIP on the true coordinate.
-ok(/anchor: "bottom" \}\)\.setLngLat\(\[origin\.lng, origin\.lat\]/.test(view),
-  "the ORIGIN marker is not bottom-anchored — the pin's centre would sit on the coordinate instead of its tip (events share this anchor, so an unscoped check proves nothing)");
+// center-anchor puts the pulsing blue dot's centre on deviceLoc; bottom-anchor puts Search center's tip on the coordinate.
+ok(/anchor: deviceLoc \? "center" : "bottom" \}\)\.setLngLat\(\[origin\.lng, origin\.lat\]/.test(view),
+  "the ORIGIN marker must center-anchor deviceLoc's blue dot and bottom-anchor Search center's tip on the coordinate");
 ok(/wf-origin-pin/.test(view), "the pin has no class, so the glow/pulse cannot target it");
 ok(/prefers-reduced-motion: reduce/.test(view), "the pulse is not disabled under reduced motion");
 // The pulse must animate the GLOW, not the mark — scaling the mark moves its tip.
