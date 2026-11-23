@@ -27,6 +27,8 @@ const forbidden = [
   /places\.googleapis\.com/,
   /maps\.googleapis\.com\/maps\/api/,
   /api\.anthropic\.com/,
+  /generativelanguage\.googleapis\.com/,
+  /GEMINI_API_KEY/,
   /api\.viator\.com/,
   /api\.foursquare\.com|places-api\.foursquare\.com/,
   /terra\.tripadvisor\.com/,

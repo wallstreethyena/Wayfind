@@ -13,7 +13,6 @@ import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
-import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { spookyOverFall } from "../lib/spookySkin.js";
@@ -268,7 +267,8 @@ import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
-import * as Hol from "../lib/holidays";
+import { activeHoliday as _holActive, worldCup as _holWc, worldCupDaysToNext as _holWcDays, worldCupMatchToday as _holWcToday, themeFor as _holTheme, contentFor as _holContent } from "../lib/holidays";
+const Hol = { activeHoliday: _holActive, worldCup: _holWc, worldCupDaysToNext: _holWcDays, worldCupMatchToday: _holWcToday, themeFor: _holTheme, contentFor: _holContent };
 import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
@@ -4656,22 +4656,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [hookLikes, setHookLikes] = useState(() => new Set());
   const [cuisineSheet, setCuisineSheet] = useState(null);
   const openHoliday = async (h) => {
-    const hol = typeof h === "string" ? (Hol.holidaysFor(new Date().getFullYear()).find((x) => x.key === h) || null) : h;
-    if (!hol) return;
-    const content = Hol.contentFor(hol.key, hol.name);
-    const theme = Hol.themeFor(hol.key);
-    try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
     try {
-      const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
-      let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
-      // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 });
-      pool.sort((a, b) => rankScore(b) - rankScore(a));
-      pool = pool.slice(0, 12);
-      try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
-      if (!pool.length) { showToast("Nothing found for " + hol.name + " nearby yet"); return; }
-      setHookDetail({ id: "hol-" + hol.key, key: "hol-" + hol.key, theme: "hol-" + hol.key, hol: hol.key, title: content.headline(locName), themeTitle: content.headline(locName), label: hol.name + " picks", take: content.sub, themeBody: content.sub, emoji: hol.emoji, accent: theme.accent, places: pool });
-    } catch (e) { showToast("Could not load " + hol.name + " picks"); }
+      const { runOpenHoliday } = await import("../lib/holidayIntelClient");
+      const searchQuery = (q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p)));
+      const rankWithBoost = (p, boost) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 });
+      await runOpenHoliday(h, { center, locName, supabase, logEvent, searchQuery, dedupePlaces, rankWithBoost, fetchMemberSignals, withMemberSignal, showToast, setHookDetail });
+    } catch (e) { showToast("Could not load holiday picks"); }
   };
 
   // Neighborhood partner collection (lib/partnerCollections.js). Unlike a
@@ -7168,6 +7158,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (detailRequest !== detailOpenRequestRef.current) return;
     setDetailExtra(extra);
     if (extra && extra.ok) {
+      const { mergeHealedPlacePhotos } = await import("../lib/detailHero");
+      if (detailRequest !== detailOpenRequestRef.current) return;
       setDetail((cur) => {
         if (!cur || cur.id !== p.id) return cur;
         return mergeHealedPlacePhotos(cur, extra);
