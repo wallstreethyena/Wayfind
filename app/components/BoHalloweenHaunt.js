@@ -155,6 +155,12 @@ const CSS = `
 .boo-main{max-width:720px;margin:0 auto;padding:20px 16px 0}
 .boo-hero h1{margin:0 0 6px;font-size:26px;line-height:1.2;font-weight:700;color:var(--cream);letter-spacing:-.01em}
 .boo-lede{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
+.boo-now{margin:0 0 14px;padding:14px;border:1px solid #F97316;border-radius:14px;background:#1C2230}
+.boo-now p{margin:0 0 10px;color:#F5EFE6;font-size:16px;line-height:1.45;font-weight:800}
+.boo-now nav{display:flex;flex-direction:column;gap:8px}
+.boo-now a{display:flex;align-items:center;min-height:48px;padding:0 14px;border-radius:12px;background:#F97316;color:#0D1117;font-size:15px;font-weight:800;text-decoration:none}
+.boo-now a.boo-now-quiet{background:transparent;color:#F5EFE6;border:1px solid #2D3748;font-weight:700}
+.boo-now a:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-legal{margin:8px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
 .boo-boo-row{display:flex;align-items:center;gap:12px;margin-top:18px}
 .boo-art{position:relative;flex:0 0 64px;width:64px;height:64px}
@@ -520,6 +526,14 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
 
       <div className="boo-main">
         <div className="boo-hero" id="boo-hero">
+          <aside className="boo-now" data-holiday-now="" aria-label="What is on now">
+            <p>Halloween nights are over. Christmas in Florida is on now.</p>
+            <nav aria-label="Current plans">
+              <a href="/christmas-in-florida">Christmas in Florida</a>
+              <a className="boo-now-quiet" href="/guides/things-to-do-orlando-not-theme-parks">Orlando beyond the parks</a>
+              <a className="boo-now-quiet" href="/guides/things-to-do-sarasota">Things to do in Sarasota</a>
+            </nav>
+          </aside>
           <h1 id="boo-title">{chrome.title}</h1>
           <p className="boo-lede">{"Prices, dates and hours for " + hauntTotal + " Florida haunts and Halloween events." + (tours.length ? " Ghost tours are one tap away (" + tours.length + ")." : "")}</p>
           <p className="boo-legal">{chrome.disclosure}</p>

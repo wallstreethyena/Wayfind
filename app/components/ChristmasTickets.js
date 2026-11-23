@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { SOCIAL_AD_ATTR, SOCIAL_AD_FEATURE_ATTR, isSocialAdLanding, socialAdFeature } from "../../lib/socialAdLanding.js";
+import { christmasPickMeasurement } from "../../lib/christmasPickMeasurement.js";
 import { XM_CARD_CSS, organizerTap } from "./ChristmasTicketCard.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
+import { useCommerceImpression } from "./useCommerceImpression.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
 import ChristmasElves from "./ChristmasElves.js";
 import GuidePhoto from "./GuidePhoto.js";
@@ -143,9 +145,9 @@ const CSS = XM_CARD_CSS + `
 .xm-share button,.xm-share a{min-height:44px}
 .xm-ask:focus-visible,.xm-filters button:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 
-/* Top picks (2026-11-12): social ad visitors see a photo and a ticket button
-   on the first screen. Wide cards so the next one peeks and invites a swipe. */
-[data-social-picks]{display:none}html[data-wf-social] [data-social-picks]{display:block}
+/* Top picks sit under the title for every visitor (paid Google included).
+   Only the ad's own subject card stays hidden until that landing. Wide cards
+   so the next one peeks and invites a swipe. */
 .xm-pick[data-feature-pick]{display:none}
 .xm-picks-label .xm-picks-from{display:none}
 .xm-pick-from{position:absolute;left:8px;top:8px;z-index:1;margin:0;padding:3px 8px;border-radius:999px;background:#F5C451;color:#4A0610;font-size:11px;font-weight:800;line-height:1.3}
@@ -322,22 +324,17 @@ function WayfindHeader({ seasonal }) {
   );
 }
 
-// Top picks (2026-11-12, morning brief on this task: Meta ad visitors land
-// here, stay about 30 seconds, and 65% never scroll, so they never see a photo
-// or a ticket button). For a visit from a Facebook or Instagram ad or post the
-// page passes up to three featured ticket rows (christmasTicketsModel: merit
-// order, never the partner or the commission), each with a real photo and a
-// way in. The buttons carry the exact registry href and label of the card.
-// /go links are recorded by CommerceClickBeacon; organizer links once, by the
-// card's own organizerTap (same surface, same event).
-
-// The page is one cached copy for everyone (#2424), so the server always sends
-// the picks and the visitor's own URL decides whether they show (#2419: only
-// Facebook and Instagram ad landings see them on the first screen). The page's
-// inline SOCIAL_AD_SCRIPT marks <html> before first paint, so the picks are
-// drawn in place with no layout shift; CSS keeps them display:none otherwise,
-// and their photos are lazy so a hidden row never downloads them. This effect
-// only keeps the mark right after a client side navigation.
+// Top picks (2026-11-12, updated 2026-11-23). Paid visitors land here and most
+// never scroll, so the ticket rows with a real photo and a partner way in sit
+// under the title for every visitor, not only a Meta ad. Merit order never
+// reads the partner or the commission. /go links are recorded by
+// CommerceClickBeacon (commerce_cta_clicked, partner_click, and
+// deal_card_outbound). Organizer links are recorded once, by organizerTap.
+//
+// The page is one cached copy for everyone. The ad's own subject card stays
+// hidden until the inline script marks that landing. Regular picks are in the
+// first screen either way. This effect only keeps the mark right after a
+// client side navigation.
 export function SocialTopPicks({ picks }) {
   useEffect(() => {
     const root = document.documentElement;
@@ -359,6 +356,48 @@ export function SocialTopPicks({ picks }) {
 // script marks <html data-wf-feature="<its id>">, so only the visitor who
 // tapped that ad sees it, first, before the regular picks.
 const FEATURE_ID_RX = /^[a-z0-9-]{1,80}$/;
+
+function PickCard({ row, rank }) {
+  const measure = christmasPickMeasurement(row);
+  const ref = useCommerceImpression(measure.commerce, measure.card);
+  const photo = row.photos[0];
+  const affiliate = row.cta.kind === "affiliate";
+  const internal = row.cta.kind === "internal";
+  const meta = [row.when, row.city].filter(Boolean).join(" · ");
+  return (
+    <li ref={ref} className="xm-pick" data-pick-id={row.id} data-rank={row.feature ? undefined : rank || undefined} data-feature-pick={row.feature ? row.id : undefined}>
+      <div className="xm-pick-photo">
+        {row.feature ? <p className="xm-pick-from">From the video</p> : null}
+        {photo ? <GuidePhoto
+          src={photo.src}
+          alt={photo.alt}
+          width={photo.width}
+          height={photo.height}
+          sizes="(min-width: 720px) 300px, 78vw"
+          loading={rank === 1 ? "eager" : "lazy"}
+          fallbackClassName="xm-pick-ph"
+          fallbackText={(row.placeholder && row.placeholder.label) || "Christmas event"}
+        /> : <div className="xm-pick-ph" role="img" aria-label={row.name}><span aria-hidden="true">{(row.placeholder && row.placeholder.icon) || "✨"}</span> {(row.placeholder && row.placeholder.label) || "Christmas event"}</div>}
+        {photo && photo.credit ? <p className="xm-pick-credit">{photo.credit}</p> : null}
+      </div>
+      <div className="xm-pick-body">
+        <h3>{row.name}</h3>
+        {meta ? <p className="xm-pick-meta">{meta}</p> : null}
+        <a
+          className="xm-pick-buy"
+          href={row.cta.href}
+          target={internal ? undefined : "_blank"}
+          rel={internal ? undefined : affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
+          data-commerce-owner={affiliate || internal ? undefined : "ChristmasTickets"}
+          onClick={affiliate || internal ? undefined : () => organizerTap(row)}
+          aria-label={row.cta.label + (row.feature ? ": " : ": tickets for ") + row.name}
+        >{row.cta.label}</a>
+        {row.cta.via ? <p className="xm-pick-via">{row.cta.via}</p> : null}
+      </div>
+    </li>
+  );
+}
+
 export function TopPicks({ picks }) {
   // A featured row may carry no photo (its venue has none Wayfind may show):
   // it keeps its designed tile. Every regular pick still needs a real photo.
@@ -372,42 +411,8 @@ export function TopPicks({ picks }) {
       <p className="xm-picks-label" id="xm-picks-label"><span className="xm-picks-plain">Top picks with tickets</span><span className="xm-picks-from">From the video, then top picks</span></p>
       <ul className="xm-picks-row" aria-labelledby="xm-picks-label">
         {rows.map((row) => {
-          const photo = row.photos[0];
-          const affiliate = row.cta.kind === "affiliate";
-          const internal = row.cta.kind === "internal";
-          const meta = [row.when, row.city].filter(Boolean).join(" · ");
-          return (
-            <li key={row.id} className="xm-pick" data-pick-id={row.id} data-rank={row.feature ? undefined : ++rank} data-feature-pick={row.feature ? row.id : undefined}>
-              <div className="xm-pick-photo">
-                {row.feature ? <p className="xm-pick-from">From the video</p> : null}
-                {photo ? <GuidePhoto
-                  src={photo.src}
-                  alt={photo.alt}
-                  width={photo.width}
-                  height={photo.height}
-                  sizes="(min-width: 720px) 300px, 78vw"
-                  loading="lazy"
-                  fallbackClassName="xm-pick-ph"
-                  fallbackText={(row.placeholder && row.placeholder.label) || "Christmas event"}
-                /> : <div className="xm-pick-ph" role="img" aria-label={row.name}><span aria-hidden="true">{(row.placeholder && row.placeholder.icon) || "✨"}</span> {(row.placeholder && row.placeholder.label) || "Christmas event"}</div>}
-                {photo && photo.credit ? <p className="xm-pick-credit">{photo.credit}</p> : null}
-              </div>
-              <div className="xm-pick-body">
-                <h3>{row.name}</h3>
-                {meta ? <p className="xm-pick-meta">{meta}</p> : null}
-                <a
-                  className="xm-pick-buy"
-                  href={row.cta.href}
-                  target={internal ? undefined : "_blank"}
-                  rel={internal ? undefined : affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
-                  data-commerce-owner={affiliate || internal ? undefined : "ChristmasTickets"}
-                  onClick={affiliate || internal ? undefined : () => organizerTap(row)}
-                  aria-label={row.cta.label + (row.feature ? ": " : ": tickets for ") + row.name}
-                >{row.cta.label}</a>
-                {row.cta.via ? <p className="xm-pick-via">{row.cta.via}</p> : null}
-              </div>
-            </li>
-          );
+          const shownRank = row.feature ? 0 : ++rank;
+          return <PickCard key={row.id} row={row} rank={shownRank} />;
         })}
       </ul>
     </div>

@@ -546,16 +546,28 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(!DASH.test(pickVisible) && ((pickVisible.match(/Wayfind may earn a commission/g)) || []).length === 1, "with picks the page is still dash free and keeps one commission line");
   ok(!renderPage(partnerModel, partnerList, { topPicks: [{ ...picks[0], photos: [] }] }).includes("data-top-picks"), "a pick without a photo is never drawn as an empty slot");
   const comp = strip(read("app/components/ChristmasTickets.js"));
-  ok(/data-commerce-owner=\{affiliate \|\| internal \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \|\| internal \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
+  ok(/data-commerce-owner=\{affiliate \|\| internal \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("function PickCard"))) && /onClick=\{affiliate \|\| internal \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
     "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/const topPicks = \[\.\.\.featured, \.\.\.christmasTopPicks\(tickets\)/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /if \(isSocialAdLanding\(params\) \|\| feature\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp),
-    "the cached page always carries the picks; only a social landing URL shows them, from the same featured rows");
+  ok(/const topPicks = \[\.\.\.featured, \.\.\.christmasTopPicks\(tickets\)/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /if \(isSocialAdLanding\(params\) \|\| feature\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp) && !/\[data-social-picks\]\{display:none\}/.test(comp),
+    "the cached page shows the ticket picks to every visitor, including Google paid, from the same featured rows");
   ok(/<script dangerouslySetInnerHTML=\{\{ __html: SOCIAL_AD_SCRIPT \}\} \/>/.test(page) && page.indexOf("SOCIAL_AD_SCRIPT }}") < page.indexOf("<ChristmasTickets ")
-    && /\[data-social-picks\]\{display:none\}html\[data-wf-social\] \[data-social-picks\]\{display:block\}/.test(comp),
-    "the social mark is set by an inline script before the picks are parsed, so they are drawn in place with no layout shift");
-  ok(!/fetchpriority/.test(comp.slice(comp.indexOf("export function TopPicks"), comp.indexOf("export default function"))) && !/loading=\{i === 0/.test(comp),
-    "pick photos are lazy, so the hidden row never downloads them for Google or plain visitors");
+    && /\.xm-pick\[data-feature-pick\]\{display:none\}/.test(comp),
+    "the ad subject card stays hidden until that ad, and the social script still runs before the picks");
+  const pickFns = comp.slice(comp.indexOf("function PickCard"), comp.indexOf("export default function"));
+  ok(pickFns.includes("function PickCard") && !/fetchpriority/.test(pickFns) && /loading=\{rank === 1 \? "eager" : "lazy"\}/.test(pickFns) && /useCommerceImpression\(/.test(pickFns),
+    "the first visible pick photo loads immediately and each pick measures a view");
+  {
+    const { christmasPickMeasurement } = await import("../lib/christmasPickMeasurement.js");
+    const { CHRISTMAS_TICKETS_SURFACE } = await import("../lib/christmasTickets.js");
+    ok(christmasPickMeasurement({ id: "x", photos: [{ src: "/a.webp" }], cta: { kind: "internal", href: "/florida-events/x" } }).card.surface === CHRISTMAS_TICKETS_SURFACE, "pick measurement uses the christmas tickets surface");
+    const measured = christmasPickMeasurement({ id: "enchant", cta: { kind: "affiliate", href: "/api/commerce/go?provider=viator&offer=abc&content=enchant" }, photos: [{ src: "/x.webp" }] });
+    ok(measured.commerce && measured.commerce.provider === "viator" && measured.commerce.offer_id === "abc" && measured.commerce.surface === "christmas_tickets" && measured.card && measured.card.content_id === "enchant" && measured.card.has_art === true,
+      "an affiliate pick measures a commerce impression with its partner and offer");
+    const official = christmasPickMeasurement({ id: "park", cta: { kind: "organizer", href: "https://example.com/tickets" }, photos: [{ src: "/x.webp" }] });
+    ok(official.commerce === null && official.card && official.card.content_id === "park", "an official link counts as a card view and not as commerce");
+    ok(christmasPickMeasurement({ cta: { kind: "affiliate", href: "https://evil.example/api/commerce/go?provider=viator" } }).commerce === null, "a foreign absolute partner path is not measured as our redirect");
+  }
   {
     const { SOCIAL_AD_SCRIPT, SOCIAL_AD_ATTR, isSocialAdLanding: isSocial } = await import("../lib/socialAdLanding.js");
     const saved = { location: globalThis.location, document: globalThis.document };
