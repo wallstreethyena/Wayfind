@@ -3,9 +3,9 @@
   "verifiedAt": "2026-11-23",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 407,
-    "usages": 435,
-    "verified": 407,
+    "files": 410,
+    "usages": 438,
+    "verified": 410,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -18,7 +18,8 @@
       "CC BY-SA 2.0": 41,
       "Unsplash License": 4,
       "Public domain": 4,
-      "CC BY-SA 2.5": 2
+      "CC BY-SA 2.5": 2,
+      "venue website photo, owner authorized Nov 23 2026 for guide picks": 3
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -12463,6 +12464,99 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/bon-appetit-restaurant-marina.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Bon Appetit Restaurant"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://bonappetitrestaurant.com/",
+        "title": "Bon Appétit Restaurant on the Dunedin marina",
+        "author": "Bon Appétit Restaurant",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://bonappetitrestaurant.com/"
+      },
+      "wayfind": {
+        "credit": "Bon Appétit Restaurant",
+        "creditHref": "https://bonappetitrestaurant.com/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://bonappetitrestaurant.com/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/gratzzi-italian-grille-dining-room.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Gratzzi Italian Grille"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://gratzzigrille.com/photos/",
+        "title": "Tableside cooking at Gratzzi Italian Grille",
+        "author": "Gratzzi Italian Grille",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://gratzzigrille.com/photos/"
+      },
+      "wayfind": {
+        "credit": "Gratzzi Italian Grille",
+        "creditHref": "https://gratzzigrille.com/photos/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://gratzzigrille.com/photos/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/parkshore-grill-dining-room.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Parkshore Grill"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://www.parkshoregrill.com/private-dining.html",
+        "title": "Parkshore Grill private dining room",
+        "author": "Parkshore Grill",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://www.parkshoregrill.com/private-dining.html"
+      },
+      "wayfind": {
+        "credit": "Parkshore Grill",
+        "creditHref": "https://www.parkshoregrill.com/private-dining.html",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://www.parkshoregrill.com/private-dining.html",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
     }
   ]
 }

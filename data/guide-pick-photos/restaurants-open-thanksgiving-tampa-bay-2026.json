@@ -1,45 +1,86 @@
 {
-  "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
-  "picks": {
-    "Columbia Restaurant": {
-      "src": "/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp",
-      "width": 1400,
-      "height": 1050,
-      "alt": "The ornate Spanish Revival facade of the Columbia Restaurant in Ybor City, with tiled arches and wrought-iron balconies",
-      "caption": "The Columbia Restaurant's Spanish Revival facade on Ybor City's Seventh Avenue.",
-      "credit": "LittleT889",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
-      "license": "CC BY 4.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
-      "author": "LittleT889",
-      "position": "50% 42%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP.",
-      "sourceKind": "commons",
-      "placeId": "ChIJz8e7TVLEwogRBeybvscHnD4",
-      "verification": "Reusing Wayfind's already verified photo of this exact Ybor City restaurant, the same Commons file already used on the Cuban sandwich and Tampa restaurant guides. Same place id ChIJz8e7TVLEwogRBeybvscHnD4.",
-      "sameAsCardPhoto": true,
-      "reviewedAt": "2026-09-23"
-    }
-  },
-  "gaps": {
-    "Parkshore Grill": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 photo pass: no freely licensed photograph of this restaurant exists on Commons, Openverse or Flickr, so the guide slot stays empty. The restaurant's own website photos were added to its place card only, credited to the venue, because guide picks accept only free licences or an owner confirmed permission record."
+    "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+    "picks": {
+        "Columbia Restaurant": {
+            "src": "/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp",
+            "width": 1400,
+            "height": 1050,
+            "alt": "The ornate Spanish Revival facade of the Columbia Restaurant in Ybor City, with tiled arches and wrought-iron balconies",
+            "caption": "The Columbia Restaurant's Spanish Revival facade on Ybor City's Seventh Avenue.",
+            "credit": "LittleT889",
+            "creditHref": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+            "license": "CC BY 4.0",
+            "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+            "sourceUrl": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+            "author": "LittleT889",
+            "position": "50% 42%",
+            "modificationNotice": "Resized, cropped for display and converted to WebP.",
+            "sourceKind": "commons",
+            "placeId": "ChIJz8e7TVLEwogRBeybvscHnD4",
+            "verification": "Reusing Wayfind's already verified photo of this exact Ybor City restaurant, the same Commons file already used on the Cuban sandwich and Tampa restaurant guides. Same place id ChIJz8e7TVLEwogRBeybvscHnD4.",
+            "sameAsCardPhoto": true,
+            "reviewedAt": "2026-09-23"
+        },
+        "Parkshore Grill": {
+            "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/parkshore-grill-dining-room.jpg",
+            "width": 1280,
+            "height": 853,
+            "alt": "A candlelit private dining room at Parkshore Grill in St. Petersburg, with formally set round tables and a wall of wine bottles",
+            "caption": "The private dining room at Parkshore Grill on Beach Drive in St. Petersburg, set for a meal. The photo shows the restaurant, not a Thanksgiving brunch.",
+            "credit": "Parkshore Grill",
+            "creditHref": "https://www.parkshoregrill.com/private-dining.html",
+            "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+            "licenseUrl": "https://www.parkshoregrill.com/private-dining.html",
+            "sourceUrl": "https://www.parkshoregrill.com/private-dining.html",
+            "author": "Parkshore Grill",
+            "position": "50% 45%",
+            "modificationNotice": "Resized and cropped for display.",
+            "sourceKind": "permission",
+            "placeId": "ChIJU3g_9p3hwogRX2Cb15oVchI",
+            "verification": "Viewed the JPEG: a formal dining room at Parkshore Grill with candlelit tables, wine bottles, and place settings. The photo is from the restaurant's private dining page. Gabe authorized venue website photos, credited to the restaurant, for restaurant guide picks on 23 November 2026. Same pixels as the already vaulted official photo of_459b96d3434c35fc from pull request 2700. Not a photo of the Thanksgiving brunch.",
+            "sameAsCardPhoto": false,
+            "reviewedAt": "2026-11-23"
+        },
+        "Bon Appetit Restaurant": {
+            "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/bon-appetit-restaurant-marina.jpg",
+            "width": 1280,
+            "height": 853,
+            "alt": "Bon App\u00e9tit Restaurant, a white waterfront building with a dock and covered terrace on the marina in Dunedin, under a blue sky",
+            "caption": "Bon App\u00e9tit Restaurant on the marina in Dunedin. The photo shows the restaurant building, not a Thanksgiving dinner.",
+            "credit": "Bon App\u00e9tit Restaurant",
+            "creditHref": "https://bonappetitrestaurant.com/",
+            "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+            "licenseUrl": "https://bonappetitrestaurant.com/",
+            "sourceUrl": "https://bonappetitrestaurant.com/",
+            "author": "Bon App\u00e9tit Restaurant",
+            "position": "50% 48%",
+            "modificationNotice": "Resized and cropped for display.",
+            "sourceKind": "permission",
+            "placeId": "ChIJO1gznGPxwogRCw0ZMIvl958",
+            "verification": "Viewed the JPEG: the Bon App\u00e9tit Restaurant building on the Dunedin marina, with the dock, terrace, and water in view. The photo is from the restaurant's own website. Gabe authorized venue website photos, credited to the restaurant, for restaurant guide picks on 23 November 2026. Same pixels as the already vaulted official photo of_bbfc228516a9f49a from pull request 2700. Not a photo of a Thanksgiving dinner.",
+            "sameAsCardPhoto": false,
+            "reviewedAt": "2026-11-23"
+        },
+        "Gratzzi Italian Grille": {
+            "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/gratzzi-italian-grille-dining-room.jpg",
+            "width": 1280,
+            "height": 853,
+            "alt": "A cook flames a pan tableside in the dining room at Gratzzi Italian Grille in St. Petersburg, with white tablecloths and a wheel of pasta in the foreground",
+            "caption": "Tableside cooking in the dining room at Gratzzi Italian Grille in St. Petersburg. The photo shows the restaurant, not a Thanksgiving dinner.",
+            "credit": "Gratzzi Italian Grille",
+            "creditHref": "https://gratzzigrille.com/photos/",
+            "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+            "licenseUrl": "https://gratzzigrille.com/photos/",
+            "sourceUrl": "https://gratzzigrille.com/photos/",
+            "author": "Gratzzi Italian Grille",
+            "position": "50% 45%",
+            "modificationNotice": "Resized and cropped for display.",
+            "sourceKind": "permission",
+            "placeId": "ChIJn2IMZZvhwogRU7VQbgq6IIo",
+            "verification": "Viewed the JPEG: tableside flaming in the Gratzzi Italian Grille dining room, with white tablecloths visible behind the pan. The photo is from the restaurant's photos page. Gabe authorized venue website photos, credited to the restaurant, for restaurant guide picks on 23 November 2026. Same pixels as the already vaulted official photo of_bae9e44f167e6f0a from pull request 2700. Not a photo of a Thanksgiving dinner.",
+            "sameAsCardPhoto": false,
+            "reviewedAt": "2026-11-23"
+        }
     },
-    "Bon Appetit Restaurant": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 photo pass: no freely licensed photograph of this restaurant exists on Commons, Openverse or Flickr, so the guide slot stays empty. The restaurant's own website photos were added to its place card only, credited to the venue, because guide picks accept only free licences or an owner confirmed permission record."
-    },
-    "Gratzzi Italian Grille": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 photo pass: no freely licensed photograph of this restaurant exists on Commons, Openverse or Flickr, so the guide slot stays empty. The restaurant's own website photos were added to its place card only, credited to the venue, because guide picks accept only free licences or an owner confirmed permission record."
-    }
-  }
+    "gaps": {}
 }

@@ -184,6 +184,11 @@ await Promise.all(allEntries.map(async ({ slug, pickName, entry }) => {
 // ── 4/5. LICENSE ALLOW-LIST + LICENSE URL MAPPING + NO ND/NC/GFDL ─────────
 const CC_RX = /^CC (BY|BY-SA) (2\.0|2\.5|3\.0|4\.0)$/;
 const PERMISSION_RX = /^Used with permission of .+ \(owner-confirmed \d{4}-\d{2}-\d{2}\); credit required$/;
+// Owner, 23 November 2026: a restaurant's own website photo may be used on a
+// restaurant guide pick, credited to the venue, when no freely licensed photo
+// exists. This exact string is the only venue-website license the guard accepts.
+const VENUE_WEBSITE_GUIDE_PICK_LICENSE = "venue website photo, owner authorized Nov 23 2026 for guide picks";
+const isVenueWebsiteGuidePickLicense = (license) => String(license) === VENUE_WEBSITE_GUIDE_PICK_LICENSE;
 const ALLOWED_LICENSE_STRINGS = new Set([
   "CC0 1.0 Universal", "Public domain", "Unsplash License",
   "CC BY 2.0", "CC BY 3.0", "CC BY 4.0",
@@ -214,7 +219,10 @@ function licenseProblem(license, licenseUrl) {
   if (PERMISSION_RX.test(String(license))) {
     return typeof licenseUrl === "string" && /^https:\/\//.test(licenseUrl) ? null : "a permission license still needs a real https licenseUrl";
   }
-  return `license ${JSON.stringify(license)} is not one of the allowed strings (CC0, Public domain, CC BY/CC BY-SA at 2.0, 2.5, 3.0 or 4.0, or the owner-permission pattern)`;
+  if (isVenueWebsiteGuidePickLicense(license)) {
+    return typeof licenseUrl === "string" && /^https:\/\//.test(licenseUrl) ? null : "a venue website guide pick license still needs a real https licenseUrl";
+  }
+  return `license ${JSON.stringify(license)} is not one of the allowed strings (CC0, Public domain, CC BY/CC BY-SA at 2.0, 2.5, 3.0 or 4.0, the owner-permission pattern, or the venue website guide pick license)`;
 }
 {
   // positive controls — every allowed shape must pass with its canonical URL.
@@ -228,6 +236,9 @@ function licenseProblem(license, licenseUrl) {
     }
   }
   ok(licenseProblem("Used with permission of Ringling Museum (owner-confirmed 2026-09-22); credit required", "https://www.ringling.org/") === null, "positive control: a well-formed permission license is legal");
+  ok(licenseProblem(VENUE_WEBSITE_GUIDE_PICK_LICENSE, "https://www.parkshoregrill.com/private-dining.html") === null, "positive control: the venue website guide pick license is legal with an https source page");
+  ok(licenseProblem(VENUE_WEBSITE_GUIDE_PICK_LICENSE, "http://www.parkshoregrill.com/private-dining.html") !== null, "red-proof: a venue website guide pick license still needs an https licenseUrl");
+  ok(licenseProblem("venue website photo, all rights reserved", "https://www.parkshoregrill.com/") !== null, "red-proof: a vague venue website license is not accepted");
   ok(licenseProblem("Unsplash License", "https://unsplash.com/license") === null, "positive control: free Unsplash license accepted at its canonical URL");
   ok(licenseProblem("CC BY 3.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") === null, "positive control: the source-verified BY 3.0 US deed is preserved");
   ok(licenseProblem("CC BY-SA 3.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") !== null, "red-proof: US deed cannot change BY-SA into BY");
@@ -246,7 +257,7 @@ function licenseProblem(license, licenseUrl) {
 for (const { slug, pickName, entry } of allEntries) {
   const problem = licenseProblem(entry.license, entry.licenseUrl);
   ok(problem === null, `${slug} / "${pickName}": ${problem}`);
-  ok(ALLOWED_LICENSE_STRINGS.has(entry.license) || PERMISSION_RX.test(String(entry.license)),
+  ok(ALLOWED_LICENSE_STRINGS.has(entry.license) || PERMISSION_RX.test(String(entry.license)) || isVenueWebsiteGuidePickLicense(entry.license),
     `${slug} / "${pickName}": license "${entry.license}" is not in the allowed set`);
 }
 
@@ -444,7 +455,7 @@ for (const { file, json } of dataFiles) {
 const LEDGER_PATH = "data/guide-pick-photos/_reports/license-evidence.json";
 const ledger = JSON.parse(readFileSync(abs(LEDGER_PATH), "utf8"));
 const ledgerBySrc = new Map((ledger.files || []).map((r) => [r.src, r]));
-const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|Public domain|CC BY(-SA)? (2\.5|[234]\.0)|Unsplash License)$/;
+const COMMERCIAL_OK_RX = /^(CC0 1\.0 Universal|Public domain|CC BY(-SA)? (2\.5|[234]\.0)|Unsplash License|venue website photo, owner authorized Nov 23 2026 for guide picks)$/;
 function ledgerProblems(row, stored) {
   if (!row) return ["no licence-evidence row"];
   const p = [];
