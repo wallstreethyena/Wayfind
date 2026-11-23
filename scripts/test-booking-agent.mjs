@@ -765,5 +765,100 @@ const confirmed = { html: html("confirmation.html") };
   ok(disguisedOut.status === "failed:browser", "chrome mode refuses a disguised (non Wayfind) user agent");
 }
 
+// ---- Browserbase cloud browser + embedded Live View ----
+{
+  const bb = await import("../lib/bookingAgent/browserbase.js");
+  let missingKeyThrew = false;
+  try { bb.browserbaseConfig({ BROWSERBASE_PROJECT_ID: "proj_1" }); } catch { missingKeyThrew = true; }
+  let missingProjThrew = false;
+  try { bb.browserbaseConfig({ BROWSERBASE_API_KEY: "bb_live_test" }); } catch { missingProjThrew = true; }
+  ok(missingKeyThrew && missingProjThrew, "browserbaseConfig fails loudly when API key or project ID is missing");
+
+  const validLv = "https://www.browserbase.com/sessions/sess_abc123/debug?fullscreen=true";
+  ok(bb.isSafeLiveViewUrl(validLv), "isSafeLiveViewUrl accepts valid Browserbase debug URL");
+  ok(!bb.isSafeLiveViewUrl("javascript:alert(1)") && !bb.isSafeLiveViewUrl("https://evil.example/sessions/1/debug"), "isSafeLiveViewUrl rejects non-Browserbase URLs");
+
+  const bbCalls = [];
+  const mockBbFetch = async (url, init) => {
+    bbCalls.push([init?.method || "GET", url]);
+    if (url.endsWith("/sessions") && init?.method === "POST") {
+      return new Response(JSON.stringify({ id: "sess_abc123", connectUrl: "wss://connect.browserbase.com?sessionId=sess_abc123" }), { status: 200 });
+    }
+    if (url.endsWith("/sessions/sess_abc123/debug")) {
+      return new Response(JSON.stringify({ debuggerFullscreenUrl: validLv }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ status: "REQUEST_RELEASE" }), { status: 200 });
+  };
+  const created = await bb.createBrowserbaseSession({ apiKey: "k", projectId: "p", fetchImpl: mockBbFetch });
+  const debug = await bb.getBrowserbaseLiveView({ apiKey: "k", sessionId: created.id, fetchImpl: mockBbFetch });
+  const released = await bb.releaseBrowserbaseSession({ apiKey: "k", projectId: "p", sessionId: created.id, fetchImpl: mockBbFetch });
+  ok(created.id === "sess_abc123" && debug.liveViewUrl === validLv && released === true && bbCalls.length === 3, "Browserbase REST create/debug/release flow works cleanly");
+
+  // Full Live View handoff: seating choice -> awaiting_user_action (exposes liveViewUrl) -> user confirms -> confirmed (clears live_view_url)
+  const lvStore = createMemoryStore({ status: "on" });
+  const lvRun = await seedRun(lvStore);
+  const slotsHtml = `<html><body><button data-test="slot-button">7:00 PM</button></body></html>`;
+  const seatingHtml = `<html><body><h2>Choose your seating</h2><button data-synthetic="seating-standard">Standard</button><button>Outdoor</button></body></html>`;
+  const confirmHtml = html("confirmation.html");
+  let lvStage = "slots";
+  const lvHandlers = createBookingAgentHandlers({
+    env: ON, store: lvStore, now: () => NOW,
+    registry: { forPlace: async () => ({ id: "opentable_handoff", link: { rid: "100001" } }) },
+    readProfile: async () => PROFILE,
+    placeName: async () => "Synthetic Grill",
+    verifyUser: async () => ({ id: USER }),
+  });
+
+  let lvTicks = 0;
+  const lvPromise = runNext({
+    store: lvStore,
+    env: { ...ON, BOOKING_AGENT_BROWSER_MODE: "browserbase" },
+    now: () => NOW + lvTicks * 50,
+    launch: async (opts) => {
+      ok(opts.mode === "browserbase", "browserbase mode passes mode=browserbase to launch");
+      return {
+        userAgent: "Mozilla/5.0 Chrome/131.0.0.0",
+        liveViewUrl: validLv,
+        async open() {
+          return {
+            async snapshot() {
+              const body = lvStage === "slots" ? slotsHtml : lvStage === "seating" ? seatingHtml : confirmHtml;
+              return { html: body, httpStatus: 200, url: "https://www.opentable.com/booking/restref/" + lvStage, title: "OpenTable" };
+            },
+            async clickSlot() { lvStage = "seating"; return true; },
+            async waitForSettled() {},
+            async fill() {},
+            async click() {},
+          };
+        },
+        async close() {},
+      };
+    },
+    loadProfile: async () => PROFILE,
+    placeName: async () => "Synthetic Grill",
+    liveViewPollMs: 10,
+    liveViewTimeoutMs: 5000,
+  });
+
+  for (let i = 0; i < 50; i++) {
+    const cur = await lvStore.getRun(lvRun.id);
+    if (cur && cur.status === "awaiting_user_action") break;
+    await new Promise((r) => setTimeout(r, 15));
+  }
+  const statusReq = new Request(`https://www.gowayfind.com/api/reserve/agent/status?id=${lvRun.id}`, {
+    method: "GET",
+    headers: { "sec-fetch-site": "same-origin" },
+  });
+  const statusRes = await lvHandlers.status(statusReq);
+  const statusBody = await statusRes.json();
+  ok(statusBody.ok && statusBody.run.status === "awaiting_user_action" && statusBody.run.liveViewUrl === validLv, "GET /status exposes validated liveViewUrl during awaiting_user_action");
+
+  // Simulate user completing the reservation inside the embedded Live View iframe
+  lvStage = "confirmed";
+  const lvDone = await lvPromise;
+  const lvSaved = await lvStore.getRun(lvRun.id);
+  ok(lvDone.status === "confirmed" && lvSaved.confirmation_number === "OTSYN1001" && lvSaved.live_view_url === null, "Live View detects matching confirmation, marks confirmed, and clears live_view_url");
+}
+
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }
 console.log(`test-booking-agent: OK - ${count} assertions (local fixtures, no live site)`);

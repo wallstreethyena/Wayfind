@@ -106,7 +106,7 @@
   },
   {
     "file": "supabase/migrations/20261117143000_wf_booking_agent.sql",
-    "sha256": "231cff1e1c11565a44aabdcbfdca81e157bd92cac372612bcd84c5365415c2db",
+    "sha256": "e56e35d377bffa086e87233e538d5e96e32f89bff5222c1af182f51951462a50",
     "decision_owner": "wallstreethyena",
     "tracking": "supervised OpenTable booking agent draft, not applied #20261117",
     "reason": "NOT APPLIED. New tables wf_booking_agent_runs, wf_booking_agent_events, wf_booking_agent_sites (RLS on, owner select on runs and events, service role writes, opentable seeded off). Additive. Unused until BOOKING_AGENT_ENABLED=1, BOOKING_AGENT_SITE_OPENTABLE=1 and the site row is on. Owner applies after review. Do not apply from this draft."

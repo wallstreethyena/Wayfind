@@ -321,10 +321,10 @@ export function AgentProgressCard({ card }) {
       const run = r && r.run;
       if (run) setView(run);
       const status = run && run.status;
-      const done = status && !["queued", "opening", "selecting_slot", "form_ready", "filling", "review", "submitting", "awaiting_sms_code"].includes(status);
+      const done = status && !["queued", "opening", "selecting_slot", "form_ready", "filling", "review", "submitting", "awaiting_sms_code", "awaiting_user_action"].includes(status);
       if (done) return;
       const elapsed = Date.now() - startedAt;
-      if (status !== "awaiting_sms_code" && ((status === "queued" || !status) ? elapsed >= 30000 : elapsed >= 95000)) {
+      if (status !== "awaiting_sms_code" && status !== "awaiting_user_action" && ((status === "queued" || !status) ? elapsed >= 30000 : elapsed >= 95000)) {
         setStalled(true);
         return;
       }
@@ -360,6 +360,23 @@ export function AgentProgressCard({ card }) {
     );
   }
   if (gone) return <div data-reserve-card="agent_cancelled" style={box}><div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>Cancelled. Nothing was submitted to OpenTable.</div></div>;
+  if (run && run.status === "awaiting_user_action" && run.liveViewUrl) {
+    return (
+      <div data-reserve-card="agent_live_view" style={box}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.4, marginBottom: 10 }}>{sentence}</div>
+        <div style={{ width: "100%", height: 480, borderRadius: 12, overflow: "hidden", border: `1px solid ${C.border}`, background: "#000" }}>
+          <iframe
+            data-booking-agent-live-view="1"
+            src={run.liveViewUrl}
+            title="Complete your OpenTable reservation"
+            allow="clipboard-read; clipboard-write"
+            style={{ width: "100%", height: "100%", border: 0, display: "block" }}
+          />
+        </div>
+        {run.cancellable ? <button type="button" data-booking-agent-cancel="1" style={{ ...quietBtn, marginTop: 10 }} onClick={async () => { const r = await cancelBookingAgent(card.runId); if (r && r.ok) setGone(true); }}>Cancel</button> : null}
+      </div>
+    );
+  }
   if (run && run.status === "awaiting_sms_code") {
     const sendCode = async (e) => {
       e.preventDefault();
