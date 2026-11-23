@@ -410,6 +410,49 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   ok(callsTo("POST", "/api/reserve/cancel").length === 1 && /Your table is cancelled\./.test(m.host.textContent), "confirming cancels through /api/reserve/cancel");
   await m.unmount();
 
+  // A first-time guest can book with a one-time name, keeping it out of the chat request.
+  reset();
+  const noProfile = { profile: { hasName: false, hasPhone: false, display: null } };
+  routes["POST /api/reserve/concierge"] = (body) => body.context.hasGuestName === true
+    ? turn(timesCard, "I found a table.", noProfile)()
+    : turn({ type: "profile" }, "What name should I use?", noProfile)();
+  routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: { id: "b-one-time", status: "confirmed", confirmationCode: "DEMO42", restaurantName: "Mario's Trattoria", date: DAY, time: "19:00", partySize: 4 } }];
+  m = await mountC({ initialMessage: "tomorrow at 7 for four" });
+  await setVal(q(m)("#wf-rc-first"), "Taylor");
+  await click(q(m)("[data-reserve-save-name]"));
+  await submit(q(m)('[data-reserve-card="profile"]'));
+  const noSaveRetry = callsTo("POST", "/api/reserve/concierge")[1]?.body;
+  ok(noSaveRetry?.context.hasGuestName === true && noSaveRetry.messages.length === 1 && noSaveRetry.messages[0].role === "user" && !JSON.stringify(noSaveRetry).includes("Taylor"), "profile retry sends the guest's booking request and a name hint without sending their name to chat");
+  ok(callsTo("PUT", "/api/reserve/profile").length === 0 && callsTo("POST", "/api/reserve/book").length === 0, "a one-time name leaves the profile untouched and does not book during the chat turn");
+  await click(q(m)('[data-reserve-time="19:00"]'));
+  await click(q(m)("[data-reserve-confirm]"));
+  ok(callsTo("POST", "/api/reserve/book")[0]?.body.guestName === "Taylor" && q(m)('[data-reserve-card="booked"]')?.textContent.includes("DEMO42"), "Confirm sends the one-time name to booking and shows the confirmation");
+  await m.unmount();
+
+  reset();
+  const control = { current: null };
+  const nextPlace = { placeId: "partner-req", name: "Another Restaurant" };
+  routes["POST /api/reserve/concierge"] = (body) => body.context.placeId === nextPlace.placeId
+    ? turn(timesCard, "Here are their times.", { state: { ...STATE, placeId: nextPlace.placeId, restaurantName: nextPlace.name } })()
+    : body.context.hasGuestName === true
+      ? turn(timesCard, "I found a table.", noProfile)()
+      : turn({ type: "profile" }, "What name should I use?", noProfile)();
+  routes["POST /api/reserve/book"] = async () => [201, { ok: true, booking: { id: "b-switch", status: "confirmed", confirmationCode: "DEMO43" } }];
+  m = await mountC({ initialMessage: "tomorrow at 7 for four", controlRef: control });
+  await setVal(q(m)("#wf-rc-first"), "Taylor");
+  await setVal(q(m)("#wf-rc-phone"), "8135550100");
+  await click(q(m)("[data-reserve-save-name]"));
+  await submit(q(m)('[data-reserve-card="profile"]'));
+  await act(async () => { control.current.choose(nextPlace); });
+  await settle();
+  const switchedTurn = callsTo("POST", "/api/reserve/concierge").at(-1).body;
+  ok(switchedTurn.context.placeId === nextPlace.placeId && !("hasGuestName" in switchedTurn.context), "switching restaurants drops the previous restaurant's one-time name hint");
+  await click(q(m)('[data-reserve-time="19:00"]'));
+  await click(q(m)("[data-reserve-confirm]"));
+  const switchedBooking = callsTo("POST", "/api/reserve/book")[0]?.body;
+  ok(switchedBooking?.placeId === nextPlace.placeId && !("guestName" in switchedBooking) && !("phone" in switchedBooking) && !("phoneConsent" in switchedBooking), "booking at a different restaurant does not send the first restaurant's one-time name or phone");
+  await m.unmount();
+
   // (b) retry reuses the idempotency key; a request status says 'Request sent', never 'Booked'
   reset();
   routes["POST /api/reserve/concierge"] = turn({ type: "request", date: DAY, time: "19:15", partySize: 4 }, "Mario's takes requests.");
