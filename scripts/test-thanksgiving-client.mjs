@@ -6,9 +6,11 @@ import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
+import ts from "typescript";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { thanksgivingWindow } from "../lib/thanksgivingDates.js";
 import { DEFAULT_CENTER } from "../lib/locationHonesty.js";
+import * as Hol from "../lib/holidays.js";
 import * as productionClient from "../lib/thanksgivingClient.js";
 
 if (!process.argv.includes("--react-test-child")) {
@@ -205,6 +207,42 @@ await React.act(async () => { await new Promise((done) => setTimeout(done, 530))
 eq(calls.length, expiryReadCount + 1, "an open sheet refetches once when provider summary expires");
 eq(host.querySelectorAll(".wf-place-card").length, 0, "expired provider summaries are hidden while replacement loads");
 await React.act(async () => { expiryRoot.unmount(); });
+
+// Invoke the actual Home opener before mounting the actual lazy sheet. This
+// protects the synchronous location prompt and validates raw URL controls at
+// the request boundary, including the clicked holiday's own fallback year.
+const homeAst = ts.createSourceFile("home.jsx", home, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
+let openerSource;
+const findOpener = (node) => {
+  if (ts.isVariableDeclaration(node) && node.name.getText(homeAst) === "openHoliday") openerSource = node.initializer.getText(homeAst);
+  ts.forEachChild(node, findOpener);
+};
+findOpener(homeAst);
+ok(!!openerSource, "request-boundary checks reach the actual Home holiday opener");
+for (const [search, clicked, expected] of [
+  ["?holidayYear=2027&holidayDate=2027-11-26&holidayMi=25", { year: 2026, date: new Date(2026, 10, 26) }, { year: "2027", date: "2027-11-26", mi: "25" }],
+  ["?holidayYear=oops&holidayDate=2026-11-25&holidayMi=2", { year: 2027, date: new Date(2027, 10, 25) }, { year: "2027", date: "all", mi: "60" }],
+  ["", { date: new Date(2028, 10, 23) }, { year: "2028", date: "all", mi: "60" }],
+  ["?holidayYear=oops&holidayDate=2027-11-26&holidayMi=120", { year: 2027, date: new Date(2027, 10, 25) }, { year: "2027", date: "2027-11-26", mi: "120" }],
+  ["?exp=hol-thanksgiving&holidayYear=oops", "thanksgiving", { year: String(new Date().getFullYear()), date: "all", mi: "60" }],
+]) {
+  let opened;
+  const openHoliday = new Function("Hol", "setHookDetail", "logEvent", "window", `return (${openerSource});`)(Hol, (value) => { opened = value; }, () => {}, { location: { search } });
+  const opening = openHoliday(typeof clicked === "string" ? clicked : { ...clicked, key: "thanksgiving" });
+  ok(opened?.hol === "thanksgiving", "Home opens the dedicated sheet synchronously before any chunk or location await");
+  await opening;
+  const openingRoot = createRoot(host);
+  const beforeRequests = calls.length;
+  const openingContext = { ...current, center: null, locResolved: false, locName: "", hookDetail: opened };
+  await React.act(async () => { openingRoot.render(React.createElement(Sheet, { ctx: openingContext })); });
+  eq(calls.length, beforeRequests, "raw shared controls cannot request before the recipient chooses a location");
+  ok(host.textContent.includes("Choose where to spend the holiday"), "raw shared controls retain the immediate location prompt");
+  await React.act(async () => { openingRoot.render(React.createElement(Sheet, { ctx: { ...openingContext, center: origin, locResolved: true, locName: "Parrish, FL" } })); });
+  eq(calls.length, beforeRequests + 1, "location confirmation starts exactly one validated shared-plan request");
+  const params = new URL(calls.at(-1).url, dom.window.location.origin).searchParams;
+  eq({ year: params.get("year"), date: params.get("date"), mi: params.get("mi") }, expected, "actual sheet validates raw Home controls and preserves the clicked holiday year");
+  await React.act(async () => { openingRoot.unmount(); });
+}
 dom.window.close();
 if (process.argv.includes("--browser")) {
   const { chromium } = await import("playwright");
