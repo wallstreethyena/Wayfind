@@ -11,6 +11,7 @@ import { SITE_URL } from "../lib/site";
 import SeasonalSearchNav from "./components/SeasonalSearchNav";
 import { cardActionBridgeScript } from "../lib/cardActionAttrs";
 import { chunkRecoveryScript } from "../lib/chunkRecovery";
+import { earlyPageviewScript } from "../lib/browserAnalytics";
 import { GUIDES } from "../lib/guides";
 import { currentGuides } from "../lib/guideLifecycle";
 import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEFAULT_COLLAPSED_RAILS_DESKTOP, RAILS_DESKTOP_MQ } from "../lib/railCollapse";
@@ -152,6 +153,11 @@ export default function RootLayout({ children }) {
             lib/chunkRecovery.js; app/error.js and app/global-error.js use the
             window.__wfChunkRecover hook it exposes. */}
         <script dangerouslySetInnerHTML={{ __html: chunkRecoveryScript() }} />
+        {/* Landing $pageview, before hydration. PostHog's dated default does
+            not record the document that just loaded, and the SDK itself waits
+            for idle. A paid visit that leaves in the first seconds would
+            otherwise never count. */}
+        <script dangerouslySetInnerHTML={{ __html: earlyPageviewScript(process.env.NEXT_PUBLIC_POSTHOG_KEY) }} />
       </head>
       <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "clip", overscrollBehaviorX: "none", maxWidth: "100vw", fontFamily: "var(--wf-sans)" }}>
         {/* Stale-tab watch: a long-lived tab silently runs yesterday's bundle

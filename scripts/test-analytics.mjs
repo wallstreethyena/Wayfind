@@ -266,6 +266,7 @@ function harness() {
   ok(A.classify("commerce_cta_clicked", { monetized: true }) === "analytics", "commerce_cta_clicked is no longer a conversion path, even monetized:true — this is the double-count / courtesy-coupon fix");
   ok(A.labelKeyFor("commerce_cta_clicked", { monetized: true }) === null, "commerce_cta_clicked never resolves to a label bucket any more");
   ok(A.classify("commerce_cta_clicked") === "analytics", "commerce_cta_clicked with no params at all is analytics-only, same as every other shape");
+  ok(A.classify("deal_card_outbound") === "analytics" && A.labelKeyFor("deal_card_outbound") === null, "deal_card_outbound is countable in PostHog and is never a second Ads conversion");
 }
 
 /* ── forwardToGoogle: partner_click sends exactly one conversion ───────── */
@@ -360,7 +361,12 @@ function harness() {
   {
     const plan = PC.planPartnerClick({ href: "https://www.gowayfind.com/api/hotels/go?provider=stay22&offer=abc", owned: false, locationHost: "gowayfind.com", mint });
     ok(!!plan && plan.googleParams.provider === "stay22", "an absolute link to our OWN host (www.gowayfind.com) still counts, got " + JSON.stringify(plan));
+    const outbound = PC.partnerOutboundEvent(plan, { href: plan.rewriteHref, pagePath: "/christmas-in-florida" });
+    ok(outbound && outbound.partner === "stay22" && outbound.page_path === "/christmas-in-florida" && outbound.href.indexOf("/api/hotels/go") === 0 && outbound.deal_id === "abc",
+      "partnerOutboundEvent names the partner, the go URL, the page and the offer, got " + JSON.stringify(outbound));
   }
+  ok(PC.partnerOutboundEvent(null, { href: "/api/viator/go", pagePath: "/guides/x" }) === null, "no plan, no outbound event");
+  ok(PC.partnerOutboundEvent({ googleParams: { provider: "viator", surface: "guide" }, ctx: { offer_id: "abc" } }, { href: "", pagePath: "/guides/x" }) === null, "an empty destination is not an outbound");
 }
 
 /* ── wiring: syntactic ROLE, not substring (CLAUDE.md) ──────────────────── */
@@ -376,6 +382,8 @@ function harness() {
   ok(/forwardToGoogle\(\s*PARTNER_CLICK_EVENT\b/.test(beacon), "the beacon CALLS forwardToGoogle with PARTNER_CLICK_EVENT as the event (role: the actual call site, not just the import)");
   ok(!/forwardToGoogle\(\s*"commerce_cta_clicked"/.test(beacon), "the beacon no longer forwards the OLD commerce_cta_clicked/monetized shape to Google");
   ok(/emitCommerce\(\s*"commerce_cta_clicked"/.test(beacon), "the beacon can still record the PostHog commerce event through emitCommerce, for links nobody else owns");
+  ok(/partnerOutboundEvent\(/.test(beacon) && /track\(\s*"deal_card_outbound"/.test(beacon), "every verified partner click also emits deal_card_outbound from this beacon");
+  ok(/getAttribute\("data-deal-card"\)/.test(beacon), "a guide deal card that already emits deal_card_outbound is not counted again");
   ok(/analyticsSuppressionReason\(/.test(beacon), "the beacon checks the SAME suppression predicate lib/track.js uses");
   ok(/__WF_ANALYTICS_SUPPRESSED/.test(beacon), "the beacon also honors the owner/internal override flag, same as lib/track.js");
 
