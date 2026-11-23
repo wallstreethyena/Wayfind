@@ -2764,3 +2764,11 @@ node scripts/test-indexnow.mjs
 node scripts/test-seo-money-headlines.mjs
 # 2026-11-23 Card photo delivery: wf_inventory signals.photo_gallery serves exact-place photos with license/venue credit and zero Google spend.
 node scripts/test-inventory-gallery-card-photo.mjs
+
+node scripts/test-thanksgiving-dates.mjs
+
+node scripts/test-thanksgiving-planner.mjs
+
+node scripts/test-thanksgiving-client.mjs --browser
+
+node scripts/test-thanksgiving-editorial.mjs

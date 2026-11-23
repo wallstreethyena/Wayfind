@@ -189,5 +189,23 @@ ok(/NAV_302_ROUTES[\s\S]*\/api\/viator\/go/.test(mw), "middleware treats /api/vi
 // service-role → full guard (no SSR caller).
 ok(/"\/api\/signals\/likes"/.test(mw), "middleware matcher includes /api/signals/likes (full guard)");
 
+// The Thanksgiving sheet is a browser search with a bounded provider call.
+// Exercise the actual matcher and middleware; only Next's continuation response
+// is an environment stub, so its origin/rate-limit decisions remain real.
+{
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const root = fileURLToPath(new URL("..", import.meta.url));
+  const entry = fileURLToPath(new URL("../middleware.js", import.meta.url));
+  const source = mw.replace('import { NextResponse } from "next/server";', 'const NextResponse = { next: () => new Response(null, { status: 204 }) };');
+  const real = await loadComponent(entry, root, { sourceOverrides: new Map([[entry, source]]) });
+  const path = "/api/holidays/thanksgiving";
+  ok(real.config.matcher.includes("/api/viator/tours"), "existing browser-search matcher is a positive control");
+  ok(real.config.matcher.includes(path), "Thanksgiving search actually reaches shared browser protection");
+  const call = (headers) => real.middleware({ nextUrl: new URL("https://www.gowayfind.com" + path), headers: new Headers({ "x-forwarded-for": "203.0.113.199", ...headers }) });
+  ok(call({ "sec-fetch-site": "cross-site", origin: "https://external.example" }).status === 403, "cross-site Thanksgiving search is refused before provider work");
+  ok(call({}).status === 403, "headerless Thanksgiving polling is refused");
+  ok(call({ "sec-fetch-site": "same-origin" }).status === 204, "legitimate Thanksgiving browser search reaches the route");
+}
+
 if (fails) { console.error(`test-api-guard: ${fails} failure(s)`); process.exit(1); }
 console.log("test-api-guard: OK — same-origin gate allows real browsers + blocks scrapers/cross-site; per-IP rate limit trips on burst; internal-secret bypass works; viator proxies guarded (go routes=rate-limit-only); eats routes verified deleted");
