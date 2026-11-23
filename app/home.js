@@ -269,6 +269,7 @@ import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
+import { thanksgivingOpenOptions, thanksgivingLocationResumeDecision } from "../lib/thanksgivingClient.js";
 import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
@@ -4449,6 +4450,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [mapBrowse, setMapBrowse] = useState(true); // Map opens on Food; category browsing is immediate and avoids six parallel searches.
   const [mapPool, setMapPool] = useState([]); // neutral map: all-category pool (cached searches)
   const [mapListOverride, setMapListOverride] = useState(null); // v4.95: a list's map icon pins THAT list on the in-app map (never a Google-Maps directions-to-all handoff)
+  const [mapListSession, setMapListSession] = useState(0); // A Thanksgiving handoff resets an already-mounted map's local area/search filters.
+  const [thanksgivingLocationReturn, setThanksgivingLocationReturn] = useState(null);
   // COMPASS REMOVED (owner, 2026-08-06) — control, state, refs, the
   // deviceorientation handler registered with capture:true, and the
   // screen-change cleanup effect that called stopCompass(). Removing the button
@@ -4658,6 +4661,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const openHoliday = async (h) => {
     const hol = typeof h === "string" ? (Hol.holidaysFor(new Date().getFullYear()).find((x) => x.key === h) || null) : h;
     if (!hol) return;
+    if (hol.key === "thanksgiving") {
+      const options = thanksgivingOpenOptions(typeof window !== "undefined" ? window.location.search : "", hol.year || hol.date.getFullYear());
+      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: options.year, holidayDate: options.date, holidayMi: options.mi });
+      try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
+      return;
+    }
     const content = Hol.contentFor(hol.key, hol.name);
     const theme = Hol.themeFor(hol.key);
     try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
@@ -5028,6 +5037,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const suggestionRequestRef = useRef(0);
   const mainSearchAbortRef = useRef(null);
   const searchInputRef = useRef(null);
+  function chooseThanksgivingLocation(options) {
+    setThanksgivingLocationReturn({ options, origin: center, expiresAt: Date.now() + 60000, awaitCurrent: false });
+    setHookDetail(null);
+    setDetail(null);
+    setScreen("suggested");
+    setScopeOpen(true);
+    requestAnimationFrame(() => searchInputRef.current?.focus({ preventScroll: true }));
+  }
+  useEffect(() => {
+    const decision = thanksgivingLocationResumeDecision(thanksgivingLocationReturn, { center, locResolved, scopeOpen, screen, detailOpen: !!hookDetail || !!detail });
+    if (decision === "resume") {
+      const options = thanksgivingLocationReturn.options;
+      setThanksgivingLocationReturn(null);
+      setScopeOpen(false);
+      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: options.year, holidayDate: options.date, holidayMi: options.mi });
+    } else if (decision === "cancel") setThanksgivingLocationReturn(null);
+  }, [thanksgivingLocationReturn, center, locResolved, scopeOpen, screen, hookDetail, detail]);
+  useEffect(() => {
+    if (!thanksgivingLocationReturn) return;
+    const timer = setTimeout(() => setThanksgivingLocationReturn(null), Math.max(0, thanksgivingLocationReturn.expiresAt - Date.now()));
+    return () => clearTimeout(timer);
+  }, [thanksgivingLocationReturn]);
   const mainSearchAttemptRef = useRef(null);
   useEffect(() => () => {
     suggestionRequestRef.current++;
@@ -10568,7 +10599,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // sheets (G2): drag-to-dismiss handlers shared by every sheet
     sheetDragStart, sheetDragMove, sheetDragEnd,
     // hookDetail sheet
-    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
+    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, setMapListSession, setScopeOpen, chooseThanksgivingLocation, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
     // place-suggestion flow (v6.53) — user-submitted places, stored pending review
     sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion,
     // account sheet
@@ -11195,7 +11226,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                       the premium treatment (blur, entrance animation, a
                       RECENT group label) in .wf-scope-menu. */}
                   <li className="wf-scope-cur" role="option" aria-selected={false}
-                      onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); recenterToMe(); }}>
+                      onMouseDown={(e) => { e.preventDefault(); setThanksgivingLocationReturn((pending) => pending ? { ...pending, awaitCurrent: true } : pending); setScopeOpen(false); recenterToMe(); }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4Z" /></svg>
                     Current location
                   </li>
@@ -11398,7 +11429,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       <div ref={scrollRef} className="wf-scrollarea" data-analytics-page={screen} data-analytics-overlay={detail ? "place" : undefined} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowX: "hidden", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
-            <MapErrorBoundary>{screen === "map" && <MapScreen ctx={ctx} />}</MapErrorBoundary>
+            <MapErrorBoundary>{screen === "map" && <MapScreen key={mapListSession} ctx={ctx} />}</MapErrorBoundary>
           </>
 
         {/* v6.56 (owner, screenshot + "remove the item on image 2 ... put the
