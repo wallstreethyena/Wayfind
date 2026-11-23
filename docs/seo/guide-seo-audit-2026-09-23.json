@@ -2930,6 +2930,249 @@
       }
     },
     {
+      "slug": "tampa-bay-this-week-nov-22-2026",
+      "url": "https://www.gowayfind.com/guides/tampa-bay-this-week-nov-22-2026",
+      "primary_query": "tampa bay events this week",
+      "geography": "Tampa Bay",
+      "decision": "Three Tampa Bay events checked November 22, 2026: Buzzcocks at Jannus Live on November 24, Glazer Children's Museum camp November 23 to 25, and the Bill Bigley 128 at Freedom Factory November 27 to 28.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-22) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/tampa-riverwalk-plant-museum-hero.webp; 1280x853; Ken Lund; CC BY-SA 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "river-of-lights-tampa-2026",
+      "url": "https://www.gowayfind.com/guides/river-of-lights-tampa-2026",
+      "primary_query": "river of lights tampa",
+      "geography": "Tampa Bay",
+      "decision": "River of Lights departs from Winter Village at Curtis Hixon Park on selected nights from November 21, 2026 to January 3, 2027. Family departures start at 5:15, 6:15, 7:15 and 8:15 PM.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-22) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/tampa-riverwalk-plant-museum-hero.webp; 1280x853; Ken Lund; CC BY-SA 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+      "url": "https://www.gowayfind.com/guides/restaurants-open-thanksgiving-tampa-bay-2026",
+      "primary_query": "restaurants open on thanksgiving tampa bay 2026",
+      "geography": "Tampa Bay",
+      "decision": "Four Tampa Bay restaurants WTSP lists as open on Thanksgiving Day 2026, with a full street address and a map link for each. Confirm hours with the restaurant.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The server component renders the intro and picks as HTML."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-22) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter render the reviewed image through the photo-led hero card (a branded 1200x630 crop, not the raw file)."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/verified/tampa-riverwalk-plant-museum-hero.webp; 1280x853; Ken Lund; CC BY-SA 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The route and metadata use the same per-slug reviewed image."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "unknown",
+          "evidence": "Existing structured content did not support a useful compact comparison without new research."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
       "slug": "gulf-coast-world-series-week-2026",
       "url": "https://www.gowayfind.com/guides/gulf-coast-world-series-week-2026",
       "primary_query": "gulf coast world series week",
@@ -4878,7 +5121,7 @@
       "url": "https://www.gowayfind.com/guides/florida-thanksgiving-weekend-2026",
       "primary_query": "things to do in florida thanksgiving weekend 2026",
       "geography": "Florida",
-      "decision": "Ten Florida things to do Nov 25 to 29, 2026, from the Miami and Brevard Zoo turkey trots to the Daytona Turkey Run and Stuart's tree lighting.",
+      "decision": "Fourteen Florida things to do Nov 25 to 29, 2026, from Tampa Bay turkey trots to the Daytona Turkey Run and Stuart's tree lighting.",
       "checks": {
         "source_route": {
           "status": "pass",

@@ -1,0 +1,45 @@
+{
+  "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+  "picks": {
+    "Columbia Restaurant": {
+      "src": "/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The ornate Spanish Revival facade of the Columbia Restaurant in Ybor City, with tiled arches and wrought-iron balconies",
+      "caption": "The Columbia Restaurant's Spanish Revival facade on Ybor City's Seventh Avenue.",
+      "credit": "LittleT889",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg",
+      "author": "LittleT889",
+      "position": "50% 42%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJz8e7TVLEwogRBeybvscHnD4",
+      "verification": "Reusing Wayfind's already verified photo of this exact Ybor City restaurant, the same Commons file already used on the Cuban sandwich and Tampa restaurant guides. Same place id ChIJz8e7TVLEwogRBeybvscHnD4.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-09-23"
+    }
+  },
+  "gaps": {
+    "Parkshore Grill": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 22, 2026 pass: no Creative Commons photograph of this restaurant was verified for this guide. Held for the Picture Scrapper."
+    },
+    "Bon Appetit Restaurant": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 22, 2026 pass: no Creative Commons photograph of this restaurant was verified for this guide. Held for the Picture Scrapper."
+    },
+    "Gratzzi Italian Grille": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 22, 2026 pass: no Creative Commons photograph of this restaurant was verified for this guide. Held for the Picture Scrapper."
+    }
+  }
+}
