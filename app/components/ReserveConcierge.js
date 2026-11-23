@@ -429,23 +429,32 @@ export function LiveBrowserCard({ card }) {
   const [closed, setClosed] = useState(false);
   const [error, setError] = useState("");
   const sessionRef = useRef(null);
+  const pendingOpen = useRef(null);
   useEffect(() => () => {
+    pendingOpen.current = null;
     const sid = sessionRef.current;
     if (sid) { sessionRef.current = null; safe(() => closeLiveBrowser(sid)); }
   }, []);
   const summary = [card.date ? exactDay(card.date) : "", card.time ? timeLabel(card.time) : "", card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ");
   const via = card.provider && card.provider !== "website" ? card.provider : "restaurant site";
   const launch = async () => {
-    if (opening) return;
+    if (pendingOpen.current || sessionRef.current) return;
+    const attempt = {};
+    pendingOpen.current = attempt;
     setOpening(true); setError(""); setClosed(false);
     const r = await openLiveBrowser({ placeId: card.placeId, url: card.targetUrl, restaurantName: card.restaurantName });
+    if (pendingOpen.current !== attempt) {
+      if (r?.ok && r.sessionId) await closeLiveBrowser(r.sessionId);
+      return;
+    }
+    pendingOpen.current = null;
     setOpening(false);
     if (r && r.ok && r.sessionId && r.liveViewUrl) {
       sessionRef.current = r.sessionId;
-      setSession({ id: r.sessionId, liveViewUrl: r.liveViewUrl, targetUrl: r.targetUrl || card.targetUrl });
+      setSession({ id: r.sessionId, liveViewUrl: r.liveViewUrl });
       return;
     }
-    setError((r && r.message) || "Could not open the live browser right now. You can still open the booking page directly.");
+    setError((r && r.message) || "The booking page didn't open. Try again here.");
   };
   const close = async () => {
     const sid = sessionRef.current || (session && session.id);
@@ -458,7 +467,7 @@ export function LiveBrowserCard({ card }) {
     return (
       <div data-reserve-card="live_browser" style={box}>
         <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.35 }}>{card.restaurantName || "Booking browser"}{summary ? ` · ${summary}` : ""}</div>
-        <Note>Complete your reservation directly below on {via}. Tap Done when finished.</Note>
+        <Note>Complete your reservation on {via} below. Save the confirmation before you close the browser.</Note>
         <div style={{ width: "100%", height: 500, marginTop: 10, borderRadius: 12, overflow: "hidden", border: `1px solid ${C.border}`, background: "#000" }}>
           <iframe
             data-live-browser-frame="1"
@@ -475,11 +484,10 @@ export function LiveBrowserCard({ card }) {
   return (
     <div data-reserve-card="live_browser" style={box}>
       {summary ? <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.4, marginBottom: 4 }}>{summary}</div> : null}
-      {closed ? <Note>Live browser closed. Check your email or text from {via} for your confirmation.</Note> : null}
+      {closed ? <Note>Live browser closed.</Note> : null}
       {error ? <div role="alert" style={errStyle}>{error}</div> : null}
       <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
         <button type="button" data-live-browser-open="1" style={{ ...mainBtn, opacity: opening ? 0.7 : 1 }} disabled={opening} onClick={launch}>{opening ? "Opening live browser..." : `Book on ${via} right here`}</button>
-        {card.targetUrl ? <a href={card.targetUrl} target="_blank" rel="noopener noreferrer" style={linkBtn}>Open {via} in a new tab</a> : null}
       </div>
     </div>
   );

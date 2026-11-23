@@ -344,7 +344,7 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
 {
   const rc = await loadComponent(path.join(ROOT, "lib/reserveClientApi.js"), ROOT);
   const { siteTodayStr } = await loadComponent(path.join(ROOT, "lib/siteTime.js"), ROOT);
-  const Concierge = (await loadComponent(path.join(ROOT, "app/components/ReserveConcierge.js"), ROOT)).default;
+  const { default: Concierge, LiveBrowserCard } = await loadComponent(path.join(ROOT, "app/components/ReserveConcierge.js"), ROOT);
   const Sheet = await loadComponent(path.join(ROOT, "app/components/ReserveSheet.js"), ROOT);
   const History = await loadComponent(path.join(ROOT, "app/components/ReserveHistory.js"), ROOT);
   const DAY = rc.addDaysIso(siteTodayStr(), 3);
@@ -587,6 +587,30 @@ const wide = (host) => [...host.querySelectorAll(".wf-place-card-cta > *")];
   m = await mountC({ initialMessage: "x" });
   ok(!m.host.querySelector("[data-reserve-card]") && /What day works\?/.test(m.host.textContent), "a null card is just the assistant bubble");
   await m.unmount();
+
+  // The embedded booking browser stays in the card and releases a session even if the card was dismissed during launch.
+  reset();
+  const browserCard = { placeId: "partner-1", restaurantName: "Test Kitchen", provider: "website", date: DAY, time: "19:00", partySize: 4, targetUrl: "https://restaurant.example/reservations" };
+  const browserResponse = (sessionId) => [201, { ok: true, sessionId, liveViewUrl: "https://www.browserbase.com/devtools-fullscreen/inspector.html?test=1" }];
+  routes["POST /api/reserve/browser"] = async () => browserResponse("session-first");
+  routes["DELETE /api/reserve/browser"] = async () => [200, { ok: true, released: true }];
+  let browser = await mount(React.createElement(LiveBrowserCard, { card: browserCard }));
+  ok(!q(browser)("a[href]"), "live browser card only opens checkout inside Wayfind");
+  await click(q(browser)("[data-live-browser-open]"));
+  ok(q(browser)("[data-live-browser-frame]")?.src === browserResponse("session-first")[1].liveViewUrl, "the reservation page opens in the card's browser frame");
+  await click(q(browser)("[data-live-browser-close]"));
+  ok(!q(browser)("[data-live-browser-frame]") && callsTo("DELETE", "/api/reserve/browser")[0]?.body.sessionId === "session-first", "Done removes the frame and releases its session");
+  await browser.unmount();
+
+  let finishOpen;
+  routes["POST /api/reserve/browser"] = () => new Promise((resolve) => { finishOpen = resolve; });
+  browser = await mount(React.createElement(LiveBrowserCard, { card: browserCard }));
+  await click(q(browser)("[data-live-browser-open]"));
+  ok(typeof finishOpen === "function", "booking browser launch is pending before the card is dismissed");
+  await browser.unmount();
+  finishOpen(browserResponse("session-late"));
+  await settle();
+  ok(callsTo("DELETE", "/api/reserve/browser").filter((req) => req.body.sessionId === "session-late").length === 1, "a session returned after dismissal is released once");
 
   // (g) the sheet is a host around the concierge
   reset();
