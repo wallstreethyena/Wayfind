@@ -193,17 +193,15 @@ ok(!/sponsorCard/.test(fallComponent) && Object.keys(FALL_PLACE_RAIL).length ===
   "a paid card is never merged INTO the vetted fall pool — it rides beside it, disclosed");
 ok(/selRail\.id !== "augtober"/.test(rail), "the drop header does not double-claim 'near <city>' over the title's own 'Near You'");
 // ── 3b. The seasonal skin: a DATE LAW, executed ────────────────────────────
-// THE ANNUAL WINDOW, EXECUTED (owner, 2026-08-26, superseding his same-day
-// after-Halloween call): back every Aug 26, gone the day AFTER Thanksgiving,
-// every year, computed. The Thanksgiving math is proven against four known
-// years before anything trusts it.
+// Annual display window (owner, 2026-11-23): Aug 15..Nov 10 inclusive.
+// Evidence keeps the separately verified Thanksgiving calendar.
 ok(thanksgivingDayOfMonth(2026) === 26 && thanksgivingDayOfMonth(2027) === 25 && thanksgivingDayOfMonth(2028) === 23 && thanksgivingDayOfMonth(2029) === 22,
   "the 4th-Thursday math matches the real Thanksgiving for 2026-2029");
 ok(fallSkinLive("2026-08-14") === false && fallSkinLive("2026-08-15") === true, "the season OPENS on Aug 15 (owner, 2026-10-15: same day as the Fall poster) — not a day early");
 ok(fallSkinLive("2026-10-31") === true && fallSkinLive("2026-11-02") === true, "Halloween no longer ends it — the skin runs through the fall");
-ok(fallSkinLive("2026-11-26") === true && fallSkinLive("2026-11-27") === false, "live THROUGH Thanksgiving 2026 (Nov 26), gone the morning after");
-ok(fallSkinLive("2027-08-15") === true && fallSkinLive("2027-08-14") === false && fallSkinLive("2027-11-25") === true && fallSkinLive("2027-11-26") === false,
-  "…and it COMES BACK in 2027 on the same date, leaving after THAT year's Thanksgiving — the rule survives every year with no one remembering");
+ok(fallSkinLive("2026-11-10") === true && fallSkinLive("2026-11-11") === false && fallSkinLive("2026-11-23") === false, "live through Nov 10, retired Nov 11 and now");
+ok(fallSkinLive("2027-08-15") === true && fallSkinLive("2027-08-14") === false && fallSkinLive("2027-11-10") === true && fallSkinLive("2027-11-11") === false,
+  "returns Aug 15 2027 and retires Nov 11 every year");
 ok(fallSkinLive("2027-07-04") === false && fallSkinLive("2027-12-25") === false, "never worn out of season");
 ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
 ok(/fallSkinLive\((?:siteDay|siteTodayStr\(\))\)/.test(fallComponent) && /fallSkin \? " wf-fall" : ""/.test(fallComponent),
@@ -241,7 +239,7 @@ ok(FALL_CARD_IDS.size === Object.keys(FALL_PLACE_IDS).length && Object.keys(FALL
 // stayed IN (verified 2026-09-23). Same date-boundary invariant, a
 // still-current id.
 ok(fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2026-10-01") === " wf-fall-card", "a fall-known place wears the card in season (executed)");
-ok(fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2026-11-27") === "" && fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2027-09-15") === " wf-fall-card", "…gone the day after Thanksgiving, back in season next year — the card follows the annual window");
+ok(fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2026-11-11") === "" && fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2027-09-15") === " wf-fall-card", "gone Nov 11, back in season next year — the card follows the annual window");
 ok(fallCardClass("ChIJdd8VlMN-54gRoaU0d_zYhfk", "2026-10-01") === "", "a non-member place NEVER wears it — fall-known only");
 ok(fallCardClass(null, "2026-10-01") === "", "no id, no class");
 const RENDERERS = [

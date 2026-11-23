@@ -31,7 +31,7 @@ const ok = (c, m) => { c ? pass++ : fails.push(m); return !!c; };
 
 const { TONES, toneFor } = await import(path.join(ROOT, "lib/shareCard.js"));
 const { placeModel } = await import(path.join(ROOT, "lib/shareCardCopy.js"));
-const { fallShareLine, FALL_CARD_IDS, fallSkinLive, fallSeasonEnd } = await import(path.join(ROOT, "lib/fallSkin.js"));
+const { fallShareLine, FALL_CARD_IDS, fallSkinLive, FALL_SEASON_END_MD } = await import(path.join(ROOT, "lib/fallSkin.js"));
 
 // ---- 1. the palette --------------------------------------------------------
 ok(!!TONES.fall, "TONES.fall exists — the fall share card is a palette on the one layout, never a second card");
@@ -87,7 +87,7 @@ if (TONES.fall) {
   const offSeason = "2026-12-05";
   const poolId = [...FALL_CARD_IDS][0];
   ok(fallSkinLive(inSeason) && !fallSkinLive(offSeason),
-    `positive control: the season window itself is right (Oct 5 live, Dec 5 not; ends ${fallSeasonEnd(2026)})`);
+    `positive control: the display window itself is right (Oct 5 live, Dec 5 not; ends 2026-${FALL_SEASON_END_MD})`);
   const base = "Check out Gasparilla Distillery on Wayfind";
   ok(fallShareLine(base, poolId, inSeason) !== base,
     "a fall place in season gets a fall marker on the share sentence");
