@@ -740,7 +740,7 @@ scripts/test-event-reanchor-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	73	0	0	
 scripts/test-event-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0	74cc0aa2a6c75b5f164853b24c32891d1bc6ec13842ff74c1689a16257316ebb
 scripts/test-event-reminder-facts.mjs	0	CALL	blocks-ci-and-deploy	1	-	108	0	0	f1c635ec4fe8b076de7753ad342ae03d3e0e22015d332203bacab5c3acad5823
 scripts/test-event-reminder-ics.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	8bfc8c08f92cd791573beef470316f6f8c1b0dfa8d9f3e9f7495ec5542ef79fb
-scripts/test-event-reminder-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	123	0	0	8c29d57676e458f30a4b27193372b96ad9a947c820d91086ef2c65e590f5d8f5
+scripts/test-event-reminder-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	133	0	0	f09bb00179c0f2df4d0a97a401ae1d0b87ab17873c4b7316a91514e72e35a02e
 scripts/test-event-reminder-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	f8568c3dab93c343636b98ba9150ce8587ec16f0ffcea80abe0c46bec944f8ae
 scripts/test-event-reminder.mjs	0	CALL	blocks-ci-and-deploy	1	-	135	0	0	535413d828b8bf92817a71401e5e7c68164a9008adab02319a2efae7a5ba0aed
 scripts/test-event-safety.mjs	0	CALL	blocks-ci-and-deploy	1	-	132	0	0	47bed8821ca75d07dd77ad05eac0d33606069c04f9ae1d08ed140a54f0b11a73
@@ -1183,7 +1183,7 @@ scripts/test-tags.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0	aa2b7807203284b8279
 scripts/test-taste.mjs	0	CALL	blocks-ci-and-deploy	1	-	126	0	0	1c6e163694a085102698cdfd651e621768b25b7d41431dadf4abb3a7bf48c54b
 scripts/test-taxonomy-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	137	0	0	cb13c584eda7142470a8147ed03c2369827568cdf1602bc1e91dfba4936dde9c
 scripts/test-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	436a1c75313e7ad7e7707408eb719a937cf1bfcf3f8d877a26499e93d3abff9d
-scripts/test-thanksgiving-client.mjs	0	RENDER	blocks-ci-and-deploy	1	-	93	0	0	6e31f57c33501f7b5125bf630b7b83f045611e79de239f1bd8ad7acf9901b87c
+scripts/test-thanksgiving-client.mjs	0	RENDER	blocks-ci-and-deploy	1	-	97	0	0	afa17924a857ad3701e0c2f179784ac1fb303c1aa7251570ff9da21988e46748
 scripts/test-thanksgiving-dates.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	89ddf08d3b7c65a9f154c0e6bf94e216e78bd6172a35267b08d64a7b1ade3602
 scripts/test-thanksgiving-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	7a2c7d7c83effce78b911c7c97c7d0fba12768288ff07e2e18f4d0ab8c1fa3db
 scripts/test-thanksgiving-planner.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	c32dcf8fc5e788736fd594a4a1479612ac7e484c0d652fa9d06fd5a178172571
