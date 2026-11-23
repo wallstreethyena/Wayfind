@@ -9,7 +9,6 @@ import { SITE_URL } from "../../../lib/site";
 import { CALIFORNIA_BONUS, DISNEY_FOOD_SLUG, DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, DISNEY_HOLIDAY_FOOD_GUIDES, EPCOT_FESTIVAL } from "../../../lib/guidesDisneyHolidayFood2026";
 import DisneyFoodMap from "./DisneyFoodMap";
 import FestivalBooths from "./FestivalBooths";
-import GuideDealCards from "../[slug]/GuideDealCards";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { guideDealCommerce } from "../../../lib/guideDeals";
 import { siteTodayStr } from "../../../lib/siteTime";
@@ -49,8 +48,13 @@ const festivalLd = { "@context": "https://schema.org", "@type": "Event", name: E
   location: { "@type": "Place", name: "EPCOT, Walt Disney World Resort", address: { "@type": "PostalAddress", streetAddress: "200 Epcot Center Dr", addressLocality: "Lake Buena Vista", addressRegion: "FL", postalCode: "32821", addressCountry: "US" } },
   organizer: { "@type": "Organization", name: "Walt Disney World Resort" } };
 
-// Park tickets: the registered, tracked Orlando CityPASS row (lib/coupons), the
-// same card and tracking as template guides. Only shown while the row is live.
+// Park tickets: the registered, tracked Orlando CityPASS row (lib/coupons), in
+// the shared deal-card look. Rendered on the server with no client JS: the
+// homepage first-load budget (scripts/check-bundle.mjs) tipped over when this
+// route imported the client GuideDealCards island, because sharing it changed
+// how webpack split chunks the homepage also loads. The click is still
+// recorded by app/guides/layout.js's CommerceClickBeacon and the
+// /api/commerce/go redirect. Only shown while the row is live.
 function ticketDeals() {
   const today = siteTodayStr();
   return COUPONS.filter((c) => c && c.id === "cpn-citypass-orlando" && couponIsLive(c, today)).map((c) => ({
@@ -60,6 +64,24 @@ function ticketDeals() {
 }
 
 // The answer first: every treat with its park, price and ticket, then the festival.
+function TicketCards() {
+  const deals = ticketDeals();
+  if (!deals.length) return null;
+  return <section className="wf-gd-wrap" aria-label="Park tickets">
+    <h2 className="wf-gd-h">Need park tickets?</h2>
+    <ul className="wf-gd-list">{deals.map((d) => <li key={d.id}>
+      <a className="wf-gd-card" style={{ gridTemplateColumns: "minmax(0,1fr)" }} href={d.url} data-deal-card={d.id} data-merchant={d.business} rel="nofollow sponsored noopener" target={d.external ? "_blank" : undefined}>
+        <div className="wf-gd-body">
+          <div className="wf-gd-top"><span className="wf-gd-title">{d.title}</span>{d.badge ? <span className="wf-gd-badge">{d.badge}</span> : null}</div>
+          <div className="wf-gd-merchant">{d.business}</div>
+          <p className="wf-gd-details">{d.details}</p>
+          <div className="wf-gd-foot"><span className="wf-gd-loc">{d.area}</span><span className="wf-gd-cta">{d.cta || "See the deal"}</span></div>
+        </div>
+      </a>
+    </li>)}</ul>
+  </section>;
+}
+
 function QuickAnswer() {
   return <div className={styles.quickAnswer}>
     <p className={styles.answerLead}><strong>The short answer:</strong> the 2026 Disney World Christmas food worth planning around is spread across four parks and Disney Springs, and the EPCOT International Festival of the Holidays adds 16 food spots from {EPCOT_FESTIVAL.dates}. Here is every pick, where it is and what you need to get in.</p>
@@ -116,7 +138,7 @@ export default function DisneyHolidayFoodGuidePage() {
     contents={SECTIONS.map((s) => ({ href: "#" + s.id, label: s.title }))}
     // The shared guide map card (park chips, illustrated map, card rail) sits in
     // the shell's lead slot, above the numbered park sections it links to.
-    lead={<><DisneyFoodMap parks={DISNEY_FOOD_PARKS} stops={DISNEY_FOOD_STOPS} festival={EPCOT_FESTIVAL} />{past ? null : <GuideDealCards slug={DISNEY_FOOD_SLUG} region="Orlando" deals={ticketDeals()} />}</>}
+    lead={<><DisneyFoodMap parks={DISNEY_FOOD_PARKS} stops={DISNEY_FOOD_STOPS} festival={EPCOT_FESTIVAL} />{past ? null : <TicketCards />}</>}
     extraLd={[itemListLd, festivalLd, ...(faqLd ? [faqLd] : [])]}
   >
     <div className={styles.body}>
