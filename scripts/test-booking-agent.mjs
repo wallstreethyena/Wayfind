@@ -860,5 +860,59 @@ const confirmed = { html: html("confirmation.html") };
   ok(lvDone.status === "confirmed" && lvSaved.confirmation_number === "OTSYN1001" && lvSaved.live_view_url === null, "Live View detects matching confirmation, marks confirmed, and clears live_view_url");
 }
 
+// ---- Serverless Live Browser (/api/reserve/browser) for Toast, Resy, SevenRooms, Tock ----
+{
+  const lb = await import("../lib/bookingAgent/liveBrowser.js");
+  ok(lb.providerLabelForUrl("https://tables.toasttab.com/restaurants/demo") === "Toast", "recognizes Toast Tables URL");
+  ok(lb.providerLabelForUrl("https://resy.com/cities/bradenton-fl/venues/obricks") === "Resy", "recognizes Resy URL");
+  ok(lb.providerLabelForUrl("https://www.sevenrooms.com/reservations/room901florida") === "SevenRooms", "recognizes SevenRooms URL");
+  ok(lb.providerLabelForUrl("https://www.exploretock.com/venue") === "Tock", "recognizes Tock URL");
+  ok(!lb.isSafePublicHttpsUrl("http://127.0.0.1/admin") && !lb.isSafePublicHttpsUrl("https://www.opentable.com/r/test"), "blocks loopback and OpenTable URLs from live browser");
+
+  const validLv = "https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/sess_live1&debug=true";
+  let navigatedTo = null;
+  let releasedId = null;
+  const mockFetch = async (url, init) => {
+    if (url.endsWith("/sessions") && init?.method === "POST") {
+      return new Response(JSON.stringify({ id: "sess_live1", connectUrl: "wss://connect.browserbase.com?sessionId=sess_live1" }), { status: 201 });
+    }
+    if (url.endsWith("/sessions/sess_live1/debug")) {
+      return new Response(JSON.stringify({ debuggerFullscreenUrl: validLv }), { status: 200 });
+    }
+    if (url.endsWith("/sessions/sess_live1") && init?.method === "POST") {
+      releasedId = "sess_live1";
+      return new Response(JSON.stringify({ status: "REQUEST_RELEASE" }), { status: 200 });
+    }
+    return new Response("{}", { status: 404 });
+  };
+  const lbHandlers = lb.createLiveBrowserHandlers({
+    env: { BROWSERBASE_API_KEY: "bb_test_key", BROWSERBASE_PROJECT_ID: "proj_test" },
+    fetchImpl: mockFetch,
+    navigate: async (_ws, targetUrl) => { navigatedTo = targetUrl; return { navigated: true }; },
+  });
+
+  const openRes = await lbHandlers.open(new Request("https://www.gowayfind.com/api/reserve/browser", {
+    method: "POST",
+    headers: { origin: "https://www.gowayfind.com", "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ url: "https://www.sevenrooms.com/reservations/room901florida", restaurantName: "Room 901" }),
+  }));
+  const openBody = await openRes.json();
+  ok(openRes.status === 201 && openBody.ok && openBody.provider === "SevenRooms" && openBody.liveViewUrl === validLv && navigatedTo === "https://www.sevenrooms.com/reservations/room901florida", "POST /api/reserve/browser creates session, navigates via CDP, and returns liveViewUrl");
+
+  const badRes = await lbHandlers.open(new Request("https://www.gowayfind.com/api/reserve/browser", {
+    method: "POST",
+    headers: { origin: "https://www.gowayfind.com", "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ url: "https://evil.example/phish" }),
+  }));
+  ok(badRes.status === 400, "POST /api/reserve/browser rejects unapproved arbitrary domains");
+
+  const closeRes = await lbHandlers.close(new Request("https://www.gowayfind.com/api/reserve/browser", {
+    method: "DELETE",
+    headers: { origin: "https://www.gowayfind.com", "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ sessionId: "sess_live1" }),
+  }));
+  ok(closeRes.status === 200 && releasedId === "sess_live1", "DELETE /api/reserve/browser cleanly releases Browserbase session");
+}
+
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }
 console.log(`test-booking-agent: OK - ${count} assertions (local fixtures, no live site)`);
