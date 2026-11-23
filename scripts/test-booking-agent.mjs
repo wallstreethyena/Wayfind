@@ -852,9 +852,11 @@ const confirmed = { html: html("confirmation.html") };
   ok(!bb.isSafeLiveViewUrl("javascript:alert(1)") && !bb.isSafeLiveViewUrl("https://evil.example/devtools-fullscreen/inspector.html"), "isSafeLiveViewUrl rejects non-Browserbase URLs");
 
   const bbCalls = [];
+  let workerBrowserSettings;
   const mockBbFetch = async (url, init) => {
     bbCalls.push([init?.method || "GET", url]);
     if (url.endsWith("/sessions") && init?.method === "POST") {
+      workerBrowserSettings = JSON.parse(init.body).browserSettings;
       return new Response(JSON.stringify({ id: "sess_abc123", connectUrl: "wss://connect.browserbase.com?sessionId=sess_abc123" }), { status: 200 });
     }
     if (url.endsWith("/sessions/sess_abc123/debug")) {
@@ -866,6 +868,7 @@ const confirmed = { html: html("confirmation.html") };
   const debug = await bb.getBrowserbaseLiveView({ apiKey: "k", sessionId: created.id, fetchImpl: mockBbFetch });
   const released = await bb.releaseBrowserbaseSession({ apiKey: "k", projectId: "p", sessionId: created.id, fetchImpl: mockBbFetch });
   ok(created.id === "sess_abc123" && debug.liveViewUrl === validLv && released === true && bbCalls.length === 3, "Browserbase REST create/debug/release flow works cleanly");
+  ok(workerBrowserSettings?.solveCaptchas === false && workerBrowserSettings.recordSession === false && workerBrowserSettings.logSession === false, "worker sessions disable automatic CAPTCHA solving, recordings, and logs");
 
   // Full Live View handoff: seating choice -> awaiting_user_action (exposes liveViewUrl) -> user confirms -> confirmed (clears live_view_url)
   const lvStore = createMemoryStore({ status: "on" });
