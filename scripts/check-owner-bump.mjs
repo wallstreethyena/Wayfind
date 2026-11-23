@@ -156,7 +156,7 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
 // false. That is why this is a build failure and not a note.
 {
   const card = strip(readFileSync(join(ROOT, "app/components/IconicPlaceCard.js"), "utf8"));
-  ok(/const isCuratorPick = !!\(place\._members && place\._members\.ownerPick\)/.test(card),
+  ok(/const isCuratorPick = scoredPlace\._members\?\.ownerPick === true/.test(card),
     "the card's Curator's-pick mark is driven by the SAME flag as the bump — one condition, so a bumped number always arrives with the mark that explains it");
   ok(/is-curator-pick/.test(card),
     "…and that mark reaches the DOM as a class the stylesheet can paint");

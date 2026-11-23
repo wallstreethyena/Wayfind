@@ -40,7 +40,8 @@ async function sessionUserFromRequest(s, req) {
     if (!r.ok) return null;
     const u = await r.json();
     if (!u || !u.id) return null;
-    const email = u.email || (u.user_metadata && u.user_metadata.email) || "";
+    // User-editable profile metadata is not an account identity.
+    const email = u.email || "";
     return { id: String(u.id), email };
   } catch {
     return null;
@@ -82,9 +83,13 @@ function sb() {
   return url && key ? { url, key } : null;
 }
 
+function unavailable() {
+  return Response.json({ ok: false }, { status: 503, headers: { "Cache-Control": "no-store" } });
+}
+
 export async function GET(req) {
   const s = sb();
-  if (!s) return Response.json({ counts: {}, owner: {} });
+  if (!s) return unavailable();
   const { searchParams } = new URL(req.url);
   // ONLY the place-id allow-list + a cache-bust flag come from the client. Owner id
   // + weight never do. fresh=1 (the owner's post-tap refetch) skips BOTH caches so
@@ -111,22 +116,27 @@ export async function GET(req) {
   try {
     const [r1, r2] = await Promise.all([
       fetch(`${s.url}/rest/v1/likes?place_id=${encodeURIComponent(inList)}&select=place_id,user_id&limit=5000`, { headers: h, cache: "no-store" }),
-      fetch(`${s.url}/rest/v1/events?action=eq.like&place_id=${encodeURIComponent(inList)}&select=place_id,device_id&limit=5000`, { headers: h, cache: "no-store" }),
+      fetch(`${s.url}/rest/v1/events?action=eq.like&place_id=${encodeURIComponent(inList)}&select=place_id,device_id&limit=5000`, { headers: h, cache: "no-store" }).catch(() => null),
     ]);
-    const likeRows = r1.ok ? await r1.json() : [];
-    const deviceRows = r2.ok ? await r2.json() : [];
-    const likeUserIds = (Array.isArray(likeRows) ? likeRows : []).map((row) => row && row.user_id).filter(Boolean);
+    // An unavailable member read is not proof that the owner unliked a place.
+    // Do not cache a false empty verdict. Anonymous events cannot establish an
+    // owner pick and do not block a usable signed-in read if unavailable.
+    if (!r1.ok) return unavailable();
+    const likeRows = await r1.json();
+    if (!Array.isArray(likeRows)) return unavailable();
+    const deviceRows = r2?.ok ? await r2.json().catch(() => []) : [];
+    const likeUserIds = likeRows.map((row) => row && row.user_id).filter(Boolean);
     const sessionUser = await sessionUserFromRequest(s, req);
     const emailByUserId = await emailsForUserIds(s, [...new Set(likeUserIds)]);
     const ownerIds = ownerUserIds(OWNER_ID(), sessionUser, emailByUserId, likeUserIds);
     const sessionOwner = isOwnerSession(sessionUser, OWNER_ID());
     // The owner weight + curator picks are applied HERE, in the one aggregate.
-    const { counts, owner } = aggregateLikeSignals(likeRows, deviceRows, ownerIds, OWNER_WEIGHT(), ids);
+    const { counts, owner } = aggregateLikeSignals(likeRows, Array.isArray(deviceRows) ? deviceRows : [], ownerIds, OWNER_WEIGHT(), ids);
     if (!fresh) mem.set(ck, { counts, owner, exp: Date.now() + TTL });
     const body = { counts, owner };
     if (sessionOwner) body.sessionOwner = true;
     return Response.json(body, {
       headers: { "Cache-Control": (fresh || hasAuth || sessionOwner) ? "private, no-store" : "public, s-maxage=60, stale-while-revalidate=600" },
     });
-  } catch (e) { return Response.json({ counts: {}, owner: {} }); }
+  } catch (e) { return unavailable(); }
 }

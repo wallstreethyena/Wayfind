@@ -7,6 +7,12 @@
 // correct placement across every applicable surface, without losing bonuses,
 // breaking other sort modes, or reverting to stale state."
 import { readFileSync } from "fs";
+import { fileURLToPath } from "node:url";
+import React, { act } from "react";
+import { createRoot } from "react-dom/client";
+import { JSDOM } from "jsdom";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+import { GET as getLikes } from "../app/api/signals/likes/route.js";
 import {
   applyCuratorPicks, applyCuratorPicksRanked, getCuratorPicks, mergeServerSet, noteSessionOwner,
   beginCuratorToggle, settleCuratorToggle, __resetCuratorPicksForTest,
@@ -291,4 +297,88 @@ const tick = () => new Promise((r) => setTimeout(r, 0));
   ok(!/searchParams/.test(route), "the pick-set route reads NO query params — the owner is env-only");
 }
 
-console.log(`test-curator-picks: OK — ${pass} assertions (crossing re-rank + rank labels, unlike/no-stack/creator bonus through JSON, server rails, mirror rows, thresholds + caps + non-score order, pending/ceiling/member controls, race + stale-cache + failure contract, 16 surfaces + 7 server feeds wired)`);
+// The route must distinguish unknown from a confirmed unlike, and accept
+// only real auth identity. This executes GET against a fake Supabase boundary.
+{
+  const originalFetch = globalThis.fetch;
+  const names = ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "WF_OWNER_USER_ID"];
+  const prev = names.map((key) => process.env[key]);
+  Object.assign(process.env, { SUPABASE_URL: "https://test.invalid", SUPABASE_SERVICE_ROLE_KEY: "service-stub", NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-stub", WF_OWNER_USER_ID: "" });
+  const req = () => new Request("https://wayfind.test/api/signals/likes?ids=route-probe&fresh=1", { headers: { authorization: "Bearer valid-length-fake-bearer" } });
+  const founder = (await import("../lib/ownerIdentity.js")).OWNER_ACCOUNT_EMAIL;
+  let mode = "unavailable";
+  try {
+    globalThis.fetch = async (input) => {
+      const url = new URL(input);
+      if (url.pathname === "/rest/v1/likes") {
+        if (mode === "unavailable") return new Response(null, { status: 503 });
+        return Response.json(mode === "empty" ? [] : [{ place_id: "route-probe", user_id: "fixture-user" }]);
+      }
+      if (url.pathname === "/rest/v1/events") return new Response(null, { status: 503 });
+      if (url.pathname === "/auth/v1/user") return Response.json(mode === "verified" ?
+        { id: "fixture-user", email: founder } : { id: "fixture-user", user_metadata: { email: founder } });
+      if (url.pathname.startsWith("/auth/v1/admin/users/")) return Response.json({ id: "fixture-user", email: "ordinary@example.test" });
+      throw new Error("unexpected route probe");
+    };
+    let response = await getLikes(req());
+    ok(response.status === 503 && response.headers.get("Cache-Control") === "no-store", "a failed member read is unavailable, not a public empty owner verdict");
+    ok(curatorVerdictFromLikes(await response.json(), "route-probe") === "unknown", "the client leaves the score alone during a failed owner read");
+    mode = "empty";
+    response = await getLikes(req());
+    ok(response.ok && curatorVerdictFromLikes(await response.json(), "route-probe") === "off", "a real empty successful read still confirms unlike");
+    mode = "unverified";
+    let body = await (await getLikes(req())).json();
+    ok(!body.sessionOwner && !body.owner["route-probe"] && body.counts["route-probe"] === 1, "profile metadata does not make an ordinary member an owner");
+    mode = "verified";
+    body = await (await getLikes(req())).json();
+    ok(body.sessionOwner && body.owner["route-probe"], "verified owner identity still works when the env id is absent and anonymous events are unavailable");
+  } finally {
+    globalThis.fetch = originalFetch;
+    names.forEach((key, i) => { if (prev[i] == null) delete process.env[key]; else process.env[key] = prev[i]; });
+  }
+}
+
+// Render a standalone score-bearing IconicPlaceCard with a static parent prop,
+// like the guide embed. Feed the same settled verdict that the real write path
+// emits and check the very same mounted card, not an already adjusted rerender.
+{
+  const rootPath = fileURLToPath(new URL("../", import.meta.url));
+  const entry = fileURLToPath(import.meta.url);
+  const smoke = await loadComponent(entry, rootPath, { sourceOverrides: new Map([[entry, `
+    export { default as IconicPlaceCard } from "../app/components/IconicPlaceCard.js";
+    export { mergeServerSet } from "../lib/curatorPicks.js";
+    export { trackCuratorWrite } from "../lib/curatorPicksWrite.js";
+  `]]) });
+  const dom = new JSDOM("<div id='root'></div>", { url: "https://wayfind.test/" });
+  const originals = new Map(["window", "document", "localStorage", "fetch", "IS_REACT_ACT_ENVIRONMENT"].map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
+  let picked = false;
+  try {
+    Object.assign(globalThis, { window: dom.window, document: dom.window.document, localStorage: dom.window.localStorage, IS_REACT_ACT_ENVIRONMENT: true });
+    globalThis.fetch = async (input) => String(input).includes("/api/signals/likes?")
+      ? Response.json({ counts: {}, owner: picked ? { "standalone-curator-probe": true } : {} })
+      : String(input).includes("/api/signals/curator-picks") ? Response.json({ ids: [] }) : new Response(null, { status: 404 });
+    const node = dom.window.document.getElementById("root");
+    const root = createRoot(node);
+    const noop = () => {};
+    const place = { id: "standalone-curator-probe", name: "Curator Score Probe", wfScore: 81, rating: 4.5, reviews: 80, types: ["restaurant"] };
+    const score = () => node.querySelector(".wf-place-card-score").textContent;
+    const marked = () => !!node.querySelector(".wf-place-card.is-curator-pick");
+    smoke.mergeServerSet([]);
+    await act(async () => root.render(React.createElement(smoke.IconicPlaceCard, {
+      place, onSave: noop, onLike: noop, onDislike: noop, onShare: noop,
+    })));
+    ok(score().includes("8.1") && !marked(), "standalone card starts at 8.1 without a curator mark");
+    picked = true;
+    await act(async () => { smoke.trackCuratorWrite(place.id, true, Promise.resolve({}), undefined, false); await tick(); });
+    ok(score().includes("8.8") && marked() && /curator.s pick/i.test(node.textContent), "settled owner like re-renders the SAME standalone card at 8.8 with the pick disclosure");
+    picked = false;
+    await act(async () => { smoke.trackCuratorWrite(place.id, false, Promise.resolve({}), undefined, true); await tick(); });
+    ok(score().includes("8.1") && !marked(), "settled unlike restores the mounted card to 8.1 without a curator mark");
+    await act(async () => root.unmount());
+  } finally {
+    for (const [key, descriptor] of originals) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; }
+    dom.window.close();
+  }
+}
+
+console.log(`test-curator-picks: OK — ${pass} assertions (crossing re-rank + rank labels, unlike/no-stack/creator bonus through JSON, server rails, mirror rows, thresholds + caps + non-score order, pending/ceiling/member controls, race + stale-cache + failure contract, 16 surfaces + 7 server feeds wired, route failure vs empty, mounted standalone score)`);
