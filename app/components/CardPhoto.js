@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import PhotoCreditLink from "./PhotoCreditLink.js";
 import PhotoFallbackTile from "./PhotoFallbackTile.js";
 import { cardPhotoRequest, fetchCardPhoto, photoPlaceIdFromSrc } from "../../lib/cardPhotoRequest.js";
-import { MAX_ATTEMPTS, RETRY_DELAY_MS, photoAnswerStatus } from "../../lib/photoAnswers.js";
+import { MAX_ATTEMPTS, RETRY_DELAY_MS, peekPlacePhoto, photoAnswerStatus } from "../../lib/photoAnswers.js";
 
 const control = { background: "#101820", color: "#fff", border: "1px solid #64748b", borderRadius: 6, cursor: "pointer", pointerEvents: "auto" };
 const creditLine = { color: "rgba(255,255,255,.6)", textShadow: "0 1px 2px rgba(0,0,0,.65)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "Roboto, sans-serif", fontSize: 9.5, lineHeight: "12px", fontWeight: 500 };
@@ -93,18 +93,21 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   // credit through a separate control without changing card geometry.
   const baseRequest = cardPhotoRequest(src);
   const request = baseRequest && inLink && !/[?&]nospend=1(?:&|$)/.test(baseRequest) ? baseRequest + "&nospend=1" : baseRequest;
+  const pid = request ? photoPlaceIdFromSrc(src) : null;
+  const nospend = !!request && /[?&]nospend=1(?:&|$)/.test(request);
   const eager = props.loading === "eager";
   const anchor = useRef(null);
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const fallbackAttrRef = useRef(props["data-fallback"]);
   fallbackAttrRef.current = props["data-fallback"];
-  const [answer, setAnswer] = useState(null);
+  const allow = (p) => inLink && p?.source === "google" && !p.src?.startsWith("/api/photo/stored/") ? null : p;
+  const peeked = request ? allow(peekPlacePhoto(pid, { nospend })) : null;
+  const [answer, setAnswer] = useState(() => (peeked ? { request, photo: peeked } : null));
   const [failed, setFailed] = useState(null);
   const [viewer, setViewer] = useState(null);
   const [rawFailed, setRawFailed] = useState(null);
-  const allow = (p) => inLink && p?.source === "google" && !p.src?.startsWith("/api/photo/stored/") ? null : p;
-  const photo = answer?.request === request ? allow(answer.photo) : null;
+  const photo = answer?.request === request ? allow(answer.photo) : peeked;
   const notifyError = () => {
     if (!onErrorRef.current || missSrc) return;
     const fbRaw = fallbackAttrRef.current || "";
@@ -120,10 +123,15 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   };
   useEffect(() => {
     setViewer(null);
-    if (!request || (!eager && !anchor.current)) return;
+    if (!request) return;
+    const cached = allow(peekPlacePhoto(pid, { nospend }));
+    if (cached) {
+      setAnswer((prev) => (prev?.request === request && prev.photo === cached ? prev : { request, photo: cached }));
+      setFailed((prev) => (prev === request ? null : prev));
+      return;
+    }
+    if (!eager && !anchor.current) return;
     let disposed = false, started = false, retry = null;
-    const pid = photoPlaceIdFromSrc(src);
-    const nospend = /[?&]nospend=1(?:&|$)/.test(request);
     // One request now; if the failure was temporary, ONE more after the shared
     // delay. photoAnswers enforces the attempt limit, so this can never loop.
     const run = (attempt) => {

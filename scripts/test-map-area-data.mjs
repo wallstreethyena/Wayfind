@@ -214,7 +214,8 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const route = await loadComponent(path.join(root, 'app/api/places/map/route.js'), root, { onGraph(graph) {
   const configFile = graph.get(path.join(root, 'lib/serverCache.js'));
   assert.ok(configFile, 'production route config dependency was compiled');
-  writeFileSync(configFile, 'export const sbEnv = () => null;\n');
+  const orig = readFileSync(configFile, 'utf8');
+  writeFileSync(configFile, orig.replace(/export function sbEnv\(\)[\s\S]*?^\}/m, 'export const sbEnv = () => null;'));
 } });
 assert.equal((await route.GET(new Request('https://example.org/api/places/map'))).status, 400, 'invalid API origin is rejected by the real handler');
 const apiQuery = new URLSearchParams({ ...bounds, originLat: origin.lat, originLng: origin.lng });
@@ -277,4 +278,180 @@ assert.equal(unavailable.headers.get('cache-control'), 'private, no-store');
   assert.equal(keepMapPreview(fastFoodSubpar, fallback, 'food', 'ready', { allowSparseFallback: true }), false, 'keepMapPreview still rejects < 7.5 even with allowSparseFallback=true');
 }
 
-console.log('Map area data: 1203-place traversal, six categories, post-context 9.0→9.6 admission/curator fallback/creator continuity, freshness, geo, dedupe, shared filters, sparse-area top-up (<8), bounded 15-mi nearest-area fallback, fetch/body deadlines and cancellation verified.');
+// Owner 2026-11-23: wire GoWayfind's existing inventory metadata + stored photos (Tier 1/2/3, zero external API calls).
+{
+  const { hydrateMapPlacesWithStoredPhotos } = await import('../lib/mapAreaPhotos.js');
+
+  // 1. mapInventoryPlace preserves existing GoWayfind fields from wf_inventory.
+  const richRow = row(42, {
+    place_id: 'ChIJRichInventoryPlace01',
+    editorial: 'Wood-fired pizzas and housemade pasta.',
+    signals: {
+      rating: 4.9,
+      reviews: 1200,
+      priceNum: 2,
+      website: 'https://richvenue.example/',
+      photo_url: '/places/rich-cover.webp',
+      photos: ['/place-photos/batch-1/rich.jpg'],
+      photo_gallery: [{
+        url: '/place-photos/batch-1/rich.jpg',
+        source: 'official_website',
+        license: 'Courtesy of venue',
+        attribution_text: 'Photo: Rich Venue',
+        attribution_url: 'https://richvenue.example/',
+      }],
+    },
+  });
+  const richMapped = mapInventoryPlace(richRow, now, origin);
+  assert.equal(richMapped.photo_url, '/places/rich-cover.webp');
+  assert.equal(richMapped.photoUrl, '/places/rich-cover.webp');
+  assert.deepEqual(richMapped.owned_photos, ['/place-photos/batch-1/rich.jpg']);
+  assert.equal(richMapped.photo_gallery.length, 1);
+  assert.deepEqual(richMapped.editorialSummary, { text: 'Wood-fired pizzas and housemade pasta.' });
+  assert.equal(richMapped.website, 'https://richvenue.example/');
+  assert.equal(richMapped.priceLevel, 2);
+
+  // 2. mergeMapAreaContext preserves GoWayfind photos, editorial, cuisines, tags, price, address, website, hours without replacing owned identity/score.
+  const bareArea = mapInventoryPlace(row(43, { place_id: 'ChIJBareAreaRow0000001', cuisines: [], tags: [], editorial: null, signals: { rating: 4.8, reviews: 900 } }), now, origin);
+  const ctxRich = {
+    id: bareArea.id,
+    name: 'Wrong Context Name',
+    lat: 0,
+    lng: 0,
+    governed_score: 100,
+    wfPhoto: { src: '/api/photo/stored/ChIJBareAreaRow0000001?v=' + 'a'.repeat(64), source: 'google', credit: { name: 'Photog', mapsUri: 'https://maps.google.com/?cid=1', authors: [{ name: 'Photog' }] } },
+    photo: '/api/photo/stored/ChIJBareAreaRow0000001?v=' + 'a'.repeat(64),
+    photo_url: '/places/ctx-cover.jpg',
+    photoRef: 'places/ChIJBareAreaRow0000001/photos/Ref123',
+    editorial: 'Neighborhood taco stand with handmade tortillas.',
+    line: 'Neighborhood taco stand with handmade tortillas.',
+    cuisines: ['Mexican'],
+    tags: ['lunch', 'dinner'],
+    priceNum: 2,
+    address: '123 Main St, Parrish, FL',
+    website: 'https://tacos.example/',
+  };
+  const mergedRich = mergeMapAreaContext([bareArea], [ctxRich])[0];
+  assert.equal(mergedRich.name, bareArea.name, 'mergeMapAreaContext never overrides owned name');
+  assert.equal(mergedRich.lat, bareArea.lat, 'mergeMapAreaContext never overrides owned lat');
+  assert.equal(mergedRich.governed_score, bareArea.governed_score, 'mergeMapAreaContext never borrows precomputed governed_score');
+  assert.equal(mergedRich.wfPhoto.src, ctxRich.wfPhoto.src, 'mergeMapAreaContext carries wfPhoto');
+  assert.equal(mergedRich.photo, ctxRich.photo, 'mergeMapAreaContext carries photo');
+  assert.equal(mergedRich.photoRef, ctxRich.photoRef, 'mergeMapAreaContext carries photoRef');
+  assert.equal(mergedRich.editorial, ctxRich.editorial, 'mergeMapAreaContext carries editorial');
+  assert.deepEqual(mergedRich.editorialSummary, { text: ctxRich.editorial }, 'mergeMapAreaContext derives editorialSummary');
+  assert.equal(mergedRich.line, ctxRich.line, 'mergeMapAreaContext carries line');
+  assert.deepEqual(mergedRich.cuisines, ['Mexican'], 'mergeMapAreaContext carries cuisines');
+  assert.deepEqual(mergedRich.tags, ['lunch', 'dinner'], 'mergeMapAreaContext carries tags');
+  assert.equal(mergedRich.priceNum, 2, 'mergeMapAreaContext carries priceNum');
+  assert.equal(mergedRich.address, ctxRich.address, 'mergeMapAreaContext carries address');
+  assert.equal(mergedRich.website, ctxRich.website, 'mergeMapAreaContext carries website');
+
+  // 3. hydrateMapPlacesWithStoredPhotos: Tier 1 gallery, Tier 2 wf_place_photo, Tier 3 wf_google_photo_store, ZERO external API calls, fail-soft.
+  const ID_T1 = 'ChIJTierOneGallery00001';
+  const ID_T2 = 'ChIJTierTwoFreePhoto002';
+  const ID_T3 = 'ChIJTierThreeGoogle0003';
+  const ID_NONE = 'ChIJNoStoredPhoto000004';
+  const HASH64 = 'b'.repeat(64);
+  const rawRowsById = new Map([
+    [ID_T1, {
+      place_id: ID_T1,
+      signals: {
+        photo_gallery: [{
+          url: `https://www.gowayfind.com/place-photos/batch-1/${ID_T1}/cover.jpg`,
+          source: 'official_website',
+          license: 'Courtesy of venue',
+          attribution_text: 'Photo: Tier One Cafe',
+          attribution_url: 'https://tierone.example/',
+        }],
+      },
+    }],
+  ]);
+  const requestedUrls = [];
+  const hydrated = await hydrateMapPlacesWithStoredPhotos(
+    [
+      { id: ID_T1, name: 'Tier One', photo_gallery: rawRowsById.get(ID_T1).signals.photo_gallery },
+      { id: ID_T2, name: 'Tier Two' },
+      { id: ID_T3, name: 'Tier Three' },
+      { id: ID_NONE, name: 'No Photo' },
+    ],
+    {
+      rawRowsById,
+      config: { url: 'https://owned.supabase.co', key: 'service-role-fixture' },
+      stripRawGallery: true,
+      vaultPublicUrl: (sp, base) => `${base}/storage/v1/object/public/place-photos/${sp}`,
+      renditionUrl: (u) => u,
+      fetcher: async (url, init) => {
+        requestedUrls.push(String(url));
+        assert.ok(String(url).startsWith('https://owned.supabase.co/rest/v1/'), 'must only hit configured Supabase REST, zero external APIs');
+        assert.equal(init.headers.apikey, 'service-role-fixture');
+        if (String(url).includes('/wf_place_photo')) {
+          return {
+            ok: true,
+            json: async () => [{
+              place_id: ID_T2,
+              image_url: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Spot.jpg',
+              storage_path: `${ID_T2}/vault.webp`,
+              license: 'CC BY-SA 4.0',
+              attribution_text: 'Commons Author',
+              attribution_url: 'https://commons.wikimedia.org/wiki/File:Spot.jpg',
+              source: 'wikimedia',
+              width: 1200,
+            }],
+          };
+        }
+        if (String(url).includes('/wf_google_photo_store')) {
+          return {
+            ok: true,
+            json: async () => [{
+              place_id: ID_T3,
+              state: 'ready',
+              version: HASH64,
+              storage_path: `${ID_T3}/12345678-1234-1234-1234-123456789abc/${HASH64}`,
+              content_type: 'image/jpeg',
+              width: 1200,
+              height: 800,
+              bytes: 95000,
+              credit: {
+                name: 'Jane Google Photog',
+                uri: 'https://maps.google.com/maps/contrib/1',
+                mapsUri: 'https://maps.google.com/?cid=999',
+                authors: [{ name: 'Jane Google Photog', uri: 'https://maps.google.com/maps/contrib/1' }],
+              },
+            }],
+          };
+        }
+        throw new Error('unexpected URL: ' + url);
+      },
+    },
+  );
+  assert.equal(requestedUrls.length, 2, 'batch hydration makes at most 1 wf_place_photo + 1 wf_google_photo_store query');
+  assert.ok(!requestedUrls[0].includes(ID_T1), 'Tier 1 hit is excluded from Tier 2 batch query');
+  assert.ok(!requestedUrls[1].includes(ID_T1) && !requestedUrls[1].includes(ID_T2), 'Tier 1 & 2 hits are excluded from Tier 3 batch query');
+  const h1 = hydrated.find((x) => x.id === ID_T1);
+  const h2 = hydrated.find((x) => x.id === ID_T2);
+  const h3 = hydrated.find((x) => x.id === ID_T3);
+  const h4 = hydrated.find((x) => x.id === ID_NONE);
+  assert.equal(h1.photo, `/place-photos/batch-1/${ID_T1}/cover.jpg`, 'Tier 1 sets photo from signals.photo_gallery');
+  assert.equal(h1.wfPhoto.source, 'permitted');
+  assert.equal(h1.wfPhoto.credit.name, 'Photo: Tier One Cafe');
+  assert.equal('photo_gallery' in h1, false, 'stripRawGallery removes raw photo_gallery after hydrating wfPhoto');
+  assert.equal(h2.photo, `https://owned.supabase.co/storage/v1/object/public/place-photos/${ID_T2}/vault.webp`, 'Tier 2 serves vaulted wf_place_photo URL');
+  assert.equal(h2.wfPhoto.source, 'licensed');
+  assert.equal(h2.wfPhoto.credit.license, 'CC BY-SA 4.0');
+  assert.equal(h3.photo, `/api/photo/stored/${ID_T3}?v=${HASH64}`, 'Tier 3 sets stored Google photo URL');
+  assert.equal(h3.wfPhoto.source, 'google');
+  assert.equal(h3.wfPhoto.credit.name, 'Jane Google Photog', 'Tier 3 preserves photographer credit');
+  assert.equal(h3.wfPhoto.credit.mapsUri, 'https://maps.google.com/?cid=999', 'Tier 3 preserves Google Maps credit link');
+  assert.equal(h4.wfPhoto, undefined, 'place with no stored photo remains clean without fabrication');
+
+  // Fail-soft: DB network errors never break map area responses.
+  const failSoft = await hydrateMapPlacesWithStoredPhotos(
+    [{ id: ID_T3, name: 'Still Here' }],
+    { config: { url: 'https://owned.supabase.co', key: 'k' }, fetcher: async () => { throw new Error('db timeout'); } },
+  );
+  assert.equal(failSoft.length, 1);
+  assert.equal(failSoft[0].id, ID_T3);
+}
+
+console.log('Map area data: 1203-place traversal, six categories, post-context 9.0→9.6 admission/curator fallback/creator continuity, freshness, geo, dedupe, shared filters, sparse-area top-up (<8), bounded 15-mi nearest-area fallback, GoWayfind Tier 1/2/3 batch photo hydration & metadata preservation, fetch/body deadlines and cancellation verified.');

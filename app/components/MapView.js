@@ -174,7 +174,7 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null, onAreaChange = null, onViewportChange = null, showOrigin = true }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, onSelectCluster = null, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null, onAreaChange = null, onViewportChange = null, showOrigin = true }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -186,6 +186,8 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   if (!fitSettleRef.current) fitSettleRef.current = createFitSettleTracker();
   const onAreaChangeRef = useRef(null);
   const onViewportChangeRef = useRef(null);
+  const onSelectClusterRef = useRef(null);
+  onSelectClusterRef.current = onSelectCluster;
   const placesByIdRef = useRef(new Map());
   const [failed, setFailed] = useState(false);
 
@@ -432,8 +434,8 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         });
       } catch (e) {}
       map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 30, data: { type: "FeatureCollection", features: [] } });
-      map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "rgba(255,255,255,.97)", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "#F97316", "circle-opacity": .97 } });
-      map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["concat", ["get", "point_count_abbreviated"], " spots"], "text-size": 10.5, "text-allow-overlap": true }, paint: { "text-color": "#0B0F14" } });
+      map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "#0F172A", "circle-radius": ["step", ["get", "point_count"], 21, 10, 25, 20, 29], "circle-stroke-width": 2.5, "circle-stroke-color": "#F97316", "circle-opacity": .96 } });
+      map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["concat", ["get", "point_count_abbreviated"], " spots"], "text-size": 10.5, "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF" } });
       // v7.16 — GOOGLE-STYLE PIN SPRITES (see drawPinImageData above).
       // One symbol layer, tip-on-coordinate, small footprint, native
       // clustering. Score text/halo/pointer layers are gone: the score
@@ -495,17 +497,29 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       if (clusterId == null || !source || typeof source.getClusterExpansionZoom !== "function") return;
       const expandCluster = () => source.getClusterExpansionZoom(clusterId).then((zoom) => map.easeTo({ center: feature.geometry.coordinates, zoom, duration: 420 })).catch(() => {});
       if (typeof source.getClusterLeaves === "function") {
-        source.getClusterLeaves(clusterId, 25, 0).then((leaves) => {
+        source.getClusterLeaves(clusterId, 40, 0).then((leaves) => {
           if (Array.isArray(leaves) && leaves.length > 0) {
-            const coords = new Set(leaves.map((lf) => {
+            let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+            const leafPlaces = [];
+            for (const lf of leaves) {
               const c = lf && lf.geometry && lf.geometry.coordinates;
-              return Array.isArray(c) ? `${Number(c[1]).toFixed(6)}|${Number(c[0]).toFixed(6)}` : "";
-            }));
-            if (coords.size <= 1) {
-              const firstId = leaves[0]?.properties?.id;
-              const topPlace = firstId != null ? placesByIdRef.current.get(String(firstId)) : null;
-              if (topPlace && onSelect) { onSelect(topPlace); return; }
+              if (Array.isArray(c) && Number.isFinite(Number(c[1])) && Number.isFinite(Number(c[0]))) {
+                const lat = Number(c[1]), lng = Number(c[0]);
+                if (lat < minLat) minLat = lat;
+                if (lat > maxLat) maxLat = lat;
+                if (lng < minLng) minLng = lng;
+                if (lng > maxLng) maxLng = lng;
+              }
+              const id = lf?.properties?.id;
+              const p = id != null ? placesByIdRef.current.get(String(id)) : null;
+              if (p) leafPlaces.push(p);
             }
+            const span = Number.isFinite(minLat) ? Math.max(maxLat - minLat, maxLng - minLng) : 0;
+            if (span <= 0.006 && leafPlaces.length > 1 && typeof onSelectClusterRef.current === "function") {
+              onSelectClusterRef.current(leafPlaces);
+              return;
+            }
+            if (span <= 1e-6 && leafPlaces[0] && onSelect) { onSelect(leafPlaces[0]); return; }
           }
           expandCluster();
         }).catch(expandCluster);
