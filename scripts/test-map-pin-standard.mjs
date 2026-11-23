@@ -3,7 +3,7 @@ import { loadComponent } from './lib/jsxLoad.mjs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { readFileSync, existsSync } from 'node:fs';
-import { PIN_CATEGORIES, mapPinUrl } from '../lib/mapPinStandard.js';
+import { PIN_CATEGORIES, mapPinUrl, mapPinSvg, appleLocationDotSvg } from '../lib/mapPinStandard.js';
 import assert from 'node:assert/strict';
 const root = process.cwd();
 const { default: EventVenueMap } = await loadComponent(root+'/app/components/EventVenueMap.js', root);
@@ -16,6 +16,12 @@ for (const family of ['stay','cafe','culture','food','shows']) {
 }
 assert.equal((markup.match(/class="wfev-cat"/g) || []).length, 7);
 assert.ok(markup.includes(mapPinUrl('parking')), 'Parking uses the shared P pin');
+// Owner 2026-11-23: Your location uses the Apple Maps concentric blue dot (#0A84FF), never a glossy teardrop pin.
+const locSvg = mapPinSvg('location');
+assert.equal(locSvg, appleLocationDotSvg(), 'mapPinSvg("location") returns appleLocationDotSvg()');
+assert.ok(locSvg.includes('#0A84FF') && locSvg.includes('<circle') && !locSvg.includes('M17 0C7.6'), 'location SVG is the concentric #0A84FF dot with no teardrop PIN_PATH');
+const mapViewSrc = readFileSync(root + '/app/components/MapView.js', 'utf8');
+assert.ok(/createLocationDotElement\(\{ label \}\)/.test(mapViewSrc) && /anchor: deviceLoc \? "center" : "bottom"/.test(mapViewSrc), 'MapView uses center-anchored createLocationDotElement for Your location');
 if (!existsSync(chromium.executablePath())) {
   assert.ok(!process.argv.includes('--require-browser'), 'Chromium is required for merge verification');
   console.log('SSR pin/legend parity passed. BROWSER CHECK NOT RUN: Chromium unavailable; merge CI requires it.');

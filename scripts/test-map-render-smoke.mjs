@@ -117,16 +117,18 @@ delete globalThis.__wfRecoveryProbe;
 
 // Every state a user can put the screen in. The crash lived in state 1.
 const STATES = [
-  // The bottom preview slot renders MapCompactPreviewCard (data-wf-map-preview-card).
-  // A real score renders the real WayfindScoreBadge; no score renders NO badge.
-  ["pin tapped: preview card with a real score", { mapPreview: P() }, (h) => h.includes("data-wf-map-preview-card") && h.includes("9.2") && h.includes("wayfind-score-badge")],
-  ["preview card, place with NO score (score law: badge absent, no fabrication)", { mapPreview: P({ wfScore: null, governed_score: null }) }, (h) => !h.includes("wayfind-score-badge") && h.includes("data-wf-map-preview-card")],
-  ["preview card, sparse place (no price/photo/distance)", { mapPreview: P({ price: null, distMi: null, cuisine: null }) }, (h) => h.includes("data-wf-map-preview-card")],
-  ["collapsed list strip", {}, (h) => h.includes("Wayfind Score 9.2+") && h.includes("Browse list")],
-  ["open drawer renders the real PlaceCard seam", { mapDrawer: true }, (h) => h.includes("place-card")],
-  ["loaded empty area stays honest", { __mapSmokePlaces: [], mapDrawer: true }, (h) => h.includes("Nothing nearby matches this filter") && !h.includes("place-card")],
-  ["below-floor rows are filtered before the drawer", { __mapSmokePlaces: [P({ wfScore: 91, governed_score: 91 })], mapDrawer: true }, (h) => h.includes("Nothing nearby matches this filter") && !h.includes("place-card")],
-  ["partial area failure is explicitly labelled", { __mapSmokeStatus: "error", mapDrawer: true }, (h) => h.includes("Could not load this area") && h.includes("partial results") && h.includes("place-card")],
+  // Owner 2026-11-23: the bottom preview slot renders IconicPlaceCard (data-iconic-place-card)
+  // inside .wf-map-preview-shell (data-wf-map-preview-card). A real score renders WayfindScoreBadge; no score renders NO badge.
+  ["pin tapped: preview card with a real score", { mapPreview: P() }, (h) => h.includes("data-iconic-place-card") && h.includes("data-wf-map-preview-card") && h.includes("9.2") && h.includes("wayfind-score-badge")],
+  ["preview card, place with NO score (score law: badge absent, no fabrication)", { mapPreview: P({ wfScore: null, governed_score: null }) }, (h) => h.includes("data-iconic-place-card") && !h.includes("wayfind-score-badge") && h.includes("data-wf-map-preview-card")],
+  ["preview card, sparse place (no price/photo/distance)", { mapPreview: P({ price: null, distMi: null, cuisine: null }) }, (h) => h.includes("data-iconic-place-card") && h.includes("data-wf-map-preview-card")],
+  ["idle map renders no collapsed Browse list pill and exposes list toggle", {}, (h) => !h.includes("Browse list") && !h.includes('class="wf-map-results') && h.includes("data-wf-map-list-toggle")],
+  ["open drawer renders the real PlaceCard seam", { mapDrawer: true }, (h) => h.includes(">place-card<")],
+  ["loaded empty area stays honest", { __mapSmokePlaces: [], mapDrawer: true }, (h) => h.includes("Nothing nearby matches this filter") && !h.includes(">place-card<")],
+  ["dense area keeps 9.2+ strict over 9.1", { __mapSmokePlaces: [P(), P({ id: "below92", name: "Nine One", wfScore: 91, governed_score: 91 })], mapDrawer: true }, (h) => (h.match(/>place-card</g) || []).length === 1 && h.includes("Wayfind Score 9.2+")],
+  ["sparse area with no 9.2+ surfaces >= 7.5 fallback and filters < 7.5", { __mapSmokePlaces: [P({ id: "parrish75", name: "Parrish Diner", wfScore: 75, governed_score: 75 }), P({ id: "fast74", name: "Subpar Chain", wfScore: 74, governed_score: 74 })], mapDrawer: true }, (h) => (h.match(/>place-card</g) || []).length === 1 && h.includes("Best nearby")],
+  ["below sparse 7.5 floor rows are filtered before the drawer", { __mapSmokePlaces: [P({ wfScore: 74, governed_score: 74 })], mapDrawer: true }, (h) => h.includes("Nothing nearby matches this filter") && !h.includes(">place-card<")],
+  ["partial area failure is explicitly labelled", { __mapSmokeStatus: "error", mapDrawer: true }, (h) => h.includes("Could not load this area") && h.includes("partial results") && h.includes(">place-card<")],
   ["events mode with an event preview", { mapMode: "events", eventPreview: EV, events: [EV] }, (h) => h.includes("Smoke Show")],
 ];
 
@@ -350,8 +352,9 @@ actionCard?.props.onSave({}); actionCard?.props.onOpen(); actionCard?.props.onSh
 ok(actions.length === 3 && actions.every((p) => p === originalPlace), "save, detail and share receive the original identity, never the Apple clone");
 ok(/function quickSaveFavorite\(p[,)]/.test(readFileSync(new URL("../app/home.js", import.meta.url), "utf8")), "the quickSaveFavorite stub above matches the real signature (place first)");
 ok(actionCard?.props.place.lat === null && actionCard?.props.place.lng === null, "card fallback hooks cannot serialize Apple coordinates");
-const listReturnBtn = visitElement(actionTree, (el) => el.type === "button" && Array.isArray(el.props.children) && el.props.children.some((c) => typeof c === "string" && c.includes("List (")));
-ok(!!listReturnBtn, "single-card preview renders the List (N) return button");
+const parkingBtn = visitElement(actionTree, (el) => el.type === "button" && el.props["aria-label"]?.startsWith("Parking and nearby pairings for "));
+const closeBtn = visitElement(actionTree, (el) => el.type === "button" && el.props["aria-label"] === "Close");
+ok(!!parkingBtn && !!closeBtn, "single-card preview renders the Parking & nearby and Close micro-bar above IconicPlaceCard");
 actionHooks.unmount();
 
 // Drawer filter, hover-to-pin sync, and drawer PlaceCard actions
@@ -400,7 +403,8 @@ ok(drawerSaved.length === 1 && drawerSaved[0].id === "beta" && drawerLiked.lengt
 betaCard.props.onDetail();
 ok(drawerPreview?.id === "beta" && drawerOpen === false, "selecting a drawer card opens its single-card preview and closes the drawer");
 dTree = renderDrawer();
-ok(renderToStaticMarkup(dTree).includes("List (1)"), "single-card preview List (N) button reflects the filtered active result set");
+const filteredPreviewHtml = renderToStaticMarkup(dTree);
+ok(filteredPreviewHtml.includes('data-wf-map-preview-card="beta"') && !filteredPreviewHtml.includes("1 / 2"), "single-card preview reflects the filtered 1-item result set without paging to excluded items");
 drawerHooks.unmount();
 
 const mapScreenRaw = readFileSync(new URL("../app/components/screens/Map.js", import.meta.url), "utf8");
@@ -414,7 +418,7 @@ ok(/const dLat = \.56, dLng = \.62;/.test(mapScreenRaw), "the first viewport is 
   const completion = readAt > 0 && depsAt > readAt ? mapScreenRaw.slice(readAt, depsAt) : "";
   ok(completion.length > 0 && !/onPage\s*:/.test(completion) && (completion.match(/setAreaPlaces/g) || []).length === 1, "a completed area read commits setAreaPlaces once and does not render on every page");
 }
-ok(/bannerStatus === "error" \|\| !view\.length/.test(mapScreenRaw) && /bottom: view\.length && !mapDrawer && !mapPreview \? 138 : 76/.test(mapScreenRaw) && !/top:\s*330/.test(mapScreenRaw), "map status renders only for an error or an empty result set, in the bottom sheet slot");
+ok(/bannerStatus === "error" \|\| !view\.length/.test(mapScreenRaw) && /data-wf-map-empty-state=[\s\S]{0,400}?bottom: 76/.test(mapScreenRaw) && !/top:\s*330/.test(mapScreenRaw), "map status renders only for an error or an empty result set, in the bottom sheet slot");
 ok(!/ackdropFilter/.test(mapScreenRaw), "the places sheet stays translucent without a backdrop-filter over the moving map");
 {
   const calls = [];

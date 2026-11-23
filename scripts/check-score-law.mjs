@@ -351,11 +351,16 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
   ok(/p\.governed_score = governedScoreOf\(p, row\.metro\)/.test(mapArea) && /byGovernedScore\(a, b\)/.test(mapArea)
     && /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(mapSrc),
     "the full map pool uses the same governed score (including recorded trend and creator inputs) that the shared card displays");
-  // The map's compact preview card carries the mandatory 🔥 trend_reason
-  // disclosure alongside IconicPlaceCard's facts row.
-  ok(/<MapCompactPreviewCard/.test(mapSrc) && /place\.trending && place\.trend_reason \? "\u{1F525} " \+ place\.trend_reason/u.test(mapSrc), "the map preview renders MapCompactPreviewCard (which owns the \u{1F525} disclosure)");
-  ok(/place\.trending && place\.trend_reason \? "\u{1F525} " \+ place\.trend_reason/u.test(readFileSync(path.resolve("app/components/IconicPlaceCard.js"), "utf8")),
-    "IconicPlaceCard's facts row discloses the \u{1F525} reason — the shared card keeps it");
+  // Owner 2026-11-23: the map preview renders the iconic homepage IconicPlaceCard
+  // (which owns the 🔥 trend_reason disclosure and WayfindScoreBadge) instead of MapCompactPreviewCard.
+  const iconicSrc = readFileSync(path.resolve("app/components/IconicPlaceCard.js"), "utf8");
+  ok(!/<MapCompactPreviewCard/.test(mapSrc)
+    && /data-wf-map-preview-card=\{mp\.id\}/.test(mapSrc)
+    && /<IconicPlaceCard[\s\S]{0,2000}?onOpen=[\s\S]{0,1500}?eagerMedia/.test(mapSrc),
+    "Owner 2026-11-23: the map preview renders <IconicPlaceCard> with data-wf-map-preview-card, onOpen, and eagerMedia");
+  ok(/place\.trending && place\.trend_reason \? "\u{1F525} " \+ place\.trend_reason/u.test(iconicSrc)
+    && /<WayfindScoreBadge/.test(iconicSrc),
+    "IconicPlaceCard's facts row discloses the \u{1F525} reason and renders WayfindScoreBadge");
   ok(/p && p\.trending && p\.trend_reason/.test(mapSrc), "the map card chips render the unified flame (beach-only flame folded in)");
   const HOME_SRC2 = readFileSync(path.resolve("app/home.js"), "utf8");
   ok((HOME_SRC2.match(/await attachTrendSignals\(/g) || []).length >= 3,

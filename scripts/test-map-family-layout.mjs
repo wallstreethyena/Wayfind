@@ -74,16 +74,17 @@ try {
     const page = await browser.newPage({ viewport: { width, height } });
     await page.route('**/*', route => route.abort());
 
-    // State 2: Compact place preview visible + FamilyEventCard
+    // State 2: IconicPlaceCard preview visible in .wf-map-preview-shell + FamilyEventCard
     await page.setContent(makeDoc(mapPreviewHtml, false));
     const result = await page.evaluate(() => {
       const box = (el) => { const b = el.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height }; };
-      const previewShell = document.querySelector('.wf-map-results');
-      const previewCard = document.querySelector('.wf-map-preview-card');
+      const previewShell = document.querySelector('.wf-map-results.wf-map-preview-shell');
+      const previewCard = previewShell ? previewShell.querySelector('[data-iconic-place-card]') : null;
       const cards = [...document.querySelectorAll('.wf-place-card')].map(card => ({ ...box(card), controls: [...card.querySelectorAll('button,a')].map(box) }));
       const floats = [...document.querySelectorAll('.wf-map-explorer>button')].map(box);
       return {
         actualWidth: innerWidth,
+        actualHeight: innerHeight,
         documentWidth: document.documentElement.scrollWidth,
         header: box(document.querySelector('.wf-mapfp')),
         previewShell: previewShell ? { ...box(previewShell), controls: [...previewShell.querySelectorAll('button,a')].map(box) } : null,
@@ -94,16 +95,23 @@ try {
     });
     assert.equal(result.actualWidth, width, 'achieved browser width');
     assert.ok(result.documentWidth <= width, 'no document overflow');
-    assert.ok(result.previewCard && result.previewShell && result.previewShell.height <= 168.5 && result.cards.length === 1, 'compact map preview (<=168px) and Family RailCard are mounted');
+    assert.ok(result.previewCard && result.previewShell && result.cards.length === 2, 'Owner 2026-11-23: IconicPlaceCard preview in .wf-map-preview-shell and Family RailCard are mounted');
+    assert.ok(result.previewCard.left >= 0 && result.previewCard.right <= width + .5 && result.previewCard.top >= 0 && result.previewShell.bottom <= height - 70, `preview card is visible, unclipped, and clears bottom nav at ${width}x${height}`);
+    if (height >= 600) {
+      assert.ok(result.previewShell.top > result.header.bottom, `preview shell (${result.previewShell.top}px) clears header (${result.header.bottom}px) at ${width}x${height}`);
+    }
+    for (const f of result.floats) {
+      assert.ok(result.previewShell.right <= f.left + .5 || f.right <= result.previewShell.left + .5 || result.previewShell.bottom <= f.top + .5 || f.bottom <= result.previewShell.top + .5, `preview shell does not overlap floating control at ${width}x${height}`);
+    }
     for (const card of result.cards) {
-      assert.equal(Math.round(card.height), 268, 'shared FamilyEventCard retains the 268px height');
-      assert.ok(card.width <= 440 && card.right <= width + .5 && card.left >= 0, 'shared card widths remain bounded and fit mobile');
+      assert.equal(Math.round(card.height), 268, 'shared IconicPlaceCard / FamilyEventCard retains the 268px height');
+      assert.ok(card.width <= 440 && card.right <= width + .5 && card.left >= 0, 'shared card widths remain bounded and fit viewport');
       for (const control of card.controls) if (control.width > 0 && control.height > 0) {
         assert.ok(control.left >= card.left - .5 && control.right <= card.right + .5 && control.top >= card.top - .5 && control.bottom <= card.bottom + .5, 'visible card controls stay contained');
       }
     }
     for (const control of result.previewShell.controls) if (control.width > 0 && control.height > 0) {
-      assert.ok(control.left >= result.previewShell.left - .5 && control.right <= result.previewShell.right + .5 && control.top >= result.previewShell.top - .5 && control.bottom <= result.previewShell.bottom + .5, 'compact preview controls stay contained');
+      assert.ok(control.left >= result.previewShell.left - .5 && control.right <= result.previewShell.right + .5 && control.top >= result.previewShell.top - .5 && control.bottom <= result.previewShell.bottom + .5, 'preview shell controls stay contained');
     }
     assert.ok(result.header.bottom < Math.min(...result.floats.map(b => b.top)), 'map controls clear the achieved category/subcategory header');
     for (let i = 0; i < result.floats.length; i++) for (let j = i + 1; j < result.floats.length; j++) {
@@ -111,31 +119,32 @@ try {
       assert.ok(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top, 'floating controls do not overlap');
     }
 
-    // Protected Central Discovery Region across States 1 (nothing selected), 3 (filters expanded), and 4 (bottom sheet open)
+    // Protected Central Discovery Region across States 1 (nothing selected — NO bottom collapsed pill, Owner 2026-11-23), 3 (filters expanded), and 4 (bottom sheet open)
     await page.setContent(makeDoc(mapIdleHtml, false));
     const idleCheck = await page.evaluate(() => {
       const box = (el) => { const b = el.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height }; };
       const header = box(document.querySelector('.wf-mapfp'));
-      const pill = box(document.querySelector('.wf-map-results'));
+      const pill = document.querySelector('.wf-map-results');
+      const listToggle = document.querySelector('[data-wf-map-list-toggle]');
       const floats = [...document.querySelectorAll('.wf-map-explorer>button')].map(box);
-      const uiArea = header.width * header.height + pill.width * pill.height + floats.reduce((s, f) => s + f.width * f.height, 0);
+      const uiArea = header.width * header.height + floats.reduce((s, f) => s + f.width * f.height, 0);
       const mapRatio = 1 - uiArea / (innerWidth * innerHeight);
       // Central discovery zone between the left edge control pill (<=136px) and right control rail (>=W-64px)
       const cz = { left: 138, right: innerWidth - 64, top: Math.max(header.bottom + 8, 120), bottom: innerHeight - 120 };
       const centerIntrusions = floats.filter((f) => !(f.right <= cz.left || f.left >= cz.right || f.bottom <= cz.top || f.top >= cz.bottom));
-      return { mapRatio, pillHeight: pill.height, centerIntrusions: centerIntrusions.length };
+      return { mapRatio, hasCollapsedPill: !!pill, hasListToggle: !!listToggle, centerIntrusions: centerIntrusions.length };
     });
     await page.setContent(makeDoc(mapIdleHtml, true));
     const expandedHeaderBottom = await page.evaluate(() => document.querySelector('.wf-mapfp').getBoundingClientRect().bottom);
     await page.setContent(makeDoc(mapDrawerHtml, false));
     const drawerBox = await page.evaluate(() => { const b = document.querySelector('.wf-map-results.is-drawer-open').getBoundingClientRect(); return { top: b.top, height: b.height }; });
-    // 2026-11-16 rebuild of #2089: the collapsed places pill is a 52px
-    // translucent control (it was capped at 40). The idle-map ratio, the
-    // central discovery zone, and the header/drawer clearance stay. The open
-    // sheet is now bounded by min(44vh, 350px), which is its own assertion.
+    // Owner 2026-11-23: deleted the collapsed 52px bottom pill; idle map now
+    // exposes only the right-edge circular list toggle, giving an even higher
+    // unobscured map ratio while keeping the central discovery zone and
+    // min(44vh, 350px) drawer invariant intact.
     const minIdleRatio = height >= width ? 0.85 : 0.75;
     const drawerCap = Math.min(height * 0.44, 350);
-    assert.ok(idleCheck.mapRatio >= minIdleRatio && idleCheck.pillHeight >= 51 && idleCheck.pillHeight <= 53 && idleCheck.centerIntrusions === 0 && expandedHeaderBottom < Math.min(...result.floats.map(b => b.top)) && drawerBox.top > result.header.bottom, `Protected Central Discovery Region (${width}x${height}): >=${Math.round(minIdleRatio * 100)}% unobscured map on idle (got ${(idleCheck.mapRatio * 100).toFixed(1)}%), 52px collapsed pill (got ${idleCheck.pillHeight}px), 0 controls in central discovery zone, expanded filters and open drawer clear controls`);
+    assert.ok(idleCheck.mapRatio >= minIdleRatio && !idleCheck.hasCollapsedPill && idleCheck.hasListToggle && idleCheck.centerIntrusions === 0 && expandedHeaderBottom < Math.min(...result.floats.map(b => b.top)) && drawerBox.top > result.header.bottom, `Protected Central Discovery Region (${width}x${height}): >=${Math.round(minIdleRatio * 100)}% unobscured map on idle (got ${(idleCheck.mapRatio * 100).toFixed(1)}%), no collapsed bottom pill, right-edge list toggle mounted, 0 controls in central discovery zone, expanded filters and open drawer clear controls`);
     assert.ok(drawerBox.height <= drawerCap + 1.5, `open places sheet stays within min(44vh, 350px) at ${width}x${height} (got ${drawerBox.height}px, cap ${drawerCap}px)`);
 
     if (height === 844 && [390, 768, 1440].includes(width)) {
@@ -146,5 +155,5 @@ try {
     await page.close();
   }
   writeFileSync(path.join(artifacts, 'measurements.json'), JSON.stringify({ sourceHashes: Object.fromEntries([mapPath, familyPath, homePath].map(p => [path.relative(ROOT, p), crypto.createHash('sha256').update(readFileSync(p)).digest('hex')])), fixtureOnly: true, liveMapkitVerified: false, evidence }, null, 2));
-  console.log('test-map-family-layout: PASS actual 390x844/393x852/430x932/844x390/768x844/1440x844 viewports, compact <=168px map preview + 268px family card, >=80% unobscured idle map, and Protected Central Discovery Region invariant');
+  console.log('test-map-family-layout: PASS actual 390x844/393x852/430x932/844x390/768x844/1440x844 viewports, 268px IconicPlaceCard map preview + 268px family card, no collapsed bottom pill, >=85% unobscured idle portrait map, and Protected Central Discovery Region invariant');
 } finally { await browser.close(); delete globalThis.__mapLayoutPlaces; }

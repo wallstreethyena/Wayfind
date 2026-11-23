@@ -1,5 +1,5 @@
 "use client";
-import { paintMapPin, mapPinSvg, pinCategory } from "../../lib/mapPinStandard.js";
+import { paintMapPin, mapPinSvg, pinCategory, createLocationDotElement } from "../../lib/mapPinStandard.js";
 import MapCategoryPin from "./MapCategoryPin.js";
 import { eventMapFamily } from "../../lib/eventMapPlaces.js";
 import { eventMapPoint } from "../../lib/eventLocation.js";
@@ -153,10 +153,11 @@ function markerNode({ label, color, kind, selected }) {
   const el = document.createElement("div");
   el.setAttribute("aria-label", label);
   if (kind === "origin") {
+    if (label === "Your location") return createLocationDotElement({ label });
     el.setAttribute("role", "img");
     el.style.cssText = "width:34px;height:46px;pointer-events:none;position:relative;";
     el.className = "wf-origin-pin";
-    el.innerHTML = mapPinSvg(label === "Your location" ? "location" : "other");
+    el.innerHTML = mapPinSvg("other");
     return el;
   }
   el.setAttribute("role", "button");
@@ -295,7 +296,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // must never do. The pin is a claim; only draw it when it is true.
     if (showOrigin && origin && origin.lat != null && origin.lng != null) {
       const node = markerNode({ label: deviceLoc ? "Your location" : "Search center", color: deviceLoc ? "#3B82F6" : "#F97316", kind: "origin" });
-      markersRef.current.push(new Marker({ element: node, anchor: "bottom" }).setLngLat([origin.lng, origin.lat]).addTo(map));
+      markersRef.current.push(new Marker({ element: node, anchor: deviceLoc ? "center" : "bottom" }).setLngLat([origin.lng, origin.lat]).addTo(map));
       if (fit) bounds.extend([origin.lng, origin.lat]);
     }
 

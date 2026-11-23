@@ -239,4 +239,47 @@ assert.equal(appleMapBounds({ region: null }), null, "bounds fail closed until M
   assert.ok(/<AppleExplorerMap compact /.test(strip(readFileSync(new URL("../app/components/ChristmasMap.js", import.meta.url), "utf8"))), "the Christmas lights map renders compact");
   assert.ok(/\.\.\.dataRef\.current, compact,/.test(strip(readFileSync(new URL("../app/components/AppleExplorerMap.js", import.meta.url), "utf8"))), "AppleExplorerMap passes compact to the controller");
 }
-console.log("test-apple-explorer-map: OK — full result set, numeric coordinates, score pills, diffing, clustering, rings, selection, viewport reporting, focus, updates, and teardown");
+{
+  // Owner 2026-11-23: Your location renders the clean Apple Maps blue dot
+  // (concentric #0A84FF SVG fallback in headless Node, and pulsing DOM
+  // mapkit.Annotation when document is available).
+  const prevDoc = globalThis.document;
+  const created = [];
+  const head = { appendChild: (el) => created.push(el) };
+  globalThis.document = {
+    head,
+    getElementById: () => null,
+    createElement: (tag) => {
+      const attrs = {};
+      return { tagName: tag, className: "", id: "", textContent: "", innerHTML: "", attrs, setAttribute: (k, v) => { attrs[k] = v; } };
+    },
+  };
+  try {
+    const dotCtrl = createAppleExplorerController({
+      mapkit, container: {}, center: { lat: 27.3, lng: -82.5 },
+      places: [], category: "food", deviceLoc: { lat: 27.3, lng: -82.5 },
+      events: [], showOrigin: true,
+    });
+    const dotAnn = dotCtrl.map.annotations.find((a) => a.title === "Your location");
+    assert.ok(dotAnn instanceof Annotation && typeof dotAnn.factory === "function", "with document present, createAppleExplorerController uses mapkit.Annotation for Your location");
+    assert.equal(dotAnn.displayPriority, 990, "Your location blue dot preserves displayPriority 990");
+    assert.equal(dotAnn.calloutEnabled, false, "Your location annotation disables native MapKit callout");
+    const el = dotAnn.factory();
+    assert.equal(el.attrs["data-wf-location-dot"], "1", "Your location factory creates the pulsing blue dot element");
+    assert.ok(el.innerHTML.includes("wf-loc-dot-pulse") && el.innerHTML.includes("wf-loc-dot-core"), "pulsing halo and blue core render inside Your location dot");
+    dotCtrl.destroy();
+  } finally {
+    if (prevDoc === undefined) delete globalThis.document;
+    else globalThis.document = prevDoc;
+  }
+  const headlessCtrl = createAppleExplorerController({
+    mapkit, container: {}, center: { lat: 27.3, lng: -82.5 },
+    places: [], category: "food", deviceLoc: { lat: 27.3, lng: -82.5 },
+    events: [], showOrigin: true,
+  });
+  const svgAnn = headlessCtrl.map.annotations.find((a) => a.title === "Your location");
+  const svgText = decodeURIComponent(svgAnn.image[1]);
+  assert.ok(svgText.includes("#0A84FF") && svgText.includes("<circle") && !svgText.includes("M17 0C7.6"), "headless fallback SVG for Your location is the #0A84FF concentric blue dot (no teardrop PIN_PATH)");
+  headlessCtrl.destroy();
+}
+console.log("test-apple-explorer-map: OK — full result set, numeric coordinates, score pills, diffing, clustering, rings, selection, viewport reporting, focus, updates, blue-dot origin, and teardown");

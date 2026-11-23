@@ -2,9 +2,10 @@
 // Extracted from app/home.js (G4, July 2026 decomposition). Render-only.
 // tasteBoost is exclusive to the map's default ranking blend and moves with it.
 import { useEffect, useMemo, useRef, useState } from "react";
-import { C, scoreLabel, PlaceScoreChip, WayfindScoreBadge, BrandedImageFallback } from "../kit";
+import { C } from "../kit";
+import IconicPlaceCard from "../IconicPlaceCard";
 import { shouldApplyMapDefault } from "../../../lib/mapExplorer";
-import { selectMapPlaces, mergeMapAreaContext, validMapBounds, keepMapPreview, placeInMapBounds } from "../../../lib/mapAreaData.js";
+import { selectMapPlaces, selectMapPlacesSparseFallback, mergeMapAreaContext, validMapBounds, keepMapPreview, placeInMapBounds } from "../../../lib/mapAreaData.js";
 import { byGovernedScore } from "../../../lib/lawfulOrder.js";
 import { eventMapPoint } from "../../../lib/eventLocation.js";
 import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
@@ -15,25 +16,17 @@ import { MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT, SEARCH_PILL_NOTE_LIFT } fro
 import AppleExplorerMap from "../AppleExplorerMap";
 import useMissingPlacePhotos from "../useMissingPlacePhotos";
 import { tbPhotoUrl } from "../../../lib/todaysBest";
-import { hasPlacePhotoRef, ownedPlacePhotoSrc } from "../../../lib/placePhoto";
+import { hasPlacePhotoRef } from "../../../lib/placePhoto";
 import { useCuratorPicks, applyCuratorPicks } from "../../../lib/curatorPicks";
 import { shareCard } from "../../../lib/cardActions";
 import { openShareFlow } from "../../../lib/shareFlow.js";
 import useAppleMapRecovery from "../useAppleMapRecovery.js";
-import { usePlaceDistance } from "../PlaceDistance.js";
-import { formatDistanceMiles } from "../../../lib/deviceDistance.js";
-import { businessStatus } from "../../../lib/businessStatus.js";
-import { directionsHref } from "../../../lib/directions.js";
-import { toHookLine } from "../../../lib/editorialHook.js";
-import { coarseCat, humanTypeFallback } from "../../../lib/ranking.js";
-import { toDisplayScore } from "../../../lib/score.js";
 import { wayfindScore } from "../../../lib/google.js";
 import {
   MAX_AREA_PAGES,
   validPoint,
   resolveLocationTruth,
   resolveMapScopeMode,
-  resolvePlaceDistanceSemantics,
   clampMapViewportBounds,
   buildMapDeepLink,
 } from "../../../lib/mapLocationTruth.js";
@@ -46,7 +39,6 @@ import {
   evaluateEventEligibility,
   evaluateMapCandidate,
   rankMapCandidates,
-  buildMapDecisionReason,
   aggregateActionabilityCoverage,
   buildMapTruthTrace,
   diagnoseExcludedPlace,
@@ -57,104 +49,7 @@ import {
   identifyStrongestPockets,
 } from "../../../lib/mapPlanning.js";
 import { createMapSessionTracker } from "../../../lib/mapAnalytics.js";
-
-import SafeImg from "../SafeImg.js";
 import { styleHtml } from "../../../lib/styleHtml.js";
-
-function mapPreviewPhotoUrl(p) {
-  if (!p) return null;
-  if (typeof p.photo === "string" && p.photo) return p.photo;
-  const ref = p.photoRef || p.photo_ref;
-  if (hasPlacePhotoRef(ref)) return tbPhotoUrl(ref, 480);
-  return ownedPlacePhotoSrc(p.place_id || p.id, 480, !!p.photoNoSpend) || null;
-}
-
-function MapCompactPreviewCard({
-  place,
-  editorial,
-  aiSummary,
-  distanceInfo,
-  decisionReason,
-  liveDrive,
-  isPlanned,
-  onTogglePlan,
-  onDirections,
-  onOpen,
-  onSave,
-  onLike,
-  onDislike,
-  onShare,
-}) {
-  const userDistance = usePlaceDistance(place);
-  if (!place) return null;
-  const src = mapPreviewPhotoUrl(place);
-  const score = toDisplayScore(Number.isFinite(place.governed_score) ? place.governed_score : place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
-  const status = businessStatus({
-    ...place,
-    oh: place.oh || place.regularOpeningHours || null,
-    utcOffset: place.utcOffset != null ? place.utcOffset : place.utcOffsetMinutes,
-  });
-  const openState = status.open === true ? "Open" : status.open === false ? "Closed" : null;
-  const resolvedDist = distanceInfo && distanceInfo.miles != null
-    ? distanceInfo.miles
-    : userDistance;
-  const distanceText = liveDrive && Number.isFinite(liveDrive.driveMinEst)
-    ? `${(liveDrive.roadMiEst ?? resolvedDist) != null ? `${formatDistanceMiles(liveDrive.roadMiEst ?? resolvedDist)} mi · ` : ""}${liveDrive.isEstimate ? `~${liveDrive.driveMinEst}m` : `${liveDrive.driveMinEst}m`}`
-    : distanceInfo && distanceInfo.text
-      ? distanceInfo.text
-      : resolvedDist != null
-        ? `${formatDistanceMiles(resolvedDist)} mi`
-        : null;
-  const take = toHookLine(editorial, place.name);
-  const aiLine = !take && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 ? aiSummary.card_line_1 : null;
-  const catLabel = place.cuisine || place.cardCategory || coarseCat(place) || humanTypeFallback(place.primaryType || place.primary_type) || "Local pick";
-  const reasonLine = place.trending && place.trend_reason ? "🔥 " + place.trend_reason
-    : (decisionReason || take || aiLine || (place._members && place._members.ownerPick ? "Curator pick \u00b7 Top local standout" : `${catLabel}${place.reviews ? ` \u00b7 ${Number(place.reviews).toLocaleString()} reviews` : ""}`));
-  const dirHref = directionsHref(place);
-  const eventHref = place.kind === "event" && typeof place.href === "string" ? place.href : null;
-  return (
-    <div className="wf-map-preview-card" data-wf-map-preview-card={place.id} style={{ display: "flex", alignItems: "center", gap: 11, padding: "8px 12px 6px", minWidth: 0 }}>
-      <button type="button" onClick={onOpen} aria-label={`Open details for ${place.name}`} style={{ display: "flex", alignItems: "center", gap: 11, flex: 1, minWidth: 0, padding: 0, border: "none", background: "transparent", color: "inherit", textAlign: "left", cursor: "pointer" }}>
-        <div style={{ width: 64, height: 64, borderRadius: 12, overflow: "hidden", flexShrink: 0, position: "relative", background: "#141B26", border: "1px solid rgba(255,255,255,.09)" }}>
-          <SafeImg src={src} alt={place.name || "Place photo"} category={place.category || coarseCat(place)} compact style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-        </div>
-        <div style={{ flex: 1, minWidth: 0, paddingRight: 18 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-            <span style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.25 }}>{place.name}</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6, marginTop: 4, fontSize: 11.5, lineHeight: 1.3 }}>
-            <WayfindScoreBadge score={score} size={0.82} staticRoot />
-            {distanceText && <span data-wf-preview-distance data-wf-distance-mode={(distanceInfo && distanceInfo.kind) || "from_you"} style={{ color: C.light, fontWeight: 700 }}>{distanceText}</span>}
-            {openState && (
-              <span data-wf-preview-open={openState.toLowerCase()} style={{ color: openState === "Open" ? "#4ADE80" : "#F87171", fontWeight: 800 }}>
-                {openState}
-              </span>
-            )}
-          </div>
-          {reasonLine && (
-            <div data-wf-preview-reason style={{ fontSize: 11.5, color: C.muted, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", lineHeight: 1.3 }}>
-              {reasonLine}
-            </div>
-          )}
-        </div>
-      </button>
-      <div style={{ display: "flex", flexDirection: "column", gap: 5, flexShrink: 0, marginTop: 14 }}>
-        <button type="button" onClick={onOpen} style={{ minHeight: 30, padding: "4px 11px", borderRadius: 9, border: "1px solid rgba(249,115,22,.55)", background: "rgba(249,115,22,.16)", color: "#FDBA74", fontSize: 11.5, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}>{eventHref ? "Event" : "Details"}</button>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {dirHref && (
-            <a href={dirHref} target="_blank" rel="noopener noreferrer" onClick={(e) => { e.stopPropagation(); if (onDirections) onDirections(); }} style={{ minHeight: 28, padding: "4px 8px", borderRadius: 9, border: `1px solid ${C.border}`, background: "rgba(255,255,255,.05)", color: C.light, fontSize: 11, fontWeight: 700, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", whiteSpace: "nowrap" }}>Directions</a>
-          )}
-          {onTogglePlan && !eventHref && (
-            <button type="button" onClick={(e) => { e.stopPropagation(); onTogglePlan(place); }} aria-label={isPlanned ? `In trip plan: ${place.name}` : `Add ${place.name} to trip plan`} title={isPlanned ? "Added to trip plan" : "Add to trip plan"} style={{ height: 28, padding: "0 7px", borderRadius: 9, border: `1px solid ${isPlanned ? "rgba(74,222,128,.45)" : C.border}`, background: isPlanned ? "rgba(74,222,128,.14)" : "rgba(255,255,255,.05)", color: isPlanned ? "#4ADE80" : C.light, fontSize: 11, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{isPlanned ? "\u2713" : "+"}</button>
-          )}
-          {onShare && (
-            <button type="button" onClick={(e) => { e.stopPropagation(); onShare(place); }} aria-label={`Share ${place.name}`} style={{ width: 28, height: 28, borderRadius: 9, border: `1px solid ${C.border}`, background: "rgba(255,255,255,.05)", color: C.light, fontSize: 12, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>&#8599;</button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // v6.71 (Wave 2): same flame + water-quality read as every other beach
 // surface, sourced from the SAME `beachSignals` batch home.js already
@@ -468,8 +363,12 @@ export default function MapScreen({ ctx }) {
       const pins = selectListMapPlaces(listIds, rawList);
       return { places: pins, evaluated: new Map(), exclusions: new Map(), rawPool: rawList };
     }
-    const selected = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
-    const modeSelected = mapMode === "fifa" ? selected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : selected;
+    const strictSelected = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
+    const sparseSelected = strictSelected.length > 0
+      ? strictSelected
+      : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
+    const sparseFallback = strictSelected.length === 0 && sparseSelected.length > 0;
+    const modeSelected = mapMode === "fifa" ? sparseSelected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : sparseSelected;
     const res = rankMapCandidates(modeSelected, {
       verifiedDeviceLoc: deviceLoc,
       referenceCenter: cameraCenter || center,
@@ -478,8 +377,9 @@ export default function MapScreen({ ctx }) {
       lens: effectiveLens,
       category: "all",
       sub: "all",
+      skipScoreFloor: sparseFallback,
     });
-    return { ...res, rawPool: liveAreaPlaces };
+    return { ...res, sparseFallback, rawPool: liveAreaPlaces };
   }, [mapSearchPins, mapSearch, liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, listIds, listInventory, appleRecovery.places, effectiveLens, deviceLoc, cameraCenter, center, weather, beachSignals]);
 
   const view = useMemo(() => {
@@ -650,11 +550,20 @@ export default function MapScreen({ ctx }) {
     } catch (e) {}
   }, [listAccounting, unpinnedNote, appleRecovery, wfMapListPayload, scopeMode, activeLens, effectiveLens, mapSearch, locationTruth, view, rankedBundle, itineraryAnalysis, liveAreaPlaces, contextPool, deviceLoc, cameraCenter, center, weather, beachSignals, viewport, mapCategory, allCategories, sub]);
 
+  const prevCatSubRef = useRef(`${cat}|${sub}`);
+  useEffect(() => {
+    const key = `${cat}|${sub}`;
+    if (prevCatSubRef.current !== key) {
+      prevCatSubRef.current = key;
+      setAllCategories(false);
+    }
+  }, [cat, sub]);
+
   useEffect(() => {
     if (mapSearchPins) { if (mapPreview && !view.some((p) => p.id === mapPreview.id)) setMapPreview(null); return; }
     if (explicitList) { if (mapPreview && !view.some((p) => p.id === mapPreview.id)) setMapPreview(null); return; }
-    if (mapPreview && !keepMapPreview(mapPreview, view, mapCategory, areaStatus)) setMapPreview(null);
-  }, [mapPreview, view, mapCategory, areaStatus, setMapPreview, explicitList, mapSearchPins]);
+    if (mapPreview && !keepMapPreview(mapPreview, view, mapCategory, areaStatus, { allowSparseFallback: !!rankedBundle.sparseFallback })) setMapPreview(null);
+  }, [mapPreview, view, mapCategory, areaStatus, setMapPreview, explicitList, mapSearchPins, rankedBundle.sparseFallback]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -768,9 +677,22 @@ export default function MapScreen({ ctx }) {
   const matchesDrawerFilter = (p) => !filterTrim || `${p?.name || ""} ${p?.type || ""} ${p?.sub || ""} ${p?.cuisine || ""} ${p?.city || ""}`.toLowerCase().includes(filterTrim);
   const filteredView = filterTrim ? view.filter(matchesDrawerFilter) : view;
   const nearbyAllPlaces = (!explicitList && mapMode === "places")
-    ? selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all")
+    ? (() => {
+        const strictAll = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all");
+        return strictAll.length > 0 ? strictAll : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all");
+      })()
+    : [];
+  const nearbyCategoryPlaces = (!explicitList && mapMode === "places" && !allCategories && sub !== "all")
+    ? (() => {
+        const strictCat = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), cat, viewport, "all");
+        return strictCat.length > 0 ? strictCat : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), cat, viewport, "all");
+      })()
     : [];
   const activeCategoryName = { food: "Food", nightlife: "Nightlife", attractions: "Activities", beach: "Beach", hotels: "Hotels", shopping: "Shopping" }[cat] || "this filter";
+  const activeSubLabel = sub && sub !== "all"
+    ? ({ breakfast: "Breakfast", cafes: "Cafés", coffee: "Coffee", lunch: "Lunch", dinner: "Dinner", quickbites: "Quick bites", delivery: "Delivery", dessert: "Desserts", brunch: "Brunch", bars: "Bars", clubs: "Clubs", speakeasy: "Speakeasies", karaoke: "Karaoke", sports: "Sports bars", music: "Live music", themeparks: "Theme parks", museums: "Museums", tours: "Tours", outdoors: "Outdoors", landmarks: "Landmarks", arts: "Arts", spa: "Spas", malls: "Malls", boutiques: "Boutiques", markets: "Markets", outlets: "Outlets", toddlers: "Toddlers", kids: "Kids" }[sub] || sub)
+    : null;
+  const emptyScopeLabel = activeSubLabel || activeCategoryName;
   const subsVisible = filtersExpanded && !mapPreview && !allCategories;
   const visibleLenses = [{ id: "all", label: "All" }, ...MAP_MOMENT_LENSES.filter((l) => l.id !== "christmas" || showHolidayLens)];
   const areaButtonLabel = scopeMode.mode === "explore_here" && scopeMode.areaLabel && scopeMode.areaLabel !== "Map area" && scopeMode.areaLabel !== "Area"
@@ -780,11 +702,20 @@ export default function MapScreen({ ctx }) {
 
   return (
     <div className="wf-map-explorer" style={{ position: "relative", width: "100%", height: "100%" }}>
-      <style dangerouslySetInnerHTML={styleHtml(`html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(78px + env(safe-area-inset-bottom)) !important; } @media (min-width: 1024px) { html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; } } @media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-results.is-drawer-open { max-height: min(44vh, 350px) !important; width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }`)} />
+      <style dangerouslySetInnerHTML={styleHtml(`html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(78px + env(safe-area-inset-bottom)) !important; } @media (min-width: 1024px) { html.wf-santa-docked .wf-scrollarea[data-analytics-page="map"] { padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important; } } @media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-results.wf-map-preview-shell { width: 440px; right: auto !important; } .wf-map-explorer .wf-map-results.is-drawer-open { max-height: min(44vh, 350px) !important; width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .wf-map-preview-shell .wf-place-card { margin-bottom: 0 !important; color: #F0F6FC; } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }`)} />
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "4px 8px 0" }}>
         <CategoryMenu compact activeCat={cat} subsExpanded={subsVisible} sub={sub}
           panelCollapsed={filterBarCollapsed}
           onExpandPanel={() => { setFilterBarCollapsed(false); setFiltersExpanded(true); }}
+          allActive={allCategories}
+          onAll={() => {
+            setAreaOnly(true);
+            setAllCategories((on) => !on);
+            setFiltersExpanded(false);
+            setDrawerFilter("");
+            setHoveredPinId(null);
+            setMapPreview(null);
+          }}
           onCat={(id, label) => {
             try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {}
             sessionTrackerRef.current?.noteLensChange({ category: id, lens: effectiveLens });
@@ -847,14 +778,19 @@ export default function MapScreen({ ctx }) {
           </div>
         )}
       </div>
-      <button type="button" data-wf-all-places onClick={() => { setAreaOnly(true); setAllCategories((on) => !on); setFiltersExpanded(false); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} aria-pressed={allCategories} style={{ position: "absolute", top: subsVisible ? 220 : 164, left: 12, zIndex: 5, minHeight: 40, padding: "6px 12px", borderRadius: 999, background: allCategories ? "linear-gradient(160deg, #FDBA74, #F97316)" : "rgba(13,18,26,.88)", border: `1px solid ${allCategories ? "rgba(255,255,255,.75)" : "rgba(255,255,255,.14)"}`, color: allCategories ? "#0B0F14" : C.light, fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 6px 18px rgba(0,0,0,.28)" }}>All places · 9.2+</button>
       {/* Unified right-edge map control rail: one radius, one size (46px),
-          one spacing rhythm (164 / 220 / 276), and one icon language
+          one spacing rhythm (164 / 220 / 276 / 332), and one icon language
           (strokeWidth 2, round caps/joins). */}
       <button onClick={() => setMapSearchOpen(true)} aria-label="Search for a location" title="Search"
         style={{ position: "absolute", top: 276, right: 12, zIndex: 5, width: 46, height: 46, borderRadius: 999, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(160deg, rgba(255,255,255,.97), rgba(240,243,248,.9))", border: "1px solid rgba(255,255,255,.9)", boxShadow: "0 6px 18px rgba(15,23,35,.22), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.9)" }}>
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.4-3.4" /></svg>
       </button>
+      {mapMode === "places" && view.length > 0 && !mapPreview && (
+        <button type="button" data-wf-map-list-toggle onClick={() => { setHoveredPinId(null); setMapDrawer((o) => !o); }} aria-label={mapDrawer ? "Hide list" : "Expand list"} aria-expanded={mapDrawer ? "true" : "false"} title={mapDrawer ? "Hide list" : `View ${view.length} place${view.length === 1 ? "" : "s"}`}
+          style={{ position: "absolute", top: 332, right: 12, zIndex: 5, width: 46, height: 46, borderRadius: 999, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", ...(mapDrawer ? { background: "linear-gradient(160deg, #FDBA74, #F97316)", border: "1px solid rgba(255,255,255,.75)", boxShadow: "0 6px 18px rgba(249,115,22,.34), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.55)" } : { background: "linear-gradient(160deg, rgba(255,255,255,.97), rgba(240,243,248,.9))", border: "1px solid rgba(255,255,255,.9)", boxShadow: "0 6px 18px rgba(15,23,35,.22), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.9)" }) }}>
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={mapDrawer ? "#FFFFFF" : "#F97316"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><circle cx="4" cy="6" r="1" fill={mapDrawer ? "#FFFFFF" : "#F97316"} /><circle cx="4" cy="12" r="1" fill={mapDrawer ? "#FFFFFF" : "#F97316"} /><circle cx="4" cy="18" r="1" fill={mapDrawer ? "#FFFFFF" : "#F97316"} /></svg>
+        </button>
+      )}
       <button onClick={recenterToMe} aria-label="Near me \u2014 recenter the map to your current location" title="Near me" aria-pressed={!!deviceLoc}
         style={{ position: "absolute", top: 164, right: 12, zIndex: 5, width: 46, height: 46, borderRadius: 999, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", ...(deviceLoc ? { background: "linear-gradient(160deg, #FDBA74, #F97316)", border: "1px solid rgba(255,255,255,.75)", boxShadow: "0 6px 18px rgba(249,115,22,.34), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.55)" } : { background: "linear-gradient(160deg, rgba(255,255,255,.97), rgba(240,243,248,.9))", border: "1px solid rgba(255,255,255,.9)", boxShadow: "0 6px 18px rgba(15,23,35,.22), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.9)" }) }}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -866,7 +802,7 @@ export default function MapScreen({ ctx }) {
       {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} styleMode="3d" fit={explicitList || (!!mapSearchPins && view.length > 0)} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
         : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList || (!!mapSearchPins && view.length > 0)} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
       {mapMode === "places" && !appleMapFailed && (bannerStatus === "error" || !view.length) && (
-        <div role="status" data-wf-map-empty-state={bannerStatus === "ready" && !view.length ? (mapSearch && mapSearch.query ? "search_empty" : (activeLens === "open_now" && openNowBreakdown && openNowBreakdown.total > 0 ? "open_now_empty" : (nearbyAllPlaces.length > 0 ? "recovery" : "empty"))) : bannerStatus} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: view.length && !mapDrawer && !mapPreview ? 138 : 76, maxWidth: "calc(100% - 24px)", zIndex: 19, background: "rgba(11,16,24,.94)", border: "1px solid rgba(255,255,255,.12)", color: C.text, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, boxShadow: "0 10px 26px rgba(0,0,0,.42)", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", pointerEvents: bannerStatus === "loading" ? "none" : "auto" }}>
+        <div role="status" data-wf-map-empty-state={bannerStatus === "ready" && !view.length ? (mapSearch && mapSearch.query ? "search_empty" : (activeLens === "open_now" && openNowBreakdown && openNowBreakdown.total > 0 ? "open_now_empty" : (nearbyCategoryPlaces.length > 0 || nearbyAllPlaces.length > 0 ? "recovery" : "empty"))) : bannerStatus} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 76, maxWidth: "calc(100% - 24px)", zIndex: 19, background: "rgba(11,16,24,.94)", border: "1px solid rgba(255,255,255,.12)", color: C.text, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, boxShadow: "0 10px 26px rgba(0,0,0,.42)", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", pointerEvents: bannerStatus === "loading" ? "none" : "auto" }}>
           {bannerStatus === "loading" && (
             <>
               <span aria-hidden="true" style={{ display: "inline-block", width: 7, height: 7, borderRadius: 999, background: "#F97316", boxShadow: "0 0 8px #F97316" }} />
@@ -907,16 +843,25 @@ export default function MapScreen({ ctx }) {
               <button type="button" onClick={() => { setAreaOnly(true); setAllCategories(true); setActiveLens("all"); if (setMapSearch) setMapSearch(null); setSub("all"); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} style={{ padding: "5px 11px", borderRadius: 999, background: C.accent, border: "none", color: "#0B0F14", cursor: "pointer", fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>Show all nearby</button>
             </>
           )}
-          {bannerStatus === "ready" && !view.length && (!mapSearch || !mapSearch.query) && (!openNowBreakdown || openNowBreakdown.total === 0) && nearbyAllPlaces.length > 0 && (
+          {bannerStatus === "ready" && !view.length && (!mapSearch || !mapSearch.query) && (!openNowBreakdown || openNowBreakdown.total === 0) && nearbyCategoryPlaces.length > 0 && (
             <>
               <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: C.text }}>Nothing in {activeLens !== "all" ? `${activeLensMeta.label} · ${activeCategoryName}` : activeCategoryName} nearby</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: C.text }}>Nothing in {activeLens !== "all" ? `${activeLensMeta.label} · ${emptyScopeLabel}` : emptyScopeLabel} nearby</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>{nearbyCategoryPlaces.length} {activeCategoryName} place{nearbyCategoryPlaces.length === 1 ? "" : "s"} {nearbyCategoryPlaces.length === 1 ? "is" : "are"} close by</span>
+              </div>
+              <button type="button" onClick={() => { setAreaOnly(true); setActiveLens("all"); if (setMapSearch) setMapSearch(null); setSub("all"); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} style={{ padding: "5px 11px", borderRadius: 999, background: C.accent, border: "none", color: "#0B0F14", cursor: "pointer", fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>Show all {activeCategoryName}</button>
+            </>
+          )}
+          {bannerStatus === "ready" && !view.length && (!mapSearch || !mapSearch.query) && (!openNowBreakdown || openNowBreakdown.total === 0) && nearbyCategoryPlaces.length === 0 && nearbyAllPlaces.length > 0 && (
+            <>
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.25 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: C.text }}>Nothing in {activeLens !== "all" ? `${activeLensMeta.label} · ${emptyScopeLabel}` : emptyScopeLabel} nearby</span>
                 <span style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>{nearbyAllPlaces.length} great place{nearbyAllPlaces.length === 1 ? "" : "s"} {nearbyAllPlaces.length === 1 ? "is" : "are"} still close to you</span>
               </div>
               <button type="button" onClick={() => { setAreaOnly(true); setAllCategories(true); setActiveLens("all"); if (setMapSearch) setMapSearch(null); setSub("all"); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} style={{ padding: "5px 11px", borderRadius: 999, background: C.accent, border: "none", color: "#0B0F14", cursor: "pointer", fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>Show nearby</button>
             </>
           )}
-          {bannerStatus === "ready" && !view.length && (!mapSearch || !mapSearch.query) && (!openNowBreakdown || openNowBreakdown.total === 0) && nearbyAllPlaces.length === 0 && (
+          {bannerStatus === "ready" && !view.length && (!mapSearch || !mapSearch.query) && (!openNowBreakdown || openNowBreakdown.total === 0) && nearbyCategoryPlaces.length === 0 && nearbyAllPlaces.length === 0 && (
             <>
               <span>Nothing nearby matches this filter</span>
               <button type="button" onClick={() => { setAreaOnly(true); setAllCategories(true); setActiveLens("all"); if (setMapSearch) setMapSearch(null); setSub("all"); setDrawerFilter(""); setHoveredPinId(null); setMapPreview(null); }} style={{ padding: "4px 10px", borderRadius: 999, background: "rgba(249,115,22,.16)", border: "1px solid rgba(249,115,22,.45)", color: "#FDBA74", cursor: "pointer", fontSize: 11.5, fontWeight: 800, flexShrink: 0 }}>{allCategories && sub === "all" && activeLens === "all" && !mapSearch && !drawerFilter ? "Clear filters" : "Show all"}</button>
@@ -981,75 +926,58 @@ export default function MapScreen({ ctx }) {
           try { logEvent("map_card_page", actionPlace(next), { direction: dir > 0 ? "next" : "prev", rank: 1 + ranked.indexOf(next) }); } catch (e) {}
         };
         const blurb = blurbs && blurbs[mp.id];
-        const previewDistanceInfo = resolvePlaceDistanceSemantics(mp, {
-          verifiedDeviceLoc: deviceLoc,
-          areaCenter: cameraCenter,
-          pinPoint: mp,
-          allowAreaFallback: false,
-        });
-        const baseEval = rankedBundle.evaluated.get(mp.id) || evaluateMapCandidate(mp, {
-          verifiedDeviceLoc: deviceLoc,
-          referenceCenter: cameraCenter || center,
-          liveRoute: liveDrive,
-          weather,
-          beachSignals,
-          lens: effectiveLens,
-          skipScoreFloor: true,
-        });
-        const evalWithLiveDrive = liveDrive ? { ...baseEval, driveEstimate: { ...liveDrive, hasPhysicalOrigin: !!deviceLoc } } : baseEval;
-        const decisionReason = buildMapDecisionReason(mp, evalWithLiveDrive, {
-          editorial: typeof blurb === "string" ? blurb : null,
-          aiSummary: blurb && typeof blurb === "object" ? blurb : null,
-        });
         return (
-          <div className="wf-map-results"
+          <div className="wf-map-results wf-map-preview-shell" data-wf-map-preview-card={mp.id}
             onTouchStart={(e) => { mapCardTouch.current = e.touches[0].clientY; }}
             onTouchEnd={(e) => {
               const dy = e.changedTouches[0].clientY - (mapCardTouch.current || 0);
               if (dy > 60) setMapPreview(null);
             }}
-            style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, maxHeight: 168, overflow: "hidden", background: "rgba(11,15,22,.94)", border: "1px solid rgba(255,255,255,.12)", borderRadius: 16, boxShadow: "0 10px 28px rgba(0,0,0,.45)" }}>
-            <div aria-hidden="true" style={{ width: 32, height: 3.5, borderRadius: 2, background: "rgba(255,255,255,.22)", margin: "6px auto 0" }} />
-            <button onClick={() => setMapPreview(null)} aria-label="Close" style={{ position: "absolute", top: 2, right: 2, width: 36, height: 36, border: "none", background: "transparent", color: C.muted, fontSize: 13, cursor: "pointer", zIndex: 3 }}>&#10005;</button>
-            <MapCompactPreviewCard
-              place={withPhoto(mp)}
-              editorial={typeof blurb === "string" ? blurb : null}
-              aiSummary={blurb && typeof blurb === "object" ? blurb : null}
-              distanceInfo={previewDistanceInfo}
-              decisionReason={decisionReason}
-              liveDrive={liveDrive}
-              isPlanned={isOnTrip ? !!isOnTrip(mp.id) : false}
-              onTogglePlan={addToItinerary ? () => {
-                try {
-                  addToItinerary(actionPlace(mp));
-                  sessionTrackerRef.current?.noteDecisionExecution("itinerary_add", actionPlace(mp), { rank: pos, lens: effectiveLens });
-                } catch (er) {}
-              } : null}
-              onDirections={() => {
-                sessionTrackerRef.current?.noteDecisionExecution("directions", actionPlace(mp), { rank: pos, lens: effectiveLens });
-              }}
-              onOpen={() => {
-                try { logEvent("map_card_cta", actionPlace(mp), { rank: pos }); } catch (e) {}
-                if (mp.kind !== "event" || !mp.href) openDetail(actionPlace(mp));
-                else if (typeof window !== "undefined") window.location.assign(mp.href);
-                sessionTrackerRef.current?.noteDecisionExecution(mp.kind === "event" && mp.href ? "ticket_click" : "detail_open", actionPlace(mp), { rank: pos, lens: effectiveLens });
-              }}
-              onSave={(e) => { try { quickSaveFavorite(actionPlace(mp)); sessionTrackerRef.current?.noteDecisionExecution("save", actionPlace(mp), { rank: pos, lens: effectiveLens }); } catch (er) {} }}
-              onShare={(place) => { const target = (place && place.id) ? place : actionPlace(mp); try { addShared(actionPlace(mp)); giveawayMark && giveawayMark(mp.id); } catch (er) {} try { shareCard(target, { surface: "map_preview" }); } catch (er) {} }}
-              onLike={(e) => { try { toggleLike(e, actionPlace(mp)); } catch (er) {} }}
-              onDislike={(e) => { try { toggleDislike(e, actionPlace(mp)); } catch (er) {} }}
-            />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, padding: "5px 12px 7px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-                <button type="button" onClick={() => { setMapPreview(null); setMapDrawer(true); }} style={{ padding: "3px 9px", borderRadius: 999, border: "1px solid rgba(249,115,22,.45)", background: "rgba(249,115,22,.14)", color: "#FDBA74", fontSize: 11, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}>&#9776; List ({ranked.length})</button>
-                <button type="button" onClick={() => { setPlanContextPlace(mp); requestParkingFor(mp); setMapPreview(null); setMapDrawer(true); }} aria-label={`Parking and nearby pairings for ${mp.name}`} style={{ padding: "3px 8px", borderRadius: 999, border: `1px solid ${C.border}`, background: "rgba(255,255,255,.05)", color: C.light, fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>Park · Pair</button>
-                <span style={{ fontSize: 11, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{pos ? `${pos} of ${ranked.length} \u00b7 ${rankingLabel}` : rankingLabel}</span>
+            style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, background: "transparent", border: "none", boxShadow: "none", overflow: "visible" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6, pointerEvents: "none" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 6, pointerEvents: "auto" }}>
+                {ranked.length > 1 && (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 999, background: "rgba(11,16,24,.9)", border: "1px solid rgba(255,255,255,.15)", boxShadow: "0 6px 16px rgba(0,0,0,.4)" }}>
+                    <button type="button" onClick={() => step(-1)} aria-label="Previous place" style={{ width: 26, height: 24, border: "none", background: "transparent", color: "#FFFFFF", borderRadius: 999, cursor: "pointer", fontSize: 16, lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>&#8249;</button>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: C.light, padding: "0 3px", whiteSpace: "nowrap" }}>{pos ? `${pos} / ${ranked.length}` : ranked.length}</span>
+                    <button type="button" onClick={() => step(1)} aria-label="Next place" style={{ width: 26, height: 24, border: "none", background: "transparent", color: "#FFFFFF", borderRadius: 999, cursor: "pointer", fontSize: 16, lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>&#8250;</button>
+                  </div>
+                )}
+                <button type="button" onClick={() => { setPlanContextPlace(mp); requestParkingFor(mp); setMapPreview(null); setMapDrawer(true); }} aria-label={`Parking and nearby pairings for ${mp.name}`} style={{ padding: "5px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.15)", background: "rgba(11,16,24,.9)", color: C.light, fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 6px 16px rgba(0,0,0,.4)" }}>Parking &amp; nearby</button>
               </div>
-              <span style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-                <button onClick={() => step(-1)} aria-label="Previous place" style={{ width: 30, height: 26, border: `1px solid ${C.border}`, background: "transparent", color: C.light, borderRadius: 8, cursor: "pointer" }}>&#8249;</button>
-                <button onClick={() => step(1)} aria-label="Next place" style={{ width: 30, height: 26, border: `1px solid ${C.border}`, background: "transparent", color: C.light, borderRadius: 8, cursor: "pointer" }}>&#8250;</button>
-              </span>
+              <button type="button" onClick={() => setMapPreview(null)} aria-label="Close" style={{ pointerEvents: "auto", width: 32, height: 32, borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", background: "rgba(11,16,24,.92)", color: "#FFFFFF", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(0,0,0,.42)" }}>&#10005;</button>
             </div>
+            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+              <IconicPlaceCard
+                place={withPhoto(mp)}
+                rank={pos}
+                editorial={typeof blurb === "string" ? blurb : null}
+                aiSummary={blurb && typeof blurb === "object" ? blurb : null}
+                saved={isSaved(mp.id)}
+                liked={!!(liked && liked[mp.id])}
+                disliked={!!(disliked && disliked[mp.id])}
+                inTrip={isOnTrip ? !!isOnTrip(mp.id) : false}
+                onItinerary={addToItinerary ? () => {
+                  try {
+                    addToItinerary(actionPlace(mp));
+                    sessionTrackerRef.current?.noteDecisionExecution("itinerary_add", actionPlace(mp), { rank: pos, lens: effectiveLens });
+                  } catch (er) {}
+                } : null}
+                onOpen={() => {
+                  try { logEvent("map_card_cta", actionPlace(mp), { rank: pos }); } catch (e) {}
+                  if (mp.kind !== "event" || !mp.href) openDetail(actionPlace(mp));
+                  else if (typeof window !== "undefined") window.location.assign(mp.href);
+                  sessionTrackerRef.current?.noteDecisionExecution(mp.kind === "event" && mp.href ? "ticket_click" : "detail_open", actionPlace(mp), { rank: pos, lens: effectiveLens });
+                }}
+                onSave={() => { try { quickSaveFavorite(actionPlace(mp)); sessionTrackerRef.current?.noteDecisionExecution("save", actionPlace(mp), { rank: pos, lens: effectiveLens }); } catch (er) {} }}
+                onShare={(place) => { const target = (place && place.id) ? place : actionPlace(mp); try { addShared(actionPlace(mp)); giveawayMark && giveawayMark(mp.id); } catch (er) {} try { shareCard(target, { surface: "map_preview" }); } catch (er) {} }}
+                onLike={(e) => { try { toggleLike(e, actionPlace(mp)); } catch (er) {} }}
+                onDislike={(e) => { try { toggleDislike(e, actionPlace(mp)); } catch (er) {} }}
+                onBadge={openExperience}
+                surface="map_preview"
+                eagerMedia
+              />
+            </ul>
           </div>
         );
       })()}
@@ -1081,17 +1009,16 @@ export default function MapScreen({ ctx }) {
           </div>
         );
       })()}
-      {mapMode === "places" && !mapPreview && view.length > 0 && (
-        <div className={`wf-map-results${mapDrawer ? " is-drawer-open" : ""}`} style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, width: mapDrawer ? undefined : "fit-content", maxWidth: "calc(100% - 24px)", margin: mapDrawer ? undefined : "0 auto", boxSizing: "border-box", background: mapDrawer ? "rgba(11,16,24,.9)" : "rgba(11,16,24,.62)", border: "1px solid rgba(255,255,255,.12)", borderRadius: mapDrawer ? 18 : 999, boxShadow: "0 10px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08)", height: mapDrawer ? undefined : 52, maxHeight: mapDrawer ? "min(44vh, 350px)" : 52, transition: "max-height .24s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <button onClick={() => { setHoveredPinId(null); setMapDrawer((o) => !o); }} aria-expanded={mapDrawer ? "true" : "false"} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", height: mapDrawer ? undefined : "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-            {mapDrawer && <div style={{ width: 32, height: 3.5, background: C.border, borderRadius: 2, margin: "7px auto 4px" }} />}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", padding: mapDrawer ? "2px 16px 10px" : "0 16px" }}>
-              <span style={{ fontSize: 12, lineHeight: "18px", fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{filterTrim ? `${filteredView.length} of ${view.length}` : view.length}</span> place{view.length === 1 ? "" : "s"} in view · {mapStatus === "ready" ? rankingLabel : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
-              <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: C.accent, fontWeight: 800 }}>{mapDrawer ? "Hide list ▾" : "Browse list ▴"}</span>
+      {mapMode === "places" && !mapPreview && mapDrawer && view.length > 0 && (
+        <div className="wf-map-results is-drawer-open" style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, maxWidth: "calc(100% - 24px)", boxSizing: "border-box", background: "rgba(11,16,24,.9)", border: "1px solid rgba(255,255,255,.12)", borderRadius: 18, boxShadow: "0 10px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08)", maxHeight: "min(44vh, 350px)", transition: "max-height .24s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <button onClick={() => { setHoveredPinId(null); setMapDrawer(false); }} aria-expanded="true" aria-label="Collapse list" style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 32, height: 3.5, background: C.border, borderRadius: 2, margin: "7px auto 4px" }} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", padding: "2px 16px 10px" }}>
+              <span style={{ fontSize: 12, lineHeight: "18px", fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{filterTrim ? `${filteredView.length} of ${view.length}` : view.length}</span> place{view.length === 1 ? "" : "s"} in view · {mapStatus === "ready" ? (rankedBundle.sparseFallback ? "Best nearby" : rankingLabel) : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
+              <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: C.accent, fontWeight: 800 }}>Hide list ▾</span>
             </div>
           </button>
-          {mapDrawer && (
-            <>
+          <>
               {mapSearch && mapSearch.query && (
                 <div data-wf-map-search-banner style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, margin: "0 14px 8px", padding: "6px 10px", borderRadius: 10, background: "rgba(249,115,22,.14)", border: "1px solid rgba(249,115,22,.38)", fontSize: 11.5, color: "#FDBA74", fontWeight: 700 }}>
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Showing map results for &ldquo;{mapSearch.query}&rdquo;{scopeMode.areaLabel && scopeMode.areaLabel !== "Map area" ? ` in ${scopeMode.areaLabel}` : ""}</span>
@@ -1173,7 +1100,6 @@ export default function MapScreen({ ctx }) {
                 ))}
               </div>
             </>
-          )}
         </div>
       )}
     </div>

@@ -684,3 +684,67 @@ export function Couple({ size = 64 }) {
 /** Compatibility alias so callers can import either `Cat` or `Elf`. */
 export const Elf = Cat;
 
+/**
+ * Wayfind Santa AI wingman avatar for /ask — drawn directly in app/ask/pixel.js
+ * so the entire /ask cast is self-contained with unique per-instance gradient IDs.
+ */
+export function SantaConciergeSvg({ calling = false }) {
+  let raw = "";
+  try { raw = useId(); } catch (e) {}
+  const u = "sc" + String(raw || "").replace(/[^a-zA-Z0-9]/g, "");
+  const OL = "#2a1b52";
+  const suit = "url(#scsuit" + u + ")";
+  const skin = "url(#scskin" + u + ")";
+  const fluff = "url(#scfluff" + u + ")";
+  return (
+    <svg viewBox="0 0 250 330" width="100%" height="100%" aria-hidden="true" style={{ display: "block", overflow: "visible" }}>
+      <defs>
+        <radialGradient id={"scsuit" + u} cx="35%" cy="25%" r="85%">
+          <stop offset="0" stopColor="#ff6b6b" /><stop offset=".6" stopColor="#e8343f" /><stop offset="1" stopColor="#b81f3a" />
+        </radialGradient>
+        <radialGradient id={"scskin" + u} cx="40%" cy="30%" r="80%">
+          <stop offset="0" stopColor="#ffe9dc" /><stop offset="1" stopColor="#ffc9b0" />
+        </radialGradient>
+        <radialGradient id={"scfluff" + u} cx="40%" cy="30%" r="80%">
+          <stop offset="0" stopColor="#ffffff" /><stop offset=".75" stopColor="#f3eeff" /><stop offset="1" stopColor="#d8cbff" />
+        </radialGradient>
+      </defs>
+      <g className="s-body">
+        <path d="M48 236 C48 198 78 182 120 182 C162 182 192 198 192 236 C192 276 168 298 120 298 C72 298 48 276 48 236Z" fill={suit} stroke={OL} strokeWidth="4.5" />
+        <rect x="110" y="196" width="20" height="98" rx="10" fill="#fff" stroke={OL} strokeWidth="3" />
+        <path d="M50 246 C80 256 160 256 190 246 L190 266 C160 276 80 276 50 266Z" fill={OL} />
+        <rect x="104" y="246" width="32" height="24" rx="6" fill="#ffd34d" stroke={OL} strokeWidth="3.5" />
+      </g>
+      <g className="s-rarm">
+        <path d="M206 214 L222 120" stroke={OL} strokeWidth="16" strokeLinecap="round" />
+        <path d="M206 214 L222 120" stroke="#fff" strokeWidth="10" strokeLinecap="round" />
+        <path d="M206 214 L222 120" stroke="#ff4d5e" strokeWidth="10" strokeLinecap="round" strokeDasharray="7 7" />
+        <path d="M223 86 L231 104 L250 105 L235 117 L240 137 L223 126 L206 137 L211 117 L196 105 L215 104Z" fill="#ffd34d" stroke={OL} strokeWidth="3.5" strokeLinejoin="round" />
+        <circle cx={208} cy={204} r="15" fill="#3fbf7f" stroke={OL} strokeWidth="4" />
+      </g>
+      <g className="s-head">
+        <ellipse cx="120" cy="128" rx="66" ry="58" fill={skin} stroke={OL} strokeWidth="4.5" />
+        <path d="M58 140 C46 160 52 186 70 196 C74 214 96 222 108 214 C114 226 126 226 132 214 C144 222 166 214 170 196 C188 186 194 160 182 140 C170 156 150 160 120 160 C90 160 70 156 58 140Z" fill={fluff} stroke={OL} strokeWidth="4.5" strokeLinejoin="round" />
+        <path d="M120 156 C106 146 86 150 82 162 C94 166 110 164 120 158 C130 164 146 166 158 162 C154 150 134 146 120 156Z" fill="#fff" stroke={OL} strokeWidth="4" strokeLinejoin="round" />
+        <path d="M106 164 Q120 182 134 164 Z" fill="#7a1f3d" stroke={OL} strokeWidth="3.5" strokeLinejoin="round" />
+        <ellipse cx={92} cy="126" rx="14" ry="18" fill="#1a1033" />
+        <circle cx={96.5} cy="119" r="5.8" fill="#fff" />
+        {calling ? (
+          <path d="M136 128 Q148 118 160 128" stroke={OL} strokeWidth="5.5" fill="none" strokeLinecap="round" />
+        ) : (
+          <>
+            <ellipse cx={148} cy="126" rx="14" ry="18" fill="#1a1033" />
+            <circle cx={152.5} cy="119" r="5.8" fill="#fff" />
+          </>
+        )}
+        <ellipse cx="72" cy="146" rx="13" ry="8" fill="#ff9fc4" opacity=".85" /><ellipse cx="168" cy="146" rx="13" ry="8" fill="#ff9fc4" opacity=".85" />
+        <circle cx="120" cy="146" r="11" fill="#ff6f7d" stroke={OL} strokeWidth="3.5" />
+        <path d="M58 92 C56 46 92 18 132 22 C168 26 196 50 210 84 C214 96 206 104 198 96 C186 70 170 58 156 56 C170 70 178 84 182 92Z" fill={suit} stroke={OL} strokeWidth="4.5" strokeLinejoin="round" />
+        <circle cx="206" cy="102" r="16" fill={fluff} stroke={OL} strokeWidth="4" />
+        <path d="M48 96 C48 80 70 76 120 76 C170 76 192 80 192 96 C192 112 170 112 120 110 C70 112 48 112 48 96Z" fill={fluff} stroke={OL} strokeWidth="4.5" />
+      </g>
+    </svg>
+  );
+}
+
+
