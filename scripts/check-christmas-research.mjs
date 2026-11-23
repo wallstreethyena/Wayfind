@@ -32,6 +32,7 @@ import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery
 import { christmasAwareEventBySlug, christmasPageRow, christmasEventPageRow, CHRISTMAS_WATCHLIST_PAGE_LINE } from "../lib/christmasEventPage.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
 import { isTrusted } from "../lib/curatedEvents.js";
+import { unavailableNote } from "../lib/eventAlternatives.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -221,6 +222,16 @@ for (const [id, slug, price, venue, entryTime, nights, status] of [
   ok(party?.christmas_park_admission_note?.includes(venue) && party.christmas_park_admission_note.includes(entryTime),
     `${slug}: the page carries the verified park-specific entry note`);
 }
+const soldOutParty = {
+  ...DB.find((row) => row.event_id === "mvmcp-2026"),
+  ticket_status: "sold_out",
+  last_verified_at: "2026-11-19",
+};
+const verifiedParty = christmasEventPageRow(soldOutParty, soldOutParty.slug);
+ok(verifiedParty.last_verified_at === "2026-11-23" && unavailableNote(verifiedParty).includes("checked Nov 19"),
+  "refreshing the event research preserves the organizer availability check date");
+ok(!unavailableNote(christmasEventPageRow({ ...soldOutParty, last_verified_at: null }, soldOutParty.slug)).includes("checked"),
+  "a missing availability check date stays hidden when the event research has a date");
 ok(christmasEventPageRow(DB.find((row) => row.event_id === "christmas-town-2026"), "christmas-town-2026")
   ?.christmas_park_admission_note == null, "a different event keeps its standard nearby picks");
 ok(/const pairingResult = e\.christmas_park_admission_note[\s\S]{0,120}: await cachedEventPairings\(e\)/.test(read("app/florida-events/[slug]/page.js")),
