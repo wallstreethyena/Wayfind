@@ -13,10 +13,11 @@ export default function CreatorCoverFacade({ placeId, poster = null, posterCredi
     let live = true;
     fetch("/api/creator-cover?place=" + encodeURIComponent(placeId))
       .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { if (live && j && j.cover && typeof j.cover.src === "string") setCover(j.cover); })
+      .then((j) => { if (live && typeof j?.cover?.src === "string") setCover({ ...j.cover, placeId }); })
       .catch(() => {});
     return () => { live = false; };
   }, [placeId, poster]);
   // No owned cover: VideoFacade falls back to this place's stored, credited photo by placeId.
-  return <VideoFacade {...props} placeId={placeId} poster={poster || cover?.src || null} posterCredit={poster ? posterCredit : cover?.credit || null} />;
+  const currentCover = cover?.placeId === placeId ? cover : null;
+  return <VideoFacade {...props} placeId={placeId} poster={poster || currentCover?.src || null} posterCredit={poster ? posterCredit : currentCover?.credit || null} />;
 }
