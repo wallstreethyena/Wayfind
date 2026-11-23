@@ -98,7 +98,7 @@ ok(!/const ranked = \(places \|\| \[\]\)\.filter\([^)]*\)\.slice\(/.test(view),
   "`ranked` must not be sliced — the map has to show every place the list loaded, not a merchandising cap");
 ok(/window\.__wfMapPins\s*=\s*\{\s*ids:\s*placeFeatures\.map/.test(view),
   "MapView exposes window.__wfMapPins for a live parity check between the map and the list — see redraw()");
-ok(/selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(map) && !/slice\(0, (40|60)\)/.test(map), "the complete qualifying area pool must feed pins and cards without a top-N cap");
+ok(/selectMapPlaces(?:WithSparseTopUp)?\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(map) && !/slice\(0, (40|60)\)/.test(map), "the complete qualifying area pool must feed pins and cards without a top-N cap");
 ok(/clusterRadius: 30/.test(view), "the cluster radius widened again — more clustering means fewer visible pins");
 ok(/pixelRatio: PIN_DPR/.test(view), "pin sprites are not registered at 2x — they would render blurry on retina");
 // v8.94 — PARSED, NOT MATCHED. This was a literal of the whole dependency

@@ -151,9 +151,9 @@ export default async function Page() {
     readFloridaIntelligence().catch(() => null),
     new Promise((resolve) => setTimeout(() => resolve(null), 1200)),
   ]);
-  const thisWeekGuide = baseThisWeekGuide && floridaIntel && floridaIntel.floridaBrief
-    ? { ...baseThisWeekGuide, brief: floridaIntel.floridaBrief }
-    : baseThisWeekGuide;
+  const thisWeekGuide = baseThisWeekGuide
+    ? (floridaIntel && floridaIntel.floridaBrief ? { ...baseThisWeekGuide, brief: floridaIntel.floridaBrief } : baseThisWeekGuide)
+    : (floridaIntel && floridaIntel.floridaBrief ? { brief: floridaIntel.floridaBrief } : null);
   return (
     <>
       {/* v5.38 a11y/SEO: one descriptive server-rendered H1, always present

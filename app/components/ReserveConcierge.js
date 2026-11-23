@@ -508,7 +508,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
   const srv = useRef({ placeId: null, date: null, time: null, partySize: null });
   const last = useRef({ kind: "turn" });
   const keys = useRef({});
-  const guest = useRef(null); // a name given for one booking only: { guestName, phone }
+  const guest = useRef(null); // contact details for one reservation at one place
   const phonePoll = useRef(null);
   useEffect(() => { alive.current = true; return () => { alive.current = false; if (phonePoll.current) clearInterval(phonePoll.current); }; }, []);
   useEffect(() => { const el = logRef.current; if (el) el.scrollTop = el.scrollHeight; }, [items, busy]);
@@ -519,6 +519,10 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     if (!st || typeof st !== "object") return;
     srv.current = Object.assign({}, srv.current, st);
     if (st.placeId) {
+      if (guest.current && guest.current.placeId !== st.placeId) {
+        guest.current = null;
+        setWho("");
+      }
       pid.current = st.placeId;
       if (!place.current || place.current.id !== st.placeId) place.current = { id: st.placeId, name: st.restaurantName || "Restaurant" };
       else if (st.restaurantName && !place.current.name) place.current = Object.assign({}, place.current, { name: st.restaurantName });
@@ -527,10 +531,17 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
 
   const runTurn = useCallback(async () => {
     if (busyRef.current) return;
+    const history = convo.current;
+    let end = history.length;
+    while (end > 0 && history[end - 1].role !== "user") end--;
+    const messages = history.slice(Math.max(0, end - 12), end);
+    while (messages[0] && messages[0].role !== "user") messages.shift();
+    if (!messages.length) return;
+    const context = pid.current ? { placeId: pid.current } : {};
+    if (guest.current?.guestName && guest.current.placeId === context.placeId) context.hasGuestName = true;
     last.current = { kind: "turn" };
     setBusyBoth(true); setCardError("");
-    const body = { messages: convo.current.slice(-12), context: pid.current ? { placeId: pid.current } : {}, state: srv.current };
-    const r = await conciergeTurn(body);
+    const r = await conciergeTurn({ messages, context, state: srv.current });
     if (!alive.current) return;
     setBusyBoth(false);
     if (r && r.status === 401) { push({ text: "Sign in and I'll take it from here.", card: { type: "signin" } }); return; }
@@ -540,7 +551,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
     }
     adopt(r.state);
     convo.current.push({ role: "assistant", content: r.say.slice(0, 500) });
-    if (r.profile && typeof r.profile.display === "string") setWho(r.profile.display);
+    if (!guest.current && r.profile && typeof r.profile.display === "string") setWho(r.profile.display);
     if (r.profile) setSms(r.profile.smsReady === true && typeof r.profile.phoneTail === "string" && /^\d{2}$/.test(r.profile.phoneTail) ? { tail: r.profile.phoneTail } : null);
     const card = r.card && typeof r.card === "object" && r.card.type ? r.card : null;
     track("reserve_concierge_turn", { place_id: pid.current || null, card: card ? card.type : "none" });
@@ -565,17 +576,26 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
   const book = useCallback(async (a) => {
     if (busyRef.current) return;
     const placeId = srv.current.placeId || pid.current;
+    const bookingGuest = guest.current?.placeId === placeId ? guest.current : null;
     const sig = [placeId, a.date, a.time, a.partySize].join("|");
     const key = keys.current[sig] || (keys.current[sig] = newIdempotencyKey());
     last.current = { kind: "book", a };
     setBusyBoth(true); setCardError("");
     const req = { placeId, date: a.date, time: a.time, partySize: a.partySize, idempotencyKey: key };
-    if (guest.current) { if (guest.current.guestName) req.guestName = guest.current.guestName; if (guest.current.phone) { req.phone = guest.current.phone; req.phoneConsent = true; } }
+    if (bookingGuest?.guestName) req.guestName = bookingGuest.guestName;
+    if (bookingGuest?.phone) {
+      req.phone = bookingGuest.phone;
+      req.phoneConsent = true;
+    }
     if (a.textMe === true) req.smsConsent = true; // the guest ticked "Text me this confirmation" on this card
     const r = await bookTable(req);
     if (!alive.current) return;
     setBusyBoth(false);
     const b = r && r.booking;
+    if (r?.ok && bookingGuest && (b?.status === "confirmed" || b?.status === "requested")) {
+      guest.current = null;
+      setWho("");
+    }
     if (r && r.ok && b && b.status === "confirmed") {
       delete keys.current[sig];
       track("reserve_booked", { place_id: placeId, party_size: a.partySize, via: "concierge" });
@@ -605,17 +625,22 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
   const confirmPhone = useCallback(async (a) => {
     if (busyRef.current) return;
     const placeId = srv.current.placeId || pid.current;
+    const bookingGuest = guest.current?.placeId === placeId ? guest.current : null;
     const sig = ["phone", placeId, a.date, a.time, a.partySize].join("|");
     const key = keys.current[sig] || (keys.current[sig] = newIdempotencyKey());
     last.current = { kind: "phone", a };
     setBusyBoth(true); setCardError("");
     const req = { placeId, date: a.date, time: a.time, partySize: a.partySize, idempotencyKey: key };
-    if (guest.current && guest.current.guestName) req.guestName = guest.current.guestName;
+    if (bookingGuest?.guestName) req.guestName = bookingGuest.guestName;
     const r = await confirmPhoneRequest(req);
     if (!alive.current) return;
     setBusyBoth(false);
     const phone = r && r.phone;
     if (r && r.ok && phone && phone.id) {
+      if (bookingGuest) {
+        guest.current = null;
+        setWho("");
+      }
       if (phone.outcome) delete keys.current[sig];
       push({ card: { type: "phone_outcome", phone }, phonePoll: phone.id });
       if (!phone.outcome) {
@@ -658,7 +683,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
       if (r.status === 401) { push({ text: "Sign in to save that.", card: { type: "signin" } }); return; }
       if (!r.ok) { setCardError(r.message || "We could not save that. Please try again."); return; }
       guest.current = null;
-    } else guest.current = { guestName: (v.first + " " + v.last).trim(), phone };
+    } else guest.current = { placeId: srv.current.placeId || pid.current, guestName: (v.first + " " + v.last).trim(), phone };
     setWho(display);
     retry();
   };

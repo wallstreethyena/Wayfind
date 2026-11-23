@@ -295,7 +295,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // would label a derived average as a place, which is the one thing a map
     // must never do. The pin is a claim; only draw it when it is true.
     if (showOrigin && origin && origin.lat != null && origin.lng != null) {
-      const node = markerNode({ label: deviceLoc ? "Your location" : "Search center", color: deviceLoc ? "#3B82F6" : "#F97316", kind: "origin" });
+      const node = markerNode({ label: deviceLoc ? "Your location" : "Search center", color: "#F97316", kind: "origin" });
       markersRef.current.push(new Marker({ element: node, anchor: deviceLoc ? "center" : "bottom" }).setLngLat([origin.lng, origin.lat]).addTo(map));
       if (fit) bounds.extend([origin.lng, origin.lat]);
     }

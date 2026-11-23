@@ -2,7 +2,7 @@
 // CheckedCreatorPost, used by the Disney food guide) never shows a blank (black)
 // Instagram frame. Mounts the REAL CheckedCreatorPost + CreatorVideoPlayer
 // in jsdom, drives real message events and a captured timer:
-//   loading panel with source link → ignores wrong origin / wrong frame →
+//   cover with its photo and credit → ignores wrong origin / wrong frame →
 //   falls back to the source card on timeout → a late MOUNTED from the post's
 //   own frame reveals it → "Reload post" returns to loading with focus kept.
 // --red-prove: an origin-blind or frame-blind CheckedCreatorPost must fail.
@@ -25,23 +25,39 @@ const fire = () => { const live = timers.filter((t) => t.fn); live.forEach((t) =
 const { default: CheckedCreatorPost, CREATOR_POST_TIMEOUT_MS } = await loadComponent(path.resolve("app/components/CheckedCreatorPost.js"), process.cwd());
 // A post Instagram plays inside Wayfind (owner 2026-11-20: handoff posts are not rendered at all).
 const { embedSrc } = await import("../lib/videoEmbed.js");
-const post = DISNEY_FOOD_STOPS.flatMap((s) => s.posts).find((p) => embedSrc("instagram", p.url));
-assert.ok(post, "fixture: at least one food post plays inside Wayfind");
+const post = DISNEY_FOOD_STOPS.flatMap((s) => s.posts).find((p) => p.url.includes("/DfutR5Fmrxt/"));
+assert.ok(post?.cover && embedSrc("instagram", post.url), "fixture: Christmas croissants has a cover and plays inside Wayfind");
 const { createRoot } = await import("react-dom/client");
 
 function run(variant, Component = CheckedCreatorPost) {
   document.getElementById("root").innerHTML = "";
   timers.length = 0;
   const root = createRoot(document.getElementById("root"));
+  try {
+    verifyStates(root, variant, Component);
+  } finally {
+    flushSync(() => root.unmount());
+  }
+}
+
+function verifyStates(root, variant, Component) {
   flushSync(() => root.render(React.createElement(Component, { post })));
   const fig = () => document.querySelector("[data-creator-post]");
   const state = () => fig().dataset.creatorPostState;
   const send = (data, origin, source) => flushSync(() => window.dispatchEvent(new MessageEvent("message", { data, origin, source })));
   const frame = () => fig().querySelector("iframe");
+  const photo = () => fig().querySelector("img");
+  const assertCover = () => {
+    assert.equal(photo()?.getAttribute("src"), post.cover.src);
+    assert.equal(photo()?.alt, post.cover.alt);
+    assert.ok(fig().textContent.includes("Photo: " + post.cover.credit));
+  };
   assert.equal(state(), "idle");
   assert.equal(frame(), null, "no provider player (and no black frame) before the tap");
+  assertCover();
   flushSync(() => fig().querySelector("button").click());
   assert.equal(state(), "loading");
+  assertCover();
   assert.ok(frame(), "player is mounted (hidden) so Instagram can load");
   assert.equal(fig().querySelector("[inert]")?.contains(frame()), true, "hidden player is inert while loading");
   assert.match(fig().textContent, /Loading the (?:reel|photos) from @/);
@@ -58,15 +74,20 @@ function run(variant, Component = CheckedCreatorPost) {
     assert.match(fig().textContent, /The post didn’t load here/);
     assert.equal(fig().querySelectorAll("a").length, 0, "the fallback card offers Try again, never a link out to Instagram");
     assert.ok([...fig().querySelectorAll("button")].some((b) => b.textContent === "Try again"));
+    assertCover();
   }
   send(mounted, "https://www.instagram.com", frame().contentWindow);
   assert.equal(state(), "ready", "the post's own frame reporting MOUNTED reveals it");
+  assert.equal(photo(), null, "once playback is visible its cover is removed");
   assert.equal(fig().querySelector("[inert]"), null, "revealed player is interactive");
   flushSync(() => [...fig().querySelectorAll("button")].find((b) => b.textContent === "Reload post").click());
   flushSync(() => {});
   assert.equal(state(), "loading");
+  assertCover();
   assert.match(document.activeElement?.textContent || "", /^Loading the (?:reel|photos) from @/, "focus lands on the loading panel");
-  flushSync(() => root.unmount());
+  flushSync(() => photo().dispatchEvent(new window.Event("error")));
+  assert.equal(photo(), null, "an unavailable photo leaves the working branded cover instead of a broken image");
+  assert.ok(!fig().textContent.includes("Photo: " + post.cover.credit), "a failed picture loses its credit");
 }
 
 if (process.argv.includes("--red-prove")) {
@@ -77,6 +98,7 @@ if (process.argv.includes("--red-prove")) {
   const mutants = {
     "origin check removed": src.replace("if (event.origin !== IG_ORIGIN) return;", ""),
     "frame check removed": src.replace("if (!frame || event.source !== frame.contentWindow) return;", ""),
+    "cover removed": src.replace("{photo && failedPhoto !== photoSrc ? <>", "{false ? <>"),
   };
   for (const [name, code] of Object.entries(mutants)) {
     assert.notEqual(code, src, "mutation applied: " + name);
@@ -91,7 +113,7 @@ if (process.argv.includes("--red-prove")) {
   const real = path.resolve(dir + "CheckedCreatorPost.js");
   const { default: Same } = await loadComponent(real, process.cwd(), { sourceOverrides: new Map([[real, src]]) });
   run("on-time", Same);
-  console.log("test-disney-food-post-states --red-prove: OK — CheckedCreatorPost without its origin check or its frame check fails the test");
+  console.log("test-disney-food-post-states --red-prove: OK — removed cover, origin check and frame check each fail the test");
   process.exit(0);
 }
 run("late");

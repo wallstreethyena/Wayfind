@@ -85,9 +85,19 @@ function harness({ env = PROD, ...repoOpts } = {}, extra = {}) {
   const L = r.body.lanes || {};
   ok(L[PARTNER_PLACE] === "instant" && L[ULELE] === "handoff", "lanes: a partner defaults to instant, a link only restaurant is handoff");
   ok(r.body.placeIds.every((id) => ["instant", "request", "handoff"].includes(L[id])) && Object.keys(L).every((id) => r.body.placeIds.includes(id)), "lanes covers exactly the listed ids with known values");
-  const req = harness({ env: PROD, partners: [partner(PARTNER_PLACE, "Test Bistro", { booking_mode: "request" })] });
-  const rq = await json(await req.handlers.partners(new Request(ORIGIN + "/api/reserve/partners")));
-  ok(rq.body.lanes[PARTNER_PLACE] === "request", "lanes: booking_mode request reads as request, and a partner that is also linked stays a partner lane (not handoff)");
+  const requestPartner = partner(PARTNER_PLACE, "Test Bistro", { booking_mode: "request" });
+  const realRepositoryHandlers = createReserveHandlers({
+    env: PROD,
+    async fetchImpl(rawUrl) {
+      const url = new URL(rawUrl);
+      if (url.pathname === "/rest/v1/wf_reserve_platform_links") return Response.json([{ place_id: PARTNER_PLACE }]);
+      if (url.pathname !== "/rest/v1/wf_reserve_partners") throw new Error("Unexpected request in partner list test");
+      const fields = url.searchParams.get("select").split(",");
+      return Response.json([Object.fromEntries(fields.map((field) => [field, requestPartner[field]]))]);
+    },
+  });
+  const rq = await json(await realRepositoryHandlers.partners(new Request(ORIGIN + "/api/reserve/partners")));
+  ok(rq.status === 200 && rq.body.lanes[PARTNER_PLACE] === "request", "the partner list query carries booking_mode through to the request label, even when a handoff link exists");
   ok(!JSON.stringify(rq.body).includes("contact_email") && rq.headers.get("cache-control") === "public, s-maxage=120, stale-while-revalidate=600", "lanes payload stays public and cacheable, no contact fields");
 }
 

@@ -912,6 +912,14 @@ const confirmed = { html: html("confirmation.html") };
     body: JSON.stringify({ sessionId: "sess_live1" }),
   }));
   ok(closeRes.status === 200 && releasedId === "sess_live1", "DELETE /api/reserve/browser cleanly releases Browserbase session");
+
+  const ids = lb.listLiveBrowserPlaceIds({
+    ChIJresy12345: { actions: { reservation_url: { url: "https://resy.com/cities/bradenton-fl/venues/obricks" } } },
+    ChIJsite12345: { actions: { officialWebsite: { url: "https://example.com" } } },
+    ChIJot1234567: { actions: { reservation_url: { url: "https://www.opentable.com/r/ulele-tampa" } } },
+  });
+  ok(ids.includes("ChIJresy12345") && !ids.includes("ChIJsite12345") && !ids.includes("ChIJot1234567"), "listLiveBrowserPlaceIds returns only verified online booking platform places (never generic homepages or OpenTable)");
+  ok(lb.listLiveBrowserPlaceIds().includes("ChIJqQsqj80Xw4gRev0L3y4_-lM"), "listLiveBrowserPlaceIds loads bundled first-party-actions.json (O'Bricks on Resy)");
 }
 
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }

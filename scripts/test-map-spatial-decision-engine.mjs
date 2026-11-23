@@ -2172,8 +2172,85 @@ let mapComponentMod = null;
     '"breakfast nearby" on /map routes directly to Food -> Breakfast');
   assert.deepEqual(routeFn("coffee nearby", true).mapCategoryHit, { cat: "food", sub: "cafes" },
     '"coffee nearby" on /map routes directly to Food -> Cafes');
+  assert.deepEqual(routeFn("dinner", true).mapCategoryHit, { cat: "food", sub: "dinner" },
+    '"dinner" on /map routes directly to Food -> Dinner');
+  assert.deepEqual(routeFn("ice cream", true).mapCategoryHit, { cat: "food", sub: "dessert" },
+    '"ice cream" on /map routes directly to Food -> Desserts');
+  assert.deepEqual(routeFn("gelato", true).mapCategoryHit, { cat: "food", sub: "dessert" },
+    '"gelato" on /map routes directly to Food -> Desserts');
+  assert.deepEqual(routeFn("quick bites", true).mapCategoryHit, { cat: "food", sub: "quickbites" },
+    '"quick bites" on /map routes directly to Food -> Quick bites');
+  assert.deepEqual(routeFn("delivery", true).mapCategoryHit, { cat: "food", sub: "delivery" },
+    '"delivery" on /map routes directly to Food -> Delivery');
+  assert.deepEqual(routeFn("live music", true).mapCategoryHit, { cat: "nightlife", sub: "music" },
+    '"live music" on /map routes directly to Nightlife -> Live music');
+  assert.deepEqual(routeFn("parks", true).mapCategoryHit, { cat: "attractions", sub: "outdoors" },
+    '"parks" on /map routes directly to Activities -> Outdoors');
+  assert.deepEqual(routeFn("beaches", true).mapCategoryHit, { cat: "attractions", sub: "beaches" },
+    '"beaches" on /map routes directly to Activities -> Beaches');
+  assert.deepEqual(routeFn("museums", true).mapCategoryHit, { cat: "attractions", sub: "museums" },
+    '"museums" on /map routes directly to Activities -> Museums');
+  assert.deepEqual(routeFn("spas", true).mapCategoryHit, { cat: "attractions", sub: "spa" },
+    '"spas" on /map routes directly to Activities -> Spas');
+  assert.deepEqual(routeFn("family fun", true).mapCategoryHit, { cat: "family", sub: "all" },
+    '"family fun" on /map routes directly to Family');
+  assert.deepEqual(routeFn("outlets", true).mapCategoryHit, { cat: "shopping", sub: "all" },
+    '"outlets" on /map routes directly to Shopping');
+  assert.deepEqual(routeFn("show me breakfast", true).mapCategoryHit, { cat: "food", sub: "breakfast" },
+    '"show me breakfast" strips leading "show me" without tripping the "show" event modifier guard');
+  for (const guarded of ["christmas food", "bars tonight", "food open now", "free parks", "dinner show", "holiday lights", "farmers market", "weekend brunch", "concerts nearby"]) {
+    assert.equal(routeFn(guarded, true).mapCategoryHit, null, `"${guarded}" is never hijacked by map category shortcut`);
+    assert.equal(routeFn(guarded, true).category, null, `"${guarded}" never triggers bare category shortcut`);
+  }
   assert.equal(routeFn("food near by", false).category, "food",
     '"food near by" off-map still resolves Food category');
+  // City + category routing on /map (e.g. "food parrish", "breakfast in parrish", "coffee near tampa", "parks in sarasota")
+  assert.match(homeSrc, /const cityPart = words\.slice\(len\)\.join\(" "\)\.replace\(\/\^\(\?:in\|near\|around\)\\s\+\/i, ""\)\.trim\(\);/,
+    "app/home.js supports <category/meal> [in|near|around] <city> map search routing");
+  assert.match(homeSrc, /setMapCatRev\(\(n\) => \(n \|\| 0\) \+ 1\)/,
+    "app/home.js bumps mapCatRev when map search switches category so Map.js clears allCategories");
+  const mapSrcText = readFileSync(fileURLToPath(new URL("../app/components/screens/Map.js", import.meta.url)), "utf8");
+  assert.match(mapSrcText, /const key = `\$\{cat\}\|\$\{sub\}\|\$\{mapCatRev \|\| 0\}`;/,
+    "Map.js resets allCategories whenever mapCatRev changes from a map search");
+
+  // General /api/search intent resolution for dinner, ice cream, parks
+  const dinnerRes = await searchResultCards({
+    query: "dinner near me",
+    lat: 27.5859,
+    lng: -82.4254,
+    guides: [],
+    events: [],
+    places: [
+      { place_id: "parrish-italian", name: "Trattoria Parrish", lat: 27.58, lng: -82.42, category: "food", primary_type: "italian_restaurant", google_types: ["italian_restaurant", "restaurant"], signals: { rating: 4.7, reviews: 420 } },
+      { place_id: "parrish-icecream", name: "Scoops Creamery", lat: 27.58, lng: -82.42, category: "food", primary_type: "ice_cream_shop", google_types: ["ice_cream_shop"], signals: { rating: 4.8, reviews: 310 } },
+      { place_id: "parrish-park", name: "Rye Preserve Park", lat: 27.52, lng: -82.37, category: "attractions", primary_type: "park", google_types: ["park"], signals: { rating: 4.8, reviews: 620 } },
+    ],
+  });
+  assert.ok(dinnerRes.cards.some((c) => c.id === "parrish-italian"), '"dinner near me" resolves sit-down dinner restaurants via searchIntent');
+  const iceCreamRes = await searchResultCards({
+    query: "ice cream",
+    lat: 27.5859,
+    lng: -82.4254,
+    guides: [],
+    events: [],
+    places: [
+      { place_id: "parrish-italian", name: "Trattoria Parrish", lat: 27.58, lng: -82.42, category: "food", primary_type: "italian_restaurant", google_types: ["italian_restaurant", "restaurant"], signals: { rating: 4.7, reviews: 420 } },
+      { place_id: "parrish-icecream", name: "Scoops Creamery", lat: 27.58, lng: -82.42, category: "food", primary_type: "ice_cream_shop", google_types: ["ice_cream_shop"], signals: { rating: 4.8, reviews: 310 } },
+    ],
+  });
+  assert.deepEqual(iceCreamRes.cards.map((c) => c.id), ["parrish-icecream"], '"ice cream" returns dessert/ice cream shops without requiring literal words in name');
+  const parksRes = await searchResultCards({
+    query: "parks",
+    lat: 27.5859,
+    lng: -82.4254,
+    guides: [],
+    events: [],
+    places: [
+      { place_id: "parrish-park", name: "Rye Preserve Trail", lat: 27.52, lng: -82.37, category: "attractions", primary_type: "park", google_types: ["park"], signals: { rating: 4.8, reviews: 620 } },
+      { place_id: "parrish-mall", name: "Parkwood Square Shopping Center", lat: 27.58, lng: -82.42, category: "shopping", primary_type: "shopping_mall", google_types: ["shopping_mall"], signals: { rating: 4.5, reviews: 500 } },
+    ],
+  });
+  assert.deepEqual(parksRes.cards.map((c) => c.id), ["parrish-park"], '"parks" returns real outdoor parks and excludes shopping centers with Park in their name');
 
   const urlSyncStart = homeSrc.indexOf("const coldHydrating = !!pendingColdMapUrlRef.current || prev !== \"map\";");
   assert.ok(urlSyncStart > 0, "app/home.js clears stale cat/sub query params after map cold hydration");
