@@ -14,13 +14,14 @@ import {
   RESERVE_LIMITS, conciergeTurn, bookTable, confirmPhoneRequest, getPhoneRequest, cancelBooking, saveProfile, profileBody, cleanPhoneInput, newIdempotencyKey,
   addToItinerary, directionsUrl, addHandoff, downloadIcs, timeLabel, dateLabel, weekdayLabel,
   startBookingAgent, bookingAgentStatus, cancelBookingAgent, submitBookingAgentCode,
+  openLiveBrowser, closeLiveBrowser,
 } from "../../lib/reserveClientApi.js";
 import { consentParagraph } from "../../lib/bookingAgent/copy.js";
 import { trackReserve, savePendingReserve, clearPendingReserve } from "../../lib/reserveOpen.js";
 import { phoneGuestLine } from "../../lib/reservePhone/copy.js";
 
 const NAME_NEEDED = ["INVALID_NAME", "NAME_REQUIRED", "NEEDS_NAME", "PROFILE_REQUIRED", "NEEDS_PROFILE", "GUEST_NAME_REQUIRED"];
-const KEEP = ["booked", "requested", "cancelled", "phone_outcome", "agent_progress"]; // cards that stay in the thread after later messages
+const KEEP = ["booked", "requested", "cancelled", "phone_outcome", "agent_progress", "live_browser"]; // cards that stay in the thread after later messages
 
 const safe = (fn) => { try { return fn(); } catch (e) { return undefined; } };
 const track = (name, props) => { safe(() => trackReserve(name, props)); };
@@ -421,6 +422,68 @@ export function AgentProgressCard({ card }) {
   );
 }
 
+export function LiveBrowserCard({ card }) {
+  const [opening, setOpening] = useState(false);
+  const [session, setSession] = useState(null);
+  const [closed, setClosed] = useState(false);
+  const [error, setError] = useState("");
+  const sessionRef = useRef(null);
+  useEffect(() => () => {
+    const sid = sessionRef.current;
+    if (sid) { sessionRef.current = null; safe(() => closeLiveBrowser(sid)); }
+  }, []);
+  const summary = [card.date ? exactDay(card.date) : "", card.time ? timeLabel(card.time) : "", card.partySize ? partyWord(card.partySize) : ""].filter(Boolean).join(" · ");
+  const via = card.provider && card.provider !== "website" ? card.provider : "restaurant site";
+  const launch = async () => {
+    if (opening) return;
+    setOpening(true); setError(""); setClosed(false);
+    const r = await openLiveBrowser({ placeId: card.placeId, url: card.targetUrl, restaurantName: card.restaurantName });
+    setOpening(false);
+    if (r && r.ok && r.sessionId && r.liveViewUrl) {
+      sessionRef.current = r.sessionId;
+      setSession({ id: r.sessionId, liveViewUrl: r.liveViewUrl, targetUrl: r.targetUrl || card.targetUrl });
+      return;
+    }
+    setError((r && r.message) || "Could not open the live browser right now. You can still open the booking page directly.");
+  };
+  const close = async () => {
+    const sid = sessionRef.current || (session && session.id);
+    sessionRef.current = null;
+    setSession(null);
+    setClosed(true);
+    if (sid) await closeLiveBrowser(sid);
+  };
+  if (session && session.liveViewUrl) {
+    return (
+      <div data-reserve-card="live_browser" style={box}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.35 }}>{card.restaurantName || "Booking browser"}{summary ? ` · ${summary}` : ""}</div>
+        <Note>Complete your reservation directly below on {via}. Tap Done when finished.</Note>
+        <div style={{ width: "100%", height: 500, marginTop: 10, borderRadius: 12, overflow: "hidden", border: `1px solid ${C.border}`, background: "#000" }}>
+          <iframe
+            data-live-browser-frame="1"
+            src={session.liveViewUrl}
+            title={`Book ${card.restaurantName || "table"} on ${via}`}
+            allow="clipboard-read; clipboard-write"
+            style={{ width: "100%", height: "100%", border: 0, display: "block" }}
+          />
+        </div>
+        <button type="button" data-live-browser-close="1" style={{ ...quietBtn, marginTop: 10 }} onClick={close}>Done — close browser</button>
+      </div>
+    );
+  }
+  return (
+    <div data-reserve-card="live_browser" style={box}>
+      {summary ? <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.4, marginBottom: 4 }}>{summary}</div> : null}
+      {closed ? <Note>Live browser closed. Check your email or text from {via} for your confirmation.</Note> : null}
+      {error ? <div role="alert" style={errStyle}>{error}</div> : null}
+      <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
+        <button type="button" data-live-browser-open="1" style={{ ...mainBtn, opacity: opening ? 0.7 : 1 }} disabled={opening} onClick={launch}>{opening ? "Opening live browser..." : `Book on ${via} right here`}</button>
+        {card.targetUrl ? <a href={card.targetUrl} target="_blank" rel="noopener noreferrer" style={linkBtn}>Open {via} in a new tab</a> : null}
+      </div>
+    </div>
+  );
+}
+
 // `thread` (2026-11-14, one Santa conversation): the concierge renders NOTHING itself. The Santa iMessage chat
 // (WayfindPlannerSheet) owns the one thread and the one composer; it drives this concierge through `controlRef`
 // ({ send(text), choose(pick) }) and draws each item from `onSnapshot({ items, busy, who, renderCard })`, so
@@ -657,6 +720,7 @@ export default function ReserveConcierge({ initialPlace, initialMessage, embedde
       case "handoff": return <HandoffCard card={c} state={srv.current} place={pl} />;
       case "agent_offer": return <AgentOfferCard card={c} state={srv.current} place={pl} busy={busy} sms={sms} onStart={(textMe) => startAgent(c, textMe)} />;
       case "agent_progress": return <AgentProgressCard card={c} />;
+      case "live_browser": return <LiveBrowserCard card={c} />;
       case "profile": return <ProfileCard busy={busy} error={cardError} onSubmit={submitProfile} />;
       case "signin": return <SigninCard onSignedIn={() => { clearPendingReserve(); afterSignIn(); }} place={pl} />;
       case "choose": return <ChooseCard card={c} busy={busy} onChoose={choose} />;
