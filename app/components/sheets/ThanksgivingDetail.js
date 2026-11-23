@@ -20,10 +20,11 @@ import { createThanksgivingRequestManager, openThanksgivingMap, thanksgivingLoca
 const categories = [["all", "All picks"], ["experiences", "Viator experiences"], ["events", "Holiday events"], ["places", "Easy local outings"]];
 const distances = [[25, "Nearby · 25 mi"], [60, "Wider area · 60 mi"], [120, "Day trips · 120 mi"]];
 const button = { border: `1px solid ${C.border}`, borderRadius: 999, background: C.card, color: C.light, padding: "9px 14px", fontSize: 13, fontWeight: 750, cursor: "pointer" };
+const filterButton = { ...button, padding: "8px 11px", fontSize: 12, whiteSpace: "nowrap" };
 const row = { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" };
 const dateLabel = (day, options) => new Date(day + "T12:00:00Z").toLocaleDateString("en-US", { timeZone: "UTC", ...options });
 
-function HolidayEventCard({ event, today }) {
+export function HolidayEventCard({ event, today }) {
   const href = event.eventHref || event.dest;
   if (!href) return null;
   const start = event.planningDays?.[0] || event.startDate || event.date || event.start;
@@ -92,6 +93,8 @@ export default function ThanksgivingDetail({ ctx }) {
   const contentId = `thanksgiving-${year}-${date}-${mi}`;
   const unavailableSources = data && Object.values(data.sourceStatus || {}).some((source) => source?.status === "unavailable" || source?.failures?.length > 0);
   const searchedMarkets = (data?.sourceStatus?.experiences?.markets || []).filter((market) => typeof market === "string");
+  const warnings = (data?.warnings || []).filter((warning) => typeof warning === "string" && warning);
+  const dateWarnings = warnings.filter((warning) => /dates have passed|choose an upcoming/i.test(warning));
 
   useEffect(() => {
     if (!locationKey) { manager.current.cancel(); setResult({ key: "", status: "waiting", data: null }); return; }
@@ -146,35 +149,40 @@ export default function ThanksgivingDetail({ ctx }) {
   return <div role="dialog" aria-modal="true" aria-labelledby="thanksgiving-title" data-thanksgiving-detail
     style={{ position: "fixed", inset: 0, zIndex: 950, background: C.bg, color: C.text, overflowY: "auto", overscrollBehavior: "contain" }}>
     <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
-    <div style={{ maxWidth: 920, margin: "0 auto", padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 24px", boxSizing: "border-box", background: `linear-gradient(155deg, ${C.accent}22, ${C.bg} 70%)` }}>
-      <div style={{ ...row, justifyContent: "space-between", marginBottom: 22 }}>
+    <div style={{ maxWidth: 920, margin: "0 auto", padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 14px", boxSizing: "border-box", background: `linear-gradient(155deg, ${C.accent}22, ${C.bg} 70%)` }}>
+      <div style={{ ...row, justifyContent: "space-between", marginBottom: 12 }}>
         <button ref={backRef} style={{ ...button, color: C.accent }} onClick={close}>‹ Back</button>
         <button style={button} onClick={share} aria-label="Share Thanksgiving picks">Share ↗</button>
       </div>
-      <div style={{ color: C.accent, fontSize: 11, letterSpacing: "1.4px", fontWeight: 900, textTransform: "uppercase", marginBottom: 8 }}>🦃 Thanksgiving picks</div>
-      <h1 id="thanksgiving-title" style={{ fontSize: ctx.isDesktop ? 30 : 25, lineHeight: 1.15, margin: "0 0 10px", letterSpacing: "-.4px" }}>Make the most of Thanksgiving weekend near {location}</h1>
-      <p style={{ color: C.light, fontSize: 14, lineHeight: 1.6, margin: "0 0 16px" }}>{window.label} · Holiday events, Viator experiences and local outings, selected around your location.</p>
-      <div style={{ ...row, marginBottom: 12 }}>
+      <div style={{ color: C.accent, fontSize: 10, letterSpacing: "1.4px", fontWeight: 900, textTransform: "uppercase", marginBottom: 6 }}>🦃 Thanksgiving picks</div>
+      <h1 id="thanksgiving-title" style={{ fontSize: ctx.isDesktop ? 30 : 24, lineHeight: 1.15, margin: "0 0 6px", letterSpacing: "-.4px" }}>Thanksgiving near {location}</h1>
+      <p style={{ color: C.light, fontSize: 13, lineHeight: 1.5, margin: "0 0 12px" }}>{window.label}</p>
+      <div style={{ ...row, marginBottom: 10 }}>
         <label style={{ ...row, color: C.muted, fontSize: 12 }}>Year <select aria-label="Thanksgiving year" value={year} onChange={(event) => { setYear(Number(event.target.value)); setDate("all"); }} style={button}>{years.map((value) => <option key={value} value={value}>{value}</option>)}</select></label>
         <button onClick={chooseLocation} style={button}>📍 {locationKey ? "Change location" : "Choose location"}</button>
       </div>
-      <div role="group" aria-label="Thanksgiving dates" style={{ ...row, marginBottom: 12 }}>{[["all", "All weekend"], ...window.days.map((day) => [day, dateLabel(day, { weekday: "short", month: "short", day: "numeric" })])].map(([value, label]) => <button key={value} aria-pressed={date === value} onClick={() => setDate(value)} style={{ ...button, color: date === value ? C.accent : C.light, borderColor: date === value ? C.accent : C.border }}>{label}</button>)}</div>
-      <div role="group" aria-label="Distance" style={{ ...row, marginBottom: 14 }}>{distances.map(([value, label]) => <button key={value} aria-pressed={mi === value} onClick={() => setMi(value)} style={{ ...button, color: mi === value ? C.accent : C.light, borderColor: mi === value ? C.accent : C.border }}>{label}</button>)}</div>
-      <p style={{ color: C.muted, fontSize: 12, lineHeight: 1.5, margin: "0 0 16px" }}>Viator experiences appear first when they fit your area. Picks keep their quality order within each group. Check available dates and the operator’s meeting point.</p>
-      <div role="group" aria-label="Types of Thanksgiving picks" style={{ ...row, marginBottom: 16 }}>{categories.filter(([value]) => value !== "places" || data?.places?.length).map(([value, label]) => <button key={value} aria-pressed={category === value} onClick={() => setCategory(value)} style={{ ...button, background: category === value ? C.accent + "20" : C.card, color: category === value ? C.accent : C.light }}>{label}</button>)}</div>
+      <div role="group" aria-label="Thanksgiving dates" style={{ ...row, flexWrap: "nowrap", gap: 5, overflowX: "auto", marginBottom: 10 }}>{[["all", "All weekend"], ...window.days.map((day) => [day, dateLabel(day, { weekday: "short", month: "short", day: "numeric" })])].map(([value, label]) => <button key={value} aria-label={label} aria-pressed={date === value} onClick={() => setDate(value)} style={{ ...filterButton, padding: "8px 9px", color: date === value ? C.accent : C.light, borderColor: date === value ? C.accent : C.border }}>{value === "all" ? label : dateLabel(value, { weekday: "short", day: "numeric" })}</button>)}</div>
+      <div role="group" aria-label="Distance" style={{ ...row, gap: 6, marginBottom: 10 }}>{distances.map(([value, label]) => <button key={value} aria-label={label} aria-pressed={mi === value} onClick={() => setMi(value)} style={{ ...filterButton, color: mi === value ? C.accent : C.light, borderColor: mi === value ? C.accent : C.border }}>{value} mi</button>)}</div>
+      <div role="group" aria-label="Types of Thanksgiving picks" style={{ ...row, gap: 6, marginBottom: 10 }}>{categories.filter(([value]) => value !== "places" || data?.places?.length).map(([value, label]) => <button key={value} aria-label={label} aria-pressed={category === value} onClick={() => setCategory(value)} style={{ ...filterButton, background: category === value ? C.accent + "20" : C.card, color: category === value ? C.accent : C.light }}>{{ all: "All", experiences: "Experiences", events: "Events", places: "Outings" }[value]}</button>)}</div>
+      <p style={{ color: C.muted, fontSize: 12, lineHeight: 1.5, margin: "0 0 10px" }}>Relevant Viator experiences first. Check dates and meeting points.</p>
       <div style={row}><button disabled={!mapPlaces.length} onClick={() => openThanksgivingMap(ctx, data, category)} style={{ ...button, color: mapPlaces.length ? C.accent : C.muted, opacity: mapPlaces.length ? 1 : .6, cursor: mapPlaces.length ? "pointer" : "default" }}>Map verified stops{mapPlaces.length ? ` · ${mapPlaces.length} ${mapPlaces.length === 1 ? "venue" : "venues"}` : ""}</button>
         {data ? <span style={{ color: C.muted, fontSize: 12 }}>{visibleCount} picks in this view</span> : null}</div>
-      {data ? <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginBottom: 0 }}>The map uses matched venues from this view. Some experiences have no verified map location; pins appear only when a venue location is available.</p> : null}
-      {data?.counts ? <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginBottom: 0 }}>Library considered: {Number(data.counts.libraryEvents || 0).toLocaleString()} event records · {Number(data.counts.libraryExperiences || 0).toLocaleString()} experience records. {Number(data.counts.localEvents || 0).toLocaleString()} events and {Number(data.counts.localExperiences || 0).toLocaleString()} experiences match this area and weekend. Viator results are a bounded nearby selection.</p> : null}
-      {searchedMarkets.length ? <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginBottom: 0 }}>Viator search areas: {searchedMarkets.join(", ")}. More experiences may be available.</p> : null}
-      {data?.sourceStatus?.experiences?.reason === "no-nearby-market" ? <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5 }}>Viator search has no supported nearby market for this location.</p> : null}
+      {data ? <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, margin: "6px 0" }}>Matched venues only; some picks have no map point.</p> : null}
+      {data ? <details style={{ fontSize: 12, color: C.muted, lineHeight: 1.5, marginTop: 6 }}><summary style={{ cursor: "pointer", color: C.light, fontWeight: 750 }}>About these picks</summary>
+        <p>Picks keep their quality order within each group. Only matched venues from this view go to the map; pins appear only when a venue location is available. Check available dates and the operator’s meeting point.</p>
+        {data.counts ? <p>Library considered: {Number(data.counts.libraryEvents || 0).toLocaleString()} event records · {Number(data.counts.libraryExperiences || 0).toLocaleString()} experience records. {Number(data.counts.localEvents || 0).toLocaleString()} events and {Number(data.counts.localExperiences || 0).toLocaleString()} experiences match this area and weekend. Viator results are a bounded nearby selection.</p> : null}
+        {searchedMarkets.length ? <p>Viator search areas: {searchedMarkets.join(", ")}. More experiences may be available.</p> : null}
+        {data.sourceStatus?.experiences?.reason === "no-nearby-market" ? <p>Viator search has no supported nearby market for this location.</p> : null}
+        {warnings.length ? <ul style={{ paddingLeft: 18 }}>{warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul> : null}
+      </details> : null}
     </div>
     <div style={{ maxWidth: 920, width: "100%", boxSizing: "border-box", margin: "0 auto", padding: "0 16px 48px" }} aria-live="polite" aria-busy={loading}>
       {!locationKey ? <div role="status" style={{ padding: "24px 0", color: C.light }}><h2 style={{ fontSize: 19 }}>Choose where to spend the holiday</h2><p style={{ lineHeight: 1.6 }}>Use your current location or select a city to find Thanksgiving picks nearby.</p><button style={button} onClick={chooseLocation}>Choose location</button></div> : null}
       {loading ? <p role="status" style={{ padding: "24px 0", color: C.muted }}>Finding Thanksgiving picks near {location}…</p> : null}
       {failed ? <div role="alert" style={{ padding: "24px 0" }}><p>We couldn’t load Thanksgiving picks for this area. Please try again.</p><button style={button} onClick={() => setRetry((value) => value + 1)}>Try again</button></div> : null}
-      {data?.status === "partial" ? <p role="status" style={{ color: C.gold, fontSize: 13, lineHeight: 1.6 }}>{unavailableSources ? "Some sources are temporarily unavailable. These are the picks we could verify; check each listing for the latest details." : "This is a selected set of verified events and nearby experiences. The Viator search is limited; more options may exist."}</p> : null}
-      {data?.warnings?.length ? <ul style={{ color: C.muted, fontSize: 12, lineHeight: 1.6, paddingLeft: 18 }}>{data.warnings.filter((warning) => typeof warning === "string" && warning).map((warning, index) => <li key={index}>{warning}</li>)}</ul> : null}
+      {data?.status === "partial" ? <p role="status" style={{ color: C.gold, fontSize: 12, lineHeight: 1.5, margin: "0 0 10px" }}>{unavailableSources ? (data.sourceStatus?.experiences?.status === "unavailable" ? "Viator is temporarily unavailable. Showing verified picks." : "Some sources are temporarily unavailable. Showing verified picks.") : "The Viator search is limited; more options may exist."}</p> : null}
+      {data?.sourceStatus?.experiences?.reason === "no-nearby-market" ? <p role="status" style={{ color: C.muted, fontSize: 12, lineHeight: 1.5, margin: "0 0 10px" }}>Viator has no supported nearby search area for this location.</p> : null}
+      {dateWarnings.map((warning, index) => <p role="status" key={index} style={{ color: C.gold, fontSize: 12, lineHeight: 1.5 }}>{warning}</p>)}
       {data && !visibleCount ? <div role="status" style={{ padding: "24px 0", color: C.light }}><h2 style={{ fontSize: 19 }}>No matching picks in this view yet</h2><p style={{ lineHeight: 1.6 }}>Try all weekend, another type of pick, or a wider distance. Holiday schedules are still being announced in some areas.</p></div> : null}
       {!!groups.experiences.length && <section aria-labelledby="thanksgiving-experiences"><RailHeading id="thanksgiving-experiences" title="Viator experiences near you" description="Bookable ideas for the long weekend. Check availability and current prices on Viator." /><p style={{ color: C.muted, fontSize: 12, lineHeight: 1.5 }}>{AFFILIATE_DISCLOSURE_TEXT}</p><div className="wf-place-card-list">{groups.experiences.map((experience, index) => <HolidayExperienceCard key={experience.id || experience.code} experience={experience} rank={index + 1} contentId={contentId} page={`thanksgiving-${year}`} />)}</div></section>}
       {!!groups.events.length && <section aria-labelledby="thanksgiving-events"><RailHeading id="thanksgiving-events" title="Holiday events" description="Dated events that overlap your Thanksgiving plans. Open the listing for hours and tickets." /><div className="wf-place-card-list">{groups.events.map((event) => <HolidayEventCard key={event.id} event={event} today={today} />)}</div></section>}

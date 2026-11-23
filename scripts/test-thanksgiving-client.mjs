@@ -138,7 +138,7 @@ let current = { ...ctxMap, center: null, locResolved: false, locName: "", isDesk
   shareLink: (title, url) => { shareUrl = url; }, showToast() {} };
 const mount = async (over = {}) => { current = { ...current, ...over }; await React.act(async () => { root.render(React.createElement(Sheet, { ctx: current })); }); };
 const flush = async () => { await React.act(async () => { await new Promise((done) => setTimeout(done, 0)); }); };
-const click = async (text) => { const found = [...host.querySelectorAll("button")].find((node) => node.textContent === text); ok(!!found, `control exists: ${text}`); await React.act(async () => { found.click(); }); };
+const click = async (text) => { const found = [...host.querySelectorAll("button")].find((node) => node.textContent === text || node.getAttribute("aria-label") === text); ok(!!found, `control exists: ${text}`); await React.act(async () => { found.click(); }); };
 await mount();
 eq(calls.length, 0, "real mounted sheet waits for global location");
 ok(host.textContent.includes("Choose where to spend the holiday") && !host.textContent.includes("Orlando"), "location prompt is explicit");
@@ -155,6 +155,8 @@ ok(!host.innerHTML.includes("raw-must-not-escape") && [...host.querySelectorAll(
 eq(host.querySelectorAll("a[data-commerce-owner]").length, 2, "every tour has Check availability action");
 ok(host.textContent.includes("Tickets by lottery") && !!host.querySelector('a[href="https://example.org/holiday-tickets"]'), "event ticket action retains verified semantics and direct destination");
 ok(host.textContent.includes("200 event records") && host.textContent.includes("bounded nearby selection"), "library breadth is separate from bounded local coverage");
+ok(host.querySelector("details summary")?.textContent === "About these picks" && !host.querySelector("details").open, "long coverage explanations are available in a collapsed disclosure");
+for (const label of ["Fri, Nov 27", "Day trips · 120 mi", "Viator experiences"]) ok(!!host.querySelector(`button[aria-label="${label}"]`), "compact controls retain full accessible label: " + label);
 ok(host.textContent.includes("Map verified stops · 3 venues") && host.textContent.includes("pins appear only"), "known venues are distinguished from pins");
 const renderedSnapshot = host.innerHTML;
 await click("Viator experiences");
@@ -210,14 +212,16 @@ if (process.argv.includes("--browser")) {
   const browser = await chromium.launch(existsSync(chrome) ? { executablePath: chrome } : {});
   try {
     for (const width of [390, 768, 1440]) {
-      const page = await browser.newPage({ viewport: { width, height: 1100 } });
+      const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 1000 } });
       await page.route("**/*", (route) => route.abort());
       await page.setContent(`<!doctype html><html><head><style>body{margin:0;font-family:Arial,sans-serif}</style></head><body>${renderedSnapshot}</body></html>`);
-      const measured = await page.evaluate(() => ({ width: innerWidth, cards: [...document.querySelectorAll(".wf-place-card")].map((card) => {
+      const measured = await page.evaluate(() => ({ width: innerWidth, height: innerHeight, firstCardTop: document.querySelector(".wf-place-card")?.getBoundingClientRect().top, cards: [...document.querySelectorAll(".wf-place-card")].map((card) => {
         const r = card.getBoundingClientRect(), media = card.querySelector(".wf-place-card-media")?.getBoundingClientRect();
         return { height: r.height, width: r.width, mediaWidth: media?.width, controls: [...card.querySelectorAll(".wf-place-card-actions button,.wf-place-card-book")].every((control) => { const c = control.getBoundingClientRect(); return c.left >= r.left - 1 && c.right <= r.right + 1 && c.top >= r.top - 1 && c.bottom <= r.bottom + 1; }) };
       }), overflow: document.documentElement.scrollWidth > innerWidth }));
       eq(measured.width, width, `achieved viewport ${width}px`);
+      if (width === 390) { eq(measured.height, 844, "achieved phone height is 844px"); ok(measured.firstCardTop <= 700 || measured.height - measured.firstCardTop >= 100, "phone shows at least 100px of the first healthy pick in its initial viewport"); }
+      if (width === 390) console.log(`Thanksgiving phone render: ${measured.width}x${measured.height}, first card starts at ${measured.firstCardTop.toFixed(2)}px.`);
       eq(measured.cards.length, 4, `${width}px renders all actual shared card kinds`);
       for (const card of measured.cards) { ok(Math.abs(card.height - 268) <= 1, `${width}px card retains 268px standard`); ok(card.width > 250 && card.width <= (width < 900 ? width - 32 : 440) + 1, `${width}px shared responsive width`); ok(card.controls, `${width}px controls remain inside card`); }
       ok(!measured.overflow, `${width}px no document overflow`);
