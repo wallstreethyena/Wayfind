@@ -119,7 +119,7 @@ import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { useSiteToday } from "../../lib/siteDayClock.js";
 import { railOnPosterTrack } from "../../lib/posterSeasons.js";
-import { firstDropPosterId } from "../../lib/posterSeasons.js";
+import { firstDropPosterId, posterSeasonLive } from "../../lib/posterSeasons.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
 // Chef and Augtober open the same pop-down shell as every other rail. Their
 // answers stay lazy: Chef's testimony is static; FallIntentRails fetches the
@@ -587,9 +587,11 @@ export default function DaypartRail({
     return railOnPosterTrack(r, siteDay) && !(raysPoster && isRaysLivePoster(r));
   }), [order, railById, siteDay, raysPoster]);
   const featuredPosterId = firstDropPosterId(visiblePosterIds, (id) => railById.get(id));
-  const openingPosterId = initialRail && railById.has(initialRail) ? initialRail : featuredPosterId;
+  const fallPosterLive = posterSeasonLive("augtober", siteDay);
+  const initialPosterId = initialRail && railById.has(initialRail) && (initialRail !== "augtober" || fallPosterLive) ? initialRail : null;
+  const openingPosterId = initialPosterId || featuredPosterId;
   const [selected, setSelected] = useState(openingPosterId);
-  const selectionPinned = useRef(Boolean(initialRail && railById.has(initialRail)));
+  const selectionPinned = useRef(Boolean(initialPosterId));
   const loggedDefault = useRef(null);
   const defaultLanding = useRef(!selectionPinned.current && Boolean(featuredPosterId));
   const resumePoster = useRef(false);
@@ -599,6 +601,18 @@ export default function DaypartRail({
   // poster is never saved, so a quick return to / lands on the shelf.
   const posterEngaged = useRef(false);
   const cancelPosterRestore = useRef(null);
+  // Retiring the Fall poster also closes its collection in an already-open tab.
+  // Shared links and Back restore follow the same annual window below.
+  useLayoutEffect(() => {
+    if (selected !== "augtober" || fallPosterLive) return;
+    selectionPinned.current = true;
+    defaultLanding.current = false;
+    posterEngaged.current = false;
+    resumePoster.current = false;
+    setSelected(null);
+    try { sessionStorage.removeItem("wf_poster_position"); } catch {}
+    cancelPosterRestore.current?.();
+  }, [selected, fallPosterLive]);
   useLayoutEffect(() => {
     // A /?q= or /?intent= landing owns the page. The seasonal poster (Christmas
     // from Nov through Jan) must not open over an empty search box.
@@ -626,7 +640,7 @@ export default function DaypartRail({
     if (initialRail || !["/", "/v8"].includes(window.location.pathname)) return;
     try {
       const saved = JSON.parse(sessionStorage.getItem("wf_poster_position") || "null");
-      if (saved && Date.now() - saved.ts < 30 * 60000 && railById.has(saved.id)) {
+      if (saved && Date.now() - saved.ts < 30 * 60000 && railById.has(saved.id) && (saved.id !== "augtober" || fallPosterLive)) {
         selectionPinned.current = true;
         defaultLanding.current = false;
         resumePoster.current = true;
@@ -707,7 +721,7 @@ export default function DaypartRail({
       resumePoster.current = true;
       posterEngaged.current = !!saved;
       posterReturn.current = saved?.returnPosition || null;
-      setSelected(saved && railById.has(saved.id) ? saved.id : null);
+      setSelected(saved && railById.has(saved.id) && (saved.id !== "augtober" || fallPosterLive) ? saved.id : null);
     };
     const frame = requestAnimationFrame(save);
     window.addEventListener("pagehide", save);
@@ -719,7 +733,7 @@ export default function DaypartRail({
       document.removeEventListener("click", save, true);
       window.removeEventListener("wf:restore-browse", restore);
     };
-  }, [selected, railById]);
+  }, [selected, railById, fallPosterLive]);
   // NOTE on `artStale`: a rail can be renamed in code while the reader keeps
   // seeing the old claim, because the headline on these tiles is PIXELS.
   // `trending` still reads "EXPLODING TRENDS NEAR YOU" in the artwork, and the
@@ -1075,7 +1089,7 @@ export default function DaypartRail({
     if (!requested) return;
     const targetId = requested.retiredInto || id;
     const rail = railById.get(targetId);
-    if (!rail) return;
+    if (!rail || (targetId === "augtober" && !fallPosterLive)) return;
     selectionPinned.current = true;
     defaultLanding.current = false;
     posterEngaged.current = true;
@@ -1101,7 +1115,7 @@ export default function DaypartRail({
     // cutover; delete LEGACY_HERO_EVENT once the new series has history.
     const legacy = LEGACY_HERO_EVENT[targetId];
     if (legacy) logEvent(legacy, { src: "rail", rail_id: targetId });
-  }, [railById, daypart, shown, order, locName, selected]);
+  }, [railById, daypart, shown, order, locName, selected, fallPosterLive]);
 
   const close = useCallback(() => {
     selectionPinned.current = true;
@@ -1367,7 +1381,7 @@ export default function DaypartRail({
   // navigates, and <DateNightRails> renders the qualified intent above the
   // pool. What kept the wrong list off this drop was never this condition — it
   // was #1033's pool fix, and that is still here.
-  const selRail = selected ? railById.get(selected) : null;
+  const selRail = selected && (selected !== "augtober" || fallPosterLive) ? railById.get(selected) : null;
   // …and when a rail brings its OWN answer, the shared pool below must not
   // speak for it AT ALL — neither its empty copy nor its cards.
   //
@@ -1807,7 +1821,7 @@ export default function DaypartRail({
 
   return (
     <GuideDiscoveryContext.Provider value={guides}>
-    <div className={`wf8 is-${daypart}${selected ? " is-open" : ""}`} data-daypart={daypart}>
+    <div className={`wf8 is-${daypart}${selected && (selected !== "augtober" || fallPosterLive) ? " is-open" : ""}`} data-daypart={daypart}>
       <section className="wf8-railsec" aria-label="What to do right now">
         <div className="wf8-in">
           <div className="wf8-railwrap">

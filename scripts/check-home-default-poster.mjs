@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { JSDOM } from "jsdom";
-import { firstDropPosterId } from "../lib/posterSeasons.js";
+import { firstDropPosterId, posterSeasonLive } from "../lib/posterSeasons.js";
 import { RAILS } from "../lib/rails.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
@@ -125,6 +125,73 @@ if (other) {
 const empty = readOpen(renderToStaticMarkup(createElement(DaypartRail, { rails: [], places: {}, thin: [] })));
 ok(!empty.open && !empty.thumbInBar && empty.ids.length === 0,
   "no posters means no open collection and no header image");
+
+// Fall retirement applies to shared and restored collections as well as tiles.
+// Render the real shared-link entry, then execute the actual handlers so a
+// saved selection or a tab crossing Eastern midnight cannot revive the drop.
+const NativeDate = globalThis.Date;
+try {
+  for (const [day, live] of [["2026-11-10", true], ["2026-11-11", false], ["2026-11-23", false], ["2027-08-14", false], ["2027-08-15", true], ["2028-08-15", true]]) {
+    globalThis.Date = class extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : [day + "T16:00:00Z"])); }
+      static now() { return new NativeDate(day + "T16:00:00Z").getTime(); }
+    };
+    const shared = readOpen(renderToStaticMarkup(createElement(DaypartRail, {
+      rails: RAILS, places: {}, thin: [], initialDaypart: "afternoon", initialRail: "augtober",
+    })));
+    ok((shared.title === "Fall in Florida") === live && shared.ids.includes("augtober") === live,
+      `${day}: a shared Fall collection and its poster obey the same annual window`);
+  }
+} finally { globalThis.Date = NativeDate; }
+
+const effectBody = (at, ending) => {
+  const start = railCode.lastIndexOf("useEffect(() => {", at);
+  const end = railCode.indexOf(ending, at);
+  if (start < 0 || end < 0) throw new Error("Fall restore fixture could not find its real effect");
+  return railCode.slice(start + "useEffect(() => {".length, end);
+};
+const savedBody = effectBody(railCode.indexOf('sessionStorage.getItem("wf_poster_position")'), "}, []);");
+const restoreStart = railCode.indexOf("const restore = (event) => {");
+const restoreEnd = railCode.indexOf("\n    };", restoreStart);
+const restoreBody = railCode.slice(restoreStart + "const restore = (event) => {".length, restoreEnd);
+const retirementMatch = /useLayoutEffect\(\(\) => \{(\s*if \(selected !== "augtober"[\s\S]*?)\n  \}, \[selected, fallPosterLive\]\);/.exec(railCode);
+const openMatch = /const open = useCallback\(\(id, src\) => \{([\s\S]*?)\n  \}, \[/.exec(railCode);
+ok(restoreStart >= 0 && restoreEnd > restoreStart && retirementMatch && openMatch,
+  "probe: restoration, midnight retirement and opening handlers exist in the real component");
+function runSelection(body, id, day) {
+  const state = { selected: "before", removed: false, cancelled: false };
+  const saved = { id, ts: NativeDate.now(), returnPosition: { top: 120 } };
+  const scope = {
+    initialRail: null, selected: id, id, src: "fixture", event: { detail: { poster: saved } },
+    fallPosterLive: posterSeasonLive("augtober", day), railById: byId,
+    window: { location: { pathname: "/", search: "" } },
+    sessionStorage: { getItem: () => JSON.stringify(saved), removeItem: () => { state.removed = true; } },
+    landingSkipsDefaultPoster: () => false, setSelected: (value) => { state.selected = value; },
+    document: { querySelector: () => null }, performance: { now: () => 1 },
+    daypart: "afternoon", shown: { places: {}, railTotals: {} }, order: [], locName: "", logEvent: () => {},
+    honestCityLabel: () => "", LEGACY_HERO_EVENT: {},
+  };
+  for (const key of ["selectionPinned", "defaultLanding", "resumePoster", "posterEngaged", "posterReturn", "posterOpenedAt"]) scope[key] = { current: null };
+  scope.cancelPosterRestore = { current: () => { state.cancelled = true; } };
+  new Function(...Object.keys(scope), body)(...Object.values(scope));
+  return state;
+}
+for (const [label, body] of [["saved reload", savedBody], ["Back restore", restoreBody], ["shared opening", openMatch?.[1] || ""]]) {
+  ok(runSelection(body, "augtober", "2027-08-15").selected === "augtober", `${label}: Fall opens when the annual season returns`);
+  ok(runSelection(body, "augtober", "2026-11-11").selected !== "augtober", `${label}: retired Fall cannot reopen on November 11`);
+  ok(runSelection(body, "christmas", "2026-11-11").selected === "christmas", `${label}: another collection keeps its existing behavior`);
+}
+if (retirementMatch) {
+  const retired = runSelection(retirementMatch[1], "augtober", "2026-11-11");
+  ok(retired.selected === null && retired.removed && retired.cancelled,
+    "midnight retirement closes Fall, clears saved selection and cancels pending restoration");
+  ok(runSelection(retirementMatch[1], "augtober", "2026-11-10").selected === "before"
+    && runSelection(retirementMatch[1], "christmas", "2026-11-11").selected === "before",
+    "midnight retirement preserves Fall before the deadline and every other collection");
+  const broken = retirementMatch[1].replace('selected !== "augtober" || fallPosterLive', 'true');
+  ok(broken !== retirementMatch[1] && runSelection(broken, "augtober", "2026-11-11").selected !== null,
+    "mutation control: skipping retirement reproduces an open Fall collection after its deadline");
+}
 
 if (fail.length) {
   console.error("check-home-default-poster: FAIL\n" + fail.map((m) => "  " + m).join("\n"));
