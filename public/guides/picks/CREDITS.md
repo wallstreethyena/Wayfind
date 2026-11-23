@@ -255,6 +255,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 - `/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp` — restaurants-open-thanksgiving-tampa-bay-2026: Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
+## river-of-lights-tampa-2026
+
+- `/guides/picks/river-of-lights-tampa-2026/curtis-hixon-park-dusk.jpg` — river-of-lights-tampa-2026: River of Lights. [Michelle Maria](https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Adaptation (resized, cropped, JPEG) released under the same licence.
+
 ## robinson-preserve-bradenton
 
 - `/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp` — robinson-preserve-bradenton: Flat miles for wheels. [Mark Hewitt](https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -278,6 +282,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## sarasota-restaurants
 
 - `/guides/picks/things-to-do-in-sarasota-florida/owen-s-fish-camp.webp` — sarasota-restaurants: Owen's Fish Camp. [Carol VanHook](https://www.flickr.com/photos/97651299@N00/35463538942); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## sarasota-this-week-nov-23-2026
+
+- `/guides/picks/sarasota-this-week-nov-23-2026/downtown-sarasota-historic-district-shops.jpg` — sarasota-this-week-nov-23-2026: Downtown Sarasota Black Friday and Shop Small Saturday. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, JPEG) released under the same licence.
 
 ## siesta-key-drum-circle
 

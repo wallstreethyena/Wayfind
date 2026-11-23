@@ -1,12 +1,25 @@
 {
   "slug": "river-of-lights-tampa-2026",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "River of Lights": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/river-of-lights-tampa-2026/curtis-hixon-park-dusk.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "Palm trees and downtown Tampa towers at dusk, photographed from Curtis Hixon Park",
+      "caption": "Curtis Hixon Park on the Hillsborough River in downtown Tampa at dusk, April 2013. The photo shows the park and skyline, not the River of Lights cruise.",
+      "credit": "Michelle Maria",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
+      "author": "Michelle Maria",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 photo pass: every night photo of the River of Lights cruise, Winter Village or Curtis Hixon holiday lights found on Flickr and Commons is All Rights Reserved or NC ND (Photomatt28 is CC BY NC ND), and the one free Pirate Water Taxi photo is a July afternoon boat, so the slot stays empty. Official photos are not cleared for guide picks."
+      "verification": "Wikimedia Commons file \"Curtis Hixon Park Tampa Florida United States - panoramio (1).jpg\" by Michelle Maria, taken 2013-04-06, titled as Curtis Hixon Park in Tampa. Live Commons licence checked 2026-11-23: CC BY 3.0. Viewed the original 2507x1582 photograph: palms and downtown Tampa towers at dusk from the park on the Hillsborough River, the setting for the cruise, not the cruise itself. A different river-night photograph (Dennis Ludlow, File:Tampa_night.jpg) is reserved so this pick is not a near duplicate of the unmerged PR 2700 River of Lights hero.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-23"
     }
   }
 }
