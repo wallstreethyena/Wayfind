@@ -12,7 +12,11 @@
 //      stale threshold (>90d owned, >21d Google), expired Google (>=30d), and firewall-gated persistence.
 
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   buildOwnedHoursRecord,
   isUsableOwnedHours,
@@ -21,12 +25,17 @@ import {
   detectSpecialHoursUncertainty,
   persistOwnedHoursSnapshot,
   enrichMapPlacesWithRepoOwnedHours,
+  getOwnedHoursIndex,
 } from "../lib/ownedHours.js";
+import { businessStatus } from "../lib/businessStatus.js";
 import {
   scoreHoursRefreshPriority,
   rankHoursRefreshQueue,
 } from "../lib/hoursFreshnessQueue.js";
-import { parseOfficialEditorialFactsToHours } from "../lib/editorialHoursParser.js";
+import {
+  parseEditorialHoursString,
+  parseOfficialEditorialFactsToHours,
+} from "../lib/editorialHoursParser.js";
 import { PRECOMPILED_OWNED_HOURS } from "../lib/ownedHoursVerifiedData.js";
 import {
   buildHighDemandFloridaCohort,
@@ -630,5 +639,273 @@ for (const [failPid, failLabel] of [
   eq(resolveOwnedHoursSnapshot(failPid), null, `${failLabel} resolveOwnedHoursSnapshot remains null`);
 }
 
+// ── 9. WAVE 5: COLON/SPACING VARIANTS, SPECIALHOURS COMPILATION & SERVING ──
+// 9a. Colon & spacing variants, midnight/overnight, and rejected ratio/ambiguous inputs
+const colonVariantCases = [
+  [
+    "Oxford Exchange hours are Mon-Fri:7:30 am to 5:30 pm, Sat-Sun:8 am to 5:30 pm.",
+    true,
+    { day: 1, openHour: 7, openMinute: 30, closeDay: 1, closeHour: 17, closeMinute: 30 },
+    "facts: day-label colon without trailing space",
+  ],
+  [
+    "Oxford Exchange hours are Mon-Fri 7: 30 am to 5 : 30 pm, Sat-Sun 8 am to 5: 30 pm.",
+    true,
+    { day: 1, openHour: 7, openMinute: 30, closeDay: 1, closeHour: 17, closeMinute: 30 },
+    "facts: spaced clock colons",
+  ],
+];
+
+for (const [claim, isFact, exp, label] of colonVariantCases) {
+  const parsed = isFact ? parseOfficialEditorialFactsToHours([claim]) : parseEditorialHoursString(claim);
+  ok(parsed && parsed.ok === true, `${label}: ok === true`);
+  const p = parsed.periods.find((per) => per.open?.day === exp.day);
+  ok(p, `${label}: day ${exp.day} period present`);
+  eq(p.open, { day: exp.day, hour: exp.openHour, minute: exp.openMinute }, `${label}: open`);
+  eq(p.close, { day: exp.closeDay, hour: exp.closeHour, minute: exp.closeMinute }, `${label}: close`);
+}
+
+const directStringVariantCases = [
+  [
+    "Mon-Fri:7:30 am to 5:30 pm; Sat-Sun:8 am to 5:30 pm",
+    { day: 1, openHour: 7, openMinute: 30, closeDay: 1, closeHour: 17, closeMinute: 30 },
+    "string: Mon-Fri:7:30 am without space",
+  ],
+  [
+    "Mon.:7:30 am - 5:30 pm; Tue-Sun:8:00 am - 5:30 pm",
+    { day: 1, openHour: 7, openMinute: 30, closeDay: 1, closeHour: 17, closeMinute: 30 },
+    "string: Mon.:7:30 am with period and no space",
+  ],
+  [
+    "Monday - Thursday : 8:30 am - 10:00 pm; Friday - Sunday: 8:30 am - 11:00 pm",
+    { day: 1, openHour: 8, openMinute: 30, closeDay: 1, closeHour: 22, closeMinute: 0 },
+    "string: Monday - Thursday : 8:30 am spaced label colon",
+  ],
+  [
+    "Mon-Fri: 7:30 am - 12 am; Sat-Sun: 8 am - 12 am",
+    { day: 1, openHour: 7, openMinute: 30, closeDay: 2, closeHour: 0, closeMinute: 0 },
+    "string: 12 am midnight close",
+  ],
+  [
+    "Daily 11:30 am to 2 am",
+    { day: 1, openHour: 11, openMinute: 30, closeDay: 2, closeHour: 2, closeMinute: 0 },
+    "string: 11:30 am to 2 am overnight",
+  ],
+  [
+    "Daily 11:00AM to 1:30AM",
+    { day: 1, openHour: 11, openMinute: 0, closeDay: 2, closeHour: 1, closeMinute: 30 },
+    "string: 11:00AM to 1:30AM overnight",
+  ],
+];
+
+for (const [str, exp, label] of directStringVariantCases) {
+  const parsed = parseEditorialHoursString(str);
+  ok(parsed && parsed.ok === true, `${label}: ok === true`);
+  const p = parsed.periods.find((per) => per.open?.day === exp.day);
+  ok(p, `${label}: day ${exp.day} period present`);
+  eq(p.open, { day: exp.day, hour: exp.openHour, minute: exp.openMinute }, `${label}: open`);
+  eq(p.close, { day: exp.closeDay, hour: exp.closeHour, minute: exp.closeMinute }, `${label}: close`);
+}
+
+// Rejected non-time ratio / ambiguous strings
+const ratioRes = parseEditorialHoursString("2x1: 17.45 USD");
+eq(ratioRes.ok, false, "non-time ratio 2x1: 17.45 USD rejected");
+eq(PRECOMPILED_OWNED_HOURS["ChIJBQ5SjLHGwogRL4X19g4J5tI"], undefined, "ZooTampa absent from PRECOMPILED_OWNED_HOURS");
+
+// 9b. Source-compilation parity, >= 418 preserved keys & all 11 pack-01.json venues
+const freshIndex = getOwnedHoursIndex({ refreshFromSources: true });
+ok(
+  Object.keys(PRECOMPILED_OWNED_HOURS).length >= 418,
+  `PRECOMPILED_OWNED_HOURS preserves >= 418 entries (got ${Object.keys(PRECOMPILED_OWNED_HOURS).length})`,
+);
+eq(
+  Object.fromEntries(freshIndex),
+  PRECOMPILED_OWNED_HOURS,
+  "fresh source-compiled owned hours index matches PRECOMPILED_OWNED_HOURS exactly",
+);
+eq(w4Pack.candidates.length, 11, "pack-01.json has 11 verified candidates");
+for (const cand of w4Pack.candidates) {
+  const parsed = parseOfficialEditorialFactsToHours(cand.editorial.facts);
+  ok(parsed && parsed.ok === true, `${cand.name} parses deterministically`);
+  const snap = freshIndex.get(cand.place_id);
+  ok(snap, `pack-01 candidate ${cand.name} (${cand.place_id}) present in freshIndex`);
+  eq(snap.source, "wayfind_editorial_hours", `${cand.name} source is wayfind_editorial_hours`);
+  eq(snap.weekdayDescriptions.length, 7, `${cand.name} has 7 weekdayDescriptions`);
+  eq(snap.weekdayDescriptions, parsed.weekdayDescriptions, `${cand.name} weekdayDescriptions match parsed facts`);
+  eq(snap.periods, parsed.periods, `${cand.name} periods match parsed facts`);
+}
+for (const [ctrlPid, ctrlName] of [
+  ["ChIJz8e7TVLEwogRBeybvscHnD4", "Columbia Restaurant"],
+  ["ChIJ3Vyq7WTEwogRA-WDC7Mze2E", "Ulele"],
+  ["ChIJH9758boB2YgRrs8O7f55ATA", "Café Bastille Fort Lauderdale"],
+  ["ChIJi6K8mAwB2YgRuOxEAQPCaKQ", "Hatch"],
+  ["ChIJ4V0TH_kA2YgRxgaQuq3qeV4", "Glitch Bar"],
+]) {
+  const snap = PRECOMPILED_OWNED_HOURS[ctrlPid];
+  ok(snap, `hour-exact control ${ctrlName} (${ctrlPid}) present in PRECOMPILED_OWNED_HOURS`);
+  eq(snap.source, "wayfind_editorial_hours", `${ctrlName} source is wayfind_editorial_hours`);
+  eq(snap.periods.length, 7, `${ctrlName} has 7 periods`);
+  eq(snap.weekdayDescriptions.length, 7, `${ctrlName} has 7 weekdayDescriptions`);
+}
+
+// 9c. Holiday exceptions precedence via BOTH evaluateOwnedHoursStatus AND businessStatus(enrichedPlace, nowMs)
+const hatchEnriched = byIdW4.get("ChIJi6K8mAwB2YgRuOxEAQPCaKQ");
+ok(
+  Array.isArray(hatchEnriched.specialHours) && hatchEnriched.specialHours.length >= 4,
+  "Hatch enriched place carries specialHours on place object",
+);
+ok(
+  Array.isArray(hatchEnriched.oh?.specialHours) && hatchEnriched.oh.specialHours.length >= 4,
+  "Hatch enriched place carries specialHours inside oh",
+);
+
+// Hatch Christmas Day explicit closure
+const tHatchXmas = Date.parse("2026-12-25T11:00:00-05:00");
+const hatchXmasEval = evaluateOwnedHoursStatus(hatchEnriched.ownedHours, tHatchXmas);
+const hatchXmasBs = businessStatus(hatchEnriched, tHatchXmas);
+eq(hatchXmasEval.state, "closed", "Hatch Christmas Day evaluateOwnedHoursStatus closed");
+eq(hatchXmasEval.open, false, "Hatch Christmas Day evaluateOwnedHoursStatus open === false");
+eq(hatchXmasBs.state, "closed", "Hatch Christmas Day businessStatus closed");
+eq(hatchXmasBs.open, false, "Hatch Christmas Day businessStatus open === false");
+
+// Hatch Thanksgiving Day altered interval (7 AM - 1 PM overriding regular Thu 7 AM - 3 PM)
+for (const [tsStr, expOpen, label] of [
+  ["2026-11-26T07:00:00-05:00", true, "Hatch Thanksgiving 07:00 EST open"],
+  ["2026-11-26T12:30:00-05:00", true, "Hatch Thanksgiving 12:30 EST open"],
+  ["2026-11-26T13:00:00-05:00", false, "Hatch Thanksgiving 13:00 EST closed"],
+  ["2026-11-26T14:00:00-05:00", false, "Hatch Thanksgiving 14:00 EST closed"],
+]) {
+  const ts = Date.parse(tsStr);
+  const ev = evaluateOwnedHoursStatus(hatchEnriched.ownedHours, ts);
+  const bs = businessStatus(hatchEnriched, ts);
+  eq(ev.open, expOpen, `${label} (evaluateOwnedHoursStatus)`);
+  eq(ev.confidence, "confirmed", `${label} confidence === confirmed`);
+  eq(ev.specialHoursUncertainty, false, `${label} specialHoursUncertainty === false`);
+  eq(bs.open, expOpen, `${label} (businessStatus)`);
+  if (expOpen) {
+    eq(ev.nextTransition?.label, "Closes 1 PM", `${label} nextTransition Closes 1 PM (evaluate)`);
+    eq(bs.nextTransition?.label, "Closes 1 PM", `${label} nextTransition Closes 1 PM (businessStatus)`);
+  }
+}
+
+// Hatch confirmed regular hours on Christmas Eve & New Year's Day
+for (const [tsStr, label] of [
+  ["2026-12-24T14:00:00-05:00", "Hatch Christmas Eve 14:00 EST confirmed open"],
+  ["2027-01-01T10:00:00-05:00", "Hatch New Year's Day 10:00 EST confirmed open"],
+]) {
+  const ts = Date.parse(tsStr);
+  const ev = evaluateOwnedHoursStatus(hatchEnriched.ownedHours, ts);
+  const bs = businessStatus(hatchEnriched, ts);
+  eq(ev.open, true, `${label} (evaluateOwnedHoursStatus)`);
+  eq(ev.confidence, "confirmed", `${label} confidence === confirmed`);
+  eq(ev.specialHoursUncertainty, false, `${label} specialHoursUncertainty === false`);
+  eq(bs.open, true, `${label} (businessStatus)`);
+}
+
+// Voodoo Bayou explicit closures + NYE altered interval (11:00 AM - 1:30 AM)
+const vbEnriched = byIdW4.get("ChIJFwgu6SUB2YgR0DCYTC7nHYc");
+ok(
+  Array.isArray(vbEnriched.specialHours) && vbEnriched.specialHours.length >= 3,
+  "Voodoo Bayou enriched place carries specialHours on place object",
+);
+ok(
+  Array.isArray(vbEnriched.oh?.specialHours) && vbEnriched.oh.specialHours.length >= 3,
+  "Voodoo Bayou enriched place carries specialHours inside oh",
+);
+
+for (const [tsStr, label] of [
+  ["2026-11-26T14:00:00-05:00", "Voodoo Bayou Thanksgiving 14:00 EST closed"],
+  ["2026-12-25T14:00:00-05:00", "Voodoo Bayou Christmas Day 14:00 EST closed"],
+]) {
+  const ts = Date.parse(tsStr);
+  const ev = evaluateOwnedHoursStatus(vbEnriched.ownedHours, ts);
+  const bs = businessStatus(vbEnriched, ts);
+  eq(ev.open, false, `${label} (evaluateOwnedHoursStatus)`);
+  eq(ev.semanticState, "closed_holiday", `${label} semanticState === closed_holiday`);
+  eq(ev.confidence, "confirmed", `${label} confidence === confirmed`);
+  eq(bs.open, false, `${label} (businessStatus)`);
+  eq(bs.state, "closed", `${label} businessStatus state === closed`);
+}
+
+// NYE 11:15 AM EST (overrides regular Thu 11:30 AM open!)
+{
+  const ts = Date.parse("2026-12-31T11:15:00-05:00");
+  const ev = evaluateOwnedHoursStatus(vbEnriched.ownedHours, ts);
+  const bs = businessStatus(vbEnriched, ts);
+  eq(ev.open, true, "Voodoo Bayou NYE 11:15 EST open (evaluateOwnedHoursStatus)");
+  eq(ev.confidence, "confirmed", "Voodoo Bayou NYE 11:15 EST confidence === confirmed");
+  eq(ev.specialHoursUncertainty, false, "Voodoo Bayou NYE 11:15 EST specialHoursUncertainty === false");
+  eq(bs.open, true, "Voodoo Bayou NYE 11:15 EST open (businessStatus)");
+}
+// NYE 23:45 EST (Closes 1:30 AM)
+{
+  const ts = Date.parse("2026-12-31T23:45:00-05:00");
+  const ev = evaluateOwnedHoursStatus(vbEnriched.ownedHours, ts);
+  const bs = businessStatus(vbEnriched, ts);
+  eq(ev.open, true, "Voodoo Bayou NYE 23:45 EST open (evaluateOwnedHoursStatus)");
+  eq(ev.nextTransition?.label, "Closes 1:30 AM", "Voodoo Bayou NYE 23:45 EST Closes 1:30 AM (evaluate)");
+  eq(bs.open, true, "Voodoo Bayou NYE 23:45 EST open (businessStatus)");
+  eq(bs.nextTransition?.label, "Closes 1:30 AM", "Voodoo Bayou NYE 23:45 EST Closes 1:30 AM (businessStatus)");
+}
+// New Year's Day 00:45 EST (overnight spillover from NYE 11:00 AM - 1:30 AM)
+{
+  const ts = Date.parse("2027-01-01T00:45:00-05:00");
+  const ev = evaluateOwnedHoursStatus(vbEnriched.ownedHours, ts);
+  eq(ev.open, true, "Voodoo Bayou 2027-01-01 00:45 EST open via NYE overnight spillover");
+  eq(ev.confidence, "confirmed", "Voodoo Bayou 2027-01-01 00:45 EST confidence === confirmed");
+  eq(ev.specialHoursUncertainty, false, "Voodoo Bayou 2027-01-01 00:45 EST specialHoursUncertainty === false");
+}
+// New Year's Day 01:35 EST (closed after 1:30 AM)
+{
+  const ts = Date.parse("2027-01-01T01:35:00-05:00");
+  const ev = evaluateOwnedHoursStatus(vbEnriched.ownedHours, ts);
+  const bs = businessStatus(vbEnriched, ts);
+  eq(ev.open, false, "Voodoo Bayou 2027-01-01 01:35 EST closed (evaluateOwnedHoursStatus)");
+  eq(bs.open, false, "Voodoo Bayou 2027-01-01 01:35 EST closed (businessStatus)");
+}
+
+// Columbia Restaurant: prose never fabricates clock specialHours
+const columbiaSnap = resolveOwnedHoursSnapshot("ChIJz8e7TVLEwogRBeybvscHnD4", { nowMs: T_W3_NOW_MS });
+ok(columbiaSnap, "Columbia Restaurant resolves");
+eq(columbiaSnap.specialHours, null, "Columbia Restaurant specialHours remains null (no clock fabrication)");
+
+// 9d. Built/production zero-filesystem-read proof from os.tmpdir()
+{
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const ownedHoursUrl = pathToFileURL(path.join(repoRoot, "lib/ownedHours.js")).href;
+  const businessStatusUrl = pathToFileURL(path.join(repoRoot, "lib/businessStatus.js")).href;
+  const precompiledUrl = pathToFileURL(path.join(repoRoot, "lib/ownedHoursVerifiedData.js")).href;
+  const packIds = w4Pack.candidates.map((c) => ({ id: c.place_id, name: c.name, oh: null, ownedHours: null }));
+  const childScript = `
+    import assert from "node:assert/strict";
+    import { existsSync } from "node:fs";
+    import { enrichMapPlacesWithRepoOwnedHours } from ${JSON.stringify(ownedHoursUrl)};
+    import { businessStatus } from ${JSON.stringify(businessStatusUrl)};
+    import { PRECOMPILED_OWNED_HOURS } from ${JSON.stringify(precompiledUrl)};
+    assert.equal(existsSync("docs/editorial"), false, "cwd has no docs/editorial");
+    assert.equal(existsSync("data/atlas"), false, "cwd has no data/atlas");
+    const inputs = ${JSON.stringify(packIds)};
+    const enriched = enrichMapPlacesWithRepoOwnedHours(inputs, ${T_W3_NOW_MS});
+    assert.equal(enriched.length, 11);
+    for (const p of enriched) {
+      assert.ok(p.ownedHours, p.id + " resolved from PRECOMPILED_OWNED_HOURS without fs");
+      assert.deepEqual(p.ownedHours, PRECOMPILED_OWNED_HOURS[p.id], p.id + " matches PRECOMPILED_OWNED_HOURS");
+    }
+    const hatch = enriched.find((p) => p.id === "ChIJi6K8mAwB2YgRuOxEAQPCaKQ");
+    const vb = enriched.find((p) => p.id === "ChIJFwgu6SUB2YgR0DCYTC7nHYc");
+    assert.ok(Array.isArray(hatch.specialHours) && hatch.specialHours.length >= 4);
+    assert.ok(Array.isArray(vb.specialHours) && vb.specialHours.length >= 3);
+    assert.equal(businessStatus(hatch, Date.parse("2026-11-26T14:00:00-05:00")).open, false);
+    assert.equal(businessStatus(vb, Date.parse("2026-12-31T11:15:00-05:00")).open, true);
+    process.stdout.write("ZERO_FS_OK\\n");
+  `;
+  const out = execFileSync(process.execPath, ["--input-type=module", "-e", childScript], {
+    cwd: os.tmpdir(),
+    encoding: "utf8",
+  });
+  ok(out.includes("ZERO_FS_OK"), "zero-fs production resolution from os.tmpdir() succeeded");
+}
+
 console.log(`test-owned-hours-cohort: OK — ${assertions} assertions passed`);
+
 

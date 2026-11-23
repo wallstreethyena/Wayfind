@@ -979,7 +979,7 @@ scripts/test-outbound-ssrf.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	25be0211235
 scripts/test-owned-editorial-review.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	908d41e4f332deae546264e9e320f13fca5de37e3d4c136f138e3c3da0276a6b
 scripts/test-owned-editorial-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	e51aef201af0ecdd2f9f345faac2cab7e89e9d586a7eb202f559d57222d2f6da
 scripts/test-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	154	0	0	fff474ccbd0856c5aece1b1ec561b8a5effadc3491838e11f57b0815b69f5388
-scripts/test-owned-hours-cohort.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	e99b8c0b3392afe49b002e2eaa516dd7126441d467fad740c0f7c82162c3b00f
+scripts/test-owned-hours-cohort.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	cc03c23d052dba1da34a73459576a91c5c41c891b6a8fedffe8335d6ec19f21f
 scripts/test-owned-place-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	06e086f70e7d6f962693b1111f1d28b37fcb9653321441e4a8b0362f37047e36
 scripts/test-owned-place-truth-frontier.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	43	0	0	05b4f1c1b35237cf2b3c226dddd34cb8e1f65b9605b432753302c6e0b5c788ad
 scripts/test-owned-social-reconcile.mjs	0	RENDER	blocks-ci-and-deploy	1	-	88	0	0	e5c0ed0a869a91228aa911f59a94359b648dc0246f7b6386572e792389fea3a5
