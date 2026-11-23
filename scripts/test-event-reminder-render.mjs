@@ -224,6 +224,42 @@ ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked
   ok(/Tickets: https:\/\/www\.gowayfind\.com\/api\/commerce\/go\?/.test(det) && !/undercovertourist|sweetfieldsfarm/i.test(det), "the Google Calendar details carry the on-site /api/commerce/go ticket route, not a raw partner URL");
 }
 
+// ── the real Thanksgiving event card, including its verified visit facts ──
+{
+  // Freeze the clock only for this fixed 2026 Thanksgiving fixture. Every
+  // date-less/past control remains stable after the actual calendar advances.
+  const NativeDate = globalThis.Date;
+  const thanksgivingNow = NativeDate.parse("2026-11-23T12:00:00Z");
+  class ThanksgivingDate extends NativeDate {
+    constructor(...args) { super(...(args.length ? args : [thanksgivingNow])); }
+    static now() { return thanksgivingNow; }
+  }
+  globalThis.Date = ThanksgivingDate;
+  try {
+    const { HolidayEventCard } = await loadComponent(path.join(ROOT, "app/components/sheets/ThanksgivingDetail.js"), ROOT);
+    const { FALL_THANKSGIVING_2026 } = await import("../lib/fallThanksgiving2026.js");
+    const { curatedToFeedEvent } = await import("../lib/curatedEvents.js");
+    const sourceRow = FALL_THANKSGIVING_2026.find((event) => event.event_id === "florida-turkey-trot-benderson-2026");
+    ok(typeof HolidayEventCard === "function" && !!sourceRow?.source_url && !!sourceRow?.official_event_url, "PROBE: the actual Thanksgiving card export and sourced Florida Turkey Trot record exist");
+    const feed = curatedToFeedEvent({ ...sourceRow, visit_source_url: sourceRow.source_url });
+    const event = { ...feed, eventHref: "/florida-events/" + sourceRow.slug, planningDays: ["2026-11-26"], sourceUrl: sourceRow.source_url };
+    const render = (over = {}) => renderToStaticMarkup(h(HolidayEventCard, { event: { ...event, ...over }, today: "2026-11-23" }));
+    const datedHtml = render();
+    ok(event.visitFacts?.start_date === "2026-11-26" && event.visitFacts?.start_time === sourceRow.start_time && event.visitFacts?.venue === sourceRow.venue && event.visitFacts?.visit_source_url === sourceRow.source_url, "Thanksgiving fixture carries the actual normalized date, time, venue and full source URL");
+    ok(/wf-place-card-remind/.test(datedHtml) && /aria-label="Remind me"/.test(datedHtml), "a real dated Thanksgiving event with full visit facts and its own detail page shows Remind me");
+    const dis = datedHtml.indexOf("wf-place-card-dislike"), bell = datedHtml.indexOf("wf-place-card-remind"), share = datedHtml.indexOf("wf-place-card-share");
+    ok(dis > 0 && dis < bell && bell < share, "Thanksgiving Remind me keeps the shared action-row position between reactions and Share");
+    ok((datedHtml.match(/class="wf-place-card-score"/g) || []).length === 1 && /class="wf-rail-when"/.test(datedHtml) && !/wayfind-score-badge|aria-label="Wayfind Score/.test(datedHtml), "Thanksgiving event uses the shared when-badge geometry and never invents a numeric Wayfind Score");
+    const noDates = render({ planningDays: [], date: null, startDate: null, visitFacts: { ...event.visitFacts, start_date: null, end_date: null, occurrence_dates: null, season_undated: true } });
+    ok(!/wf-place-card-remind/.test(noDates) && /See dates/.test(text(noDates)), "a Thanksgiving event with no verified date shows See dates and no Remind me");
+    ok(!/wf-place-card-remind/.test(render({ visitFacts: null })), "a Thanksgiving display date without verified visit facts cannot manufacture a reminder");
+    const fullSource = render({ eventHref: sourceRow.official_event_url });
+    ok(fullSource.includes('href="' + sourceRow.official_event_url + '"') && !/wf-place-card-remind/.test(fullSource), "the real full official source link remains navigable and gets no reminder for an absent on-site detail page");
+    ok(!/wf-place-card-remind/.test(render({ visitFacts: { ...event.visitFacts, event_status: "cancelled" } })), "a called-off Thanksgiving event cannot acquire a reminder from its display date");
+    ok(render({ eventHref: null, dest: null }) === "", "a Thanksgiving event without a valid destination renders no card or reminder");
+  } finally { globalThis.Date = NativeDate; }
+}
+
 // ── wiring, static ─────────────────────────────────────────────────────────
 {
   const rails = strip(read("app/components/ChristmasIntentRails.js")), browse = strip(read("app/components/ChristmasBrowse.js")), card = strip(read("app/components/RailCard.js"));
@@ -242,7 +278,7 @@ ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked
   const consumers = [];
   const walk = (dir) => { for (const e of readdirSync(path.join(ROOT, dir), { withFileTypes: true })) { const rel = dir + "/" + e.name; if (e.isDirectory()) walk(rel); else if (/\.js$/.test(e.name) && /\bvisitFacts=\{/.test(read(rel))) consumers.push(rel); } };
   walk("app");
-  ok(consumers.sort().join() === ["app/components/ChristmasIntentRails.js", "app/components/FallIntentRails.js", "app/components/PosterEventCard.js", "app/components/screens/Events.js", "app/home.js"].join(), `every RailCard event surface is accounted for (${consumers.join(", ")})`);
+  ok(consumers.sort().join() === ["app/components/ChristmasIntentRails.js", "app/components/FallIntentRails.js", "app/components/PosterEventCard.js", "app/components/screens/Events.js", "app/components/sheets/ThanksgivingDetail.js", "app/home.js"].join(), `every RailCard event surface is accounted for (${consumers.join(", ")})`);
   const i = card.indexOf("<RemindMe"), disl = card.indexOf('className={"wf-place-card-dislike"'), share = card.indexOf('className="wf-place-card-share"');
   ok(disl > 0 && i > disl && i < share, "RailCard puts the button between the reactions and Share");
   const page = strip(read("app/florida-events/[slug]/page.js"));

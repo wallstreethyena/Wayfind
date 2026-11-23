@@ -132,6 +132,9 @@ export const config = {
     "/api/reserve/agent/code",
     "/api/reserve/browser",
     "/api/viator/tours",
+    // Explicit Thanksgiving browser search can call the existing Viator API.
+    // Full origin and burst protection applies before any catalog/provider read.
+    "/api/holidays/thanksgiving",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
     // Browser-only same-origin XHR, so apply the full request guard.

@@ -269,6 +269,7 @@ import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import { activeHoliday as _holActive, worldCup as _holWc, worldCupDaysToNext as _holWcDays, worldCupMatchToday as _holWcToday, themeFor as _holTheme, contentFor as _holContent } from "../lib/holidays";
 const Hol = { activeHoliday: _holActive, worldCup: _holWc, worldCupDaysToNext: _holWcDays, worldCupMatchToday: _holWcToday, themeFor: _holTheme, contentFor: _holContent };
+import { thanksgivingLocationResumeDecision } from "../lib/thanksgivingReturn.js";
 import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
@@ -321,8 +322,10 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import { useReserveEntry } from "../lib/reserveClient.js";
-import LocalEdit from "./components/LocalEdit";
-import ThisWeekEvents from "./components/ThisWeekEvents";
+// Guide links sit below the discovery rails. Keep their rendering and location
+// gate unchanged while loading their client code separately from the menu.
+const LocalEdit = nextDynamic(() => import("./components/LocalEdit"), { loading: () => null });
+const ThisWeekEvents = nextDynamic(() => import("./components/ThisWeekEvents"), { loading: () => null });
 import { MARKETS, marketForLocation } from "../lib/destinations";
 // v9 (2026-09-02, WO9 bundle fix) — from lib/creatorSignals.js, not
 // lib/creatorVideos.js. Both remaining call sites (hasCreatorVideo() at the
@@ -2189,142 +2192,14 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
 // (~25 with farOk, for items whose story frames the drive honestly).
 // Fail-closed: an unverified named business is hidden, never shown as fact.
 // Verdicts cache on-device for 7 days so this costs one findPlace per name.
-const CULT_STOP = /^(the|and|for|its|it's)$/i;
-function cultNameMatch(placeQuery, resultName) {
-  const rn = _wfNorm(resultName);
-  if (!rn) return false;
-  const words = String(placeQuery || "").toLowerCase().split(/[^a-z0-9']+/).filter((w) => w.length >= 3 && !CULT_STOP.test(w));
-  const hit = words.filter((w) => rn.includes(_wfNorm(w))).length;
-  return hit >= Math.min(2, words.length);
-}
-async function verifyCulturePlaces(items, center) {
-  const CK = "wf_cultground_v1";
-  let cache = {};
-  try { cache = JSON.parse(localStorage.getItem(CK) || "{}"); } catch (e) {}
-  const now = Date.now();
-  const out = {};
-  let dirty = false;
-  for (const it of items) {
-    const k = it.place;
-    const hit = cache[k];
-    if (hit && hit.exp > now) { out[k] = !!hit.ok; continue; }
-    let good = false;
-    try {
-      const pl = await findPlace(it.place, center);
-      good = !!(pl && cultNameMatch(it.place, pl.name)
-        && (!pl.status || pl.status === "OPERATIONAL")
-        && (pl.distMi == null || pl.distMi <= (it.farOk ? 25 : 10)));
-    } catch (e) {}
-    out[k] = good;
-    cache[k] = { ok: good, exp: now + 7 * 864e5 };
-    dirty = true;
-  }
-  if (dirty) { try { localStorage.setItem(CK, JSON.stringify(cache)); } catch (e) {} }
-  return out;
-}
-function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
-  const [openIt, setOpenIt] = useState(false);
-  const [grounded, setGrounded] = useState({});
-  // The researched notes are a separate chunk. They load when a category
-  // browse opens, not with the first homepage paint.
-  const [pack, setPack] = useState(null);
-  useEffect(() => {
-    let live = true;
-    import("../lib/cultureNotes.js").then((m) => { if (live) setPack(m); }).catch(() => {});
-    return () => { live = false; };
-  }, []);
-  // v4.84 — the culture card renders on ALL SIX categories. Root cause of it
-  // only showing on Food and Beach day: the category menu passes Google
-  // category ids (nightlife, attractions, hotels, shopping) but this map only
-  // knew the legacy short keys, so four categories never matched a note.
-  const map = { food: "food", nightlife: "night", night: "night", attractions: "todo", todo: "todo", hotels: "stays", stays: "stays", beach: "todo", shopping: "shop", shop: "shop", events: "events" };
-  const key = map[cat];
-  // v4.30: a town with its own researched notes outranks the metro story.
-  // v4.82: town notes come from TOWN_PROFILES via townNotesFor (alias-aware —
-  // "Holmes Beach" lands on Anna Maria Island). Beach browses prefer the
-  // town's real beach note over its things-to-do note.
-  const tn = pack && town && pack.townNotesFor ? pack.townNotesFor(town) : null;
-  const townNote = tn ? ((cat === "beach" && tn.beach) || (key && tn[key]) || null) : null;
-  const notes = townNote || (pack && metro && key && pack.CAT_NOTES[metro] ? pack.CAT_NOTES[metro][key] : null);
-  const cTitle = metro ? CULTURE_TITLES[metro] : null;
-  const isTown = !!townNote;
-  const named = isTown && notes ? (notes.items || []).filter((x) => x.place) : [];
-  const namedKey = named.map((x) => x.place).join("|");
-  useEffect(() => {
-    if (!namedKey || !center) return;
-    let cancelled = false;
-    verifyCulturePlaces(named, center).then((v) => { if (!cancelled) setGrounded(v); });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [namedKey, center && center.lat, center && center.lng]);
-  if (!notes || !cTitle) return null;
-  const placeLabel = isTown ? town : (town && town.toLowerCase() !== cTitle.toLowerCase() ? town + " + " + cTitle : cTitle);
-  const headline = notes.headline || ("A local read on " + placeLabel + ".");
-  const visibleItems = (notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]);
-  const readCount = Math.max(1, Math.ceil((visibleItems.length + (notes.mistake ? 1 : 0) + (isTown && tn && tn.one ? 1 : 0)) * 0.66));
-  const featureRow = (marker, title, body, tone, onClick, keyId) => (
-    <div key={keyId} onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined} onKeyDown={onClick ? KB_CLICK : undefined} style={{ display: "grid", gridTemplateColumns: "38px minmax(0,1fr)", gap: 12, padding: "13px 12px", borderTop: "1px solid rgba(255,255,255,.08)", cursor: onClick ? "pointer" : "default" }}>
-      <span style={{ width: 31, height: 31, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "#151F2B", color: tone, fontSize: 11.5, fontWeight: 900 }}>{marker}</span>
-      <span style={{ minWidth: 0 }}>
-        <span style={{ display: "block", color: "#FFFFFF", fontSize: 13, lineHeight: 1.25, fontWeight: 850, textDecoration: onClick ? "underline" : "none", textDecorationColor: onClick ? "rgba(255,151,70,.36)" : "transparent", textUnderlineOffset: 3 }}>{title}</span>
-        <span style={{ display: "block", color: "#AFBBC9", fontSize: 12, lineHeight: 1.45, marginTop: 4 }}>{body}</span>
-      </span>
-    </div>
-  );
-  return (
-    <div style={{ position: "relative", margin: "0 0 14px", borderRadius: 24, border: "1px solid rgba(255,255,255,.13)", background: "#0B1119", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055), 0 30px 70px rgba(0,0,0,.42)", overflow: "hidden" }}>
-      <div style={{ height: 5, background: "linear-gradient(90deg,#FF7A1A,#FFB35F 42%,#42D3AE)" }} />
-      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { onLog("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" aria-expanded={openIt} tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "clamp(24px,4vw,27px) clamp(20px,4vw,25px) clamp(19px,3vw,21px)", cursor: "pointer", background: "radial-gradient(circle at 92% 0,rgba(255,122,26,.18),transparent 45%),linear-gradient(145deg,#121C27,#0A1119)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0, color: "#FFB16E", fontSize: 10, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>
-            <span style={{ width: 30, height: 36, display: "inline-grid", placeItems: "center", flex: "0 0 auto", filter: "drop-shadow(0 7px 12px rgba(255,122,26,.28))" }}>
-              <img src="/brand/wayfind-pin-transparent.png" alt="" width="27" height="35" style={{ display: "block", width: 27, height: 35, objectFit: "contain", transform: "scale(1.55)" }} />
-            </span>
-            <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{placeLabel} local culture</span>
-          </span>
-          <span style={{ flex: "0 0 auto", padding: "7px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.13)", color: "#B8C4D2", fontSize: 10, fontWeight: 800 }}>{readCount} min local read</span>
-        </div>
-        <span style={{ display: "block", color: "#FFFFFF", fontSize: "clamp(15px,3.1vw,18px)", lineHeight: 1.1, letterSpacing: "-.025em", fontWeight: 900, whiteSpace: headline.length < 54 ? "nowrap" : "normal" }}>{headline}</span>
-        <span style={{ display: "block", maxWidth: 455, color: "#B9C6D3", fontSize: 13.5, lineHeight: 1.52, marginTop: 11 }}>{notes.line}</span>
-        <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 19, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.1)", color: openIt ? "#D5DEE8" : "#FFFFFF" }}>
-          <span>
-            <span style={{ display: "block", fontSize: 11, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".08em", textTransform: "uppercase" }}>{openIt ? "Collapse local guide" : "Open local guide"}</span>
-            <span style={{ display: "block", marginTop: 3, color: "#8F9BAA", fontSize: 10.5, lineHeight: 1.35, fontWeight: 700 }}>{openIt ? "Return to the quick overview" : "See what locals know"}</span>
-          </span>
-          <span aria-hidden="true" style={{ width: 34, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto", borderRadius: "50%", border: "1px solid rgba(255,177,110,.38)", background: "linear-gradient(145deg,rgba(255,122,26,.16),rgba(255,255,255,.045))", color: "#FFB16E", fontSize: 14, boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)", transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}>{"\u2304"}</span>
-        </span>
-      </div>
-      {openIt && (
-        <div style={{ padding: "19px 20px 21px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
-          <div style={{ marginBottom: 11, color: "#7F8C9B", fontSize: 9.5, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>What locals know</div>
-          {visibleItems.map((x, i) => {
-            // 2026-09-10 (affiliate deep-link audit, owner P0): this was
-            // Aff.viatorDirectUrl(), which renders a LIVE monetized viator.com
-            // href straight into crawlable DOM — every click bypassed
-            // /api/viator/go, so there was no provider_redirect_started, no
-            // server record, and any JS-rendering crawler "clicked" it. Same
-            // destination and same attribution (the route re-applies
-            // withViatorTracking), but the handoff is ours and can fail closed.
-            // /culture/[metro] and /guides/[slug] already do exactly this.
-            const book = x.viatorUrl ? Aff.viatorProductGoUrl(x.viatorUrl, cTitle, "culture", "culture_local_guide") : null;
-            const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { onLog("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
-            return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { onLog("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
-          })}
-          {notes.say ? featureRow("“”", "Talk local: “" + notes.say.phrase + "”", notes.say.meaning, "#8ED6C4", null, "say") : null}
-          {notes.mistake ? featureRow("!", "The rookie mistake", notes.mistake, "#FFD15D", null, "mistake") : null}
-          {isTown && tn && tn.one ? featureRow("★", "The one thing", tn.one, "#64DFBF", null, "one") : null}
-        </div>
-      )}
-    </div>
-  );
-}
+const AreaInsight = nextDynamic(() => import("./components/AreaInsight"), { ssr: false, loading: () => null });
 
-function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals }) {
+function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals, menuAtRowStart = false }) {
   const [openMenu, setOpenMenu] = useState(false);
   const OPTIONS = [["near", "Closest first"], ["rated", "Top rated"], ["price", "Price: low to high"]]; // v4.83: "Best experiences" removed — it duplicated Top rated in practice; "near" is the default everywhere
   const current = (OPTIONS.find(([k]) => k === sortBy) || OPTIONS[0])[1];
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div style={{ position: menuAtRowStart ? "static" : "relative", display: "inline-block" }}>
       <div onClick={(e) => { e.stopPropagation(); setOpenMenu((o) => !o); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${openMenu ? C.accent : C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: "8px 14px" }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
         <span>{sortBy === "near" && mi ? `Within ${mi} mi` : current}</span>
@@ -4450,6 +4325,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [mapBrowse, setMapBrowse] = useState(true); // Map opens on Food; category browsing is immediate and avoids six parallel searches.
   const [mapPool, setMapPool] = useState([]); // neutral map: all-category pool (cached searches)
   const [mapListOverride, setMapListOverride] = useState(null); // v4.95: a list's map icon pins THAT list on the in-app map (never a Google-Maps directions-to-all handoff)
+  const [mapListSession, setMapListSession] = useState(0); // A Thanksgiving handoff resets an already-mounted map's local area/search filters.
+  const [thanksgivingLocationReturn, setThanksgivingLocationReturn] = useState(null);
   // COMPASS REMOVED (owner, 2026-08-06) — control, state, refs, the
   // deviceorientation handler registered with capture:true, and the
   // screen-change cleanup effect that called stopCompass(). Removing the button
@@ -4657,6 +4534,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [hookLikes, setHookLikes] = useState(() => new Set());
   const [cuisineSheet, setCuisineSheet] = useState(null);
   const openHoliday = async (h) => {
+    const hol = typeof h === "string" ? { key: h } : h;
+    if (!hol) return;
+    if (hol.key === "thanksgiving") {
+      // Open immediately; the lazy sheet validates these raw shared controls
+      // before making any request, using this holiday's year as its fallback.
+      const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+      const fallbackYear = hol.year || hol.date?.getFullYear() || new Date().getFullYear();
+      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: params.get("holidayYear") || fallbackYear, holidayDate: params.get("holidayDate"), holidayMi: params.get("holidayMi"), holidayFallbackYear: fallbackYear });
+      try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
+      return;
+    }
     try {
       const { runOpenHoliday } = await import("../lib/holidayIntelClient");
       const searchQuery = (q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p)));
@@ -5019,6 +4907,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const suggestionRequestRef = useRef(0);
   const mainSearchAbortRef = useRef(null);
   const searchInputRef = useRef(null);
+  function chooseThanksgivingLocation(options) {
+    setThanksgivingLocationReturn({ options, origin: center, expiresAt: Date.now() + 60000, awaitCurrent: false });
+    setHookDetail(null);
+    setDetail(null);
+    setScreen("suggested");
+    setScopeOpen(true);
+    requestAnimationFrame(() => searchInputRef.current?.focus({ preventScroll: true }));
+  }
+  useEffect(() => {
+    const decision = thanksgivingLocationResumeDecision(thanksgivingLocationReturn, { center, locResolved, scopeOpen, screen, detailOpen: !!hookDetail || !!detail });
+    if (decision === "resume") {
+      const options = thanksgivingLocationReturn.options;
+      setThanksgivingLocationReturn(null);
+      setScopeOpen(false);
+      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: options.year, holidayDate: options.date, holidayMi: options.mi, holidaySort: options.sort });
+    } else if (decision === "cancel") setThanksgivingLocationReturn(null);
+  }, [thanksgivingLocationReturn, center, locResolved, scopeOpen, screen, hookDetail, detail]);
+  useEffect(() => {
+    if (!thanksgivingLocationReturn) return;
+    const timer = setTimeout(() => setThanksgivingLocationReturn(null), Math.max(0, thanksgivingLocationReturn.expiresAt - Date.now()));
+    return () => clearTimeout(timer);
+  }, [thanksgivingLocationReturn]);
   const mainSearchAttemptRef = useRef(null);
   useEffect(() => () => {
     suggestionRequestRef.current++;
@@ -10601,7 +10511,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // sheets (G2): drag-to-dismiss handlers shared by every sheet
     sheetDragStart, sheetDragMove, sheetDragEnd,
     // hookDetail sheet
-    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
+    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, setMapListSession, setScopeOpen, chooseThanksgivingLocation, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
     // place-suggestion flow (v6.53) — user-submitted places, stored pending review
     sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion,
     // account sheet
@@ -11230,7 +11140,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                       the premium treatment (blur, entrance animation, a
                       RECENT group label) in .wf-scope-menu. */}
                   <li className="wf-scope-cur" role="option" aria-selected={false}
-                      onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); recenterToMe(); }}>
+                      onMouseDown={(e) => { e.preventDefault(); setThanksgivingLocationReturn((pending) => pending ? { ...pending, awaitCurrent: true } : pending); setScopeOpen(false); recenterToMe(); }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4Z" /></svg>
                     Current location
                   </li>
@@ -11433,7 +11343,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       <div ref={scrollRef} className="wf-scrollarea" data-analytics-page={screen} data-analytics-overlay={detail ? "place" : undefined} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowX: "hidden", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
-            <MapErrorBoundary>{screen === "map" && <MapScreen ctx={ctx} />}</MapErrorBoundary>
+            <MapErrorBoundary>{screen === "map" && <MapScreen key={mapListSession} ctx={ctx} />}</MapErrorBoundary>
           </>
 
         {/* v6.56 (owner, screenshot + "remove the item on image 2 ... put the

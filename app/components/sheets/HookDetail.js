@@ -8,6 +8,7 @@ import { byTopRated } from "../../../lib/ranking";
 import * as Fam from "../../../lib/family";
 import * as WCC from "../../../lib/wc";
 import CommunityFooter from "../CommunityFooter";
+import ThanksgivingDetail from "./ThanksgivingDetail.js";
 
 export function discoverFeedbackPath(theme) {
   const slug = String(theme || "")
@@ -21,6 +22,7 @@ export function discoverFeedbackPath(theme) {
 }
 
 export default function HookDetailSheet({ ctx }) {
+  if (ctx.hookDetail?.hol === "thanksgiving") return <ThanksgivingDetail ctx={ctx} />;
   const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated, sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion, BUILD_ID, user } = ctx;
         // Merge the two source lists, but de-dupe by id — a place that appears
         // in both the suggested feed and the nearby search would otherwise show
