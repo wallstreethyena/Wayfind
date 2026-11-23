@@ -3158,6 +3158,22 @@
       "note": "Freedom Factory's 2026 Tour of Destruction ticket listing states 21050 E. State Road 64, Bradenton, FL 34212. The venue site states 21050 FL-64, Bradenton, FL 34212, and lists October 30 and 31 as Tour of Destruction. Census matched both lines to 21050 E STATE RD 64, BRADENTON, FL, 34212.",
       "sourceUrl": "https://tickets.thefoat.com/FreedomFactory/event-249185/Freedom+Factory+Tour+of+Destruction+-+October/",
       "secondSourceUrl": "https://www.freedomfactoryusa.com/"
+    },
+    "sarasota-this-week-nov-23-2026\tSiesta Key Village Turkey Trot pub crawl": {
+      "area": true,
+      "reviewed": true,
+      "reason": "The chamber describes the crawl as the village along Ocean Boulevard and does not print one street door for 2026.",
+      "mapQuery": "Siesta Key Village, Ocean Boulevard, Siesta Key, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Siesta%20Key%20Village%2C%20Ocean%20Boulevard%2C%20Siesta%20Key%2C%20Florida",
+      "source": "reviewed-area"
+    },
+    "sarasota-this-week-nov-23-2026\tDowntown Sarasota Black Friday and Shop Small Saturday": {
+      "area": true,
+      "reviewed": true,
+      "reason": "Scene Sarasota and SRQ Magazine describe downtown businesses and do not print one street door.",
+      "mapQuery": "Downtown Sarasota, Florida",
+      "mapLink": "https://www.google.com/maps/search/?api=1&query=Downtown%20Sarasota%2C%20Florida",
+      "source": "reviewed-area"
     }
   }
 }
