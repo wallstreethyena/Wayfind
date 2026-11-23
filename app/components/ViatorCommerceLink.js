@@ -29,8 +29,7 @@
 // the browser ever leaves our origin.
 import { useRef, useEffect } from "react";
 import { emitCommerce, commerceHref, mintClickId, rankBucket } from "../../lib/commerce";
-import { experienceGoUrl, viatorProductGoUrl } from "../../lib/affiliates";
-import { railPlacementCode } from "../../lib/railCampaign.js";
+import { experienceGoUrl, viatorProductGoUrl, viatorPlacementCode } from "../../lib/affiliates";
 
 // Live API summaries can introduce a SKU before it exists in our owned
 // commerce catalog. Keep that exact product on the existing strict redirect
@@ -73,7 +72,7 @@ export default function ViatorCommerceLink({
   ...props
 }) {
   const offerId = t && (t.code || t.productCode || t.product_code);
-  const rail = railPlacementCode(surface) || null;
+  const rail = viatorPlacementCode(surface) || null;
   const resolvedPlaceId = placeId || (t && (t.placeId || t.id));
   const resolvedQ = q || (t && (t.title || t.name));
   const resolvedCity = city || contentId;

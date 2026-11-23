@@ -265,7 +265,6 @@ import * as Tags from "../lib/tags";
 import { resolveMetro, CULTURE_TITLES } from "../lib/culture";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
-import { railClickContext } from "../lib/posterTickets.js";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import { activeHoliday as _holActive, worldCup as _holWc, worldCupDaysToNext as _holWcDays, worldCupMatchToday as _holWcToday, themeFor as _holTheme, contentFor as _holContent } from "../lib/holidays";
@@ -436,6 +435,21 @@ function ticketUrl(url, opts = {}) {
   if (!s) return null;
   if (Aff.isTicketmasterFamily(s)) return Aff.ticketmasterGoUrl(s, { surface: opts.surface || "event_card", contentId: opts.contentId, offerId: opts.offerId });
   return s;
+}
+// A rendered go href is a partner click. Organizer URLs are not. Kept here so
+// the homepage does not import a second ticket module.
+function railClickContext(href, surface, offerId) {
+  if (typeof href !== "string" || !/^\/api\/(?:commerce|ticketmaster|viator|hotels)\/go\?/.test(href)) return null;
+  let provider = "commerce";
+  try {
+    const u = new URL(href, "https://gowayfind.com");
+    if (u.pathname === "/api/ticketmaster/go") provider = "ticketmaster";
+    else if (u.pathname === "/api/viator/go") provider = "viator";
+    else if (u.pathname === "/api/hotels/go") provider = "stay22";
+    else provider = u.searchParams.get("provider") || provider;
+  } catch { return null; }
+  const rail = Aff.viatorPlacementCode(surface);
+  return { surface, ...(rail ? { rail } : {}), provider, offer_id: offerId, content_id: offerId };
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
 function iconForPlace(p) {
