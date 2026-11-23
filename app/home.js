@@ -368,7 +368,6 @@ import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { createDetailOpenGate } from "../lib/detailOpenGate.js";
 import { safeLocalStorage, safeSessionStorage } from "../lib/safeStorage.js";
-import { itineraryArrivalDetail, itineraryHandoffQuery, PLANNER_BROWSE_KEY } from "../lib/itineraryHandoff.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh, storedPlaceHeader } from "../lib/locationHonesty";
@@ -7674,7 +7673,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       const city = locName && !/^this map area$/i.test(locName) ? String(locName).split(",")[0].trim().slice(0, 40) : "";
       const date = typeof eventDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(eventDate) ? eventDate : "";
       const q = String(query || "").trim().slice(0, 80);
-      sess.setItem(PLANNER_BROWSE_KEY, JSON.stringify({
+      sess.setItem("wf_planner_browse_v1", JSON.stringify({
         city,
         date,
         query: q,
@@ -8484,14 +8483,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       // the dates in the address bar (events and map already keep theirs) and
       // open the planner once when the visitor asked to build the day.
       if (go === "itinerary") {
-        const arrival = itineraryArrivalDetail(sp);
-        window.history.replaceState({ wf: "screen" }, "", arrival.href);
-        if (arrival.detail) {
+        const search = window.location.search;
+        import("../lib/itineraryHandoff.js").then((m) => {
           try {
-            window.__wfPendingPlannerOpen = arrival.detail;
-            window.dispatchEvent(new CustomEvent("wf:planner-open", { detail: arrival.detail }));
+            const arrival = m.itineraryArrivalDetail(search);
+            window.history.replaceState({ wf: "screen" }, "", arrival.href);
+            if (arrival.detail) {
+              window.__wfPendingPlannerOpen = arrival.detail;
+              window.dispatchEvent(new CustomEvent("wf:planner-open", { detail: arrival.detail }));
+            }
           } catch (err) {}
-        }
+        }).catch(() => {});
         return;
       }
       // v5.78 (B1): the other standalone screens restore their OWN path (was:
@@ -8527,8 +8529,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           if (eventCat !== "auto") sp.set("cat", eventCat);
           if (sp.toString()) target += "?" + sp.toString();
         } else if (screen === "itinerary") {
-          const keep = itineraryHandoffQuery(new URLSearchParams(window.location.search));
-          if (keep.toString()) target += "?" + keep.toString();
+          // Keep city and date on /itinerary. The landing cleaner lives in
+          // itineraryHandoff.js and is loaded only for ?go=itinerary.
+          if (window.location.pathname === "/itinerary" && window.location.search) target += window.location.search;
         } else if (screen === "map") {
           const curSp = new URLSearchParams(window.location.search);
           const safeSp = new URLSearchParams();

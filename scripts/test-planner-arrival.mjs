@@ -282,7 +282,8 @@ const sheet = readFileSync(path.join(ROOT, "app/components/WayfindPlannerSheet.j
 const home = readFileSync(path.join(ROOT, "app/home.js"), "utf8");
 const ask = readFileSync(path.join(ROOT, "app/ask/AskClient.js"), "utf8");
 ok(sheet.includes("resolvePlannerOpen("), "the planner sheet opens through resolvePlannerOpen");
-ok(home.includes("itineraryArrivalDetail(") && home.includes("itineraryHandoffQuery("), "the itinerary handoff keeps city and date instead of stripping the query");
+ok(home.includes("itineraryArrivalDetail(") && home.includes('import("../lib/itineraryHandoff.js")') && !/from ["']\.\.\/lib\/itineraryHandoff\.js["']/.test(home), "the itinerary handoff keeps city and date and stays out of the homepage static graph");
+ok(!/from ["']\.\/trips\.js["']/.test(readFileSync(path.join(ROOT, "lib/plannerCompanionBridge.js"), "utf8")), "the layout bridge does not pull lib/trips.js into the first load");
 ok(ask.includes('setItem("wf_trips_v1"') && ask.includes('setLocal("wayfind_trips"') && ask.includes("itineraryPlanHref("), "the date plan still writes wf_trips_v1 and also the store Itinerary reads, then opens with the plan");
 
 // Every voice, every sparse arrival, stays inside the copy rules.
