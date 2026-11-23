@@ -114,8 +114,12 @@ try {
           assert.equal(new Set(ids).size, ids.length, `${day} ${initialDaypart}: every tile appears once`);
           assert.equal(ids.includes(sponsor.id), !!promotions.sponsor, 'sponsor remains visible when supplied');
           assert.equal(ids.includes(sports.id), !!promotions.livePosters, 'live event remains visible when supplied');
-          if (md === '11-01' || md === '11-15') {
-            assert.equal(ids.includes('augtober'), true, 'Fall remains visible before Thanksgiving');
+          if (md === '11-01') {
+            assert.equal(ids.includes('augtober'), true, 'Fall remains visible through November 10');
+            assert.equal(ids.includes('halloween'), false, 'Halloween stays hidden in November');
+          }
+          if (md === '11-15') {
+            assert.equal(ids.includes('augtober'), false, 'Fall is retired starting November 11');
             assert.equal(ids.includes('halloween'), false, 'Halloween stays hidden in November');
           }
           if (md === '01-02') assert.equal(ids.includes('christmas'), false, 'Christmas stays hidden after Jan 1');
