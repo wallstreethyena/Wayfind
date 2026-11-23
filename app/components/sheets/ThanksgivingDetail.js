@@ -60,8 +60,9 @@ export default function ThanksgivingDetail({ ctx }) {
   const today = useSiteToday();
   const detail = ctx.hookDetail || {};
   const initial = useRef(null);
-  if (!initial.current) initial.current = thanksgivingOpenOptions(new URLSearchParams({ holidayYear: String(detail.holidayYear || thanksgivingYearForDate(today)),
-    holidayDate: detail.holidayDate || "all", holidayMi: String(detail.holidayMi || 60) }), thanksgivingYearForDate(today));
+  const fallbackYear = detail.holidayFallbackYear || thanksgivingYearForDate(today);
+  if (!initial.current) initial.current = thanksgivingOpenOptions(new URLSearchParams({ holidayYear: String(detail.holidayYear || fallbackYear),
+    holidayDate: detail.holidayDate || "all", holidayMi: String(detail.holidayMi || 60) }), fallbackYear);
   const [year, setYear] = useState(initial.current.year);
   const [date, setDate] = useState(initial.current.date);
   const [mi, setMi] = useState(initial.current.mi);

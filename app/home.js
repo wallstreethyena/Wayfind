@@ -269,7 +269,7 @@ import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
-import { thanksgivingOpenOptions, thanksgivingLocationResumeDecision } from "../lib/thanksgivingClient.js";
+import { thanksgivingLocationResumeDecision } from "../lib/thanksgivingReturn.js";
 import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
@@ -4662,8 +4662,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     const hol = typeof h === "string" ? (Hol.holidaysFor(new Date().getFullYear()).find((x) => x.key === h) || null) : h;
     if (!hol) return;
     if (hol.key === "thanksgiving") {
-      const options = thanksgivingOpenOptions(typeof window !== "undefined" ? window.location.search : "", hol.year || hol.date.getFullYear());
-      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: options.year, holidayDate: options.date, holidayMi: options.mi });
+      // Open immediately; the lazy sheet validates these raw shared controls
+      // before making any request, using this holiday's year as its fallback.
+      const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+      const fallbackYear = hol.year || hol.date.getFullYear();
+      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: params.get("holidayYear") || fallbackYear, holidayDate: params.get("holidayDate"), holidayMi: params.get("holidayMi"), holidayFallbackYear: fallbackYear });
       try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
       return;
     }
