@@ -170,6 +170,7 @@ for (const f of surfaces) {
     DfutR5Fmrxt: [/chocolate-tree-croissant/, /chocolate tree croissant/i],
     DfdAV3Rgc15: [/flame-tree-gingerbread-cheesecake-pop/, /gingerbread cheesecake pop/i],
     DfpbdQwG23q: [/epcot-festival-holidays-2026/, /festival of the holidays/i],
+    DffOZsEkeOV: [/aloha-isle-santa-surf-shack-float/, /santa surf shack float/i],
   };
   for (const [code, [filename, subject]] of Object.entries(posterSubject)) {
     const cover = creatorPostCover(posts.find((p) => igCode(p.url) === code)?.cover);
@@ -191,7 +192,7 @@ for (const f of surfaces) {
   for (const src of ["https://www.instagram.com/image.jpg", "//external.example/file.jpg", "/api/photo?place=abc", "/guides/creator-covers/../file.jpg", "/guides/disney-christmas-maps/covers/park.jpg"]) {
     ok(creatorPostCover({ ...sample, src }) === null, `creator cover rejects ${src}`);
   }
-  ok(posts.length === 10 && new Set(posts.map((p) => p.url)).size === 10, "all nine food posts and the festival post are retained");
+  ok(posts.length === 11 && new Set(posts.map((p) => p.url)).size === 11, "all original creator sources and the new Santa Surf Shack carousel are retained without duplicates");
   ok(EPCOT_FESTIVAL.post.url === "https://www.instagram.com/p/DfpbdQwG23q/" && EPCOT_FESTIVAL.post.creator === "disneyfoodblog" && embedSrc("instagram", EPCOT_FESTIVAL.post.url), "the owner-requested festival post is credited and plays inside Wayfind");
   ok(posts.every((p) => p.creator && (embedSrc("instagram", p.url) || recordedHandoff("instagram", p.url))), "every food source has attribution and either plays here or is a recorded handoff the page hides");
   ok(posts.some((p) => embedSrc("instagram", p.url)), "at least one food post still plays inside Wayfind");
