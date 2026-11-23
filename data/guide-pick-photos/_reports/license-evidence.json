@@ -1,11 +1,11 @@
 {
   "generatedBy": "scripts/build-guide-photo-license-evidence.mjs",
   "verifiedAt": "2026-11-23",
-  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
+  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0), or a venue website photo owner-authorized on 23 November 2026 for restaurant guide picks; NC and ND never pass.",
   "summary": {
-    "files": 410,
-    "usages": 438,
-    "verified": 410,
+    "files": 415,
+    "usages": 444,
+    "verified": 415,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -15,11 +15,11 @@
       "CC BY 3.0": 22,
       "CC BY 2.0": 104,
       "CC0 1.0 Universal": 26,
+      "venue website photo, owner authorized Nov 23 2026 for guide picks": 8,
       "CC BY-SA 2.0": 41,
       "Unsplash License": 4,
       "Public domain": 4,
-      "CC BY-SA 2.5": 2,
-      "venue website photo, owner authorized Nov 23 2026 for guide picks": 3
+      "CC BY-SA 2.5": 2
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -799,6 +799,161 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/epic-eats-cookie-butter-beignets.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Epic Eats"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/foodie-guide-to-disney-jollywood-nights/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/foodie-guide-to-disney-jollywood-nights/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/foodie-guide-to-disney-jollywood-nights/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/foodie-guide-to-disney-jollywood-nights/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/flame-tree-gingerbread-cheesecake-pop.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Flame Tree Barbecue"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/main-street-confectionery-holiday-cookie-popcorn.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Main Street Confectionery"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/santas-holiday-grove-peppermint-sandwich.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Santa’s Holiday Grove"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/terra-treats-reindeer-sundae.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Terra Treats"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/camping-world-stadium-aerial.webp",
@@ -4510,6 +4665,129 @@
       "verifiedAt": "2026-11-23"
     },
     {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/bon-appetit-restaurant-marina.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Bon Appetit Restaurant"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://bonappetitrestaurant.com/",
+        "title": "Bon Appétit Restaurant on the Dunedin marina",
+        "author": "Bon Appétit Restaurant",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://bonappetitrestaurant.com/"
+      },
+      "wayfind": {
+        "credit": "Bon Appétit Restaurant",
+        "creditHref": "https://bonappetitrestaurant.com/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://bonappetitrestaurant.com/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/gratzzi-italian-grille-dining-room.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Gratzzi Italian Grille"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://gratzzigrille.com/photos/",
+        "title": "Tableside cooking at Gratzzi Italian Grille",
+        "author": "Gratzzi Italian Grille",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://gratzzigrille.com/photos/"
+      },
+      "wayfind": {
+        "credit": "Gratzzi Italian Grille",
+        "creditHref": "https://gratzzigrille.com/photos/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://gratzzigrille.com/photos/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/parkshore-grill-dining-room.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Parkshore Grill"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://www.parkshoregrill.com/private-dining.html",
+        "title": "Parkshore Grill private dining room",
+        "author": "Parkshore Grill",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://www.parkshoregrill.com/private-dining.html"
+      },
+      "wayfind": {
+        "credit": "Parkshore Grill",
+        "creditHref": "https://www.parkshoregrill.com/private-dining.html",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://www.parkshoregrill.com/private-dining.html",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/river-of-lights-tampa-2026/curtis-hixon-park-dusk.jpg",
+      "usedBy": [
+        {
+          "slug": "river-of-lights-tampa-2026",
+          "role": "pick",
+          "pick": "River of Lights"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
+        "title": "Curtis Hixon Park Tampa Florida United States - panoramio (1)",
+        "author": "Michelle Maria",
+        "dateTaken": "Taken on 6 April 2013",
+        "licence": "CC BY 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0"
+      },
+      "wayfind": {
+        "credit": "Michelle Maria",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
       "src": "/guides/picks/robinson-preserve-bradenton/kayaks-beside-boardwalk.webp",
       "usedBy": [
         {
@@ -4759,6 +5037,36 @@
       "verifiedAt": "2026-11-23"
     },
     {
+      "src": "/guides/picks/sarasota-this-week-nov-23-2026/downtown-sarasota-historic-district-shops.jpg",
+      "usedBy": [
+        {
+          "slug": "sarasota-this-week-nov-23-2026",
+          "role": "pick",
+          "pick": "Downtown Sarasota Black Friday and Shop Small Saturday"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
+        "title": "Sarasota FL Downtown HD01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-06-19 11:04:02",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
       "src": "/guides/picks/siesta-key-drum-circle/parking-without-the-meltdown.webp",
       "usedBy": [
         {
@@ -4823,6 +5131,10 @@
       "usedBy": [
         {
           "slug": "siesta-key-drum-circle",
+          "role": "hero"
+        },
+        {
+          "slug": "sarasota-this-week-nov-23-2026",
           "role": "hero"
         }
       ],
@@ -12404,159 +12716,6 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-23"
-    },
-    {
-      "src": "/guides/picks/sarasota-this-week-nov-23-2026/downtown-sarasota-historic-district-shops.jpg",
-      "usedBy": [
-        {
-          "slug": "sarasota-this-week-nov-23-2026",
-          "role": "pick",
-          "pick": "Downtown Sarasota Black Friday and Shop Small Saturday"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
-        "title": "Sarasota FL Downtown HD01",
-        "author": "Ebyabe",
-        "dateTaken": "2011-06-19 11:04:02",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      "wayfind": {
-        "credit": "Ebyabe",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-23"
-    },
-    {
-      "src": "/guides/picks/river-of-lights-tampa-2026/curtis-hixon-park-dusk.jpg",
-      "usedBy": [
-        {
-          "slug": "river-of-lights-tampa-2026",
-          "role": "pick",
-          "pick": "River of Lights"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
-        "title": "Curtis Hixon Park Tampa Florida United States - panoramio (1)",
-        "author": "Michelle Maria",
-        "dateTaken": "Taken on 6 April 2013",
-        "licence": "CC BY 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/3.0"
-      },
-      "wayfind": {
-        "credit": "Michelle Maria",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
-        "license": "CC BY 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-23"
-    },
-    {
-      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/bon-appetit-restaurant-marina.jpg",
-      "usedBy": [
-        {
-          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
-          "role": "pick",
-          "pick": "Bon Appetit Restaurant"
-        }
-      ],
-      "source": {
-        "kind": "permission",
-        "url": "https://bonappetitrestaurant.com/",
-        "title": "Bon Appétit Restaurant on the Dunedin marina",
-        "author": "Bon Appétit Restaurant",
-        "dateTaken": null,
-        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
-        "licenceUrl": "https://bonappetitrestaurant.com/"
-      },
-      "wayfind": {
-        "credit": "Bon Appétit Restaurant",
-        "creditHref": "https://bonappetitrestaurant.com/",
-        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
-        "licenseUrl": "https://bonappetitrestaurant.com/",
-        "modificationNotice": "Resized and cropped for display."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-23",
-      "verificationMethod": "owner-authorized-venue-website-photo"
-    },
-    {
-      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/gratzzi-italian-grille-dining-room.jpg",
-      "usedBy": [
-        {
-          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
-          "role": "pick",
-          "pick": "Gratzzi Italian Grille"
-        }
-      ],
-      "source": {
-        "kind": "permission",
-        "url": "https://gratzzigrille.com/photos/",
-        "title": "Tableside cooking at Gratzzi Italian Grille",
-        "author": "Gratzzi Italian Grille",
-        "dateTaken": null,
-        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
-        "licenceUrl": "https://gratzzigrille.com/photos/"
-      },
-      "wayfind": {
-        "credit": "Gratzzi Italian Grille",
-        "creditHref": "https://gratzzigrille.com/photos/",
-        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
-        "licenseUrl": "https://gratzzigrille.com/photos/",
-        "modificationNotice": "Resized and cropped for display."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-23",
-      "verificationMethod": "owner-authorized-venue-website-photo"
-    },
-    {
-      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/parkshore-grill-dining-room.jpg",
-      "usedBy": [
-        {
-          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
-          "role": "pick",
-          "pick": "Parkshore Grill"
-        }
-      ],
-      "source": {
-        "kind": "permission",
-        "url": "https://www.parkshoregrill.com/private-dining.html",
-        "title": "Parkshore Grill private dining room",
-        "author": "Parkshore Grill",
-        "dateTaken": null,
-        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
-        "licenceUrl": "https://www.parkshoregrill.com/private-dining.html"
-      },
-      "wayfind": {
-        "credit": "Parkshore Grill",
-        "creditHref": "https://www.parkshoregrill.com/private-dining.html",
-        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
-        "licenseUrl": "https://www.parkshoregrill.com/private-dining.html",
-        "modificationNotice": "Resized and cropped for display."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-23",
-      "verificationMethod": "owner-authorized-venue-website-photo"
     }
   ]
 }
