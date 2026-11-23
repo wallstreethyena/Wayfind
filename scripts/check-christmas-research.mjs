@@ -207,6 +207,25 @@ ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/
   ok(/"@type": "ItemList"/.test(read("app/christmas-in-florida/page.js")), "the browse carries an ItemList of events (static)");
 }
 
+// Verified party prices flow through the existing database overlay. Keep the
+// occurrence dates and availability separate from the published price.
+for (const [id, slug, price, venue, entryTime, nights, status] of [
+  ["jollywood-nights-2026", "disney-jollywood-nights-2026", "$169 to $199", "Hollywood Studios", "5:30 PM", 15, "available"],
+  ["mvmcp-2026", "mickeys-very-merry-christmas-party-2026", "$189 to $229", "Magic Kingdom", "4:00 PM", 25, "sold_out"],
+]) {
+  const party = christmasEventPageRow({ ...DB.find((r) => r.event_id === id), slug, ticket_status: status }, slug);
+  ok(party?.christmas_price_line?.startsWith(price) && party.christmas_price_line.includes("plus tax"),
+    `${slug}: publish the organizer's date-dependent price plus tax`);
+  ok(party?.occurrence_dates?.length === nights && party.ticket_status === status,
+    `${slug}: keep the scheduled nights and ticket status`);
+  ok(party?.christmas_park_admission_note?.includes(venue) && party.christmas_park_admission_note.includes(entryTime),
+    `${slug}: the page carries the verified park-specific entry note`);
+}
+ok(christmasEventPageRow(DB.find((row) => row.event_id === "christmas-town-2026"), "christmas-town-2026")
+  ?.christmas_park_admission_note == null, "a different event keeps its standard nearby picks");
+ok(/const pairingResult = e\.christmas_park_admission_note[\s\S]{0,120}: await cachedEventPairings\(e\)/.test(read("app/florida-events/[slug]/page.js")),
+  "the verified entry note replaces unverified generic before/after recommendations on the named park pages");
+
 // ── 6. Event pages ──────────────────────────────────────────────────────────
 {
   const only = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => !isDbClaimedResearchId(r.event_id) && !r.season_undated);
