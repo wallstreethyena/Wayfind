@@ -82,7 +82,7 @@ const CSP_REPORT_ONLY = [
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a
   // missing origin here fails SILENTLY — the future enforce-flip DEPENDS on this list.
-  "frame-src 'self' https://www.google.com https://www.tiktok.com https://www.youtube-nocookie.com https://www.instagram.com https://*.apple-mapkit.com",
+  "frame-src 'self' https://www.google.com https://www.tiktok.com https://www.youtube-nocookie.com https://www.instagram.com https://*.apple-mapkit.com https://www.browserbase.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
