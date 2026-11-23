@@ -18,6 +18,7 @@ import { eventNearbyPlaces } from '../lib/eventNearbyPlaces.js';
 import * as eventVisitFacts from '../lib/eventVisitFacts.js';
 import * as eventTimeReal from '../lib/eventTime.js';
 import * as crownCampaign from '../lib/crownCampaign.js';
+import * as editorialStandardLib from '../lib/editorialStandard.js';
 let event, curated, photographs, social = [];
 let mapPicks, nearbyPicks;
 const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
@@ -67,6 +68,8 @@ function page(file) {
   if(spec.includes('CreatorPlaybackDetails'))return {default:p=>React.createElement(React.Fragment,null,p.children,React.createElement('button',null,'Details'),React.createElement('div',null,p.details)),usePlaybackDetails:()=>null};
   if(spec.includes('CreatorVideoRail'))return {default:page('app/components/CreatorVideoRail.js')};
   if(spec.includes('VideoFacade'))return {default:page('app/components/VideoFacade.js')};
+  if(spec.includes('editorialStandard.js'))return editorialStandardLib;
+  if(spec.includes('EditorialStandard'))return {default:page('app/components/EditorialStandard.js')};
   if(spec.includes('EventDetailShell'))return {default:page('app/components/EventDetailShell.js')};
   if(spec.includes('EventExperienceStyles'))return {default:page('app/components/EventExperienceStyles.js')};
   if(spec.includes('/EventStory') || spec.endsWith('./EventStory.js'))return {default:page('app/events/[city]/[slug]/EventStory.js')};

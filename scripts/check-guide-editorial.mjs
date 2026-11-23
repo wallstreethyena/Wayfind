@@ -29,7 +29,7 @@ const tracked = new Set(execFileSync('git', ['ls-files', 'public'], { encoding: 
 ok(tracked.size > 0, 'tracked image inventory is nonempty');
 ok(slugs.length > 0, 'the guide registry is nonempty before measuring coverage');
 ok(slugs.length === 91, `the reviewed publication set includes 91 guides (got ${slugs.length})`);
-ok(pageSource.includes('<div style={S.page} className="wf-guide-editorial">') && !pageSource.includes('<main style={S.page}'), 'guide route uses a div inside the application main landmark');
+ok(pageSource.includes('<EditorialStandard') && pageSource.includes('className="wf-guide-editorial"') && !pageSource.includes('<main style={S.page}'), 'guide route renders the shared editorial frame and keeps the article class');
 ok(hubSource.includes('<div className={styles.page}>') && !hubSource.includes('<main className={styles.page}>'), 'guide index uses a div inside the application main landmark');
 ok(!pageSource.includes('Seasonal menus can change'), 'the general source register has no blanket seasonal-menu label');
 function missingArt(guides, art) { return Object.keys(guides).filter((slug) => !Object.hasOwn(art, slug)); }
