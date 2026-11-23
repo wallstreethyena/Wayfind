@@ -1,4 +1,5 @@
 import SeasonalSearchNav from "../../components/SeasonalSearchNav";
+import ReturnToWayfind from "../../components/ReturnToWayfind";
 import { seasonalHubsForGuide } from "../../../lib/seasonalSearch";
 // v4.16 — Server-rendered SEO guide pages. No "use client": these render to
 // HTML at build time so search engines index the full content. Each pick can
@@ -988,6 +989,7 @@ export default async function GuidePage({ params }) {
         <p style={{ margin: "6px 0 0" }}>This guide is kept as an archive, so its dates, prices and schedules may no longer apply. For what is on now, <a href="/florida-events" style={{ color: "#FDBA74" }}>see upcoming Florida events</a>. <a href="/guides/past" style={{ color: "#FDBA74" }}>More past guides</a>.</p>
       </aside> : null}
       <EditorialStandard
+        homeLink={<ReturnToWayfind style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 999, background: "#161B22", border: "1px solid #21262D", color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none" }} />}
         backHref="/guides"
         backLabel="All guides"
         heroSrc={art && art.src ? art.src : ""}

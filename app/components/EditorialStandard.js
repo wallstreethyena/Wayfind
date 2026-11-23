@@ -63,6 +63,7 @@ export default function EditorialStandard({
   backHref = null,
   backLabel = "All guides",
   backExtra = null,
+  homeLink = undefined,
   heroSrc = null,
   overview = null,
   title = null,
@@ -103,7 +104,7 @@ export default function EditorialStandard({
         <div className="wf-event-brand">
           <a href="/" aria-label="Wayfind home"><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="145" height="42" /></a>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-            <ReturnToWayfind style={BACK} />
+            {homeLink !== undefined ? homeLink : <ReturnToWayfind style={BACK} />}
             {backHref ? <a style={BACK} href={backHref}>{backLabel}</a> : null}
             {backExtra}
           </div>

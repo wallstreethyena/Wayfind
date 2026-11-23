@@ -40,6 +40,7 @@ import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
 import CrownOutbound from "../../components/CrownOutbound.js";
 import { CROWN_EVENT_SLUGS } from "../../../lib/crownCampaign.js";
+import ReturnToWayfind from "../../components/ReturnToWayfind.js";
 import { pairingHref } from "../../../lib/eventPairings";
 import { seriesHubFor } from "../../../lib/eventSeriesHubs.js";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
@@ -331,6 +332,7 @@ export default async function CuratedEventPage({ params }) {
     <EditorialStandard
       heroSrc={heroSrc}
       beacon={crownTracked ? <CrownOutbound slug={params.slug} /> : <CommerceClickBeacon surface="florida_event_page" />}
+      homeLink={<ReturnToWayfind style={S.back} />}
       backExtra={<a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>}
       leading={<>
       {ld ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} /> : null}
@@ -521,7 +523,8 @@ export default async function CuratedEventPage({ params }) {
         </section>
       ) : null}
       </>}
-      where={<EventWhere
+      where={(
+      <EventWhere
         venue={e.venue || e.event_name}
         address={where}
         directionsHref={dirs}
@@ -533,7 +536,8 @@ export default async function CuratedEventPage({ params }) {
         ticketLink={crownTracked}
         location={{ trust: "verified" }}
         placeId={isSnowcatTicketPage({ event_id: e.event_id, slug: params.slug }) ? SNOWCAT_PLACE_ID : ""}
-      />}
+      />
+      )}
       afterWhere={pairingResult.unavailable ? (
         <p role="status" style={{ ...S.p, maxWidth: 820, margin: "12px auto 24px", color: "#aab4c2" }}>
           Nearby picks are temporarily unavailable.
