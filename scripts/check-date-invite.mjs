@@ -1374,6 +1374,21 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     const s = readFileSync(path.join(REPO, rel), "utf8");
     ok(s.includes(marker), `${rel} must expose a direct 1-tap Plan Together entrypoint (${marker})`);
   }
+
+  // Wayfind Santa AI Date Concierge, live "Santa calling" update card, and hidden vertical scrollbar:
+  const styleSrc9 = readFileSync(path.join(REPO, "app/ask/style.js"), "utf8");
+  ok(styleSrc9.includes("scrollbar-width:none") && styleSrc9.includes(".wfx-stage::-webkit-scrollbar{width:0;height:0;display:none}"),
+     "app/ask/style.js must hide the vertical scrollbar on .wfx-stage so no vertical bar splits the invite screen");
+  ok(askClientSrc.includes('data-wf-santa-date-concierge="1"') && askClientSrc.includes('data-wf-santa-call-card="1"') && askClientSrc.includes("Santa on speaker:"),
+     "AskClient must render Wayfind Santa AI Date Concierge and the live Santa calling update card when the recipient customizes the plan");
+  const santaUpdatedReply = yesText(
+    decodeInvite(encodeInvite({ place: "Bulla Gastrobar Tampa", city: "Tampa", from: "WAYFIND" })),
+    "dinner",
+    "Sat, November 28",
+    { name: "Maya", placeName: "Ulele", santaCall: true }
+  );
+  ok(santaUpdatedReply.includes("Dinner at Ulele on Sat, November 28") && santaUpdatedReply.includes("Wayfind Santa called in a quick plan update for us!"),
+     "yesText must include the recipient's updated spot and Santa's call update note when customized");
 }
 
 if (fails.length) {
