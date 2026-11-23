@@ -2780,3 +2780,5 @@ node scripts/test-thanksgiving-client.mjs --browser
 node scripts/test-thanksgiving-editorial.mjs
 # 2026-11-23: Gemini AI Florida trending & holiday intelligence monitor (fail-closed gateway, closure-risk holiday curation, grounding validator, wiring).
 node scripts/test-gemini-florida-intelligence.mjs
+# 2026-11-23 Live Music repeat photos: official event covers with Photo credit, one venue photo per rail.
+node scripts/test-official-event-covers.mjs
