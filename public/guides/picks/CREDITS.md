@@ -123,9 +123,11 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## florida-thanksgiving-weekend-2026
 
+- `/guides/picks/florida-thanksgiving-weekend-2026/robinson-preserve-trail-thanksgiving-weekend.jpg` — florida-thanksgiving-weekend-2026: Bradenton Runners Club Turkey Trot 5K. [Mark Hewitt](https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-thanksgiving-weekend-2026/celebration-town-center-christmas-tree.jpg` — florida-thanksgiving-weekend-2026: Celebration Tree Lighting Ceremony. [Brian Hart](https://commons.wikimedia.org/wiki/File:Downtown_waterfront_for_first_night_of_2011_"Now_Snowing"_event_in_Celebration.jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-thanksgiving-weekend-2026/zootampa-christmas-lights-blue-trees.jpg` — florida-thanksgiving-weekend-2026: Christmas in the Wild at ZooTampa. [Ssriram mt](https://commons.wikimedia.org/wiki/File:Christmas_Lighting_-_Lowry_Park_Zoo2.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-thanksgiving-weekend-2026/daytona-turkey-run-1940-ford-truck.jpg` — florida-thanksgiving-weekend-2026: Daytona Turkey Run. [Rob Bixby](https://www.flickr.com/photos/14580956@N08/3063924727); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/florida-thanksgiving-weekend-2026/nathan-benderson-park-lakeside-path.jpg` — florida-thanksgiving-weekend-2026: Florida Turkey Trot at Nathan Benderson Park. [Carol VanHook](https://commons.wikimedia.org/wiki/File:Exploring_Nathan_Benderson_Park.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
 ## florida-theme-park-christmas-2026
 
@@ -249,6 +251,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/red-bull-dance-your-style-tampa-2026/the-16-dancers-in-the-final.webp` — red-bull-dance-your-style-tampa-2026: The 16 dancers in the final. [Ebyabe](https://commons.wikimedia.org/wiki/File:Tampa_Ybor_City04.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/red-bull-dance-your-style-tampa-2026/hero-tampa-convention-center.webp` — red-bull-dance-your-style-tampa-2026: hero image. [Zeng8r](https://commons.wikimedia.org/wiki/File:Tampa_Convention_Center.JPG); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 
+## restaurants-open-thanksgiving-tampa-bay-2026
+
+- `/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp` — restaurants-open-thanksgiving-tampa-bay-2026: Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
 ## robinson-preserve-bradenton
 
 - `/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp` — robinson-preserve-bradenton: Flat miles for wheels. [Mark Hewitt](https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -327,6 +333,12 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/tampa-bay-rays-game-day-tropicana-field/st-pete-pier-pier-head.jpg` — tampa-bay-rays-game-day-tropicana-field: St. Pete Pier after the game. [Beyond My Ken](https://commons.wikimedia.org/wiki/File:2021_St._Pete_Pier_1.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/tampa-bay-rays-game-day-tropicana-field/the-tilted-roof-and-the-catwalks.jpg` — tampa-bay-rays-game-day-tropicana-field: The tilted roof and the catwalks. [Doctorindy](https://commons.wikimedia.org/wiki/File:Tropicanafieldceiling.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/tampa-bay-rays-game-day-tropicana-field/tropicana-field-ray-touch-tank.jpg` — tampa-bay-rays-game-day-tropicana-field: Touch a ray: the Cownose Clubhouse. [Zeng8r](https://commons.wikimedia.org/wiki/File:Tropicana_Field_touch_tank.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## tampa-bay-this-week-nov-22-2026
+
+- `/guides/picks/tampa-bay-this-week-nov-22-2026/freedom-factory-oval-aerial.jpg` — tampa-bay-this-week-nov-22-2026: Bill Bigley Sr. Memorial 128. [National Agriculture Imagery Program](https://commons.wikimedia.org/wiki/File:Freedom_Factory_aerial_photo_2023-01-29.jpg); [Public domain](https://creativecommons.org/publicdomain/mark/1.0/).
+- `/guides/picks/trending-in-florida-this-week-nov-17-2026/jannus-live-entrance.jpg` — tampa-bay-this-week-nov-22-2026: Buzzcocks at Jannus Live. [LittleT889](https://commons.wikimedia.org/wiki/File:Jannus_Live.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/tampa-bay-this-week-nov-22-2026/glazer-childrens-museum-2024.jpg` — tampa-bay-this-week-nov-22-2026: Glazer Children's Museum Campsgiving. [Ken Lund](https://commons.wikimedia.org/wiki/File:Glazer_Children%27s_Museum,_Tampa,_Florida_2024.jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## tampa-restaurants
 

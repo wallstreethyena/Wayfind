@@ -60,6 +60,46 @@
       "verification": "Commons file Downtown waterfront for first night of 2011 Now Snowing event in Celebration, taken November 26, 2011. Viewed the full image: the lit Christmas tree on the Celebration Town Center lakefront at night during the holiday opening weekend. Exact place and season. No overlay or watermark. Live Commons licence checked: CC BY-SA 2.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-11-17"
+    },
+    "Bradenton Runners Club Turkey Trot 5K": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/robinson-preserve-trail-thanksgiving-weekend.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A paved shell trail and a wooden boardwalk bridge winding through mangroves at Robinson Preserve in Bradenton, with a few distant walkers on the path and the Sunshine Skyway Bridge on the horizon",
+      "caption": "The trails at Robinson Preserve in Bradenton, where this 5K is run, photographed on Thanksgiving weekend 2009. This is the setting, not the race.",
+      "credit": "Mark Hewitt",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg",
+      "author": "Mark Hewitt",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and cropped to 1280x853 JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Wikimedia Commons file by Mark Hewitt, an archived Panoramio upload categorised Robinson Preserve and taken November 28, 2009, the Saturday after Thanksgiving. Viewed the full image: the preserve's paved trail and boardwalk bridge through the mangroves with the Sunshine Skyway beyond, the trail network this race runs on. Distant walkers are incidental. No overlay or watermark. Live Commons licence checked November 22, 2026: CC BY-SA 3.0. Same Commons source as the Robinson Preserve guide's trail photo, rebuilt as a fresh 1280x853 crop.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-22"
+    },
+    "Florida Turkey Trot at Nathan Benderson Park": {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/nathan-benderson-park-lakeside-path.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A walker seen from behind on the paved path beside the rowing lake at Nathan Benderson Park in Sarasota under a cloudy sky",
+      "caption": "The lakeside path at Nathan Benderson Park in Sarasota, the loop this 5K follows. This is the setting, not the race.",
+      "credit": "Carol VanHook",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Exploring_Nathan_Benderson_Park.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Exploring_Nathan_Benderson_Park.jpg",
+      "author": "Carol VanHook",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and cropped to 1280x853 JPEG.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Wikimedia Commons file Exploring Nathan Benderson Park by Carol VanHook, taken March 3, 2015, from Flickr and verified by UploadWizard, in the Commons category Nathan Benderson Park. Viewed the full image: the paved path along the rowing lake with one walker seen from behind, not identifiable. Exact park where the Florida Turkey Trot runs. No overlay or watermark. Live Commons licence checked November 22, 2026: CC BY 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-22"
     }
   },
   "gaps": {
@@ -67,25 +107,13 @@
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "November 22, 2026 pass: no Creative Commons photograph of this race was verified. Held for the Picture Scrapper. The page ships with no photo for this pick."
+      "note": "November 22, 2026 photo pass: no freely licensed photograph of this race exists on Commons, Openverse or Flickr. The only free photos of Clearwater High School show the gym building and parking lot, which do not show the race, so the slot stays empty. Organizer photos are not cleared."
     },
     "Wiregrass Turkey Trot": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "November 22, 2026 pass: no Creative Commons photograph of this race was verified. Held for the Picture Scrapper. The page ships with no photo for this pick."
-    },
-    "Bradenton Runners Club Turkey Trot 5K": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 pass: no photograph of this race was verified. The preserve kayak photo is a different subject, so this pick stays empty for the Picture Scrapper."
-    },
-    "Florida Turkey Trot at Nathan Benderson Park": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 pass: no Creative Commons photograph of this race was verified. Held for the Picture Scrapper. The page ships with no photo for this pick."
+      "note": "November 22, 2026 photo pass: no freely licensed photograph of this race exists. The only free Shops at Wiregrass photos are a black and white entrance sign banner and a Christmas night panorama, neither of which shows a Thanksgiving morning race, so the slot stays empty."
     },
     "Thanksgiving Bluegrass Festival": {
       "reason": "no-verified-source",
