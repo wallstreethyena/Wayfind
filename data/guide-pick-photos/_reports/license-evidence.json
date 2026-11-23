@@ -3,16 +3,16 @@
   "verifiedAt": "2026-11-23",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
   "summary": {
-    "files": 405,
-    "usages": 433,
-    "verified": 405,
+    "files": 407,
+    "usages": 435,
+    "verified": 407,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
       "CC BY-SA 4.0": 98,
-      "CC BY-SA 3.0": 83,
+      "CC BY-SA 3.0": 84,
       "CC BY 4.0": 22,
-      "CC BY 3.0": 21,
+      "CC BY 3.0": 22,
       "CC BY 2.0": 104,
       "CC0 1.0 Universal": 26,
       "CC BY-SA 2.0": 41,
@@ -12398,6 +12398,66 @@
         "license": "CC BY 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/sarasota-this-week-nov-23-2026/downtown-sarasota-historic-district-shops.jpg",
+      "usedBy": [
+        {
+          "slug": "sarasota-this-week-nov-23-2026",
+          "role": "pick",
+          "pick": "Downtown Sarasota Black Friday and Shop Small Saturday"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
+        "title": "Sarasota FL Downtown HD01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-06-19 11:04:02",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/river-of-lights-tampa-2026/curtis-hixon-park-dusk.jpg",
+      "usedBy": [
+        {
+          "slug": "river-of-lights-tampa-2026",
+          "role": "pick",
+          "pick": "River of Lights"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
+        "title": "Curtis Hixon Park Tampa Florida United States - panoramio (1)",
+        "author": "Michelle Maria",
+        "dateTaken": "Taken on 6 April 2013",
+        "licence": "CC BY 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0"
+      },
+      "wayfind": {
+        "credit": "Michelle Maria",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
