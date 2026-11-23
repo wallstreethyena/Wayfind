@@ -189,6 +189,9 @@ export const config = {
     // access keeps that derived catalogue from becoming a public bulk-export
     // endpoint while the ordinary homepage request continues unchanged.
     "/api/trends/nearby",
+    // Florida Trending & Holiday Intelligence read endpoint (Gemini-monitored
+    // cache + deterministic fallback). Same-origin + per-IP rate limit.
+    "/api/intelligence/florida",
     // Commerce redirect (#469's missing half): /api/commerce/go is the GET-302
     // every schema-approved money link resolves through. It is matched to get the
     // per-IP rate limit — it mints a click_id and reads wf_experiences via the
