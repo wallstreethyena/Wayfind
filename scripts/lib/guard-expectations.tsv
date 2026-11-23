@@ -708,7 +708,7 @@ scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3
 scripts/test-direct-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	73	0	0	cb69c1cbdc990de5a00073c73413a8d2db011d0800d4c96c9081356f7fce831c
 scripts/test-disney-food-post-states.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	e3ede3e7d6e6de15419ce8161da20fc77ad2339d02ffa2c58e3ec8db04250461
 scripts/test-disney-food-posts.mjs	0	RENDER	blocks-ci-and-deploy	1	-	37	0	0	d8c803232ecbd0787a623a9de999f9623b29078332318cd880665d40c491250a
-scripts/test-disney-food-seo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	12	0	0	7460738bee254c9c146e606db43daceb300872a4bc85cd75be6af60d95c71531
+scripts/test-disney-food-seo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	1a589199ad0bbe3cb0ed255ec4bde977ef9a87cb5e2d1da7b0f9b474242e8b18
 scripts/test-document-position.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	9d3cf23d98d16e3a52711f8e129fa02eee755e9f1a897ad918f29070e874b47e
 scripts/test-drop-rail-parity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0	6a3be0dc03e54b92bc6459e828eb53211503e5f1a8a84e616e8d229fdec49a78
 scripts/test-dupes-imports.mjs	1	CALL	blocks-ci-and-deploy	1	Qwen (Engineering)	19	0	0	96d65057b070b3f6b3e1c65866c047d84fa0399df45f6b58246c987ace11ed9e
