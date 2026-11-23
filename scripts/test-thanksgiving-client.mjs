@@ -2,7 +2,7 @@
 // cancellation even when transport ignores abort, and the same visible venues
 // reaching the existing map. Only transport and browser environment are fixtures.
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
@@ -13,6 +13,7 @@ import { DEFAULT_CENTER } from "../lib/locationHonesty.js";
 import * as Hol from "../lib/holidays.js";
 import * as productionClient from "../lib/thanksgivingClient.js";
 import { styleHtml } from "../lib/styleHtml.js";
+import { launchRequiredChromium } from "./lib/synthetic/chromium.mjs";
 
 if (!process.argv.includes("--react-test-child")) {
   const child = spawnSync(process.execPath, [...process.execArgv, fileURLToPath(import.meta.url), ...process.argv.slice(2), "--react-test-child"], { env: { ...process.env, NODE_ENV: "test" }, stdio: "inherit" });
@@ -311,9 +312,7 @@ for (const [search, clicked, expected] of [
 }
 dom.window.close();
 if (process.argv.includes("--browser")) {
-  const { chromium } = await import("playwright");
-  const chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-  const browser = await chromium.launch(existsSync(chrome) ? { executablePath: chrome } : {});
+  const browser = await launchRequiredChromium();
   try {
     for (const width of [390, 768, 1440]) {
       const page = await browser.newPage({ viewport: { width, height: width === 390 ? 844 : 1000 } });
