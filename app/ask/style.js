@@ -48,10 +48,15 @@ export const ASK_CSS = `
 @keyframes wfxFloat{0%{transform:translateY(0) scale(.85);opacity:0}
   16%{opacity:.92}84%{opacity:.92}100%{transform:translateY(-290px) scale(1.08);opacity:0}}
 
-/* Single scroll authority inside fixed parent */
-.wfx-stage{position:relative;z-index:3;width:100%;max-width:440px;padding:22px 20px 32px;
+/* Single scroll authority inside fixed parent — scrollbar hidden so no ugly vertical bar splits the card */
+.wfx-stage{position:relative;z-index:3;width:100%;max-width:440px;padding:22px 20px 36px;
   display:flex;flex-direction:column;align-items:center;text-align:center;
-  max-height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+  max-height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  scrollbar-width:none;-ms-overflow-style:none}
+.wfx-stage::-webkit-scrollbar{width:0;height:0;display:none}
+
+/* Hide the global bottom Santa dock on /ask so Santa lives right inside the invitation experience */
+.wf-sd,.wfp-so{display:none!important}
 
 /* Soft glowing Elf medallion stage */
 .wfx-portrait{position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;
@@ -178,9 +183,9 @@ export const ASK_CSS = `
 .wfx-field::placeholder{color:rgba(213,194,255,.68)}
 .wfx-field:focus{border-color:#FF7597;box-shadow:0 0 0 3px rgba(255,117,151,.25)}
 
-.wfx-go{margin-top:18px;border:2px solid #FFFFFF;cursor:pointer;font-family:inherit;font-weight:850;color:#FFFFFF;
+.wfx-go{width:100%;margin-top:16px;border:2px solid #FFFFFF;cursor:pointer;font-family:inherit;font-weight:850;color:#FFFFFF;
   background:linear-gradient(135deg,#FF2A85 0%,#FF5E9E 100%);
-  border-radius:999px;min-height:50px;padding:13px 28px;font-size:16.5px;letter-spacing:.04em;
+  border-radius:999px;min-height:50px;padding:13px 24px;font-size:16px;letter-spacing:.04em;
   box-shadow:0 5px 0 #9E1152,0 12px 28px rgba(255,42,133,.42)}
 .wfx-go[disabled]{background:rgba(255,255,255,.14);color:rgba(255,255,255,.45);
   border-color:rgba(255,255,255,.18);box-shadow:none;cursor:default}
@@ -197,11 +202,11 @@ export const ASK_CSS = `
 .wfx-pivot-btn:active{transform:translateY(2px)}
 .wfx-pivot-decline{border-color:rgba(255,117,151,.42);color:#FFD6E7}
 
-.wfx-toolkit{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:14px}
+.wfx-toolkit{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:12px}
 .wfx-tool-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  border:1.5px solid rgba(255,255,255,.28);cursor:pointer;font-family:inherit;font-weight:750;
+  border:1.5px solid rgba(255,255,255,.24);cursor:pointer;font-family:inherit;font-weight:750;
   color:#FFFFFF;background:rgba(26,15,46,.78);backdrop-filter:blur(10px);
-  border-radius:16px;min-height:46px;padding:10px 12px;font-size:13.5px;line-height:1.25;
+  border-radius:14px;min-height:42px;padding:8px 10px;font-size:13px;line-height:1.25;
   text-decoration:none;text-align:center;box-shadow:0 6px 16px rgba(12,5,26,.3);
   transition:transform .12s ease,border-color .15s ease,background .15s ease}
 .wfx-tool-btn:hover{border-color:#00F5D4;background:rgba(40,22,68,.9)}
@@ -209,15 +214,73 @@ export const ASK_CSS = `
 .wfx-tool-btn-full{grid-column:1 / -1}
 .wfx-tool-saved{border-color:#00F5D4;background:rgba(0,245,212,.16);color:#00F5D4}
 
-.wfx-quiet{display:inline-block;margin-top:14px;border:0;background:transparent;color:#FFD166;font-family:inherit;
-  font-size:15px;font-weight:750;letter-spacing:.01em;cursor:pointer;text-decoration:underline;
+.wfx-quiet{display:inline-block;margin-top:12px;border:0;background:transparent;color:#FFD166;font-family:inherit;
+  font-size:14.5px;font-weight:750;letter-spacing:.01em;cursor:pointer;text-decoration:underline;
   text-underline-offset:4px;text-shadow:0 2px 8px rgba(12,5,26,.5)}
 
-.wfx-card{width:100%;margin-top:16px;background:rgba(24,14,44,.82);backdrop-filter:blur(14px);
-  border:1.5px solid rgba(255,255,255,.24);border-radius:20px;padding:15px 18px;color:#F5E6FF;
-  font-size:15px;font-weight:600;line-height:1.8;text-align:left;overflow-wrap:anywhere;
+/* Interactive agreed-plan card where every row is obviously editable by the recipient */
+.wfx-card{width:100%;margin-top:14px;background:rgba(24,14,44,.86);backdrop-filter:blur(14px);
+  border:1.5px solid rgba(255,255,255,.26);border-radius:20px;padding:12px 15px;color:#F5E6FF;
+  font-size:14.5px;font-weight:600;line-height:1.65;text-align:left;overflow-wrap:anywhere;
   box-shadow:0 12px 30px rgba(12,5,26,.4)}
 .wfx-card b{color:#FFD166;font-weight:800}
+.wfx-card-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.wfx-card-row:last-child{border-bottom:0}
+.wfx-edit-pill{flex-shrink:0;border:1px solid rgba(0,245,212,.55);background:rgba(0,245,212,.13);
+  color:#00F5D4;border-radius:999px;padding:3px 10px;font-family:inherit;font-size:12px;font-weight:800;
+  cursor:pointer;letter-spacing:.02em;transition:all .14s ease}
+.wfx-edit-pill:hover{background:rgba(0,245,212,.26);color:#FFFFFF;border-color:#00F5D4}
+
+/* ── WAYFIND SANTA AI DATE CONCIERGE & LIVE CALL TO SENDER ─────────────── */
+.wfx-santa-box{width:100%;margin-top:10px;border-radius:18px;padding:11px 13px;
+  background:linear-gradient(145deg,rgba(36,16,58,.92) 0%,rgba(22,12,40,.95) 100%);
+  border:1.5px solid rgba(255,209,102,.45);
+  box-shadow:0 10px 24px rgba(10,4,22,.46),inset 0 1px 0 rgba(255,255,255,.22);
+  text-align:left}
+.wfx-santa-top{display:flex;align-items:center;gap:10px}
+.wfx-santa-ava{position:relative;flex-shrink:0;width:48px;height:48px;border-radius:16px;
+  background:radial-gradient(circle at 50% 35%,rgba(255,107,107,.35),rgba(36,18,62,.92));
+  border:1.5px solid rgba(255,209,102,.6);display:flex;align-items:center;justify-content:center;
+  overflow:visible;box-shadow:0 6px 14px rgba(0,0,0,.35)}
+.wfx-santa-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;
+  background:rgba(232,52,63,.22);border:1px solid rgba(255,107,107,.55);color:#FFD166;
+  font-size:10px;font-weight:850;letter-spacing:.05em;text-transform:uppercase}
+.wfx-santa-msg{margin-top:2px;color:#FFFFFF;font-size:12.5px;font-weight:700;line-height:1.32}
+.wfx-santa-chips{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.wfx-santa-chip{border:1px solid rgba(255,255,255,.26);background:rgba(255,255,255,.09);
+  color:#F5E6FF;border-radius:999px;padding:5px 10px;font-family:inherit;font-size:12px;font-weight:750;
+  cursor:pointer;transition:all .14s ease;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wfx-santa-chip:hover,.wfx-santa-chip[aria-pressed="true"]{border-color:#FFD166;background:rgba(255,209,102,.2);color:#FFFFFF}
+.wfx-santa-input-row{display:flex;gap:7px;margin-top:8px}
+.wfx-santa-input{flex:1;min-width:0;padding:8px 11px;border-radius:11px;border:1px solid rgba(255,255,255,.24);
+  background:rgba(14,8,28,.85);color:#FFFFFF;font-family:inherit;font-size:13px;font-weight:650;outline:none}
+.wfx-santa-input::placeholder{color:rgba(213,194,255,.6)}
+.wfx-santa-input:focus{border-color:#FFD166}
+.wfx-santa-send{flex-shrink:0;border:1.5px solid #FFD166;background:linear-gradient(135deg,#E8343F 0%,#FF6B6B 100%);
+  color:#FFFFFF;border-radius:11px;padding:0 12px;font-family:inherit;font-size:12px;font-weight:850;
+  cursor:pointer;letter-spacing:.02em}
+
+/* Santa Calling the Date Update Card */
+.wfx-call-card{width:100%;margin-top:12px;border-radius:20px;padding:13px 15px;
+  background:linear-gradient(135deg,rgba(18,38,44,.94) 0%,rgba(24,16,48,.96) 100%);
+  border:1.5px solid #00F5D4;box-shadow:0 12px 28px rgba(0,245,212,.18);
+  text-align:left;animation:wfxPop .28s cubic-bezier(.2,1.4,.3,1)}
+.wfx-call-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.wfx-call-left{display:flex;align-items:center;gap:10px}
+.wfx-call-ring{position:relative;width:44px;height:44px;border-radius:50%;
+  background:rgba(0,245,212,.18);border:2px solid #00F5D4;display:flex;align-items:center;justify-content:center;
+  animation:wfxRingPulse 1.4s ease-out infinite}
+@keyframes wfxRingPulse{
+  0%{box-shadow:0 0 0 0 rgba(0,245,212,.55)}
+  70%{box-shadow:0 0 0 10px rgba(0,245,212,0)}
+  100%{box-shadow:0 0 0 0 rgba(0,245,212,0)}}
+.wfx-call-status{font-size:11px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:#00F5D4}
+.wfx-call-title{font-size:14.5px;font-weight:850;color:#FFFFFF;line-height:1.25}
+.wfx-call-transcript{margin-top:9px;padding:9px 12px;border-radius:13px;
+  background:rgba(10,6,22,.68);border:1px solid rgba(255,255,255,.14);
+  color:#F5E6FF;font-size:13.5px;font-weight:650;line-height:1.45;font-style:italic}
+.wfx-call-transcript b{color:#FFD166;font-style:normal}
 
 .wfx-mark{margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px;
   color:#D5C2FF;font-size:13px;font-weight:700;letter-spacing:.06em;text-shadow:0 2px 8px rgba(12,5,26,.5)}
@@ -337,7 +400,7 @@ export const ASK_CSS = `
 }
 
 @media (prefers-reduced-motion: reduce){
-  .wfx-portrait,.wfx-heart,.wfx-sparkle,.wfx-h1,.wfx-plea,.wfx-bubble,.wfx-yes,
+  .wfx-portrait,.wfx-heart,.wfx-sparkle,.wfx-h1,.wfx-plea,.wfx-bubble,.wfx-yes,.wfx-call-ring,
   .wfc,.wfc-eager,.wfc-hugL,.wfc-hugR,.wfc-heart,.wfc-heart-smL,.wfc-heart-smR,
   .wfc-bell,.wfc-earL,.wfc-earR,.wfc-armL,.wfc-armR,.wfc-starwink,.wfc-plead-hands,
   .wfc-xheart,.wfc-xsweat,.wfc-xbreak,.wfc-tear1,.wfc-tear2{animation:none}
