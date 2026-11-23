@@ -62,7 +62,9 @@ const tmHtml = renderToStaticMarkup(createElement(PosterEventCard, {
   event: { id: "evt1", name: "Live at the hall", dest: "https://example.com/show", url: TM, ticketed: true, venue: "The hall" },
 }));
 ok(tmHtml.includes("/api/ticketmaster/go?"), "the rendered Tickets button uses the tracked redirect");
-ok(!tmHtml.includes('href="' + TM + '"') && !tmHtml.includes("href=\"" + TM), "the raw Ticketmaster URL is not the button href");
+const ticketHref = (tmHtml.match(/href="(\/api\/ticketmaster\/go\?[^"]+)"/) || [])[1];
+ok(ticketHref && decodeURIComponent(ticketHref).includes(TM), "the Tickets href carries the same Ticketmaster event");
+ok((tmHtml.match(/\/api\/ticketmaster\/go\?/g) || []).length === 1, "only the Tickets control is the tracked redirect");
 ok(tmHtml.includes("data-commerce-owner=\"RailCard\""), "the button owns its commerce click");
 ok(tmHtml.includes(RAIL_CARD_COMMISSION_LINE), "the commission line is visible text");
 ok(!tmHtml.includes("best"), "the card adds no best claim");

@@ -37,9 +37,8 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
   const internal = event.destKind === "internal" || String(event.dest).startsWith("/");
   const image = event.thumb || event.image || null;
   const ticketOpts = { surface, offerId: event.id, contentId: event.id };
-  const opened = trackedEventTicketHref(event.dest, ticketOpts);
-  const cardHref = opened && opened.affiliate ? opened.href : event.dest;
-  const cardExternal = opened && opened.affiliate ? true : !internal;
+  // The card body keeps event.dest. That is the official page, and a guard
+  // locks the handoff. Only the Tickets control is a partner hop.
   const ticket = event.ticketed && event.url ? trackedEventTicketHref(event.url, ticketOpts) : null;
   const ticketClick = ticket && ticket.affiliate ? railClickContext(ticket.href, surface, event.id) : null;
   const facts = [event.venue || event.city || null, event.price || (event.ticketed === false ? "Free" : null)].filter(Boolean);
@@ -71,8 +70,8 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
     when={when}
     facts={facts}
     chips={chips}
-    href={cardHref}
-    external={cardExternal}
+    href={event.dest}
+    external={!internal}
     ariaLabel={`Open ${event.name}`}
     cta={ticket ? {
       label: "Tickets ↗",
