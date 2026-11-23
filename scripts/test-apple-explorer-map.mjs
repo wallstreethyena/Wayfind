@@ -240,8 +240,8 @@ assert.equal(appleMapBounds({ region: null }), null, "bounds fail closed until M
   assert.ok(/\.\.\.dataRef\.current, compact,/.test(strip(readFileSync(new URL("../app/components/AppleExplorerMap.js", import.meta.url), "utf8"))), "AppleExplorerMap passes compact to the controller");
 }
 {
-  // Owner 2026-11-23: Your location renders the clean Apple Maps blue dot
-  // (concentric #0A84FF SVG fallback in headless Node, and pulsing DOM
+  // Owner 2026-11-23: Your location renders the clean pulsing Wayfind Orange dot
+  // (concentric #F97316 SVG fallback in headless Node, and pulsing DOM
   // mapkit.Annotation when document is available).
   const prevDoc = globalThis.document;
   const created = [];
@@ -262,11 +262,11 @@ assert.equal(appleMapBounds({ region: null }), null, "bounds fail closed until M
     });
     const dotAnn = dotCtrl.map.annotations.find((a) => a.title === "Your location");
     assert.ok(dotAnn instanceof Annotation && typeof dotAnn.factory === "function", "with document present, createAppleExplorerController uses mapkit.Annotation for Your location");
-    assert.equal(dotAnn.displayPriority, 990, "Your location blue dot preserves displayPriority 990");
+    assert.equal(dotAnn.displayPriority, 990, "Your location orange dot preserves displayPriority 990");
     assert.equal(dotAnn.calloutEnabled, false, "Your location annotation disables native MapKit callout");
     const el = dotAnn.factory();
-    assert.equal(el.attrs["data-wf-location-dot"], "1", "Your location factory creates the pulsing blue dot element");
-    assert.ok(el.innerHTML.includes("wf-loc-dot-pulse") && el.innerHTML.includes("wf-loc-dot-core"), "pulsing halo and blue core render inside Your location dot");
+    assert.equal(el.attrs["data-wf-location-dot"], "1", "Your location factory creates the pulsing orange dot element");
+    assert.ok(el.innerHTML.includes("wf-loc-dot-pulse") && el.innerHTML.includes("wf-loc-dot-core"), "pulsing halo and orange core render inside Your location dot");
     dotCtrl.destroy();
   } finally {
     if (prevDoc === undefined) delete globalThis.document;
@@ -279,7 +279,18 @@ assert.equal(appleMapBounds({ region: null }), null, "bounds fail closed until M
   });
   const svgAnn = headlessCtrl.map.annotations.find((a) => a.title === "Your location");
   const svgText = decodeURIComponent(svgAnn.image[1]);
-  assert.ok(svgText.includes("#0A84FF") && svgText.includes("<circle") && !svgText.includes("M17 0C7.6"), "headless fallback SVG for Your location is the #0A84FF concentric blue dot (no teardrop PIN_PATH)");
+  assert.ok(svgText.includes("#F97316") && !svgText.includes("#0A84FF") && svgText.includes("<circle") && !svgText.includes("M17 0C7.6"), "headless fallback SVG for Your location is the #F97316 concentric orange dot (no #0A84FF or teardrop PIN_PATH)");
   headlessCtrl.destroy();
+
+  // Compact event map (ChristmasMap) with deviceLoc + showOrigin keeps fit framing strictly on the event pins.
+  const xmasCtrl = createAppleExplorerController({
+    mapkit, container: {}, center: { lat: 28.2, lng: -82.3 },
+    events: [{ id: "e-a", name: "Lights A", lat: 28.5, lng: -81.4 }, { id: "e-b", name: "Lights B", lat: 28.6, lng: -81.3 }],
+    deviceLoc: { lat: 25.76, lng: -80.19 }, showOrigin: true, fit: true, compact: true,
+  });
+  assert.equal(xmasCtrl.map.annotations.filter((a) => a.title === "Your location").length, 1, "ChristmasMap controller renders the orange user location dot when deviceLoc is present");
+  assert.equal(xmasCtrl.map.shown.length, 2, "compact event fit frames the 2 event pins without stretching bounds to a distant user location dot");
+  assert.ok(xmasCtrl.map.shown.every((a) => !!a.__wayfindEvent), "fit targets are strictly event annotations");
+  xmasCtrl.destroy();
 }
-console.log("test-apple-explorer-map: OK — full result set, numeric coordinates, score pills, diffing, clustering, rings, selection, viewport reporting, focus, updates, blue-dot origin, and teardown");
+console.log("test-apple-explorer-map: OK — full result set, numeric coordinates, score pills, diffing, clustering, rings, selection, viewport reporting, focus, updates, orange-dot origin, and teardown");

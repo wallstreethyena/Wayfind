@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "../kit";
 import IconicPlaceCard from "../IconicPlaceCard";
 import { shouldApplyMapDefault } from "../../../lib/mapExplorer";
-import { selectMapPlaces, selectMapPlacesSparseFallback, mergeMapAreaContext, validMapBounds, keepMapPreview, placeInMapBounds } from "../../../lib/mapAreaData.js";
+import { mapPlaceQualifies, selectMapPlacesWithSparseTopUp, selectNearestAreaFallback, mergeMapAreaContext, validMapBounds, keepMapPreview, placeInMapBounds } from "../../../lib/mapAreaData.js";
 import { byGovernedScore } from "../../../lib/lawfulOrder.js";
 import { eventMapPoint } from "../../../lib/eventLocation.js";
 import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
@@ -89,7 +89,7 @@ export default function MapScreen({ ctx }) {
   const {
     searchMapArea, mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride,
     map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy,
-    center, deviceLoc: rawDeviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch,
+    center, deviceLoc: rawDeviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch, mapCatRev,
     mapUrlLens, setMapUrlLens, mapUrlPlaceId, setMapUrlPlaceId,
     mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable,
     mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer,
@@ -363,12 +363,26 @@ export default function MapScreen({ ctx }) {
       const pins = selectListMapPlaces(listIds, rawList);
       return { places: pins, evaluated: new Map(), exclusions: new Map(), rawPool: rawList };
     }
-    const strictSelected = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
-    const sparseSelected = strictSelected.length > 0
-      ? strictSelected
-      : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
-    const sparseFallback = strictSelected.length === 0 && sparseSelected.length > 0;
-    const modeSelected = mapMode === "fifa" ? sparseSelected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : sparseSelected;
+    const curatedArea = applyCuratorPicks(liveAreaPlaces, curatorSnap);
+    const effectiveSub = allCategories ? "all" : sub;
+    const topUp = selectMapPlacesWithSparseTopUp(curatedArea, mapCategory, viewport, effectiveSub);
+    let selectedPool = topUp.places;
+    let sparseFallback = topUp.sparseFallback;
+    let areaWidened = false;
+    if (
+      selectedPool.length === 0
+      && areaStatus === "ready"
+      && activeLens === "all"
+      && validMapBounds(viewport)
+    ) {
+      const widened = selectNearestAreaFallback(curatedArea, mapCategory, effectiveSub, cameraCenter || center);
+      if (widened.length > 0) {
+        selectedPool = widened;
+        sparseFallback = widened.some((p) => !mapPlaceQualifies(p));
+        areaWidened = true;
+      }
+    }
+    const modeSelected = mapMode === "fifa" ? selectedPool.filter((p) => Hol.fitFor("worldcup", p) >= 8) : selectedPool;
     const res = rankMapCandidates(modeSelected, {
       verifiedDeviceLoc: deviceLoc,
       referenceCenter: cameraCenter || center,
@@ -377,10 +391,10 @@ export default function MapScreen({ ctx }) {
       lens: effectiveLens,
       category: "all",
       sub: "all",
-      skipScoreFloor: sparseFallback,
+      skipScoreFloor: sparseFallback || areaWidened,
     });
-    return { ...res, sparseFallback, rawPool: liveAreaPlaces };
-  }, [mapSearchPins, mapSearch, liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, listIds, listInventory, appleRecovery.places, effectiveLens, deviceLoc, cameraCenter, center, weather, beachSignals]);
+    return { ...res, sparseFallback, areaWidened, rawPool: liveAreaPlaces };
+  }, [mapSearchPins, mapSearch, liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, listIds, listInventory, appleRecovery.places, effectiveLens, activeLens, areaStatus, deviceLoc, cameraCenter, center, weather, beachSignals]);
 
   const view = useMemo(() => {
     // Same pins, same array: the list's parent re-renders must not re-fit the
@@ -390,6 +404,24 @@ export default function MapScreen({ ctx }) {
     if (stableList.current.k !== k) stableList.current = { k, pins };
     return stableList.current.pins;
   }, [rankedBundle, activeLens]);
+
+  const widenScopeKey = `${mapCategory}|${allCategories ? "all" : sub}|${center?.lat}|${center?.lng}`;
+  const [consumedWidenKey, setConsumedWidenKey] = useState("");
+  const pendingWidenFitRef = useRef({ key: "", viewport: null });
+  const shouldFitWidened = !!rankedBundle.areaWidened && view.length > 0 && consumedWidenKey !== widenScopeKey;
+  useEffect(() => {
+    if (shouldFitWidened) {
+      if (pendingWidenFitRef.current.key !== widenScopeKey) {
+        pendingWidenFitRef.current = { key: widenScopeKey, viewport };
+      } else if (pendingWidenFitRef.current.viewport !== viewport) {
+        setConsumedWidenKey(widenScopeKey);
+        pendingWidenFitRef.current = { key: "", viewport: null };
+      }
+    } else if (pendingWidenFitRef.current.key === widenScopeKey && pendingWidenFitRef.current.viewport !== viewport) {
+      setConsumedWidenKey(widenScopeKey);
+      pendingWidenFitRef.current = { key: "", viewport: null };
+    }
+  }, [shouldFitWidened, widenScopeKey, viewport]);
 
   const openNowBreakdown = useMemo(() => {
     if (activeLens !== "open_now" || view.length > 0) return null;
@@ -550,20 +582,20 @@ export default function MapScreen({ ctx }) {
     } catch (e) {}
   }, [listAccounting, unpinnedNote, appleRecovery, wfMapListPayload, scopeMode, activeLens, effectiveLens, mapSearch, locationTruth, view, rankedBundle, itineraryAnalysis, liveAreaPlaces, contextPool, deviceLoc, cameraCenter, center, weather, beachSignals, viewport, mapCategory, allCategories, sub]);
 
-  const prevCatSubRef = useRef(`${cat}|${sub}`);
+  const prevCatSubRef = useRef(`${cat}|${sub}|${mapCatRev || 0}`);
   useEffect(() => {
-    const key = `${cat}|${sub}`;
+    const key = `${cat}|${sub}|${mapCatRev || 0}`;
     if (prevCatSubRef.current !== key) {
       prevCatSubRef.current = key;
       setAllCategories(false);
     }
-  }, [cat, sub]);
+  }, [cat, sub, mapCatRev]);
 
   useEffect(() => {
     if (mapSearchPins) { if (mapPreview && !view.some((p) => p.id === mapPreview.id)) setMapPreview(null); return; }
     if (explicitList) { if (mapPreview && !view.some((p) => p.id === mapPreview.id)) setMapPreview(null); return; }
-    if (mapPreview && !keepMapPreview(mapPreview, view, mapCategory, areaStatus, { allowSparseFallback: !!rankedBundle.sparseFallback })) setMapPreview(null);
-  }, [mapPreview, view, mapCategory, areaStatus, setMapPreview, explicitList, mapSearchPins, rankedBundle.sparseFallback]);
+    if (mapPreview && !keepMapPreview(mapPreview, view, mapCategory, areaStatus, { allowSparseFallback: !!(rankedBundle.sparseFallback || rankedBundle.areaWidened) })) setMapPreview(null);
+  }, [mapPreview, view, mapCategory, areaStatus, setMapPreview, explicitList, mapSearchPins, rankedBundle.sparseFallback, rankedBundle.areaWidened]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -677,16 +709,10 @@ export default function MapScreen({ ctx }) {
   const matchesDrawerFilter = (p) => !filterTrim || `${p?.name || ""} ${p?.type || ""} ${p?.sub || ""} ${p?.cuisine || ""} ${p?.city || ""}`.toLowerCase().includes(filterTrim);
   const filteredView = filterTrim ? view.filter(matchesDrawerFilter) : view;
   const nearbyAllPlaces = (!explicitList && mapMode === "places")
-    ? (() => {
-        const strictAll = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all");
-        return strictAll.length > 0 ? strictAll : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all");
-      })()
+    ? selectMapPlacesWithSparseTopUp(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all").places
     : [];
   const nearbyCategoryPlaces = (!explicitList && mapMode === "places" && !allCategories && sub !== "all")
-    ? (() => {
-        const strictCat = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), cat, viewport, "all");
-        return strictCat.length > 0 ? strictCat : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), cat, viewport, "all");
-      })()
+    ? selectMapPlacesWithSparseTopUp(applyCuratorPicks(liveAreaPlaces, curatorSnap), cat, viewport, "all").places
     : [];
   const activeCategoryName = { food: "Food", nightlife: "Nightlife", attractions: "Activities", beach: "Beach", hotels: "Hotels", shopping: "Shopping" }[cat] || "this filter";
   const activeSubLabel = sub && sub !== "all"
@@ -799,8 +825,8 @@ export default function MapScreen({ ctx }) {
           <circle cx="12" cy="9.8" r="2.5" fill={deviceLoc ? "#FFFFFF" : "#F97316"} />
         </svg>
       </button>
-      {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} styleMode="3d" fit={explicitList || (!!mapSearchPins && view.length > 0)} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-        : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList || (!!mapSearchPins && view.length > 0)} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
+      {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} styleMode="3d" fit={explicitList || (!!mapSearchPins && view.length > 0) || shouldFitWidened} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
+        : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList || (!!mapSearchPins && view.length > 0) || shouldFitWidened} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
       {mapMode === "places" && !appleMapFailed && (bannerStatus === "error" || !view.length) && (
         <div role="status" data-wf-map-empty-state={bannerStatus === "ready" && !view.length ? (mapSearch && mapSearch.query ? "search_empty" : (activeLens === "open_now" && openNowBreakdown && openNowBreakdown.total > 0 ? "open_now_empty" : (nearbyCategoryPlaces.length > 0 || nearbyAllPlaces.length > 0 ? "recovery" : "empty"))) : bannerStatus} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 76, maxWidth: "calc(100% - 24px)", zIndex: 19, background: "rgba(11,16,24,.94)", border: "1px solid rgba(255,255,255,.12)", color: C.text, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, boxShadow: "0 10px 26px rgba(0,0,0,.42)", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", pointerEvents: bannerStatus === "loading" ? "none" : "auto" }}>
           {bannerStatus === "loading" && (
@@ -1014,7 +1040,7 @@ export default function MapScreen({ ctx }) {
           <button onClick={() => { setHoveredPinId(null); setMapDrawer(false); }} aria-expanded="true" aria-label="Collapse list" style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
             <div style={{ width: 32, height: 3.5, background: C.border, borderRadius: 2, margin: "7px auto 4px" }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", padding: "2px 16px 10px" }}>
-              <span style={{ fontSize: 12, lineHeight: "18px", fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{filterTrim ? `${filteredView.length} of ${view.length}` : view.length}</span> place{view.length === 1 ? "" : "s"} in view · {mapStatus === "ready" ? (rankedBundle.sparseFallback ? "Best nearby" : rankingLabel) : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
+              <span style={{ fontSize: 12, lineHeight: "18px", fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{filterTrim ? `${filteredView.length} of ${view.length}` : view.length}</span> place{view.length === 1 ? "" : "s"} in view · {mapStatus === "ready" ? (rankedBundle.areaWidened ? "Closest nearby" : rankedBundle.sparseFallback ? "Best nearby" : rankingLabel) : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
               <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: C.accent, fontWeight: 800 }}>Hide list ▾</span>
             </div>
           </button>

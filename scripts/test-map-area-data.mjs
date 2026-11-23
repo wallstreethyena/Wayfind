@@ -6,7 +6,7 @@ import { loadComponent } from './lib/jsxLoad.mjs';
 import { stampOwnerPick } from '../lib/ownerBump.js';
 import { applyCuratorPicks } from '../lib/curatorPicks.js';
 import { readCompleteMapArea } from '../lib/mapAreaRead.js';
-import { MAP_AREA_PAGE_SIZE, MAP_SPARSE_FALLBACK_MIN_SCORE, mergeMapAreaContext, keepMapPreview, mapInventoryPlace, readMapAreaPage, selectMapPlaces, selectMapPlacesSparseFallback, validMapBounds } from '../lib/mapAreaData.js';
+import { MAP_AREA_PAGE_SIZE, MAP_SPARSE_FALLBACK_MIN_SCORE, MAP_SPARSE_TOPUP_THRESHOLD, MAP_NEAREST_WIDEN_MAX_MILES, mergeMapAreaContext, keepMapPreview, mapInventoryPlace, readMapAreaPage, selectMapPlaces, selectMapPlacesSparseFallback, selectMapPlacesWithSparseTopUp, selectNearestAreaFallback, validMapBounds } from '../lib/mapAreaData.js';
 const now = Date.parse('2026-09-10T12:00:00Z');
 const origin = { lat: 28.5, lng: -81.5 };
 const bounds = { north: 29, south: 28, east: -81, west: -82 };
@@ -198,7 +198,7 @@ assert.match(screen, /<AppleExplorerMap/);
 assert.match(screen, /<MapView[\s\S]{0,400}onViewportChange=\{setViewport\}/);
 assert.match(screen, /<CategoryMenu compact activeCat=\{cat\}/, 'shared category and current default remain');
 assert.match(screen, /shouldApplyMapDefault/);
-assert.match(screen, /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/);
+assert.match(screen, /selectMapPlacesWithSparseTopUp\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/);
 assert.match(screen, /view\.map\(\(p, i\)/);
 assert.match(screen, /readCompleteMapArea/);
 assert.match(screen, /controller\.abort\(\)/);
@@ -222,10 +222,12 @@ const unavailable = await route.GET(new Request('https://example.org/api/places/
 assert.equal(unavailable.status, 503, 'missing owned source is a visible failure rather than normal empty');
 assert.equal(unavailable.headers.get('cache-control'), 'private, no-store');
 
-// Owner 2026-11-23: sparse-area fallback (e.g. Parrish Food -> Breakfast when 9.2+ is empty).
+// Owner 2026-11-23: sparse-area top-up (< 8 strict 9.2+) and bounded 15-mi nearest-area auto-widen.
 {
   assert.equal(MAP_SPARSE_FALLBACK_MIN_SCORE, 7.5);
-  const parrishBounds = { north: 27.7, south: 27.5, east: -82.3, west: -82.6 };
+  assert.equal(MAP_SPARSE_TOPUP_THRESHOLD, 8);
+  assert.equal(MAP_NEAREST_WIDEN_MAX_MILES, 15);
+  const parrishBounds = { north: 27.69, south: 27.55, east: -82.12, west: -82.58 };
   const parrishCafe = { id: 'parrish-bistro', name: 'Parrish Breakfast Cafe', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant', 'cafe'], lat: 27.58, lng: -82.42, wfScore: 84, governed_score: 84 };
   const parrishDiner = { id: 'parrish-diner', name: 'Countryside Diner', category: 'food', primaryType: 'diner', types: ['diner', 'restaurant'], lat: 27.59, lng: -82.41, wfScore: 75, governed_score: 75 };
   const fastFoodSubpar = { id: 'subpar-fast', name: 'Highway Drive-Thru Breakfast', category: 'food', primaryType: 'fast_food_restaurant', types: ['fast_food_restaurant', 'breakfast_restaurant'], lat: 27.58, lng: -82.43, wfScore: 74, governed_score: 74 };
@@ -236,10 +238,38 @@ assert.equal(unavailable.headers.get('cache-control'), 'private, no-store');
   const fallback = selectMapPlacesSparseFallback(sparsePool, 'food', parrishBounds, 'breakfast');
   assert.deepEqual(fallback.map(x => x.id), ['parrish-bistro', 'parrish-diner'], 'sparse fallback surfaces >= 7.5 local Breakfast spots and excludes < 7.5 and non-breakfast spots');
 
-  // Strict 9.2+ stays strict whenever 9.2+ matches exist.
-  const eliteSpot = { ...parrishCafe, id: 'elite-brunch', name: 'Elite Brunch House', wfScore: 93, governed_score: 93 };
-  const strictWithElite = selectMapPlaces([...sparsePool, eliteSpot], 'food', parrishBounds, 'breakfast');
-  assert.deepEqual(strictWithElite.map(x => x.id), ['elite-brunch'], 'when 9.2+ exists, strict selection never admits < 9.2');
+  // Sparse top-up (< 8 strict 9.2+): 2 strict Food spots + 2 >= 7.5 spots -> all 4 returned with 9.2+ leading.
+  const eliteSpot1 = { ...parrishCafe, id: 'elite-brunch-1', name: 'Elite Brunch House', wfScore: 95, governed_score: 95 };
+  const eliteSpot2 = { ...parrishCafe, id: 'elite-brunch-2', name: 'Morning Roasters', wfScore: 92, governed_score: 92 };
+  const topUpSparse = selectMapPlacesWithSparseTopUp([...sparsePool, eliteSpot1, eliteSpot2], 'food', parrishBounds, 'breakfast');
+  assert.equal(topUpSparse.sparseFallback, true, 'sparse top-up triggers when strict 9.2+ count is below MAP_SPARSE_TOPUP_THRESHOLD (8)');
+  assert.deepEqual(topUpSparse.places.map(x => x.id), ['elite-brunch-1', 'elite-brunch-2', 'parrish-bistro', 'parrish-diner'], 'sparse top-up leads with 9.2+ then >= 7.5 and excludes < 7.5');
+
+  // Dense area (>= 8 strict 9.2+) stays 100% strict 9.2+ with sparseFallback: false.
+  const denseElites = Array.from({ length: 8 }, (_, i) => ({ ...parrishCafe, id: `dense-${i}`, name: `Dense ${i}`, wfScore: 92 + (i % 6), governed_score: 92 + (i % 6) }));
+  const topUpDense = selectMapPlacesWithSparseTopUp([...denseElites, parrishCafe, parrishDiner], 'food', parrishBounds, 'breakfast');
+  assert.equal(topUpDense.sparseFallback, false, 'dense area with >= 8 strict 9.2+ stays strictly 9.2+');
+  assert.equal(topUpDense.places.length, 8, 'dense area never admits < 9.2 spots');
+
+  // Strict 9.2+ stays strict whenever called directly.
+  const strictWithElite = selectMapPlaces([...sparsePool, eliteSpot1], 'food', parrishBounds, 'breakfast');
+  assert.deepEqual(strictWithElite.map(x => x.id), ['elite-brunch-1'], 'when 9.2+ exists, strict selectMapPlaces never admits < 9.2');
+
+  // Bounded 15-mi nearest-area fallback (e.g. Parrish Creekside Commons Breakfast 0.4 mi south of viewport).
+  const parrishCenter = { lat: 27.588, lng: -82.426 };
+  const firstWatch = { id: 'first-watch', name: 'First Watch', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant'], lat: 27.542, lng: -82.425, wfScore: 92, governed_score: 92 };
+  const butterfields = { id: 'butterfields', name: 'Butterfields Family Restaurant', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant'], lat: 27.540, lng: -82.424, wfScore: 90, governed_score: 90 };
+  const tampaFar = { id: 'tampa-far-bfast', name: 'Tampa Far Brunch', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant'], lat: 27.95, lng: -82.46, wfScore: 98, governed_score: 98 };
+  const widened = selectNearestAreaFallback([firstWatch, butterfields, tampaFar, fastFoodSubpar], 'food', 'breakfast', parrishCenter);
+  assert.deepEqual(widened.map(x => x.id), ['first-watch', 'butterfields'], 'nearest-area fallback finds Creekside Commons breakfast spots within 15 mi and never widens across metros (> 15 mi)');
+  // When > 16 places exist within 15 mi, nearest 16 win over farther 14.9 mi places, then sort by governed_score.
+  const crowdedFarWithin15 = Array.from({ length: 18 }, (_, i) => ({
+    ...firstWatch, id: `edge-${i}`, name: `Edge ${i}`, lat: 27.40, lng: -82.426, wfScore: 96, governed_score: 96,
+  }));
+  const cappedWiden = selectNearestAreaFallback([...crowdedFarWithin15, butterfields, firstWatch], 'food', 'breakfast', parrishCenter, { limit: 16 });
+  assert.equal(cappedWiden.length, 16, 'nearest-area fallback respects limit');
+  assert.ok(cappedWiden.some(x => x.id === 'first-watch') && cappedWiden.some(x => x.id === 'butterfields'), 'closest 3-mi spots are preserved over 13-mi edge spots before final governed-score sort');
+  assert.deepEqual(selectNearestAreaFallback([firstWatch], 'food', 'breakfast', null), [], 'missing referenceCenter returns empty');
 
   // keepMapPreview respects allowSparseFallback.
   assert.equal(keepMapPreview(parrishCafe, fallback, 'food', 'ready'), false, 'keepMapPreview rejects < 9.2 without allowSparseFallback');
@@ -247,4 +277,4 @@ assert.equal(unavailable.headers.get('cache-control'), 'private, no-store');
   assert.equal(keepMapPreview(fastFoodSubpar, fallback, 'food', 'ready', { allowSparseFallback: true }), false, 'keepMapPreview still rejects < 7.5 even with allowSparseFallback=true');
 }
 
-console.log('Map area data: 1203-place traversal, six categories, post-context 9.0→9.6 admission/curator fallback/creator continuity, freshness, geo, dedupe, shared filters, sparse-area fallback, fetch/body deadlines and cancellation verified.');
+console.log('Map area data: 1203-place traversal, six categories, post-context 9.0→9.6 admission/curator fallback/creator continuity, freshness, geo, dedupe, shared filters, sparse-area top-up (<8), bounded 15-mi nearest-area fallback, fetch/body deadlines and cancellation verified.');

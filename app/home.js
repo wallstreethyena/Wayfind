@@ -4177,6 +4177,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [mapSearchOpen, setMapSearchOpen] = useState(false); // map keeps a magnifier; tap slides the field down
   const mapCameraRef = useRef(null);
   const [mapSearch, setMapSearch] = useState(null);
+  const [mapCatRev, setMapCatRev] = useState(0);
   const [mapUrlLens, setMapUrlLens] = useState(null);
   const [mapUrlPlaceId, setMapUrlPlaceId] = useState(null);
   const pendingColdMapUrlRef = useRef(null);
@@ -9700,38 +9701,78 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           .replace(/^(?:best|good|great|top|find|show(?:\s+me)?)\s+/i, "")
           .replace(/\s+(?:near\s+me|near\s+by|nearby|around\s+(?:me|here)|close\s+by|in\s+the\s+area|here)$/i, "")
           .trim();
-        const mapCategoryHit = onMapScreen ? (
-          /^(?:restaurants?|restaurantes?|food|places?\s+to\s+eat|dining|eats?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "all" }
-          : /^(?:breakfast|brunch|breakfast\s+spots?|brunch\s+spots?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "breakfast" }
-          : /^(?:coffee|cafes?|cafés?|coffee\s+shops?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "cafes" }
-          : /^(?:lunch|lunch\s+spots?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "lunch" }
-          : /^(?:dinner|dinner\s+spots?)$/.test(nearbyTrimmed) ? { cat: "food", sub: "dinner" }
-          : /^(?:desserts?|ice\s+cream|bakeries|bakery)$/.test(nearbyTrimmed) ? { cat: "food", sub: "dessert" }
-          : /^(?:bars?|nightlife|night\s+out|drinks?|cocktails?)$/.test(nearbyTrimmed) ? { cat: "nightlife", sub: "all" }
-          : /^(?:things?\s+to\s+do|activities|attractions?)$/.test(nearbyTrimmed) ? { cat: "attractions", sub: "all" }
-          : /^(?:hotels?|stays?|places?\s+to\s+stay|resorts?)$/.test(nearbyTrimmed) ? { cat: "hotels", sub: "all" }
-          : /^(?:shopping|shops?|malls?)$/.test(nearbyTrimmed) ? { cat: "shopping", sub: "all" }
+        const leadTrimmed = ql.replace(/^(?:best|good|great|top|find|show(?:\s+me)?)\s+/i, "").trim();
+        const hasEventOrTemporalMod = /\b(?:christmas|holiday|tonight|today|tomorrow|weekend|open\s+now|free|events?|festivals?|lights?|santa|concerts?|shows?|tickets?|parades?|markets?)\b/i.test(leadTrimmed);
+        const matchMapCategory = (phrase) => (
+          /^(?:restaurants?|restaurantes?|food|places?\s+to\s+eat|dining|eats?)$/.test(phrase) ? { cat: "food", sub: "all" }
+          : /^(?:breakfast|brunch|breakfast\s+spots?|brunch\s+spots?)$/.test(phrase) ? { cat: "food", sub: "breakfast" }
+          : /^(?:coffee|cafes?|cafés?|coffee\s+shops?)$/.test(phrase) ? { cat: "food", sub: "cafes" }
+          : /^(?:lunch|lunch\s+spots?)$/.test(phrase) ? { cat: "food", sub: "lunch" }
+          : /^(?:dinner|dinner\s+spots?)$/.test(phrase) ? { cat: "food", sub: "dinner" }
+          : /^(?:desserts?|ice\s+cream|gelato|bakeries|bakery)$/.test(phrase) ? { cat: "food", sub: "dessert" }
+          : /^(?:quick\s+bites?)$/.test(phrase) ? { cat: "food", sub: "quickbites" }
+          : /^(?:delivery)$/.test(phrase) ? { cat: "food", sub: "delivery" }
+          : /^(?:bars?|nightlife|night\s+out|drinks?|cocktails?)$/.test(phrase) ? { cat: "nightlife", sub: "all" }
+          : /^(?:live\s+music)$/.test(phrase) ? { cat: "nightlife", sub: "music" }
+          : /^(?:things?\s+to\s+do|activities|attractions?)$/.test(phrase) ? { cat: "attractions", sub: "all" }
+          : /^(?:parks?|outdoors?|trails?|nature)$/.test(phrase) ? { cat: "attractions", sub: "outdoors" }
+          : /^(?:beaches?)$/.test(phrase) ? { cat: "attractions", sub: "beaches" }
+          : /^(?:museums?)$/.test(phrase) ? { cat: "attractions", sub: "museums" }
+          : /^(?:spas?)$/.test(phrase) ? { cat: "attractions", sub: "spa" }
+          : /^(?:family|kids|family\s+fun)$/.test(phrase) ? { cat: "family", sub: "all" }
+          : /^(?:hotels?|stays?|places?\s+to\s+stay|resorts?)$/.test(phrase) ? { cat: "hotels", sub: "all" }
+          : /^(?:shopping|shops?|malls?|outlets?)$/.test(phrase) ? { cat: "shopping", sub: "all" }
           : null
-        ) : null;
+        );
+        const mapCategoryHit = onMapScreen && !hasEventOrTemporalMod ? matchMapCategory(nearbyTrimmed) : null;
         const category = mapCategoryHit
           ? mapCategoryHit.cat
-          : (/^(restaurants?|restaurantes?|food)$/.test(nearbyTrimmed) ? "food" : /^(hotels?|stays?)$/.test(nearbyTrimmed) ? "hotels" : null);
+          : (!hasEventOrTemporalMod && /^(restaurants?|restaurantes?|food)$/.test(nearbyTrimmed) ? "food"
+            : !hasEventOrTemporalMod && /^(hotels?|stays?)$/.test(nearbyTrimmed) ? "hotels"
+            : null);
         if (category) {
           closeSearchLayers();
           setQuery("");
           if (onMapScreen) {
-            categoryChosenRef.current = true;
+            if (typeof categoryChosenRef === "object" && categoryChosenRef) categoryChosenRef.current = true;
             setMapSearch(null);
             setMapSearchOpen(false);
             setMapBrowse(true);
             setCat(category);
             setSub(mapCategoryHit ? mapCategoryHit.sub : "all");
             setVibe("all");
+            setMapCatRev((n) => (n || 0) + 1);
           } else {
             pickCat(category);
           }
           attempt.finish("category_opened", { status: "opened", category });
           return;
+        }
+        if (onMapScreen && !hasEventOrTemporalMod) {
+          const words = leadTrimmed.split(/\s+/).filter(Boolean);
+          if (words.length >= 2) {
+            for (let len = Math.min(3, words.length - 1); len >= 1; len--) {
+              const catHit = matchMapCategory(words.slice(0, len).join(" "));
+              if (!catHit) continue;
+              const cityPart = words.slice(len).join(" ").replace(/^(?:in|near|around)\s+/i, "").trim();
+              if (!cityPart || cityPart.length < 3 || /^(?:in|near|around|me|here|by)$/i.test(cityPart)) continue;
+              const cityGeo = await geoTry(cityPart);
+              if (!current()) return;
+              if (cityGeo && cityGeo.isArea) {
+                goTo(cityGeo);
+                setScreen("map");
+                if (typeof categoryChosenRef === "object" && categoryChosenRef) categoryChosenRef.current = true;
+                setMapSearch(null);
+                setMapSearchOpen(false);
+                setMapBrowse(true);
+                setCat(catHit.cat);
+                setSub(catHit.sub);
+                setVibe("all");
+                setMapCatRev((n) => (n || 0) + 1);
+                return;
+              }
+            }
+          }
         }
         // A recognized search phrase ("date night", "brunch") renders cards.
         // The experience poster and the mood shortcut stay for everything else.
@@ -10582,7 +10623,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // places/locName/dedupePlaces, all already passed through ctx elsewhere.
     socialFind, setSocialFind, screen,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, searchMode, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch, mapUrlLens, setMapUrlLens, mapUrlPlaceId, setMapUrlPlaceId, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, searchMode, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch, mapCatRev, mapUrlLens, setMapUrlLens, mapUrlPlaceId, setMapUrlPlaceId, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen

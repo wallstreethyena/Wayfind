@@ -1673,7 +1673,7 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               <div id="wf-place-parking-map">
-                <PlaceParkingMap place={detail} nearby={venueNearby} />
+                <PlaceParkingMap place={detail} nearby={venueNearby} deviceLoc={!ctx.locApprox ? (ctx.deviceLoc || null) : null} />
               </div>
 
               <div style={{ marginBottom: 16 }}>
