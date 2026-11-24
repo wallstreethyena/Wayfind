@@ -34,6 +34,7 @@ export async function runWorker(deps = {}) {
     liveViewPollMs: deps.liveViewPollMs,
     fetchImpl,
     selectors: deps.selectors,
+    artifactDir: deps.artifactDir,
   });
 }
 

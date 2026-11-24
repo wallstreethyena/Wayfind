@@ -30,6 +30,18 @@ function wrapPage(page, getStatus) {
         async snapshot() {
           return { html: await page.content(), httpStatus: getStatus(), url: page.url(), title: await page.title() };
         },
+        async listSlots(selector) {
+          const base = page.locator(selector);
+          const count = await base.count();
+          const labels = [];
+          for (let i = 0; i < count; i++) {
+            labels.push((await base.nth(i).innerText()).replace(/\s+/g, " ").trim());
+          }
+          return labels;
+        },
+        async screenshot(file) {
+          await page.screenshot({ path: file, fullPage: true });
+        },
         async clickSlot(selector, targetLabel) {
           const base = page.locator(selector);
           const count = await base.count();

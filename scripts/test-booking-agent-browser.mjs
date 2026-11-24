@@ -14,7 +14,7 @@ const ok = (cond, msg) => { count++; if (!cond) { failed++; console.error("test-
 const FIX = "tests/fixtures/booking-agent/opentable/";
 const file = (name) => readFileSync(FIX + name, "utf8");
 const PROFILE = { first_name: "Ada", last_name: "Lovelace", mobile_phone: "+19415550198", preferred_email: "ada.lovelace@example.com", consent_at: "2026-11-01T00:00:00Z" };
-const ON = { BOOKING_AGENT_ENABLED: "1", BOOKING_AGENT_SITE_OPENTABLE: "1" };
+const ON = { BOOKING_AGENT_ENABLED: "1", BOOKING_AGENT_SITE_OPENTABLE: "1", BOOKING_AGENT_PLACE_ALLOWLIST: "ChIJsyntheticgrill01" };
 const USER = "11111111-1111-4111-8111-111111111111";
 const PLACE = "ChIJsyntheticgrill01";
 const NOW = Date.parse("2026-11-17T15:00:00Z");
