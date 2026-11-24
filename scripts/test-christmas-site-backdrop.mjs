@@ -19,6 +19,8 @@ import {
   CHRISTMAS_BG_GRADIENT,
   CHRISTMAS_BG_MAX_STALE_MS,
   CHRISTMAS_DOODLE_SVG,
+  CHRISTMAS_GARLAND_H,
+  CHRISTMAS_SITE_BG_GRADIENT,
   christmasBackdropActive,
   christmasBackdropBootScript,
   installChristmasBackdropClock,
@@ -76,9 +78,12 @@ ok(layout.includes("<ChristmasSiteBackdrop />"), "the backdrop mounts from the r
 ok(!/export const revalidate/.test(layout), "the root layout does not shorten every route's ISR to force the cutoff");
 
 const siteCss = read("lib/christmasBackdrop.js");
-ok(siteCss.includes(CHRISTMAS_BG_GRADIENT), "the site field uses the Christmas page gradient");
+// Owner 2026-11-24 ("the color in the back is not fitting"): the site field is
+// midnight navy with a warm gold glow; the red stays on the Christmas page.
+ok(/CHRISTMAS_SITE_BG_GRADIENT = "[^"]*#0B1220/.test(siteCss) && !/#7A0F22|#4A0816/.test(CHRISTMAS_SITE_BG_GRADIENT), "the site field is midnight navy, not the wine red");
+ok(/\.wf-xmas-bg\{[^}]*background:\$\{CHRISTMAS_SITE_BG_GRADIENT\}/.test(siteCss), "the site field paints the navy gradient");
 ok(siteCss.includes(":not(:has(.xm-page))") && siteCss.includes(":not(:has(.boo-page))") && siteCss.includes(":not(:has([data-seasonal-search]))") && siteCss.includes(":not(:has([data-wf-own-theme]))"), "themed pages are outside the backdrop");
-ok(siteCss.includes("prefers-reduced-motion"), "the garland still honors reduced motion");
+ok(/prefers-reduced-motion:reduce\)\{\.xm-glow\{animation:none/.test(siteCss), "the garland still honors reduced motion");
 ok(CHRISTMAS_DOODLE_SVG.includes("M26 6v48") && CHRISTMAS_DOODLE_SVG.includes("translate(120 290)") && CHRISTMAS_DOODLE_SVG.includes("translate(400 250)"), "the doodle tile is the existing gift, cane and tree drawing");
 
 const tickets = read("app/components/ChristmasTickets.js");
@@ -99,11 +104,15 @@ const { default: ChristmasSiteBackdrop } = await loadComponent(
   root,
 );
 const html = renderToStaticMarkup(createElement(ChristmasSiteBackdrop));
-ok((html.match(/class="xm-bulb"/g) || []).length === 18, "the site garland renders the same 18 bulbs");
-ok((html.match(/class="xm-sway"/g) || []).length === 18, "each bulb still hangs and sways");
-ok(html.includes('class="xm-doodles"') && html.includes('class="xm-sparkles"') && html.includes('class="wf-xmas-bg"') && html.includes('class="wf-xmas-lights"'), "the red field, doodles and garland all render");
-ok(html.includes(CHRISTMAS_BG_GRADIENT), "the rendered stylesheet uses the shared gradient");
-ok(html.includes("xm-doodles{background-image:"), "the doodle tile is the same CSS background, not a new image");
-ok(html.includes('data-pattern="twinkle"'), "the lights start on the same twinkle pattern");
+// Premium header (owner 2026-11-24, "the lights at the top are not looking
+// premium"): one thin gold wire with small warm white lights. No cartoon
+// bulbs, bows, doodles or sparkles on the site header.
+ok((html.match(/class="xm-glow"/g) || []).length === 16, "the site garland renders 16 small warm lights");
+ok(!/class="xm-bulb"|class="xm-bow|class="xm-sway"|class="xm-doodles"|class="xm-sparkles"/.test(html), "no cartoon bulbs, bows, doodles or sparkles on the site header");
+ok(html.includes('class="xm-garland-wire"') && html.includes('stop-color="#F1D592"'), "the wire is a gold gradient line");
+ok(html.includes('class="wf-xmas-bg"') && html.includes('class="wf-xmas-lights"'), "the navy field and the garland both render");
+ok(html.includes(CHRISTMAS_SITE_BG_GRADIENT) && !html.includes(CHRISTMAS_BG_GRADIENT), "the rendered stylesheet uses the navy field, not the Christmas page red");
+ok(CHRISTMAS_GARLAND_H === 22 && html.includes("padding-top:calc(22px + max(6px, env(safe-area-inset-top)))"), "the garland is 22px and the header pads by that, not the old 36px");
+ok(!/#FF4458|#3DDC84|#4DA3FF|#FF7AC8/.test(html), "no multicolor bulb colors reach the site header");
 
 console.log("test-christmas-site-backdrop: " + checks + " checks ok");

@@ -777,8 +777,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           }
           // A FILTER, AND IT SAYS SO. Same row, same weight, but a pressed-state
           // control rather than a link: no pointer cursor, aria-pressed instead
-          // of aria-current, and .is-filter carries the dotted underline. Two
-          // tabs behaving differently has to read as deliberate, not broken.
+          // of aria-current. The dotted underline was removed (owner 2026-11-24:
+          // it read as broken on the header); aria-pressed carries the state.
           return (
             <button key={m.id} type="button" className={on ? "wf-navtab is-filter is-on" : "wf-navtab is-filter"}
                     aria-pressed={on} aria-expanded={navOpenCat === m.id} aria-controls="wf-navsubs"
