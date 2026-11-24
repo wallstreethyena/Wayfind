@@ -21,6 +21,7 @@ function Thumb({ down = false }) {
 export default function EventActions({ event }) {
   const actions = useContentCardActions(event ? {
     id: event.id,
+    placeId: event.place_id || event.placeId || "",
     type: "event",
     title: event.name,
     image: event.image || null,
@@ -78,6 +79,7 @@ export default function EventActions({ event }) {
       url: event.url || "https://www.gowayfind.com/ask",
       title: event.name,
       name: event.name,
+      placeId: event.place_id || event.placeId || "",
       city: event.city || "",
       when: eventIso,
       eventDate: eventIso,

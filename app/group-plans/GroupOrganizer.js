@@ -1,21 +1,24 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { formatGroupTimeShort } from "../../lib/groupPlanTime.js";
+import { groupShareMessage } from "../../lib/groupPlanShareText.js";
 import { shareOut } from "../../lib/shareOut.js";
 import { SITE_URL } from "../../lib/site.js";
 import { C } from "../components/kit.js";
+import { SantaSvg } from "../components/santaArt.js";
 import IconicPlaceCard from "../components/IconicPlaceCard.js";
 import { PhotoSrcFilterContext } from "../components/photoPolicyContext.js";
 import { GroupPlaceOptions, PlaceCard, staleFactsNote, groupPhotoFilter } from "./GroupPlaceOptions.js";
 import { GroupVoteIntro } from "./GroupFrame.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
-// Group Vote organizer dashboard. Motion budget: everything <= 0.6s, confetti <= 1s,
-// and every animation is switched off under prefers-reduced-motion.
+// Group Vote organizer dashboard (Wayfind dark slate + orange + green).
+// Motion budget: everything <= 0.6s, confetti <= 1s, and every animation is
+// switched off under prefers-reduced-motion.
 export const GROUP_ORGANIZER_CSS=`
-.gpo{--gpo-ok:var(--gp-teal,#00e3ca);--gpo-accent:var(--gp-accent,${C.accent});--gpo-line:var(--gp-border);--gpo-track:var(--gp-track);--gpo-soft:var(--gp-muted);font-family:var(--wf-sans),system-ui,sans-serif}
+.gpo{--gpo-ok:${C.green};--gpo-accent:var(--gp-accent,${C.accent});--gpo-line:var(--gp-border);--gpo-track:var(--gp-track);--gpo-soft:var(--gp-muted);font-family:var(--wf-sans),system-ui,sans-serif}
 
-.gpo-overview{background:linear-gradient(125deg,color-mix(in srgb,var(--gpo-accent) 12%,var(--gp-panel)),var(--gp-panel));border-color:color-mix(in srgb,var(--gpo-accent) 40%,var(--gp-border))}.gpo-overview h2{max-width:680px}.gpo-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:22px}.gpo-summary-grid h3{font-size:13px;color:var(--gpo-soft)}.gpo-date-list{list-style:none;padding:0;margin:0;display:grid;gap:12px;font-size:15px;font-weight:700}.gpo-date-list li{display:flex;align-items:flex-start;gap:10px}.gpo-date-list li span{color:var(--gpo-accent);font-size:20px;line-height:1}.gpo-invites{border-color:color-mix(in srgb,var(--gpo-accent) 35%,var(--gp-border))}.gpo-invites>.gp-button.primary{min-width:220px}.gpo-overview .gpo-friends{margin-top:0;gap:10px}.gpo-overview .gpo-circle{border-style:solid;border-color:var(--gpo-accent);background:color-mix(in srgb,var(--gpo-accent) 12%,transparent);color:var(--gpo-accent)}
+.gpo-overview{background:linear-gradient(125deg,rgba(249,115,22,.1),var(--gp-panel));border-color:rgba(249,115,22,.35)}.gpo-overview h2{max-width:680px}.gpo-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:22px}.gpo-summary-grid h3{font-size:13px;color:var(--gpo-soft)}.gpo-date-list{list-style:none;padding:0;margin:0;display:grid;gap:12px;font-size:15px;font-weight:700}.gpo-date-list li{display:flex;align-items:flex-start;gap:10px}.gpo-date-list li span{color:var(--gpo-accent);font-size:20px;line-height:1}.gpo-invites{border-color:rgba(249,115,22,.32)}.gpo-invites>.gp-button.primary{min-width:220px}.gpo-overview .gpo-friends{margin-top:0;gap:10px}.gpo-overview .gpo-circle{border-style:solid;border-color:var(--gpo-accent);background:rgba(249,115,22,.12);color:var(--gpo-accent)}
 @media(max-width:560px){.gpo-summary-grid{grid-template-columns:1fr;gap:18px}.gpo-invites>.gp-button.primary{width:100%}}
 .gpo-sub{margin:-4px 0 14px;font-size:15px;line-height:1.55;max-width:680px;color:var(--gpo-soft)}
 .gpo-head{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
@@ -25,24 +28,24 @@ export const GROUP_ORGANIZER_CSS=`
 .gpo-friends{display:flex;gap:14px;flex-wrap:wrap;margin:12px 0 4px;padding:0;list-style:none}
 .gpo-friend{display:flex;align-items:center;gap:10px;min-width:0}
 .gpo-circle{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:50%;font-weight:800;font-size:14px;letter-spacing:.5px;box-sizing:border-box;border:2px dashed var(--gpo-line);color:var(--gpo-soft);background:transparent}
-.gpo-circle.voted{border:2px solid var(--gpo-ok);background:color-mix(in srgb,var(--gpo-ok) 22%,transparent);color:inherit;animation:gpo-pop .3s ease-out both}
+.gpo-circle.voted{border:2px solid var(--gpo-ok);background:rgba(34,197,94,.18);color:inherit;animation:gpo-pop .3s ease-out both}
 .gpo-circle.declined{border:2px solid var(--gpo-line);background:var(--gpo-track);color:var(--gpo-soft);opacity:.75;text-decoration:line-through}
 .gpo-friend-name{font-weight:700;overflow-wrap:anywhere}
 .gpo-friend-state{display:block;font-size:13px;font-weight:400;color:var(--gpo-soft)}
 .gpo-bars{display:grid;gap:12px;margin:12px 0}
 .gpo-bar-label{display:flex;justify-content:space-between;gap:10px;font-weight:700;margin-bottom:5px}
-.gpo-bar{height:12px;border-radius:99px;background:var(--gpo-track);overflow:hidden}.gpo-bar span{display:block;height:100%;border-radius:99px;background:var(--gpo-accent);transition:width .45s ease}
+.gpo-bar{height:10px;border-radius:99px;background:var(--gpo-track);overflow:hidden}.gpo-bar span{display:block;height:100%;border-radius:99px;background:var(--gpo-accent);transition:width .45s ease}
 .gpo-bar.lead span{background:var(--gpo-ok)}
 .gpo-times{display:grid;gap:10px;margin:12px 0}
 .gpo-time{padding:12px 14px;border:1px solid var(--gpo-line);border-radius:12px}
-.gpo-time.everyone{border-color:var(--gpo-ok);background:color-mix(in srgb,var(--gpo-ok) 14%,transparent)}
-.gpo-pill{display:inline-block;margin-left:8px;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:800;background:color-mix(in srgb,var(--gpo-ok) 28%,transparent)}
+.gpo-time.everyone{border-color:var(--gpo-ok);background:rgba(34,197,94,.12)}
+.gpo-pill{display:inline-block;margin-left:8px;padding:3px 9px;border-radius:99px;font-size:12px;font-weight:800;background:rgba(34,197,94,.22)}
 .gpo-listing{margin:6px 0;font-size:14px;line-height:1.55;color:var(--gpo-soft)}
 .gpo-flip{perspective:900px;position:relative;margin:8px 0 18px}
 .gpo-flip-inner{position:relative;transform-style:preserve-3d;transform:rotateY(180deg);animation:gpo-flip .6s ease-out both}
 .gpo-face{backface-visibility:hidden;border:1px solid var(--gpo-line);border-radius:16px;padding:20px}
 .gpo-front{position:absolute;inset:0;display:grid;place-items:center;font-weight:800}
-.gpo-back{transform:rotateY(180deg);border-color:var(--gpo-ok);background:color-mix(in srgb,var(--gpo-ok) 12%,transparent)}
+.gpo-back{transform:rotateY(180deg);border-color:var(--gpo-ok);background:rgba(34,197,94,.12)}
 .gpo-locked{color:var(--gpo-ok);font-weight:800;text-transform:uppercase;letter-spacing:1.2px;font-size:12px;margin:0 0 6px}
 .gpo-flip.is-static .gpo-flip-inner{animation:none}
 .gpo-confetti{position:absolute;left:50%;top:0;width:0;height:0;pointer-events:none}
@@ -54,18 +57,22 @@ export const GROUP_ORGANIZER_CSS=`
 @keyframes gpo-pop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
 @keyframes gpo-flip{from{transform:rotateY(0deg)}to{transform:rotateY(180deg)}}
 @keyframes gpo-fall{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r))}}
-.gpo-head{align-items:flex-start}.gpo-head .gp-vote-intro{flex:1;min-width:0;margin-top:0}.gpo-head>.gpo-ring{margin-top:34px}.gpo-ring-arc{stroke:var(--gpo-ok)}
-.gpo-layout{display:grid;gap:28px;align-items:start}.gpo-ballot,.gpo-shortlist{min-width:0}.gpo-ballot{border:2px solid #a88acb;border-radius:28px;background:linear-gradient(150deg,#28163e,#180d2a);padding:22px}.gpo-ballot>.gp-panel{padding:0;margin:0 0 24px;border:0;border-radius:0;box-shadow:none;background:none}.gpo-ballot>.gp-panel:last-of-type{margin-bottom:0}
-.gpo-overview .gpo-summary-grid{margin-top:16px;gap:16px}.gpo-overview .gpo-summary-grid h3{color:var(--gp-lavender)}.gpo-overview .gpo-date-list{font-size:14px}.gpo-overview h2{font-size:24px}.gpo-overview-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.gpo-response-ring{--response:0%;flex:none;width:60px;height:60px;padding:5px;display:grid;place-items:center;background:conic-gradient(var(--gpo-ok) var(--response),var(--gpo-track) 0);border-radius:50%}.gpo-response-ring b{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:#211333;color:var(--gpo-ok);font-size:18px}
-.gpo-members{display:flex;gap:8px;flex-wrap:wrap;list-style:none;margin:18px 0 0;padding:18px 0 0;border-top:1px solid var(--gp-border)}.gpo-member{display:flex;align-items:center;gap:7px;max-width:100%;padding:6px 10px;border:1px solid var(--gp-border);border-radius:99px;background:#30223f;font-size:13px;font-weight:800}.gpo-member.is-replied{border-color:var(--gpo-ok)}.gpo-member>i{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:50%;background:var(--gp-lavender);color:#1c0f2d;font-style:normal;font-size:12px}.gpo-member:nth-child(3n+1)>i{background:var(--gpo-ok)}.gpo-member:nth-child(3n+2)>i{background:var(--gpo-accent)}.gpo-member-name{overflow-wrap:anywhere}.gpo-member-check{color:var(--gpo-ok)}
-.gpo-ballot>.gpo-invites{padding-top:20px;border-top:1px solid var(--gp-border)}.gpo-invites .gp-row{align-items:flex-start}.gpo-invites .gp-row .gp-button{font-size:13px;flex-shrink:0;padding:10px 13px}.gpo-invites .gpo-circle{width:32px;height:32px;font-size:12px}.gpo-invites .gpo-friend{gap:8px}.gpo-invites .gpo-friend-state{font-size:12px}.gpo-invites .gp-muted{font-size:14px}
-.gpo-ballot>.gpo-results{padding-top:22px;border-top:1px solid var(--gp-border)}.gpo-results h2{font-size:18px;color:var(--gp-lavender)}.gpo-bars{gap:10px;margin:16px 0 22px}.gpo-vote-result{padding:13px 14px;border:1px solid var(--gp-border);border-radius:18px;background:#2d1d40}.gpo-vote-result.is-leading{border:2px solid var(--gpo-accent);padding:12px 13px;background:linear-gradient(115deg,#3b2449,#2a193c)}.gpo-bar-label{font-size:15px;line-height:1.4;margin-bottom:10px}.gpo-bar-label>span:first-child{overflow-wrap:anywhere;min-width:0}.gpo-bar-label>span:last-child{flex-shrink:0;color:var(--gp-lavender)}.gpo-vote-result.is-leading .gpo-bar-label>span:last-child{color:#ffe179}.gpo-bar{height:9px}.gpo-bar span{background:var(--gp-lavender)}.gpo-bar.lead span{background:linear-gradient(90deg,var(--gpo-accent),#ffe179)}
-.gpo-times{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));margin-top:14px}.gpo-time{display:flex;flex-direction:column;gap:8px;justify-content:center;padding:16px;border-radius:18px;background:#2a1c3b}.gpo-time strong{font-size:16px;line-height:1.45}.gpo-time.everyone{border:2px solid var(--gpo-ok);background:rgba(0,227,202,.1)}.gpo-pill{order:-1;align-self:flex-start;margin:0;background:var(--gpo-ok);color:#071d1b;font-size:10px;letter-spacing:.3px;text-transform:uppercase}.gpo-time .gpo-listing{font-size:13px}.gpo-time.everyone .gpo-listing{color:var(--gpo-ok)}
-.gpo-shortlist>.gp-section-head{margin:0 0 16px}.gpo-shortlist>.gp-section-head h2{color:var(--gp-lavender);font-size:24px}.gpo-shortlist .gp-grid{grid-template-columns:1fr;gap:22px}.gpo-shortlist .gp-option{padding:16px;border:1px solid var(--gp-border);border-radius:24px;background:var(--gp-panel)}.gpo-shortlist .gp-option>.gp-tag{margin:0 0 12px;color:var(--gpo-accent);border-color:var(--gpo-accent)}
-.gpo-ballot .gp-actions>.primary,.gpo-ballot .gp-panel>.primary{width:100%}.gpo-ballot .gpo-locked{color:var(--gpo-ok)}.gpo-ballot .gpo-back{background:rgba(0,227,202,.1)}
+.gpo-head{align-items:flex-start}.gpo-head .gp-vote-intro{flex:1;min-width:0;margin-top:0}.gpo-head>.gpo-ring{margin-top:26px}.gpo-ring-arc{stroke:var(--gpo-accent)}
+.gpo-layout{display:grid;gap:24px;align-items:start}.gpo-ballot,.gpo-shortlist{min-width:0}.gpo-ballot{border:1px solid var(--gp-border);border-radius:22px;background:var(--gp-panel);padding:20px}.gpo-ballot>.gp-panel{padding:0;margin:0 0 22px;border:0;border-radius:0;box-shadow:none;background:none}.gpo-ballot>.gp-panel:last-of-type{margin-bottom:0}
+.gpo-overview .gpo-summary-grid{margin-top:16px;gap:16px}.gpo-overview .gpo-summary-grid h3{color:var(--gp-light)}.gpo-overview .gpo-date-list{font-size:14px}.gpo-overview h2{font-size:22px}.gpo-overview-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.gpo-response-ring{--response:0%;flex:none;width:60px;height:60px;padding:5px;display:grid;place-items:center;background:conic-gradient(var(--gpo-ok) var(--response),var(--gpo-track) 0);border-radius:50%}.gpo-response-ring b{display:grid;place-items:center;width:50px;height:50px;border-radius:50%;background:var(--gp-panel);color:var(--gpo-ok);font-size:17px}
+.gpo-members{display:flex;gap:8px;flex-wrap:wrap;list-style:none;margin:16px 0 0;padding:16px 0 0;border-top:1px solid var(--gp-border)}.gpo-member{display:flex;align-items:center;gap:7px;max-width:100%;padding:6px 10px;border:1px solid var(--gp-border);border-radius:99px;background:var(--gp-card);font-size:13px;font-weight:800}.gpo-member.is-replied{border-color:var(--gpo-ok)}.gpo-member>i{display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:50%;background:var(--gp-light);color:#040810;font-style:normal;font-size:12px}.gpo-member:nth-child(3n+1)>i{background:var(--gpo-ok)}.gpo-member:nth-child(3n+2)>i{background:var(--gpo-accent)}.gpo-member-name{overflow-wrap:anywhere}.gpo-member-check{color:var(--gpo-ok)}
+.gpo-group-share{padding:16px!important;border:1px solid rgba(249,115,22,.42)!important;border-radius:16px!important;background:linear-gradient(130deg,rgba(249,115,22,.12),var(--gp-card))!important;margin-bottom:20px!important}
+.gpo-share-toggle{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.gpo-share-toggle .gp-button{min-height:40px;padding:8px 14px;font-size:13px}
+.gpo-share-preview{margin:10px 0 14px;padding:12px;border:1px solid var(--gp-border);border-radius:12px;background:var(--gp-field);font-size:13px;line-height:1.5;color:var(--gp-light);overflow-wrap:anywhere}
+.gpo-santa-mini{width:20px;height:24px;display:inline-block;flex:none}
+.gpo-ballot>.gpo-invites{padding-top:18px;border-top:1px solid var(--gp-border)}.gpo-invites .gp-row{align-items:flex-start}.gpo-invites .gp-row .gp-button{font-size:13px;flex-shrink:0;padding:10px 13px}.gpo-invites .gpo-circle{width:32px;height:32px;font-size:12px}.gpo-invites .gpo-friend{gap:8px}.gpo-invites .gpo-friend-state{font-size:12px}.gpo-invites .gp-muted{font-size:14px}
+.gpo-ballot>.gpo-results{padding-top:20px;border-top:1px solid var(--gp-border)}.gpo-results h2{font-size:18px;color:var(--gp-text)}.gpo-bars{gap:10px;margin:14px 0 20px}.gpo-vote-result{padding:13px 14px;border:1px solid var(--gp-border);border-radius:14px;background:var(--gp-card)}.gpo-vote-result.is-leading{border:2px solid var(--gpo-accent);padding:12px 13px;background:linear-gradient(115deg,rgba(249,115,22,.14),var(--gp-card))}.gpo-bar-label{font-size:15px;line-height:1.4;margin-bottom:8px}.gpo-bar-label>span:first-child{overflow-wrap:anywhere;min-width:0}.gpo-bar-label>span:last-child{flex-shrink:0;color:var(--gp-light)}.gpo-vote-result.is-leading .gpo-bar-label>span:last-child{color:${C.gold}}.gpo-bar{height:9px}.gpo-bar span{background:var(--gp-light)}.gpo-bar.lead span{background:linear-gradient(90deg,var(--gpo-accent),${C.gold})}
+.gpo-times{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));margin-top:14px}.gpo-time{display:flex;flex-direction:column;gap:8px;justify-content:center;padding:14px;border-radius:14px;background:var(--gp-card)}.gpo-time strong{font-size:15px;line-height:1.45}.gpo-time.everyone{border:2px solid var(--gpo-ok);background:rgba(34,197,94,.1)}.gpo-pill{order:-1;align-self:flex-start;margin:0;background:var(--gpo-ok);color:#04120A;font-size:10px;letter-spacing:.3px;text-transform:uppercase}.gpo-time .gpo-listing{font-size:13px}.gpo-time.everyone .gpo-listing{color:#86EFAC}
+.gpo-shortlist>.gp-section-head{margin:0 0 14px}.gpo-shortlist>.gp-section-head h2{color:var(--gp-text);font-size:22px}.gpo-shortlist .gp-grid{grid-template-columns:1fr;gap:18px}.gpo-shortlist .gp-option{padding:14px;border:1px solid var(--gp-border);border-radius:18px;background:var(--gp-panel)}.gpo-shortlist .gp-option>.gp-tag{margin:0 0 10px;color:var(--gpo-accent);border-color:rgba(249,115,22,.45)}
+.gpo-ballot .gp-actions>.primary,.gpo-ballot .gp-panel>.primary{width:100%}.gpo-ballot .gpo-locked{color:var(--gpo-ok)}.gpo-ballot .gpo-back{background:rgba(34,197,94,.1)}
 @media(min-width:900px){.gpo-layout{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}.gpo-shortlist{position:sticky;top:20px}}
-@media(max-width:560px){.gpo-ballot{padding:18px 14px;border-radius:24px}.gpo-shortlist .gp-option{padding:12px}.gpo-head>.gpo-ring{width:54px;height:54px;margin-top:24px}.gpo-head>.gpo-ring svg{width:54px;height:54px}.gpo-response-ring{width:54px;height:54px}.gpo-response-ring b{width:44px;height:44px;font-size:16px}.gpo-times{grid-template-columns:1fr}.gpo-ballot .gpo-summary-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.gpo-ballot{padding:16px 14px;border-radius:18px}.gpo-shortlist .gp-option{padding:12px}.gpo-head>.gpo-ring{width:54px;height:54px;margin-top:20px}.gpo-head>.gpo-ring svg{width:54px;height:54px}.gpo-response-ring{width:54px;height:54px}.gpo-response-ring b{width:44px;height:44px;font-size:15px}.gpo-times{grid-template-columns:1fr}.gpo-ballot .gpo-summary-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.gpo-circle.voted,.gpo-flip-inner,.gpo-confetti i{animation:none!important}.gpo-confetti{display:none}.gpo-ring-arc,.gpo-bar span{transition:none!important}.gpo-flip-inner{transform:none}.gpo-front{display:none}.gpo-back{transform:none}}
 `;
 
@@ -93,25 +100,28 @@ function Friend({slot}) {
   return <span className="gpo-friend"><span className={`gpo-circle ${state}`} role="img" aria-label={`${slot.name}: ${words}`}>{initialsOf(slot.name)}</span><span className="gpo-friend-name">{slot.name}<span className="gpo-friend-state">{friendStateText(slot)}</span></span></span>;
 }
 function names(list) {return list.join(", ");}
-function Results({plan}) {
+function Results({plan,onCommand,busy}) {
   const summary=plan.summary,invitees=plan.invitees||[];
   const pending=invitees.filter((s)=>!s.response),declined=invitees.filter((s)=>s.response?.declined);
   const organizerTimes=plan.organizer?.availableTimeIds||[];
   const top=Math.max(0,...summary.placeResults.map((r)=>r.votes));
+  const denom=summary.expectedCount>0?summary.expectedCount:Math.max(1,summary.votedCount);
+  const heading=plan.openGroup&&summary.expectedCount===0?"No votes yet":plan.openGroup?`${summary.responseCount} ${summary.responseCount===1?"reply":"replies"} so far`:`${summary.responseCount} of ${summary.expectedCount} replied`;
   return <section className="gp-panel gpo-results" aria-label="Results so far">
     <div className="gp-step">2 · Crew votes on the spot</div>
-    <h2>{summary.responseCount} of {summary.expectedCount} replied</h2>
-    <div className="gpo-bars">{plan.places.map((p)=>{const votes=summary.placeResults.find((r)=>r.placeId===p.id)?.votes||0;const pct=summary.expectedCount>0?Math.round(100*votes/summary.expectedCount):0;
-      return <div key={p.id} className={`gpo-vote-result${votes>0&&votes===top?" is-leading":""}`}><div className="gpo-bar-label"><span>{p.name}</span><span>{votes} {votes===1?"vote":"votes"}</span></div><div className={`gpo-bar${votes>0&&votes===top?" lead":""}`} role="meter" aria-label={`${p.name}: ${votes} of ${summary.expectedCount} votes`} aria-valuemin={0} aria-valuemax={summary.expectedCount} aria-valuenow={votes}><span style={{width:`${pct}%`}}/></div></div>;})}</div>
+    <h2>{heading}</h2>
+    <div className="gpo-bars">{plan.places.map((p)=>{const votes=summary.placeResults.find((r)=>r.placeId===p.id)?.votes||0;const pct=summary.expectedCount>0?Math.round(100*votes/denom):0;
+      return <div key={p.id} className={`gpo-vote-result${votes>0&&votes===top?" is-leading":""}`}><div className="gpo-bar-label"><span>{p.name}</span><span>{votes} {votes===1?"vote":"votes"}</span></div><div className={`gpo-bar${votes>0&&votes===top?" lead":""}`} role="meter" aria-label={`${p.name}: ${votes} of ${summary.expectedCount} votes`} aria-valuemin={0} aria-valuemax={Math.max(1,summary.expectedCount)} aria-valuenow={votes}><span style={{width:`${pct}%`}}/></div></div>;})}</div>
     {declined.length>0&&<p className="gpo-listing">Can’t make it, not counted as votes: {names(declined.map((s)=>s.name))}</p>}
     {pending.length>0&&<p className="gpo-listing">No reply yet, not counted as votes: {names(pending.map((s)=>s.name))}</p>}
+    {plan.status==="open"&&plan.shareMode==="group"&&summary.responseCount>0&&<div className="gp-actions" style={{marginBottom:16}}><button type="button" className="gp-button primary" disabled={busy} onClick={()=>onCommand({type:"close"})}>Close voting & pick winner</button></div>}
     <h3>3 · Find your day</h3>
     <div className="gpo-times">{plan.times.map((t)=>{
       const unconfirmed=invitees.filter((s)=>!(s.response&&!s.response.declined&&s.response.availableTimeIds.includes(t.id))).map((s)=>s.name);
       const organizerOk=organizerTimes.includes(t.id);const everyone=organizerOk&&unconfirmed.length===0&&summary.commonTimeIds.includes(t.id);
       const count=summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0;
       const missing=organizerOk?unconfirmed:[...unconfirmed,"You"];
-      return <div key={t.id} className={`gpo-time${everyone?" everyone":""}`}><strong>{formatGroupTimeShort(t,plan.timeZone)}</strong>{everyone&&<span className="gpo-pill">Works for everyone</span>}<p className="gpo-listing" style={{margin:"4px 0 0"}}>{count} of {summary.expectedCount} friends said yes.{!everyone&&missing.length>0&&` Not confirmed by: ${names(missing)}.`}</p></div>;})}</div>
+      return <div key={t.id} className={`gpo-time${everyone?" everyone":""}`}><strong>{formatGroupTimeShort(t,plan.timeZone)}</strong>{everyone&&<span className="gpo-pill">Works for everyone</span>}<p className="gpo-listing" style={{margin:"4px 0 0"}}>{summary.expectedCount>0?`${count} of ${summary.expectedCount} friends said yes.`:`${count} friends said yes so far.`}{!everyone&&summary.expectedCount>0&&missing.length>0&&` Not confirmed by: ${names(missing)}.`}</p></div>;})}</div>
   </section>;
 }
 function FinalPlaceCard({place,plan}) {
@@ -121,11 +131,13 @@ function FinalPlaceCard({place,plan}) {
   return <><PhotoSrcFilterContext.Provider value={groupPhotoFilter(place)}><ul className="gp-card-list gpo-final-card"><IconicPlaceCard place={{id:place.id,name:place.name,lat:place.lat,lng:place.lng,primaryType:place.primaryType,cardCategory:place.category,governed_score:place.score,photo:place.photo||null,_members:{ownerPick:place.curatorPick},creator_video:place.creatorVideo,trending:place.trending,trend_reason:place.trendReason}} href={place.placeUrl} photoAttr={place.photoAttr} photoAttrHref={place.photoAttrHref} editorial={place.editorial?.text||null} cardActionsReadOnly surface="group_plan"/></ul></PhotoSrcFilterContext.Provider>{staleFactsNote(place,plan.timeZone)}</>;
 }
 const CONFETTI=Array.from({length:12},(_,i)=><i key={i}/>);
-export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
+export function GroupOrganizer({plan,onCommand,onDelete,busy,nowMs:nowOverride}) {
   const [notice,setNotice]=useState("");const [placeId,setPlaceId]=useState(plan.summary.winnerPlaceId||plan.places[0]?.id||"");
   const [timeId,setTimeId]=useState(plan.summary.commonTimeIds[0]||"");
   const [ackPartial,setAckPartial]=useState(false),[ackTie,setAckTie]=useState(false),[ackUnavailable,setAckUnavailable]=useState(false),[hoursAck,setHoursAck]=useState(false);
   const [clock,setClock]=useState(()=>Date.now());
+  // New state hooks kept after original slots so positional test seeds stay aligned.
+  const [useSantaText,setUseSantaText]=useState(false),[confirmDelete,setConfirmDelete]=useState(false);
   const nowMs=nowOverride??clock;
   const clearAcks=()=>{setAckPartial(false);setAckTie(false);setAckUnavailable(false);setHoursAck(false);};
   const previousStatus=useRef(plan.status);
@@ -141,32 +153,63 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
   const finalizeCommand=()=>{const command={type:"finalize",placeId,timeId,expectedRevision:plan.revision};
     if(needPartial&&ackPartial)command.acknowledgePartial=true;if(needTie&&ackTie)command.acknowledgeTie=true;
     if(needUnavailable&&ackUnavailable)command.acknowledgeUnavailable=true;if(needHours&&hoursAck)command.acknowledgeVenueHours=true;return command;};
+  const groupUrl=plan.groupToken?planUrl(plan,plan.groupToken,"group"):"";
+  const isSingleFriend=plan.invitees.length===1&&!plan.openGroup;
+  const groupBody=groupUrl?groupShareMessage({organizerName:plan.organizerName,places:plan.places,url:groupUrl,santa:useSantaText,single:isSingleFriend}):"";
+  const groupSmsHref=groupBody?`sms:?&body=${encodeURIComponent(groupBody)}`:"";
+  const copyGroupLink=()=>{
+    if(!groupUrl)return;
+    try{navigator.clipboard?.writeText(groupUrl).then(()=>setNotice("Group vote link copied. Paste it into your group text or DM.")).catch(()=>setNotice("Copy failed. Use More share options below."));}
+    catch{setNotice("Use More share options below to copy the link.");}
+  };
+  const shareGroupOut=()=>{
+    if(!groupUrl)return;
+    shareOut({title:"Group Vote on Wayfind",text:groupBody.replace(groupUrl,"").trim(),url:groupUrl},()=>setNotice("Group vote link copied. Paste it into your group text or DM."));
+  };
   const shareInvite=(slot)=>{
     const token=plan.invites.find((i)=>i.slotId===slot.id)?.token;if(!token)return;
     const result=shareOut({title:"Group Vote on Wayfind",text:`${slot.name}, ${plan.organizerName||"a friend"} started a group vote on Wayfind. Help pick the spot and the day.`,url:planUrl(plan,token)},()=>setNotice(`Link for ${slot.name} copied. Send it privately.`));
     if(result!=="failed"){setNotice(`Share options opened for ${slot.name}. Choose how to send their private link. Delivery isn’t confirmed by Wayfind.`);onCommand({type:"start",slotId:slot.id},{quiet:true});}
     else setNotice("Share options could not open. Please try again.");
   };
-  const finalShare=()=>{if(!plan.finalToken)return;shareOut({title:"Our plan is ready",text:plan.finalPlan.isCommonTime?"Our plan is ready. The time works for everyone who was invited.":"Here’s the plan. Check the attendance details on Wayfind.",url:planUrl(plan,plan.finalToken,"final")},()=>setNotice("Final plan link copied."));};
+  const finalShare=()=>{if(!plan.finalToken)return;shareOut({title:"Our plan is ready",text:plan.finalPlan.isCommonTime?"Our plan is ready. The time works for everyone in the group.":"Here’s the plan. Check the attendance details on Wayfind.",url:planUrl(plan,plan.finalToken,"final")},()=>setNotice("Final plan link copied."));};
   const finalPlace=plan.finalPlan&&plan.places.find((p)=>p.id===plan.finalPlan.placeId),finalTime=plan.finalPlan&&plan.times.find((t)=>t.id===plan.finalPlan.timeId);
   const ackBox=(checked,set,text)=><label className="gp-choice"><input type="checkbox" checked={checked} onChange={(e)=>set(e.target.checked)}/><span>{text}</span></label>;
+  const openHeadline=plan.openGroup?(summary.responseCount===0?"Ready to share with your group":`${summary.responseCount} ${summary.responseCount===1?"friend":"friends"} voted`):`${summary.responseCount} of ${summary.expectedCount} friends replied`;
   return <div className="gpo">
     <style dangerouslySetInnerHTML={styleHtml(GROUP_ORGANIZER_CSS)}/>
     <div className="gpo-head"><GroupVoteIntro><p className="gp-lede">{plan.status==="draft"?"Your next good day starts here. Review your group, then open the vote.":"Your people. A few great options. One plan together."}</p></GroupVoteIntro>{plan.status==="open"&&<CountdownRing plan={plan} nowMs={nowMs}/>}</div>
     <div className="gpo-layout"><div className="gpo-ballot">
     <section className={`gp-panel gpo-overview${plan.status==="draft"?" is-draft":""}`} aria-label="Your group vote at a glance">
       <div className="gpo-overview-head"><div><div className="gp-step">{plan.status==="draft"?"1 · Get your crew together":plan.status==="finalized"?"Plan locked":plan.status==="cancelled"?"Plan cancelled":"1 · Your crew’s ballot"}</div>
-      <h2>{plan.status==="draft"?`Make a day of ${plan.places.find((p)=>p.id===plan.originalPlaceId)?.name||"your idea"}`:plan.status==="finalized"?"Make it happen.":plan.status==="cancelled"?"This plan was cancelled.":`${summary.responseCount} of ${summary.expectedCount} friends replied`}</h2></div>{plan.status!=="draft"&&<div className="gpo-response-ring" role="img" aria-label={`${summary.responseCount} of ${summary.expectedCount} friends replied`} style={{"--response":`${summary.expectedCount?100*summary.responseCount/summary.expectedCount:0}%`}}><b aria-hidden="true">{summary.responseCount}/{summary.expectedCount}</b></div>}</div>
-      {plan.status!=="draft"&&<ul className="gpo-members" aria-label="Your crew">{plan.invitees.map((slot)=><li key={slot.id} className={`gpo-member${slot.response?" is-replied":""}`}><i aria-hidden="true">{initialsOf(slot.name)}</i><span className="gpo-member-name">{slot.name}</span><span className="gpo-member-check" role="img" aria-label={slot.response?(slot.response.declined?"Can’t make it":"Voted"):"Awaiting reply"}>{slot.response?(slot.response.declined?"−":"✓"):"…"}</span></li>)}</ul>}
-      {plan.status==="draft"&&<div className="gpo-summary-grid"><div><h3>When could we go?</h3><ul className="gpo-date-list">{plan.times.map((t)=><li key={t.id}><span aria-hidden="true">◷</span>{formatGroupTimeShort(t,plan.timeZone)}</li>)}</ul></div><div><h3>Your people</h3><ul className="gpo-friends">{plan.invitees.map((slot)=><li key={slot.id}><span className="gpo-friend"><span className="gpo-circle" aria-hidden="true">{initialsOf(slot.name)}</span><span className="gpo-friend-name">{slot.name}</span></span></li>)}</ul></div></div>}
-      <p className="gp-note">Reply by {formatGroupTimeShort(plan.deadline,plan.timeZone)}. Voting closes earlier if everyone responds.</p>
+      <h2>{plan.status==="draft"?`Make a day of ${plan.places.find((p)=>p.id===plan.originalPlaceId)?.name||"your idea"}`:plan.status==="finalized"?"Make it happen.":plan.status==="cancelled"?"This plan was cancelled.":openHeadline}</h2>
+      {plan.organizerSmsTail&&<span className="gp-tag green">Text updates on · ••{plan.organizerSmsTail}</span>}
+      </div>{plan.status!=="draft"&&(!plan.openGroup||summary.expectedCount>0)&&<div className="gpo-response-ring" role="img" aria-label={`${summary.responseCount} of ${summary.expectedCount} friends replied`} style={{"--response":`${summary.expectedCount?100*summary.responseCount/summary.expectedCount:0}%`}}><b aria-hidden="true">{plan.openGroup?summary.responseCount:`${summary.responseCount}/${summary.expectedCount}`}</b></div>}</div>
+      {plan.status!=="draft"&&plan.invitees.length>0&&<ul className="gpo-members" aria-label="Your crew">{plan.invitees.map((slot)=><li key={slot.id} className={`gpo-member${slot.response?" is-replied":""}`}><i aria-hidden="true">{initialsOf(slot.name)}</i><span className="gpo-member-name">{slot.name}</span><span className="gpo-member-check" role="img" aria-label={slot.response?(slot.response.declined?"Can’t make it":"Voted"):"Awaiting reply"}>{slot.response?(slot.response.declined?"−":"✓"):"…"}</span></li>)}</ul>}
+      {plan.status==="draft"&&<div className="gpo-summary-grid"><div><h3>When could we go?</h3><ul className="gpo-date-list">{plan.times.map((t)=><li key={t.id}><span aria-hidden="true">◷</span>{formatGroupTimeShort(t,plan.timeZone)}</li>)}</ul></div><div><h3>Your people</h3><ul className="gpo-friends">{plan.invitees.length?plan.invitees.map((slot)=><li key={slot.id}><span className="gpo-friend"><span className="gpo-circle" aria-hidden="true">{initialsOf(slot.name)}</span><span className="gpo-friend-name">{slot.name}</span></span></li>):<li className="gp-note">Anyone with your group link can vote (up to 10 people).</li>}</ul></div></div>}
+      <p className="gp-note">Reply by {formatGroupTimeShort(plan.deadline,plan.timeZone)}.{plan.openGroup?" Close voting anytime once your group replies.":" Voting closes earlier if everyone responds."}</p>
     </section>
-    {["draft","open"].includes(plan.status)&&<section className="gp-panel gpo-invites"><details open={plan.status==="draft"||undefined}><summary>Share private voting links</summary><div className="gp-step">Invite your people</div><h2>{plan.status==="draft"?"Let’s get your friends voting":"Get your friends in on it"}</h2><p className="gp-muted">Each friend gets their own voting link. Send it privately in your messaging app. No account needed.</p>
+    {plan.status==="open"&&groupUrl&&<section className="gp-panel gpo-group-share" aria-label="Send one text to your group">
+      <div className="gp-step">One-tap share · 1 friend or group chat</div>
+      <h2>{isSingleFriend?"Send one text to your friend":"Send one text to your whole group"}</h2>
+      <p className="gp-muted">One link works for everyone. Drop it in a group text or DM — each person taps, types their first name, and votes.</p>
+      <div className="gpo-share-toggle" role="group" aria-label="Invite message style">
+        <button type="button" className={`gp-button${!useSantaText?" is-active":""}`} onClick={()=>setUseSantaText(false)}>Simple text</button>
+        <button type="button" className={`gp-button${useSantaText?" is-active":""}`} onClick={()=>setUseSantaText(true)}><span className="gpo-santa-mini" aria-hidden="true"><SantaSvg face="wink" arm="wave" glow={false}/></span>Santa’s text (optional)</button>
+      </div>
+      <div className="gpo-share-preview">{groupBody}</div>
+      <div className="gp-actions" style={{marginTop:10}}>
+        <a className="gp-button primary" href={groupSmsHref} onClick={()=>setNotice("Opened your Messages app with your group vote link ready to send.")}>{isSingleFriend?"Text your friend":"Send one text to your group"}</a>
+        <button type="button" className="gp-button" onClick={copyGroupLink}>Copy link</button>
+        <button type="button" className="gp-button" onClick={shareGroupOut}>More share options</button>
+      </div>
+    </section>}
+    {["draft","open"].includes(plan.status)&&(plan.status==="draft"||plan.invitees.length>0)&&<section className="gp-panel gpo-invites"><details open={plan.status==="draft"||(!groupUrl&&plan.status==="open")||undefined}><summary>{groupUrl&&plan.status==="open"?"Or send separate private links":"Share private voting links"}</summary><div className="gp-step">Invite your people</div><h2>{plan.status==="draft"?"Let’s get your friends voting":"Get your friends in on it"}</h2><p className="gp-muted">Each friend gets their own voting link. Send it privately in your messaging app. No account needed.</p>
       {plan.status==="draft"&&plan.draftExpired?<><p className="gp-status">This draft’s reply deadline has passed. No invitations were started.</p><a className="gp-button primary" href={`/group-plans/new?place=${encodeURIComponent(plan.originalPlaceId)}`}>Start a new plan</a></>:plan.status==="draft"?<><button className="gp-button primary" disabled={busy} onClick={()=>onCommand({type:"start"})}>Start invitations</button><p className="gp-note">This opens voting. It does not send messages. Choices and your guest list are then fixed.</p></>:plan.invitees.map((slot)=><div className="gp-row" key={slot.id}><Friend slot={slot}/><button className="gp-button" disabled={busy} onClick={()=>shareInvite(slot)}>{slot.shareInitiatedAt?"Share again":"Share invite"}</button></div>)}
       <p className="gp-note">A link is for its named friend. Forwarding it lets someone else answer for them. We don’t mark a link delivered when a share window opens.</p></details>
     </section>}
-    {["closed","finalized"].includes(plan.status)&&<section className="gp-panel"><details><summary>Reply details</summary><ul className="gpo-friends">{plan.invitees.map((slot)=><li key={slot.id}><Friend slot={slot}/></li>)}</ul></details></section>}
-    {["open","closed","finalized"].includes(plan.status)&&<Results plan={plan}/>}
+    {["closed","finalized"].includes(plan.status)&&plan.invitees.length>0&&<section className="gp-panel"><details><summary>Reply details</summary><ul className="gpo-friends">{plan.invitees.map((slot)=><li key={slot.id}><Friend slot={slot}/></li>)}</ul></details></section>}
+    {["open","closed","finalized"].includes(plan.status)&&<Results plan={plan} onCommand={onCommand} busy={busy}/>}
     {plan.status==="closed"&&<section className="gp-panel"><div className="gp-step">Your result</div><h2>{summary.commonTimeIds.length?"A time works for everyone":summary.pendingCount?"A result, with replies missing":"No time works for everyone"}</h2>
       <p>{summary.tie?"The place vote is tied. You get to choose.":summary.winnerPlaceId?`${plan.places.find((p)=>p.id===summary.winnerPlaceId)?.name} has the most votes.`:"There are no place votes yet."}</p>
       {summary.pendingCount>0&&<p>{summary.pendingCount} {summary.pendingCount===1?"friend hasn’t":"friends haven’t"} replied yet. A time that works for respondents is not confirmed for everyone.</p>}
@@ -187,10 +230,11 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
       <div className="gpo-flip-inner"><div className="gpo-face gpo-front" aria-hidden="true">Locking in your plan…</div>
         <div className="gpo-face gpo-back"><p className="gpo-locked">Plan locked</p><h2 style={{margin:"0 0 6px"}}>{finalPlace?.name||"The final plan"}</h2>{finalTime&&<p style={{margin:0}}>{formatGroupTimeShort(finalTime,plan.timeZone)}</p>}</div></div></div>
       <GroupFinal plan={plan} headline={false} withStyle={false}/><button className="gp-button primary" onClick={finalShare}>Share final plan</button></section>}
-    {["draft","open","closed"].includes(plan.status)&&<details><summary>Cancel this plan</summary><p className="gp-note">This stops voting and makes its invitations unavailable. Your friends will not receive an automatic text.</p><button className="gp-button" disabled={busy} onClick={()=>onCommand({type:"cancel"})}>Cancel plan</button></details>}
+    {["draft","open","closed"].includes(plan.status)&&<details><summary>Cancel this plan</summary><p className="gp-note">This stops voting and makes its links unavailable. Your friends will not receive an automatic text.</p><button className="gp-button" disabled={busy} onClick={()=>onCommand({type:"cancel"})}>Cancel plan</button></details>}
+    {typeof onDelete==="function"&&<details><summary>Delete from history</summary><p className="gp-note">Permanently removes this group vote from your history and turns off its links.</p>{confirmDelete?<div className="gp-actions"><button type="button" className="gp-button danger" disabled={busy} onClick={()=>onDelete(plan.id)}>Yes, delete permanently</button><button type="button" className="gp-button" onClick={()=>setConfirmDelete(false)}>Keep it</button></div>:<button type="button" className="gp-button danger" disabled={busy} onClick={()=>setConfirmDelete(true)}>Delete this vote</button>}</details>}
     {notice&&<p className="gp-status" role="status">{notice}</p>}
     </div>
-    <section className="gpo-shortlist" aria-label="Places in this vote"><div className="gp-section-head"><div><div className="gp-step">The shortlist · Make it your kind of day</div><h2>{plan.places.length===1?"Your starting idea":"Good places. Your group’s call."}</h2></div><span className="gp-tag">{plan.places.length} {plan.places.length===1?"place":"places"}</span></div>
+    <section className="gpo-shortlist" aria-label="Places in this vote"><div className="gp-section-head"><div><div className="gp-step">The shortlist · Make it your kind of day</div><h2>{plan.places.length===1?"Your starting idea":"Good places. Your group’s call."}</h2></div><span className="gp-tag">{plan.places.length} {plan.places.length===1?"option":"options"}</span></div>
     <GroupPlaceOptions plan={plan} readOnly/>
     {plan.places.length<3&&<p className="gp-status">{plan.alternativesStatus==="evidence_check_incomplete"?"We kept your original idea. The comparison checks could not finish; this is not a complete alternative search.":plan.places.length===1?"Your pick is the one to beat. Wayfind didn’t find a similar nearby place that scores higher.":"Wayfind found one more great option nearby. We only show places that truly compare."}</p>}
     </section>

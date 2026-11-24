@@ -2,7 +2,7 @@ import { shareCardResponse, SHARE_CACHE } from "./card.jsx";
 import { shareCardFor, wcRotation } from "../../../lib/shareCards";
 import {
   placeModel, listModel, weatherModel, couponModel, experienceModel, defaultModel, inviteModel,
-  dateModel,
+  dateModel, groupVoteModel,
 } from "../../../lib/shareCardCopy.js";
 import { decodeInvite, curiousLine, curiousFoot } from "../../../lib/dateInvite.js";
 
@@ -20,7 +20,7 @@ export const runtime = "edge";
 // pasted into lib/ogbg.js, so it survived the file deletion untouched and kept
 // rendering. That file is deleted with this commit.
 //
-// Kinds: coupon | place | weather | list (default). ?card= names an experience
+// Kinds: coupon | place | weather | group | list (default). ?card= names an experience
 // card, ?v=2 is the old picks layout and now resolves to the same card, and
 // ?rot= still rotates the World Cup copy.
 export async function GET(req) {
@@ -37,6 +37,15 @@ export async function GET(req) {
         pay: get("pay", 8), get: get("get", 8), pct: get("pct", 5),
         biz: get("biz", 48), what: get("what", 36),
         exp: get("exp", 10).replace(/[^0-9-]/g, ""), area: get("loc", 30),
+      }));
+    }
+
+    if (kind === "group") {
+      return shareCardResponse(groupVoteModel({
+        title: get("t", 70),
+        loc: get("loc", 32),
+        n: get("n", 3).replace(/[^0-9]/g, ""),
+        purpose: get("purpose", 16) || "group",
       }));
     }
 

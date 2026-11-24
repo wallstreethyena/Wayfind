@@ -13,10 +13,11 @@ try {
   await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);`);
   await db.exec(await readFile(new URL('../supabase/migrations/20261004232233_wf_group_planning.sql',import.meta.url),'utf8'));
   await db.exec(await readFile(new URL('../supabase/migrations/20261020110650_wf_group_plan_optional_end.sql',import.meta.url),'utf8'));
+  await db.exec(await readFile(new URL('../supabase/migrations/20261123140000_wf_group_plan_overhaul.sql',import.meta.url),'utf8'));
   count++;
   const owner=randomUUID(),other=randomUUID(),now=Date.parse((await db.query('select clock_timestamp() as now')).rows[0].now);
   await db.query('insert into auth.users values($1),($2)',[owner,other]);
-  const make=(ownerId=owner)=>createGroupPlan({ownerId,organizerName:'Organizer',originalPlaceId:'place-one',places:[{id:'place-one',name:'Original idea'}],invitees:[{name:'Alex'},{name:'Sam'}],times:[{startsAt:new Date(now+3*86400000).toISOString(),endsAt:new Date(now+3*86400000+3600000).toISOString()}],deadline:new Date(now+86400000).toISOString(),timeZone:'America/New_York'},{id:randomUUID(),slotIds:[randomUUID(),randomUUID()],timeIds:[randomUUID()],now:new Date(now).toISOString()});
+  const make=(ownerId=owner,patch={},opts={})=>createGroupPlan({ownerId,organizerName:'Organizer',originalPlaceId:'place-one',places:[{id:'place-one',name:'Original idea'}],invitees:[{name:'Alex'},{name:'Sam'}],times:[{startsAt:new Date(now+3*86400000).toISOString(),endsAt:new Date(now+3*86400000+3600000).toISOString()}],deadline:new Date(now+86400000).toISOString(),timeZone:'America/New_York',...patch},{id:randomUUID(),slotIds:patch.invitees?patch.invitees.map(()=>randomUUID()):[randomUUID(),randomUUID()],timeIds:[randomUUID()],now:new Date(now).toISOString(),...opts});
   const invoke=async(name,args)=>{
     const params=args.map((_v,i)=>`$${i+1}`).join(',');
     return (await db.query(`select public.${name}(${params}) as value`,args)).rows[0].value;
@@ -46,6 +47,11 @@ try {
   eq((await create(duplicate)).error,'invalid_plan','direct SQL cannot create duplicate start-only times');
   const overlap=make();overlap.times.push({id:randomUUID(),startsAt:new Date(Date.parse(overlap.times[0].startsAt)+1800000).toISOString(),endsAt:null});
   eq((await create(overlap)).error,'invalid_plan','arrival inside a known interval is a proven conflict');
+  // Five places accepted, six rejected by DB check constraint.
+  const five=make(owner,{places:[{id:'place-one',name:'One'},{id:'p2',name:'Two'},{id:'p3',name:'Three'},{id:'p4',name:'Four'},{id:'p5',name:'Five'}]});
+  eq((await create(five)).state.places.length,5,'SQL accepts five places');
+  const six=structuredClone(five);six.id=randomUUID();six.places.push({id:'p6',name:'Six'});
+  await assert.rejects(()=>create(six),/check constraint/i);count++;
   const state=make(),key=randomUUID();
   const created=await create(state,key);eq(created.id,state.id,'actual SQL creates the right plan');eq(created.revision,1);eq(created.state.invitees.length,2);
   const retry=await create(make(),key);eq(retry.id,state.id,'same owner create key returns same plan');
@@ -53,8 +59,12 @@ try {
   for(const role of ['anon','authenticated']) {
     await assert.rejects(()=>asRole(role,'select * from public.wf_group_plans'),/permission denied/i);count++;
     await assert.rejects(()=>asRole(role,'select * from public.wf_group_plan_notices'),/permission denied/i);count++;
+    await assert.rejects(()=>asRole(role,'select * from public.wf_group_plan_sms_optins'),/permission denied/i);count++;
+    await assert.rejects(()=>asRole(role,'select * from public.wf_group_plan_sms'),/permission denied/i);count++;
     await assert.rejects(()=>asRole(role,'select public.wf_group_plan_rate_limit($1,10)',['b'.repeat(64)]),/permission denied/i);count++;
     await assert.rejects(()=>asRole(role,'select public.wf_group_plan_create($1,$2,$3,false)',[JSON.stringify(make()),'c'.repeat(64),randomUUID()]),/permission denied/i);count++;
+    await assert.rejects(()=>asRole(role,'select public.wf_group_plan_delete($1,$2)',[state.id,owner]),/permission denied/i);count++;
+    await assert.rejects(()=>asRole(role,'select public.wf_group_plan_clean_history($1,$2)',[owner,'finished']),/permission denied/i);count++;
   }
   const roleRead=await asRole('service_role','select id from public.wf_group_plans where id=$1',[state.id]);eq(roleRead.rows.length,1,'only server role can read');
   const tooMany=make();tooMany.invitees=Array.from({length:11},(_,i)=>({...tooMany.invitees[0],id:randomUUID(),name:`Friend ${i}`}));
@@ -74,6 +84,21 @@ try {
   const finalized=applyGroupPlanCommand(close,{id:randomUUID(),type:'finalize',placeId:'place-one',timeId:close.times[0].id},{now:new Date(now).toISOString()});
   eq((await commit(close,finalized,'finalize')).status,'finalized');
   eq((await db.query('select count(*)::int as n from public.wf_group_plan_notices where plan_id=$1',[state.id])).rows[0].n,2);
+  // Open group-link plan: 0 initial invitees, join_respond appends slot, prior slots stay immutable, early close works once >=1 replied.
+  const grp=make(owner,{shareMode:'group',openGroup:true,invitees:[]});
+  eq((await create(grp)).state.invitees.length,0,'SQL accepts 0 initial invitees in group mode');
+  const grpOpen=applyGroupPlanCommand(grp,{id:randomUUID(),type:'start'},{now:new Date(now).toISOString()});
+  eq((await commit(grp,grpOpen,'start')).status,'open');
+  const grpEarlyBad={...grpOpen,status:'closed',revision:grpOpen.revision+1};
+  eq((await commit(grpOpen,grpEarlyBad,'close')).error,'early_close','SQL refuses closing group vote with zero replies');
+  const grpJoined=applyGroupPlanCommand(grpOpen,{id:randomUUID(),type:'join_respond',slotId:randomUUID(),guestName:'Maya',placeId:'place-one',availableTimeIds:[grpOpen.times[0].id],declined:false},{now:new Date(now).toISOString()});
+  const grpJoinedRow=await commit(grpOpen,grpJoined,'join_respond');
+  eq(grpJoinedRow.status,'open','open group vote stays open after first join');
+  eq(grpJoinedRow.state.invitees.length,1,'join_respond appends voter slot');
+  const grpForged=structuredClone(grpJoined);grpForged.revision+=1;grpForged.invitees[0].name='Tampered';grpForged.invitees.push({id:randomUUID(),name:'Zoe',inviteVersion:1,response:null,shareInitiatedAt:null});
+  eq((await commit(grpJoined,grpForged,'join_respond')).error,'immutable','join_respond cannot mutate existing slot names');
+  const grpClosed=applyGroupPlanCommand(grpJoined,{id:randomUUID(),type:'close'},{now:new Date(now).toISOString()});
+  eq((await commit(grpJoined,grpClosed,'close')).status,'closed','group mode allows organizer early close once a reply exists');
   let unknownState=noEnd;
   for(const command of [{id:randomUUID(),type:'start'},...noEnd.invitees.map((slot)=>({id:randomUUID(),type:'respond',slotId:slot.id,placeId:'place-one',availableTimeIds:[noEnd.times[0].id]})),{id:randomUUID(),type:'finalize',placeId:'place-one',timeId:noEnd.times[0].id,acknowledgeVenueHours:true}]) {
     const next=applyGroupPlanCommand(unknownState,command,{now:new Date(now).toISOString()});
@@ -84,7 +109,7 @@ try {
   const reply=applyGroupPlanCommand(lateOpen,{id:randomUUID(),type:'respond',slotId:lateOpen.invitees[0].id,placeId:'place-one',availableTimeIds:[]},{now:new Date(now).toISOString()});
   eq((await commit(lateOpen,reply,'respond')).error,'deadline','database server time rejects late response even if app used an earlier clock');
   for(let i=0;i<3;i++)eq(await invoke('wf_group_plan_rate_limit',['b'.repeat(64),2]),i<2);
-  const flags=await db.query(`select relname,relrowsecurity from pg_class where relname in ('wf_group_plans','wf_group_plan_notices','wf_group_plan_limits')`);eq(flags.rows.length,3);ok(flags.rows.every((r)=>r.relrowsecurity),'all tables enable RLS');
+  const flags=await db.query(`select relname,relrowsecurity from pg_class where relname in ('wf_group_plans','wf_group_plan_notices','wf_group_plan_limits','wf_group_plan_sms_optins','wf_group_plan_sms')`);eq(flags.rows.length,5);ok(flags.rows.every((r)=>r.relrowsecurity),'all five group plan tables enable RLS');
   const defs=await db.query(`select p.proname,p.prosecdef from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'wf_group_plan_%'`);ok(defs.rows.every((r)=>r.prosecdef===false),'no SECURITY DEFINER bypass');
   const emailPlan=make();await invoke('wf_group_plan_create',[JSON.stringify(emailPlan),'e'.repeat(64),randomUUID(),true]);
   let emailState=emailPlan;
@@ -97,12 +122,32 @@ try {
   await db.query("update public.wf_group_plan_notices set next_attempt_at=clock_timestamp()-interval '1 second' where id=$1",[notice.id]);
   const claim2=randomUUID(),retryNotice=await invoke('wf_group_plan_claim_notice',[claim2]);eq(retryNotice.id,notice.id);eq(retryNotice.attempts,2);
   eq(await invoke('wf_group_plan_finish_notice',[notice.id,claim2,'provider_accepted',null]),true);eq(await invoke('wf_group_plan_claim_notice',[randomUUID()]),null,'accepted notice is never retried');
+  // SMS opt-in + SMS log + delete + dismiss + clean_history (scoped to owner, cascading cleanly).
+  await assert.rejects(()=>db.query(`insert into public.wf_group_plan_sms_optins(plan_id,slot_key,phone,consent_text) values($1,'organizer','+18135550101','short')`,[grp.id]),/check constraint/i);count++;
+  const consent='Text me my Group Vote link and update when voting finishes. Reply STOP to opt out.';
+  await db.query(`insert into public.wf_group_plan_sms_optins(plan_id,slot_key,phone,consent_text) values($1,'organizer','+18135550101',$2)`,[grp.id,consent]);
+  await db.query(`insert into public.wf_group_plan_sms(plan_id,slot_key,kind,recipient,consent_text) values($1,'organizer','organizer_created','+18135550101',$2)`,[grp.id,consent]);
+  const grpNoticeId=(await db.query('select id from public.wf_group_plan_notices where plan_id=$1 limit 1',[grp.id])).rows[0].id;
+  eq(await invoke('wf_group_plan_dismiss_notice',[grpNoticeId,other]),false,'other user cannot dismiss owner notice');
+  eq(await invoke('wf_group_plan_dismiss_notice',[grpNoticeId,owner]),true,'owner dismisses notice');
+  eq(await invoke('wf_group_plan_delete',[grp.id,other]),false,'other user cannot delete owner plan');
+  eq(await invoke('wf_group_plan_delete',[grp.id,owner]),true,'owner deletes plan');
+  eq((await db.query('select count(*)::int as n from public.wf_group_plan_sms_optins where plan_id=$1',[grp.id])).rows[0].n,0,'delete cascades sms opt-ins');
+  eq((await db.query('select count(*)::int as n from public.wf_group_plan_sms where plan_id=$1',[grp.id])).rows[0].n,0,'delete cascades sms log');
+  const activeKeep=make(owner);await create(activeKeep);const activeKeepOpen=applyGroupPlanCommand(activeKeep,{id:randomUUID(),type:'start'},{now:new Date(now).toISOString()});await commit(activeKeep,activeKeepOpen,'start');
+  const cleanFin=await invoke('wf_group_plan_clean_history',[owner,'finished']);ok(cleanFin.deleted_plans>=1,'clean finished removes closed/finalized plans');
+  eq((await db.query('select count(*)::int as n from public.wf_group_plans where id=$1',[activeKeep.id])).rows[0].n,1,'clean finished preserves active open plan');
+  eq((await db.query('select count(*)::int as n from public.wf_group_plans where owner_id=$1',[other])).rows[0].n,1,'clean finished never touches other user');
+  const cleanAll=await invoke('wf_group_plan_clean_history',[owner,'all']);ok(cleanAll.deleted_plans>=1,'clean all clears owner history');
+  eq((await db.query('select count(*)::int as n from public.wf_group_plans where owner_id=$1',[owner])).rows[0].n,0,'all owner plans removed');
+  eq((await db.query('select count(*)::int as n from public.wf_group_plans where owner_id=$1',[other])).rows[0].n,1,'other user plans remain untouched');
+  // Retention cleanup check on remaining other-user plan.
   const beforeCleanup=(await db.query('select count(*)::int as n from public.wf_group_plans')).rows[0].n;
   eq((await invoke('wf_group_plan_cleanup',[])).expired_plans_removed,0,'retention never removes active plans');
   const oldDeadline=new Date(now-86400000).toISOString(),oldCreated=new Date(now-120*86400000).toISOString(),oldExpiry=new Date(now-1000).toISOString();
-  await db.query(`update public.wf_group_plans set created_at=$2::timestamptz,deadline=$3::text::timestamptz,expires_at=$4::timestamptz,state=jsonb_set(state,'{deadline}',to_jsonb($3::text)) where id=$1`,[state.id,oldCreated,oldDeadline,oldExpiry]);
+  await db.query(`update public.wf_group_plans set created_at=$2::timestamptz,deadline=$3::text::timestamptz,expires_at=$4::timestamptz,state=jsonb_set(state,'{deadline}',to_jsonb($3::text)) where id=$1`,[separate.id,oldCreated,oldDeadline,oldExpiry]);
   eq((await invoke('wf_group_plan_cleanup',[])).expired_plans_removed,1,'only the expired plan is removed');
   eq((await db.query('select count(*)::int as n from public.wf_group_plans')).rows[0].n,beforeCleanup-1,'other plans remain');
-  eq((await db.query('select count(*)::int as n from public.wf_group_plan_notices where plan_id=$1',[state.id])).rows[0].n,0,'expired plan notices are removed with it');
+  eq((await db.query('select count(*)::int as n from public.wf_group_plan_notices where plan_id=$1',[separate.id])).rows[0].n,0,'expired plan notices are removed with it');
   console.log(`test-group-plan-schema: ${count} assertions passed on embedded PostgreSQL; hosted and multi-connection checks remain separate`);
 } finally {await db.close();}

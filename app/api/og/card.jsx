@@ -146,6 +146,16 @@ function PixelHeart({ x, y, px, fill, opacity }) {
   );
 }
 
+function BallotCheck({ x, y, size, fill, stroke, opacity }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64"
+      style={{ position: "absolute", left: x, top: y, opacity: opacity == null ? 1 : opacity }}>
+      <rect x="4" y="4" width="56" height="56" rx="18" fill={fill} stroke={stroke} strokeWidth="3" />
+      <path d="M20 33l8 8 17-18" fill="none" stroke={stroke} strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function WayfindCard({ model }) {
   const m = model || {};
   const lines = Array.isArray(m.lines) ? m.lines : [];
@@ -153,16 +163,17 @@ export function WayfindCard({ model }) {
   const size = m.size || 96;
   const T = toneFor(m.tone);
   const blush = m.tone === "blush";
+  const group = m.tone === "group";
   return (
     <div style={{ width: CARD.w, height: CARD.h, display: "flex", position: "relative",
-      overflow: "hidden", background: T.bg, backgroundColor: blush ? "#E1A0E6" : T.bg, fontFamily: "Archivo" }}>
+      overflow: "hidden", background: T.bg, backgroundColor: blush ? "#E1A0E6" : group ? "#070D19" : T.bg, fontFamily: "Archivo" }}>
 
       {/* Two soft fields, no photograph. They give the flat plate some depth at
           full size and vanish harmlessly at thumbnail size. */}
       <div style={{ position: "absolute", left: -240, top: 290, width: 940, height: 940, display: "flex",
-        background: "radial-gradient(circle, " + T.glow + "0.20) 0%, " + T.glow + "0) 68%)" }} />
+        background: "radial-gradient(circle, " + T.glow + "0.22) 0%, " + T.glow + "0) 68%)" }} />
       <div style={{ position: "absolute", left: 830, top: -280, width: 780, height: 780, display: "flex",
-        background: "radial-gradient(circle, " + T.glow + "0.09) 0%, " + T.glow + "0) 68%)" }} />
+        background: "radial-gradient(circle, " + T.glow + "0.12) 0%, " + T.glow + "0) 68%)" }} />
 
       {/* The invite card floats hearts instead of carrying the wordmark up top.
           It is opened by someone who was texted a question, not by a customer:
@@ -174,6 +185,12 @@ export function WayfindCard({ model }) {
           <PixelHeart x={1064} y={214} px={5} fill="#FFFFFF" opacity={0.6} />
           <PixelHeart x={986} y={392} px={4} fill="#FFFFFF" opacity={0.45} />
           <PixelHeart x={1092} y={468} px={6} fill="#FFFFFF" opacity={0.75} />
+        </div>
+      ) : group ? (
+        <div style={{ position: "absolute", left: 0, top: 0, width: CARD.w, height: CARD.h, display: "flex" }}>
+          <BallotCheck x={1056} y={160} size={78} fill="rgba(249,115,22,0.16)" stroke="#F97316" opacity={0.85} />
+          <BallotCheck x={994} y={278} size={58} fill="rgba(34,197,94,0.16)" stroke="#22C55E" opacity={0.78} />
+          <BallotCheck x={1064} y={370} size={68} fill="rgba(255,255,255,0.06)" stroke="#FF9448" opacity={0.52} />
         </div>
       ) : <div style={{ display: "flex" }} />}
 

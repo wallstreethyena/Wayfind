@@ -20,7 +20,7 @@ check(() => assert.match(map, /Share this event/, "map event preview offers Shar
 check(() => assert.match(map, /openShareFlow\(\{ title: ev\.name/, "map event share opens the shared flow"));
 
 const best = read("app/components/BestNearby.js");
-check(() => assert.match(best, /fallbackShareCard\(\{ id: p\.place_id, name: p\.name \}/, "top-40 card falls back to the shared share flow"));
+check(() => assert.match(best, /fallbackShareCard\(\{ id: p\.place_id(?:\s*\|\|\s*p\.id)?, name: p\.name \}/, "top-40 card falls back to the shared share flow"));
 check(() => assert.doesNotMatch(best, /onShare=\{\(\) => \{ try \{ onLog && onLog\("share", null, \{ id: p\.place_id, kind: "top40_card" \}\); \} catch \(e\) \{\} \}\}/, "top-40 share must not be analytics-only"));
 
 const itin = read("app/components/screens/Itinerary.js");

@@ -70,7 +70,7 @@ export default function ShareButton({
   const onClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const how = openShareFlow({ url, title, text }, () => {
+    const how = openShareFlow({ url, title, text, placeId: (invite && invite.placeId) || "" }, () => {
       setSaid("Link copied");
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => setSaid(""), 2400);

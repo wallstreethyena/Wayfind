@@ -499,6 +499,7 @@ export default function RailCard({
   const canFallback = !!(place && place.id);
   const contentSubject = !canFallback ? {
     id: (actionItem && actionItem.id) || cardHref || title,
+    placeId: (actionItem && (actionItem.placeId || actionItem.place_id)) || "",
     type: (actionItem && actionItem.type) || "experience",
     title: (actionItem && (actionItem.title || actionItem.name)) || title,
     image: (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
@@ -576,7 +577,7 @@ export default function RailCard({
   const doSave = onSave || (useFb ? () => fallbackSave(place, { surface: "rail_card" }) : content.toggleSave);
   const doLike = onLike || (useFb ? () => fallbackLike(place, { surface: "rail_card", position: rank }) : content.toggleLike);
   const doDislike = onDislike || (useFb ? () => fallbackDislike(place, { surface: "rail_card", position: rank }) : content.toggleDislike);
-  const doShare = onShare || (useFb ? () => fallbackShare(place, { surface: "rail_card" }) : content.share);
+  const doShare = onShare || (canFallback ? () => fallbackShare(place, { surface: "rail_card" }) : content.share);
   const isSavedNow = onSave ? !!saved : useFb ? !!fb.saved[place.id] : contentSubject ? content.saved : !!saved;
   const isLikedNow = onLike ? !!liked : useFb ? !!fb.liked[place.id] : contentSubject ? content.liked : !!liked;
   const isDislikedNow = onDislike ? !!disliked : useFb ? !!fb.disliked[place.id] : contentSubject ? content.disliked : !!disliked;

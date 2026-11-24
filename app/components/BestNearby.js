@@ -1132,7 +1132,7 @@ export default function BestNearby({
                     ariaLabel={"Open " + p.name}
                     place={{ id: p.place_id || p.id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) }}
                     onOpen={() => { try { onLog && onLog("best_nearby_detail", { id: p.place_id, name: p.name }, { rail: "top40", pos: i + 1 }); } catch (e) {} openPlace(p); }}
-                    onShare={() => { try { onLog && onLog("share", null, { id: p.place_id, kind: "top40_card" }); } catch (e) {} if (onShare) { try { onShare({ id: p.place_id, name: p.name }); } catch (e) {} } else { try { fallbackShareCard({ id: p.place_id, name: p.name }, { surface: "top40_card" }); } catch (e) {} } }}
+                    onShare={() => { const pid = p.place_id || p.id; try { onLog && onLog("share", null, { id: pid, kind: "top40_card" }); } catch (e) {} if (onShare) { try { onShare({ id: pid, name: p.name }); } catch (e) {} } else { try { fallbackShareCard({ id: p.place_id || p.id, name: p.name }, { surface: "top40_card" }); } catch (e) {} } }}
                   />
                 );
               })}
@@ -1249,7 +1249,7 @@ export default function BestNearby({
                             onSave={onSave ? (e) => onSave(e, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) }) : undefined}
                             onLike={onLike ? (e) => onLike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }) : undefined}
                             onDislike={onDislike ? (e) => onDislike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }) : undefined}
-                            onShare={() => { if (onShare) onShare({ id: p.place_id, name: p.name }); }}
+                            onShare={() => { if (onShare) onShare({ id: p.place_id || p.id, name: p.name }); }}
                           />
                           );
                         })

@@ -362,8 +362,9 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
               chips={CREATOR_POST_CHIPS}
               ariaLabel={"Open " + s0.name}
+              place={h && h.id ? { ...h, name: h.name || s0.name } : undefined}
               onOpen={openRegistry}
-              onShare={() => openShareFlow({ title: s0.name, city: s0.city, url: canonicalShareUrl(spotHref) })}
+              onShare={h && h.id && onShare ? () => onShare({ ...h, name: h.name || s0.name }) : (h && h.id ? undefined : () => openShareFlow({ title: s0.name, city: s0.city, url: canonicalShareUrl(spotHref) }))}
             />
           );
         })}

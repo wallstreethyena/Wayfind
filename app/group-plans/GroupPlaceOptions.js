@@ -41,7 +41,8 @@ export function staleFactsNote(place,timeZone) {
 }
 
 function PlaceResearch({place}) {
-  return <details className="gp-research"><summary>Why this place & sources</summary><div>{place.editorial?.status==="verified"?<p>{place.editorial.text}</p>:<><p className="gp-muted">{place.comparisonReasons?.length?place.comparisonReasons.join(" · "):"We’re still checking what makes this place stand out."}</p>{place.comparisonReasons?.length?<p className="gp-note">What it’s known for is still being checked.</p>:null}</>}
+  const reasons=place.comparisonReasons?.length?place.comparisonReasons:place.matchReasons;
+  return <details className="gp-research"><summary>Why this place & sources</summary><div>{place.editorial?.status==="verified"?<p>{place.editorial.text}</p>:<><p className="gp-muted">{reasons?.length?reasons.join(" · "):"We’re still checking what makes this place stand out."}</p>{reasons?.length?<p className="gp-note">What it’s known for is still being checked.</p>:null}</>}
 
     {place.editorial?.checkedAt&&<p className="gp-note">Sources checked {new Date(place.editorial.checkedAt).toLocaleDateString("en-US",{timeZone:"UTC"})}</p>}
     {!!place.editorial?.sources?.length&&<div className="gp-source-list">{place.editorial.sources.map((url,n)=><a key={url} href={url} target="_blank" rel="noopener noreferrer">Source {n+1}</a>)}</div>}
@@ -76,22 +77,22 @@ function VoteCard({place,label,selected,onSelect,timeZone}) {
   </section>;
 }
 
-const firstName=(value)=>String(value||"").trim().split(/\s+/)[0]||"Your host";
+const firstName=(value)=>{const raw=String(value||"").trim().split(/\s+/)[0]||"Your host";return raw.length>1?raw[0].toUpperCase()+raw.slice(1):raw.toUpperCase();};
 
 export function GroupPlaceOptions({plan,selected,onSelect,readOnly=false}) {
-  if(readOnly) return <div className="gp-grid">{plan.places.map((place,i)=><section className="gp-option" key={place.id}>
-    <p className="gp-tag">{place.id===plan.originalPlaceId?"Original idea":`Alternative ${i}`}</p>
+  if(readOnly) return <div className="gp-grid">{plan.places.slice(0,5).map((place,i)=><section className="gp-option" key={place.id}>
+    <p className="gp-tag">{place.id===plan.originalPlaceId?"Original idea":place.kind==="experience"?`Experience · Option ${i+1}`:`Alternative ${i}`}</p>
     {PlaceCard({place})}
     {staleFactsNote(place,plan.timeZone)}
     {PlaceHoursNote({place})}
     {PlaceResearch({place})}
   </section>)}</div>;
   const original=plan.places.find((p)=>p.id===plan.originalPlaceId)||plan.places[0];
-  const alternatives=plan.places.filter((p)=>p!==original).slice(0,2);
+  const alternatives=plan.places.filter((p)=>p!==original).slice(0,4);
   if(!original) return null;
   return <div className="gb-options">
     <VoteCard place={original} label={`${firstName(plan.organizerName)}’s pick`} selected={selected} onSelect={onSelect} timeZone={plan.timeZone}/>
     {alternatives.length>0&&<><p className="gb-or">Or vote for one of these instead</p>
-      {alternatives.map((place)=><VoteCard key={place.id} place={place} selected={selected} onSelect={onSelect} timeZone={plan.timeZone}/>)}</>}
+      {alternatives.map((place)=><VoteCard key={place.id} place={place} label={place.kind==="experience"?"Matching experience":undefined} selected={selected} onSelect={onSelect} timeZone={plan.timeZone}/>)}</>}
   </div>;
 }
