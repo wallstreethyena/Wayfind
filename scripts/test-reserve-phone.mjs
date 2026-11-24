@@ -427,6 +427,8 @@ const storedBlob = (repo) => JSON.stringify({ requests: repo.requests, audits: r
   await createTwilioVoiceAdapter({ config: cfg, fetchImpl }).placeCall({ to: DRY, script, requestId: "33333333-3333-4333-8333-333333333333" });
   const form = new URLSearchParams(seen[0].body);
   ok(form.get("StatusCallback") === preview + "/api/reserve/phone-status" && form.get("Twiml").includes("requestId") && form.get("Record") === "false", "the status callback uses the configured origin and the relay is told the request id");
+  const callbackEvents = form.getAll("StatusCallbackEvent");
+  ok(callbackEvents.length === 1 && callbackEvents[0] === "completed", "Twilio receives the completed event, which reports every terminal call status");
 
   const tel = fakeTelephony();
   const dryEnv = { ...BASE, RESERVE_PHONE_DRY_RUN_TO: DRY };
@@ -440,6 +442,38 @@ const storedBlob = (repo) => JSON.stringify({ requests: repo.requests, audits: r
   const closedTel = fakeTelephony();
   const closedDry = await startPhoneRequest({ repository: memoryRepo(CLOSED_NOW), env: dryEnv, request: ask({ phonePlace: placeRow(CLOSED_NOW) }), nowMs: NOW, telephony: closedTel });
   ok(closedDry.ok && closedTel.placed.length === 1, "a dry run is not blocked by restaurant hours");
+
+  const previewEnv = { ...dryEnv, VERCEL_ENV: "preview", RESERVE_PHONE_CALLBACK_BASE: preview, RESERVE_PHONE_ALLOWLIST: "" };
+  const conciergeRepo = memoryRepo();
+  const conciergeTel = fakeTelephony();
+  const askForDryRun = async (env, signedIn = true) => {
+    const handlers = createReserveHandlers({
+      env, now: () => NOW, repository: conciergeRepo, verifyUser: async () => ({ id: USER }), phoneTelephony: conciergeTel,
+    });
+    const headers = { origin: preview, "content-type": "application/json" };
+    if (signedIn) headers.authorization = "Bearer " + "x".repeat(20);
+    const response = await handlers.concierge(new Request(preview + "/api/reserve/concierge", {
+      method: "POST", headers, body: JSON.stringify({ messages: [
+        { role: "user", content: "Reserve a table at wf-phone-dry-run tomorrow at 7 pm for 2" },
+      ] }),
+    }));
+    return response.json();
+  };
+  const dryRunOffer = await askForDryRun(previewEnv);
+  ok(dryRunOffer.ok && dryRunOffer.state?.placeId === PHONE_DRY_RUN_PLACE_ID && dryRunOffer.card?.type === "phone_request" &&
+    dryRunOffer.card?.date === "2026-11-12" && dryRunOffer.card?.time === "19:00" && dryRunOffer.card?.partySize === 2,
+    "plain preview Concierge chat resolves the synthetic place and offers Confirm");
+  const offCases = await Promise.all([
+    askForDryRun({ ...previewEnv, RESERVE_PHONE_DRY_RUN_TO: "" }),
+    askForDryRun({ ...previewEnv, RESERVE_PHONE_ENABLED: "0" }),
+    askForDryRun({ ...previewEnv, RESERVE_PHONE_KILL: "1" }),
+    askForDryRun({ ...previewEnv, TWILIO_AUTH_TOKEN: "" }),
+    askForDryRun({ ...previewEnv, VERCEL_ENV: "production" }),
+    askForDryRun(previewEnv, false),
+  ]);
+  ok(offCases.every((turn) => turn.ok && turn.state?.placeId !== PHONE_DRY_RUN_PLACE_ID && turn.card?.type !== "phone_request"),
+    "the synthetic name stays unavailable without the preview dry run configuration or a signed-in guest");
+  ok(conciergeTel.placed.length === 0 && conciergeRepo.requests.length === 0, "asking for the dry run never dials or creates a request");
 
   const post = (body, env, repo, tel) => createReserveHandlers({
     env, now: () => NOW, repository: repo, fetchImpl: () => { throw new Error("network"); },
@@ -528,6 +562,12 @@ const storedBlob = (repo) => JSON.stringify({ requests: repo.requests, audits: r
   const goodJson = await good.json();
   const row = repo.requests.find((r) => r.id === started.phone.id);
   ok(good.status === 200 && goodJson.phone.line === PHONE_CONFIRMED_LINE && row.guest_label === "Gabriel P." && row.confirmation_detail === "AB12" && !String(row.summary).includes("4111") && !("transcript" in row), "a good secret stores the confirmed line and drops the transcript");
+  const pollRequest = () => new Request(ORIGIN + "/api/reserve/phone?id=" + started.phone.id);
+  const ownedResponse = await handlers(BASE).phoneGet(pollRequest());
+  const owned = await ownedResponse.json();
+  ok(ownedResponse.status === 200 && owned.phone.confirmationDetail === "AB12" && !("summary" in owned.phone), "the owner can read the confirmation detail without seeing the stored summary");
+  const other = createReserveHandlers({ env: BASE, repository: repo, verifyUser: async () => ({ id: OTHER }) });
+  ok((await other.phoneGet(pollRequest())).status === 404, "another guest cannot read the confirmation detail");
 
   const posted = [];
   const signed = { secret: SECRET, token: TOKEN, publicUrl: "ws://127.0.0.1/pending", holdSeconds: 45, outcomeUrl: ORIGIN + "/api/reserve/phone-outcome" };
@@ -603,6 +643,9 @@ const storedBlob = (repo) => JSON.stringify({ requests: repo.requests, audits: r
     if (u.includes("/api/reserve/phone") && (!init || init.method === "POST")) {
       return { ok: true, status: 201, json: async () => ({ ok: true, phone: { id: "33333333-3333-4333-8333-333333333333", outcome: null, line: "Calling the restaurant now. I will bring their answer back here.", restaurantName: "Harbor Grill", date: "2026-11-18", time: "19:00", partySize: 2 } }) };
     }
+    if (u.includes("/api/reserve/phone?") && init?.method === "GET") {
+      return { ok: true, status: 200, json: async () => ({ ok: true, phone: { id: "33333333-3333-4333-8333-333333333333", outcome: "confirmed", line: PHONE_CONFIRMED_LINE, confirmationDetail: "AB12" } }) };
+    }
     return { ok: false, status: 404, json: async () => ({ ok: false }) };
   };
   const React = (await import("react")).default;
@@ -623,6 +666,9 @@ const storedBlob = (repo) => JSON.stringify({ requests: repo.requests, audits: r
   const phonePost = posts.find((p) => p.u.includes("/api/reserve/phone"));
   ok(outcome && outcome.getAttribute("data-reserve-status") === "calling" && outcome.getAttribute("data-reserve-booked") === "0" && /The restaurant confirmed by phone|Calling the restaurant now/.test(outcome.textContent) && /Calling the restaurant now/.test(outcome.textContent) && !/Booked/i.test(document.body.textContent), "Confirm shows the calling line, not Booked");
   ok(phonePost && phonePost.body && phonePost.body.placeId === PLACE && !("events" in phonePost.body), "Confirm posts the request and does not send a transcript");
+  await React.act(async () => { await new Promise((r) => setTimeout(r, 3100)); });
+  const confirmedCard = document.querySelector("[data-reserve-card='phone_outcome']");
+  ok(confirmedCard?.dataset.reserveStatus === "confirmed" && confirmedCard.textContent.includes(PHONE_CONFIRMED_LINE) && confirmedCard.textContent.includes("AB12"), "the chat shows the restaurant's confirmation detail after the status poll");
   await React.act(async () => { root.unmount(); });
   w.close();
 }
