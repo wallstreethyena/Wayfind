@@ -66,6 +66,7 @@ import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { useCardTapIntent } from "./useCardTapIntent.js";
 import { trendPulseClass } from "../../lib/trendPulse.js";
 import { storedPlaceHeader } from "../../lib/locationHonesty.js";
+import { useCuratedPlace } from "../../lib/curatorPicks.js";
 import { useReserveEntry } from "../../lib/reserveClient.js";
 // The button itself rides inside the lazy partners chunk (see lib/reserveClient.js); the hook hands the card that component.
 
@@ -325,6 +326,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // caller passing it. A caller that never sets it gets byte-identical output
   // to before this prop existed.
   cta = null }) {
+  const scoredPlace = useCuratedPlace(!cardActionsReadOnly ? place : null) || place;
   const userDistance = usePlaceDistance(place);
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
@@ -458,7 +460,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // byVisibleScore carries governed_score (base +0.2 video −0.2 far +0.6
   // trending, disclosed below) — prefer it so the badge can never disagree
   // with the row's position. Un-ranked callers keep the canonical base.
-  const score = toDisplayScore(Number.isFinite(place.governed_score) ? place.governed_score : place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
+  const score = toDisplayScore(Number.isFinite(scoredPlace.governed_score) ? scoredPlace.governed_score : scoredPlace.wfScore != null ? scoredPlace.wfScore : wayfindScore(place.rating, place.reviews));
   const status = businessStatus({
     ...place,
     oh: place.oh || place.regularOpeningHours || null,
@@ -466,7 +468,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   });
   const state = status.open === true ? "Open" : status.open === false ? "Closed" : null;
   const distance = userDistance == null ? null : formatDistanceMiles(userDistance) + " mi";
-  const isCuratorPick = !!(place._members && place._members.ownerPick);
+  const isCuratorPick = scoredPlace._members?.ownerPick === true;
   const facts = [
     place.reviews ? compactCount(place.reviews) + " reviews" : null,
     priceLabel(place.priceLevel ?? place.price_level ?? place.priceNum),
