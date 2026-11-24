@@ -259,6 +259,7 @@ for (const label of ["Ask Boo", "All Haunts", "Major Scream Parks", "Local Haunt
   ok(html.includes(label), "renders " + label);
 }
 ok(html.includes("Wayfind may earn a commission when you book through partner links."), "affiliate disclosure");
+ok(html.includes("data-holiday-now") && html.includes('href="/christmas-in-florida"') && html.includes("Christmas in Florida is on now") && html.includes('href="/guides/things-to-do-orlando-not-theme-parks"') && html.includes('href="/guides/things-to-do-sarasota"'), "paid traffic that still lands here is pointed at Christmas and live guides");
 ok((html.match(/Wayfind may earn a commission when you book through partner links\./g) || []).length === 1, "page disclosure appears once");
 const affiliateHaunts = model.haunts.filter((row) => row.cta.kind === "affiliate");
 ok((html.match(/which never changes our picks or their order\./g) || []).length === affiliateHaunts.length, "pick disclosure sits on each partner haunt button (" + affiliateHaunts.length + ") and not on organizer links");

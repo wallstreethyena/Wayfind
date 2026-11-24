@@ -4,6 +4,7 @@
 // a straight polyline through them. "Route it" still opens Google Maps.
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, setWorkerUrl } from "maplibre-gl";
+import { createLocationDotElement, readGrantedDeviceLocation } from "../../lib/mapPinStandard.js";
 import { safeRemoveMap } from "../../lib/mapTeardown";
 
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
@@ -23,15 +24,41 @@ function pointsOf(items) {
     .filter(Boolean);
 }
 
-export default function ItineraryRouteMap({ items }) {
+export default function ItineraryRouteMap({ items, deviceLoc = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
+  const userMarkerRef = useRef(null);
   const pointsRef = useRef([]);
   const [failed, setFailed] = useState(false);
+  const [grantedLoc, setGrantedLoc] = useState(null);
+  const hasExplicitDeviceLoc = !!(deviceLoc && Number.isFinite(Number(deviceLoc.lat)) && Number.isFinite(Number(deviceLoc.lng)) && !(Number(deviceLoc.lat) === 0 && Number(deviceLoc.lng) === 0));
+  useEffect(() => {
+    if (hasExplicitDeviceLoc) return undefined;
+    return readGrantedDeviceLocation(setGrantedLoc);
+  }, [hasExplicitDeviceLoc]);
+  const effectiveDeviceLoc = hasExplicitDeviceLoc
+    ? { lat: Number(deviceLoc.lat), lng: Number(deviceLoc.lng) }
+    : grantedLoc;
+  const userLocRef = useRef(effectiveDeviceLoc);
+  userLocRef.current = effectiveDeviceLoc;
   const points = pointsOf(items);
   pointsRef.current = points;
   const signature = points.map((p) => p.lng + "," + p.lat + ":" + p.n).join("|");
+
+  const syncUserMarker = () => {
+    const map = mapRef.current;
+    if (userMarkerRef.current) {
+      try { userMarkerRef.current.remove(); } catch (e) {}
+      userMarkerRef.current = null;
+    }
+    const pt = userLocRef.current;
+    if (!map || !map.isStyleLoaded() || !pt) return;
+    try {
+      const node = createLocationDotElement({ label: "Your location" });
+      userMarkerRef.current = new Marker({ element: node, anchor: "center" }).setLngLat([pt.lng, pt.lat]).addTo(map);
+    } catch (e) {}
+  };
 
   const draw = () => {
     const map = mapRef.current;
@@ -62,6 +89,7 @@ export default function ItineraryRouteMap({ items }) {
     if (!bounds.isEmpty()) {
       try { map.fitBounds(bounds, { padding: 36, maxZoom: 13, duration: 0 }); } catch (e) {}
     }
+    syncUserMarker();
   };
 
   useEffect(() => {
@@ -105,6 +133,10 @@ export default function ItineraryRouteMap({ items }) {
     return () => {
       markersRef.current.forEach((marker) => { try { marker.remove(); } catch (e) {} });
       markersRef.current = [];
+      if (userMarkerRef.current) {
+        try { userMarkerRef.current.remove(); } catch (e) {}
+        userMarkerRef.current = null;
+      }
       safeRemoveMap(map);
       mapRef.current = null;
     };
@@ -113,6 +145,7 @@ export default function ItineraryRouteMap({ items }) {
   }, [points.length > 0]);
 
   useEffect(() => { draw(); }, [signature]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { syncUserMarker(); }, [effectiveDeviceLoc?.lat, effectiveDeviceLoc?.lng]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!points.length) {
     return <div style={{ fontSize: 12.5, color: "#94A3B8", marginBottom: 12 }}>Add stops with a location to see the route.</div>;

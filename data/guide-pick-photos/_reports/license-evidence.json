@@ -1,23 +1,24 @@
 {
   "generatedBy": "scripts/build-guide-photo-license-evidence.mjs",
-  "verifiedAt": "2026-11-17",
-  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0); NC and ND never pass.",
+  "verifiedAt": "2026-11-23",
+  "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0), or a venue website photo owner-authorized on 23 November 2026 for restaurant guide picks; NC and ND never pass.",
   "summary": {
-    "files": 407,
-    "usages": 433,
-    "verified": 407,
+    "files": 426,
+    "usages": 456,
+    "verified": 432,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 99,
-      "CC BY-SA 3.0": 85,
+      "CC BY-SA 4.0": 98,
+      "CC BY-SA 3.0": 84,
       "CC BY 4.0": 22,
-      "CC BY 3.0": 21,
-      "CC BY 2.0": 103,
+      "CC BY 3.0": 22,
+      "CC BY 2.0": 104,
       "CC0 1.0 Universal": 26,
-      "CC BY-SA 2.0": 40,
+      "venue website photo, owner authorized Nov 23 2026 for guide picks": 19,
+      "CC BY-SA 2.0": 41,
       "Unsplash License": 4,
-      "Public domain": 3,
+      "Public domain": 4,
       "CC BY-SA 2.5": 2
     },
     "replacementCandidates": [
@@ -26,7 +27,8 @@
       "/guides/picks/things-to-do-daytona-beach-summer-2026/crabby-joes-sunglow-pier.webp",
       "/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-inn-on-fifth.webp",
       "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/caladesi-ferry-dock.webp"
-    ]
+    ],
+    "totalFiles": 432
   },
   "files": [
     {
@@ -57,7 +59,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/anna-maria-island-day-trip/the-free-trolley-your-parking-cheat-code.webp",
@@ -87,13 +89,18 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-cuban-sandwich-tampa/columbia-restaurant.webp",
       "usedBy": [
         {
           "slug": "best-cuban-sandwich-tampa",
+          "role": "pick",
+          "pick": "Columbia Restaurant"
+        },
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
           "role": "pick",
           "pick": "Columbia Restaurant"
         },
@@ -122,7 +129,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-cuban-sandwich-tampa/hero-columbia-arcade.webp",
@@ -151,7 +158,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-cuban-sandwich-tampa/la-segunda-central-bakery.webp",
@@ -186,7 +193,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-cuban-sandwich-tampa/the-rules-of-a-tampa-cuban.webp",
@@ -216,7 +223,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-hotels-near-magic-kingdom/contemporary-resort-monorail.webp",
@@ -246,7 +253,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-hotels-near-magic-kingdom/fort-wilderness-cabin.webp",
@@ -276,7 +283,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-hotels-near-magic-kingdom/grand-floridian-waterfront.webp",
@@ -306,7 +313,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-hotels-near-magic-kingdom/polynesian-resort-sunset.webp",
@@ -340,7 +347,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-hotels-near-magic-kingdom/wilderness-lodge-waterfall.webp",
@@ -370,7 +377,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-restaurants-disney-springs/boathouse-disney-springs.webp",
@@ -400,7 +407,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-restaurants-disney-springs/disney-springs-hero.webp",
@@ -429,7 +436,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-restaurants-disney-springs/gideons-bakehouse-sign.webp",
@@ -459,7 +466,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-restaurants-disney-springs/morimoto-asia-interior.webp",
@@ -489,7 +496,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/best-restaurants-disney-springs/trex-cafe-sign-disney-springs.webp",
@@ -506,7 +513,7 @@
         "title": "T-Rex Restaurant at Downtown Disney",
         "author": "Kurtis Garbutt",
         "displayName": "Kurtis Garbutt",
-        "dateTaken": null,
+        "dateTaken": "2013-04-19 01:02:47",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -520,7 +527,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/a-clear-kayak-bioluminescence-tour.webp",
@@ -537,7 +544,7 @@
         "title": "Haulover Canal",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": null,
+        "dateTaken": "2016-12-31 13:16:50",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -551,7 +558,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/bairs-cove-haulover-canal-kayakers.webp",
@@ -564,10 +571,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/23206546@N04/7062563449",
-        "title": "Bair&#x27;s Cove / Haulover Canal, Merritt Island FL",
+        "title": "Bair's Cove / Haulover Canal, Merritt Island FL",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": null,
+        "dateTaken": "2012-04-09 12:41:19",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -581,7 +588,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/come-prepared-for-a-warm-dark-paddle.webp",
@@ -598,7 +605,7 @@
         "title": "Haulover Canal",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": null,
+        "dateTaken": "2012-01-15 15:25:29",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -612,7 +619,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/kennedy-space-center-clock.webp",
@@ -642,7 +649,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/merritt-island-refuge-trail.webp",
@@ -672,7 +679,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/bioluminescence-kayak-tour-space-coast/summer-or-winter-what-actually-glows.webp",
@@ -702,7 +709,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/de-soto-national-memorial-bradenton/camp-uzita.webp",
@@ -732,7 +739,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/de-soto-national-memorial-bradenton/mangrove-shoreline-trail.webp",
@@ -762,7 +769,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/de-soto-national-memorial-bradenton/robinson-preserve-tower.webp",
@@ -792,7 +799,503 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/aloha-isle-santa-surf-shack-float.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Aloha Isle"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/backlot-express-life-day-wookiee-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Backlot Express"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/cosmic-rays-mickey-the-elf.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Cosmic Ray’s Starlight Café"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/epcot-hot-cocoa-funnel-cake.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Funnel Cake kiosk"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/epcot-maple-leaf-shortbread-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Yukon Holiday Kitchen"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/epic-eats-cookie-butter-beignets.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Epic Eats"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/foodie-guide-to-disney-jollywood-nights/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/foodie-guide-to-disney-jollywood-nights/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/foodie-guide-to-disney-jollywood-nights/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/foodie-guide-to-disney-jollywood-nights/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/flame-tree-gingerbread-cheesecake-pop.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Flame Tree Barbecue"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/jock-lindseys-oh-christmas-brie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Jock Lindsey’s Hangar Bar"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/karamell-kuche-caramel-mickey-holiday-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Karamell-Küche"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/kusafiri-festive-chocolate-twist.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Kusafiri Coffee Shop & Bakery"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/main-street-confectionery-holiday-cookie-popcorn.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Main Street Confectionery"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/santas-grove-cookie-butter-milkshake.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Cookie Butter Milkshake at Santa’s Holiday Grove"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/santas-holiday-grove-peppermint-sandwich.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Santa’s Holiday Grove"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/swirls-gingerbread-mickey-cone.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Swirls on the Water"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/terra-treats-reindeer-sundae.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Terra Treats"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/woodys-hot-cocoa-lunch-box-tart.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Woody’s Lunch Box"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/camping-world-stadium-aerial.webp",
@@ -822,7 +1325,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/cinderella-castle-fireworks-hero.webp",
@@ -851,7 +1354,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/epcot-spaceship-earth-monorail.webp",
@@ -881,7 +1384,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/kia-center-arena-exterior.webp",
@@ -911,7 +1414,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/loch-haven-park-science-center-sign.webp",
@@ -920,6 +1423,15 @@
           "slug": "fall-events-orlando-2026",
           "role": "pick",
           "pick": "FusionFest"
+        },
+        {
+          "slug": "florida-thanksgiving-weekend-2026",
+          "role": "pick",
+          "pick": "FusionFest"
+        },
+        {
+          "slug": "florida-thanksgiving-weekend-2026",
+          "role": "hero"
         }
       ],
       "source": {
@@ -941,7 +1453,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/tinker-field-entrance.webp",
@@ -971,7 +1483,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/walt-disney-world-dolphin-hotel.webp",
@@ -1001,7 +1513,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/fall-events-orlando-2026/warped-tour-stadium-exterior.webp",
@@ -1031,7 +1543,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-christmas-boat-parades-2026/jacksonville-light-boat-parade-fireworks.jpg",
@@ -1048,7 +1560,7 @@
         "title": "LightParade_11-30-13-2209",
         "author": "Rob Bixby",
         "displayName": "Rob Bixby",
-        "dateTaken": null,
+        "dateTaken": "2013-11-30 22:12:18",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1062,7 +1574,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-christmas-boat-parades-2026/winterfest-boat-parade-lit-yacht-new-river.jpg",
@@ -1079,7 +1591,7 @@
         "title": "Winterfest Boat Parade 10",
         "author": "Bob B. Brown",
         "displayName": "Bob B. Brown",
-        "dateTaken": null,
+        "dateTaken": "2010-12-11 19:22:30",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1093,7 +1605,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-christmas-markets-and-towns-2026/dade-city-courthouse-christmas.jpg",
@@ -1127,7 +1639,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-holiday-nights-out-2026/disney-springs-holiday-lit-trees.jpg",
@@ -1144,7 +1656,7 @@
         "title": "Lit-Up Trees at Downtown Disney",
         "author": "AngryJulieMonday",
         "displayName": "AngryJulieMonday",
-        "dateTaken": null,
+        "dateTaken": "2011-11-19 21:22:09",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1158,7 +1670,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-holiday-nights-out-2026/largo-central-park-holiday-lights-ferris-wheel.jpg",
@@ -1188,7 +1700,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-holiday-nights-out-2026/selby-lights-in-bloom-peacock.jpg",
@@ -1218,7 +1730,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/can-wayfind-tell-me-where-lovebugs-are-worst-right-now.webp",
@@ -1248,7 +1760,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/do-lovebugs-really-destroy-car-paint.webp",
@@ -1278,7 +1790,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/lovebug-close-up-gainesville.webp",
@@ -1308,7 +1820,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/lovebug-mating-pair-felda.webp",
@@ -1338,7 +1850,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/lovebugs-on-car-mims.jpg",
@@ -1355,7 +1867,7 @@
         "title": "Love bugs in Mims, FL",
         "author": "james michael thomas",
         "displayName": "james michael thomas",
-        "dateTaken": null,
+        "dateTaken": "2011-05-14 09:20:56",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -1369,7 +1881,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/no-the-university-of-florida-did-not-create-them.webp",
@@ -1399,7 +1911,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/the-wayfind-move-change-the-plan-not-the-whole-day.webp",
@@ -1429,7 +1941,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-lovebug-season/why-do-lovebugs-cover-cars.webp",
@@ -1446,7 +1958,7 @@
         "title": "Lovebug",
         "author": "Katja Schulz",
         "displayName": "Katja Schulz",
-        "dateTaken": null,
+        "dateTaken": "2016-10-02 10:53:41",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1460,7 +1972,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-new-years-eve-2026/jacksonville-fireworks-main-street-bridge.jpg",
@@ -1477,7 +1989,7 @@
         "title": "fireworks",
         "author": "Ronan O'Donohoe",
         "displayName": "Ronan O'Donohoe",
-        "dateTaken": null,
+        "dateTaken": "2006-11-25 21:57:23",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1491,7 +2003,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-new-years-eve-2026/key-west-high-heel-shoe-drop.jpg",
@@ -1521,7 +2033,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-new-years-eve-2026/light-up-the-night-new-years-eve-firework-show.webp",
@@ -1538,7 +2050,7 @@
         "title": "New Years Eve Fireworks",
         "author": "Doug Anderson",
         "displayName": "Doug Anderson",
-        "dateTaken": null,
+        "dateTaken": "2014-12-31 20:46:29",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1552,7 +2064,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/arsht-center-ziff-ballet-opera-house.webp",
@@ -1582,7 +2094,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/mahaffey-theater-st-petersburg.webp",
@@ -1612,7 +2124,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/orlando-ballet-nutcracker-dr-phillips-center.webp",
@@ -1642,7 +2154,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/ruby-diamond-auditorium-westcott-building-fsu.webp",
@@ -1672,7 +2184,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-nutcracker-and-holiday-shows-2026/times-union-center-jacksonville.webp",
@@ -1702,7 +2214,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-santa-and-christmas-trains-2026/conch-tour-train-holiday-sights-and-festive-nights-tour.webp",
@@ -1732,7 +2244,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-santa-and-christmas-trains-2026/florida-railroad-museum.webp",
@@ -1762,7 +2274,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-santa-and-christmas-trains-2026/north-pole-noir-christmas-murder-mystery-dinner-train.webp",
@@ -1792,7 +2304,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-santa-and-christmas-trains-2026/north-straub-park-christmas-tree.jpg",
@@ -1822,7 +2334,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-santa-and-christmas-trains-2026/santa-express-from-clewiston-and-sebring.webp",
@@ -1852,7 +2364,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-santa-and-christmas-trains-2026/st-augustine-nights-of-lights-plaza-oaks.jpg",
@@ -1869,7 +2381,7 @@
         "title": "2015 St. Augustine Nights of Lights",
         "author": "Joe Ross",
         "displayName": "Joe Ross",
-        "dateTaken": null,
+        "dateTaken": "2015-12-01 22:51:45",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -1883,7 +2395,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/a-guided-scallop-trip-from-crystal-river-or-homosassa.webp",
@@ -1900,7 +2412,7 @@
         "title": "Homosassa",
         "author": "Kate Ter Haar",
         "displayName": "Kate Ter Haar",
-        "dateTaken": null,
+        "dateTaken": "2015-04-02 11:56:02",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -1914,7 +2426,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/crystal-river-manatee-closeup.webp",
@@ -1944,7 +2456,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/fort-island-gulf-beach-crystal-river.webp",
@@ -1960,7 +2472,7 @@
         "title": "Fort Island Gulf Beach",
         "author": "Kolin Toney",
         "displayName": "Kolin Toney",
-        "dateTaken": null,
+        "dateTaken": "2016-10-09 18:48:41",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -1974,7 +2486,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/how-you-actually-catch-them.webp",
@@ -2004,7 +2516,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/the-license-and-the-limits.webp",
@@ -2034,7 +2546,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-scalloping-crystal-river-homosassa/the-season-and-why-you-check-the-exact-dates.webp",
@@ -2051,7 +2563,7 @@
         "title": "Crystal River, Florida",
         "author": "eutrophication&hypoxia",
         "displayName": "eutrophication&hypoxia",
-        "dateTaken": null,
+        "dateTaken": "2011-05-04 08:25:23",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2065,7 +2577,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-snow-and-ice-2026/celebration-now-snowing-waterfront.jpg",
@@ -2095,7 +2607,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-snow-and-ice-2026/cityplace-tree-lighting-night.jpg",
@@ -2112,7 +2624,7 @@
         "title": "CityPlace Tree Lighting 2011",
         "author": "Bob B. Brown",
         "displayName": "Bob B. Brown",
-        "dateTaken": null,
+        "dateTaken": "2011-11-12 19:28:34",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2126,7 +2638,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-snow-and-ice-2026/gaylord-palms-ice-carved-scene.jpg",
@@ -2156,7 +2668,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-thanksgiving-weekend-2026/celebration-town-center-christmas-tree.jpg",
@@ -2186,24 +2698,18 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-thanksgiving-weekend-2026/daytona-turkey-run-1940-ford-truck.jpg",
-      "usedBy": [
-        {
-          "slug": "florida-thanksgiving-weekend-2026",
-          "role": "pick",
-          "pick": "Daytona Turkey Run"
-        }
-      ],
+      "usedBy": [],
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/14580956@N08/3063924727",
         "title": "TurkeyRun2008-1705",
         "author": "Rob Bixby",
         "displayName": "Rob Bixby",
-        "dateTaken": null,
+        "dateTaken": "2008-11-27 19:03:23",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2217,7 +2723,67 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/nathan-benderson-park-lakeside-path.jpg",
+      "usedBy": [
+        {
+          "slug": "florida-thanksgiving-weekend-2026",
+          "role": "pick",
+          "pick": "Florida Turkey Trot at Nathan Benderson Park"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Exploring_Nathan_Benderson_Park.jpg",
+        "title": "Exploring Nathan Benderson Park",
+        "author": "Carol VanHook",
+        "dateTaken": "2015-03-03 13:50:53",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "Carol VanHook",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Exploring_Nathan_Benderson_Park.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized and cropped to 1280x853 JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/robinson-preserve-trail-thanksgiving-weekend.jpg",
+      "usedBy": [
+        {
+          "slug": "florida-thanksgiving-weekend-2026",
+          "role": "pick",
+          "pick": "Bradenton Runners Club Turkey Trot 5K"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg",
+        "title": "Robinson Perserve - panoramio",
+        "author": "Mark Hewitt",
+        "dateTaken": "Taken on 28 November 2009",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Mark Hewitt",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Robinson_Perserve_-_panoramio.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized and cropped to 1280x853 JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-thanksgiving-weekend-2026/zootampa-christmas-lights-blue-trees.jpg",
@@ -2247,7 +2813,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-theme-park-christmas-2026/busch-gardens-tampa-christmas-town-lit-trees.jpg",
@@ -2264,7 +2830,7 @@
         "title": "Busch Gardens Christmas Town 2012",
         "author": "zannaland",
         "displayName": "zannaland",
-        "dateTaken": null,
+        "dateTaken": "2012-11-30 15:13:41",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -2278,7 +2844,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-theme-park-christmas-2026/disney-springs-christmas-tree.jpg",
@@ -2295,7 +2861,7 @@
         "title": "Disney Springs Christmas Tree Palm Tree",
         "author": "David Aughinbaugh II",
         "displayName": "David Aughinbaugh II",
-        "dateTaken": null,
+        "dateTaken": "2019-11-01 14:56:40",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2309,7 +2875,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-theme-park-christmas-2026/epcot-christmas-tree-spaceship-earth.jpg",
@@ -2326,7 +2892,7 @@
         "title": "Epcot Christmas",
         "author": "cheddar-",
         "displayName": "cheddar-",
-        "dateTaken": null,
+        "dateTaken": "2008-12-27 17:38:47",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -2340,7 +2906,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-theme-park-christmas-2026/gaylord-palms-ice-reindeer.jpg",
@@ -2370,7 +2936,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-theme-park-christmas-2026/hollywood-studios-christmas-tree.jpg",
@@ -2401,7 +2967,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-theme-park-christmas-2026/mvmcp-christmastime-parade-main-street.jpg",
@@ -2415,10 +2981,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/33045734@N02/4184496931",
-        "title": "Mickey&#x27;s Very Merry Christmas Party",
+        "title": "Mickey's Very Merry Christmas Party",
         "author": "Leigh Caldwell",
         "displayName": "Leigh Caldwell",
-        "dateTaken": null,
+        "dateTaken": "2009-12-10 20:55:19",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2432,7 +2998,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-theme-park-christmas-2026/seaworld-orlando-sea-of-trees.jpg",
@@ -2449,7 +3015,7 @@
         "title": "Sea of Trees at Sea World",
         "author": "simon17964",
         "displayName": "simon17964",
-        "dateTaken": null,
+        "dateTaken": "2016-02-14 10:43:07",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2463,7 +3029,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-theme-park-christmas-2026/universal-macys-holiday-parade.jpg",
@@ -2477,10 +3043,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/6669301281",
-        "title": "Universal Orlando - Universal Studios - Macy&#x27;s Holiday Parade - Balloon Heads",
+        "title": "Universal Orlando - Universal Studios - Macy's Holiday Parade - Balloon Heads",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2011-12-18 16:44:39",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2494,7 +3060,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp",
@@ -2547,7 +3113,7 @@
         "title": "Christmas tree in the park",
         "author": "ryaninc",
         "displayName": "ryaninc",
-        "dateTaken": null,
+        "dateTaken": "2008-11-08 13:27:26",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2561,7 +3127,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/free-christmas-lights-florida-2026/largo-central-park-holiday-lights-torii.jpg",
@@ -2591,7 +3157,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/free-christmas-lights-florida-2026/palma-sola-winter-nights-ornament.jpg",
@@ -2608,7 +3174,7 @@
         "title": "“Winter Nights Under the Lights” Palma Sola Botanical Park",
         "author": "Carol VanHook",
         "displayName": "Carol VanHook",
-        "dateTaken": null,
+        "dateTaken": "2020-12-17 15:31:34",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -2622,7 +3188,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/free-christmas-lights-florida-2026/st-augustine-nights-of-lights-2021.jpg",
@@ -2639,7 +3205,7 @@
         "title": "Nights of Lights, St. Augustine, Florida",
         "author": "Eric Friedebach",
         "displayName": "Eric Friedebach",
-        "dateTaken": null,
+        "dateTaken": "2021-12-08 17:47:16",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2653,7 +3219,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -2670,7 +3236,7 @@
         "title": "Gatorland",
         "author": "William Warby",
         "displayName": "William Warby",
-        "dateTaken": null,
+        "dateTaken": "2002-04-22 11:13:41",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2685,7 +3251,7 @@
       "authorMatchesCredit": true,
       "replacementCandidate": "Future replacement candidate: photo taken in 2002 (year disclosed in the caption). The alligator-mouth entrance still stands, but paint and surroundings may have changed.",
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/gatorland-vs-wild-florida/the-verdict.webp",
@@ -2702,7 +3268,7 @@
         "title": "Gatorland, Orlando FL",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": null,
+        "dateTaken": "2013-10-19 10:42:39",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2716,7 +3282,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/gatorland-vs-wild-florida/wild-florida-the-airboat-experience.webp",
@@ -2746,7 +3312,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/gulf-coast-brunch-and-date-night/sharkys-pier-venice.webp",
@@ -2776,7 +3342,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/gulf-coast-brunch-and-date-night/venice-fishing-pier-dusk.webp",
@@ -2809,7 +3375,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/gulf-coast-world-series-week-2026/jannus-live-stage-concert.jpg",
@@ -2839,7 +3405,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/gulf-coast-world-series-week-2026/tropicana-field-postseason-game.jpg",
@@ -2869,7 +3435,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/jacksonville-christmas-by-area-budget-2026/jacksonville-light-boat-parade-sailboat.jpg",
@@ -2886,7 +3452,7 @@
         "title": "LightParade_11-30-13-2093",
         "author": "Rob Bixby",
         "displayName": "Rob Bixby",
-        "dateTaken": null,
+        "dateTaken": "2013-11-30 20:34:14",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2900,7 +3466,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/jacksonville-christmas-by-area-budget-2026/jacksonville-zoolights-carousel.jpg",
@@ -2917,7 +3483,7 @@
         "title": "Zoolights_2016-6812",
         "author": "Rob Bixby",
         "displayName": "Rob Bixby",
-        "dateTaken": null,
+        "dateTaken": "2016-12-11 20:24:22",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -2931,7 +3497,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/jacksonville-christmas-by-area-budget-2026/nights-of-lights-plaza-christmas-tree.jpg",
@@ -2962,7 +3528,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/magical-dining-orlando-2026/ottos-high-dive-milk-district.webp",
@@ -3001,7 +3567,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/miami-restaurants/barra-callao.webp",
@@ -3031,7 +3597,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/miami-restaurants/cote-korean-steakhouse-sign.webp",
@@ -3061,7 +3627,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/miami-restaurants/versailles-hero-calle-ocho.webp",
@@ -3090,7 +3656,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/miami-restaurants/versailles-restaurant-exterior.webp",
@@ -3121,7 +3687,7 @@
       "authorMatchesCredit": true,
       "replacementCandidate": "Future replacement candidate: photo taken in 2008 (year disclosed in the caption). The same storefront appears in a 2021 photo already used as this guide's hero.",
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/myakka-river-state-park-guide/canopy-walkway.webp",
@@ -3151,7 +3717,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/myakka-river-state-park-guide/myakka-lake-alligators.webp",
@@ -3181,7 +3747,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/myakka-river-state-park-guide/myakka-river-kayak.webp",
@@ -3211,7 +3777,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/icon-park-wheel-peppermint-christmas.jpg",
@@ -3228,7 +3794,7 @@
         "title": "Orlando - Orlando Eye - Peppermint Christmas Color Scheme - Close-Up View",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2015-12-23 21:47:43",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3242,7 +3808,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/lake-eola-christmas-tree.jpg",
@@ -3272,7 +3838,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-christmas-concerts-and-santa-2026/sea-life-orlando-under-the-wheel.jpg",
@@ -3302,7 +3868,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/disney-springs-bridge.webp",
@@ -3319,7 +3885,7 @@
         "title": "wdw disney springs bridge and balloon",
         "author": "M. C. Bob Leonard",
         "displayName": "M. C. Bob Leonard",
-        "dateTaken": null,
+        "dateTaken": "1980-01-01 00:01:14",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3333,7 +3899,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/disney-springs-town-center.webp",
@@ -3350,7 +3916,7 @@
         "title": "Disney Springs Town Center",
         "author": "elisfkc",
         "displayName": "elisfkc",
-        "dateTaken": null,
+        "dateTaken": "2016-05-05 20:14:55",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -3364,7 +3930,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/hhn-orlando-nightingales-blood-pit.jpg",
@@ -3394,7 +3960,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/raglan-facade-dusk.webp",
@@ -3411,7 +3977,7 @@
         "title": "Disney Springs,Orlando FL",
         "author": "Rusty Clark ~ 100K Photos",
         "displayName": "Rusty Clark ~ 100K Photos",
-        "dateTaken": null,
+        "dateTaken": "2017-01-20 15:45:18",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3425,7 +3991,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/raglan-night-exterior.webp",
@@ -3442,7 +4008,7 @@
         "title": "Raglan Road",
         "author": "Frank Phillips",
         "displayName": "Frank Phillips",
-        "dateTaken": null,
+        "dateTaken": "2018-11-02 23:03:38",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3456,7 +4022,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/raglan-road-hero.webp",
@@ -3485,7 +4051,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/raglan-sign.webp",
@@ -3502,7 +4068,7 @@
         "title": "Raglan Road",
         "author": "Ross Hawkes",
         "displayName": "Ross Hawkes",
-        "dateTaken": null,
+        "dateTaken": "2010-05-24 23:54:00",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3516,7 +4082,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/raglan-street-view.webp",
@@ -3533,7 +4099,7 @@
         "title": "Raglan Road",
         "author": "Beau B",
         "displayName": "Beau B",
-        "dateTaken": null,
+        "dateTaken": "2008-12-11 16:03:45",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3547,7 +4113,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-diagon-alley.webp",
@@ -3564,7 +4130,7 @@
         "title": "Dragon",
         "author": "Steven Miller",
         "displayName": "Steven Miller",
-        "dateTaken": null,
+        "dateTaken": "2014-09-19 12:50:30",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3578,7 +4144,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-globe.webp",
@@ -3595,7 +4161,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 09:14:14",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3609,7 +4175,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-hollywood-boulevard.webp",
@@ -3626,7 +4192,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 11:37:25",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3640,7 +4206,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-hollywood-street.webp",
@@ -3657,7 +4223,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 15:13:48",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3671,7 +4237,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-louies-street.webp",
@@ -3688,7 +4254,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 11:34:05",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3702,7 +4268,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-new-york-fruit-exchange.webp",
@@ -3719,7 +4285,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 11:35:06",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3733,7 +4299,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-new-york-library.webp",
@@ -3750,7 +4316,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 11:17:21",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3764,7 +4330,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-new-york-street.webp",
@@ -3781,7 +4347,7 @@
         "title": "Universal Orlando - Universal Studios - New York Christmas Decorations (2)",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2011-12-18 14:55:54",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3795,7 +4361,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-new-york-subway.webp",
@@ -3812,7 +4378,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 11:17:29",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3826,7 +4392,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-springfield-cletus.webp",
@@ -3840,10 +4406,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/11840598116",
-        "title": "Universal Orlando - Universal Studios - The Simpsons - Springfield - Cletus&#x27; Chicken Shack",
+        "title": "Universal Orlando - Universal Studios - The Simpsons - Springfield - Cletus' Chicken Shack",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2013-10-20 12:14:41",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3857,7 +4423,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-springfield-moes.webp",
@@ -3871,10 +4437,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/11839913525",
-        "title": "Universal Orlando - Universal Studios - Springfield - Moe&#x27;s Tavern - Inside",
+        "title": "Universal Orlando - Universal Studios - Springfield - Moe's Tavern - Inside",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2013-12-14 18:00:43",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3888,7 +4454,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-springfield-sign.webp",
@@ -3905,7 +4471,7 @@
         "title": "Universal Orlando - Universal Studios - The Simpsons - Springfield - Entrance Sign",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2013-10-20 11:13:17",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3919,7 +4485,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-studio-store.webp",
@@ -3936,7 +4502,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 09:25:30",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3950,7 +4516,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-halloween-food-2026/usf-studios-building.webp",
@@ -3967,7 +4533,7 @@
         "title": "Universal Studios Florida",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2012-03-03 09:23:33",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -3981,7 +4547,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-in-the-rain/madame-tussauds-orlando-entrance.webp",
@@ -4011,7 +4577,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-in-the-rain/museum-of-illusions-orlando.webp",
@@ -4028,7 +4594,7 @@
         "title": "ICON Park Orlando",
         "author": "Jeremy Thompson",
         "displayName": "Jeremy Thompson",
-        "dateTaken": null,
+        "dateTaken": "2024-11-22 18:28:21",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -4042,7 +4608,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-in-the-rain/orange-county-regional-history-center.webp",
@@ -4072,7 +4638,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-in-the-rain/orlando-science-center-exterior.webp",
@@ -4102,7 +4668,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-in-the-rain/sea-life-orlando-aquarium-exterior.webp",
@@ -4132,7 +4698,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/orlando-in-the-rain/wonderworks-upside-down-building.webp",
@@ -4166,7 +4732,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/pinecraft-sarasota-amish-village/how-to-visit-respectfully.webp",
@@ -4196,7 +4762,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/pinecraft-sarasota-amish-village/pinecraft-amish-church.webp",
@@ -4226,7 +4792,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/pinecraft-sarasota-amish-village/yoders-restaurant-sign.webp",
@@ -4245,10 +4811,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/8778985834",
-        "title": "Sarasota - Yoder&#x27;s Amish Village - Restaurant Sign",
+        "title": "Sarasota - Yoder's Amish Village - Restaurant Sign",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2013-04-25 10:39:16",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -4262,7 +4828,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/plant-city-christmas-2026/apollo-beach-tss-clubhouse-and-basin.jpg",
@@ -4473,7 +5039,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/hero-tampa-convention-center.webp",
@@ -4502,7 +5068,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/how-the-crowd-picks-the-winner.webp",
@@ -4532,7 +5098,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/ritz-ybor.webp",
@@ -4562,7 +5128,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/tampa-convention-center.webp",
@@ -4592,7 +5158,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/red-bull-dance-your-style-tampa-2026/the-16-dancers-in-the-final.webp",
@@ -4622,7 +5188,130 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/bon-appetit-restaurant-marina.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Bon Appetit Restaurant"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://bonappetitrestaurant.com/",
+        "title": "Bon Appétit Restaurant on the Dunedin marina",
+        "author": "Bon Appétit Restaurant",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://bonappetitrestaurant.com/"
+      },
+      "wayfind": {
+        "credit": "Bon Appétit Restaurant",
+        "creditHref": "https://bonappetitrestaurant.com/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://bonappetitrestaurant.com/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/gratzzi-italian-grille-dining-room.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Gratzzi Italian Grille"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://gratzzigrille.com/photos/",
+        "title": "Tableside cooking at Gratzzi Italian Grille",
+        "author": "Gratzzi Italian Grille",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://gratzzigrille.com/photos/"
+      },
+      "wayfind": {
+        "credit": "Gratzzi Italian Grille",
+        "creditHref": "https://gratzzigrille.com/photos/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://gratzzigrille.com/photos/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/restaurants-open-thanksgiving-tampa-bay-2026/parkshore-grill-dining-room.jpg",
+      "usedBy": [
+        {
+          "slug": "restaurants-open-thanksgiving-tampa-bay-2026",
+          "role": "pick",
+          "pick": "Parkshore Grill"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://www.parkshoregrill.com/private-dining.html",
+        "title": "Parkshore Grill private dining room",
+        "author": "Parkshore Grill",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://www.parkshoregrill.com/private-dining.html"
+      },
+      "wayfind": {
+        "credit": "Parkshore Grill",
+        "creditHref": "https://www.parkshoregrill.com/private-dining.html",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://www.parkshoregrill.com/private-dining.html",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/river-of-lights-tampa-2026/curtis-hixon-park-dusk.jpg",
+      "usedBy": [
+        {
+          "slug": "river-of-lights-tampa-2026",
+          "role": "pick",
+          "pick": "River of Lights"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
+        "title": "Curtis Hixon Park Tampa Florida United States - panoramio (1)",
+        "author": "Michelle Maria",
+        "dateTaken": "Taken on 6 April 2013",
+        "licence": "CC BY 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0"
+      },
+      "wayfind": {
+        "credit": "Michelle Maria",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Curtis_Hixon_Park_Tampa_Florida_United_States_-_panoramio_(1).jpg",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/robinson-preserve-bradenton/kayaks-beside-boardwalk.webp",
@@ -4684,7 +5373,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/robinson-preserve-bradenton/robinson-preserve-boardwalk-trail.webp",
@@ -4719,7 +5408,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/sarasota-half-price-dining/clipp-half-price-certificates.webp",
@@ -4736,7 +5425,7 @@
         "title": "Sarasota - Downtown from Air (2000)",
         "author": "Roger W",
         "displayName": "Roger W",
-        "dateTaken": null,
+        "dateTaken": "2000-06-15 00:00:00",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -4750,7 +5439,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/sarasota-half-price-dining/pie-on-main.webp",
@@ -4767,7 +5456,7 @@
         "title": "Sarasota - Main Street",
         "author": "Roger W",
         "displayName": "Roger W",
-        "dateTaken": null,
+        "dateTaken": "1995-04-30 00:00:00",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -4781,7 +5470,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/sarasota-rainy-day/florida-studio-theatre.webp",
@@ -4811,7 +5500,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/sarasota-rainy-day/sarasota-art-museum.webp",
@@ -4841,7 +5530,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/sarasota-rainy-day/van-wezel-performing-arts-hall.webp",
@@ -4871,7 +5560,37 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/sarasota-this-week-nov-23-2026/downtown-sarasota-historic-district-shops.jpg",
+      "usedBy": [
+        {
+          "slug": "sarasota-this-week-nov-23-2026",
+          "role": "pick",
+          "pick": "Downtown Sarasota Black Friday and Shop Small Saturday"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
+        "title": "Sarasota FL Downtown HD01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-06-19 11:04:02",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/siesta-key-drum-circle/parking-without-the-meltdown.webp",
@@ -4901,7 +5620,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/siesta-key-drum-circle/siesta-key-beach-pavilion.webp",
@@ -4931,13 +5650,17 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/siesta-key-drum-circle/siesta-key-beach-sunset.webp",
       "usedBy": [
         {
           "slug": "siesta-key-drum-circle",
+          "role": "hero"
+        },
+        {
+          "slug": "sarasota-this-week-nov-23-2026",
           "role": "hero"
         }
       ],
@@ -4960,7 +5683,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/siesta-key-drum-circle/the-unwritten-rules.webp",
@@ -4977,7 +5700,7 @@
         "title": "Siesta Key Drum Circle",
         "author": "nikoretro",
         "displayName": "nikoretro",
-        "dateTaken": null,
+        "dateTaken": "2006-04-16 17:10:18",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -4991,7 +5714,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/siesta-key-vs-lido-key/lido-key-beach.webp",
@@ -5021,7 +5744,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/siesta-key-vs-lido-key/siesta-key-beach-sand.webp",
@@ -5051,7 +5774,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/siesta-key-vs-lido-key/the-verdict.webp",
@@ -5081,7 +5804,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/st-armands-circle-restaurants/shore.webp",
@@ -5111,7 +5834,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/st-armands-circle-restaurants/st-armands-circle-storefronts.webp",
@@ -5140,7 +5863,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/aviles-street-st-augustine.jpg",
@@ -5170,7 +5893,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/nights-of-lights-plaza-gazebo.jpg",
@@ -5201,7 +5924,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/st-augustine-christmas-coffee-snow-walk-2026/oldest-wooden-school-house.jpg",
@@ -5231,7 +5954,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/st-pete-restaurants/doc-fords-pier-patio.webp",
@@ -5261,7 +5984,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/swim-with-manatees-crystal-river/a-manatee-eco-cruise-for-non-swimmers.webp",
@@ -5291,7 +6014,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/swim-with-manatees-crystal-river/homosassa-springs-entrance.webp",
@@ -5321,7 +6044,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/swim-with-manatees-crystal-river/manatee-kings-bay.webp",
@@ -5351,7 +6074,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/swim-with-manatees-crystal-river/paddle-kings-bay-by-clear-kayak.webp",
@@ -5381,7 +6104,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/swim-with-manatees-crystal-river/the-summer-counterpart-bay-scalloping.webp",
@@ -5411,7 +6134,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/swim-with-manatees-crystal-river/three-sisters-boardwalk-platforms.webp",
@@ -5441,7 +6164,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/swim-with-manatees-crystal-river/three-sisters-springs-water.webp",
@@ -5471,7 +6194,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-bay-rainy-day/glazer-children-s-museum.webp",
@@ -5501,7 +6224,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-bay-rainy-day/imagine-museum.webp",
@@ -5531,7 +6254,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-bay-rainy-day/straz-center-for-the-performing-arts.webp",
@@ -5561,7 +6284,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-bay-rays-game-day-tropicana-field/2026-the-third-pennant.jpg",
@@ -5591,7 +6314,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-bay-rays-game-day-tropicana-field/st-pete-pier-pier-head.jpg",
@@ -5621,7 +6344,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-bay-rays-game-day-tropicana-field/the-tilted-roof-and-the-catwalks.jpg",
@@ -5651,7 +6374,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-bay-rays-game-day-tropicana-field/tropicana-field-ray-touch-tank.jpg",
@@ -5681,7 +6404,67 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/tampa-bay-this-week-nov-22-2026/freedom-factory-oval-aerial.jpg",
+      "usedBy": [
+        {
+          "slug": "tampa-bay-this-week-nov-22-2026",
+          "role": "pick",
+          "pick": "Bill Bigley Sr. Memorial 128"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Freedom_Factory_aerial_photo_2023-01-29.jpg",
+        "title": "Freedom Factory aerial photo 2023-01-29",
+        "author": "National Agriculture Imagery Program",
+        "dateTaken": "Taken on 29 January 2023",
+        "licence": "Public domain",
+        "licenceUrl": null
+      },
+      "wayfind": {
+        "credit": "National Agriculture Imagery Program",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Freedom_Factory_aerial_photo_2023-01-29.jpg",
+        "license": "Public domain",
+        "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+        "modificationNotice": "Resized and cropped to 1280x853 JPEG."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/tampa-bay-this-week-nov-22-2026/glazer-childrens-museum-2024.jpg",
+      "usedBy": [
+        {
+          "slug": "tampa-bay-this-week-nov-22-2026",
+          "role": "pick",
+          "pick": "Glazer Children's Museum Campsgiving"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Glazer_Children%27s_Museum,_Tampa,_Florida_2024.jpg",
+        "title": "Glazer Children's Museum, Tampa, Florida 2024",
+        "author": "Ken Lund",
+        "dateTaken": "2024-04-05 12:00:41",
+        "licence": "CC BY-SA 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0"
+      },
+      "wayfind": {
+        "credit": "Ken Lund",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Glazer_Children%27s_Museum,_Tampa,_Florida_2024.jpg",
+        "license": "CC BY-SA 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+        "modificationNotice": "Resized and cropped to 1280x853 JPEG. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-restaurants/oxford-exchange-exterior.webp",
@@ -5711,7 +6494,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-restaurants/rocca.webp",
@@ -5741,7 +6524,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-restaurants/ulele-entrance-water-works-building.webp",
@@ -5758,7 +6541,7 @@
         "title": "Ulele Restaurant entrance, Tampa, FL",
         "author": "Under the same moon...",
         "displayName": "Under the same moon...",
-        "dateTaken": null,
+        "dateTaken": "2014-08-20 19:34:31",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -5772,7 +6555,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-riverwalk-guide/sparkman-wharf-pirate-water-taxi.webp",
@@ -5802,7 +6585,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tampa-riverwalk-guide/tampa-museum-of-art.webp",
@@ -5832,7 +6615,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/boardwalk-pier.webp",
@@ -5862,7 +6645,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/crabby-joes-sunglow-pier.webp",
@@ -5879,7 +6662,7 @@
         "title": "SunglowPier4-DBS-FL",
         "author": "gamiziuk",
         "displayName": "gamiziuk",
-        "dateTaken": null,
+        "dateTaken": "2008-04-12 14:42:23",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -5894,7 +6677,7 @@
       "authorMatchesCredit": true,
       "replacementCandidate": "Future replacement candidate: photo taken in 2008 (year disclosed in the caption). Sunglow Pier was damaged by later hurricanes, so today's pier may not match.",
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/daytona-beach-bandshell.webp",
@@ -5924,7 +6707,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/daytona-lagoon-waterpark.webp",
@@ -5954,7 +6737,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/daytona-speedway-grandstand.webp",
@@ -5984,7 +6767,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/driving-on-the-sand.webp",
@@ -6014,7 +6797,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/fairchild-oak.webp",
@@ -6044,7 +6827,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/jackie-robinson-ballpark-gate.webp",
@@ -6074,7 +6857,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/ponce-inlet-lighthouse.webp",
@@ -6104,7 +6887,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-daytona-beach-summer-2026/the-coke-zero-sugar-400-under-the-lights.webp",
@@ -6134,7 +6917,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/an-everglades-airboat-morning.webp",
@@ -6164,7 +6947,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/fort-lauderdale-beach-riomar.webp",
@@ -6194,7 +6977,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/las-olas-beach-at-sunrise.webp",
@@ -6224,7 +7007,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/las-olas-boulevard-s-restaurant-wave.webp",
@@ -6254,7 +7037,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/pier-sixty-six-and-the-rotating-pier-top.webp",
@@ -6271,7 +7054,7 @@
         "title": "17th Street Causeway Bridge",
         "author": "Nancy Folgmann",
         "displayName": "Nancy Folgmann",
-        "dateTaken": null,
+        "dateTaken": "2014-01-18 23:13:02",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -6285,7 +7068,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-fort-lauderdale-summer-2026/water-taxi-downtown.webp",
@@ -6315,7 +7098,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-bradenton-florida/bishop-museum-entrance.webp",
@@ -6350,7 +7133,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-bradenton-florida/bradenton-riverwalk-tower-plaza.webp",
@@ -6380,7 +7163,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-bradenton-florida/village-of-the-arts.webp",
@@ -6410,7 +7193,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-cortez-florida/fish-preserve.webp",
@@ -6440,7 +7223,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-cortez-florida/swordfish-grill-tiki-bar.webp",
@@ -6470,7 +7253,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-ellenton-florida/gamble-mansion-front.webp",
@@ -6500,7 +7283,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-longboat-key-florida/public-beach-access-at-4001-gulf-of-mexico-drive.webp",
@@ -6530,7 +7313,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-longboat-key-florida/quick-point-lagoon.webp",
@@ -6560,7 +7343,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-miami-florida/pamm-hanging-gardens-exterior.webp",
@@ -6577,7 +7360,7 @@
         "title": "Pérez Art Museum Miami",
         "author": "Phillip Pessar",
         "displayName": "Phillip Pessar",
-        "dateTaken": null,
+        "dateTaken": "2015-11-13 13:23:08",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -6591,7 +7374,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-miami-florida/vizcaya-interior.webp",
@@ -6657,7 +7440,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-palmetto-florida/mangrove-lagoon.webp",
@@ -6687,7 +7470,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-palmetto-florida/sutton-park-pavilion.webp",
@@ -6717,7 +7500,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-parrish-florida/coquina-beach.webp",
@@ -6747,7 +7530,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-parrish-florida/florida-railroad-museum.webp",
@@ -6782,7 +7565,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-parrish-florida/fort-hamer-park.webp",
@@ -6812,7 +7595,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-parrish-florida/good-liquid-brewing-company.webp",
@@ -6842,7 +7625,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-parrish-florida/lake-manatee-state-park.webp",
@@ -6872,7 +7655,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/bayfront-park-marina.webp",
@@ -6902,7 +7685,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/cadzan-mansion.webp",
@@ -6932,7 +7715,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/celery-fields-hill.webp",
@@ -6949,7 +7732,7 @@
         "title": "The big hill at Celery Fields",
         "author": "Joseph Gage",
         "displayName": "Joseph Gage",
-        "dateTaken": null,
+        "dateTaken": "2023-12-31 12:27:43",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -6963,7 +7746,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/circus-museum-tibbals.webp",
@@ -6993,7 +7776,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/jungle-gardens-flamingos.webp",
@@ -7023,7 +7806,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/legacy-trail.webp",
@@ -7053,7 +7836,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/myakka-state-park-alligators.webp",
@@ -7083,7 +7866,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/owen-s-fish-camp.webp",
@@ -7102,10 +7885,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/97651299@N00/35463538942",
-        "title": "Owen&#x27;s Fish Camp in the heart of Sarasota, Florida Series",
+        "title": "Owen's Fish Camp in the heart of Sarasota, Florida Series",
         "author": "Carol VanHook",
         "displayName": "Carol VanHook",
-        "dateTaken": null,
+        "dateTaken": "2017-06-29 20:45:52",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -7119,7 +7902,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/pinecraft-yoders-sign.webp",
@@ -7133,10 +7916,10 @@
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/93283041@N00/8778985834",
-        "title": "Sarasota - Yoder&#x27;s Amish Village - Restaurant Sign",
+        "title": "Sarasota - Yoder's Amish Village - Restaurant Sign",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2013-04-25 10:39:16",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -7150,7 +7933,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/selby-gardens-banyan.webp",
@@ -7180,7 +7963,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/siesta-beach-sign.webp",
@@ -7210,7 +7993,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/st-armands-circle-marker.webp",
@@ -7240,7 +8023,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/ted-sperling-south-lido.webp",
@@ -7270,7 +8053,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/the-ringling-entrance.webp",
@@ -7309,7 +8092,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-sarasota-florida/turtle-beach.webp",
@@ -7339,7 +8122,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/a-real-tampa-cuban-sandwich.webp",
@@ -7369,7 +8152,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/amalie-arena.webp",
@@ -7399,7 +8182,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/ballast-point-park.webp",
@@ -7429,7 +8212,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/bayshore-boulevard.webp",
@@ -7459,7 +8242,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/berns-dessert-room.webp",
@@ -7494,7 +8277,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/busch-gardens-serengeti.webp",
@@ -7524,7 +8307,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/columbia-restaurant.webp",
@@ -7554,7 +8337,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/florida-aquarium.webp",
@@ -7589,7 +8372,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/gasparilla-pirate-fest.webp",
@@ -7619,7 +8402,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/jc-newman-cigar-factory.webp",
@@ -7649,7 +8432,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/lettuce-lake-park.webp",
@@ -7679,7 +8462,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/shell-key-clear-kayaks.webp",
@@ -7755,7 +8538,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/tampa-riverwalk.webp",
@@ -7785,7 +8568,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/tampa-theatre.webp",
@@ -7820,7 +8603,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/teco-line-streetcar.webp",
@@ -7850,7 +8633,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/water-street-heron-tower.webp",
@@ -7880,7 +8663,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/ybor-city-brick-archways.webp",
@@ -7910,7 +8693,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/ybor-city-museum-state-park.webp",
@@ -7940,7 +8723,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/zootampa-lowry-park-sign.webp",
@@ -7970,7 +8753,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-venice-florida/caspersen-beach-sunset-rocks.webp",
@@ -8000,7 +8783,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-venice-florida/triangle-inn-venice-museum.webp",
@@ -8030,7 +8813,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-in-venice-florida/venice-beach.webp",
@@ -8060,7 +8843,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/august-s-festival-stack-lobsterfest-and-rum-fest.webp",
@@ -8077,7 +8860,7 @@
         "title": "Duval Street Key West",
         "author": "Christoph Meyer",
         "displayName": "Christoph Meyer",
-        "dateTaken": null,
+        "dateTaken": "2014-07-18 03:26:16",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -8091,7 +8874,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/blue-heaven-restaurant.webp",
@@ -8121,7 +8904,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/duval-street-key-west.webp",
@@ -8151,7 +8934,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/fort-zachary-taylor-beach.webp",
@@ -8181,7 +8964,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/hemingway-house-cat.webp",
@@ -8211,7 +8994,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/key-west-reef-sea-turtle.webp",
@@ -8228,7 +9011,7 @@
         "title": "Snorkeling Key West, Florida",
         "author": "SNORKELINGDIVES.COM",
         "displayName": "SNORKELINGDIVES.COM",
-        "dateTaken": null,
+        "dateTaken": "2014-05-06 09:52:37",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -8242,7 +9025,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/mallory-square-sunset.webp",
@@ -8272,7 +9055,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/papa-s-pilar-rum-distillery.webp",
@@ -8302,7 +9085,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/the-reserve-the-new-bank-takeover.webp",
@@ -8319,7 +9102,7 @@
         "title": "Duval Street, Key West",
         "author": "RB Photo",
         "displayName": "RB Photo",
-        "dateTaken": null,
+        "dateTaken": "2016-12-20 18:02:53",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -8333,7 +9116,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/the-southernmost-point-buoy-temporary-edition.webp",
@@ -8350,7 +9133,7 @@
         "title": "Southernmost Buoy",
         "author": "Steven Miller",
         "displayName": "Steven Miller",
-        "dateTaken": null,
+        "dateTaken": "2011-11-25 14:58:02",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -8364,7 +9147,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/calle-ocho-cigar-bar-sign.webp",
@@ -8399,7 +9182,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/joia-beach-club-on-watson-island.webp",
@@ -8416,7 +9199,7 @@
         "title": "View from Watson Island - Miami, Florida",
         "author": "UltraView Admin",
         "displayName": "UltraView Admin",
-        "dateTaken": null,
+        "dateTaken": "2011-11-13 19:32:15",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -8430,7 +9213,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/miami-spice-month.webp",
@@ -8460,7 +9243,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/nu-stadium-bowl.webp",
@@ -8490,7 +9273,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/south-pointe-park-pier-view.webp",
@@ -8520,7 +9303,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/the-coral-gables-restaurant-boom.webp",
@@ -8550,7 +9333,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/venetian-pool-coral-gables.webp",
@@ -8580,7 +9363,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-miami-summer-2026/versace-mansion-ocean-drive.webp",
@@ -8610,7 +9393,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/airboat-everglades-city-dock.webp",
@@ -8627,7 +9410,7 @@
         "title": "Airboat @Everglades City",
         "author": "Guillaume Capron",
         "displayName": "Guillaume Capron",
-        "dateTaken": null,
+        "dateTaken": "2011-09-02 21:37:59",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -8641,7 +9424,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/an-fc-naples-match-night.webp",
@@ -8658,7 +9441,7 @@
         "title": "Naples - Soccer with Bayer Leverkusen",
         "author": "Roger W",
         "displayName": "Roger W",
-        "dateTaken": null,
+        "dateTaken": "2003-01-08 00:00:00",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -8672,7 +9455,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/clam-pass-park-sunset.webp",
@@ -8702,7 +9485,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/corkscrew-swamp-boardwalk.webp",
@@ -8732,7 +9515,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-inn-on-fifth.webp",
@@ -8749,7 +9532,7 @@
         "title": "Fifth Avenue - Naples Florida",
         "author": "Charlie Anzman",
         "displayName": "Charlie Anzman",
-        "dateTaken": null,
+        "dateTaken": "2005-05-12 15:32:37",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -8764,7 +9547,7 @@
       "authorMatchesCredit": true,
       "replacementCandidate": "Future replacement candidate: photo taken in 2005 (year disclosed in the caption). Added 2026-09-23 to replace a photo whose recorded licence was wrong; the street has changed since.",
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/keewaydin-island-by-boat.webp",
@@ -8794,7 +9577,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/naples-beach-sunset.webp",
@@ -8824,7 +9607,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/naples-botanical-garden-pond.webp",
@@ -8854,7 +9637,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/tigress-at-the-perry-hotel.webp",
@@ -8871,7 +9654,7 @@
         "title": "Naples, Florida, Pier, Sonnenuntergang",
         "author": "Wilhelm Rosenkranz",
         "displayName": "Wilhelm Rosenkranz",
-        "dateTaken": null,
+        "dateTaken": "2014-05-18 01:32:03",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -8885,7 +9668,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-naples-summer-2026/tin-city-naples.webp",
@@ -8915,7 +9698,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/atlantis-kennedy-space-center.webp",
@@ -8945,7 +9728,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/blue-spring-manatee.webp",
@@ -8975,7 +9758,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/icon-park-wheel-night.webp",
@@ -9005,7 +9788,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/lake-eola-fountain-birds-skyline.webp",
@@ -9035,7 +9818,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/leu-gardens-floral-clock.webp",
@@ -9065,7 +9848,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/mount-dora-lighthouse.webp",
@@ -9095,7 +9878,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/playalinda-beach-rocket-launch.webp",
@@ -9125,7 +9908,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/wekiwa-springs-swim-area.webp",
@@ -9155,7 +9938,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-not-theme-parks/winter-park-boat-tour-dock-sign.webp",
@@ -9172,7 +9955,7 @@
         "title": "Winter Park Scenic Boat Tour",
         "author": "Mike Whaling",
         "displayName": "Mike Whaling",
-        "dateTaken": null,
+        "dateTaken": "2009-02-21 14:48:30",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -9186,7 +9969,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/big-thunder-mountain.webp",
@@ -9216,7 +9999,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/eola-food-hall-and-the-mills-50-crawl.webp",
@@ -9246,7 +10029,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/epcot-the-land.webp",
@@ -9276,7 +10059,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/epic-universe-chronos.webp",
@@ -9306,7 +10089,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/icon-park-wheel.webp",
@@ -9336,7 +10119,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/level99-at-disney-springs.webp",
@@ -9366,7 +10149,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/seaworld-expedition-odyssey.webp",
@@ -9396,7 +10179,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/the-after-dark-water-park-parties.webp",
@@ -9426,7 +10209,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-orlando-summer-2026/universal-celestial-goodnight-the-new-night-show.webp",
@@ -9456,7 +10239,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/a-dolphin-cruise-from-the-marinas.webp",
@@ -9486,7 +10269,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/free-concerts-at-aaron-bessant-park.webp",
@@ -9516,7 +10299,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/panama-city-beach-shoreline.webp",
@@ -9546,7 +10329,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/pier-park-panama-city-beach.webp",
@@ -9576,7 +10359,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/shell-island-catamaran.webp",
@@ -9606,7 +10389,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/shipwreck-island-waterpark.webp",
@@ -9636,7 +10419,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/st-andrews-state-park-jetty.webp",
@@ -9666,7 +10449,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-panama-city-beach-summer-2026/the-tiktok-food-crawl-boondocks-and-coco-loco.webp",
@@ -9696,7 +10479,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/ca-d-zan-bayside-facade.webp",
@@ -9726,7 +10509,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/celery-fields-hill.webp",
@@ -9743,7 +10526,7 @@
         "title": "The big hill at Celery Fields",
         "author": "Joseph Gage",
         "displayName": "Joseph Gage",
-        "dateTaken": null,
+        "dateTaken": "2023-12-31 12:27:43",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -9757,7 +10540,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/jungle-gardens-flamingos.webp",
@@ -9787,7 +10570,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/legacy-trail.webp",
@@ -9817,7 +10600,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/lido-mangrove-tunnel.webp",
@@ -9847,7 +10630,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/myakka-alligators.webp",
@@ -9877,7 +10660,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/pinecraft-post-office.webp",
@@ -9911,7 +10694,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/selby-gardens-banyan.webp",
@@ -9941,7 +10724,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/a-food-and-wine-tour-through-the-old-city.webp",
@@ -9971,7 +10754,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/alligator-farm-entrance.webp",
@@ -10001,7 +10784,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/anastasia-state-park-beach.webp",
@@ -10031,7 +10814,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/castillo-de-san-marcos.webp",
@@ -10061,7 +10844,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/founder-s-day-and-the-america-250-season.webp",
@@ -10091,7 +10874,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/ghost-tours-after-dark.webp",
@@ -10121,7 +10904,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/st-augustine-amphitheatre.webp",
@@ -10151,7 +10934,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/st-george-street-shop.webp",
@@ -10181,7 +10964,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-augustine-summer-2026/the-crab-boil-giants-outback-crab-shack-and-crabby-s.webp",
@@ -10211,7 +10994,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/caladesi-ferry-dock.webp",
@@ -10228,7 +11011,7 @@
         "title": "Ferry Docking at Caladesi Island",
         "author": "Pinellas County",
         "displayName": "Pinellas County",
-        "dateTaken": null,
+        "dateTaken": "2011-09-02 14:41:20",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -10243,7 +11026,7 @@
       "authorMatchesCredit": true,
       "replacementCandidate": "Future replacement candidate: photo taken in 2011 (year disclosed in the caption). The ferry boat in service today may be a different vessel.",
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/central-park-the-new-five-story-food-hall.webp",
@@ -10273,7 +11056,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/clearwater-marine-aquarium.webp",
@@ -10303,7 +11086,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/clearwater-pier60.webp",
@@ -10333,7 +11116,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/dali-museum-exterior.webp",
@@ -10368,7 +11151,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/fort-de-soto-cannon.webp",
@@ -10398,7 +11181,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/st-pete-pier.webp",
@@ -10428,7 +11211,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/st-pete-s-new-fine-dining-wave.webp",
@@ -10458,7 +11241,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/st-pete-shuffleboard-club.webp",
@@ -10488,7 +11271,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/sunken-gardens-entrance.webp",
@@ -10518,7 +11301,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/busch-gardens-lions.webp",
@@ -10548,7 +11331,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/florida-aquarium.webp",
@@ -10578,7 +11361,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/tampa-riverwalk.webp",
@@ -10608,7 +11391,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/the-soft-serve-margarita-crawl.webp",
@@ -10638,7 +11421,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/ybor-city-brick-archways.webp",
@@ -10668,7 +11451,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/things-to-do-tampa-summer-2026/zootampa-manatee-center-sign.webp",
@@ -10698,7 +11481,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/amalie-arena.webp",
@@ -10728,7 +11511,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/clearwater-memorial-causeway-moonrise.jpg",
@@ -10745,7 +11528,7 @@
         "title": "Clearwater Florida memorial bridge full moonrise",
         "author": "Ben Garcia",
         "displayName": "Ben Garcia",
-        "dateTaken": null,
+        "dateTaken": "2013-01-26 18:20:55",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -10759,7 +11542,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/endless-summer-afterglow.webp",
@@ -10789,7 +11572,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/not-tonight.webp",
@@ -10806,7 +11589,7 @@
         "title": "Tampa - Ballast Point Park - Downtown Tampa Skyline Across Hillsborough Bay (4)",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2011-09-11 14:56:15",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -10820,7 +11603,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/raymond-james-stadium.webp",
@@ -10850,7 +11633,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/ruth-eckerd-hall.webp",
@@ -10880,7 +11663,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/st-pete-artwalk.webp",
@@ -10910,7 +11693,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/tonights-move-tampa-september-12-2026/tropicana-field.webp",
@@ -10944,7 +11727,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/florida-state-fairgrounds-gate.jpg",
@@ -10974,7 +11757,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/gene-simmons-band-with-lita-ford.jpg",
@@ -11004,7 +11787,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/lightning-home-game-ice.jpg",
@@ -11034,7 +11817,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/symphony-in-lights.jpg",
@@ -11064,7 +11847,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-16-2026/utc-holiday-lights-purple.jpg",
@@ -11095,7 +11878,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/glazer-childrens-museum-exterior.jpg",
@@ -11125,11 +11908,16 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/jannus-live-entrance.jpg",
       "usedBy": [
+        {
+          "slug": "tampa-bay-this-week-nov-22-2026",
+          "role": "pick",
+          "pick": "Buzzcocks at Jannus Live"
+        },
         {
           "slug": "trending-in-florida-this-week-nov-17-2026",
           "role": "pick",
@@ -11155,7 +11943,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/lightning-arena-riverfront.jpg",
@@ -11185,7 +11973,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/strawberry-festival-ticket-booth.jpg",
@@ -11216,7 +12004,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/utc-holiday-lights-blue.jpg",
@@ -11247,7 +12035,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/vinoy-park-dusk.jpg",
@@ -11277,7 +12065,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/christone-kingfish-ingram.jpg",
@@ -11308,7 +12096,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/dal-disruption-devotion-panel-discussion.jpg",
@@ -11338,7 +12126,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/ed-sheeran-loop-tour.jpg",
@@ -11368,7 +12156,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/greensky-bluegrass.jpg",
@@ -11398,7 +12186,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/jannus-live-stage-red.jpg",
@@ -11428,7 +12216,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/lightning-fans-amalie-arena-blackhawks.jpg",
@@ -11458,7 +12246,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/noah-kahan-the-last-of-the-bugs-world-tour.jpg",
@@ -11488,7 +12276,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/ringling-museum-courtyard.jpg",
@@ -11518,7 +12306,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/spa-beach-st-pete-pier.jpg",
@@ -11548,7 +12336,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/st-petersburg-shuffleboard-club.jpg",
@@ -11578,7 +12366,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-2-2026/trivium-crown-in-the-grave-tour.jpg",
@@ -11608,7 +12396,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/art-after-dark-mfa.webp",
@@ -11638,7 +12426,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/bowling-for-soup.webp",
@@ -11668,7 +12456,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/doja-cat-and-latto.webp",
@@ -11698,7 +12486,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/il-volo.webp",
@@ -11728,7 +12516,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/judah-and-the-lion.webp",
@@ -11758,7 +12546,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/mahaffey-theater.jpg",
@@ -11788,7 +12576,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/rush.webp",
@@ -11818,7 +12606,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/usf-bulls-vs-memphis.webp",
@@ -11848,7 +12636,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/usf-mens-basketball.webp",
@@ -11878,7 +12666,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-nov-9-2026/wynonna-judd.webp",
@@ -11908,7 +12696,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/johns-pass-village-boardwalk.jpg",
@@ -11938,7 +12726,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/tropicana-field-game-day.jpg",
@@ -11968,7 +12756,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/trending-in-florida-this-week-oct-19-2026/westcoast-black-theatre-troupe.jpg",
@@ -11998,7 +12786,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/universal-orlando-christmas-2026/citywalk.webp",
@@ -12028,7 +12816,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/universal-orlando-christmas-2026/nintendo-day.webp",
@@ -12058,7 +12846,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/universal-orlando-christmas-2026/seuss-landing.webp",
@@ -12088,7 +12876,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/universal-orlando-christmas-2026/universal-holiday-parade.webp",
@@ -12119,8 +12907,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17",
-      "verificationNote": "Source licence verification carried forward from the existing reviewed use of the identical Flickr photograph; direct re-fetch on 2026-11-17 returned an incomplete page. No new licence or source identity inferred."
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/buccaneer-bay-the-spring-fed-water-park.webp",
@@ -12137,7 +12924,7 @@
         "title": "Weeki Wachee Springs, Florida",
         "author": "eutrophication&hypoxia",
         "displayName": "eutrophication&hypoxia",
-        "dateTaken": null,
+        "dateTaken": "2010-05-06 12:16:58",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -12151,7 +12938,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/manatee-cow-calf-weeki-wachee-river.webp",
@@ -12181,7 +12968,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/mermaid-shows-park-sign.webp",
@@ -12211,7 +12998,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/the-river-rules-that-keep-it-this-clear.webp",
@@ -12241,7 +13028,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/weeki-wachee-kayak-mermaids-guide/weeki-wachee-river.webp",
@@ -12271,7 +13058,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/winter-park-scenic-boat-tour/make-it-a-winter-park-day.webp",
@@ -12288,7 +13075,7 @@
         "title": "Winter Park - Park Avenue Shopping",
         "author": "Jared",
         "displayName": "Jared",
-        "dateTaken": null,
+        "dateTaken": "2012-12-15 16:15:45",
         "licence": "CC BY 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
       },
@@ -12302,7 +13089,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/winter-park-scenic-boat-tour/rollins-college-bell-tower.webp",
@@ -12319,7 +13106,7 @@
         "title": "Rollins College Bell Tower",
         "author": "Mike Whaling",
         "displayName": "Mike Whaling",
-        "dateTaken": null,
+        "dateTaken": "2009-02-21 15:21:16",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -12333,7 +13120,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/winter-park-scenic-boat-tour/scenic-boat-tour-dock-sign.webp",
@@ -12350,7 +13137,7 @@
         "title": "Winter Park Scenic Boat Tour",
         "author": "Mike Whaling",
         "displayName": "Mike Whaling",
-        "dateTaken": null,
+        "dateTaken": "2009-02-21 14:48:30",
         "licence": "CC BY-SA 2.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0/"
       },
@@ -12364,7 +13151,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/ybor-city-tampa-guide/columbia-restaurant.webp",
@@ -12394,7 +13181,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/ybor-city-tampa-guide/seventh-avenue-ybor.webp",
@@ -12424,7 +13211,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     },
     {
       "src": "/guides/picks/ybor-city-tampa-guide/teco-streetcar-ybor.webp",
@@ -12454,7 +13241,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-17"
+      "verifiedAt": "2026-11-23"
     }
   ]
 }

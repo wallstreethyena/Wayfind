@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 import { posterSeasonLive, posterSeasonWindow, railOnPosterTrack, POSTER_SEASONS } from "../lib/posterSeasons.js";
 import { DAYPARTS, DAYPART_IDS, orderFor, halloweenLeads, christmasLeads } from "../lib/dayparts.js";
 import { RAILS } from "../lib/rails.js";
+import { activeSeasonalHubs } from "../lib/seasonalSearch.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -26,7 +27,9 @@ const track = (band, today) => orderFor(band, ids, today).filter((id) => railOnP
 const THANKS = { 2026: "2026-11-26", 2027: "2027-11-25", 2028: "2028-11-23" };
 for (const y of [2026, 2027, 2028]) {
   const fall = posterSeasonWindow("augtober", y), hw = posterSeasonWindow("halloween", y), xm = posterSeasonWindow("christmas", y);
-  ok(fall.start === `${y}-08-15` && fall.end === THANKS[y], `${y}: fall window is Aug 15 .. Thanksgiving ${THANKS[y]} (got ${fall.start}..${fall.end})`);
+  ok(fall.start === `${y}-08-15` && fall.end === `${y}-11-10`, `${y}: fall window is Aug 15 .. Nov 10 (got ${fall.start}..${fall.end})`);
+  const promotedFall = (date) => activeSeasonalHubs(undefined, date).some((hub) => hub.slug === "fall-in-florida");
+  ok(promotedFall(`${y}-08-15`) && promotedFall(`${y}-11-10`) && !promotedFall(`${y}-11-11`) && !promotedFall(`${y}-08-14`), `${y}: Fall navigation follows the annual display dates`);
   ok(hw.start === `${y}-10-10` && hw.end === `${y}-10-31`, `${y}: halloween window Oct 10 .. Oct 31`);
   ok(xm.start === `${y}-10-13` && xm.end === `${y + 1}-01-01`, `${y}: christmas window Oct 13 .. Jan 1 ${y + 1} (got ${xm.end})`);
   for (const [id, w] of [["augtober", fall], ["halloween", hw], ["christmas", xm]]) {
@@ -80,11 +83,13 @@ for (const band of DAYPART_IDS) {
   const nov = track(band, "2026-11-01");
   ok(!nov.includes("halloween") && nov.includes("augtober") && nov.includes("christmas"), `${band}: halloween absent Nov 1, fall and christmas present`);
   // Owner, 2026-11-05: TRENDING NOW is the second poster, right next to
-  // Christmas; Fall stays visible immediately after it through Thanksgiving.
+  // Christmas; Fall stays visible immediately after it through Nov 10.
   ok(nov[0] === "christmas" && nov[1] === "augtober" && nov[2] === "trending", `${band} Nov 1: Christmas first, Fall second, Trending Now immediately right of Fall (got ${nov.slice(0, 4).join(", ")})`);
-  const late = track(band, "2026-11-27");
-  ok(late[0] === "christmas" && late[1] === "trending", `${band} Nov 27: Fall gone, Trending Now right next to Christmas (got ${late.slice(0, 3).join(", ")})`);
-  ok(track(band, "2026-11-27")[0] === "christmas" && !track(band, "2026-11-27").includes("augtober"), `${band}: Christmas first all day Nov 27 2026, Fall gone`);
+  const late = track(band, "2026-11-11");
+  ok(late[0] === "christmas" && late[1] === "trending", `${band} Nov 11: Fall gone, Trending Now right next to Christmas (got ${late.slice(0, 3).join(", ")})`);
+  ok(track(band, "2026-11-23")[0] === "christmas" && !track(band, "2026-11-23").includes("augtober"), `${band}: Fall retired now, Nov 23 2026`);
+  for (const date of ["2026-11-11", "2026-11-23", "2027-01-01", "2027-08-14"]) ok(!track(band, date).includes("augtober"), `${band}: Fall remains retired on ${date}`);
+  ok(track(band, "2027-08-15").includes("augtober"), `${band}: Fall returns Aug 15 2027`);
   ok(track(band, "2026-12-31")[0] === "christmas", `${band}: Christmas first Dec 31`);
   ok(track(band, "2027-01-01")[0] === "christmas", `${band}: Christmas still first Jan 1 2027`);
   ok(!track(band, "2027-01-02").includes("christmas") && !track(band, "2027-01-02").includes("halloween") && !track(band, "2027-01-02").includes("augtober"), `${band}: all three seasonal posters gone Jan 2 2027`);

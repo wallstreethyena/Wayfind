@@ -6,6 +6,8 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { JSDOM } from "jsdom";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(root, p), "utf8");
@@ -26,7 +28,7 @@ const { wayfindScore } = await import(path.join(root, "lib/wayfindScore.js"));
 const strong = { indexable: true, rating: 4.8, reviews: 2500 };
 ok(wayfindScore(strong.rating, strong.reviews) >= B.BADGE_MIN_SCORE, "positive control: 4.8 on 2,500 reviews should clear the bar");
 ok(B.badgeEligible(strong) === true, "a strong, indexable place must be eligible");
-ok(B.badgeEligible({ ...strong, indexable: false }) === false, "a non-indexable page must never get a badge (the link would earn nothing)");
+ok(B.badgeEligible({ ...strong, indexable: false }) === false, "a non-indexable page must never get a Top Rated badge");
 ok(B.badgeEligible({ ...strong, indexable: "yes" }) === false, "indexable must be exactly true");
 ok(B.badgeEligible({ indexable: true, rating: null, reviews: 0 }) === false, "an unrated place must never be eligible");
 ok(B.badgeEligible({ indexable: true, rating: 5, reviews: 6 }) === false, "a 5.0 on a handful of reviews must not be top rated (review-depth rule)");
@@ -39,20 +41,32 @@ ok(/import\s*\{\s*wayfindScore\s*\}\s*from\s*["']\.\/wayfindScore(\.js)?["']/.te
 ok(!/creator|affinity|cindy|boost/i.test(libSrc), "badge eligibility must not read creator/affinity/boost signals");
 
 // 2. No number on the badge.
-const svg = B.badgeSvg({ name: "Mar Vista Dockside Restaurant", theme: "dark" });
+const svg = B.badgeSvg({ name: "Mar Vista Dockside Restaurant", theme: "dark", eligible: true });
 ok(!/\b(10|[0-9]\.[0-9])\s*\/\s*10\b/.test(svg) && !/>\s*[0-9]+(\.[0-9])?\s*</.test(svg), "badge SVG must not print a score");
+ok(svg.includes("TOP RATED ON") && svg.includes("Mar Vista Dockside Restaurant"), "positive control: an explicitly eligible named badge retains its award");
+for (const input of [{}, { name: "Test Place" }, { name: "Test Place", eligible: false }, { name: "Test Place", eligible: "yes" }, { eligible: true }]) {
+  const unavailable = B.badgeSvg(input);
+  ok(!/top rated/i.test(unavailable) && unavailable.includes("BADGE UNAVAILABLE"), "unconfirmed eligibility or missing identity cannot claim an award, including accessible text");
+}
 
-// 3. Followed link to the canonical place page.
+// 3. Qualified widget link to the canonical place page. Intentional change
+// from the original followed-link rule: Google identifies unnatural widget
+// links as link spam. Referral value does not depend on passing PageRank.
 const site = "https://www.gowayfind.com";
 const html = B.badgeEmbedHtml({ siteUrl: site, id: "ChIJ_test-ID1", name: "Test Place", theme: "light" });
 ok(/<a href="https:\/\/www\.gowayfind\.com\/places\/ChIJ_test-ID1\?utm_source=wayfind_badge&amp;/.test(html), "embed link must point at /places/{id} with the badge utm tags");
-ok(!/nofollow|sponsored|ugc/i.test(html), "embed link must be a plain followed link");
+const embedDoc = new JSDOM(html);
+const embedLink = embedDoc.window.document.querySelector("a");
+ok(embedLink.relList.contains("nofollow") && embedLink.relList.contains("noopener"), "distributed badge link must have nofollow and noopener");
+ok(!/top rated/i.test(embedLink.title + embedLink.querySelector("img").alt), "static title and alt must remain truthful after eligibility changes");
+ok(embedLink.querySelector("img").alt.includes("Test Place"), "neutral static alt still identifies the destination");
+embedDoc.window.close();
 ok(/<img src="https:\/\/www\.gowayfind\.com\/api\/badge\/ChIJ_test-ID1\?theme=light"/.test(html), "embed image must load from /api/badge/{id}");
 ok(/width="220" height="80"/.test(html), "embed must reserve its size (no layout jump)");
 
 // 4. Escaping. Untrusted names must never become markup.
 const evil = `"><script>alert(1)</script><img src=x onerror=alert(2)> & 'x'`;
-const evilSvg = B.badgeSvg({ name: evil });
+const evilSvg = B.badgeSvg({ name: evil, eligible: true });
 const evilHtml = B.badgeEmbedHtml({ siteUrl: site, id: "ChIJabcdef", name: evil, theme: "dark" });
 ok(!/<script/i.test(evilSvg) && !/<img/i.test(evilSvg), "SVG must escape a hostile name");
 ok(!/<script/i.test(evilHtml) && (evilHtml.match(/<img/g) || []).length === 1, "embed HTML must escape a hostile name (exactly one real <img>)");
@@ -61,7 +75,7 @@ ok(!/<script/i.test(evilHtml) && (evilHtml.match(/<img/g) || []).length === 1, "
 const markupOnly = (s) => s.replace(/="[^"]*"/g, '=""').replace(/>[^<]*</g, "><");
 ok(!/\son\w+=/i.test(markupOnly(evilHtml)) && !/\son\w+=/i.test(markupOnly(evilSvg)), "no live event handler attribute may come out of a name");
 ok(/\son\w+=/i.test(markupOnly('<img src="x" onerror="y">')), "positive control: the handler probe must catch a real handler");
-ok(!/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(B.badgeSvg({ name: "Bad\u0001Name\u0007" })), "control characters must be removed (invalid XML breaks the image)");
+ok(!/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(B.badgeSvg({ name: "Bad\u0001Name\u0007", eligible: true })), "control characters must be removed (invalid XML breaks the image)");
 ok(Array.from(B.badgeName("x".repeat(80))).length <= B.BADGE_NAME_MAX, "long names must be cut to fit");
 ok(B.badgeName("Short Name") === "Short Name", "short names must be untouched");
 
@@ -86,11 +100,75 @@ const logoTag = darkSvg.match(/<svg x="([0-9.]+)" y="[0-9.]+" width="([0-9.]+)" 
 ok(!!logoTag && logoTag[4] === B.LOGO_VIEWBOX, "the nested logo must use the official viewBox");
 const vb = B.LOGO_VIEWBOX.split(/\s+/).map(Number);
 ok(logoTag && logoTag[3] === "59" && Math.abs(Number(logoTag[2]) / Number(logoTag[3]) - vb[2] / vb[3]) < 0.02, "the logo keeps its 59-tall slot and the official aspect (a stretch would move the place name)");
-ok(!/<script|href=|xlink:href|@import|url\(http/i.test(B.badgeSvg({ name: "x" })), "SVG must be self-contained (no script, no external load)");
+ok(!/<script|href=|xlink:href|@import|url\(http/i.test(B.badgeSvg({ name: "x", eligible: true })), "SVG must be self-contained (no script, no external load)");
 ok(B.badgeTheme("neon") === "dark" && B.badgeTheme("light") === "light", "unknown theme falls back to dark");
 ok(B.validBadgeId("ChIJN1t_tDeuEmsRUsoyG83frY4") && !B.validBadgeId("../etc") && !B.validBadgeId("a b") && !B.validBadgeId(""), "id validation");
 
-// 6. Wiring that cannot be executed without Next.
+// 6. Execute the real GET with fixture records at the no-spend data boundary.
+// Keep the real isIndexable implementation and score logic; do not model a
+// second eligibility rule in this test. No live provider requests are allowed.
+const placeDataPath = path.join(root, "lib/placeData.js");
+const placeDataSource = read("lib/placeData.js");
+// Load the canonical predicate's exact source, without React's server-only
+// cache export or unrelated database/provider initialization. If that function
+// gains dependencies, this fixture must follow them rather than copy its logic.
+const indexableSource = placeDataSource.match(/export function isIndexable\(p\) \{[\s\S]*?\n\}/)?.[0];
+ok(!!indexableSource, "fixture executes the real isIndexable function from placeData");
+if (!indexableSource) process.exit(1);
+const fixtureSource = `import { isNotPublicPlace } from "./notPublicPlaces";
+${indexableSource}
+export const loadPlaceNoSpend = async (id) => {
+  const fixture = globalThis.__wfTopRatedBadgeFixture;
+  fixture.reads.push(id);
+  if (fixture.error) throw new Error("fixture lookup failure");
+  return fixture.place;
+};`;
+const api = await loadComponent(path.join(root, "app/api/badge/[id]/route.js"), root, {
+  sourceOverrides: new Map([[placeDataPath, fixtureSource]]),
+});
+const fixtureBefore = globalThis.__wfTopRatedBadgeFixture;
+const fetchBefore = globalThis.fetch;
+const warnBefore = console.warn;
+const warnings = [];
+globalThis.fetch = async () => { throw new Error("badge guard attempted live network"); };
+console.warn = (...args) => warnings.push(args.join(" "));
+try {
+  const good = { id: "ChIJ_test-ID1", name: "Test & Place", durableEligible: true, rating: 4.8, reviews: 2500 };
+  const cases = [
+    ["eligible", good, false, good.id, "eligible"],
+    ["below threshold", { ...good, rating: 4.3 }, false, good.id, "ineligible"],
+    ["non-indexable", { ...good, durableEligible: false }, false, good.id, "ineligible"],
+    ["unrated", { ...good, rating: null, reviews: 0 }, false, good.id, "ineligible"],
+    ["thin reviews", { ...good, rating: 5, reviews: 6 }, false, good.id, "ineligible"],
+    ["missing name", { ...good, name: "" }, false, good.id, "unknown"],
+    ["unknown", null, false, good.id, "unknown"],
+    ["lookup failure", null, true, good.id, "error"],
+    ["invalid id", good, false, "../etc", "invalid"],
+  ];
+  for (const [label, place, error, id, expected] of cases) {
+    const fixture = { place, error, reads: [] };
+    globalThis.__wfTopRatedBadgeFixture = fixture;
+    const response = await api.GET(new Request(`${site}/api/badge/test?theme=light`), { params: Promise.resolve({ id }) });
+    const body = await response.text();
+    const xml = new JSDOM(body, { contentType: "image/svg+xml" });
+    ok(response.status === 200 && xml.window.document.documentElement.localName === "svg", `${label}: always serves a usable SVG`);
+    ok(response.headers.get("x-wayfind-badge-status") === expected, `${label}: response distinguishes eligibility, absence and lookup failure`);
+    ok(expected === "eligible" ? /top rated/i.test(body) && body.includes("Test &amp; Place") : !/top rated/i.test(body) && body.includes("BADGE UNAVAILABLE"), `${label}: SVG award claim matches eligibility`);
+    ok(fixture.reads.length === (expected === "invalid" ? 0 : 1), `${label}: validates before exactly one no-spend lookup`);
+    ok(response.headers.get("content-type").startsWith("image/svg+xml") && response.headers.get("x-content-type-options") === "nosniff" && response.headers.get("content-security-policy").includes("sandbox") && response.headers.get("access-control-allow-origin") === "*", `${label}: image keeps cross-site and SVG safety headers`);
+    const cache = response.headers.get("cache-control");
+    ok(expected === "error" ? cache === "no-store" : cache.includes("s-maxage=86400") && !cache.includes("stale-while-revalidate"), `${label}: no cached lookup failure or week-long stale award`);
+    xml.window.close();
+  }
+  ok(warnings.length === 1 && warnings[0].includes("[badge] Place lookup failed"), "lookup errors are observable and not treated as ordinary ineligibility");
+} finally {
+  globalThis.fetch = fetchBefore;
+  console.warn = warnBefore;
+  if (fixtureBefore === undefined) delete globalThis.__wfTopRatedBadgeFixture;
+  else globalThis.__wfTopRatedBadgeFixture = fixtureBefore;
+}
+
+// 7. Remaining page/middleware wiring.
 const route = strip(read("app/api/badge/[id]/route.js"));
 ok(/loadPlaceNoSpend/.test(route) && !/\bloadPlace\s*\(/.test(route) && !/getPlaceDetails/.test(route), "badge image route must never spend Google (loadPlaceNoSpend only)");
 ok(/status:\s*200/.test(route) && !/notFound|status:\s*4\d\d|status:\s*5\d\d/.test(route), "badge image must always answer 200 (it lives on other people's sites)");
@@ -116,4 +194,4 @@ if (fails) {
   console.error(`check-top-rated-badge: ${fails} of ${checks} checks failed`);
   process.exit(1);
 }
-console.log(`check-top-rated-badge: OK (${checks} checks; hostile-name, merit, logo-drift and wiring controls)`);
+console.log(`check-top-rated-badge: OK (${checks} checks; real GET across 9 eligibility/error states, qualified embed, hostile-name, merit, logo-drift and wiring controls)`);

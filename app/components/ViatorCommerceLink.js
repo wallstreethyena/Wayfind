@@ -12,13 +12,16 @@
 // click could not be tied back to a card. This wrapper replaces those direct
 // anchors without changing their visual shape.
 //
-// TWO REDIRECT PATHS, ONE COMPONENT
+// THREE REDIRECT PATHS, ONE COMPONENT
 //   • /api/commerce/go?provider=viator&offer=<product_code>  — preferred, when
 //     the caller already knows the exact Viator product code (wf_experiences).
 //   • /api/viator/go?placeId=...&q=...                       — search fallback
 //     for surfaces that only have a title/booking_url and need server-side
 //     resolution. The destination is still resolved server-side; no partner URL
 //     is accepted from the request.
+//   • /api/viator/go?product=...                            — exact current
+//     API product, opted into with exactProductUrl before its SKU is in our
+//     catalog. The same-SKU check below and strict server validator both apply.
 //
 // SECURITY: the UI never constructs a partner URL. Offer codes are looked up in
 // our own table; search fallbacks are resolved by the server-side booking
@@ -26,7 +29,25 @@
 // the browser ever leaves our origin.
 import { useRef, useEffect } from "react";
 import { emitCommerce, commerceHref, mintClickId, rankBucket } from "../../lib/commerce";
-import { experienceGoUrl } from "../../lib/affiliates";
+import { experienceGoUrl, viatorProductGoUrl } from "../../lib/affiliates";
+
+// Live API summaries can introduce a SKU before it exists in our owned
+// commerce catalog. Keep that exact product on the existing strict redirect
+// path; an explicit malformed or mismatched product never becomes a search.
+export function viatorExactProductHref({ productUrl, offerId, city, kind, surface, contentId, page }) {
+  try {
+    const url = new URL(productUrl);
+    const code = url.pathname.match(/\/d\d+-([A-Za-z0-9]+)(?:\/|$)/i)?.[1];
+    if (!code || !offerId || code.toUpperCase() !== String(offerId).toUpperCase()) return null;
+    const href = viatorProductGoUrl(productUrl, city, kind, surface);
+    if (!href) return null;
+    const [path, search] = href.split("?");
+    const params = new URLSearchParams(search);
+    if (contentId) params.set("content", String(contentId));
+    if (page) params.set("page", String(page));
+    return `${path}?${params}`;
+  } catch { return null; }
+}
 
 function viatorSearchHref({ placeId, q, city, kind, surface, contentId }) {
   if (!placeId || !q) return null;
@@ -35,6 +56,8 @@ function viatorSearchHref({ placeId, q, city, kind, surface, contentId }) {
 
 export default function ViatorCommerceLink({
   t,
+  exactProductUrl,
+  page,
   placeId,
   q,
   city,
@@ -54,7 +77,8 @@ export default function ViatorCommerceLink({
   const resolvedCity = city || contentId;
   const resolvedKind = kind;
 
-  const mode = offerId ? "commerce" : (resolvedPlaceId && resolvedQ) ? "search" : null;
+  const exactHref = exactProductUrl ? viatorExactProductHref({ productUrl: exactProductUrl, offerId, city: resolvedCity, kind: resolvedKind, surface, contentId, page }) : null;
+  const mode = exactProductUrl ? (exactHref ? "exact" : null) : offerId ? "commerce" : (resolvedPlaceId && resolvedQ) ? "search" : null;
   const offerLabel = offerId || resolvedPlaceId || "unknown";
 
   const ref = useRef(null);
@@ -85,7 +109,7 @@ export default function ViatorCommerceLink({
     return () => { try { io.disconnect(); } catch (er) {} };
   }, [surface, contentId, offerLabel, rank]);
 
-  const href = mode === "commerce"
+  const href = mode === "exact" ? exactHref : mode === "commerce"
     ? commerceHref({ provider: "viator", offerId, surface, contentId })
     : mode === "search"
     ? viatorSearchHref({ placeId: resolvedPlaceId, q: resolvedQ, city: resolvedCity, kind: resolvedKind, surface, contentId })

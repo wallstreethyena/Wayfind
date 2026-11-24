@@ -1,18 +1,33 @@
 {
   "slug": "sarasota-this-week-nov-23-2026",
-  "picks": {},
+  "picks": {
+    "Downtown Sarasota Black Friday and Shop Small Saturday": {
+      "src": "/guides/picks/sarasota-this-week-nov-23-2026/downtown-sarasota-historic-district-shops.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "A tree lined street of shops with striped awnings, a red patio umbrella, and parked cars in the Downtown Sarasota Historic District",
+      "caption": "Shops along a street in the Downtown Sarasota Historic District, June 2011. The photo shows the downtown street, not the Black Friday or Shop Small Saturday events.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Downtown_HD01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Wikimedia Commons file \"Sarasota FL Downtown HD01.jpg\" by Ebyabe, taken 2011-06-19, categorised Downtown Sarasota Historic District. Live Commons licence checked 2026-11-23: CC BY-SA 3.0. Viewed the original 4288x3216 photograph: a tree-lined commercial street of shop fronts, awnings, and parked cars in downtown Sarasota. A Cinco de Mayo banner on a shop at the right of the original frame was cropped out so the pick does not show the wrong season. The crop is still the same downtown shopping street, captioned as the place and not as Black Friday or Shop Small Saturday.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-23"
+    }
+  },
   "gaps": {
     "Siesta Key Village Turkey Trot pub crawl": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
-      "note": "November 23, 2026 pass: no Creative Commons photograph of this crawl was verified. Held for the Picture Scrapper. The page ships with no photo for this pick."
-    },
-    "Downtown Sarasota Black Friday and Shop Small Saturday": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 23, 2026 pass: no Creative Commons photograph of these shopping days was verified. Held for the Picture Scrapper. The page ships with no photo for this pick."
+      "note": "November 23, 2026 pass: no Creative Commons photograph of Siesta Key Village along Ocean Boulevard was verified. Commons category and geosearch around the village, plus Openverse and Flickr, returned beach scenes, a laundromat at dawn, and food close-ups, not the village street or bars. The pick stays empty rather than use a beach or laundry photo."
     }
   }
 }

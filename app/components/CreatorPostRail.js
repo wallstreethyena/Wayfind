@@ -15,7 +15,7 @@ import styles from "./CreatorPostRail.module.css";
 // isEmbeddable) and there is no link out. scripts/check-guide-standard.mjs
 // requires guide routes to show creator posts only through this component.
 //
-// posts: [{ url, creator, kind: "reel" | "carousel", coverTitle?, label }]
+// posts: [{ url, creator, kind: "reel" | "carousel", coverTitle?, label, cover?: { src, credit, alt } }]
 // headingLevel: the rail heading level (its tile titles go one level below),
 // so a rail nested under an entry heading keeps the outline in order.
 export default function CreatorPostRail({ posts = [], label, heading = "Seen from local creators", kicker = null, id, headingLevel = 3 }) {

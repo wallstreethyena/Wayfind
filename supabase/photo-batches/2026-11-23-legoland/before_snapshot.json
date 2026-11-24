@@ -1,0 +1,171 @@
+{
+  "read_at": "2026-11-23T14:56:00-05:00",
+  "place_id": "wfadd_legoland_florida",
+  "name": "LEGOLAND Florida Resort",
+  "source": "The Holidays at LEGOLAND Florida event page gallery comes from signals.christmas_photo_gallery on this inventory row, tagged with christmas_keys legoland-fl-holidays-2026.",
+  "christmas_photo_gallery": [
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/xmas_5d7a0dda91619967.jpg",
+      "bytes": 328833,
+      "cover": true,
+      "width": 1280,
+      "height": 853,
+      "source": "official_site",
+      "source_ref": "https://www.legoland.com/florida/media/iwkfbdjl/lego-wreath.png",
+      "content_type": "image/jpeg",
+      "original_url": "https://www.legoland.com/florida/media/iwkfbdjl/lego-wreath.png",
+      "storage_path": null,
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://www.legoland.com/florida/media/iwkfbdjl/lego-wreath.png",
+      "attribution_text": "LEGOLAND Florida Resort official website"
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/xmas_8568dd4afcd2c7e4.jpg",
+      "bytes": 397432,
+      "cover": false,
+      "width": 1280,
+      "height": 853,
+      "source": "official_site",
+      "source_ref": "https://www.legoland.com/florida/media/11zn21cz/legoland-florida-holidays.jpg",
+      "content_type": "image/jpeg",
+      "original_url": "https://www.legoland.com/florida/media/11zn21cz/legoland-florida-holidays.jpg",
+      "storage_path": null,
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://www.legoland.com/florida/media/11zn21cz/legoland-florida-holidays.jpg",
+      "attribution_text": "LEGOLAND Florida Resort official website"
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/xmas_a451e65e4ab7d1db.jpg",
+      "bytes": 225005,
+      "cover": false,
+      "width": 1280,
+      "height": 853,
+      "source": "official_site",
+      "source_ref": "https://www.legoland.com/florida/media/c0ldtrb2/family-fireworks-1.jpg",
+      "content_type": "image/jpeg",
+      "original_url": "https://www.legoland.com/florida/media/c0ldtrb2/family-fireworks-1.jpg",
+      "storage_path": null,
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://www.legoland.com/florida/media/c0ldtrb2/family-fireworks-1.jpg",
+      "attribution_text": "LEGOLAND Florida Resort official website"
+    },
+    {
+      "url": "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/xmas_a88896626dab04e6.jpg",
+      "bytes": 186277,
+      "cover": false,
+      "width": 1280,
+      "height": 853,
+      "source": "official_site",
+      "source_ref": "https://www.legoland.com/florida/media/ruqhahla/knye-1000x1000.png",
+      "content_type": "image/jpeg",
+      "original_url": "https://www.legoland.com/florida/media/ruqhahla/knye-1000x1000.png",
+      "storage_path": null,
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://www.legoland.com/florida/media/ruqhahla/knye-1000x1000.png",
+      "attribution_text": "LEGOLAND Florida Resort official website"
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/c988da2b5e07018ef713d0a6.jpg",
+      "bytes": 391187,
+      "cover": false,
+      "width": 1280,
+      "height": 853,
+      "source": "wikimedia",
+      "license": "cc-by-sa-2.0",
+      "source_ref": "File:Legoland Florida Entrance Welcome.jpg",
+      "content_type": "image/jpeg",
+      "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Legoland_Florida_Entrance_Welcome.jpg",
+      "storage_path": "wfadd_legoland_florida/c988da2b5e07018ef713d0a6.jpg",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALegoland_Florida_Entrance_Welcome.jpg",
+      "attribution_text": "Josh Hallett — cc-by-sa-2.0, via Wikimedia Commons"
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/6b01f3f31999fa51b59c79e8.jpg",
+      "bytes": 324549,
+      "cover": false,
+      "width": 1280,
+      "height": 853,
+      "source": "wikimedia",
+      "license": "cc-by-2.0",
+      "source_ref": "File:LEGOLAND® Florida (8132540205).jpg",
+      "content_type": "image/jpeg",
+      "original_url": "https://upload.wikimedia.org/wikipedia/commons/3/37/LEGOLAND%C2%AE_Florida_%288132540205%29.jpg",
+      "storage_path": "wfadd_legoland_florida/6b01f3f31999fa51b59c79e8.jpg",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALEGOLAND%C2%AE_Florida_(8132540205).jpg",
+      "attribution_text": "VisitCentralFL — cc-by-2.0, via Wikimedia Commons"
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/389efb9fd183ce0333bbb797.jpg",
+      "bytes": 325556,
+      "cover": false,
+      "width": 1280,
+      "height": 853,
+      "source": "wikimedia",
+      "license": "cc-by-sa-3.0",
+      "source_ref": "File:Lego Land - panoramio.jpg",
+      "content_type": "image/jpeg",
+      "original_url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Lego_Land_-_panoramio.jpg",
+      "storage_path": "wfadd_legoland_florida/389efb9fd183ce0333bbb797.jpg",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALego_Land_-_panoramio.jpg",
+      "attribution_text": "Jacob Montgomery — cc-by-sa-3.0, via Wikimedia Commons"
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/50794ddc6b889f510b939f98.jpg",
+      "bytes": 291965,
+      "cover": false,
+      "width": 1280,
+      "height": 853,
+      "source": "wikimedia",
+      "license": "cc-by-sa-2.0",
+      "source_ref": "File:Legoland FL (8218674363).jpg",
+      "content_type": "image/jpeg",
+      "original_url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Legoland_FL_%288218674363%29.jpg",
+      "storage_path": "wfadd_legoland_florida/50794ddc6b889f510b939f98.jpg",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALegoland_FL_(8218674363).jpg",
+      "attribution_text": "Lucy Gray from Chicago, USA — cc-by-sa-2.0, via Wikimedia Commons"
+    },
+    {
+      "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/4e646c37fe3689343b52c9b5.jpg",
+      "bytes": 360622,
+      "cover": false,
+      "width": 1280,
+      "height": 853,
+      "source": "wikimedia",
+      "license": "cc-by-2.0",
+      "source_ref": "File:Legoland Florida 1 (6827572795).jpg",
+      "content_type": "image/jpeg",
+      "original_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Legoland_Florida_1_%286827572795%29.jpg",
+      "storage_path": "wfadd_legoland_florida/4e646c37fe3689343b52c9b5.jpg",
+      "christmas_keys": [
+        "legoland-fl-holidays-2026"
+      ],
+      "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALegoland_Florida_1_(6827572795).jpg",
+      "attribution_text": "Nathan Forget — cc-by-2.0, via Wikimedia Commons"
+    }
+  ],
+  "untouched": {
+    "photos_count": 7,
+    "photo_gallery_count": 7,
+    "note": "Year round place photos were left as they are."
+  }
+}

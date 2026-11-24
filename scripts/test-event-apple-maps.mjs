@@ -80,6 +80,16 @@ callbacks[1].resolve({ routes: [{ polyline: { id: "current", boundingMapRect: {}
 const current = await second;
 check(current.distanceLabel === "2.0 mi" && current.etaLabel === "1 hr 5 min" && controller.map.overlays[0].id === "current" && controller.map.overlays[0].style.strokeColor === "#0F9F8A" && controller.map.shown[2].id === "current" && controller.map.showOptions.animate === true && controller.map.showOptions.padding instanceof FakePadding && controller.map.showOptions.padding.top === 60, "current route geometry, distance, ETA, MapKit stroke style, and real MapKit showItems fit options are applied to the same map");
 
+const contentAnnotations = () => controller.map.annotations.filter((a) => !a.__wayfindOrigin);
+const originAnnotations = () => controller.map.annotations.filter((a) => a.__wayfindOrigin);
+check(originAnnotations().length === 1 && originAnnotations()[0].image[1] === mapPinUrl("location") && decodeURIComponent(originAnnotations()[0].image[1]).includes("#F97316"), "routeFromCoordinate places a single Wayfind Orange location dot at the route origin");
+controller.setUserLocation({ lat: 27.5, lng: -82.3 });
+check(originAnnotations().length === 1, "calling setUserLocation at the same origin never duplicates the orange dot");
+controller.setUserLocation({ lat: 27.55, lng: -82.35 });
+check(originAnnotations().length === 1 && originAnnotations()[0].coordinate.latitude === 27.55, "updating user location replaces the single orange dot cleanly");
+controller.map.listener.fn({ annotation: originAnnotations()[0] });
+check(selected === "pick-1", "tapping the non-interactive orange origin dot never clears or hijacks place selection");
+
 const routeOverlay = controller.map.overlays[0];
 const routeFitCalls = controller.map.showCalls;
 controller.setPicks([
@@ -88,7 +98,7 @@ controller.setPicks([
   { id: "coffee", name: "Coffee", lat: 27.32, lng: -82.48, primaryType: "coffee_shop" },
 ]);
 const streamedStay = controller.map.annotations.find((annotation) => annotation.__wayfindId === "22");
-check(controller.map.annotations.length === 3 && controller.map.annotations.some((annotation) => annotation.image[1] === mapPinUrl("event")) && !controller.map.annotations.some((annotation) => annotation.__wayfindId === "pick-1"), "setPicks replaces only place annotations, dedupes streamed IDs, and retains the venue");
+check(contentAnnotations().length === 3 && originAnnotations().length === 1 && controller.map.annotations.some((annotation) => annotation.image[1] === mapPinUrl("event")) && !controller.map.annotations.some((annotation) => annotation.__wayfindId === "pick-1"), "setPicks replaces only place annotations, dedupes streamed IDs, retains the venue and single orange origin dot");
 check(streamedStay?.image[1] === mapPinUrl("stay") && decodeURIComponent(streamedStay.image[1]).includes('width="34" height="46"'), "a streamed hotel renders as the reference white-on-blue bed pin");
 check(controller.map.overlays[0] === routeOverlay && controller.map.showCalls === routeFitCalls, "streamed hotel pins preserve the active route overlay and do not reset its fitted camera");
 controller.map.listener.fn({ annotation: streamedStay });
@@ -98,17 +108,19 @@ const parking = [{ id: "parking:one", name: "Garage", lat: 27.3001, lng: -82.500
 controller.setParkingMode(true, parking);
 check(controller.map.region.span.latitudeDelta < 0.03 && controller.map.region.span.longitudeDelta < 0.03, "parking commits a local camera after fitting custom annotation images");
 check(controller.map.cameraAnimated === false && controller.map.showOptions.animate === false, "parking cancels a previous wide camera animation instead of racing it");
-check(controller.map.annotations.length === 2 && controller.map.annotations.some(a => a.image[1] === mapPinUrl("parking")), "parking mode retains the venue and uses the shared P pin");
+check(contentAnnotations().length === 2 && originAnnotations().length === 1 && controller.map.annotations.some(a => a.image[1] === mapPinUrl("parking")), "parking mode retains the venue and orange user dot and uses the shared P pin");
 check(controller.map.overlays.length === 0 && controller.map.shown.every(a => a !== routeOverlay), "parking view excludes the saved drive and unrelated places from camera bounds");
 controller.selectParking("parking:one");
 check(controller.map.annotations.find(a => a.__wayfindId === "parking:one").selected === true, "accessible list selection selects its actual parking pin");
 controller.setPicks([{ id: "new-stay", name: "Late hotel", lat: 27.9, lng: -82.8, mapKind: "stay" }]);
 check(!controller.map.annotations.some(a => a.__wayfindId === "new-stay"), "late hotel results cannot leak into parking mode");
 controller.setParkingMode(false);
-check(controller.map.annotations.length === 2 && controller.map.annotations.some(a => a.__wayfindId === "new-stay") && !controller.map.annotations.some(a => a.__wayfindId === "parking:one"), "leaving parking restores the latest regular picks without duplicate pins");
+check(contentAnnotations().length === 2 && originAnnotations().length === 1 && controller.map.annotations.some(a => a.__wayfindId === "new-stay") && !controller.map.annotations.some(a => a.__wayfindId === "parking:one"), "leaving parking restores the latest regular picks without duplicate pins");
 check(controller.map.overlays.length === 1 && controller.map.overlays[0] === routeOverlay && controller.map.shown.includes(routeOverlay), "leaving parking restores the saved drive and its bounds without another routing request");
 controller.setParkingMode(false);
-check(controller.map.overlays.length === 1 && controller.map.annotations.length === 2, "repeated normal-mode calls cannot duplicate restored overlays or annotations");
+check(controller.map.overlays.length === 1 && contentAnnotations().length === 2 && originAnnotations().length === 1, "repeated normal-mode calls cannot duplicate restored overlays or annotations");
+controller.setUserLocation(null);
+check(originAnnotations().length === 0, "setUserLocation(null) removes the orange location dot cleanly");
 
 const failing = controller.routeFromCoordinate({ lat: 27.4, lng: -82.4 });
 callbacks[2].reject(new Error("quota"));
@@ -118,7 +130,7 @@ check(errors.length === 1, "provider route errors reach an honest visible error 
 const afterDestroy = controller.routeFromCoordinate({ lat: 27.4, lng: -82.4 });
 const callbackCount = callbacks.length;
 controller.destroy();
-check(controller.map.removed && controller.map.listener === null, "destroy removes listeners, annotations, overlays, and map resources");
+check(controller.map.removed && controller.map.listener === null && controller.map.annotations.length === 0, "destroy removes listeners, annotations, origin dot, overlays, and map resources");
 await assert.rejects(afterDestroy, /cancelled/);
 callbacks[callbackCount - 1].resolve({ routes: [{ polyline: {}, distance: 10, expectedTravelTime: 10 }] });
 await Promise.resolve();

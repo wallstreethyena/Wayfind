@@ -15,6 +15,7 @@ import { sbEnv } from "../../../../../lib/serverCache.js";
 import { fetchDeadline, DB_DEADLINE_MS } from "../../../../../lib/fetchDeadline.js";
 import { loadOwnerPickIds } from "../../../../../lib/curatorPicksServer.js";
 import { readMapPlacesByIds, mapListIds } from "../../../../../lib/mapAreaData.js";
+import { hydrateMapPlacesWithStoredPhotos } from "../../../../../lib/mapAreaPhotos.js";
 import { readApplePlaceIds } from "../../../../../lib/applePlaceIds.js";
 import { enrichMapPlacesWithRepoOwnedHours } from "../../../../../lib/ownedHours.js";
 
@@ -33,9 +34,11 @@ export async function POST(request) {
     if (!config) throw new Error("Map inventory configuration is unavailable");
     const fetcher = (url, init) => fetchDeadline(url, init, DB_DEADLINE_MS);
     const owner = await loadOwnerPickIds({ fresh: true, fetchImpl: fetcher }).catch(() => null);
-    const result = await readMapPlacesByIds({ ids, origin, config, fetcher, ownerPickIds: owner ? new Set(owner.map(String)) : null });
+    const rawRowsById = new Map();
+    const result = await readMapPlacesByIds({ ids, origin, config, fetcher, ownerPickIds: owner ? new Set(owner.map(String)) : null, rawRowsById });
     if (result && Array.isArray(result.places)) {
       result.places = enrichMapPlacesWithRepoOwnedHours(result.places);
+      result.places = await hydrateMapPlacesWithStoredPhotos(result.places, { rawRowsById, config, fetcher, stripRawGallery: true });
     }
     const drawn = new Set(result.places.map((p) => p.id));
     const apple = await readApplePlaceIds(ids.filter((id) => !drawn.has(id)), { env: config });

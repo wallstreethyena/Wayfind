@@ -42,6 +42,7 @@ const recordedHandoff = (platform, url) => platform === "instagram" && IG_HANDOF
 const creator = await import(path.join(REPO, "lib/creatorVideos.js"));
 const social = await import(path.join(REPO, "lib/eventSocial.js"));
 const { pickOwnedCover } = await import(path.join(REPO, "lib/creatorCovers.js"));
+const { creatorPostCover } = await import(path.join(REPO, "lib/creatorPostCover.js"));
 
 // ── 1. Formats ──────────────────────────────────────────────────────────────
 // Grandfathered, exact match only. Do NOT add to this list: a video that cannot
@@ -109,7 +110,7 @@ ok(facadeSites.some((s) => s.f === "lib/creatorPages.js") && facadeSites.some((s
 // portaled outside the button) and removes itself on a miss (no grey box).
 {
   const facade = strip(read("app/components/VideoFacade.js"));
-  ok(/const placeCover = poster \? null : creatorPlaceCoverSrc\(placeId\)/.test(facade) && /<CreatorPlaceCover\b[^>]*placeId=\{placeId\}/.test(facade), "VideoFacade falls back to the place's own credited photo when it has no owned cover");
+  ok(/const placeCover = activePoster \? null : creatorPlaceCoverSrc\(placeId\)/.test(facade) && /<CreatorPlaceCover\b[^>]*placeId=\{placeId\}/.test(facade), "VideoFacade falls back to the place's own credited photo when its owned cover is missing or fails");
   const pc = strip(read("app/components/CreatorPlaceCover.js"));
   ok(/<CardPhoto inLink\b/.test(pc), "the place cover uses the linked-card lane (CardPhoto inLink)");
   ok(/if \(!src \|\| miss === src\) return null;/.test(pc), "a place cover miss removes the layer so the branded cover shows");
@@ -139,7 +140,7 @@ ok(POST_LINK.test('<a href={post.url}>Watch</a>') && POST_LINK.test('<a href={se
 ok(POST_HREF.test('<a href="https://www.instagram.com/reel/ABC/">') && POST_HREF.test("<a href='https://www.tiktok.com/@x/video/1'>"), "probe: a hard-coded post link is detected (positive control)");
 const action = strip(read("app/components/CreatorVideoAction.js"));
 ok(!NEW_TAB.test(action) && !/<a[\s>]/.test(action), "the watch action never links out (no new-tab or anchor)");
-ok(/if \(!isEmbeddable\(platform, safeUrl\(url\)\)\) return null;/.test(action), "a post that cannot play here gets no watch button");
+ok(/const actionLabel = creatorPostActionLabel\(platform, safeUrl\(url\)\);\s*if \(!actionLabel\) return null;/.test(action), "a post that cannot open here gets no watch or view button");
 const surfaces = ["app/components/CreatorPostRail.js", "app/components/CheckedCreatorPost.js", "app/christmas-in-florida/page.js", "app/florida-events/[slug]/page.js", "app/components/sheets/SocialFind.js", "app/components/CreatorMapPanel.js", "app/components/VideoFacade.js", "app/components/CreatorVideoPlayer.js", "app/components/CreatorCoverFacade.js"];
 for (const f of surfaces) {
   const src = strip(read(f));
@@ -148,7 +149,7 @@ for (const f of surfaces) {
 
 // Disney food acceptance (owner mission 2026-11-19): show the actual food,
 // preserve all nine sources including California, and never substitute a park photo.
-// Native attributed embeds replace the earlier cover-only contract. No media is copied.
+// Use credited, reviewed subject photos as covers; creator media stays in the native embed.
 {
   const stop = strip(read("app/guides/disney-world-holiday-food-guide-2026/FoodStop.js"));
   const rail = strip(read("app/components/CreatorPostRail.js"));
@@ -157,14 +158,41 @@ for (const f of surfaces) {
   ok(/posts\.filter\(\(post\) => isEmbeddable\("instagram", post\.url\)\)/.test(rail), "the shared creator rail shows only posts that play inside Wayfind");
   ok(/<CreatorVideoRail\b/.test(rail), "guide creator posts use the site's horizontal creator rail");
   ok(!/placeId\s*\?\s*stop\.posts/.test(stop), "California sources are not dropped by the old Florida-place-id gate");
-  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=|<img\b/.test(stop + rail + post), "food media has no substituted park photo, generated illustration or unlicensed cover");
+  ok(!/CreatorCoverFacade|disney-christmas-maps\/covers|Food illustration|\bposter=/.test(stop + rail + post) && !/<img\b/.test(stop + rail), "the shared post tile is the only place a guide attaches a creator cover, with no automatic park photo substitute");
+  ok(/creatorPostCover\(post\.cover\)/.test(post) && /<img\b[^>]*src=\{photoSrc\}[^>]*alt=\{photo\.alt\}/.test(post) && /Photo: \{photo\.credit\}/.test(post), "the guide post tile validates its poster and shows the photographer credit");
   ok(!/<a[\s>]/.test(rail + post), "the guide creator rail never links out to Instagram");
   ok(/<CreatorVideoPlayer\b/.test(post), "food posts use the shared native in-page player");
   ok(/useState\("idle"\)/.test(post) && /\{started \?/.test(post) && !/IntersectionObserver/.test(post), "no provider player loads until the reader taps");
   ok(/Instagram controls playback/.test(rail), "provider-controlled playback is disclosed, never promised");
   const { DISNEY_FOOD_PARKS, DISNEY_FOOD_STOPS, CALIFORNIA_BONUS, EPCOT_FESTIVAL } = await import("../lib/guidesDisneyHolidayFood2026.js");
   const posts = [...DISNEY_FOOD_STOPS, CALIFORNIA_BONUS].flatMap((s) => s.posts).concat(EPCOT_FESTIVAL.post);
-  ok(posts.length === 10 && new Set(posts.map((p) => p.url)).size === 10, "all nine food posts and the festival post are retained");
+  const posterSubject = {
+    DfutR5Fmrxt: [/chocolate-tree-croissant/, /chocolate tree croissant/i],
+    DfdAV3Rgc15: [/flame-tree-gingerbread-cheesecake-pop/, /gingerbread cheesecake pop/i],
+    DfpbdQwG23q: [/epcot-festival-holidays-2026/, /festival of the holidays/i],
+    DffOZsEkeOV: [/aloha-isle-santa-surf-shack-float/, /santa surf shack float/i],
+  };
+  for (const [code, [filename, subject]] of Object.entries(posterSubject)) {
+    const cover = creatorPostCover(posts.find((p) => igCode(p.url) === code)?.cover);
+    ok(cover && filename.test(cover.src) && subject.test(cover.alt), `${code}: the post cover matches its own dish or festival`);
+  }
+  // The California reel stays playable while we lack a cleared image of those rolls.
+  const pendingPhoto = "DfdaTVttmvV";
+  ok(posts.filter((p) => embedSrc("instagram", p.url)).every((p) => creatorPostCover(p.cover) || igCode(p.url) === pendingPhoto), "each playable Disney post has a credited cover, except the documented California photo gap");
+  for (const p of posts.filter((p) => p.cover)) {
+    const cover = creatorPostCover(p.cover);
+    const file = cover && path.join(REPO, "public", cover.src);
+    let exists = false;
+    try { exists = Boolean(file && statSync(file).isFile() && statSync(file).size > 0); } catch { /* reported below with post identity */ }
+    ok(exists, `${p.url}: the credited subject cover is a real local photo`);
+  }
+  const sample = { src: "/guides/creator-covers/croissant.webp", credit: "Walt Disney World", alt: "Chocolate Tree Croissant" };
+  ok(creatorPostCover(sample)?.src === sample.src, "positive control: the credited guide cover is accepted");
+  ok(!creatorPostCover({ ...sample, credit: " " }) && !creatorPostCover({ ...sample, alt: " " }), "a cover needs a real credit and subject description");
+  for (const src of ["https://www.instagram.com/image.jpg", "//external.example/file.jpg", "/api/photo?place=abc", "/guides/creator-covers/../file.jpg", "/guides/disney-christmas-maps/covers/park.jpg"]) {
+    ok(creatorPostCover({ ...sample, src }) === null, `creator cover rejects ${src}`);
+  }
+  ok(posts.length === 11 && new Set(posts.map((p) => p.url)).size === 11, "all original creator sources and the new Santa Surf Shack carousel are retained without duplicates");
   ok(EPCOT_FESTIVAL.post.url === "https://www.instagram.com/p/DfpbdQwG23q/" && EPCOT_FESTIVAL.post.creator === "disneyfoodblog" && embedSrc("instagram", EPCOT_FESTIVAL.post.url), "the owner-requested festival post is credited and plays inside Wayfind");
   ok(posts.every((p) => p.creator && (embedSrc("instagram", p.url) || recordedHandoff("instagram", p.url))), "every food source has attribution and either plays here or is a recorded handoff the page hides");
   ok(posts.some((p) => embedSrc("instagram", p.url)), "at least one food post still plays inside Wayfind");

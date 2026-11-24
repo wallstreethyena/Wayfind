@@ -32,6 +32,7 @@ import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery
 import { christmasAwareEventBySlug, christmasPageRow, christmasEventPageRow, CHRISTMAS_WATCHLIST_PAGE_LINE } from "../lib/christmasEventPage.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
 import { isTrusted } from "../lib/curatedEvents.js";
+import { unavailableNote } from "../lib/eventAlternatives.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -206,6 +207,35 @@ ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/
   ok(/browse=\{/.test(read("app/christmas-in-florida/page.js")) && /<ChristmasBrowse /.test(read("app/christmas-in-florida/page.js")) && /\{browse \? /.test(read("app/components/SeasonalSearchHub.js")), "the hub page server renders the browse (static)");
   ok(/"@type": "ItemList"/.test(read("app/christmas-in-florida/page.js")), "the browse carries an ItemList of events (static)");
 }
+
+// Verified party prices flow through the existing database overlay. Keep the
+// occurrence dates and availability separate from the published price.
+for (const [id, slug, price, venue, entryTime, nights, status] of [
+  ["jollywood-nights-2026", "disney-jollywood-nights-2026", "$169 to $199", "Hollywood Studios", "5:30 PM", 15, "available"],
+  ["mvmcp-2026", "mickeys-very-merry-christmas-party-2026", "$189 to $229", "Magic Kingdom", "4:00 PM", 25, "sold_out"],
+]) {
+  const party = christmasEventPageRow({ ...DB.find((r) => r.event_id === id), slug, ticket_status: status }, slug);
+  ok(party?.christmas_price_line?.startsWith(price) && party.christmas_price_line.includes("plus tax"),
+    `${slug}: publish the organizer's date-dependent price plus tax`);
+  ok(party?.occurrence_dates?.length === nights && party.ticket_status === status,
+    `${slug}: keep the scheduled nights and ticket status`);
+  ok(party?.christmas_park_admission_note?.includes(venue) && party.christmas_park_admission_note.includes(entryTime),
+    `${slug}: the page carries the verified park-specific entry note`);
+}
+const soldOutParty = {
+  ...DB.find((row) => row.event_id === "mvmcp-2026"),
+  ticket_status: "sold_out",
+  last_verified_at: "2026-11-19",
+};
+const verifiedParty = christmasEventPageRow(soldOutParty, soldOutParty.slug);
+ok(verifiedParty.last_verified_at === "2026-11-23" && unavailableNote(verifiedParty).includes("checked Nov 19"),
+  "refreshing the event research preserves the organizer availability check date");
+ok(!unavailableNote(christmasEventPageRow({ ...soldOutParty, last_verified_at: null }, soldOutParty.slug)).includes("checked"),
+  "a missing availability check date stays hidden when the event research has a date");
+ok(christmasEventPageRow(DB.find((row) => row.event_id === "christmas-town-2026"), "christmas-town-2026")
+  ?.christmas_park_admission_note == null, "a different event keeps its standard nearby picks");
+ok(/const pairingResult = e\.christmas_park_admission_note[\s\S]{0,120}: await cachedEventPairings\(e\)/.test(read("app/florida-events/[slug]/page.js")),
+  "the verified entry note replaces unverified generic before/after recommendations on the named park pages");
 
 // ── 6. Event pages ──────────────────────────────────────────────────────────
 {

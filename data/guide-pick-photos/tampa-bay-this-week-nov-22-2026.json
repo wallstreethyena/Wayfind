@@ -1,24 +1,66 @@
 {
   "slug": "tampa-bay-this-week-nov-22-2026",
-  "picks": {},
-  "gaps": {
+  "picks": {
     "Buzzcocks at Jannus Live": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/trending-in-florida-this-week-nov-17-2026/jannus-live-entrance.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The brick courtyard entrance of Jannus Live in downtown St. Petersburg with its banner over the gate",
+      "caption": "The entrance to Jannus Live in St. Petersburg, the venue for this show. No performer is pictured.",
+      "credit": "LittleT889",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Jannus_Live.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jannus_Live.jpg",
+      "author": "LittleT889",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 pass: no Creative Commons photograph of this show was verified. Held for the Picture Scrapper. The page ships with no photo for this pick."
+      "verification": "Reusing Wayfind's verified photo of the Jannus Live entrance from the November 17 guide. Commons file Jannus Live by LittleT889, taken July 4, 2020: the 1st Avenue North gate of the courtyard with the venue banner. Exact venue. No band or performer likeness, by design. Live Commons licence checked November 22, 2026: CC BY-SA 4.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-22"
     },
     "Glazer Children's Museum Campsgiving": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/tampa-bay-this-week-nov-22-2026/glazer-childrens-museum-2024.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "The white facade of the Glazer Children's Museum in downtown Tampa with its yellow window frame and colorful mural panels under a blue sky",
+      "caption": "The Glazer Children's Museum in downtown Tampa, home of the Campsgiving fall break camp. The camp itself is not pictured.",
+      "credit": "Ken Lund",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Glazer_Children%27s_Museum,_Tampa,_Florida_2024.jpg",
+      "license": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Glazer_Children%27s_Museum,_Tampa,_Florida_2024.jpg",
+      "author": "Ken Lund",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and cropped to 1280x853 JPEG. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 pass: no Creative Commons photograph of this camp was verified. Held for the Picture Scrapper. The page ships with no photo for this pick."
+      "verification": "Wikimedia Commons file by Ken Lund, taken April 5, 2024, in the Commons category Glazer Children's Museum, reviewed by FlickreviewR. Viewed the full image: the museum building on Gasparilla Plaza with no people in frame. Exact venue. No overlay or watermark. Live Commons licence checked November 22, 2026: CC BY-SA 2.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-22"
     },
     "Bill Bigley Sr. Memorial 128": {
-      "reason": "no-verified-source",
+      "src": "/guides/picks/tampa-bay-this-week-nov-22-2026/freedom-factory-oval-aerial.jpg",
+      "width": 1280,
+      "height": 853,
+      "alt": "An aerial view of the Freedom Factory oval race track in Bradenton, with its grandstand, infield and pit buildings surrounded by fields and woods",
+      "caption": "Freedom Factory from the air in January 2023, the oval where the Bill Bigley 128 runs. This is the track, not the race.",
+      "credit": "National Agriculture Imagery Program",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Freedom_Factory_aerial_photo_2023-01-29.jpg",
+      "license": "Public domain",
+      "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Freedom_Factory_aerial_photo_2023-01-29.jpg",
+      "author": "National Agriculture Imagery Program",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and cropped to 1280x853 JPEG.",
+      "sourceKind": "commons",
       "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 22, 2026 pass: no Creative Commons photograph of this race was verified. Held for the Picture Scrapper. The page ships with no photo for this pick."
+      "verification": "Wikimedia Commons file Freedom Factory aerial photo, taken January 29, 2023 by the National Agriculture Imagery Program, a United States government work in the public domain (Commons categories PD USGS and Racing circuits in Florida). Commons describes it as an aerial photo of Freedom Factory, previously known as Desoto Speedway. Viewed the full image: the oval, grandstand and pit area. Exact venue. No overlay or watermark. Source is 1400 pixels wide and was cropped to 1280x853 without enlarging.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-22"
     }
-  }
+  },
+  "gaps": {}
 }

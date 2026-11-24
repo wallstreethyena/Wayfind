@@ -46,9 +46,10 @@ Same-origin JSON. Signed-in optional (anonymous gets a `signin` card when it wou
 Request:
 ```json
 { "messages": [{ "role": "user", "content": "Book Wayfind Test Kitchen tomorrow around 7 for four" }],
-  "context": { "placeId": "optional place the user is looking at" },
+  "context": { "placeId": "optional place the user is looking at", "hasGuestName": true },
   "state":   { "placeId": null, "date": null, "time": null, "partySize": null } }
 ```
+The optional `hasGuestName` flag means the guest entered a name for this reservation only. The browser sends the actual name to the booking endpoint on Confirm.
 Response (`ok: true` always unless a 4xx input error):
 ```json
 { "ok": true,
@@ -59,7 +60,7 @@ Response (`ok: true` always unless a 4xx input error):
   "profile": { "hasName": true, "hasPhone": true, "display": "Gabriel P." } }
 ```
 `card.type` is one of:
-- `times` — real open times (instant only). User taps one → client POSTs `/api/reserve/book` `{ placeId, date, time, partySize, idempotencyKey }` (profile fills name/phone server side).
+- `times` — real open times (instant only). The guest selects a time and taps Confirm. The client posts `{ placeId, date, time, partySize, idempotencyKey }` to `/api/reserve/book` and includes a one-time guest name if entered. The server can use a saved booking profile otherwise.
 - `request` — `{ date, time, partySize }`; button "Send request" → same `/api/reserve/book` call; server routes to `wf_reserve_request`.
 - `handoff` — `{ url: "/api/reserve/go?placeId=..&date=..&time=..&party=..", label: "Open <name> on OpenTable", sentTime }`. Never says booked. When the booking agent is switched on (three flags, all off by default), the same turn also offers `agent_offer`, which carries this handoff card inside it. The handoff stays. The agent never replaces it.
 - `agent_offer` — only when the lane is `opentable_handoff` and the agent switches are on. The guest taps "Fill it in for me" which posts `/api/reserve/agent/start`. The model still does not book.

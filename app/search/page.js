@@ -30,6 +30,7 @@ export default async function SearchPage({ searchParams }) {
   const label = state.q || (state.intent && state.intent !== "place" ? state.intent : "");
   return (
     <div
+      className="wf-page-canvas"
       style={{
         minHeight: "100dvh",
         background: "#0D1117",

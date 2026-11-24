@@ -40,6 +40,15 @@ const ok = (c, m) => { pass++; if (!c) fails.push(m); };
 const mod = await load("app/components/CreatorFinds.js");
 const CreatorFinds = mod.default || mod;
 const creatorSearchPlace = mod.creatorSearchPlace;
+const creatorFindHref = mod.creatorFindHref;
+const scoredSpot = { name: "A & B Café", city: "Sarasota", placeId: "CuratedPlace" };
+const unscoredSpot = { name: "A & B Café", city: "Sarasota" };
+ok(creatorFindHref(scoredSpot, "OtherPlace") === "/p/CuratedPlace?t=A%20%26%20B%20Caf%C3%A9",
+  "open and share prefer the reviewed place identity");
+ok(creatorFindHref(unscoredSpot, "ResolvedPlace") === "/p/ResolvedPlace?t=A%20%26%20B%20Caf%C3%A9",
+  "a resolved venue opens and shares its own place");
+ok(creatorFindHref(unscoredSpot) === "/?q=A%20%26%20B%20Caf%C3%A9%20in%20Sarasota",
+  "unresolved creator finds open and share a venue-specific search");
 
 const byCity = [
   { city: "Bradenton", distMi: 4, spots: [
@@ -67,7 +76,7 @@ const SHAPES = [
 const rendered = {};
 for (const [label, props] of SHAPES) {
   let html = null, threw = null;
-  try { html = renderToStaticMarkup(createElement(CreatorFinds, props)); } catch (e) { threw = e; }
+  try { html = renderToStaticMarkup(createElement(CreatorFinds, { ...props, onBrowse() {}, onExperience() {} })); } catch (e) { threw = e; }
   ok(!threw, `CreatorFinds renders without throwing (${label})${threw ? " — " + threw.message : ""}`);
   rendered[label] = html || "";
 }
@@ -88,6 +97,10 @@ ok(both.includes("Pier 22"), "the pool row renders");
 ok(both.includes("Spinning Coffee"),
   "a registry spot renders ALONGSIDE a non-empty pool — this is the v7.07 promotion, and it is the assertion that fails if registry spots go back to being an empty-pool fallback");
 ok(both.includes("Sweet Krunch"), "…and more than one of them");
+ok((both.match(/<span>\s*Creator post<\/span>/g) || []).length === 3,
+  "pool and registry cards disclose their creator association without offering a post link");
+ok(!/<button[^>]*>[^<]*Creator post[^<]*<\/button>/.test(both),
+  "the creator credit never presents a button that opens a different listing");
 ok(rendered["nothing at all"] === "", "with no inventory and no bridge the row renders NOTHING rather than an empty shelf");
 ok(!rendered["claimed place excluded"].includes("Pier 22"),
   "a venue already claimed by an earlier homepage menu cannot repeat in Locals Know");

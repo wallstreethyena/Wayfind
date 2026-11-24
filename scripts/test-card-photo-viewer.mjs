@@ -75,7 +75,7 @@ try {
       // Saved-photo route: a scripted number of 404 blips per path, and a stale version after a re-save.
       if (u.pathname.startsWith("/api/photo/stored/") && (storedFailures.get(u.pathname) || 0) > 0) { storedFailures.set(u.pathname, storedFailures.get(u.pathname) - 1); return route.fulfill({ status: 404, body: "" }); }
       if (u.pathname.startsWith("/api/photo/stored/") && u.searchParams.get("v") === "old" && resavedVersion !== "old") { staleVersionRejects++; return route.fulfill({ status: 404, body: "" }); }
-      if (u.hostname === "photo.test" || u.pathname.startsWith("/api/photo/stored/")) return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
+      if (u.hostname === "photo.test" || u.pathname.startsWith("/api/photo/stored/") || u.pathname.startsWith("/place-photos/")) return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
       return route.fulfill({ contentType: "text/html", body: `<style>${WF_PLACE_CARD_CSS}</style><div style="height:1400px"></div><article class="wf-place-card" style="position:relative"><button type="button" class="wf-place-card-open" aria-label="Open test venue" style="position:absolute;inset:0;z-index:0;width:100%;height:100%;opacity:0;border:0;padding:0;cursor:pointer;background:transparent"></button><div class="wf-place-card-layout" style="position:relative;z-index:1;pointer-events:none"><div class="wf-place-card-media"><div id="root" style="position:relative;overflow:hidden"></div></div><div id="card-content">Test venue</div></div></article>` });
     });
     await page.goto("https://wayfind.test/");
@@ -268,8 +268,34 @@ try {
     await page.clock.fastForward(25000);
     await page.waitForTimeout(100);
     assert.equal(photoCalls, base + 4, "exhausted retries: 2 requests for a persistently refused place, then none, no loop");
+    // Owner 2026-11-23: seeded GoWayfind photos render synchronously on frame 1 (even offscreen) with 0 /api/photo calls and intact credits.
+    const SEEDED_G = "ChIJCardPhotoSeededG001";
+    const SEEDED_CC = "ChIJCardPhotoSeededCC02";
+    const callsBeforeSeeded = photoCalls;
+    await page.evaluate(({ gId, ccId }) => {
+      window.photoAnswers.seedPlacePhoto(gId, {
+        src: "/api/photo/stored/" + gId + "?v=" + "a".repeat(64),
+        source: "google",
+        credit: { name: "Seeded Photog", mapsUri: "https://maps.google.com/?cid=seed1", authors: [{ name: "Seeded Photog", uri: "https://maps.google.com/contrib/seed1" }] },
+      });
+      window.photoAnswers.seedPlacePhoto(ccId, {
+        src: "/place-photos/batch-1/seeded.jpg",
+        source: "licensed",
+        credit: { name: "Seeded CC Author", uri: "https://commons.wikimedia.org/wiki/File:Seeded.jpg", license: "cc-by-sa-4.0" },
+      });
+      window.scrollTo(0, 0);
+      root.render(React.createElement("div", null,
+        React.createElement(photoModule.default, { src: "/api/photo/stored/" + gId + "?v=" + "a".repeat(64), alt: "Seeded Google", style: { width: "100%", height: "100%", objectFit: "cover" } }),
+        React.createElement(photoModule.default, { src: "/api/photo?place=" + ccId + "&w=640&nospend=1", alt: "Seeded CC", style: { width: "100%", height: "100%", objectFit: "cover" } }),
+      ));
+    }, { gId: SEEDED_G, ccId: SEEDED_CC });
+    await page.locator('#root img[alt="Seeded Google"]').waitFor();
+    await page.locator('#root img[alt="Seeded CC"]').waitFor();
+    assert.equal(photoCalls, callsBeforeSeeded, "seeded GoWayfind Google + CC photos render immediately offscreen with 0 /api/photo network calls");
+    assert.ok((await page.locator('[data-card-photo-credit] a[translate="no"]').textContent()).includes("Google Maps"), "seeded Google photo keeps required Google Maps credit");
+    assert.ok((await page.locator('[data-card-photo-credit] a').allTextContents()).some((t) => t.includes("Seeded CC Author (CC BY-SA 4.0)")), "seeded CC photo keeps formatted CC credit");
     assert.deepEqual(errors, []);
     await page.close();
   }
-  console.log("test-card-photo-viewer: Chromium 390/768/1440 passed: home overlay hit testing, ordinary card click, photo click/Enter/Space, visible focus and restoration, compact credit, same image, all authors, source link, shared photo reuse, credit stays with its own photo across place changes, temporary-failure recovery, bounded retries");
+  console.log("test-card-photo-viewer: Chromium 390/768/1440 passed: home overlay hit testing, ordinary card click, photo click/Enter/Space, visible focus and restoration, compact credit, same image, all authors, source link, shared photo reuse, credit stays with its own photo across place changes, seeded frame-1 zero-API-call rendering, temporary-failure recovery, bounded retries");
 } finally { await browser.close(); }

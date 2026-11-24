@@ -6,6 +6,7 @@ export const runtime = "nodejs";
 
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import { toDiscoveryRef } from "../../../lib/discoveryRef.js";
+import { isPlaceOwnedPhotoUrl } from "../../../lib/placePhoto.js";
 import { allCreators } from "../../../lib/creatorVideos.js";
 import { NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
 import { distMeters, invRowToPlace, serveFromInventory, serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
@@ -27,12 +28,34 @@ function priceNum(level) {
   return typeof level === "number" ? level : Math.max(0, values.indexOf(level));
 }
 
+// Owned gallery cover (signals.photos, cover first) with its credit from the
+// matching signals.photo_gallery entry. Before this, a place whose only photos
+// lived in signals.photos (licensed or venue website, credited) still painted
+// "Photo unavailable" here, because only photo_url was read (owner, 2026-11-23:
+// The Land and HorsePower for Kids on Family > Theme Parks, Water Parks & Zoos).
+export function ownedCover(raw) {
+  const lists = [raw?.owned_photos, raw?.photo_gallery];
+  for (const list of lists) {
+    if (!Array.isArray(list)) continue;
+    for (const item of list) {
+      const url = typeof item === "string" ? item.trim() : String(item?.url || "").trim();
+      if (!isPlaceOwnedPhotoUrl(url)) continue;
+      const credited = (Array.isArray(raw?.photo_gallery) ? raw.photo_gallery : []).find((g) => g && g.url === url);
+      const label = credited && typeof credited.attribution_text === "string" ? credited.attribution_text.trim() : "";
+      return { url, attr: label || null, href: credited && credited.attribution_url ? String(credited.attribution_url) : null };
+    }
+  }
+  return null;
+}
+
 function toPlace(raw, origin, inventoryCategory) {
   const id = String(raw?.id || "");
   const name = String(raw?.displayName?.text || raw?.name || "").trim();
   const lat = Number(raw?.location?.latitude ?? raw?.lat);
   const lng = Number(raw?.location?.longitude ?? raw?.lng);
   if (!id || !name || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const explicitPhoto = raw.photo_url || raw.photoUrl || null;
+  const cover = explicitPhoto ? null : ownedCover(raw);
   return {
     id, name, lat, lng,
     rating: typeof raw.rating === "number" ? raw.rating : null,
@@ -43,7 +66,8 @@ function toPlace(raw, origin, inventoryCategory) {
     priceLevel: raw.priceLevel ?? raw.priceNum ?? null,
     priceNum: priceNum(raw.priceLevel ?? raw.priceNum),
     editorial: raw?.editorialSummary?.text || raw?.editorial || null,
-    photo: raw.photo_url || raw.photoUrl || null,
+    photo: explicitPhoto || (cover ? cover.url : null),
+    ...(cover && cover.attr ? { photoAttr: cover.attr, photoAttrHref: cover.href } : {}),
     photoRef: toDiscoveryRef(raw?.photo_ref || raw?.photos?.[0]?.name || null), // 2026-10-08: place-only pseudo-ref
     distMi: Math.round((distMeters(origin.lat, origin.lng, lat, lng) / 1609.34) * 10) / 10,
     inventoryCategory,

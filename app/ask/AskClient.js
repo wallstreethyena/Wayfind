@@ -3,12 +3,16 @@ import { shareOut } from "../../lib/shareOut.js";
 import { concreteSharePlaceId, groupPlanHref } from "../../lib/shareContext.js";
 import { addStopToStoredTrips } from "../../lib/itineraryAdd.js";
 import { track, recordInviteRecipient } from "../../lib/track.js";
+import { setLocal } from "../../lib/localStore.js";
+import { mergeTripMaps } from "../../lib/trips.js";
+import { safeLocalStorage, safeSessionStorage } from "../../lib/safeStorage.js";
+import { itineraryPlanHref, writePlannerHandoff } from "../../lib/itineraryHandoff.js";
 import { useState, useMemo, useEffect, useRef } from "react";
-import { Cat, Heart, Portrait, Couple } from "./pixel.js";
+import { Cat, Heart, Portrait, Couple, SantaConciergeSvg, SantaCallStage } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
-  pleaAt, moodAt, yesText, noText, needsName, planFitsPlace, datedCardPath,
+  pleaAt, moodAt, yesScale, noScale, yesText, noText, needsName, planFitsPlace, datedCardPath,
   inviteKinds, inviteDirectionsHref, inviteCalendarEvent, inviteItineraryStop,
   eventDateMismatch, eventVenueTimeZone, isEventDatePast,
 } from "../../lib/dateInvite.js";
@@ -16,11 +20,11 @@ import { styleHtml } from "../../lib/styleHtml.js";
 
 // app/ask/AskClient.js — Wayfind Chibi Elf invitation & Plan Together flow.
 //
-//   1 ASK       "Will you go out with me?" + proposed plan + YES / No + respectful pivots
+//   1 ASK       "Will you go out with me?" + proposed plan + YES / No + respectful pivots + Santa AI date helper
 //   2 YAY       warm celebration with the Elf couple
 //   3 ACTIVITY  what would you like to do
 //   4 WHEN      pick or confirm a date
-//   5 DONE      agreed plan summary, share reply, add to itinerary, add to calendar, directions, open venue
+//   5 DONE      agreed plan summary (every row editable), Wayfind Santa AI calling the date with updates, share reply, toolkit
 //   6 DECLINED  kind acknowledgment when the visitor declines
 
 
@@ -117,6 +121,16 @@ function venueTodayDate(timeZone) {
   return d;
 }
 
+function nextDayFor(baseDate, targetDow, minAddDays = 1) {
+  const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+  let add = (targetDow - d.getDay() + 7) % 7;
+  if (add < minAddDays) add += 7;
+  d.setDate(d.getDate() + add);
+  const iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const label = d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" });
+  return { iso, label, date: d };
+}
+
 function Calendar({ value, onPick, timeZone }) {
   const today = useMemo(() => venueTodayDate(timeZone), [timeZone]);
   const [offset, setOffset] = useState(0);
@@ -152,6 +166,73 @@ function Calendar({ value, onPick, timeZone }) {
   );
 }
 
+const SANTA_CITY_SPOTS = {
+  tampa: [
+    { name: "Ulele", kind: "dinner", hook: "Riverwalk views & fire-grilled native Florida dining" },
+    { name: "Rocca", kind: "dinner", hook: "Handmade pasta, tableside mozzarella & Michelin star" },
+    { name: "Bern's Steak House", kind: "dinner", hook: "Iconic Tampa date night & Harry Waugh Dessert Room" },
+    { name: "Olivia", kind: "dinner", hook: "Modern Italian kitchen with an electric South Tampa room" },
+    { name: "Bulla Gastrobar Tampa", kind: "tonight", hook: "Lively Spanish tapas, sangria & rooftop cocktails" },
+    { name: "Ciro's Speakeasy", kind: "tonight", hook: "Intimate Prohibition cocktail lounge & supper club" },
+    { name: "CW's Gin Joint", kind: "tonight", hook: "Downtown jazz, craft cocktails & velvet booths" },
+    { name: "Oxford Exchange", kind: "bite", hook: "Sunlit conservatory for coffee, champagne & brunch" },
+    { name: "Armature Works", kind: "hidden", hook: "Waterfront market, cocktails & Riverwalk sunset walk" },
+  ],
+  "st. petersburg": [
+    { name: "Il Ritorno", kind: "dinner", hook: "Downtown St. Pete handmade pasta & intimate lighting" },
+    { name: "Allelo", kind: "dinner", hook: "Mediterranean coastal dining on Beach Drive" },
+    { name: "Ceviche Tapas Bar", kind: "dinner", hook: "Romantic Spanish tapas & sangria by the waterfront" },
+    { name: "The Saint Speakeasy", kind: "tonight", hook: "Hidden velvet cocktail bar with theatrical drinks" },
+    { name: "Canopy Rooftop Lounge", kind: "tonight", hook: "Panoramic bay views & rooftop cocktails on Beach Drive" },
+    { name: "Bandit Coffee Co.", kind: "bite", hook: "Bright specialty coffee & pastry date in Grand Central" },
+    { name: "The Dalí Museum", kind: "hidden", hook: "Surrealist masterpieces & waterfront garden walk" },
+  ],
+  orlando: [
+    { name: "Prato", kind: "dinner", hook: "Park Avenue Winter Park Italian & wood-fired dishes" },
+    { name: "Kres Chophouse", kind: "dinner", hook: "Historic downtown steakhouse with late-night energy" },
+    { name: "Mathers Social Gathering", kind: "tonight", hook: "Third-floor antique bookshop speakeasy & cocktails" },
+    { name: "The Guesthouse", kind: "tonight", hook: "Mills 50 neighborhood cocktail lounge with lush patio" },
+    { name: "Briarpatch Restaurant", kind: "bite", hook: "Park Avenue brunch, famous pancakes & patio seating" },
+    { name: "East End Market", kind: "bite", hook: "Artisan food hall, Gideon's cookies & courtyard coffee" },
+    { name: "Leu Gardens", kind: "hidden", hook: "50-acre botanical gardens & shaded walking paths" },
+  ],
+  sarasota: [
+    { name: "Indigenous", kind: "dinner", hook: "Romantic Towles Court bungalow & seasonal seafood" },
+    { name: "Owen's Fish Camp", kind: "dinner", hook: "Burns Court backyard banyan tree, live music & seafood" },
+    { name: "Chart House", kind: "dinner", hook: "Waterfront dining on Longboat Key with sunset bay views" },
+    { name: "Kojo", kind: "dinner", hook: "Modern Asian dining & craft cocktails downtown" },
+    { name: "Cask and Ale", kind: "tonight", hook: "Downtown whiskey & craft cocktail lounge" },
+    { name: "Perq Coffee Bar", kind: "bite", hook: "Specialty espresso, latte art & sunny courtyard" },
+    { name: "The Ringling", kind: "hidden", hook: "Bayfront courtyard, art museum & waterfront grounds" },
+  ],
+  miami: [
+    { name: "Mandolin Aegean Bistro", kind: "dinner", hook: "Blue-and-white garden courtyard in the Design District" },
+    { name: "COTE Miami", kind: "dinner", hook: "Michelin-starred Korean steakhouse & cocktail bar" },
+    { name: "Lagniappe", kind: "tonight", hook: "Backyard fairy lights, charcuterie, wine & live jazz" },
+    { name: "Sweet Liberty", kind: "tonight", hook: "Award-winning cocktails & lively South Beach vibe" },
+    { name: "Panther Coffee Wynwood", kind: "bite", hook: "Small-batch roasted coffee under the Wynwood trees" },
+    { name: "Vizcaya Museum & Gardens", kind: "hidden", hook: "Biscayne Bay Italian Villa gardens & waterfront stroll" },
+  ],
+  default: [
+    { name: "Ulele", kind: "dinner", hook: "Waterfront views & fire-grilled Florida dining" },
+    { name: "Oxford Exchange", kind: "bite", hook: "Sunlit conservatory for coffee, cocktails & brunch" },
+    { name: "Bulla Gastrobar", kind: "tonight", hook: "Lively Spanish tapas, sangria & craft cocktails" },
+    { name: "Bern's Steak House", kind: "dinner", hook: "Classic candlelit dinner & famous dessert room" },
+    { name: "Armature Works", kind: "hidden", hook: "Waterfront food hall, drinks & evening stroll" },
+  ],
+};
+
+function pickCityPool(cityStr) {
+  const c = String(cityStr || "").trim().toLowerCase();
+  if (!c) return SANTA_CITY_SPOTS.default;
+  if (c.includes("tampa") || c.includes("ybor")) return SANTA_CITY_SPOTS.tampa;
+  if (c.includes("pete") || c.includes("clearwater") || c.includes("dunedin")) return SANTA_CITY_SPOTS["st. petersburg"];
+  if (c.includes("orlando") || c.includes("winter park") || c.includes("kissimmee")) return SANTA_CITY_SPOTS.orlando;
+  if (c.includes("sarasota") || c.includes("bradenton") || c.includes("venice")) return SANTA_CITY_SPOTS.sarasota;
+  if (c.includes("miami") || c.includes("lauderdale") || c.includes("palm")) return SANTA_CITY_SPOTS.miami;
+  return SANTA_CITY_SPOTS.default;
+}
+
 export default function AskClient({ inv, bad = false }) {
   const venueTz = useMemo(() => eventVenueTimeZone(inv && inv.geo), [inv && inv.geo]);
   const proposedWhen = useMemo(() => parseInviteWhen(inv && inv.when), [inv && inv.when]);
@@ -159,9 +240,17 @@ export default function AskClient({ inv, bad = false }) {
 
   const [step, setStep] = useState("ask");
   const [nos, setNos] = useState(0);
-  const [activity, setActivity] = useState(() => suggested[0] || "");
+  const [activity, setActivity] = useState(() => suggested[0] || "dinner");
   const [dayIso, setDayIso] = useState(() => proposedWhen.iso);
   const [dayLabel, setDayLabel] = useState(() => proposedWhen.label);
+  const [customPlace, setCustomPlace] = useState("");
+  // "" | "spot" | "day" | "vibe"
+  const [santaMode, setSantaMode] = useState("");
+  const [santaDraft, setSantaDraft] = useState("");
+  const [liveSpots, setLiveSpots] = useState([]);
+  // "" | "ringing" | "updated"
+  const [santaCallState, setSantaCallState] = useState("");
+  const [santaCallSummary, setSantaCallSummary] = useState("");
   // "" | "options" | "copied" | "failed"
   const [sent, setSent] = useState("");
   const [paused, setPaused] = useState(false);
@@ -234,9 +323,13 @@ export default function AskClient({ inv, bad = false }) {
     setStep("ask");
     setNos(0);
     setSent("");
-    setActivity(suggested[0] || "");
+    setActivity(suggested[0] || "dinner");
     setDayIso(proposedWhen.iso);
     setDayLabel(proposedWhen.label);
+    setCustomPlace("");
+    setSantaMode("");
+    setSantaCallState("");
+    setSantaCallSummary("");
     setWho("");
     setNote("");
     if (!memKey) return;
@@ -249,6 +342,11 @@ export default function AskClient({ inv, bad = false }) {
       if (m.activity) setActivity(m.activity);
       if (m.dayIso) setDayIso(m.dayIso);
       if (m.dayLabel) setDayLabel(m.dayLabel);
+      if (m.customPlace) setCustomPlace(m.customPlace);
+      if (m.santaCallSummary) {
+        setSantaCallSummary(m.santaCallSummary);
+        setSantaCallState("updated");
+      }
       if (m.who) setWho(m.who);
       if (m.note) setNote(m.note);
     } catch (e) {}
@@ -256,16 +354,117 @@ export default function AskClient({ inv, bad = false }) {
 
   useEffect(() => {
     if (!memKey || step === "ask" || step === "declined") return;
-    try { window.localStorage.setItem(memKey, JSON.stringify({ step, activity, dayIso, dayLabel, who, note })); } catch (e) {}
-  }, [memKey, step, activity, dayIso, dayLabel, who, note]);
+    try {
+      window.localStorage.setItem(
+        memKey,
+        JSON.stringify({ step, activity, dayIso, dayLabel, customPlace, santaCallSummary, who, note })
+      );
+    } catch (e) {}
+  }, [memKey, step, activity, dayIso, dayLabel, customPlace, santaCallSummary, who, note]);
 
   const from = (inv && inv.from) || "";
   const city = (inv && inv.city) || "";
   const placeId = concreteSharePlaceId(inv && inv.id);
 
+  const recommendedSpots = useMemo(() => {
+    const activeName = String(customPlace || (inv && inv.place) || "").trim().toLowerCase();
+    const basePool = pickCityPool(city);
+    const seen = new Set();
+    const unique = [];
+    for (const item of basePool) {
+      if (!item || !item.name) continue;
+      const key = item.name.trim().toLowerCase();
+      if (!key || key === activeName || activeName.includes(key) || seen.has(key)) continue;
+      seen.add(key);
+      unique.push(item);
+    }
+    const matching = unique.filter((s) => s.kind === activity);
+    const others = unique.filter((s) => s.kind !== activity);
+    return matching.concat(others).slice(0, 4);
+  }, [city, customPlace, inv && inv.place, activity]);
+
   useEffect(() => {
-    if (step === "yay") { const t = setTimeout(() => setStep("activity"), 2600); return () => clearTimeout(t); }
+    if (step === "yay") { const t = setTimeout(() => setStep("activity"), 2000); return () => clearTimeout(t); }
   }, [step]);
+
+  useEffect(() => {
+    if (santaCallState !== "ringing") return;
+    const t = setTimeout(() => setSantaCallState("updated"), 1200);
+    return () => clearTimeout(t);
+  }, [santaCallState]);
+
+  const triggerSantaCall = (summaryText) => {
+    setSantaCallSummary(summaryText);
+    setSantaCallState("ringing");
+    track("ask_invite_action", { action: "santa_call_update", surface: inviteSurface });
+  };
+
+  const applySantaChange = (patch, evt) => {
+    if (evt) burst(evt);
+    const today = venueTodayDate(venueTz);
+    let nextAct = patch.activity !== undefined ? patch.activity : (activity || suggested[0] || "dinner");
+    let nextIso = patch.dayIso !== undefined ? patch.dayIso : dayIso;
+    let nextLabel = patch.dayLabel !== undefined ? patch.dayLabel : dayLabel;
+    let nextPlace = patch.customPlace !== undefined ? patch.customPlace : customPlace;
+    if (patch.activity !== undefined) setActivity(nextAct);
+    if (patch.dayIso !== undefined) setDayIso(nextIso);
+    if (patch.dayLabel !== undefined) setDayLabel(nextLabel);
+    if (patch.customPlace !== undefined) setCustomPlace(nextPlace);
+    if (!nextLabel && !nextIso) {
+      const fri = nextDayFor(today, 5, 1);
+      nextIso = fri.iso;
+      nextLabel = fri.label;
+      setDayIso(nextIso);
+      setDayLabel(nextLabel);
+    }
+    const actWord = (activityFor(nextAct) || {}).label || "Dinner";
+    const whereWord = nextPlace || (inv && inv.place) || (city ? city : "our spot");
+    const whenWord = nextLabel || "this weekend";
+    const summary = `switched the plan to ${actWord} at ${whereWord} on ${whenWord}`;
+    setSantaMode("");
+    triggerSantaCall(summary);
+  };
+
+  const handleSantaFreeText = () => {
+    const raw = String(santaDraft || "").trim();
+    if (!raw) return;
+    const lower = raw.toLowerCase();
+    const today = venueTodayDate(venueTz);
+    const patch = {};
+    if (/\b(friday|fri)\b/.test(lower)) {
+      const d = nextDayFor(today, 5, 1);
+      patch.dayIso = d.iso; patch.dayLabel = d.label;
+    } else if (/\b(saturday|sat)\b/.test(lower)) {
+      const d = nextDayFor(today, 6, 1);
+      patch.dayIso = d.iso; patch.dayLabel = d.label;
+    } else if (/\b(sunday|sun)\b/.test(lower)) {
+      const d = nextDayFor(today, 0, 1);
+      patch.dayIso = d.iso; patch.dayLabel = d.label;
+    } else if (/\b(tomorrow)\b/.test(lower)) {
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      patch.dayIso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      patch.dayLabel = d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" });
+    }
+    if (/\b(coffee|cafe|brunch|breakfast|quick|bite|lunch)\b/.test(lower)) patch.activity = "bite";
+    else if (/\b(drink|drinks|cocktail|bar|wine|brewery)\b/.test(lower)) patch.activity = "tonight";
+    else if (/\b(dinner|eat|food|steak|sushi)\b/.test(lower)) patch.activity = "dinner";
+    else if (/\b(walk|park|museum|new|gem|explore)\b/.test(lower)) patch.activity = "hidden";
+    else if (/\b(drive|trip|getaway)\b/.test(lower)) patch.activity = "drive";
+
+    const atMatch = /\b(?:at|try|go\s+to)\s+([A-Za-z0-9'’& -]{2,40}?)(?:\s+on\s+(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*|\s+this\s+|\s+tomorrow|$)/i.exec(raw);
+    const cleanedSpot = atMatch ? atMatch[1].trim() : "";
+    if (cleanedSpot && !/^(friday|fri|saturday|sat|sunday|sun|tomorrow|dinner|drinks|coffee|lunch|brunch)$/i.test(cleanedSpot)) {
+      patch.customPlace = cleanedSpot;
+    } else if (!patch.activity && !patch.dayIso) {
+      if (/\b(another spot|different place|somewhere else|change spot)\b/.test(lower)) {
+        if (recommendedSpots[0]) patch.customPlace = recommendedSpots[0].name;
+      } else {
+        patch.customPlace = raw.slice(0, 48);
+      }
+    }
+    setSantaDraft("");
+    applySantaChange(patch);
+  };
 
   const burst = (e) => {
     if (typeof document === "undefined") return;
@@ -298,7 +497,16 @@ export default function AskClient({ inv, bad = false }) {
     } catch (er) {}
   };
 
-  const replyText = () => yesText(inv, activity, dayLabel, { name: who, note });
+  const replyText = () => {
+    const base = yesText(inv, activity, dayLabel, { name: who, note });
+    if (!santaCallState && !customPlace) return base;
+    return yesText(inv, activity, dayLabel, {
+      name: who,
+      note,
+      placeName: customPlace,
+      santaCall: Boolean(santaCallState),
+    });
+  };
   const declineReplyText = () => noText(inv, { name: who, note });
 
   const ordered = (() => {
@@ -320,13 +528,16 @@ export default function AskClient({ inv, bad = false }) {
   );
   const effectiveInv = useMemo(() => {
     if (!inv) return null;
+    if (customPlace) {
+      return { ...inv, place: customPlace, id: "", eventDate: "", when: dayIso || inv.when };
+    }
     if (detachedEvent || hasEventDateConflict || eventIsPast) {
       return { ...inv, place: "", id: "", eventDate: "", when: "" };
     }
     return inv;
-  }, [inv, detachedEvent, hasEventDateConflict, eventIsPast]);
+  }, [inv, customPlace, dayIso, detachedEvent, hasEventDateConflict, eventIsPast]);
 
-  const cardWhere = (!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && (planFitsPlace(inv, activity) ? inv.place : "")) || "";
+  const cardWhere = customPlace || ((!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && (planFitsPlace(inv, activity) ? inv.place : "")) || "");
   const cardUrl = () => datedCardPath(activity, dayLabel, cardWhere);
 
   const proposedIsPast = useMemo(() => {
@@ -387,6 +598,12 @@ export default function AskClient({ inv, bad = false }) {
             }
           }
           window.localStorage.setItem("wf_trips_v1", JSON.stringify(nextTrips));
+          try {
+            const store = safeLocalStorage();
+            const existing = store ? JSON.parse(store.getItem("wayfind_trips") || "null") : null;
+            const merged = mergeTripMaps(existing && typeof existing === "object" ? existing : {}, nextTrips);
+            setLocal("wayfind_trips", JSON.stringify(merged));
+          } catch (mergeErr) {}
         }
         if (res && Array.isArray(res.events)) {
           for (const ev of res.events) {
@@ -418,10 +635,19 @@ export default function AskClient({ inv, bad = false }) {
       has_place: Boolean(effectiveInv && effectiveInv.place),
     });
     try {
-      const q = [];
-      if (city) q.push("city=" + encodeURIComponent(city));
-      if (dayIso && /^\d{4}-\d{2}-\d{2}$/.test(dayIso)) q.push("date=" + encodeURIComponent(dayIso));
-      window.location.href = "/itinerary" + (q.length ? "?" + q.join("&") : "");
+      writePlannerHandoff(safeSessionStorage(), {
+        source: "date",
+        city,
+        date: dayIso,
+        activity,
+        placeName: (itineraryStop && itineraryStop.name) || "",
+      });
+      window.location.href = itineraryPlanHref({
+        city,
+        date: dayIso,
+        activity,
+        build: true,
+      });
     } catch (e) {}
   };
 
@@ -476,13 +702,214 @@ export default function AskClient({ inv, bad = false }) {
   const tellThemDeclined = () => sendReplyText(declineReplyText());
 
   const suggestedActivityLabel = suggested[0] && activityFor(suggested[0]) ? activityFor(suggested[0]).label : "";
+  const hasProposedPreview = Boolean(inv && (inv.place || suggestedActivityLabel));
   const BUBBLES = [
-    "Not feeling this exact plan? Pick what works for you! ✨",
-    "We can totally switch the day or the spot 🥺",
-    "Your call — another day, another vibe, or no thanks 💛",
-    "Even my hat bell is rooting for a good plan 🔔",
-    "Whatever you choose, thanks for checking it out! ✨",
+    "Wait—your finger slipped, right?! 👀",
+    "Deploying emergency puppy eyes 🥺",
+    "EMOTIONAL DAMAGE: 999% 😭",
+    "Even my hat bell stopped jingling 💔",
+    "Plot twist: “No” is purely decorative ✨",
   ];
+  const ACTIVITY_BUBBLES = {
+    tonight: "Ooooh craft cocktails & late-night vibes! 🍸✨",
+    dinner: "Candlelight & amazing food—elite choice! 🍝🕯️",
+    bite: "Cozy coffee & a sweet bite—love it! ☕🥐",
+    hidden: "An adventure! Let’s discover a hidden gem! 🗺️✨",
+    drive: "Windows down, playlist on—let’s ride! 🌴🚗",
+    surprise: "Mystery date unlocked—I love the boldness! 🎁💫",
+  };
+
+  const planWasModified = Boolean(
+    customPlace ||
+    detachedEvent ||
+    santaCallState ||
+    (proposedWhen.iso && dayIso && dayIso !== proposedWhen.iso) ||
+    (suggested[0] && activity && activity !== suggested[0])
+  );
+
+  const renderSantaConcierge = () => {
+    const today = venueTodayDate(venueTz);
+    const fri = nextDayFor(today, 5, 1);
+    const sat = nextDayFor(today, 6, 1);
+    const sun = nextDayFor(today, 0, 1);
+    const senderWord = from || "them";
+    const toggleMode = (m) => setSantaMode((cur) => (cur === m ? "" : m));
+    return (
+      <div className="wfx-santa-box" data-wf-santa-date-concierge="1" aria-label="Wayfind Santa AI date assistant">
+        <div className="wfx-santa-top">
+          <div className="wfx-santa-head-left">
+            <div className="wfx-santa-ava" aria-hidden="true">
+              <div style={{ width: "38px", height: "44px" }}>
+                <SantaConciergeSvg calling={Boolean(santaCallState)} />
+              </div>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span className="wfx-santa-badge">🎅 Wayfind Santa AI · Date Concierge</span>
+              <div className="wfx-santa-msg">
+                {`Want a different spot, day, or vibe? Tap below and I’ll call ${senderWord} with the update!`}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="wfx-santa-tabs" role="group" aria-label="Customize the date with Santa AI">
+          <button
+            type="button"
+            className="wfx-santa-tab"
+            data-santa-tweak="spot"
+            aria-pressed={santaMode === "spot"}
+            onClick={() => toggleMode("spot")}>
+            📍 Pick a spot
+          </button>
+          <button
+            type="button"
+            className="wfx-santa-tab"
+            data-santa-tweak="day"
+            aria-pressed={santaMode === "day"}
+            onClick={() => toggleMode("day")}>
+            📅 Switch day
+          </button>
+          <button
+            type="button"
+            className="wfx-santa-tab"
+            data-santa-tweak="vibe"
+            aria-pressed={santaMode === "vibe"}
+            onClick={() => toggleMode("vibe")}>
+            ✨ Switch vibe
+          </button>
+        </div>
+
+        {santaMode === "spot" ? (
+          <div className="wfx-spot-panel" data-wf-santa-spots="1">
+            <div className="wfx-spot-caption">
+              {`Santa’s Top Date Picks${city ? " in " + city : ""}`}
+            </div>
+            <div className="wfx-spot-list">
+              {recommendedSpots.map((sp) => (
+                <button
+                  key={sp.name}
+                  type="button"
+                  className="wfx-spot-item"
+                  data-santa-spot-pick={sp.name}
+                  aria-pressed={customPlace === sp.name}
+                  onClick={(e) => applySantaChange({ customPlace: sp.name, activity: sp.kind || activity }, e)}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div className="wfx-spot-name">{sp.name}</div>
+                    <div className="wfx-spot-hook">{sp.hook}</div>
+                  </div>
+                  <span className="wfx-spot-pick">Pick →</span>
+                </button>
+              ))}
+            </div>
+            <div className="wfx-santa-input-row">
+              <input
+                className="wfx-santa-input"
+                value={santaDraft}
+                maxLength={80}
+                onChange={(e) => setSantaDraft(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleSantaFreeText(); }}
+                aria-label="Type any spot or change for Santa AI"
+                placeholder={`Or type any spot${city ? " in " + city : ""} (e.g. Ulele)…`}
+              />
+              <button type="button" className="wfx-santa-send" onClick={handleSantaFreeText}>
+                Update
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {santaMode === "day" ? (
+          <div className="wfx-spot-panel" data-wf-santa-days="1">
+            <div className="wfx-spot-caption">Pick a day that works better for you</div>
+            <div className="wfx-santa-chips">
+              <button
+                type="button"
+                className="wfx-santa-chip"
+                data-santa-tweak="friday"
+                aria-pressed={dayIso === fri.iso}
+                onClick={(e) => applySantaChange({ dayIso: fri.iso, dayLabel: fri.label }, e)}>
+                {fri.label}
+              </button>
+              <button
+                type="button"
+                className="wfx-santa-chip"
+                data-santa-tweak="saturday"
+                aria-pressed={dayIso === sat.iso}
+                onClick={(e) => applySantaChange({ dayIso: sat.iso, dayLabel: sat.label }, e)}>
+                {sat.label}
+              </button>
+              <button
+                type="button"
+                className="wfx-santa-chip"
+                data-santa-tweak="sunday"
+                aria-pressed={dayIso === sun.iso}
+                onClick={(e) => applySantaChange({ dayIso: sun.iso, dayLabel: sun.label }, e)}>
+                {sun.label}
+              </button>
+              <button
+                type="button"
+                className="wfx-santa-chip"
+                onClick={() => { setSantaMode(""); setStep("when"); }}>
+                📅 Full calendar →
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {santaMode === "vibe" ? (
+          <div className="wfx-spot-panel" data-wf-santa-vibes="1">
+            <div className="wfx-spot-caption">Switch the vibe for this date</div>
+            <div className="wfx-santa-chips">
+              {ordered.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  className="wfx-santa-chip"
+                  data-santa-tweak={a.id}
+                  aria-pressed={activity === a.id}
+                  onClick={(e) => applySantaChange({ activity: a.id }, e)}>
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    );
+  };
+
+  const renderSantaCallCard = () => {
+    if (!santaCallState && !planWasModified) return null;
+    const isRinging = santaCallState === "ringing";
+    const actWord = (activityFor(activity) || {}).label || "Dinner";
+    const whereWord = customPlace
+      ? customPlace
+      : (!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity)
+          ? inv.place
+          : (recommendedSpots[0] ? recommendedSpots[0].name : (city ? city : "")));
+    const whenWord = dayLabel || proposedWhen.label || "this weekend";
+    return (
+      <div className="wfx-santa-bubble" role="status" aria-live="polite" data-wf-santa-call-card="1" key={santaCallState + "-" + whereWord + "-" + whenWord + "-" + actWord}>
+        <div className="wfx-santa-tag">
+          {isRinging ? `📞 Ringing ${from || "your date"}…` : `🎅 Santa Called ${from || "In Your Upgrade"} ✓`}
+        </div>
+        <div>
+          <b>Santa on speaker:</b>{" "}
+          {from ? `“Ho ho ho ${from}! It’s a YES — we upgraded the plan to ` : `“Ho ho ho! It’s a YES — we upgraded the plan to `}
+          <b>{actWord}</b>
+          {whereWord ? <>{" at "}<b>{whereWord}</b></> : null}
+          {whenWord ? <>{" on "}<b>{whenWord}</b></> : null}
+          {`!”`}
+        </div>
+      </div>
+    );
+  };
+
+  const activePlaceDisplay = customPlace
+    ? customPlace
+    : (!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity)
+        ? inv.place
+        : (inv && inv.place ? inv.place : "Pick a spot with Santa AI"));
 
   return (
     <div className={"wfx" + (paused ? " wfx-paused" : "")} data-hydrated={hydrated ? "1" : undefined}>
@@ -503,80 +930,35 @@ export default function AskClient({ inv, bad = false }) {
                 {BUBBLES[Math.min(nos - 1, BUBBLES.length - 1)]}
               </div>
             ) : null}
-            <Portrait><Cat tone="cream" mood={moodAt(nos)} size={104} key={nos} look={look} /></Portrait>
+            <Portrait size={168}><Cat tone="cream" mood={moodAt(nos)} size={154} key={nos} look={look} /></Portrait>
             <h1 className="wfx-h1" key={step}>{askHeadline(inv)}</h1>
             {from ? <p className="wfx-sub">from {from}</p> : null}
-            {inv && (inv.place || suggestedActivityLabel || proposedWhen.label || inv.note) ? (
-              <div className="wfx-plan-preview" aria-label="Proposed plan">
-                {inv.place ? (
-                  <div>
-                    <strong>{from ? from + "’s idea" : "Proposed spot"}</strong>
-                    {" · "}
-                    <span>{inv.place}{city ? " (" + city + ")" : ""}</span>
-                  </div>
-                ) : null}
-                {(suggestedActivityLabel || proposedWhen.label) ? (
-                  <div>
-                    <strong>Plan</strong>
-                    {" · "}
-                    <span>{[suggestedActivityLabel, proposedWhen.label].filter(Boolean).join(" · ")}</span>
-                  </div>
-                ) : null}
-                {inv.note ? <div className="wfx-plan-note">“{inv.note}”</div> : null}
-              </div>
-            ) : null}
+
             <div className="wfx-row">
-              <button className="wfx-yes" style={{ "--s": 1 }}
+              <button className="wfx-yes" style={{ "--s": yesScale(nos) }}
                 onClick={(e) => {
                   burst(e);
                   setSent("");
+                  if (!activity) setActivity(suggested[0] || "dinner");
                   track("ask_invite_choice", { choice: "yes", has_place: Boolean(inv && inv.place) });
                   setStep("yay");
                 }}>YES</button>
-              <button className="wfx-no" style={{ "--n": 1 }}
-                onClick={() => {
+              <button className="wfx-no" style={{ "--n": noScale(nos) }}
+                onClick={(e) => {
+                  burst(e);
                   setNos((n) => n + 1);
                   track("ask_invite_choice", { choice: "no", has_place: Boolean(inv && inv.place) });
                 }}>No</button>
             </div>
             {nos > 0 ? (
-              <>
-                <p className="wfx-plea" key={nos}>{pleaAt(nos)}</p>
-                <div className="wfx-pivots" role="group" aria-label="Other ways to answer">
-                  <button className="wfx-pivot-btn" data-pivot="day"
-                    onClick={() => {
-                      setSent("");
-                      if (!activity) setActivity(suggested[0] || "dinner");
-                      track("ask_invite_choice", { choice: "maybe_another_day", has_place: Boolean(inv && inv.place) });
-                      setStep("when");
-                    }}>
-                    Maybe another day
-                  </button>
-                  <button className="wfx-pivot-btn" data-pivot="activity"
-                    onClick={() => {
-                      setSent("");
-                      track("ask_invite_choice", { choice: "suggest_something_else", has_place: Boolean(inv && inv.place) });
-                      setStep("activity");
-                    }}>
-                    Suggest something else
-                  </button>
-                  <button className="wfx-pivot-btn wfx-pivot-decline" data-pivot="decline"
-                    onClick={() => {
-                      setSent("");
-                      track("ask_invite_choice", { choice: "decline", has_place: Boolean(inv && inv.place) });
-                      setStep("declined");
-                    }}>
-                    No thanks
-                  </button>
-                </div>
-              </>
+              <p className="wfx-plea" key={nos}>{pleaAt(nos)}</p>
             ) : null}
           </>
         )}
 
         {step === "declined" && (
           <>
-            <Portrait><Cat tone="cream" mood={moodAt(nos || 1)} size={104} look={look} /></Portrait>
+            <Portrait size={152}><Cat tone="cream" mood={moodAt(nos || 1)} size={138} look={look} /></Portrait>
             <h1 className="wfx-h1" key={step}>No worries. Thanks for letting me know.</h1>
             <p className="wfx-sub">
               {from
@@ -617,6 +999,9 @@ export default function AskClient({ inv, bad = false }) {
               }}>
                 Suggest something else
               </button>
+              <button className="wfx-pivot-btn wfx-pivot-decline" onClick={() => setStep("ask")}>
+                No thanks
+              </button>
             </div>
             <button className="wfx-go wfx-go2" onClick={() => { setSent(""); setNos(0); setStep("yay"); }}>
               Changed my mind — say YES
@@ -629,21 +1014,37 @@ export default function AskClient({ inv, bad = false }) {
 
         {step === "yay" && (
           <>
-            <Portrait size={138}><Couple size={64} /></Portrait>
+            <Portrait size={164}><Couple size={78} /></Portrait>
             <h1 className="wfx-h1" key={step}>· YAY! ·</h1>
             <p className="wfx-sub">{yayLine(inv)}</p>
-            <button className="wfx-quiet" onClick={() => setStep("activity")}>Continue →</button>
+            <button className="wfx-quiet" onClick={(e) => { burst(e); setStep("activity"); }}>Continue →</button>
           </>
         )}
 
         {step === "activity" && (
           <>
-            <Portrait><Cat tone="cream" mood="love" size={104} look={look} fidget={eager} /></Portrait>
+            <div className="wfx-bubble" key={"act-" + (activity || "dinner")} role="status" aria-live="polite">
+              {ACTIVITY_BUBBLES[activity || "dinner"] || "Pick the vibe you want for our date! ✨"}
+            </div>
+            <Portrait size={138}>
+              <Cat tone="cream" mood="love" size={126} look={look} fidget={eager} prop={activity || "dinner"} key={"cat-" + (activity || "dinner")} />
+            </Portrait>
             <h1 className="wfx-h1" key={step}>What would you like to do?</h1>
+            <p className="wfx-sub">
+              {hasProposedPreview && from
+                ? `${from} suggested ${inv.place || suggestedActivityLabel || "an outing"} — keep it or tap any vibe!`
+                : "Tap any vibe to see the Elf react, then lock it in!"}
+            </p>
             <div className="wfx-grid">
               {ordered.map((a) => (
                 <button key={a.id} className="wfx-chip" aria-pressed={activity === a.id}
-                  onClick={() => setActivity(a.id)}>
+                  onClick={(e) => {
+                    burst(e);
+                    setActivity(a.id);
+                    if (suggested[0] && a.id !== suggested[0]) {
+                      triggerSantaCall(`switched the activity to ${a.label}`);
+                    }
+                  }}>
                   {a.label}
                   {suggested.indexOf(a.id) === 0
                     ? <span className="wfx-tag">{from ? from + "’s idea" : "their idea"}</span>
@@ -651,7 +1052,8 @@ export default function AskClient({ inv, bad = false }) {
                 </button>
               ))}
             </div>
-            <button className="wfx-go" disabled={!activity} onClick={() => {
+            <button className="wfx-go" disabled={!activity} onClick={(e) => {
+              burst(e);
               track("ask_invite_activity_selected", {
                 activity,
                 matches_suggested: suggested.indexOf(activity) === 0,
@@ -664,15 +1066,29 @@ export default function AskClient({ inv, bad = false }) {
 
         {step === "when" && (
           <>
-            <Portrait><Cat tone="panda" mood="happy" size={104} look={look} fidget={eager} /></Portrait>
+            <div className="wfx-bubble" key={"cal-" + (dayLabel || "pick")} role="status" aria-live="polite">
+              {dayLabel
+                ? (proposedWhen.iso && dayIso === proposedWhen.iso
+                    ? `Yay! Locked in for ${dayLabel}! 💖`
+                    : `Ooh, ${dayLabel} works way better—Santa’s calling it in! 🎅📅`)
+                : "Tap any day on the calendar that works best for you! 📅✨"}
+            </div>
+            <Portrait size={138}>
+              <Cat tone="panda" mood="happy" size={126} look={look} fidget={eager} prop="calendar" key={"calcat-" + (dayIso || "none")} />
+            </Portrait>
             <h1 className="wfx-h1" key={step}>Pick a date</h1>
-            <p className="wfx-sub">Choose the day for our plans together</p>
+            <p className="wfx-sub">
+              {proposedWhen.label
+                ? `${from || "They"} proposed ${proposedWhen.label} — keep it or tap any day that works better for you`
+                : "Choose the day for our plans together"}
+            </p>
             {proposedWhen.label && !proposedIsPast ? (
               <button
                 className="wfx-chip"
                 style={{ width: "100%", marginTop: "14px", minHeight: "48px" }}
                 aria-pressed={!detachedEvent && dayIso === proposedWhen.iso && dayLabel === proposedWhen.label}
-                onClick={() => {
+                onClick={(e) => {
+                  burst(e);
                   setDetachedEvent(false);
                   setDayIso(proposedWhen.iso);
                   setDayLabel(proposedWhen.label);
@@ -732,10 +1148,15 @@ export default function AskClient({ inv, bad = false }) {
               </div>
             ) : null}
             <Calendar value={dayIso} timeZone={venueTz} onPick={(iso, d) => {
+              const lbl = d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" });
               setDayIso(iso);
-              setDayLabel(d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" }));
+              setDayLabel(lbl);
+              if (proposedWhen.iso && iso !== proposedWhen.iso) {
+                triggerSantaCall(`moved the date to ${lbl}`);
+              }
             }} />
-            <button className="wfx-go" disabled={!dayIso} onClick={() => {
+            <button className="wfx-go" disabled={!dayIso} onClick={(e) => {
+              burst(e);
               track("ask_invite_date_selected", {
                 surface: inviteSurface,
                 day_iso: dayIso,
@@ -756,40 +1177,92 @@ export default function AskClient({ inv, bad = false }) {
 
         {step === "done" && (
           <>
-            <Portrait size={138}><Couple size={64} /></Portrait>
+            {renderSantaCallCard()}
+            <Portrait size={132}>
+              {planWasModified ? <SantaCallStage size={66} /> : <Couple size={64} />}
+            </Portrait>
             <h1 className="wfx-h1" key={step}>It's a date</h1>
-            <p className="wfx-sub">Plan agreed — share your answer and lock in the outing below.</p>
-            <div className="wfx-card">
-              <div><b>When</b> · {dayLabel}</div>
-              <div><b>What</b> · {(activityFor(activity) || {}).label}</div>
-              {!detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity)
-                ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}{city ? " (" + city + ")" : ""}</div>
-                : ((detachedEvent || hasEventDateConflict || eventIsPast) && inv && inv.place
-                    ? <div><b>Date note</b> · {inv.place} runs on {scheduledEventWhen.label || inv.eventDate} — pick a spot for {dayLabel} below</div>
-                    : (inv && inv.place
-                        ? <div><b>New plan</b> · not {inv.place} then — pick the spot below</div>
-                        : null))}
-              {inv && inv.note ? <div><b>Note</b> · “{inv.note}”</div> : null}
-              {from ? <div><b>With</b> · {from}</div> : null}
-              {(who || (inv && inv.to)) ? <div><b>From</b> · {who || inv.to}</div> : null}
-            </div>
-            {needsName(inv) ? (
-              <input className="wfx-field" value={who} maxLength={24} enterKeyHint="done"
-                onChange={(e) => setWho(e.target.value)}
-                aria-label="Your name, so they know who said yes"
-                placeholder="Your name" />
-            ) : null}
-            <input className="wfx-field" value={note} maxLength={120} enterKeyHint="done"
-              onChange={(e) => setNote(e.target.value)}
-              aria-label="Add a message, optional"
-              placeholder="Say something back (optional)" />
+            <p className="wfx-sub">
+              {planWasModified
+                ? `Santa called in your upgrade — send your reply below!`
+                : "Your plan is set — send your reply below, or tap any line to adjust."}
+            </p>
 
-            <button className="wfx-go" onClick={tellThem}>
+            <div className="wfx-card" aria-label="Your date plan — tap to edit any detail">
+              <div className="wfx-card-row">
+                <div className="wfx-row-meta">
+                  <span className="wfx-row-k">{customPlace ? "Spot (Your Pick)" : "Spot"}</span>
+                  <span className="wfx-row-v">{activePlaceDisplay}{city && !activePlaceDisplay.includes(city) ? ` · ${city}` : ""}</span>
+                  {(hasEventDateConflict || eventIsPast) && inv && inv.eventDate ? (
+                    <span className="wfx-row-sub">
+                      {`${inv.place} runs on ${scheduledEventWhen.label || inv.eventDate} — tap Swap spot for ${dayLabel}`}
+                    </span>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  className="wfx-edit-pill"
+                  data-edit-plan="spot"
+                  aria-pressed={santaMode === "spot"}
+                  onClick={() => setSantaMode((m) => (m === "spot" ? "" : "spot"))}>
+                  Swap spot
+                </button>
+              </div>
+              <div className="wfx-card-row">
+                <div className="wfx-row-meta">
+                  <span className="wfx-row-k">When</span>
+                  <span className="wfx-row-v">{dayLabel || "Pick a day"}</span>
+                </div>
+                <button
+                  type="button"
+                  className="wfx-edit-pill"
+                  data-edit-plan="when"
+                  aria-pressed={santaMode === "day"}
+                  onClick={() => setSantaMode((m) => (m === "day" ? "" : "day"))}>
+                  Change day
+                </button>
+              </div>
+              <div className="wfx-card-row">
+                <div className="wfx-row-meta">
+                  <span className="wfx-row-k">Vibe</span>
+                  <span className="wfx-row-v">{(activityFor(activity) || {}).label || "Dinner"}{from ? ` · with ${from}` : ""}</span>
+                </div>
+                <button
+                  type="button"
+                  className="wfx-edit-pill"
+                  data-edit-plan="activity"
+                  aria-pressed={santaMode === "vibe"}
+                  onClick={() => setSantaMode((m) => (m === "vibe" ? "" : "vibe"))}>
+                  Change vibe
+                </button>
+              </div>
+            </div>
+
+            {santaMode ? renderSantaConcierge() : null}
+
+            <div style={{ display: "flex", gap: "8px", width: "100%", marginTop: "10px" }}>
+              {needsName(inv) ? (
+                <input className="wfx-field" style={{ marginTop: 0, flex: "0 0 38%", padding: "11px 12px", fontSize: "13.5px" }}
+                  value={who} maxLength={24} enterKeyHint="done"
+                  onChange={(e) => setWho(e.target.value)}
+                  aria-label="Your name, so they know who said yes"
+                  placeholder="Your name" />
+              ) : null}
+              <input className="wfx-field" style={{ marginTop: 0, flex: 1, padding: "11px 12px", fontSize: "13.5px" }}
+                value={note} maxLength={120} enterKeyHint="done"
+                onChange={(e) => setNote(e.target.value)}
+                aria-label="Add a message, optional"
+                placeholder="Say something back (optional)" />
+            </div>
+
+            <button className="wfx-go" style={{ marginTop: "10px" }} onClick={tellThem}>
               {sent === "copied"
                 ? "LINK COPIED ✓"
                 : sent === "options"
                   ? "SHARE YOUR ANSWER"
-                  : ("TELL " + (from ? from.toUpperCase() : "THEM") + " · SHARE YOUR ANSWER")}
+                  : (planWasModified
+                      ? ("SEND UPDATED PLAN TO " + (from ? from.toUpperCase() : "YOUR DATE"))
+                      : ("TELL " + (from ? from.toUpperCase() : "THEM") + " · SHARE YOUR ANSWER"))}
             </button>
             {sent ? (
               <p className="wfx-sub" role="status" aria-live="polite">
@@ -799,19 +1272,21 @@ export default function AskClient({ inv, bad = false }) {
               </p>
             ) : null}
 
+            {!santaMode ? renderSantaConcierge() : null}
+
             <div className="wfx-toolkit" role="group" aria-label="Complete your plan">
               {itineraryStop ? (
                 <button
                   type="button"
-                  className={"wfx-tool-btn wfx-tool-btn-full" + (itinerarySaved ? " wfx-tool-saved" : "")}
+                  className={"wfx-tool-btn" + (itinerarySaved ? " wfx-tool-saved" : "")}
                   onClick={saveToItinerary}>
-                  {itinerarySaved ? "SAVED TO ITINERARY ✓" : "+ ADD TO WAYFIND ITINERARY"}
+                  {itinerarySaved ? "SAVED ✓" : "+ SAVE TO ITINERARY"}
                 </button>
               ) : null}
               {itineraryStop ? (
                 <button
                   type="button"
-                  className="wfx-tool-btn wfx-tool-btn-full"
+                  className="wfx-tool-btn"
                   data-wf-build-day="1"
                   onClick={buildRestOfDay}>
                   Build the rest of the day →
@@ -829,7 +1304,7 @@ export default function AskClient({ inv, bad = false }) {
                   </button>
                 </>
               ) : null}
-              {placeId && !detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity) ? (
+              {placeId && !customPlace && !detachedEvent && !hasEventDateConflict && !eventIsPast && inv && inv.place && planFitsPlace(inv, activity) ? (
                 <a className="wfx-tool-btn" href={"/p/" + encodeURIComponent(placeId)}
                   onClick={() => track("ask_invite_action", { action: "open_place", surface: inviteSurface })}>
                   {"Open " + inv.place + " on Wayfind"}
@@ -844,19 +1319,21 @@ export default function AskClient({ inv, bad = false }) {
               ) : null}
             </div>
 
-            <button className="wfx-go wfx-go2" onClick={saveCard} disabled={saving}>
-              {saving ? "MAKING IT…" : "SAVE THE CARD"}
-            </button>
-            <a className="wfx-quiet" href={activityHref(activity, city, inv && inv.geo)}
-              onClick={() => track("ask_invite_action", { action: "explore_activity" })}>
-              {activityLinkLabel(activity, city)}
-            </a>
-            {groupHref ? (
-              <a className="wfx-quiet" href={groupHref}
-                onClick={() => track("ask_invite_action", { action: "group_vote" })}>
-                Bringing friends too? Start a Group Vote →
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "14px", marginTop: "10px" }}>
+              <button type="button" className="wfx-quiet" style={{ marginTop: 0 }} onClick={saveCard} disabled={saving}>
+                {saving ? "Making card…" : "Save the date card"}
+              </button>
+              <a className="wfx-quiet" style={{ marginTop: 0 }} href={activityHref(activity, city, inv && inv.geo)}
+                onClick={() => track("ask_invite_action", { action: "explore_activity" })}>
+                {activityLinkLabel(activity, city)}
               </a>
-            ) : null}
+              {groupHref ? (
+                <a className="wfx-quiet" style={{ marginTop: 0 }} href={groupHref}
+                  onClick={() => track("ask_invite_action", { action: "group_vote" })}>
+                  Bringing friends? Group Vote →
+                </a>
+              ) : null}
+            </div>
             <div className="wfx-mark">
               <span>arranged with</span>
               <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">

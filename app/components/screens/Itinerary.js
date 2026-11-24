@@ -1177,7 +1177,7 @@ export default function ItineraryScreen({ ctx }) {
                 </div>
               )}
 
-              {RouteMap ? <RouteMap items={items} /> : null}
+              {RouteMap ? <RouteMap items={items} deviceLoc={!ctx.locApprox ? (ctx.deviceLoc || null) : null} /> : null}
               {items.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "36px 20px", background: C.card, border: "1px solid " + C.border, borderRadius: 14, color: C.muted }}>
                   <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, marginBottom: 6 }}>This trip has no stops yet.</div>

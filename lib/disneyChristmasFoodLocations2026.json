@@ -28,5 +28,51 @@
     "lat": 28.370444, "lng": -81.520676, "label": "Summer House on the Lake",
     "landmark": "The Cookie Bar is inside the restaurant.",
     "source": "https://www.gowayfind.com/p/ChIJb6B8uZx_3YgRjEUVK2NK1wE"
+  },
+  "aloha-isle-santa-surf-shack-float": {
+    "lat": 28.41863, "lng": -81.58374, "label": "Aloha Isle",
+    "source": "https://mapcarta.com/W266522863"
+  },
+  "cosmic-rays-mickey-the-elf": {
+    "lat": 28.4193485, "lng": -81.5798881, "label": "Cosmic Ray’s Starlight Café",
+    "source": "https://www.openstreetmap.org/node/3000102895"
+  },
+  "kusafiri-festive-chocolate-twist": {
+    "lat": 28.35885, "lng": -81.59223, "label": "Kusafiri Coffee Shop & Bakery",
+    "source": "https://mapcarta.com/N2996503994"
+  },
+  "santas-grove-cookie-butter-milkshake": {
+    "lat": 28.35724, "lng": -81.58714, "label": "Theater in the Wild",
+    "landmark": "Santa’s Holiday Grove is nearby. Follow the seasonal signs to the food counter.",
+    "source": "https://mapcarta.com/W296060954"
+  },
+  "backlot-express-life-day-wookiee-cookie": {
+    "lat": 28.35589, "lng": -81.558388, "label": "Backlot Express",
+    "source": "https://touringplans.com/hollywood-studios/dining/backlot-express"
+  },
+  "woodys-hot-cocoa-lunch-box-tart": {
+    "lat": 28.35571, "lng": -81.56221, "label": "Woody’s Lunch Box",
+    "source": "https://mapcarta.com/N6419360167"
+  },
+  "swirls-gingerbread-mickey-cone": {
+    "lat": 28.3723805, "lng": -81.5156454, "label": "Swirls on the Water",
+    "source": "https://www.openstreetmap.org/way/520416835"
+  },
+  "jock-lindseys-oh-christmas-brie": {
+    "lat": 28.371583, "lng": -81.518348, "label": "Jock Lindsey’s Hangar Bar",
+    "source": "https://touringplans.com/disney-springs/dining/jock-lindseys-hangar-bar"
+  },
+  "epcot-hot-cocoa-funnel-cake": {
+    "lat": 28.368031, "lng": -81.550031, "label": "Funnel Cake kiosk",
+    "source": "https://touringplans.com/epcot/dining/funnel-cakes"
+  },
+  "epcot-maple-leaf-shortbread-cookie": {
+    "lat": 28.37169, "lng": -81.55135, "label": "Canada pavilion",
+    "landmark": "Follow the World Showcase promenade signs for the seasonal Yukon Holiday Kitchen.",
+    "source": "https://mapcarta.com/N2991742081"
+  },
+  "karamell-kuche-caramel-mickey-holiday-cookie": {
+    "lat": 28.36800243, "lng": -81.5467985, "label": "Karamell-Küche",
+    "source": "https://touringplans.com/epcot/dining/karamell-kuche"
   }
 }

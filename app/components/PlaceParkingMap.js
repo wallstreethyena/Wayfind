@@ -8,7 +8,7 @@ import { selectMapPlaces } from "../../lib/mapAreaData.js";
 
 // All place-card entry points share Detail; durable /places pages use the same
 // map wrapper. Never geocode a city or reuse the visitor's distance/origin here.
-export default function PlaceParkingMap({ place, nearby: suppliedNearby }) {
+export default function PlaceParkingMap({ place, nearby: suppliedNearby, deviceLoc = null }) {
   const ownNearby = useVenueNearby(place, [], !suppliedNearby);
   const nearby = suppliedNearby || ownNearby;
   const point = eventMapPoint(place);
@@ -20,7 +20,7 @@ export default function PlaceParkingMap({ place, nearby: suppliedNearby }) {
     wfScore: pick.governed_score ?? pick.wfScore }));
   return <section aria-label={`Map and parking near ${venue.name}`} style={{ margin: "20px 0", minWidth: 0 }}>
     <h3 style={{ margin: "0 0 10px", color: "#F8FAFC", fontSize: 17, fontWeight: 800 }}>Map &amp; parking</h3>
-    <EventVenueMapLoader key={`${venue.id || venue.name}:${point.lat}:${point.lng}`} venue={venue} picks={picks} venueKind="place" showDrivingRoute={false} nearbyStatus={nearby.status} />
+    <EventVenueMapLoader key={`${venue.id || venue.name}:${point.lat}:${point.lng}`} venue={venue} picks={picks} venueKind="place" showDrivingRoute={false} nearbyStatus={nearby.status} deviceLoc={deviceLoc} />
     <div role="status" style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 8, color: "#94A3B8", fontSize: 13 }}>
       {nearby.status === "loading" ? <span>Loading places near this venue…</span> : null}
       {nearby.status === "error" ? <><span>Nearby places unavailable.</span><button type="button" className="wfev-cat" onClick={nearby.retry}>Retry nearby</button></> : null}

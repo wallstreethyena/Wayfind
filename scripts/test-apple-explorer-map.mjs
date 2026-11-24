@@ -150,10 +150,65 @@ const clusterAnn = controller.map.annotationForCluster({
   coordinate: new Coordinate(27.3, -82.5),
   memberAnnotations: [placePins[0], placePins[1], placePins[2]],
 });
-assert.ok(clusterAnn, "annotationForCluster returns a custom cluster badge for 2+ members");
+assert.ok(clusterAnn, "annotationForCluster returns a custom stacked multi-spot pill for 2+ members");
 assert.equal(clusterAnn.calloutEnabled, false, "cluster annotation disables native callout");
-assert.match(decodeURIComponent(clusterAnn.image[1]), />3<\/text>/, "cluster badge displays the active member count");
+const clusterSvg = decodeURIComponent(clusterAnn.image[1]);
+assert.match(clusterSvg, /<rect x="7" y="2"[^>]*stroke="#F97316"/, "cluster badge renders stacked back-pill offset layer with orange accent");
+assert.match(clusterSvg, />9\.3<\/text>/, "cluster pill displays highest member Wayfind score");
+assert.match(clusterSvg, />\+2<\/text>/, "cluster pill displays +N additional spot count");
+assert.match(clusterAnn.accessibilityLabel, /^3 places here, top Wayfind score 9\.3$/, "cluster accessibilityLabel states count and top score");
 assert.equal(controller.map.annotationForCluster({ memberAnnotations: [placePins[0]] }), null, "single member does not produce a cluster badge");
+
+// Dominant family (>= 60%) carries that category color & icon; unscored cluster falls back to "N spots".
+const foodPins = placePins.filter((a) => a.__wayfindFamily === "food");
+const dominantCluster = controller.map.annotationForCluster({
+  coordinate: new Coordinate(27.3, -82.5),
+  memberAnnotations: [foodPins[0], foodPins[1], placePins[1]],
+});
+const dominantSvg = decodeURIComponent(dominantCluster.image[1]);
+assert.ok(dominantSvg.includes('fill="#F97316"') && dominantSvg.includes("M3 2V9Q3 12 6 12V22H8V12"), "dominant >=60% food cluster uses food category badge & fork/knife vector");
+const unscoredCluster = controller.map.annotationForCluster({
+  coordinate: new Coordinate(27.3, -82.5),
+  memberAnnotations: [
+    { coordinate: new Coordinate(27.3, -82.5), __wayfindFamily: "culture", __wayfindScore: null },
+    { coordinate: new Coordinate(27.3, -82.5), __wayfindFamily: "culture", __wayfindScore: null },
+    { coordinate: new Coordinate(27.3, -82.5), __wayfindFamily: "culture", __wayfindScore: null },
+  ],
+});
+assert.match(decodeURIComponent(unscoredCluster.image[1]), />3 spots<\/text>/, "unscored cluster pill shows '3 spots', never a bare number circle");
+assert.equal(unscoredCluster.accessibilityLabel, "3 places here", "unscored cluster accessibilityLabel omits score cleanly");
+
+// Co-located plaza cluster (<= 0.006 deg) invokes onSelectCluster sorted best-first;
+// wide multi-neighborhood cluster (> 0.006 deg) zooms cleanly with map.showItems.
+{
+  let plazaReceived = null;
+  const plazaPlaces = [
+    { id: "plaza-low", name: "Plaza Low", lat: 27.581, lng: -82.421, primaryType: "restaurant", wfScore: 92, governed_score: 92 },
+    { id: "plaza-top", name: "Plaza Top", lat: 27.582, lng: -82.422, primaryType: "restaurant", wfScore: 96, governed_score: 96 },
+    { id: "plaza-mid", name: "Plaza Mid", lat: 27.5815, lng: -82.4215, primaryType: "restaurant", wfScore: 94, governed_score: 94 },
+    { id: "far-spot", name: "Far Spot", lat: 27.62, lng: -82.42, primaryType: "restaurant", wfScore: 95, governed_score: 95 },
+  ];
+  const plazaCtrl = createAppleExplorerController({
+    mapkit, container: {}, center: { lat: 27.58, lng: -82.42 }, places: plazaPlaces,
+    category: "food", showOrigin: false,
+    onSelect: () => {},
+    onSelectCluster: (list) => { plazaReceived = list; },
+  });
+  const pAnns = plazaCtrl.map.annotations.filter((a) => a.__wayfindId);
+  const byId = new Map(pAnns.map((a) => [a.__wayfindId, a]));
+  plazaCtrl.map.shown = null;
+  plazaCtrl.map.listeners.get("select")({ annotation: { memberAnnotations: [byId.get("plaza-low"), byId.get("plaza-top"), byId.get("plaza-mid")] } });
+  assert.deepEqual(plazaReceived?.map((p) => p.id), ["plaza-top", "plaza-mid", "plaza-low"], "co-located plaza cluster (<= 0.006 deg) opens all spots sorted best-first via onSelectCluster");
+  assert.equal(plazaCtrl.map.shown, null, "co-located plaza cluster does not needlessly zoom when onSelectCluster handles it");
+  plazaReceived = null;
+  plazaCtrl.map.listeners.get("select")({ annotation: { memberAnnotations: [byId.get("plaza-top"), byId.get("far-spot")] } });
+  assert.equal(plazaReceived, null, "wide neighborhood cluster (> 0.006 deg) zooms instead of calling onSelectCluster");
+  assert.equal(plazaCtrl.map.shown?.length, 2, "wide neighborhood cluster calls map.showItems to separate pins");
+  plazaCtrl.destroy();
+}
+const mapViewClusterSrc = readFileSync(new URL("../app/components/MapView.js", import.meta.url), "utf8");
+assert.match(mapViewClusterSrc, /"circle-color": "#0F172A"[\s\S]{0,160}"circle-stroke-color": "#F97316"/, "3D MapView clusters use Wayfind obsidian + orange rim");
+assert.match(mapViewClusterSrc, /\["concat", \["get", "point_count_abbreviated"\], " spots"\]/, "3D MapView cluster labels say 'N spots' instead of a bare number");
 
 // Annotation diffing verification: unchanged places keep their exact annotation instance,
 // while coordinate, category, or score changes replace the annotation cleanly, and
@@ -239,4 +294,58 @@ assert.equal(appleMapBounds({ region: null }), null, "bounds fail closed until M
   assert.ok(/<AppleExplorerMap compact /.test(strip(readFileSync(new URL("../app/components/ChristmasMap.js", import.meta.url), "utf8"))), "the Christmas lights map renders compact");
   assert.ok(/\.\.\.dataRef\.current, compact,/.test(strip(readFileSync(new URL("../app/components/AppleExplorerMap.js", import.meta.url), "utf8"))), "AppleExplorerMap passes compact to the controller");
 }
-console.log("test-apple-explorer-map: OK — full result set, numeric coordinates, score pills, diffing, clustering, rings, selection, viewport reporting, focus, updates, and teardown");
+{
+  // Owner 2026-11-23: Your location renders the clean pulsing Wayfind Orange dot
+  // (concentric #F97316 SVG fallback in headless Node, and pulsing DOM
+  // mapkit.Annotation when document is available).
+  const prevDoc = globalThis.document;
+  const created = [];
+  const head = { appendChild: (el) => created.push(el) };
+  globalThis.document = {
+    head,
+    getElementById: () => null,
+    createElement: (tag) => {
+      const attrs = {};
+      return { tagName: tag, className: "", id: "", textContent: "", innerHTML: "", attrs, setAttribute: (k, v) => { attrs[k] = v; } };
+    },
+  };
+  try {
+    const dotCtrl = createAppleExplorerController({
+      mapkit, container: {}, center: { lat: 27.3, lng: -82.5 },
+      places: [], category: "food", deviceLoc: { lat: 27.3, lng: -82.5 },
+      events: [], showOrigin: true,
+    });
+    const dotAnn = dotCtrl.map.annotations.find((a) => a.title === "Your location");
+    assert.ok(dotAnn instanceof Annotation && typeof dotAnn.factory === "function", "with document present, createAppleExplorerController uses mapkit.Annotation for Your location");
+    assert.equal(dotAnn.displayPriority, 990, "Your location orange dot preserves displayPriority 990");
+    assert.equal(dotAnn.calloutEnabled, false, "Your location annotation disables native MapKit callout");
+    const el = dotAnn.factory();
+    assert.equal(el.attrs["data-wf-location-dot"], "1", "Your location factory creates the pulsing orange dot element");
+    assert.ok(el.innerHTML.includes("wf-loc-dot-pulse") && el.innerHTML.includes("wf-loc-dot-core"), "pulsing halo and orange core render inside Your location dot");
+    dotCtrl.destroy();
+  } finally {
+    if (prevDoc === undefined) delete globalThis.document;
+    else globalThis.document = prevDoc;
+  }
+  const headlessCtrl = createAppleExplorerController({
+    mapkit, container: {}, center: { lat: 27.3, lng: -82.5 },
+    places: [], category: "food", deviceLoc: { lat: 27.3, lng: -82.5 },
+    events: [], showOrigin: true,
+  });
+  const svgAnn = headlessCtrl.map.annotations.find((a) => a.title === "Your location");
+  const svgText = decodeURIComponent(svgAnn.image[1]);
+  assert.ok(svgText.includes("#F97316") && !svgText.includes("#0A84FF") && svgText.includes("<circle") && !svgText.includes("M17 0C7.6"), "headless fallback SVG for Your location is the #F97316 concentric orange dot (no #0A84FF or teardrop PIN_PATH)");
+  headlessCtrl.destroy();
+
+  // Compact event map (ChristmasMap) with deviceLoc + showOrigin keeps fit framing strictly on the event pins.
+  const xmasCtrl = createAppleExplorerController({
+    mapkit, container: {}, center: { lat: 28.2, lng: -82.3 },
+    events: [{ id: "e-a", name: "Lights A", lat: 28.5, lng: -81.4 }, { id: "e-b", name: "Lights B", lat: 28.6, lng: -81.3 }],
+    deviceLoc: { lat: 25.76, lng: -80.19 }, showOrigin: true, fit: true, compact: true,
+  });
+  assert.equal(xmasCtrl.map.annotations.filter((a) => a.title === "Your location").length, 1, "ChristmasMap controller renders the orange user location dot when deviceLoc is present");
+  assert.equal(xmasCtrl.map.shown.length, 2, "compact event fit frames the 2 event pins without stretching bounds to a distant user location dot");
+  assert.ok(xmasCtrl.map.shown.every((a) => !!a.__wayfindEvent), "fit targets are strictly event annotations");
+  xmasCtrl.destroy();
+}
+console.log("test-apple-explorer-map: OK — full result set, numeric coordinates, score pills, diffing, clustering, rings, selection, viewport reporting, focus, updates, orange-dot origin, and teardown");

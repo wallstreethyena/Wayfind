@@ -1,0 +1,44 @@
+{
+ "batch": "2026-11-23-places-b",
+ "note": "Browse place card sweep Nov 23 2026. Venue website photos credited to each venue.",
+ "places": {
+  "ChIJGz1-6Yuu6IgRTUd3BUM-k0A": {
+   "name": "Lubee Bat Conservancy",
+   "credit": "Photo: Lubee Bat Conservancy",
+   "photos": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-23-places/ChIJGz1-6Yuu6IgRTUd3BUM-k0A/of_dd1bf2326e37b20a.jpg",
+     "bytes": 149483,
+     "phash": "cce6a2a8e0c4c181",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.lubee.org/",
+     "author": "Lubee Bat Conservancy",
+     "title": "Lubee Bat Conservancy official photo 1",
+     "storage_path": null,
+     "attribution_url": "https://www.lubee.org/",
+     "attribution_text": "Photo: Lubee Bat Conservancy",
+     "original_url": "https://static.wixstatic.com/media/38a91d_c98603a768714f3185fbefa972af8289~mv2_d_2048_1345_s_2.jpg"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-23-places/ChIJGz1-6Yuu6IgRTUd3BUM-k0A/of_e46690063043e785.jpg",
+     "bytes": 174816,
+     "phash": "ebe1a4262477df9d",
+     "width": 1280,
+     "height": 853,
+     "source": "official_website",
+     "license": "Courtesy of venue",
+     "source_ref": "https://www.lubee.org/",
+     "author": "Lubee Bat Conservancy",
+     "title": "Lubee Bat Conservancy official photo 2",
+     "storage_path": null,
+     "attribution_url": "https://www.lubee.org/",
+     "attribution_text": "Photo: Lubee Bat Conservancy",
+     "original_url": "https://static.wixstatic.com/media/38a91d_0fc609ad034f4ae998e7ec2f7ecd163e~mv2.jpg"
+    }
+   ]
+  }
+ }
+}

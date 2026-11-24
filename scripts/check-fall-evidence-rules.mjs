@@ -347,7 +347,7 @@ ok(decideAction({ placeOperational: false, proof: "strong", hasUrl: true }) === 
 
 // ── the season boundary is ONE law, shared with the card skin ───────────
 ok(fallCardClass("not-a-real-place-id", "2026-12-05") === "", "fallCardClass returns '' outside the season (positive control on the shared law)");
-ok(fallSeasonEnd(2026) === "2026-11-26", `fallEvidence's currentYearProof reads the SAME season-end fallSkin computes (${fallSeasonEnd(2026)})`);
+ok(fallSeasonEnd(2026) === "2026-11-26", `fallEvidence's currentYearProof retains the Thanksgiving evidence end independently of the display cutoff (${fallSeasonEnd(2026)})`);
 {
   // and currentYearProof itself refuses an in-season claim once the date
   // named is actually past that shared boundary (Thanksgiving 2026 + 1)

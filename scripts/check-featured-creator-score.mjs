@@ -71,7 +71,7 @@ ok(tbB && tbB.featured_creator_video === true && tbR && tbR.featured_creator_vid
 
 // ── 5. Disclosure is the condition it ships under ──────────────────────────
 const HOME = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(/label: hasFeaturedCreatorVideoAt\(p\) \? "Cindy Selects pick" : "Creator post"/.test(HOME), "the card chip names a Cindy Selects pick");
+ok(/label: hasFeaturedCreatorVideoAt\(p\) \? "Cindy Selects pick" : "Creator pick"/.test(HOME), "the card chip names a Cindy Selects pick");
 ok(!claimsAffiliation(FEATURED_CREATOR_DISCLOSURE) && /part of the Wayfind team/.test(FEATURED_CREATOR_DISCLOSURE) && /Score boost/.test(FEATURED_CREATOR_DISCLOSURE),
   "her disclosure states the connection and the boost, without a banned membership phrase");
 

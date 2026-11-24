@@ -8,6 +8,7 @@ import { byTopRated } from "../../../lib/ranking";
 import * as Fam from "../../../lib/family";
 import * as WCC from "../../../lib/wc";
 import CommunityFooter from "../CommunityFooter";
+import ThanksgivingDetail from "./ThanksgivingDetail.js";
 
 export function discoverFeedbackPath(theme) {
   const slug = String(theme || "")
@@ -21,6 +22,7 @@ export function discoverFeedbackPath(theme) {
 }
 
 export default function HookDetailSheet({ ctx }) {
+  if (ctx.hookDetail?.hol === "thanksgiving") return <ThanksgivingDetail ctx={ctx} />;
   const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated, sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion, BUILD_ID, user } = ctx;
         // Merge the two source lists, but de-dupe by id — a place that appears
         // in both the suggested feed and the nearby search would otherwise show
@@ -148,6 +150,19 @@ export default function HookDetailSheet({ ctx }) {
                   <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, marginBottom: 10 }}>{hookDetail.program.detail}</div>
                   <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 800, color: acc }}>{hookDetail.program.joinLabel} <span aria-hidden="true">→</span></span>
                 </a>
+              )}
+              {!sheetLoading && hookDetail.hol && Array.isArray(hookDetail.holidayGuides) && hookDetail.holidayGuides.length > 0 && (
+                <div data-holiday-guides style={{ marginBottom: 12, padding: "11px 13px", borderRadius: 14, background: `${acc}12`, border: `1px solid ${acc}3D` }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.9px", textTransform: "uppercase", color: acc, marginBottom: 6 }}>Verified Florida holiday guides</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {hookDetail.holidayGuides.slice(0, 3).map((g) => (
+                      <a key={g.slug} href={g.href} style={{ fontSize: 12.5, fontWeight: 700, color: C.text, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{g.title}</span>
+                        <span style={{ color: acc, flexShrink: 0 }}>Read →</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
               )}
               {!sheetLoading && themePlaces.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
@@ -277,8 +292,16 @@ export default function HookDetailSheet({ ctx }) {
                             {ed.tip && (<div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45 }}><span style={{ fontWeight: 800, color: premiumImagePage ? "#CBD5E1" : C.light }}>Insider tip </span>{ed.tip}</div>)}
                           </div>
                         ); })()}
-                        {isFeatured && !p.editorial && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
-                        {(() => { if (p.editorial) return null; const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: 12.5, color: _fam ? C.light : C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
+                        {isFeatured && !(hookDetail && hookDetail.hol && hookDetail.hol !== "worldcup") && !p.editorial && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
+                        {(() => {
+                          if (p.editorial) return null;
+                          const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family"));
+                          const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), openNow: liveOpen(p) }) : null;
+                          const _holKey = hookDetail && hookDetail.hol && hookDetail.hol !== "worldcup" ? hookDetail.hol : null;
+                          const _holCopy = _holKey && hookDetail.holidayCopyById ? (hookDetail.holidayCopyById[p.id] || "") : "";
+                          const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_holCopy || (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })));
+                          return why ? <div style={{ fontSize: 12.5, color: C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null;
+                        })()}
                         {isFeatured && (
                           <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
                         )}

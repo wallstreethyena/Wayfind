@@ -1290,6 +1290,8 @@ node scripts/check-christmas-research.mjs
 node scripts/check-christmas-browse-credit.mjs
 node scripts/check-christmas-card-photo-slot.mjs
 node scripts/check-christmas-photo-rights-field.mjs
+# Bar Mezzo stays off the hospitality rail while its only photo is the storefront sign.
+node scripts/check-hospitality-sign-photo-holds.mjs
 node scripts/check-christmas-venue-matches.mjs
 # Homepage Christmas cards read the venue row christmas_photo_gallery (exact event id/slug tags) before the Google venue photo.
 node scripts/test-christmas-card-gallery.mjs
@@ -2351,6 +2353,8 @@ node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+# Site-wide Christmas field and garland, off at 2026-12-26 00:00 ET without a redeploy.
+node scripts/test-christmas-site-backdrop.mjs
 node scripts/test-christmas-city-guides.mjs
 node scripts/test-christmas-ticketmaster.mjs
 node scripts/test-snowcat-tickets.mjs
@@ -2566,7 +2570,7 @@ node scripts/check-browser-regex-compat.mjs
 node scripts/check-seasonal-rail-depth.mjs
 # 2026-10-29: Halloween overnight close (keep after-midnight listings until verified close), explicit-link dedupe on republish, experience titles and honest booking chips, fail-closed fall cache epoch reader.
 node scripts/test-halloween-overnight-dedupe.mjs
-# 2026-10-31: "Top rated on Wayfind" badge for business websites (backlinks): merit-only eligibility, followed link, escaped names, official logo, never-break image route, no Google spend.
+# "Top rated on Wayfind" badge: merit-only eligibility at page AND image, qualified widget link, escaped names, official logo, neutral unavailable image, no Google spend.
 node scripts/check-top-rated-badge.mjs
 
 # Dated fall associations expire across feed, card, share and metadata.
@@ -2593,6 +2597,8 @@ node scripts/test-refresh-reserve.mjs
 # Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
 node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
+# 2026-11-23: This week in Florida rail cards must have a self hosted photo.
+node scripts/test-this-week-rail-photos.mjs
 # 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
 node scripts/test-viator-booking-attribution.mjs
 # 2026-11-12: a built Viator click row is ACCEPTED by the real wf_viator_clicks constraints and keeps its gclid (campaign names never go into observed_utm_campaign).
@@ -2692,6 +2698,8 @@ node scripts/test-ai-itinerary-planner.mjs
 # 2026-11-13: Florida Partner Revenue Engine end-to-end lock (all 18 acceptance checks, editorial firewall red-team cases, synthetic QA isolation, outbound tracking, Command Center panel, and 25 verified Florida prospects).
 node scripts/test-partner-revenue-engine.mjs
 node scripts/test-planner-imessage.mjs
+# 2026-11-23: Itinerary planner keeps the city, dates and saved stops the visitor already gave, and reopening resumes the thread.
+node scripts/test-planner-arrival.mjs
 node scripts/test-host-confident-voice.mjs
 node scripts/test-planner-host-voice.mjs
 node scripts/test-santa-one-thread.mjs
@@ -2742,6 +2750,8 @@ node scripts/test-metro-photo-coverage.mjs
 
 
 node scripts/test-disney-food-posts.mjs
+node scripts/test-disney-food-seo.mjs
+node scripts/test-disney-food-seo.mjs --red-prove
 node scripts/test-park-maps-2026.mjs
 node scripts/test-park-maps-2026.mjs --red-prove
 node scripts/test-disney-food-post-states.mjs
@@ -2758,3 +2768,15 @@ node scripts/test-primary-cta-gap.mjs
 node scripts/test-indexnow.mjs
 # 2026-11-23 SEO engine: Sarasota guide and Christmas hub headlines carry the searched words, real picks only.
 node scripts/test-seo-money-headlines.mjs
+# 2026-11-23 Card photo delivery: wf_inventory signals.photo_gallery serves exact-place photos with license/venue credit and zero Google spend.
+node scripts/test-inventory-gallery-card-photo.mjs
+
+node scripts/test-thanksgiving-dates.mjs
+
+node scripts/test-thanksgiving-planner.mjs
+
+node scripts/test-thanksgiving-client.mjs --browser
+
+node scripts/test-thanksgiving-editorial.mjs
+# 2026-11-23: Gemini AI Florida trending & holiday intelligence monitor (fail-closed gateway, closure-risk holiday curation, grounding validator, wiring).
+node scripts/test-gemini-florida-intelligence.mjs

@@ -765,5 +765,162 @@ const confirmed = { html: html("confirmation.html") };
   ok(disguisedOut.status === "failed:browser", "chrome mode refuses a disguised (non Wayfind) user agent");
 }
 
+// ---- Browserbase cloud browser + embedded Live View ----
+{
+  const bb = await import("../lib/bookingAgent/browserbase.js");
+  let missingKeyThrew = false;
+  try { bb.browserbaseConfig({ BROWSERBASE_PROJECT_ID: "proj_1" }); } catch { missingKeyThrew = true; }
+  let missingProjThrew = false;
+  try { bb.browserbaseConfig({ BROWSERBASE_API_KEY: "bb_live_test" }); } catch { missingProjThrew = true; }
+  ok(missingKeyThrew && missingProjThrew, "browserbaseConfig fails loudly when API key or project ID is missing");
+
+  const validLv = "https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/sess_abc123&debug=true";
+  ok(bb.isSafeLiveViewUrl(validLv), "isSafeLiveViewUrl accepts real Browserbase devtools-fullscreen inspector URL");
+  ok(!bb.isSafeLiveViewUrl("javascript:alert(1)") && !bb.isSafeLiveViewUrl("https://evil.example/devtools-fullscreen/inspector.html"), "isSafeLiveViewUrl rejects non-Browserbase URLs");
+
+  const bbCalls = [];
+  const mockBbFetch = async (url, init) => {
+    bbCalls.push([init?.method || "GET", url]);
+    if (url.endsWith("/sessions") && init?.method === "POST") {
+      return new Response(JSON.stringify({ id: "sess_abc123", connectUrl: "wss://connect.browserbase.com?sessionId=sess_abc123" }), { status: 200 });
+    }
+    if (url.endsWith("/sessions/sess_abc123/debug")) {
+      return new Response(JSON.stringify({ debuggerFullscreenUrl: validLv }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ status: "REQUEST_RELEASE" }), { status: 200 });
+  };
+  const created = await bb.createBrowserbaseSession({ apiKey: "k", projectId: "p", fetchImpl: mockBbFetch });
+  const debug = await bb.getBrowserbaseLiveView({ apiKey: "k", sessionId: created.id, fetchImpl: mockBbFetch });
+  const released = await bb.releaseBrowserbaseSession({ apiKey: "k", projectId: "p", sessionId: created.id, fetchImpl: mockBbFetch });
+  ok(created.id === "sess_abc123" && debug.liveViewUrl === validLv && released === true && bbCalls.length === 3, "Browserbase REST create/debug/release flow works cleanly");
+
+  // Full Live View handoff: seating choice -> awaiting_user_action (exposes liveViewUrl) -> user confirms -> confirmed (clears live_view_url)
+  const lvStore = createMemoryStore({ status: "on" });
+  const lvRun = await seedRun(lvStore);
+  const slotsHtml = `<html><body><button data-test="slot-button">7:00 PM</button></body></html>`;
+  const seatingHtml = `<html><body><h2>Choose your seating</h2><button data-synthetic="seating-standard">Standard</button><button>Outdoor</button></body></html>`;
+  const confirmHtml = html("confirmation.html");
+  let lvStage = "slots";
+  const lvHandlers = createBookingAgentHandlers({
+    env: ON, store: lvStore, now: () => NOW,
+    registry: { forPlace: async () => ({ id: "opentable_handoff", link: { rid: "100001" } }) },
+    readProfile: async () => PROFILE,
+    placeName: async () => "Synthetic Grill",
+    verifyUser: async () => ({ id: USER }),
+  });
+
+  let lvTicks = 0;
+  const lvPromise = runNext({
+    store: lvStore,
+    env: { ...ON, BOOKING_AGENT_BROWSER_MODE: "browserbase" },
+    now: () => NOW + lvTicks * 50,
+    launch: async (opts) => {
+      ok(opts.mode === "browserbase", "browserbase mode passes mode=browserbase to launch");
+      return {
+        userAgent: "Mozilla/5.0 Chrome/131.0.0.0",
+        liveViewUrl: validLv,
+        async open() {
+          return {
+            async snapshot() {
+              const body = lvStage === "slots" ? slotsHtml : lvStage === "seating" ? seatingHtml : confirmHtml;
+              return { html: body, httpStatus: 200, url: "https://www.opentable.com/booking/restref/" + lvStage, title: "OpenTable" };
+            },
+            async clickSlot() { lvStage = "seating"; return true; },
+            async waitForSettled() {},
+            async fill() {},
+            async click() {},
+          };
+        },
+        async close() {},
+      };
+    },
+    loadProfile: async () => PROFILE,
+    placeName: async () => "Synthetic Grill",
+    liveViewPollMs: 10,
+    liveViewTimeoutMs: 5000,
+  });
+
+  for (let i = 0; i < 50; i++) {
+    const cur = await lvStore.getRun(lvRun.id);
+    if (cur && cur.status === "awaiting_user_action") break;
+    await new Promise((r) => setTimeout(r, 15));
+  }
+  const statusReq = new Request(`https://www.gowayfind.com/api/reserve/agent/status?id=${lvRun.id}`, {
+    method: "GET",
+    headers: { "sec-fetch-site": "same-origin" },
+  });
+  const statusRes = await lvHandlers.status(statusReq);
+  const statusBody = await statusRes.json();
+  ok(statusBody.ok && statusBody.run.status === "awaiting_user_action" && statusBody.run.liveViewUrl === validLv, "GET /status exposes validated liveViewUrl during awaiting_user_action");
+
+  // Simulate user completing the reservation inside the embedded Live View iframe
+  lvStage = "confirmed";
+  const lvDone = await lvPromise;
+  const lvSaved = await lvStore.getRun(lvRun.id);
+  ok(lvDone.status === "confirmed" && lvSaved.confirmation_number === "OTSYN1001" && lvSaved.live_view_url === null, "Live View detects matching confirmation, marks confirmed, and clears live_view_url");
+}
+
+// ---- Serverless Live Browser (/api/reserve/browser) for Toast, Resy, SevenRooms, Tock ----
+{
+  const lb = await import("../lib/bookingAgent/liveBrowser.js");
+  ok(lb.providerLabelForUrl("https://tables.toasttab.com/restaurants/demo") === "Toast", "recognizes Toast Tables URL");
+  ok(lb.providerLabelForUrl("https://resy.com/cities/bradenton-fl/venues/obricks") === "Resy", "recognizes Resy URL");
+  ok(lb.providerLabelForUrl("https://www.sevenrooms.com/reservations/room901florida") === "SevenRooms", "recognizes SevenRooms URL");
+  ok(lb.providerLabelForUrl("https://www.exploretock.com/venue") === "Tock", "recognizes Tock URL");
+  ok(!lb.isSafePublicHttpsUrl("http://127.0.0.1/admin") && !lb.isSafePublicHttpsUrl("https://www.opentable.com/r/test"), "blocks loopback and OpenTable URLs from live browser");
+
+  const validLv = "https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/sess_live1&debug=true";
+  let navigatedTo = null;
+  let releasedId = null;
+  const mockFetch = async (url, init) => {
+    if (url.endsWith("/sessions") && init?.method === "POST") {
+      return new Response(JSON.stringify({ id: "sess_live1", connectUrl: "wss://connect.browserbase.com?sessionId=sess_live1" }), { status: 201 });
+    }
+    if (url.endsWith("/sessions/sess_live1/debug")) {
+      return new Response(JSON.stringify({ debuggerFullscreenUrl: validLv }), { status: 200 });
+    }
+    if (url.endsWith("/sessions/sess_live1") && init?.method === "POST") {
+      releasedId = "sess_live1";
+      return new Response(JSON.stringify({ status: "REQUEST_RELEASE" }), { status: 200 });
+    }
+    return new Response("{}", { status: 404 });
+  };
+  const lbHandlers = lb.createLiveBrowserHandlers({
+    env: { BROWSERBASE_API_KEY: "bb_test_key", BROWSERBASE_PROJECT_ID: "proj_test" },
+    fetchImpl: mockFetch,
+    navigate: async (_ws, targetUrl) => { navigatedTo = targetUrl; return { navigated: true }; },
+  });
+
+  const openRes = await lbHandlers.open(new Request("https://www.gowayfind.com/api/reserve/browser", {
+    method: "POST",
+    headers: { origin: "https://www.gowayfind.com", "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ url: "https://www.sevenrooms.com/reservations/room901florida", restaurantName: "Room 901" }),
+  }));
+  const openBody = await openRes.json();
+  ok(openRes.status === 201 && openBody.ok && openBody.provider === "SevenRooms" && openBody.liveViewUrl === validLv && navigatedTo === "https://www.sevenrooms.com/reservations/room901florida", "POST /api/reserve/browser creates session, navigates via CDP, and returns liveViewUrl");
+
+  const badRes = await lbHandlers.open(new Request("https://www.gowayfind.com/api/reserve/browser", {
+    method: "POST",
+    headers: { origin: "https://www.gowayfind.com", "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ url: "https://evil.example/phish" }),
+  }));
+  ok(badRes.status === 400, "POST /api/reserve/browser rejects unapproved arbitrary domains");
+
+  const closeRes = await lbHandlers.close(new Request("https://www.gowayfind.com/api/reserve/browser", {
+    method: "DELETE",
+    headers: { origin: "https://www.gowayfind.com", "content-type": "application/json", "sec-fetch-site": "same-origin" },
+    body: JSON.stringify({ sessionId: "sess_live1" }),
+  }));
+  ok(closeRes.status === 200 && releasedId === "sess_live1", "DELETE /api/reserve/browser cleanly releases Browserbase session");
+
+  const ids = lb.listLiveBrowserPlaceIds({
+    ChIJresy12345: { actions: { reservation_url: { url: "https://resy.com/cities/bradenton-fl/venues/obricks" } } },
+    ChIJsite12345: { actions: { officialWebsite: { url: "https://example.com" } } },
+    ChIJot1234567: { actions: { reservation_url: { url: "https://www.opentable.com/r/ulele-tampa" } } },
+  });
+  ok(ids.includes("ChIJresy12345") && !ids.includes("ChIJsite12345") && !ids.includes("ChIJot1234567"), "listLiveBrowserPlaceIds returns only verified online booking platform places (never generic homepages or OpenTable)");
+  ok(lb.listLiveBrowserPlaceIds().includes("ChIJqQsqj80Xw4gRev0L3y4_-lM"), "listLiveBrowserPlaceIds loads bundled first-party-actions.json (O'Bricks on Resy)");
+}
+
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }
 console.log(`test-booking-agent: OK - ${count} assertions (local fixtures, no live site)`);

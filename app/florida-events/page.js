@@ -116,7 +116,7 @@ export default async function FloridaEventsHub() {
   };
 
   return (
-    <main style={S.page}>
+    <main style={S.page} className="wf-page-canvas">
       <CommerceClickBeacon surface="florida_events_hub" />
       {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
       <ReturnToWayfind style={S.back} />

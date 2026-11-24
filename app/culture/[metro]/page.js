@@ -11,13 +11,14 @@ import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
 import ShareButton from "../../components/ShareButton";
-import { experienceSearchUrl, viatorProductGoUrl, experienceGoUrl } from "../../../lib/affiliates";
-import { resolveViatorProduct } from "../../../lib/viatorServer";
+import { viatorProductGoUrl, experienceGoUrl } from "../../../lib/affiliates";
+import { commerceHref } from "../../../lib/commerce";
+import { guidePickOffers } from "../../../lib/guidePickOffers";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
 import HubConversion from "../../components/HubConversion";
 import TrackedOfferLink from "../../components/TrackedOfferLink";
 
-// v5.04: ISR so the render-time Viator product resolution below stays fresh.
+// ISR refreshes the shared nearby picks and their hours.
 export const revalidate = 86400;
 
 export function generateStaticParams() {
@@ -101,7 +102,7 @@ export default async function CulturePage({ params }) {
     } catch (e) { bridgePicks = []; }
   }
   return (
-    <main style={S.page}>
+    <main style={S.page} className="wf-page-canvas">
       {/* v5.75: the Article + Breadcrumb JSON-LD used to sit ONLY in the
           not-found branch (which crashed), so the REAL culture pages shipped
           with no structured data. Moved here, onto the actual page Google reads. */}
@@ -139,36 +140,38 @@ export default async function CulturePage({ params }) {
       <h2 style={S.h2}>Eat like a local</h2>
       {c.eat.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}
       <h2 style={S.h2}>Don&apos;t leave without</h2>
-      {/* v5.04: query-only items resolve their EXACT Viator product at render
-          time (region-validated, affiliate-attributed) so the baked link
-          lands on the product page. /go stays only as the last resort. */}
-      {(await Promise.all(c.do.map(async (x) => {
-        if (x.viatorUrl) return [x, viatorProductGoUrl(x.viatorUrl, c.title, "culture", "culture")];
-        if (!x.query) return [x, null];
-        const direct = await resolveViatorProduct(x.query + " " + c.title, c.title).catch(() => null);
-        // `direct` is a raw viator.com product URL. Route it through our own
-        // redirect rather than emitting it as an href, same as the curated case.
-        return [x, viatorProductGoUrl(direct, c.title, "culture", "culture") || experienceGoUrl(x.query, c.title, "culture")];
-      }))).map(([x, url], i) => (
-        <div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? (
-          /* Was a bare <a> — a live affiliate CTA that emitted nothing. Same
-             href, same rel, same native navigation; the wrapper only measures. */
-          <TrackedOfferLink
-            href={url}
-            label="See related tours & tickets ↗"
-            surface="culture"
-            slugKey="culture_slug"
-            slug={params.metro}
-            city={c.title}
-            category="tours"
-            provider="viator"
-            offerId={x.viatorUrl ? "product:" + x.name : "search:" + (x.query || x.name)}
-            variant="culture_item_v1"
-            position={i + 1}
-            style={S.book}
-          />
-        ) : null}</div>
-      ))}
+      {c.do.map((x, i) => {
+        // A city match says nothing about what the product includes. Only a
+        // reviewed destination gets a direct product link. Search stays search.
+        const offer = x.viatorPick && guidePickOffers(x.viatorPick.guideSlug, { id: x.viatorPick.pickId })
+          ?.offers.find((pick) => pick.role === "primary" && pick.provider === "viator");
+        const url = offer
+          ? commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: "culture", contentId: params.metro, page: "culture-" + params.metro })
+          : (x.viatorUrl ? viatorProductGoUrl(x.viatorUrl, c.title, "culture", "culture")
+            : experienceGoUrl(x.query, c.title, "culture", null, { surface: "culture" }));
+        return (
+          <div key={x.name} style={S.item}>
+            <p style={S.name}>{x.name}</p>
+            <p style={S.story}>{x.story}</p>
+            {x.info ? <a href={x.info.href} style={S.book}>{x.info.label} ↗</a> : url ? (
+              <TrackedOfferLink
+                href={url}
+                label={x.viatorLabel || `Search Viator for ${x.query} ↗`}
+                surface="culture"
+                slugKey="culture_slug"
+                slug={params.metro}
+                city={c.title}
+                category="tours"
+                provider="viator"
+                offerId={offer?.offerId || (x.viatorUrl ? "product:" + x.name : "search:" + x.query)}
+                variant="culture_item_v1"
+                position={i + 1}
+                style={S.book}
+              />
+            ) : null}
+          </div>
+        );
+      })}
       <h2 style={S.h2}>Worth your eyes</h2>
       {c.see.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.placeId ? <a href={"/places/" + encodeURIComponent(x.placeId)} style={{ color: "inherit", textDecoration: "none" }}>{x.name}</a> : x.name}</p><p style={S.story}>{x.story}</p></div>))}
       <h2 style={S.h2}>Talk like a local</h2>

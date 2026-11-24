@@ -312,6 +312,7 @@ export default function GuideMapExplorer({
                   photoAttr={spot.photoAttr || null}
                   photoAttrHref={spot.photoAttrHref || null}
                   photoFallbackCategory={spot.photoFallbackCategory || undefined}
+                  photoPosition={spot.photoPosition || undefined}
                   placeholder={photo ? null : spot.placeholder || null}
                   place={place}
                   title={spot.name}

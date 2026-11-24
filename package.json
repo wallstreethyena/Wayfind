@@ -34,6 +34,7 @@
     "@capacitor/cli": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
     "@playwright/test": "^1.61.1",
+    "@sparticuz/chromium": "149.0.0",
     "typescript": "5.4.5",
     "@electric-sql/pglite": "0.3.14",
     "ical.js": "^2.2.1",

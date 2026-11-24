@@ -119,7 +119,7 @@ export default function OAuthConsentClient({ authorizationId }) {
   try { redirectHost = details && details.redirect_uri ? new URL(details.redirect_uri).host : ""; } catch {}
 
   return (
-    <main style={{ minHeight: "100dvh", background: C.bg, color: C.text, display: "grid", placeItems: "center", padding: "28px 18px", fontFamily: "var(--wf-sans)" }}>
+    <main data-wf-own-theme="oauth" style={{ minHeight: "100dvh", background: C.bg, color: C.text, display: "grid", placeItems: "center", padding: "28px 18px", fontFamily: "var(--wf-sans)" }}>
       <section style={{ width: "100%", maxWidth: 520, background: C.card, border: `1px solid ${C.border}`, borderRadius: 20, padding: "26px 22px", boxShadow: "0 24px 70px rgba(0,0,0,.35)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 18 }}>
           <span aria-hidden="true" style={{ width: 11, height: 11, borderRadius: 999, background: C.accent, display: "inline-block" }} />

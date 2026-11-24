@@ -17,7 +17,7 @@ const S = {
 
 export default function Page() {
   return (
-    <article style={S.page}>
+    <article style={S.page} className="wf-page-canvas">
       <div style={S.kicker}>Wayfind editorial policy</div>
       <h1 style={S.h1}>How our recommendations are made — and corrected</h1>
       <h2 style={S.h2}>Research</h2>

@@ -9,8 +9,8 @@
 // lib/lawfulOrder.js's governedScoreOf, called on every ranked row app-wide)
 // and app/components/CreatorCardMark.js's creatorHeads() (reached from
 // app/home.js and app/components/RailCard.js) — only ever need, PER VIDEO:
-// platform, creator handle, and reach. None of them need the url, the
-// caption, the address, or the display name. Importing creatorVideosFor from
+// platform, creator handle, reach, and whether a video can play in Wayfind.
+// None of them need the url, caption, address, or display name. Importing creatorVideosFor from
 // lib/creatorVideos.js for that pulled the whole ~56KB-gz file — every url,
 // every address, every displayName — into the eager "/" bundle, because ES
 // module bundling is per-FILE, not per-export.
@@ -35,7 +35,9 @@
 //   export const LEAN_CURATED = [...]; // one positional tuple per curated entry
 //
 //   entry tuple:  [ placeId || 0, matchName || 0, matchCity || 0, videos ]
-//   video tuple:  [ creator || 0, platformIndex, reach == null ? 0 : reach ]
+//   video tuple:  [ creator || 0, platformIndex, reach == null ? 0 : reach, playable? ]
+// A fourth slot of 1 records in-app video eligibility. Omit it for credit-only
+// posts and photo posts so the eager bundle never needs the URL or embed rules.
 //
 // `0` is the "absent" sentinel in every string/nullable-number slot: every
 // real placeId/name/city/creator is a non-empty string, and JSON round-trips
@@ -75,7 +77,7 @@
 // generated, never hand-read, and scripts/check-creator-registry-bundle-wall.mjs
 // asserts it stays compact so the saving can't silently regress.
 //
-// Run manually after any edit to CURATED in lib/creatorVideos.js:
+// Run manually after changing CURATED or creator video eligibility:
 //   node scripts/gen-creator-signals.mjs
 // scripts/check-creator-signals-fresh.mjs (wired into guards.txt) fails the
 // guard suite if the committed generated file is stale.
@@ -84,6 +86,7 @@
 // full-registry resolver, entry by entry, across the whole curated corpus.
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { isCreatorVideoPost } from "../lib/videoEmbed.js";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 const OUT_PATH = repoRoot + "lib/creatorSignalsData.generated.js";
@@ -119,11 +122,11 @@ export async function buildLeanCurated(curatedOverride) {
 
   const entries = CURATED.map((e) => {
     const liveVideos = (e.videos || []).filter((v) => v && typeof v.url === "string" && v.url.trim().length > 0);
-    const videos = liveVideos.map((v) => [
-      v.creator || 0,
-      indexForPlatform(v.platform),
-      typeof v.reach === "number" ? v.reach : 0,
-    ]);
+    const videos = liveVideos.map((v) => {
+      const tuple = [v.creator || 0, indexForPlatform(v.platform), typeof v.reach === "number" ? v.reach : 0];
+      if (isCreatorVideoPost(v.platform, v.url)) tuple.push(1);
+      return tuple;
+    });
     return [
       e.placeId || 0,
       (e.match && e.match.name) || 0,
@@ -144,10 +147,10 @@ export function renderModule(lean) {
 // drifts from that source. See scripts/gen-creator-signals.mjs for the full
 // encoding: PLATFORMS is an interning table, LEAN_CURATED holds one
 // positional tuple per curated entry — [placeId||0, matchName||0,
-// matchCity||0, videos], videos: [creator||0, platformIndex, reach||0] — with
-// 0 as the "field absent" sentinel throughout. lib/creatorSignals.js decodes
+// matchCity||0, videos], videos: [creator||0, platformIndex, reach||0, playable?].
+// 0 is the absent sentinel, and playable is 1 when present. lib/creatorSignals.js decodes
 // this back into the same {placeId, match:{name,city}, videos:[{creator,
-// platform,reach}]} shape the resolver has always worked with. Read instead
+// platform,reach,playable}]} shape the resolver works with. Read instead
 // of the full ~56KB-gz curated registry by lib/creatorBoost.js,
 // lib/trendSignal.js and app/components/CreatorCardMark.js.
 `;

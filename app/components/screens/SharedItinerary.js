@@ -488,7 +488,7 @@ export default function SharedItineraryScreen({ ctx }) {
         </div>
       )}
 
-      {RouteMap ? <RouteMap items={items} /> : null}
+      {RouteMap ? <RouteMap items={items} deviceLoc={!ctx.locApprox ? (ctx.deviceLoc || null) : null} /> : null}
       {grouped.hasDates ? (
         grouped.groups.map((group, gi) => {
           const routeLegs = group.day ? dayRouteLegs(trip, group.day, routeOpts) : [];

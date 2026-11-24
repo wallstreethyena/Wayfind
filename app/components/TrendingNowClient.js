@@ -133,14 +133,28 @@ export default function TrendingNowClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [floridaBrief, setFloridaBrief] = useState(null);
+
   useEffect(() => {
     if (!supabase || !isFinite(loc.lat)) { setRows([]); return; }
     let dead = false;
     settleLoad(() => (async () => {
       let picks = [];
+      let intelByPlaceId = {};
       try {
-        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: loc.lat, p_lng: loc.lng, p_radius_mi: 25, p_max: 12 });
+        const intelUrl = "/api/intelligence/florida?lat=" + encodeURIComponent(loc.lat) + "&lng=" + encodeURIComponent(loc.lng);
+        const [rpcRes, intelRes] = await Promise.all([
+          supabase.rpc("wf_buzz_picks", { p_lat: loc.lat, p_lng: loc.lng, p_radius_mi: 25, p_max: 12 }),
+          fetch(intelUrl).then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        ]);
+        const data = rpcRes && rpcRes.data;
         picks = (Array.isArray(data) ? data : []).filter((r) => (r.sources_count || 0) >= 1);
+        if (intelRes && intelRes.floridaBrief && !dead) setFloridaBrief(intelRes.floridaBrief);
+        if (intelRes && Array.isArray(intelRes.trendingPicks)) {
+          for (const item of intelRes.trendingPicks) {
+            if (item && item.placeId && item.why) intelByPlaceId[item.placeId] = item.why;
+          }
+        }
       } catch (e) {}
       // HOUR-AWARE: re-rank by time-of-day fit so tonight's list leans to things
       // you can actually do now (a 9pm list shouldn't lead with museums/beaches),
@@ -151,13 +165,14 @@ export default function TrendingNowClient() {
       const hour = nowContext({ lat: loc.lat, lng: loc.lng, city: loc.city }).hour;
       const ranked = rankByHour(picks, hour).slice(0, 8);
       // Editorial in the Wayfind voice — one cached call per pick. Fail-soft:
-      // a pick with no honest line falls back to a data-templated one.
+      // a pick with no honest line falls back to Gemini's cached Florida brief or data template.
       const withWhy = await Promise.all(ranked.map(async (p) => {
         let line = null;
         try {
           const r = await fetch("/api/buzz/why", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ place_id: p.place_id, name: p.name, category: p.category, city: loc.city, rating: p.rating, reviews: p.reviews, popularity: p.popularity, sources_count: p.sources_count, by_source: p.by_source, freshest: p.freshest }) });
           const j = r.ok ? await r.json() : null; line = j && j.line ? j.line : null;
         } catch (e) {}
+        if (!line && p.place_id && intelByPlaceId[p.place_id]) line = intelByPlaceId[p.place_id];
         return { ...p, why: line, timeFit: timeFit(p.category, hour) };
       }));
       // 2026-08-07: the UNIFIED trend signal (lib/trendSignal.js) decorates
@@ -220,7 +235,7 @@ export default function TrendingNowClient() {
          drawing people" / "Parrish" with nothing linking the two lines. */
       titleTop="What's drawing people to"
       titleBottom={loc.city}
-      subtitle={"The places near " + loc.city + " getting the most attention right now — measured by real signals and ordered for the time of day, so what's worth doing this hour rises to the top."}
+      subtitle={floridaBrief || ("The places near " + loc.city + " getting the most attention right now — measured by real signals and ordered for the time of day, so what's worth doing this hour rises to the top.")}
       heroImg={heroImg}
       location={loc.city}
       imageKicker="THE WAYFIND LIVE EDITION"

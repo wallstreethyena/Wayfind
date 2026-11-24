@@ -121,6 +121,16 @@ ok(!/data-ready/.test(html.slice(iAside, iAside + 300)), "server markup is inert
 ok(/^<aside[^>]*\sinert(?:=(?:""|"inert"))?[\s>]/.test(html.slice(iAside, iAside + 400)), "server markup carries `inert`: no tap, Tab or Enter reaches a link before exposure is recorded");
 for (const p of PICKS) ok(html.includes(p.name), "the server render carries pick: " + p.name);
 ok(html.includes("What are you looking for in Orlando?"), "the treatment's content is unchanged");
+ok(html.includes('href="/tonight?city=Orlando&amp;lat=28.54&amp;lng=-81.38"'),
+  "Tonight opens the real night-out page with the guide's city and coordinates");
+ok(html.includes(">Top rated nearby<") && !html.includes(">Open now, top rated nearby<"),
+  "a mixed list does not promise that every pick is open");
+const openMarkup = renderToStaticMarkup(React.createElement(Gate, { city: CITY, picks: PICKS.filter((p) => p.openNow) }));
+ok(openMarkup.includes(">Open now, top rated nearby<"),
+  "the open-now label remains accurate when all displayed places are open");
+const unknownCityMarkup = renderToStaticMarkup(React.createElement(Gate, { city: { name: "Somewhere" } }));
+ok(unknownCityMarkup.includes('href="/tonight"'),
+  "Tonight without a known center can use the existing location chooser");
 for (const page of ["app/guides/[slug]/page.js", "app/culture/[metro]/page.js"]) {
   const src = readFileSync(path.join(ROOT, page), "utf8");
   const imp = src.match(/import\s+ExploreBridge\s+from\s+"([^"]+)"/);

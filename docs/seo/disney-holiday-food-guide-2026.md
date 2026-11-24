@@ -44,3 +44,15 @@ Unsplash alternatives were sought, including `WTDKnUfhynE` and `RZNe_QZRi04`; th
 The Florida park maps use the shared Apple map and pins. A stop ID connects its pin and food section, and changing parks unmounts the previous map. Pins refer to a food venue or to its named landmark when the counter lacks a documented location. The Disney’s BoardWalk counter and Anaheim bonus are outside the mapped scope. Food artwork appears only on the creator preview controls.
 
 Release checks and any production verification are tracked in PR #2588.
+
+## Search update, 2026-11-23
+
+Owner goal: come up whenever someone searches for Disney food, with the strongest flow and conversion.
+
+- Keyword data (Ubersuggest, US, read 2026-11-23): "epcot festival of the holidays food" 210 searches a month, difficulty 31; "disney christmas food" 170, difficulty 22; "disney christmas food guide" 40, difficulty 20; "disney holiday snacks" 20. The bare "disney food" head term is owned by dedicated Disney food sites; these Christmas and festival terms are the winnable ones now.
+- Search title (59 characters): "Disney Christmas Food 2026: Every Park + EPCOT Festival Map". H1: "Disney World Christmas food guide 2026". Park headings name the park and what people search for.
+- Answer first: a one paragraph answer and a table of every treat (park, price, ticket) plus the festival, above the map.
+- Structured data: ItemList of the 7 treats and 16 festival spots (each url is an anchor on the page) and an Event for the festival (Nov 27 to Dec 30, 2026, as printed). Guarded by scripts/test-disney-food-seo.mjs.
+- Conversion: the registered, tracked Orlando CityPASS row (lib/coupons cpn-citypass-orlando) under the map, marked sponsored, with the shell's partner disclosure above it.
+- Internal links: the Christmas in Florida hub (lib/christmasCityGuides.js) now links this guide and the Universal Christmas guide.
+- Baseline: no Search Console data for this page is reachable from the SEO tools on the current free plans. Measure clicks and impressions for the queries above from 2026-11-23.

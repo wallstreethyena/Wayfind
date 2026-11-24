@@ -270,8 +270,8 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const styleRaw = readFileSync(path.join(REPO, "app/ask/style.js"), "utf8");
   ok(/inv\.place \|\| suggestedActivityLabel/.test(askClientRaw),
      "AskClient must render the proposed plan preview for activity-only invitations too");
-  ok(/setNos\(\(n\)\s*=>\s*n\s*\+\s*1\)/.test(askClientRaw) && /style=\{\{\s*"--s":\s*1\s*\}\}/.test(askClientRaw) && /style=\{\{\s*"--n":\s*1\s*\}\}/.test(askClientRaw),
-     "pressing No must reveal playful Elf reactions without coercively shrinking No or enlarging YES");
+  ok(/setNos\(\(n\)\s*=>\s*n\s*\+\s*1\)/.test(askClientRaw) && /yesScale\(nos\)/.test(askClientRaw) && /noScale\(nos\)/.test(askClientRaw),
+     "pressing No must grow the YES button via yesScale(nos) and shrink No via noScale(nos) while revealing playful Elf reactions");
   ok(/Maybe another day/.test(askClientRaw) && /Suggest something else/.test(askClientRaw) && /No thanks/.test(askClientRaw) && /\.wfx-pivots/.test(styleRaw),
      "pressing No must reveal respectful pivot choices (Maybe another day, Suggest something else, No thanks)");
 
@@ -936,44 +936,41 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      "the share card's mark changed without the map's — one shape, two surfaces, or it is not a brand");
 }
 
-// ── 7i. THE MAP'S MISSING IMAGERY ─────────────────────────────────────────
-// Owner, with a screenshot of a map card reading "RP" where a photo should be:
-// "some places with no images."
-//
-// Not a map-specific bug in the photo lookup — IconicPlaceCard resolves imagery
-// exactly the way the home cards do. The asymmetry was the HEALING: owned
-// inventory rows arrive with no photo when they carry no photo_ref, home's
-// rails repair that at runtime through useMissingPlacePhotos, and the map
-// screen was never a caller. It bit the map hardest because opening the Map tab
-// forces `attractions`, the most inventory-served category of them all.
+// ── 7i. THE MAP'S STORED GOWAYFIND IMAGERY (ZERO EXTERNAL API CALLS) ───────
+// Owner 2026-11-23: places that ALREADY have photos stored in GoWayfind
+// (wf_inventory signals.photo_gallery/photo_url, wf_place_photo, and
+// wf_google_photo_store) must wire directly into the map from /api/places/map
+// and /api/places/map/list with ZERO external /api/places/search calls
+// (useMissingPlacePhotos removed from Map.js) and ZERO client /api/photo
+// waterfall spend.
 {
   const map = stripComments(readFileSync(path.join(REPO, "app/components/screens/Map.js"), "utf8"));
-  ok(/useMissingPlacePhotos\(/.test(map),
-     "the map screen no longer heals missing imagery, so an inventory row with no photo_ref renders as a monogram");
-  // Gated, not sprayed: healing all sixty pins would undo the load-time work.
-  ok(/view\.slice\(0, 12\)/.test(map) && /mapDrawer &&/.test(map),
-     "the heal is not gated to what is on screen — sixty places would turn opening the map into a request burst");
-  ok(/mapMode === "places"/.test(map.slice(map.indexOf("useMissingPlacePhotos("), map.indexOf("useMissingPlacePhotos(") + 220)),
-     "the heal runs in events mode too, where there are no place cards to heal");
+  const mapRoute = stripComments(readFileSync(path.join(REPO, "app/api/places/map/route.js"), "utf8"));
+  const mapListRoute = stripComments(readFileSync(path.join(REPO, "app/api/places/map/list/route.js"), "utf8"));
+  ok(!/useMissingPlacePhotos/.test(map),
+     "Map.js must never import or call useMissingPlacePhotos (/api/places/search external waterfall)");
+  ok(/hydrateMapPlacesWithStoredPhotos/.test(mapRoute),
+     "app/api/places/map/route.js must hydrate GoWayfind stored photos server-side");
+  ok(/hydrateMapPlacesWithStoredPhotos/.test(mapListRoute),
+     "app/api/places/map/list/route.js must hydrate GoWayfind stored photos server-side");
+  ok(/seedPlacePhoto\(/.test(map),
+     "Map.js must seed photoAnswers synchronously so CardPhoto renders stored photos on frame 1");
 
-  // THE TRAP. The two cards on this screen read DIFFERENT fields —
-  // IconicPlaceCard takes `photoRef` and builds the URL itself, PlaceCard takes
-  // `photo`, an already-built URL. Filling one heals one surface and looks
-  // finished. Both call sites must go through the same helper, and that helper
-  // must set both.
-  const helper = map.slice(map.indexOf("const withPhoto ="), map.indexOf("const withPhoto =") + 900);
+  // Both cards on this screen (IconicPlaceCard preview + PlaceCard drawer) must
+  // go through withPhoto, which seeds wfPhoto, keeps existing GoWayfind photos,
+  // and forces nospend=1 / photoNoSpend on every fallback.
+  const helper = map.slice(map.indexOf("const withPhoto ="), map.indexOf("const withPhoto =") + 1200);
   ok(helper.length > 80, "withPhoto moved or was renamed — this section asserts nothing");
-  ok(/photoRef: ref/.test(helper) && /photo: url/.test(helper),
-     "withPhoto fills only one of the two fields the map's two card types read, so one surface stays a monogram");
+  ok(/p\.wfPhoto\?\.src/.test(helper) && /seedPlacePhoto\(/.test(helper),
+     "withPhoto must seed and wire server-hydrated wfPhoto onto both map card types");
+  ok(/photoNoSpend:\s*true/.test(helper) && /nospend=1/.test(helper),
+     "withPhoto must keep map fallback photo lookups strictly no-spend (nospend=1)");
   ok(/hasPlacePhotoRef\(own\)/.test(helper),
-     "withPhoto must not treat a truthy-but-invalid photoRef as already healed — that is the black 176px slot");
-  ok(/if \(mapPreview\) photoWants\.push\(mapPreview\)/.test(map),
-     "the focused/selected pin is not always on the heal list — drawer gating must not skip the open card");
-  ok(/place=\{withPhoto\(mp\)\}/.test(map), "the pin-tap card does not go through the heal");
-  ok(/p=\{withPhoto\(p\)\}/.test(map), "the drawer rows do not go through the heal");
+     "withPhoto must not treat a truthy-but-invalid photoRef as usable — that is the black 176px slot");
+  ok(/place=\{withPhoto\(mp\)\}/.test(map), "the pin-tap card does not go through withPhoto");
+  ok(/p=\{withPhoto\(p\)\}/.test(map), "the drawer rows do not go through withPhoto");
 
-  // A place that already has imagery must come back BY IDENTITY, or every row
-  // re-renders on every pass for nothing.
+  // Keep shared photo ref & healPoint invariants intact for other surfaces (BestNearby/ExplodingNearby).
   const { tbPhotoUrl: tb } = await import("../lib/todaysBest.js");
   const { hasPlacePhotoRef: hasRef } = await import("../lib/placePhoto.js");
   const REF = "places/ChIJN1t_tDeuEmsRUsoyG83frY4/photos/AelY_Cs9Xq2b";
@@ -1374,6 +1371,21 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     const s = readFileSync(path.join(REPO, rel), "utf8");
     ok(s.includes(marker), `${rel} must expose a direct 1-tap Plan Together entrypoint (${marker})`);
   }
+
+  // Wayfind Santa AI Date Concierge, live "Santa calling" update card, and hidden vertical scrollbar:
+  const styleSrc9 = readFileSync(path.join(REPO, "app/ask/style.js"), "utf8");
+  ok(styleSrc9.includes("scrollbar-width:none") && styleSrc9.includes(".wfx-stage::-webkit-scrollbar{width:0;height:0;display:none}"),
+     "app/ask/style.js must hide the vertical scrollbar on .wfx-stage so no vertical bar splits the invite screen");
+  ok(askClientSrc.includes('data-wf-santa-date-concierge="1"') && askClientSrc.includes('data-wf-santa-call-card="1"') && askClientSrc.includes("Santa on speaker:"),
+     "AskClient must render Wayfind Santa AI Date Concierge and the live Santa calling update card when the recipient customizes the plan");
+  const santaUpdatedReply = yesText(
+    decodeInvite(encodeInvite({ place: "Bulla Gastrobar Tampa", city: "Tampa", from: "WAYFIND" })),
+    "dinner",
+    "Sat, November 28",
+    { name: "Maya", placeName: "Ulele", santaCall: true }
+  );
+  ok(santaUpdatedReply.includes("Dinner at Ulele on Sat, November 28") && santaUpdatedReply.includes("Wayfind Santa called in a quick plan update for us!"),
+     "yesText must include the recipient's updated spot and Santa's call update note when customized");
 }
 
 if (fails.length) {

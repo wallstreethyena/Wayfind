@@ -8,8 +8,8 @@
 //     (a real avatar photo when /api/creator-avatar can resolve one — see
 //     CreatorAvatar below — falling back to an initials circle otherwise;
 //     the PLACE's own photo, never the creator's video thumbnail, still
-//     follows CREATOR_VIDEO_SPEC.md's never-re-host rule), a link out to
-//     their real video, how many other spots they're featured at, a strip
+//     follows CREATOR_VIDEO_SPEC.md's never-re-host rule), an in-app player
+//     for supported posts, how many other spots they're featured at, a strip
 //     of other nearby finds, and a way back into the place's own full
 //     Detail sheet.
 //   { place: null } — "not in your region yet": the honest empty state,
@@ -28,7 +28,7 @@ import CreatorCoverFacade from "../CreatorCoverFacade";
 import CreatorPlaybackDetails from "../CreatorPlaybackDetails";
 import { creatorLabel, AFFILIATION_DISCLOSURE, FEATURED_CREATOR_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 import { summaryFor } from "../../../lib/creatorArchetypes";
-import { isEmbeddable } from "../../../lib/videoEmbed";
+import { creatorPostActionLabel } from "../../../lib/videoEmbed";
 
 // Mirrors app/home.js's own module-scope promOf() — a one-line fallback
 // (wfProm, else wfScore, else 0), duplicated here rather than imported
@@ -231,8 +231,9 @@ export default function SocialFindSheet({ ctx }) {
   const stats = creatorStats(handle);
   const otherSpots = stats.spots.filter((s) => s.name !== place.name);
   const others = curatedSpot ? [] : (videoHeroPlaces || []).filter((v) => v.place && v.place.id !== place.id).slice(0, 8);
+  const actionLabel = creatorPostActionLabel(video.platform, video.url);
   const creatorAttribution = <>
-    <CreatorVideoAction platform={video.platform} url={video.url} label={`Open ${handle ? "@" + handle : "this creator"}'s post in Wayfind`}
+    {actionLabel ? <CreatorVideoAction platform={video.platform} url={video.url} label={`Open ${handle ? "@" + handle : "this creator"}'s post in Wayfind`}
       onClick={() => { try { logEvent("creator_video", place, { platform: video.platform, creator: handle || "", src: "social_find_sheet" }); } catch (e) {} }}
       className="wf-social-glow"
       style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${plat.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${plat.color}`, borderRadius: 14, padding: 14, marginBottom: 16, "--glow-rgb": glowRgb }}
@@ -241,9 +242,11 @@ export default function SocialFindSheet({ ctx }) {
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{handle ? "@" + handle : plat.label + " creator"}</div>
         <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{stats.count > 0 ? `Featured at ${stats.count} spot${stats.count === 1 ? "" : "s"} on Wayfind` : `On ${plat.label}`}</div>
-        <div style={{ fontSize: 12.5, fontWeight: 800, color: plat.color, marginTop: 6 }}>Watch in Wayfind</div>
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: plat.color, marginTop: 6 }}>{actionLabel}</div>
       </div>
-    </CreatorVideoAction>
+    </CreatorVideoAction> : <p data-creator-post-unavailable="" style={{ fontSize: 13, color: C.muted, margin: "0 0 12px" }}>
+      {handle ? "@" + handle + " · " : ""}{plat.label} post unavailable in Wayfind
+    </p>}
     {captionFor(video) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>{captionFor(video)}</div>}
   </>;
   const curatedDetails = <div style={{ paddingTop: 12 }}>
@@ -275,7 +278,7 @@ export default function SocialFindSheet({ ctx }) {
           {curatedSpot && (
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: "flex", justifyContent: "center" }}>
-                {isEmbeddable(video.platform, video.url) ? <CreatorPlaybackDetails style={{ width: "100%", maxWidth: 300 }} details={curatedDetails}>
+                {actionLabel ? <CreatorPlaybackDetails style={{ width: "100%", maxWidth: 300 }} details={curatedDetails}>
                   <CreatorCoverFacade placeId={curatedSpot.placeId || place.id} platform={video.platform} url={video.url} coverTitle={place.name} coverCity={place.city || curatedSpot.city || null} coverEyebrow={handle ? `THE @${handle} EDIT` : "CREATOR POST"} fallbackLabel="Place cover shown" label={`${handle ? "@" + handle : plat.label + " creator"} post about ${place.name}`} />
                 </CreatorPlaybackDetails> : curatedDetails}
               </div>

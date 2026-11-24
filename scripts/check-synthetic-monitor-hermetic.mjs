@@ -298,8 +298,11 @@ for (const s of SCENARIOS) {
     && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "christmas"), "2026-10-12").missingIds.length === 0
     && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "augtober"), "2026-08-14").missingIds.length === 0
     && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "augtober"), "2026-08-15").missingIds.includes("augtober")
+    && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "augtober" && id !== "halloween"), "2026-11-10").missingIds.includes("augtober")
+    && !posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "augtober" && id !== "halloween"), "2026-11-11").missingIds.includes("augtober")
+    && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS, "2026-11-11").extraIds.includes("augtober")
     && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS, "2027-01-02").extraIds.includes("christmas"),
-    "the monitor requires Christmas from Oct 13 and Fall from Aug 15, and flags both once expired (Jan 2 / after Thanksgiving)");
+    "the monitor requires Christmas from Oct 13 and Fall from Aug 15, and flags both once expired (Jan 2 / Nov 11)");
 
   const completePayload = {
     covered: true,

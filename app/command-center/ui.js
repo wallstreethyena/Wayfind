@@ -345,6 +345,9 @@ function IntelligenceSection({ auth }) {
   const excluded = dget(d, "excluded", []) || [];
   const summary = dget(d, "report", {}) || {};
   const safeguards = dget(d, "safeguards", {}) || {};
+  const gm = dget(d, "geminiMonitor", null);
+  const gmData = dget(gm, "data", null);
+  const gmSource = dget(gm, "source", null);
   const rows = (items) => items.map((item) => [
     item.rank,
     item.phrase,
@@ -358,6 +361,39 @@ function IntelligenceSection({ auth }) {
   return (
     <Section id="intelligence" title="Intelligence & leads" loading={p.loading && !p.data}
       sub="Daily research becomes an auditable decision queue. It cannot change a Wayfind Score or publish a card by itself.">
+      {gm ? (
+        <>
+          <Card style={{ borderLeft: `3px solid ${gmSource && gmSource.connected ? STATUS.good : STATUS.warn}` }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>Gemini Florida &amp; Holiday Monitor</div>
+              <StatusPill
+                ok={gmSource && gmSource.connected ? (gmData && gmData.qualityAudit && gmData.qualityAudit.status === "healthy" ? true : null) : false}
+                label={gmSource && gmSource.connected ? (gmData && gmData.monitor && gmData.monitor.aiActive ? `Gemini active (${gmData.monitor.model || "flash"})` : `Deterministic (${(gmData && gmData.monitor && gmData.monitor.status) || "ready"})`) : "Setup required"}
+                detail={gmData && gmData.qualityAudit ? `Health ${gmData.qualityAudit.healthScore}/100` : ""}
+              />
+            </div>
+            {gmData && gmData.floridaBrief ? (
+              <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 6 }}>{gmData.floridaBrief}</div>
+            ) : null}
+            {gmData && gmData.holiday && gmData.holiday.brief ? (
+              <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginTop: 4 }}>Holiday ({gmData.holiday.name}): {gmData.holiday.brief}</div>
+            ) : null}
+            {gmSource && !gmSource.connected && gmSource.nextStep ? (
+              <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginTop: 6 }}>{gmSource.nextStep}</div>
+            ) : null}
+            {gmData && gmData.qualityAudit && Array.isArray(gmData.qualityAudit.issues) && gmData.qualityAudit.issues.length > 0 ? (
+              <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 4 }}>
+                {gmData.qualityAudit.issues.slice(0, 4).map((iss, idx) => (
+                  <div key={idx} style={{ fontSize: 11.5, color: C.light, lineHeight: 1.4 }}>
+                    <strong style={{ color: iss.severity === "high" ? STATUS.bad : STATUS.warn }}>{iss.area}:</strong> {iss.summary}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </Card>
+          <div style={{ height: 12 }} />
+        </>
+      ) : null}
       <Grid min={185}>
         <StatTile label="Report date" value={summary.reportDate || "–"} sub={summary.region || "Florida"} source={dget(d, "source")} />
         <StatTile label="Signals received" value={fmtNum(summary.count)} sub={`${fmtNum(summary.actionableCount)} actionable now`} source={dget(d, "source")} />
@@ -1369,7 +1405,7 @@ export default function CommandCenter() {
   // no SSR HTML for this <img> to disagree with at hydration.
   const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-wf-own-theme="command-center">
       <header className={styles.header}>
         <div className={styles.headerMain}>
           <a href="#today" onClick={() => setActiveGroup("today")} className={styles.brand} aria-label="Wayfind Command Center home">

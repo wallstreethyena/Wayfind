@@ -8,3 +8,12 @@
 /* Standard-shell body: same reading rules the old .article wrapper gave, now inside GuideStandardShell. */
 .body{font:400 17px/1.75 var(--wf-sans),Arial,sans-serif;color:#eef1f5}.body p{margin:0 0 18px}.body a{color:#ffc294;text-underline-offset:4px}.body a:focus-visible,.body button:focus-visible{outline:2px solid #ffc294;outline-offset:5px}.body h3{font:400 25px/1.3 var(--wf-display),Georgia,serif;margin:10px 0 16px}
 .boothName span[data-kind="stop"]{background:#2b3644;color:#dfe6ee}
+/* Answer first (SEO + AI answers): a one paragraph answer and a table of every pick. */
+.quickAnswer{margin:6px 0 4px}.answerLead{font-size:17px;line-height:1.7;color:#eef1f5;margin:0 0 14px!important}.answerLead strong{color:#ffc294}
+.answerTable{overflow-x:auto;overscroll-behavior-x:contain;border:1px solid #2b3644;border-radius:12px}
+.answerTable table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px;line-height:1.5;text-align:left}
+.answerTable th,.answerTable td{padding:11px 13px;border-bottom:1px solid #24313c;vertical-align:top}
+.answerTable thead th{background:#16202b;color:#c8d2de;font-size:12px;font-weight:700}
+.answerTable tbody tr:last-child>*{border-bottom:0}.answerTable tbody th{font-weight:650}
+.answerTable a{color:#ffc294;text-underline-offset:3px}
+@media(max-width:600px){.answerTable table{min-width:0}.answerTable thead{display:none}.answerTable tr{display:block;padding:11px 13px;border-bottom:1px solid #24313c}.answerTable tbody tr:last-child{border-bottom:0}.answerTable th,.answerTable td{display:block;border:0!important;padding:2px 0}.answerTable tbody th{font-size:15px;margin-bottom:3px}.answerTable td::before{content:attr(data-label) ": ";color:#9cabb8}}
