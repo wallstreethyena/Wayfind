@@ -28,6 +28,7 @@ check(!/takeVisitorToken|visitorBucket|visitor-cap|photoVisitorCap/.test(source)
 check(!existsSync(new URL("../lib/photoVisitorCap.js", import.meta.url)), "obsolete visitor cutoff module removed");
 const prelude = `const {gateShut,spendAllow,spendAllowPhotosDetailed,photosCeiling,PHOTO_REF_RX,FALLBACK_PATH,placeIdFromRef,creditedRequest,isAutomatedPhotoReader,ledgerOutcomeClass,bucketHash,idempotencyKey,uaClass,resolvePlacePhoto} = globalThis.__visitorRemovalTest;
 const findFreePhoto=async()=>null, recordPhotoOutcome=async()=>{}, recordPhotoDeniedCeiling=async()=>{}, recordPhotoPurchase=async()=>{}, recordReaderPhotoMiss=async()=>{};
+const refundToLedger=async()=>true, googlePhotoBackfillEligible=()=>false, takeGoogleBackfillPhotoGrant=async()=>({ok:false}), refundGoogleBackfillPhotoGrant=async()=>true;
 const NextResponse={json:(body,init={})=>new Response(JSON.stringify(body),init),redirect:(url,init={})=>new Response(null,{...init,headers:{...init.headers,location:String(url)}})};`;
 const savedFetch = globalThis.fetch;
 let ledgerCalls = 0, purchases = 0, used = 0, transportFail = false;
