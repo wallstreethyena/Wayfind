@@ -8,16 +8,9 @@
 // breaking other sort modes, or reverting to stale state."
 import { readFileSync } from "fs";
 import { fileURLToPath } from "node:url";
-import React, { act } from "react";
-import { createRoot } from "react-dom/client";
 import { JSDOM } from "jsdom";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { execFileSync } from "node:child_process";
-import {
-  applyCuratorPicks, applyCuratorPicksRanked, getCuratorPicks, mergeServerSet, noteSessionOwner,
-  beginCuratorToggle, settleCuratorToggle, __resetCuratorPicksForTest,
-} from "../lib/curatorPicks.js";
-import { trackCuratorWrite, curatorVerdictFromLikes } from "../lib/curatorPicksWrite.js";
 import { applyCuratorPicksServer } from "../lib/curatorPicksServer.js";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { lawfulSort, governedScoreOf } from "../lib/lawfulOrder.js";
@@ -25,6 +18,18 @@ import { byTopRated } from "../lib/ranking.js";
 import { railScoreOf, byWayfindScore } from "../lib/railRank.js";
 import { composeWorthEatingRails } from "../lib/worthEatingRails.js";
 import { toDisplayScore } from "../lib/score.js";
+
+// Vercel runs prebuild with NODE_ENV=production. Initialize React in test
+// mode before importing the client curator modules, which also load React.
+process.env.NODE_ENV = "test";
+const React = (await import("react")).default;
+const { act } = React;
+const { createRoot } = await import("react-dom/client");
+const {
+  applyCuratorPicks, applyCuratorPicksRanked, getCuratorPicks, mergeServerSet, noteSessionOwner,
+  beginCuratorToggle, settleCuratorToggle, __resetCuratorPicksForTest,
+} = await import("../lib/curatorPicks.js");
+const { trackCuratorWrite, curatorVerdictFromLikes } = await import("../lib/curatorPicksWrite.js");
 
 let pass = 0;
 const fail = (m) => { console.error("test-curator-picks: FAIL — " + m); process.exit(1); };
