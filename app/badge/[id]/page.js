@@ -6,8 +6,8 @@
 // stays out of the sitemap and out of search results. The badge itself is what
 // earns the link (lib/topRatedBadge.js).
 //
-// Eligibility (merit score + indexable place page) is decided HERE, before any
-// code is handed out. Never spends Google: loadPlaceNoSpend reads our own
+// Eligibility (merit score + indexable place page) is checked before any code
+// is handed out, and again by the image route. Never spends Google: loadPlaceNoSpend reads our own
 // tables and the existing details cache only.
 import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
@@ -59,7 +59,7 @@ export default async function Page({ params }) {
     );
   }
 
-  const alt = `${p.name} is top rated on Wayfind`;
+  const alt = `Wayfind badge for ${p.name}`;
   const styles = [
     { theme: "dark", title: "Dark style (for dark websites)" },
     { theme: "light", title: "Light style (for white or light websites)" },
@@ -85,7 +85,7 @@ export default async function Page({ params }) {
           code={badgeEmbedHtml({ siteUrl: SITE_URL, id, name: p.name, theme: s.theme })}
         />
       ))}
-      <p style={S.small}>Free, no sign up. The badge always shows your current business name. Wayfind ranks places on real reviews, and nobody can pay to be listed or to rank higher.</p>
+      <p style={S.small}>Free, no sign up. Adding the badge is optional and does not affect your listing or score. The image updates as eligibility is rechecked and displays &quot;Badge unavailable&quot; when it cannot be confirmed. Wayfind ranks places on real reviews, and nobody can pay to be listed or to rank higher.</p>
     </div>
   );
 }
