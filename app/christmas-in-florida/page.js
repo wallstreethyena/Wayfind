@@ -116,7 +116,8 @@ export default async function Page() {
   // tapped that ad (lib/socialAdLanding.js SOCIAL_AD_FEATURES); the inline
   // script picks it before first paint.
   const featured = (await Promise.all(SOCIAL_AD_FEATURE_IDS.map((id) => christmasFeaturePickServable(listings, id, today)))).filter(Boolean);
-  const topPicks = [...featured, ...christmasTopPicks(tickets).filter((r) => !featured.some((f) => f.id === r.id))];
+  const tourRows = listings.filter((c) => c && c.kind === "tour" && c.tourRow).map((c) => c.tourRow);
+  const topPicks = [...featured, ...christmasTopPicks(tickets, undefined, { extraRows: tourRows }).filter((r) => !featured.some((f) => f.id === r.id))];
   const creatorPosts = seasonalCreatorVideos("christmas");
   const creatorCovers = await creatorCoversFor(creatorPosts.filter((p) => !christmasCreatorPoster(p.key)).map((p) => p.placeId));
   return <>

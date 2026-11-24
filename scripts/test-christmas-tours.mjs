@@ -22,6 +22,7 @@ import {
   christmasTourListings,
   christmasTourRow,
   christmasTileTourCards,
+  nearbyChristmasTourCards,
   CHRISTMAS_TILE_TOUR_SURFACE,
 } from "../lib/christmasTours.js";
 import { readFileSync } from "node:fs";
@@ -133,7 +134,7 @@ for (const t of CHRISTMAS_TOUR_SNAPSHOT) {
   ok(html.includes('id="xb-' + CHRISTMAS_TOUR_ID_PREFIX + t.code + '"') && html.includes('href="' + href + '"'), t.code + " renders as one list card with its go href");
 }
 ok(!/viator\.com\/tours|pid=P0/.test(html), "no partner URL or partner id reaches the page");
-ok((html.match(/>See availability ↗</g) || []).length === codes.length && (html.match(/>Tour tickets at Viator</g) || []).length === codes.length, "every tour button reads See availability with the Viator line");
+ok((html.match(/>Book Tour ↗</g) || []).length === codes.length && (html.match(/>Tour tickets at Viator</g) || []).length === codes.length, "every tour button reads Book Tour with the Viator line");
 const visible = html.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/\s+/g, " ");
 ok(!DASH.test(visible), "the rendered list text is dash free");
 ok(!/sold out/i.test(visible), "no tour is labeled sold out");
@@ -149,7 +150,7 @@ for (const c of tile) {
   const q = new URLSearchParams(c.href.split("?")[1]);
   ok(/^\/api\/commerce\/go\?/.test(c.href) && q.get("provider") === "viator" && q.get("offer") === c.code && q.get("surface") === CHRISTMAS_TILE_TOUR_SURFACE && q.get("page") === "home-christmas", c.code + " tile button books through the go route with its own surface");
   ok(!/viator\.com|pid=|mcid=/.test(JSON.stringify(c)), c.code + " tile card carries no partner URL or id");
-  ok(c.label === CHRISTMAS_TOUR_CTA && c.via === CHRISTMAS_TOUR_VIA && /^\$\d+$/.test(c.price), c.code + " tile card has the See availability button and a from price");
+  ok(c.label === CHRISTMAS_TOUR_CTA && c.via === CHRISTMAS_TOUR_VIA && /^\$\d+$/.test(c.price), c.code + " tile card has the Book Tour button and a from price");
 }
 ok(christmasTileTourCards(failed.slice(0, 0), PARRISH).length === 0 && christmasTileTourCards(null).length === 0, "no tours, no tile cards");
 ok(christmasTileTourCards(failed, {}).every((c) => c.distMi === null), "no location, no distance claimed");
@@ -158,7 +159,7 @@ ok(/christmasTourListings\(\)\.catch\(/.test(route) && /christmasTileTourCards\(
 const rails = await loadComponent(path.join(root, "app/components/ChristmasIntentRails.js"), root);
 const tileHtml = renderToStaticMarkup(createElement(rails.ChristmasTourRail, { tours: tile }));
 for (const c of tile) ok(tileHtml.includes('href="' + c.href.replace(/&/g, "&amp;") + '"'), c.code + " renders on the tile with its go href");
-ok((tileHtml.match(/>See availability ↗</g) || []).length === tile.length, "every tile tour shows See availability");
+ok((tileHtml.match(/>Book Tour ↗</g) || []).length === tile.length, "every tile tour shows Book Tour");
 ok(tileHtml.includes("Some links on this page are affiliate links."), "the tile tour rail carries the readable affiliate sentence");
 ok(/rel="sponsored nofollow noopener"/.test(tileHtml), "tile tour buttons are marked sponsored");
 const tileText = tileHtml.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
@@ -168,5 +169,15 @@ const node = (k) => ({ key: k });
 const order = rails.withChristmasTourRail([node("d:lights"), node("d:towns-markets"), node("seasonal-movies")], [{ id: "lights" }, { id: "towns-markets" }], node("christmas-tours")).map((n) => n.key);
 ok(order.join(",") === "d:lights,christmas-tours,d:towns-markets,seasonal-movies", "the tour rail sits right after Lights: " + order.join(","));
 ok(rails.withChristmasTourRail([node("d:x")], [{ id: "x" }], node("t"))[0].key === "t" && rails.withChristmasTourRail([node("d:lights")], [{ id: "lights" }], null).length === 1, "no Lights rail puts tours first; no tours adds nothing");
+
+// Nearby bookable holiday tours for unticketed Florida Christmas event detail pages (e.g. Clearwater / Robert's).
+const CLEARWATER = { lat: 27.9659, lng: -82.7351 };
+const nearRoberts = nearbyChristmasTourCards(failed, { ...CLEARWATER, maxMi: 40, max: 3 });
+ok(nearRoberts.length >= 1 && nearRoberts.length <= 3, "Clearwater event gets 1 to 3 nearby holiday light tours (" + nearRoberts.length + ")");
+ok(nearRoberts.every((c) => c.distMi != null && c.distMi <= 40 && /^\/api\/commerce\/go\?/.test(c.href) && c.label === CHRISTMAS_TOUR_CTA && c.via === CHRISTMAS_TOUR_VIA), "every nearby event-page tour is within 40mi and uses /api/commerce/go with Book Tour copy");
+ok(nearbyChristmasTourCards(failed, { lat: 30.4383, lng: -84.2807, maxMi: 40, max: 3 }).length === 0, "Tallahassee returns 0 nearby tours when none exist within 40mi");
+ok(nearbyChristmasTourCards(failed, { lat: null, lng: null }).length === 0, "missing coordinates returns 0 nearby tours");
+const eventPageSrc = readFileSync(path.join(root, "app/florida-events/[slug]/page.js"), "utf8");
+ok(/nearbyChristmasTourCards\(/.test(eventPageSrc) && /Book a holiday lights tour nearby/.test(eventPageSrc), "florida-events/[slug] wires nearbyChristmasTourCards for unticketed Christmas pages");
 
 console.log("test-christmas-tours: OK, " + checks + " assertions (" + codes.length + " Viator Christmas light tours in the one list, go route only)");

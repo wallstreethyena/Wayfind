@@ -272,14 +272,18 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   for (const row of m.rows) {
     ok(row.cta.kind === "affiliate" && /^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href), row.id + " partner link is our /api/*/go route");
     ok(!/https?:\/\/|anrdoezrs|cj\.com|jdoqocy|tkqlhce/i.test(row.cta.href), row.id + " href is not a partner URL");
-    ok(["Undercover Tourist", "TicketSmarter", "Ticketmaster", "Tiqets", "Klook", "TicketNetwork", "Viator", "See availability ↗"].includes(row.cta.label), row.id + " button names only the partner: " + row.cta.label);
+    ok(["Get Park Tickets", "Get Tickets", "Book Tour ↗"].includes(row.cta.label), row.id + " button uses action-first copy: " + row.cta.label);
     ok(!/commission|we may earn|disclosure/i.test(row.cta.label), row.id + " button has no disclosure words");
     ok(/^(?:Admission|Event) tickets at \S/.test(row.cta.via) || row.cta.via === "Tour tickets at Viator", row.id + " carries the partner line: " + row.cta.via);
     eventTicketHrefs.set(row.id, row.cta.href);
   }
-  // Same bytes the registry hands every other surface (surface differs, the rest is the registry's).
-  const { eventTicketHref } = await import("../lib/eventTicketDeals.js");
-  for (const [id, href] of eventTicketHrefs) ok(href === eventTicketHref(id, { surface: "christmas_intent_rail" }), id + " href equals the registry href exactly");
+  // Same bytes the registry hands every other surface (surface differs, and Viator carries page=christmas-in-florida).
+  const { eventTicketHref, eventTicketDeal } = await import("../lib/eventTicketDeals.js");
+  for (const [id, href] of eventTicketHrefs) {
+    const entry = eventTicketDeal(id);
+    const expectedHref = eventTicketHref(id, { surface: "christmas_intent_rail", ...(entry?.provider === "viator" ? { page: "christmas-in-florida" } : {}) });
+    ok(href === expectedHref, id + " href equals the registry href exactly");
+  }
   // A dead or unread Undercover Tourist deal hides its button (no partner link), never fakes one.
   const noDeals = christmasTicketsModel(partner, "2026-11-01", { dealsById: new Map() });
   ok(noDeals.rows.every((r) => r.cta.kind === "organizer" || r.cta.provider !== "undercover_tourist"), "with no healthy wf_deals row an Undercover Tourist button is not shown");
@@ -315,7 +319,7 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
     ok(live, today + ": " + row.id + " is upcoming or ongoing");
     ok(/^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href) || /^https:\/\/[^/\s]+\.[^/\s]+/.test(row.cta.href), row.id + " href is our /api/*/go or an https official page: " + row.cta.href);
     ok(row.cta.kind !== "organizer" || (new URL(row.cta.href).hostname === new URL(card.official_ticket_url).hostname && new URL(row.cta.href).pathname.replace(/\/$/, "") === new URL(card.official_ticket_url).pathname.replace(/\/$/, "")), row.id + " organizer link is the row's own official_ticket_url");
-    ok(["Undercover Tourist", "TicketSmarter", "Ticketmaster", "Tiqets", "Klook", "TicketNetwork", "Viator", "Official Tickets", "See availability ↗"].includes(row.cta.label), row.id + " label approved");
+    ok(["Get Park Tickets", "Get Tickets", "Book Tour ↗", "Official Tickets"].includes(row.cta.label), row.id + " label approved: " + row.cta.label);
     for (const [k, v] of Object.entries({ name: row.name, chip: row.chip, city: row.city, venue: row.venue, when: row.when, price: row.price.text, unit: row.price.unit || "", via: row.cta.via, label: row.cta.label })) {
       ok(typeof v === "string" && !DASH.test(v), row.id + " " + k + " is dash free: " + v);
     }
@@ -528,8 +532,9 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   const photoModel = { ...partnerModel, rows: partnerModel.rows.map(withPhoto) };
   const picks = christmasTopPicks(photoModel);
   const eligible = photoModel.rows.filter((r) => r.cta && r.photos.length);
-  ok(CHRISTMAS_TOP_PICKS_MAX === 3 && picks.length === Math.min(3, eligible.length) && picks.every((r, i) => r === eligible[i]),
-    "top picks are the first featured rows with a photo and a way in, in merit order, at most three");
+  const firstAff = eligible.find((r) => r.cta.kind === "affiliate");
+  ok(CHRISTMAS_TOP_PICKS_MAX === 3 && picks.length === Math.min(3, eligible.length) && (!firstAff || picks[0].cta.kind === "affiliate"),
+    "top picks lead with monetized partner rows with a real photo and a way in, at most three");
   ok(christmasTopPicks({ rows: [] }).length === 0 && christmasTopPicks(null).length === 0, "no rows, no picks");
   const plainHtml = renderPage(partnerModel, partnerList);
   ok(!plainHtml.includes("data-top-picks") && !plainHtml.includes("Top picks with tickets"), "a visit without picks renders the page exactly as before");
@@ -549,7 +554,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(/data-commerce-owner=\{affiliate \|\| internal \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("function PickCard"))) && /onClick=\{affiliate \|\| internal \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
     "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/const topPicks = \[\.\.\.featured, \.\.\.christmasTopPicks\(tickets\)/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /if \(isSocialAdLanding\(params\) \|\| feature\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp) && !/\[data-social-picks\]\{display:none\}/.test(comp),
+  ok(/const topPicks = \[\.\.\.featured, \.\.\.christmasTopPicks\(tickets/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /if \(isSocialAdLanding\(params\) \|\| feature\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp) && !/\[data-social-picks\]\{display:none\}/.test(comp),
     "the cached page shows the ticket picks to every visitor, including Google paid, from the same featured rows");
   ok(/<script dangerouslySetInnerHTML=\{\{ __html: SOCIAL_AD_SCRIPT \}\} \/>/.test(page) && page.indexOf("SOCIAL_AD_SCRIPT }}") < page.indexOf("<ChristmasTickets ")
     && /\.xm-pick\[data-feature-pick\]\{display:none\}/.test(comp),
@@ -943,12 +948,13 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   void tier;
   const { eventOrganizerTicketUrl: orgUrl } = await import("../lib/curatedEvents.js");
   const { eventTicketDeal: dealOf } = await import("../lib/eventTicketDeals.js");
+  const { christmasTicketmasterUrl: tmUrl } = await import("../lib/christmasTicketmaster.js");
   const full = new Map(all.map((c) => [c.id, c]));
   // Shows within a week of their next performance lead the list (owner
   // 2026-11-10); the ticket order below applies to everything after them.
   const pinnedCount = page1.findIndex((c) => !b.christmasShowPinDate(full.get(c.id) || c, day));
   ok(page1.slice(0, pinnedCount < 0 ? page1.length : pinnedCount).every((c) => b.christmasShowPinDate(full.get(c.id) || c, day)) && page1.slice(pinnedCount < 0 ? page1.length : pinnedCount).every((c) => !b.christmasShowPinDate(full.get(c.id) || c, day)), "shows within a week of their next performance sit in one block at the top");
-  const flags = page1.slice(pinnedCount < 0 ? page1.length : pinnedCount).map((c) => !!(c.kind !== "place" && (orgUrl(full.get(c.id)) || dealOf(c.id))));
+  const flags = page1.slice(pinnedCount < 0 ? page1.length : pinnedCount).map((c) => !!(c.kind !== "place" && (orgUrl(full.get(c.id)) || dealOf(c.id) || tmUrl(c.id, day))));
   const firstNo = flags.indexOf(false);
   ok(flags.slice(0, 8).filter(Boolean).length >= 1 && (firstNo < 0 || !flags.slice(firstNo).includes(true)), "events with a real way in come first on the first page, then the rest in date order");
   const src = strip(read("lib/christmasBrowse.js"));
@@ -998,6 +1004,31 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
     const near = b.sortChristmasBrowse([nearA, farTop, nearB], b.parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), day).map((c) => c.id).join(",");
     ok(near === "near-b,near-a,far-top", "near the visitor: the closest ring first, then best rated, then trending inside the ring (" + near + ")");
     ok(b.parseChristmasBrowseQuery({ sort: "bogus" }).sort === "" && b.parseChristmasBrowseQuery({ sort: "tickets" }).sort === "tickets", "sort accepts only tickets");
+    // CRO locks (2026-11-23):
+    // 1. Located 20-mile ring beats a far-away pinned show (EPCOT 198mi away does not hijack Miami #1).
+    const miamiLocal = base({ id: "miami-local-show", lat: 25.77, lng: -80.19, start_date: "2026-12-10", end_date: "2026-12-10" });
+    const farPinned = base({ id: "far-pinned-show", browse_categories: ["theater"], lat: 28.37, lng: -81.55, start_date: "2026-11-12", end_date: "2026-11-12" });
+    const locPin = b.sortChristmasBrowse([farPinned, miamiLocal], b.parseChristmasBrowseQuery({ lat: "25.76", lng: "-80.19" }), "2026-11-10").map((c) => c.id).join(",");
+    ok(locPin === "miami-local-show,far-pinned-show", "located visitor sees local ring ahead of a far-away 7-day pinned show (" + locPin + ")");
+    // 2. Ticketmaster shows lead paidTier ahead of unmonetized organizer links.
+    const tmShow = base({ id: "orlando-ballet-nutcracker-2026", lat: 28.54, lng: -81.38, official_ticket_url: "https://www.ticketmaster.com/event/123", start_date: "2026-12-12", end_date: "2026-12-12" });
+    const orgOnly = base({ id: "org-only-unmonetized", lat: 28.54, lng: -81.38, wfScore: 99, official_ticket_url: "https://example.org/tickets", start_date: "2026-12-01", end_date: "2026-12-01" });
+    ok(b.sortChristmasBrowse([orgOnly, tmShow], b.parseChristmasBrowseQuery({}), "2026-11-23")[0].id === tmShow.id, "Ticketmaster affiliate show ranks ahead of unmonetized organizer link");
+    // 3. Duplicate park offer cards (e.g. Universal offer=66) spread out instead of crowding page 1 back-to-back.
+    const dupA = base({ id: "universal-holidays-2026", lat: 28.47, lng: -81.47, wfScore: 90 });
+    const dupB = base({ id: "universal-studios-holiday-parade-2026", lat: 28.47, lng: -81.47, wfScore: 90 });
+    const uniquePark = base({ id: "seaworld-christmas-2026", lat: 28.41, lng: -81.46, wfScore: 90 });
+    const spreadUnloc = b.spreadDuplicateOffers([dupA, dupB, uniquePark], "2026-11-23", false).map((c) => c.id).join(",");
+    const spreadLoc = b.spreadDuplicateOffers([dupA, dupB, uniquePark], "2026-11-23", true).map((c) => c.id).join(",");
+    ok(spreadUnloc === "universal-holidays-2026,seaworld-christmas-2026,universal-studios-holiday-parade-2026" && spreadLoc === spreadUnloc, "spreadDuplicateOffers separates identical park offers while preserving every listing");
+    // 4. Layout & icon CRO locks: weekend row after main grid, 1-tap area chips, InviteIcon on Ask someone, xm-honest below browse, PickCard price.
+    const bSrcCro = strip(read("app/components/ChristmasBrowse.js"));
+    const tSrcCro = strip(read("app/components/ChristmasTickets.js"));
+    const cSrcCro = strip(read("app/components/ChristmasTicketCard.js"));
+    ok(bSrcCro.indexOf('className="xm-grid"') < bSrcCro.indexOf("<ChristmasWeekendRow"), "ChristmasWeekendRow renders after the main ticket grid");
+    ok(/data-christmas-areas=""/.test(bSrcCro) && /aria-label="Florida areas"/.test(bSrcCro), "ChristmasBrowse renders 1-tap Florida area quick-filter chips");
+    ok(/<InviteIcon \/><span>Ask someone<\/span>/.test(cSrcCro), "Ask someone uses InviteIcon instead of repeating Heart");
+    ok(tSrcCro.indexOf("{browse}") < tSrcCro.indexOf('className="xm-honest"') && /xm-pick-price/.test(tSrcCro), "affiliate disclosure sits below browse and TopPicks cards show starting price");
   }
   ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0, local_rank: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured PredictHQ zero remains distinct from unknown demand");
   {

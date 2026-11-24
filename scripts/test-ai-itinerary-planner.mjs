@@ -433,8 +433,8 @@ delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: 120, bottom: 470, height: 350 }), 553) === true, "An ad visitor's picks row on screen holds the unsolicited planner offer");
     ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: -400, bottom: -50, height: 350 }), 553) === false, "Once the picks row is scrolled away the offer may show");
     ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: 0, bottom: 0, height: 0 }), 553) === false, "A hidden picks row never holds the offer");
-    ok(proactiveWaitsForAdPicks(fakeDoc(false, { top: 120, bottom: 470, height: 350 }), 553) === false && proactiveWaitsForAdPicks(fakeDoc(true, null), 553) === false && proactiveWaitsForAdPicks(null, 553) === false,
-      "Google, organic and direct visitors, and pages without the picks row, keep the offer exactly as before");
+    ok(proactiveWaitsForAdPicks(fakeDoc(false, { top: 120, bottom: 470, height: 350 }), 553) === true && proactiveWaitsForAdPicks(fakeDoc(true, null), 553) === false && proactiveWaitsForAdPicks(null, 553) === false,
+      "Any visible picks row (Google, organic, or Meta) holds the offer, while pages without the picks row keep the offer as before");
     const loaderSrc = readFileSync(path.join(REPO, "app/components/WayfindPlannerLoader.js"), "utf8");
     ok(/proactiveWaitsForAdPicks\(document, window\.innerHeight\)/.test(loaderSrc) && /addEventListener\("scroll", onScroll, \{ capture: true/.test(loaderSrc) && /removeEventListener\("scroll", onScroll, true\)/.test(loaderSrc),
       "The loader checks the picks row before showing an offer and re-checks on any scroll, removing its listener");
