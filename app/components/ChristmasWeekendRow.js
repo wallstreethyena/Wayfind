@@ -90,11 +90,17 @@ export default function ChristmasWeekendRow({ initial, lat, lng }) {
           const href = weekendTileHref(card);
           const photo = tilePhoto(card);
           const when = tileWhen(card);
+          const tPrice = card.ticketRow && card.ticketRow.price;
+          const tCta = card.ticketRow && card.ticketRow.cta;
+          const badge = tPrice && tPrice.kind === "from"
+            ? ("From " + tPrice.text + (tCta ? " · Tickets" : ""))
+            : (tCta && tCta.kind === "affiliate" ? "Tickets online" : tPrice && tPrice.kind === "free" ? "Free" : "");
           const inner = <>
             <TilePhoto src={photo} />
             <span className="xw-body">
               <span className="xw-title">{card.title || card.name}</span>
               <span className="xw-meta">{[card.city, when].filter(Boolean).join(" · ")}{near && card.distMi != null ? <span className="xw-dist">{" · " + Math.round(card.distMi) + " mi"}</span> : null}</span>
+              {badge ? <span className="xw-dist" style={{ display: "inline-block", marginTop: 6, fontSize: 12, fontWeight: 700 }}>{badge}</span> : null}
             </span>
           </>;
           return <li className="xw-tile" key={card.id}>

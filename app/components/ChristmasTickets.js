@@ -160,13 +160,17 @@ const CSS = XM_CARD_CSS + `
 .xm-pick-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .xm-pick-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:10px;text-align:center;background:linear-gradient(180deg,#5A0712,#2A0309);color:#F7DCCB;font-size:12px;font-weight:600}
 .xm-pick-credit{position:absolute;left:6px;right:8px;bottom:5px;margin:0;color:rgba(255,255,255,.7);font-size:9.5px;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.7)}
-.xm-pick-body{display:flex;flex-direction:column;gap:4px;padding:10px 12px 12px}
+.xm-pick-body{flex:1 1 auto;display:flex;flex-direction:column;gap:4px;padding:10px 12px 12px}
 .xm-pick h3{margin:0;font-size:15px;line-height:1.3;font-weight:700;color:#FFF6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .xm-pick-meta{margin:0;font-size:12.5px;line-height:1.35;color:#F7DCCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.xm-pick-buy{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:6px;padding:6px 8px;border-radius:12px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border:2px solid #E8B48A;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center}
+.xm-pick-cta-row{margin-top:auto;padding-top:6px;display:flex;align-items:center;gap:10px}
+.xm-pick-price{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;margin:0;line-height:1.1}
+.xm-pick-from-lbl{font-size:10.5px;color:#E9C3B0}
+.xm-pick-amt{font-size:18px;font-weight:800;color:#FFF6F0;text-shadow:0 1px 2px rgba(40,0,6,.7)}
+.xm-pick-buy{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:44px;padding:6px 10px;border-radius:12px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border:2px solid #E8B48A;font-size:14.5px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center}
 .xm-pick-buy:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
-.xm-pick-via{margin:0;font-size:11px;line-height:1.3;color:#E9C3B0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#xm-tickets{margin-top:22px;scroll-margin-top:12px}
+.xm-pick-via{margin:2px 0 0;font-size:11px;line-height:1.3;color:#E9C3B0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#xm-tickets{margin-top:16px;scroll-margin-top:12px}
 .xm-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-bottom:16px;border-bottom:1px solid rgba(232,180,138,.22)}
 .xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}.xm-see-all{display:flex;align-items:center;width:100%;min-height:44px;margin:10px 0 0;padding:10px 14px;border:1px solid #E8B48A;border-radius:12px;background:#2a1a14;color:#FFE9C8;cursor:pointer;font:inherit;font-size:15px;font-weight:700;text-align:left}.xm-see-all:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xm-count{margin:14px 0 0;font-size:14px;color:var(--muted)}
@@ -383,15 +387,23 @@ function PickCard({ row, rank }) {
       <div className="xm-pick-body">
         <h3>{row.name}</h3>
         {meta ? <p className="xm-pick-meta">{meta}</p> : null}
-        <a
-          className="xm-pick-buy"
-          href={row.cta.href}
-          target={internal ? undefined : "_blank"}
-          rel={internal ? undefined : affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
-          data-commerce-owner={affiliate || internal ? undefined : "ChristmasTickets"}
-          onClick={affiliate || internal ? undefined : () => organizerTap(row)}
-          aria-label={row.cta.label + (row.feature ? ": " : ": tickets for ") + row.name}
-        >{row.cta.label}</a>
+        <div className="xm-pick-cta-row">
+          {row.price && row.price.kind === "from" ? (
+            <p className="xm-pick-price" aria-label={"From " + row.price.text}>
+              <span className="xm-pick-from-lbl">from</span>
+              <span className="xm-pick-amt">{row.price.text}</span>
+            </p>
+          ) : null}
+          <a
+            className="xm-pick-buy"
+            href={row.cta.href}
+            target={internal ? undefined : "_blank"}
+            rel={internal ? undefined : affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
+            data-commerce-owner={affiliate || internal ? undefined : "ChristmasTickets"}
+            onClick={affiliate || internal ? undefined : () => organizerTap(row)}
+            aria-label={row.cta.label + (row.feature ? ": " : ": tickets for ") + row.name}
+          >{row.cta.label}</a>
+        </div>
         {row.cta.via ? <p className="xm-pick-via">{row.cta.via}</p> : null}
       </div>
     </li>
@@ -441,7 +453,6 @@ export default function ChristmasTickets({ model, share = null, browse = null, t
           <h1 id="xm-title">{chrome.title}</h1>
           <SocialTopPicks picks={topPicks} />
           <p className="xm-lede">{chrome.lede}</p>
-          <p className="xm-honest">{chrome.honest}</p>
           <div className="xm-hero-actions">
             <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
             {share ? <div className="xm-share">{share}</div> : null}
@@ -449,6 +460,7 @@ export default function ChristmasTickets({ model, share = null, browse = null, t
         </div>
 
         <div id="xm-tickets" data-ticket-grid="">{browse}</div>
+        {chrome.honest ? <p className="xm-honest">{chrome.honest}</p> : null}
       </div>
     </section>
   );

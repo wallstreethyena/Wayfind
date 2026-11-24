@@ -3,6 +3,7 @@ import { creatorCoversFor, posterCoverForPosts } from "../../../lib/creatorCover
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
+import { christmasTourListings, nearbyChristmasTourCards } from "../../../lib/christmasTours.js";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 // v7.45 — The individual event page. Google is explicit that Event structured
 // data belongs on a single-event page with its own URL, not on a roundup, and
@@ -319,6 +320,12 @@ export default async function CuratedEventPage({ params }) {
     ? { places: [], unavailable: false }
     : await cachedEventPairings(e);
   const pairings = pairingResult.places.map((p) => ({ ...p, href: pairingHref(p) }));
+  const isChristmasEvent = Boolean(e.christmas_research_id || (Array.isArray(e.tags) && e.tags.some((t) => /christmas|holiday/i.test(String(t)))));
+  const nearbyChristmasTours = (!ticket && !soldOut && isChristmasEvent && mapPoint && typeof christmasTourListings === "function" && typeof nearbyChristmasTourCards === "function")
+    ? nearbyChristmasTourCards(await Promise.resolve().then(() => christmasTourListings()).catch(() => []), {
+      lat: mapPoint.lat, lng: mapPoint.lng, maxMi: 40, max: 3, surface: "florida_event_page", page: "florida-event",
+    })
+    : [];
   // Event JSON-LD only with a real date: a confirmed season with no dates yet
   // gets none (it would publish a fake startDate).
   const ld = e.season_undated || !e.start_date ? null : eventJsonLd(e, { siteUrl: SITE_URL });
@@ -393,6 +400,30 @@ export default async function CuratedEventPage({ params }) {
             </a>
             {" · "}{resaleTicket.via}
           </p> : null}
+        </div>
+      ) : null}
+      {Array.isArray(nearbyChristmasTours) && nearbyChristmasTours.length ? (
+        <div style={S.box} data-nearby-holiday-tours="">
+          <p style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: "#FF8A3D" }}>
+            Book a holiday lights tour nearby
+          </p>
+          <div style={{ display: "grid", gap: 10 }}>
+            {nearbyChristmasTours.map((tour) => (
+              <div key={tour.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, paddingTop: 8, borderTop: "1px solid #21262D" }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 14.5, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.3 }}>{tour.title}</div>
+                  <div style={{ fontSize: 12.5, color: "#8B949E", marginTop: 2 }}>{tour.city} · From {tour.price} · {tour.via}</div>
+                </div>
+                <a
+                  href={tour.href}
+                  target="_blank"
+                  rel="sponsored nofollow noopener"
+                  style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: 44, padding: "0 14px", borderRadius: 10, background: "linear-gradient(180deg,#FFE9B8,#F5C451)", color: "#4A0610", fontSize: 13.5, fontWeight: 800, textDecoration: "none", whiteSpace: "nowrap" }}
+                >{tour.label}</a>
+              </div>
+            ))}
+          </div>
+          <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p>
         </div>
       ) : null}
       {availability ? (
