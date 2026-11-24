@@ -94,6 +94,10 @@ fx("guide cannot use a live Google photo", "guide", { image: `/api/photo?place=$
 fx("record is not an object", "event", null, "IMG_BAD_RECORD");
 fx("unknown content type", "reel", { ...COMMONS }, "IMG_BAD_TYPE");
 
+fx("venue website guide pick license", "guide", { image: "/guides/picks/plant-city-christmas-2026/christmas-lane-mega-tree-light-arch.jpg", sourceKind: "permission", credit: "Christmas Lane", license: "venue website photo, owner authorized Nov 23 2026 for guide picks" }, null);
+fx("vague venue website license", "guide", { image: "/guides/picks/x.jpg", sourceKind: "permission", credit: "Christmas Lane", license: "venue website photo, all rights reserved" }, "IMG_LICENSE_BAD");
+fx("classic permission license", "guide", { image: "/guides/picks/x.jpg", sourceKind: "permission", credit: "Pinto's Farm", license: "Used with permission of Pinto's Farm (owner-confirmed 2026-09-22); credit required" }, null);
+
 ok(fixtures >= 40, `at least 40 fixtures (got ${fixtures})`);
 
 // extraction + classification (CALLED)
