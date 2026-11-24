@@ -287,7 +287,39 @@ equal(analytics.clickProperties(placeLink, { origin: "https://gowayfind.com" }).
   equal(body.properties.$session_id, id, "the pageview carries the bootstrapped session");
   ok(analytics.earlyPageviewScript("") === "void 0" && analytics.earlyPageviewScript("not-a-key") === "void 0", "a missing or malformed PostHog key emits no script");
   const script = analytics.earlyPageviewScript("phc_abc123");
-  ok(script.includes('"$pageview"') && script.includes("https://us.i.posthog.com/capture/") && script.includes("wf_internal_browser_v1") && !script.includes("location.search"), "the head script sends a pageview and does not read the query string");
+  ok(script.includes('"$pageview"') && script.includes("https://us.i.posthog.com/capture/") && script.includes("wf_internal_browser_v1"), "the head script sends a pageview");
+  // 2026-11-24: the landing beacon carried no referrer, campaign or device, so
+  // every Google landing since #2734 read as unattributed. Run the REAL head
+  // script in a sandbox and read what it would send.
+  {
+    const vm = await import("node:vm");
+    const beacons = [];
+    const iphone = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1";
+    const runHead = (referrer, search, userAgent) => {
+      beacons.length = 0;
+      const sandbox = {
+        navigator: { webdriver: false, userAgent, sendBeacon: (url, blob) => { beacons.push(blob); return true; } },
+        location: { pathname: "/christmas-in-florida", origin: "https://www.gowayfind.com", search },
+        document: { referrer },
+        localStorage: new Storage(), sessionStorage: new Storage(),
+        crypto: { getRandomValues: (b) => b, randomUUID: () => "22222222-2222-4222-8222-222222222222" },
+        Blob, URL, URLSearchParams, JSON, Date, Math, RegExp, String, Object, Uint8Array,
+      };
+      sandbox.window = sandbox;
+      vm.runInNewContext(script, sandbox);
+      return beacons.length === 1 ? beacons[0].text().then((t) => JSON.parse(t).properties) : Promise.resolve(null);
+    };
+    const g = await runHead("https://www.google.com/", "", iphone);
+    ok(g && g.$referring_domain === "www.google.com" && g.$referrer === "https://www.google.com/" && g.$device_type === "Mobile" && g.$raw_user_agent === iphone, "head beacon: a Google phone landing carries its referrer and device");
+    const m = await runHead("https://m.facebook.com/some/path?x=1", "?utm_source=meta&utm_campaign=xmas&fbclid=SECRETCLICK", iphone);
+    ok(m && m.utm_source === "meta" && m.utm_campaign === "xmas" && m.has_fbclid === true && m.$referrer === "https://m.facebook.com/", "head beacon: an ad landing carries its campaign and the presence of a click id");
+    ok(m && !JSON.stringify(m).includes("SECRETCLICK") && !JSON.stringify(m).includes("some/path"), "head beacon: the click id value and the referrer path never leave the browser");
+    ok(m && m.$current_url === "https://www.gowayfind.com/christmas-in-florida", "head beacon: the landing URL still drops the query");
+    const d = await runHead("", "?utm_source=a@b.com", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36");
+    ok(d && d.$referring_domain === "$direct" && d.$device_type === "Desktop" && d.utm_source === undefined, "head beacon: a direct desktop visit reads $direct and an email-shaped utm is dropped");
+    const t = await runHead("", "", "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148");
+    ok(t && t.$device_type === "Tablet", "head beacon: an iPad is a tablet");
+  }
   const sent = [];
   const store = new Storage();
   const ss = new Storage();
@@ -308,6 +340,7 @@ equal(analytics.clickProperties(placeLink, { origin: "https://gowayfind.com" }).
   const parsed = JSON.parse(await sent[0].blob.text());
   equal(parsed.event, "$pageview", "the beacon body is a pageview");
   equal(parsed.properties.$current_url, "https://www.gowayfind.com/christmas-in-florida", "the beacon URL has no click id");
+  ok(parsed.properties.has_fbclid === true && !JSON.stringify(parsed).includes("secret") && parsed.properties.$referring_domain === "$direct", "the fallback beacon carries the same attribution as the head script, never the click id value");
   ok(analytics.isAnalyticsUuidV7(parsed.properties.$session_id), "the beacon session id is a uuid v7");
   ok(analytics.dispatchEarlyPageview(win, "phc_abc123") === false && sent.length === 1, "a second leave does not send a second pageview");
   const owner = { ...win, __WF_EARLY_PAGEVIEW: 0, __WF_ANALYTICS_SUPPRESSED: "internal", navigator: { ...win.navigator, sendBeacon: () => { sent.push("nope"); return true; } } };
