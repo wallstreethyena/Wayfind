@@ -239,15 +239,14 @@ async function handlePhotoGet(req) {
       if (shut) return { ok: false, reason: "shut" };
       if (sku === "photos" && free) return { ok: false, reason: "free-photo" };
       // No per-visitor cutoff. Each paid photo still requires the global grant.
-      if (sku !== "photos") return spendAllow(sku);
-      return spendAllowPhotosDetailed().then(async (main) => {
+      return sku === "photos" ? spendAllowPhotosDetailed().then(async (main) => {
         if ((main && main.ok) || !backfillEligible) return main;
         const extra = await takeGoogleBackfillPhotoGrant(place).catch(() => ({ ok: false, reason: "http" }));
         if (!extra.ok) return main; // the main allowance's own refusal stays the recorded reason
         backfillGrants.push(extra);
         backfillUsed = true;
         return { ok: true, reason: "granted-backfill" };
-      });
+      }) : spendAllow(sku);
     }),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
   }, { refund: refundPhotoGrants });
