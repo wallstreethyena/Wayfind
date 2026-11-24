@@ -5,7 +5,7 @@
   "summary": {
     "files": 426,
     "usages": 456,
-    "verified": 434,
+    "verified": 440,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -28,7 +28,7 @@
       "/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-inn-on-fifth.webp",
       "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/caladesi-ferry-dock.webp"
     ],
-    "totalFiles": 434
+    "totalFiles": 440
   },
   "files": [
     {
@@ -4824,6 +4824,187 @@
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/apollo-beach-tss-clubhouse-and-basin.jpg",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Apollo Beach Lighted Boat Parade"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://images.clubexpress.com/109032/graphics/dji_fly_20240209_151804_56_1707510018538_photo_optimized_41696071.jpg",
+        "title": "The Tampa Sailing Squadron clubhouse, docks and basin",
+        "author": "Tampa Sailing Squadron",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594"
+      },
+      "wayfind": {
+        "credit": "Tampa Sailing Squadron",
+        "creditHref": "https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://www.tampasailingsquadron.com/content.aspx?page_id=22&club_id=109032&module_id=244594",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/christmas-lane-festival-grounds.webp",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Christmas Lane"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Florida_Strawberry_Festival_from_FL_574-3.jpg",
+        "title": "Florida Strawberry Festival from FL 574-3",
+        "author": "DanTD",
+        "dateTaken": "2020-12-11 12:12:12",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "DanTD",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Florida_Strawberry_Festival_from_FL_574-3.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/christmas-lane-mega-tree-light-arch.jpg",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Christmas Lane"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://christmaslane.com/media",
+        "title": "The outdoor mega tree at Christmas Lane, seen through a lit arch",
+        "author": "Christmas Lane",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://christmaslane.com/media"
+      },
+      "wayfind": {
+        "credit": "Christmas Lane",
+        "creditHref": "https://christmaslane.com/media",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://christmaslane.com/media",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/hero-downtown-collins-reynolds.webp",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "hero"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist01.JPG",
+        "title": "Plant City FL Downtown Comm Dist01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-02-26 11:02:32",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist01.JPG",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped to 1280 by 853 and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/lights-of-love-union-depot-mccall-park.webp",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Lights of Love tree lighting"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Union_Depot01.JPG",
+        "title": "Plant City FL Union Depot01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-02-26 11:08:13",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Union_Depot01.JPG",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/plant-city-christmas-2026/plant-city-christmas-parade-historic-downtown.webp",
+      "usedBy": [
+        {
+          "slug": "plant-city-christmas-2026",
+          "role": "pick",
+          "pick": "Plant City Christmas Parade"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist03.JPG",
+        "title": "Plant City FL Downtown Comm Dist03",
+        "author": "Ebyabe",
+        "dateTaken": "2011-02-26 11:03:13",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Plant_City_FL_Downtown_Comm_Dist03.JPG",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
