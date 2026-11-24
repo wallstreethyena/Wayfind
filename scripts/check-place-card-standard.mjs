@@ -379,13 +379,14 @@ export function useReserveEntry(place) {
   }
   const eventPlaces = [place("event-a"), place("event-b")].map((item) => ({ ...item, href: `/p/${item.id}`, editorial: "A verified local favorite." }));
   const event = React.createElement(EventNearbyCards, { places: eventPlaces });
-  const stayPlaces = [place("stay-a", "Sarasota Harbor Hotel"), place("stay-b", "Carlisle Inn & Conference Center Sarasota Waterfront Suites")].map((item) => ({ ...item, types: ["hotel", "lodging"], address: "1 Hotel Way, Orlando, FL", city: "Orlando", detailHref: `/p/${item.id}`, blurb: "A practical stay near the venue.", mapsOnly: false }));
+  const stayPlaces = [place("wfh-days-inn-bradenton-near-the-gulf-27469", "Sarasota Harbor Hotel"), place("wfh-hyatt-place-sarasota-lakewood-ranch-27392", "Carlisle Inn & Conference Center Sarasota Waterfront Suites")].map((item) => ({ ...item, types: ["hotel", "lodging"], address: "1 Hotel Way, Orlando, FL", city: "Orlando", detailHref: `/p/${item.id}`, blurb: "A practical stay near the venue.", mapsOnly: false }));
   const stays = React.createElement(EventStayCards, { places: stayPlaces });
   // 2026-09-23: stay cards carry "Check rates" INSIDE the fixed-height card.
   // A long hotel name plus the CTA must still leave every control inside the
   // card box (the controls-inside-card assertion below), so the probe must
   // actually render the CTA, and one name is deliberately three lines long.
-  ok(renderToStaticMarkup(stays).includes("wf-place-card-cta"), "PROBE: event stay fixture renders the in-card Check rates slot");
+  const staysMarkup = renderToStaticMarkup(stays);
+  ok(staysMarkup.includes("wf-place-card-cta") && staysMarkup.includes("Check rates"), "PROBE: event stay fixture renders the in-card Check rates slot");
   const thing = React.createElement(ThingsCard, { r: { id: "tour", kind: "experience", title: "Sarasota Guided Mangrove Tunnel Kayak Tour", rating: 4.8, reviews: 240, price_from: 59, duration_min: 120 }, rank: 1, city: "Sarasota" });
   const sponsorRow = sponsoredPlaceById("rio-body-wax-gastonia");
   ok(!!sponsorRow, "PROBE: real sponsored registry row exists for the rendered sponsor adapter");
@@ -439,12 +440,35 @@ export function useReserveEntry(place) {
     ...place("dense-viator"), locality: "Sarasota", city: "Sarasota", state: "FL",
     _testCardProduct: { url: "https://viator.example/tour", title: "Clear Kayak Mangrove Tour", code: "12345P1" },
   };
+  const denseRingling = {
+    id: "ChIJ6y2dx9g_w4gRWoZIRhLk-JI", name: "The John and Mable Ringling Museum of Art",
+    locality: "Sarasota", city: "Sarasota", state: "FL",
+    address: "5401 Bay Shore Rd, Sarasota, FL 34243",
+    rating: 4.8, reviews: 9874, types: ["museum", "tourist_attraction"], primaryType: "museum",
+    governed_score: 99, wfScore: 99, lat: 27.381, lng: -82.559, distMi: 16.6,
+    trending: true, trend_reason: "Popular with locals",
+    tags: ["museum", "crowd_favorite"],
+  };
+  const denseTrendingReserve = {
+    ...denseKekes,
+    trending: true, trend_reason: "Popular with locals",
+  };
+  const denseUnverifiedHotel = {
+    id: "wfh-unverified-empty-cta-fixture", name: "Palmetto Riverside Bed & Breakfast",
+    locality: "Palmetto", city: "Palmetto", state: "FL",
+    address: "1102 Riverside Dr, Palmetto, FL 34221",
+    rating: 4.8, reviews: 221, types: ["lodging", "hotel"], primaryType: "hotel",
+    governed_score: 98, wfScore: 98, lat: 27.515, lng: -82.572, distMi: 10.7,
+  };
   const DENSE_SPECIMENS = !MUTATION ? [
     { id: "home-award-where-reserve", cls: "wf-place-card-list", expectCta: true, expectAward: true, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseKekes, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Big buttermilk pancakes and Belgian waffles", onBadge: noop, city: "Parrish" }) },
     { id: "home-creator-toppick-reserve", cls: "wf-place-card-list", expectCta: true, expectAward: true, expectCredit: true, el: React.createElement(HomePlaceCard, { p: denseCracker, rank: 2, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Home-style country food and made-from-scratch biscuits served all day", onBadge: noop, city: "Parrish" }) },
     { id: "home-winner-creator-reserve", cls: "wf-place-card-list", expectCta: true, expectAward: true, expectCredit: true, el: React.createElement(HomePlaceCard, { p: denseAtria, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Handcrafted sourdough loaves and creative breakfast tartines", onBadge: noop, city: "Parrish" }) },
     { id: "home-winner-creator-nocta", cls: "wf-place-card-list", expectCta: false, expectAward: true, expectCredit: true, el: React.createElement(HomePlaceCard, { p: denseAtriaNoCta, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Handcrafted sourdough loaves and creative breakfast tartines", onBadge: noop, city: "Parrish" }) },
     { id: "home-hotel-check-rates", cls: "wf-place-card-list", expectCta: true, expectAward: false, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseHotel, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Practical stay close to Bradenton beaches and downtown", onBadge: noop, city: "Parrish" }) },
+    { id: "home-unverified-hotel-empty-cta", cls: "wf-place-card-list", expectCta: false, expectEmptyCta: true, expectAward: false, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseUnverifiedHotel, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Historic bed and breakfast overlooking the Manatee River", onBadge: noop, city: "Parrish" }) },
+    { id: "home-trending-deal-award", cls: "wf-place-card-list", expectCta: false, expectAward: true, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseRingling, rank: 2, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Florida's official state art museum: a circus mogul's art collection, his mansion, and bayfront gardens", onBadge: noop, city: "Parrish" }) },
+    { id: "home-trending-award-reserve", cls: "wf-place-card-list", expectCta: true, expectAward: true, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseTrendingReserve, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Big buttermilk pancakes and Belgian waffles", onBadge: noop, city: "Parrish" }) },
     { id: "home-viator-book", cls: "wf-place-card-list", expectCta: false, expectBook: true, expectAward: false, expectCredit: false, el: React.createElement(HomePlaceCard, { p: denseViator, rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: "Guided kayak paddle through coastal mangrove tunnels", onBadge: noop, city: "Parrish" }) },
     { id: "iconic-award-reserve", cls: "wf-rail", expectCta: true, expectAward: true, expectCredit: false, el: React.createElement(Iconic, { place: denseKekes, rank: 1, href: `/p/${denseKekes.id}`, editorial: "Big buttermilk pancakes and Belgian waffles", onSave: noop, onLike: noop, onDislike: noop, onShare: noop }) },
     { id: "iconic-winner-creator-reserve", cls: "wf-rail", expectCta: true, expectAward: true, expectCredit: true, el: React.createElement(Iconic, { place: denseAtria, rank: 1, href: `/p/${denseAtria.id}`, editorial: "Handcrafted sourdough loaves and creative breakfast tartines", onSave: noop, onLike: noop, onDislike: noop, onShare: noop }) },
@@ -514,11 +538,14 @@ export function useReserveEntry(place) {
           return {
             id: host.getAttribute("data-dense-card"),
             box: box(card),
+            hasCtaClass: card.classList.contains("has-cta"),
             contentScrollH: content ? content.scrollHeight : 0,
             contentClientH: content ? content.clientHeight : 0,
             score: score ? box(score) : null,
             nameBox: name ? box(name) : null,
             cta: cta ? box(cta) : null,
+            ctaEmpty: cta ? cta.children.length === 0 && !cta.textContent.trim() : false,
+            ctaDisplay: cta ? getComputedStyle(cta).display : null,
             ctaPointerEvents: ctaInteractive ? getComputedStyle(ctaInteractive).pointerEvents : null,
             credit: credit ? box(credit) : null,
             award: award ? box(award) : null,
@@ -691,12 +718,15 @@ export function useReserveEntry(place) {
             ok(!!d.cta && d.cta.h >= 24, `PROBE ${width}px dense ${spec.id}: in-card CTA rendered with visible height (got ${d.cta ? d.cta.h.toFixed(1) : "none"})`);
             ok(d.ctaPointerEvents === "auto", `${width}px dense ${spec.id}: CTA is interactive (pointer-events:auto even inside home.js pointer-events:none layout, got ${d.ctaPointerEvents})`);
           }
+          if (spec.expectEmptyCta) {
+            ok(d.ctaEmpty && d.ctaDisplay === "none" && (!d.cta || d.cta.h === 0) && !d.hasCtaClass, `${width}px dense ${spec.id}: empty hotel CTA wrapper collapses cleanly (display:${d.ctaDisplay}, h:${d.cta ? d.cta.h : "none"}, hasCta:${d.hasCtaClass})`);
+          }
           if (spec.expectBook) ok(d.hasBook, `PROBE ${width}px dense ${spec.id}: inline Book CTA rendered inside action row`);
           if (spec.expectAward) ok(!!d.award && d.award.h > 0, `PROBE ${width}px dense ${spec.id}: award band rendered inside dense card`);
           if (spec.expectCredit) ok(!!d.credit && d.credit.h > 0, `PROBE ${width}px dense ${spec.id}: creator credit rendered inside dense card`);
           ok(d.contentScrollH <= d.contentClientH + 2, `${width}px dense ${spec.id}: card content does not vertically overflow the 268px box (scrollH ${d.contentScrollH} vs clientH ${d.contentClientH})`);
           ok(d.controls.length >= 4 && d.controls.every((c) => c.h >= 24 && insideCard(c, d.box)), `${width}px dense ${spec.id}: all ${d.controls.length} action buttons stay completely inside the 268px card`);
-          if (d.cta) {
+          if (d.cta && !spec.expectEmptyCta) {
             ok(insideCard(d.cta, d.box) && d.controls.every((c) => !overlaps(d.cta, c)), `${width}px dense ${spec.id}: CTA stays inside the 268px card and clear of action controls`);
             if (d.actions) ok(d.cta.bottom <= d.actions.y + 1, `${width}px dense ${spec.id}: CTA sits above the bottom action row (cta.bottom ${d.cta.bottom.toFixed(1)} vs actions.top ${d.actions.y.toFixed(1)})`);
           }
