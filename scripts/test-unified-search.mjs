@@ -1,6 +1,6 @@
-// Unified search: phrase pages, catalog hits, and the Claude filter's failures.
+// Unified search: phrase pages, catalog hits, and the Gemini filter's failures.
 // No production database and no live model call. The monthly cap is the real
-// paidAnthropicRequest ledger path with a stubbed grant.
+// paidGeminiRequest ledger path with a stubbed grant.
 import assert from "node:assert/strict";
 import { GET as searchRoute } from "../app/api/search/route.js";
 import { resolveSearchCity } from "../lib/searchIntent.js";
@@ -17,7 +17,7 @@ function json(body, status = 200) {
 }
 
 assert.equal(resolveSearchCity({ query: "things to do", lat: null, lng: null }).city.slug, "parrish", "a missing point is not the coordinate 0,0");
-assert.equal(searchUnderstandEnabled({}), false, "the Claude layer is off when the flag is absent");
+assert.equal(searchUnderstandEnabled({}), false, "the Gemini filter is off when the flag is absent");
 assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "on" }), true);
 assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "true" }), false, "only the exact value on enables it");
 
@@ -139,6 +139,36 @@ for (const [key, value] of Object.entries(FLAG_ON)) process.env[key] = value;
 
 const previousFetch = globalThis.fetch;
 try {
+  const providerBodies = [];
+  let cached;
+  globalThis.fetch = async (url, init = {}) => {
+    const target = String(url);
+    if (target.includes("/wf_search_understand_cache")) {
+      if (init.method === "POST") cached = JSON.parse(init.body);
+      return json([]);
+    }
+    if (target.includes("/rest/v1/rpc/wf_spend_take")) return json(true);
+    if (target.includes("generativelanguage.googleapis.com")) {
+      providerBodies.push(JSON.parse(init.body));
+      return json({ candidates: [{ content: { parts: [{ text: '{"category":"food","keywords":["coffee"]}' }] } }] });
+    }
+    return json([]);
+  };
+  const mixedQuery = "coffee with Jane Example, 123 Fictional Way, sample@example.invalid in Sarasota";
+  const publicResult = await searchLibrary({ query: mixedQuery, ...SARASOTA, requestCountry: "US", env: FLAG_ON });
+  assert.equal(publicResult.meta.understand, "ok");
+  assert.equal(providerBodies[0].contents[0].parts[0].text, 'search_terms: ["coffee","with"]\nselected_city: sarasota');
+  assert.equal(cached.cache_key, "public-v1|coffee with|sarasota");
+
+  for (const requestCountry of ["GB", undefined]) {
+    const regular = await searchLibrary({ query: "scalloping", ...SARASOTA, requestCountry, env: FLAG_ON });
+    assert.equal(regular.meta.understand, "region");
+    assert.ok(regular.results.some((row) => row.href === "/guides/florida-scalloping-crystal-river-homosassa"));
+  }
+  const privateOnly = await searchLibrary({ query: "Jane Example 123 Fictional Way", ...SARASOTA, requestCountry: "US", env: FLAG_ON });
+  assert.equal(privateOnly.meta.understand, "no_public_terms");
+  assert.equal(providerBodies.length, 1, "only the US query with public topics reaches Gemini");
+
   const failureCalls = [];
   globalThis.fetch = async (url, init = {}) => {
     const target = String(url);
@@ -150,7 +180,7 @@ try {
     }
     return json([]);
   };
-  const failed = await searchLibrary({ query: "scalloping", ...SARASOTA, env: FLAG_ON });
+  const failed = await searchLibrary({ query: "scalloping", ...SARASOTA, requestCountry: "US", env: FLAG_ON });
   assert.equal(failed.meta.understand, "invalid");
   assert.equal(failed.meta.called, true);
   assert.ok(failureCalls.some((url) => url.includes("generativelanguage.googleapis.com")), "a non-phrase query with the flag on calls Gemini");
@@ -166,7 +196,7 @@ try {
     if (target.includes("/rpc/wf_search_documents_query")) return json({ error: "missing" }, 404);
     return json([]);
   };
-  const capped = await searchLibrary({ query: "scalloping", ...SARASOTA, env: FLAG_ON });
+  const capped = await searchLibrary({ query: "scalloping", ...SARASOTA, requestCountry: "US", env: FLAG_ON });
   assert.equal(capped.meta.understand, "cap");
   assert.equal(capped.meta.called, false);
   assert.ok(capCalls.some((url) => url.includes("wf_spend_take")), "the cap check uses the monthly ledger");
@@ -193,7 +223,7 @@ try {
     return json([]);
   };
   const started = Date.now();
-  const timed = await searchLibrary({ query: "scalloping", ...SARASOTA, env: FLAG_ON });
+  const timed = await searchLibrary({ query: "scalloping", ...SARASOTA, requestCountry: "US", env: FLAG_ON });
   const elapsed = Date.now() - started;
   assert.equal(timed.meta.understand, "timeout");
   assert.ok(elapsed < 4000, `timeout must land near 1.5s, took ${elapsed}ms`);

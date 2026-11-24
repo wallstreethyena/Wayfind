@@ -1,5 +1,5 @@
 // Owned search: place names stay on the free inventory matcher. Pages, guides,
-// events, and coupons come from the library index. The optional Claude filter
+// events, and coupons come from the library index. The optional Gemini filter
 // is inside searchLibrary and stays off unless WAYFIND_SEARCH_UNDERSTAND=on.
 import { searchOwnedPlaces } from "../../../lib/directSearch.js";
 import { resolveSearchIntent } from "../../../lib/searchIntent.js";
@@ -7,6 +7,7 @@ import { searchLibrary } from "../../../lib/unifiedSearch.js";
 import { searchResultCards, isFreeOwnedPlace } from "../../../lib/searchCards.js";
 import { pluralFallbackQuery } from "../../../lib/searchRank.js";
 import { evaluateMomentSemanticEligibility } from "../../../lib/searchSemantics.js";
+import { countryFromHeaders } from "../../../lib/adConsentRegion.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -95,6 +96,7 @@ export async function GET(request) {
         query: params.get("q"),
         lat,
         lng,
+        requestCountry: process.env.VERCEL === "1" ? countryFromHeaders(request.headers) : null,
       });
       filters = library.meta && library.meta.filters;
       if (library.results && library.results.length) {

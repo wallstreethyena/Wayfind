@@ -126,6 +126,9 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
 
   const prompt = buildGeminiMonitorPrompt(packet);
   ok(prompt.generationConfig.responseMimeType === "application/json" && prompt.contents.length === 1, "Gemini prompt requests strict JSON output");
+  ok(!Object.hasOwn(JSON.parse(prompt.contents[0].parts[0].text), "research_topics"), "Gemini prompt leaves private research in Wayfind");
+  const researchPrompt = buildGeminiMonitorPrompt(packet, { includeResearch: true });
+  ok(Object.hasOwn(JSON.parse(researchPrompt.contents[0].parts[0].text), "research_topics"), "the OpenAI prompt can still include internal research");
 
   const validated = validateGeminiIntelligenceOutput(JSON.stringify({
     floridaBrief: "Thanksgiving week brings nightly Sarasota light shows, bayfront kickoffs, and open coastal walks across Florida.",
