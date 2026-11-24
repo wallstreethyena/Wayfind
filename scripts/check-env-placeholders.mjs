@@ -35,7 +35,20 @@
  *      hermetic: it only ever sets explicit values of its own (the rule
  *      scripts/check-guard-hermeticity.mjs enforces).
  */
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { placeholderEnvKeys, malformedKeys, auditEnv, KEY_SHAPES } from "../lib/envAudit.js";
+
+// The classifier reads process.env at call time. Give these fixtures their own
+// process so deployment credentials cannot affect assertions about fake keys.
+if (process.argv[2] !== "--fixture") {
+  const result = spawnSync(process.execPath, [fileURLToPath(import.meta.url), "--fixture"], {
+    env: {},
+    stdio: "inherit",
+  });
+  if (result.error) throw result.error;
+  process.exit(result.status ?? 1);
+}
 
 let failures = 0, asserts = 0;
 const ok = (cond, msg) => { asserts++; if (!cond) { failures++; console.error("  FAIL: " + msg); } };

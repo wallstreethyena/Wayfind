@@ -21,8 +21,10 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { isValidViatorProduct, sanitizeClientClickId, GET } from "../app/api/viator/go/route.js";
-import { mintClickId } from "../lib/commerce.js";
-import { viatorProductGoUrl } from "../lib/affiliates.js";
+import { commerceHref, mintClickId } from "../lib/commerce.js";
+import { guidePickOffers } from "../lib/guidePickOffers.js";
+import { experienceGoUrl, viatorProductGoUrl } from "../lib/affiliates.js";
+import { CULTURE } from "../lib/cultureCorpus.js";
 import { withClickId } from "../lib/hubConversion.js";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
@@ -129,10 +131,35 @@ ok(/viatorProductGoUrl\s*\(/.test(culture),
   "/culture/[metro] must build its offer links with viatorProductGoUrl");
 ok(!/<a\s[^>]*href=\{\s*url\s*\}/.test(culture),
   "the per-item link must stay wrapped in TrackedOfferLink, not a bare <a href={url}>");
-// resolveViatorProduct also yields a raw partner URL; it must be wrapped too.
-const resolveLine = (culture.match(/const direct = await resolveViatorProduct[\s\S]{0,400}/) || [""])[0];
-ok(/viatorProductGoUrl\(\s*direct/.test(resolveLine),
-  "the resolveViatorProduct result is a raw viator.com URL and must also route through /api/viator/go");
+ok(!/\bresolveViatorProduct\b/.test(culture) && /experienceGoUrl\(x\.query/.test(culture)
+  && /Search Viator for/.test(culture),
+  "/culture/[metro] sends editorial queries to labelled search, never a city-matched product");
+for (const [metro, name, href] of [
+  ["orlando", "Theme park fireworks", "https://www.visitorlando.com/blog/post/fireworks-orlando/"],
+  ["tampa", "Gasparilla season", "https://gasparillapiratefest.com/pirate-fest-schedule-of-events/"],
+  ["sarasota", "Siesta Key drum circle", "/guides/siesta-key-drum-circle"],
+  ["keys", "Mallory Square sunset", "https://www.sunsetcelebration.org/visitor-info/"],
+]) {
+  const item = CULTURE[metro].do.find((row) => row.name === name);
+  ok(item?.info?.href === href && item.info.label && !item.query && !item.viatorUrl && !item.viatorPick,
+    `${name} offers exact visitor information, with no unrelated partner query or product`);
+}
+const reviewedProducts = Object.values(CULTURE).flatMap((entry) => entry.do).filter((item) => item.viatorUrl);
+ok(reviewedProducts.length > 0 && reviewedProducts.every((item) =>
+  isValidViatorProduct(item.viatorUrl) && item.viatorLabel && !item.info && !item.query && !item.viatorPick),
+  "reviewed Viator attractions keep their tracked destinations and their own attraction label");
+const airboat = CULTURE.orlando.do.find((item) => item.name === "Airboat ride on the headwaters of the Everglades");
+const boggy = airboat?.viatorPick && guidePickOffers(airboat.viatorPick.guideSlug, { id: airboat.viatorPick.pickId }, "2026-11-23")
+  ?.offers.find((offer) => offer.provider === "viator" && offer.role === "primary");
+ok(boggy?.offerId === "5039P5" && boggy.operator === "Boggy Creek Airboat Adventures"
+  && airboat.viatorLabel && !airboat.viatorUrl && !airboat.query,
+  "the Orlando culture item references the existing exact Boggy Creek offer");
+const boggyHref = withClickId(commerceHref({ provider: boggy?.provider, offerId: boggy?.offerId,
+  surface: "culture", contentId: "orlando", page: "culture-orlando" }), "wf-boggy-fixture");
+ok(boggyHref === "/api/commerce/go?provider=viator&offer=5039P5&surface=culture&content=orlando&page=culture-orlando&click_id=wf-boggy-fixture"
+  && /commerceHref\(\{ provider: offer\.provider, offerId: offer\.offerId/.test(culture)
+  && /offerId=\{offer\?\.offerId/.test(culture),
+  "the exact Boggy Creek SKU is the tracked commerce destination and click join key");
 
 /* ── 4b. the REAL handler, INVOKED ────────────────────────────────────────── */
 // Reading the route's source proves it looks right. Calling it proves it
@@ -183,6 +210,14 @@ ok(none.status === 302, "a query-less call must still redirect rather than throw
 const noneLoc = none.headers.get("Location") || "";
 ok(/x\.test/.test(noneLoc) && !/viator\.com/i.test(noneLoc),
   `a query-less Book click fails closed to our origin (got ${noneLoc.slice(0, 80)})`);
+
+const cultureSearch = await GET(new Request("https://x.test" + experienceGoUrl(
+  "Ybor City evening tours", "Tampa Bay", "culture", null, { surface: "culture" })));
+const cultureSearchDestination = new URL(cultureSearch.headers.get("Location") || "https://x.test");
+ok(cultureSearch.status === 302 && cultureSearchDestination.hostname === "www.viator.com"
+  && cultureSearchDestination.pathname === "/searchResults/all"
+  && cultureSearchDestination.searchParams.get("text") === "Ybor City evening tours Tampa Bay",
+  "a culture search goes to the requested search, not a random Tampa product");
 
 /* ── 4b. THE JOIN KEY, proven by capturing what the route emits ──────────────
  * The whole point of a client-minted click_id is that commerce_cta_clicked

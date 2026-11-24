@@ -89,7 +89,7 @@ ok(!/creatorBoostFor\(/.test(HOME), "no home.js ranking site still uses the reti
 ok(!/hasCreatorVideo\([^)]*\)\s*\?\s*VIDEO_BOOST/.test(HOME),
    "no ranking site still applies the OLD flat, unfloored +45 — that number dwarfed the whole score spread");
 ok(/function hasCreatorVideo\(p\)[\s\S]{0,600}creatorVideosFor\(p\)/.test(HOME), "hasCreatorVideo() (the BADGE predicate) still resolves through creatorVideosFor()");
-ok(/\bhasCreatorVideo\(p\) \? \["creatorvideo"\]/.test(HOME) && /key: "creatorvideo", icon: "🎬", label: hasFeaturedCreatorVideoAt\(p\) \? "Cindy Selects pick" : "Creator post"/.test(HOME), "…and it drives the visible source-neutral badge, so a boosted post is disclosed without implying video footage (and a featured-creator boost names itself)");
+ok(/\bhasCreatorVideo\(p\) \? \["creatorvideo"\]/.test(HOME) && /key: "creatorvideo", icon: "👤", label: hasFeaturedCreatorVideoAt\(p\) \? "Cindy Selects pick" : "Creator pick"/.test(HOME), "…and it drives the visible person badge, so a boosted post is disclosed without implying video playback (and a featured-creator boost names itself)");
 
 // ── 1b. THE LAW'S ARITHMETIC, END TO END ────────────────────────────────────
 // Owner, verbatim (2026-08-07): "if there is an influencer video, I want that

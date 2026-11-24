@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { C } from "../kit";
 import IconicPlaceCard from "../IconicPlaceCard";
 import { shouldApplyMapDefault } from "../../../lib/mapExplorer";
-import { selectMapPlaces, selectMapPlacesSparseFallback, mergeMapAreaContext, validMapBounds, keepMapPreview, placeInMapBounds } from "../../../lib/mapAreaData.js";
+import { mapPlaceQualifies, selectMapPlacesWithSparseTopUp, selectNearestAreaFallback, mergeMapAreaContext, validMapBounds, keepMapPreview, placeInMapBounds } from "../../../lib/mapAreaData.js";
 import { byGovernedScore } from "../../../lib/lawfulOrder.js";
 import { eventMapPoint } from "../../../lib/eventLocation.js";
 import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
@@ -14,9 +14,9 @@ import { mapListSource, enteredMapFromList, mapListIdsOf, listScopeTruth, select
 import { NO_PERMITTED_COORDINATE, creditsForPins } from "../../../lib/coordProvenance.js";
 import { MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT, SEARCH_PILL_NOTE_LIFT } from "../../../lib/mapSafeArea.js";
 import AppleExplorerMap from "../AppleExplorerMap";
-import useMissingPlacePhotos from "../useMissingPlacePhotos";
 import { tbPhotoUrl } from "../../../lib/todaysBest";
-import { hasPlacePhotoRef } from "../../../lib/placePhoto";
+import { hasPlacePhotoRef, isGooglePlaceId, ownedPlacePhotoSrc } from "../../../lib/placePhoto";
+import { seedPlacePhoto } from "../../../lib/photoAnswers.js";
 import { useCuratorPicks, applyCuratorPicks } from "../../../lib/curatorPicks";
 import { shareCard } from "../../../lib/cardActions";
 import { openShareFlow } from "../../../lib/shareFlow.js";
@@ -89,7 +89,7 @@ export default function MapScreen({ ctx }) {
   const {
     searchMapArea, mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride,
     map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy,
-    center, deviceLoc: rawDeviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch,
+    center, deviceLoc: rawDeviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch, mapCatRev,
     mapUrlLens, setMapUrlLens, mapUrlPlaceId, setMapUrlPlaceId,
     mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable,
     mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer,
@@ -137,6 +137,7 @@ export default function MapScreen({ ctx }) {
   const [showRings, setShowRings] = useState(false);
   const [hoveredPinId, setHoveredPinId] = useState(null);
   const [drawerFilter, setDrawerFilter] = useState("");
+  const [clusterSelection, setClusterSelection] = useState(null);
   const [viewport, setViewport] = useState(null);
   const [areaPlaces, setAreaPlaces] = useState([]);
   const [areaStatus, setAreaStatus] = useState("loading");
@@ -363,12 +364,26 @@ export default function MapScreen({ ctx }) {
       const pins = selectListMapPlaces(listIds, rawList);
       return { places: pins, evaluated: new Map(), exclusions: new Map(), rawPool: rawList };
     }
-    const strictSelected = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
-    const sparseSelected = strictSelected.length > 0
-      ? strictSelected
-      : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
-    const sparseFallback = strictSelected.length === 0 && sparseSelected.length > 0;
-    const modeSelected = mapMode === "fifa" ? sparseSelected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : sparseSelected;
+    const curatedArea = applyCuratorPicks(liveAreaPlaces, curatorSnap);
+    const effectiveSub = allCategories ? "all" : sub;
+    const topUp = selectMapPlacesWithSparseTopUp(curatedArea, mapCategory, viewport, effectiveSub);
+    let selectedPool = topUp.places;
+    let sparseFallback = topUp.sparseFallback;
+    let areaWidened = false;
+    if (
+      selectedPool.length === 0
+      && areaStatus === "ready"
+      && activeLens === "all"
+      && validMapBounds(viewport)
+    ) {
+      const widened = selectNearestAreaFallback(curatedArea, mapCategory, effectiveSub, cameraCenter || center);
+      if (widened.length > 0) {
+        selectedPool = widened;
+        sparseFallback = widened.some((p) => !mapPlaceQualifies(p));
+        areaWidened = true;
+      }
+    }
+    const modeSelected = mapMode === "fifa" ? selectedPool.filter((p) => Hol.fitFor("worldcup", p) >= 8) : selectedPool;
     const res = rankMapCandidates(modeSelected, {
       verifiedDeviceLoc: deviceLoc,
       referenceCenter: cameraCenter || center,
@@ -377,10 +392,10 @@ export default function MapScreen({ ctx }) {
       lens: effectiveLens,
       category: "all",
       sub: "all",
-      skipScoreFloor: sparseFallback,
+      skipScoreFloor: sparseFallback || areaWidened,
     });
-    return { ...res, sparseFallback, rawPool: liveAreaPlaces };
-  }, [mapSearchPins, mapSearch, liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, listIds, listInventory, appleRecovery.places, effectiveLens, deviceLoc, cameraCenter, center, weather, beachSignals]);
+    return { ...res, sparseFallback, areaWidened, rawPool: liveAreaPlaces };
+  }, [mapSearchPins, mapSearch, liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, listIds, listInventory, appleRecovery.places, effectiveLens, activeLens, areaStatus, deviceLoc, cameraCenter, center, weather, beachSignals]);
 
   const view = useMemo(() => {
     // Same pins, same array: the list's parent re-renders must not re-fit the
@@ -390,6 +405,24 @@ export default function MapScreen({ ctx }) {
     if (stableList.current.k !== k) stableList.current = { k, pins };
     return stableList.current.pins;
   }, [rankedBundle, activeLens]);
+
+  const widenScopeKey = `${mapCategory}|${allCategories ? "all" : sub}|${center?.lat}|${center?.lng}`;
+  const [consumedWidenKey, setConsumedWidenKey] = useState("");
+  const pendingWidenFitRef = useRef({ key: "", viewport: null });
+  const shouldFitWidened = !!rankedBundle.areaWidened && view.length > 0 && consumedWidenKey !== widenScopeKey;
+  useEffect(() => {
+    if (shouldFitWidened) {
+      if (pendingWidenFitRef.current.key !== widenScopeKey) {
+        pendingWidenFitRef.current = { key: widenScopeKey, viewport };
+      } else if (pendingWidenFitRef.current.viewport !== viewport) {
+        setConsumedWidenKey(widenScopeKey);
+        pendingWidenFitRef.current = { key: "", viewport: null };
+      }
+    } else if (pendingWidenFitRef.current.key === widenScopeKey && pendingWidenFitRef.current.viewport !== viewport) {
+      setConsumedWidenKey(widenScopeKey);
+      pendingWidenFitRef.current = { key: "", viewport: null };
+    }
+  }, [shouldFitWidened, widenScopeKey, viewport]);
 
   const openNowBreakdown = useMemo(() => {
     if (activeLens !== "open_now" || view.length > 0) return null;
@@ -550,20 +583,29 @@ export default function MapScreen({ ctx }) {
     } catch (e) {}
   }, [listAccounting, unpinnedNote, appleRecovery, wfMapListPayload, scopeMode, activeLens, effectiveLens, mapSearch, locationTruth, view, rankedBundle, itineraryAnalysis, liveAreaPlaces, contextPool, deviceLoc, cameraCenter, center, weather, beachSignals, viewport, mapCategory, allCategories, sub]);
 
-  const prevCatSubRef = useRef(`${cat}|${sub}`);
+  const prevCatSubRef = useRef(`${cat}|${sub}|${mapCatRev || 0}`);
   useEffect(() => {
-    const key = `${cat}|${sub}`;
+    const key = `${cat}|${sub}|${mapCatRev || 0}`;
     if (prevCatSubRef.current !== key) {
       prevCatSubRef.current = key;
       setAllCategories(false);
+      setClusterSelection(null);
     }
-  }, [cat, sub]);
+  }, [cat, sub, mapCatRev]);
+
+  useEffect(() => {
+    setClusterSelection(null);
+  }, [allCategories, activeLens, mapSearch, center?.lat, center?.lng]);
+
+  useEffect(() => {
+    if (!mapPreview && !mapDrawer) setClusterSelection(null);
+  }, [mapPreview, mapDrawer]);
 
   useEffect(() => {
     if (mapSearchPins) { if (mapPreview && !view.some((p) => p.id === mapPreview.id)) setMapPreview(null); return; }
     if (explicitList) { if (mapPreview && !view.some((p) => p.id === mapPreview.id)) setMapPreview(null); return; }
-    if (mapPreview && !keepMapPreview(mapPreview, view, mapCategory, areaStatus, { allowSparseFallback: !!rankedBundle.sparseFallback })) setMapPreview(null);
-  }, [mapPreview, view, mapCategory, areaStatus, setMapPreview, explicitList, mapSearchPins, rankedBundle.sparseFallback]);
+    if (mapPreview && !keepMapPreview(mapPreview, view, mapCategory, areaStatus, { allowSparseFallback: !!(rankedBundle.sparseFallback || rankedBundle.areaWidened) })) setMapPreview(null);
+  }, [mapPreview, view, mapCategory, areaStatus, setMapPreview, explicitList, mapSearchPins, rankedBundle.sparseFallback, rankedBundle.areaWidened]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -571,13 +613,14 @@ export default function MapScreen({ ctx }) {
       const tag = e.target && e.target.tagName ? String(e.target.tagName).toLowerCase() : "";
       if (tag === "input" || tag === "textarea" || tag === "select") return;
       if (e.key === "Escape") {
-        if (mapPreview) { setMapPreview(null); return; }
+        if (mapPreview) { setClusterSelection(null); setMapPreview(null); return; }
         if (eventPreview) { setEventPreview(null); return; }
         if (planContextPlace) { setPlanContextPlace(null); return; }
-        if (mapDrawer) { setMapDrawer(false); return; }
+        if (mapDrawer) { setClusterSelection(null); setMapDrawer(false); return; }
         if (filtersExpanded) { setFiltersExpanded(false); }
       } else if (mapPreview && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
-        const ranked = (view || []).filter((x) => x && x.id);
+        const useCluster = Array.isArray(clusterSelection) && clusterSelection.length > 1 && clusterSelection.some((x) => x && x.id === mapPreview.id);
+        const ranked = (useCluster ? clusterSelection : view || []).filter((x) => x && x.id);
         const idx = ranked.findIndex((x) => x.id === mapPreview.id);
         if (idx < 0 || !ranked.length) return;
         e.preventDefault();
@@ -591,28 +634,40 @@ export default function MapScreen({ ctx }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mapPreview, eventPreview, planContextPlace, mapDrawer, filtersExpanded, view, setMapPreview, setEventPreview, setMapDrawer, setMapFocus]);
+  }, [mapPreview, eventPreview, planContextPlace, mapDrawer, filtersExpanded, view, clusterSelection, setMapPreview, setEventPreview, setMapDrawer, setMapFocus]);
 
-  const photoWants = [];
-  if (mapPreview) photoWants.push(mapPreview);
-  if (mapDrawer && Array.isArray(view)) for (const p of view.slice(0, 12)) photoWants.push(p);
-  const healCenter = (mapPreview && mapPreview.coordSource !== "apple_live" && Number.isFinite(Number(mapPreview.lat)) && Number.isFinite(Number(mapPreview.lng)))
-    ? { lat: Number(mapPreview.lat), lng: Number(mapPreview.lng) }
-    : center;
-  const photoRefFor = useMissingPlacePhotos(photoWants.filter((p) => p.coordSource !== "apple_live"), healCenter, mapMode === "places");
+  useEffect(() => {
+    for (const list of [areaPlaces, listPins, contextPool]) {
+      if (!Array.isArray(list)) continue;
+      for (const p of list) {
+        if (p && p.id && p.wfPhoto?.src) seedPlacePhoto(p.id, p.wfPhoto);
+      }
+    }
+  }, [areaPlaces, listPins, contextPool]);
+
   const withPhoto = (p) => {
     if (!p) return p;
     p = cardPlace(p);
+    if (p.wfPhoto?.src) {
+      seedPlacePhoto(p.id, p.wfPhoto);
+      if (p.wfPhoto.credit && isGooglePlaceId(p.id) && !p.wfPhoto.src.startsWith("/api/photo/stored/")) {
+        return { ...p, photo: ownedPlacePhotoSrc(p.id, 640, true), photoNoSpend: true };
+      }
+      return { ...p, photo: p.wfPhoto.src, photoNoSpend: true };
+    }
+    if (typeof p.photo === "string" && p.photo) {
+      if (p.photo.startsWith("/api/photo?") && !/[?&]nospend=1(?:&|$)/.test(p.photo)) {
+        return { ...p, photo: p.photo + "&nospend=1", photoNoSpend: true };
+      }
+      return { ...p, photoNoSpend: true };
+    }
     const own = p.photoRef || p.photo_ref;
-    if (hasPlacePhotoRef(own) && typeof p.photo === "string" && p.photo) return p;
     if (hasPlacePhotoRef(own)) {
       const url = tbPhotoUrl(own, 480);
-      return url ? { ...p, photoRef: own, photo: url } : p;
+      return url ? { ...p, photoRef: own, photo: url + "&nospend=1", photoNoSpend: true } : p;
     }
-    const ref = photoRefFor(p);
-    if (!ref) return p;
-    const url = tbPhotoUrl(ref, 480);
-    return url ? { ...p, photoRef: ref, photo: url } : p;
+    const nospendUrl = ownedPlacePhotoSrc(p.id, 640, true);
+    return nospendUrl ? { ...p, photo: nospendUrl, photoNoSpend: true } : p;
   };
 
   useEffect(() => {
@@ -677,16 +732,10 @@ export default function MapScreen({ ctx }) {
   const matchesDrawerFilter = (p) => !filterTrim || `${p?.name || ""} ${p?.type || ""} ${p?.sub || ""} ${p?.cuisine || ""} ${p?.city || ""}`.toLowerCase().includes(filterTrim);
   const filteredView = filterTrim ? view.filter(matchesDrawerFilter) : view;
   const nearbyAllPlaces = (!explicitList && mapMode === "places")
-    ? (() => {
-        const strictAll = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all");
-        return strictAll.length > 0 ? strictAll : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all");
-      })()
+    ? selectMapPlacesWithSparseTopUp(applyCuratorPicks(liveAreaPlaces, curatorSnap), "all", viewport, "all").places
     : [];
   const nearbyCategoryPlaces = (!explicitList && mapMode === "places" && !allCategories && sub !== "all")
-    ? (() => {
-        const strictCat = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), cat, viewport, "all");
-        return strictCat.length > 0 ? strictCat : selectMapPlacesSparseFallback(applyCuratorPicks(liveAreaPlaces, curatorSnap), cat, viewport, "all");
-      })()
+    ? selectMapPlacesWithSparseTopUp(applyCuratorPicks(liveAreaPlaces, curatorSnap), cat, viewport, "all").places
     : [];
   const activeCategoryName = { food: "Food", nightlife: "Nightlife", attractions: "Activities", beach: "Beach", hotels: "Hotels", shopping: "Shopping" }[cat] || "this filter";
   const activeSubLabel = sub && sub !== "all"
@@ -699,6 +748,19 @@ export default function MapScreen({ ctx }) {
     ? scopeMode.areaLabel
     : (cityNowLabel || scopeMode.areaLabel || "Area");
   const shouldShowOrigin = explicitList || showRings || !!deviceLoc;
+  const clusterIdSet = useMemo(() => (Array.isArray(clusterSelection) && clusterSelection.length > 1 ? new Set(clusterSelection.map((x) => x && x.id).filter(Boolean)) : null), [clusterSelection]);
+  const handleSelectCluster = (clusterPlaces) => {
+    if (!Array.isArray(clusterPlaces) || !clusterPlaces.length) return;
+    setHoveredPinId(null);
+    setFiltersExpanded(false);
+    setPlanContextPlace(null);
+    setClusterSelection(clusterPlaces.length > 1 ? clusterPlaces : null);
+    setMapPreview(clusterPlaces[0]);
+    setMapDrawer(false);
+    const rk = 1 + view.findIndex((x) => x.id === clusterPlaces[0].id);
+    sessionTrackerRef.current?.notePinSelected(actionPlace(clusterPlaces[0]), { rank: rk, lens: effectiveLens });
+    try { logEvent("map_pin_tap", actionPlace(clusterPlaces[0]), { rank: rk, cluster_size: clusterPlaces.length }); logEvent("map_pin_selected", actionPlace(clusterPlaces[0]), {}); } catch (e) {}
+  };
 
   return (
     <div className="wf-map-explorer" style={{ position: "relative", width: "100%", height: "100%" }}>
@@ -714,6 +776,7 @@ export default function MapScreen({ ctx }) {
             setFiltersExpanded(false);
             setDrawerFilter("");
             setHoveredPinId(null);
+            setClusterSelection(null);
             setMapPreview(null);
           }}
           onCat={(id, label) => {
@@ -723,6 +786,7 @@ export default function MapScreen({ ctx }) {
             setAllCategories(false);
             setDrawerFilter("");
             setHoveredPinId(null);
+            setClusterSelection(null);
             setMapPreview(null);
             if (id === cat && !allCategories) setFiltersExpanded((v) => !v);
             else setFiltersExpanded(true);
@@ -733,6 +797,7 @@ export default function MapScreen({ ctx }) {
             setAreaOnly(true);
             setAllCategories(false);
             setHoveredPinId(null);
+            setClusterSelection(null);
             setSub(v);
           }}
           trailing={
@@ -799,8 +864,8 @@ export default function MapScreen({ ctx }) {
           <circle cx="12" cy="9.8" r="2.5" fill={deviceLoc ? "#FFFFFF" : "#F97316"} />
         </svg>
       </button>
-      {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} styleMode="3d" fit={explicitList || (!!mapSearchPins && view.length > 0)} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-        : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList || (!!mapSearchPins && view.length > 0)} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
+      {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} styleMode="3d" fit={explicitList || (!!mapSearchPins && view.length > 0) || shouldFitWidened} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setClusterSelection(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectCluster={handleSelectCluster} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
+        : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList || (!!mapSearchPins && view.length > 0) || shouldFitWidened} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings={showRings} showOrigin={shouldShowOrigin} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id ? mapPreview.id : activeHoverId} onSelect={(p) => { setHoveredPinId(null); setFiltersExpanded(false); setPlanContextPlace(null); setClusterSelection(null); setMapPreview(p); setMapDrawer(false); const rk = 1 + view.findIndex((x) => x.id === p.id); sessionTrackerRef.current?.notePinSelected(actionPlace(p), { rank: rk, lens: effectiveLens }); try { logEvent("map_pin_tap", actionPlace(p), { rank: rk }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectCluster={handleSelectCluster} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
       {mapMode === "places" && !appleMapFailed && (bannerStatus === "error" || !view.length) && (
         <div role="status" data-wf-map-empty-state={bannerStatus === "ready" && !view.length ? (mapSearch && mapSearch.query ? "search_empty" : (activeLens === "open_now" && openNowBreakdown && openNowBreakdown.total > 0 ? "open_now_empty" : (nearbyCategoryPlaces.length > 0 || nearbyAllPlaces.length > 0 ? "recovery" : "empty"))) : bannerStatus} style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", bottom: 76, maxWidth: "calc(100% - 24px)", zIndex: 19, background: "rgba(11,16,24,.94)", border: "1px solid rgba(255,255,255,.12)", color: C.text, borderRadius: 999, padding: "8px 15px", fontSize: 12, fontWeight: 700, boxShadow: "0 10px 26px rgba(0,0,0,.42)", display: "inline-flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", pointerEvents: bannerStatus === "loading" ? "none" : "auto" }}>
           {bannerStatus === "loading" && (
@@ -913,8 +978,9 @@ export default function MapScreen({ ctx }) {
       )}
       {mapMode !== "events" && mapPreview && (!map3D || mapPreview.coordSource !== "apple_live") && (() => {
         const mp = mapPreview;
+        const inCluster = Array.isArray(clusterSelection) && clusterSelection.length > 1 && clusterSelection.some((x) => x && x.id === mp.id);
         const activeSet = filterTrim && filteredView.some((x) => x && x.id === mp.id) ? filteredView : view;
-        const ranked = (activeSet || []).filter((x) => x && x.id);
+        const ranked = (inCluster ? clusterSelection : activeSet || []).filter((x) => x && x.id);
         const idx = ranked.findIndex((x) => x.id === mp.id);
         const pos = idx >= 0 ? idx + 1 : null;
         const step = (dir) => {
@@ -931,7 +997,7 @@ export default function MapScreen({ ctx }) {
             onTouchStart={(e) => { mapCardTouch.current = e.touches[0].clientY; }}
             onTouchEnd={(e) => {
               const dy = e.changedTouches[0].clientY - (mapCardTouch.current || 0);
-              if (dy > 60) setMapPreview(null);
+              if (dy > 60) { setClusterSelection(null); setMapPreview(null); }
             }}
             style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, background: "transparent", border: "none", boxShadow: "none", overflow: "visible" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6, pointerEvents: "none" }}>
@@ -939,19 +1005,22 @@ export default function MapScreen({ ctx }) {
                 {ranked.length > 1 && (
                   <div style={{ display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 6px", borderRadius: 999, background: "rgba(11,16,24,.9)", border: "1px solid rgba(255,255,255,.15)", boxShadow: "0 6px 16px rgba(0,0,0,.4)" }}>
                     <button type="button" onClick={() => step(-1)} aria-label="Previous place" style={{ width: 26, height: 24, border: "none", background: "transparent", color: "#FFFFFF", borderRadius: 999, cursor: "pointer", fontSize: 16, lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>&#8249;</button>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: C.light, padding: "0 3px", whiteSpace: "nowrap" }}>{pos ? `${pos} / ${ranked.length}` : ranked.length}</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: C.light, padding: "0 3px", whiteSpace: "nowrap" }}>{pos ? `${pos} / ${ranked.length}${inCluster ? " here" : ""}` : ranked.length}</span>
                     <button type="button" onClick={() => step(1)} aria-label="Next place" style={{ width: 26, height: 24, border: "none", background: "transparent", color: "#FFFFFF", borderRadius: 999, cursor: "pointer", fontSize: 16, lineHeight: 1, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>&#8250;</button>
                   </div>
                 )}
-                <button type="button" onClick={() => { setPlanContextPlace(mp); requestParkingFor(mp); setMapPreview(null); setMapDrawer(true); }} aria-label={`Parking and nearby pairings for ${mp.name}`} style={{ padding: "5px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.15)", background: "rgba(11,16,24,.9)", color: C.light, fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 6px 16px rgba(0,0,0,.4)" }}>Parking &amp; nearby</button>
+                {inCluster && (
+                  <button type="button" data-wf-cluster-list onClick={() => { setMapPreview(null); setMapDrawer(true); }} style={{ padding: "5px 10px", borderRadius: 999, border: "1px solid rgba(249,115,22,.45)", background: "rgba(249,115,22,.2)", color: "#FDBA74", fontSize: 11, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 6px 16px rgba(0,0,0,.4)" }}>All {ranked.length} here</button>
+                )}
+                <button type="button" onClick={() => { setPlanContextPlace(mp); requestParkingFor(mp); setClusterSelection(null); setMapPreview(null); setMapDrawer(true); }} aria-label={`Parking and nearby pairings for ${mp.name}`} style={{ padding: "5px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.15)", background: "rgba(11,16,24,.9)", color: C.light, fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 6px 16px rgba(0,0,0,.4)" }}>Parking &amp; nearby</button>
               </div>
-              <button type="button" onClick={() => setMapPreview(null)} aria-label="Close" style={{ pointerEvents: "auto", width: 32, height: 32, borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", background: "rgba(11,16,24,.92)", color: "#FFFFFF", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(0,0,0,.42)" }}>&#10005;</button>
+              <button type="button" onClick={() => { setClusterSelection(null); setMapPreview(null); }} aria-label="Close" style={{ pointerEvents: "auto", width: 32, height: 32, borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", background: "rgba(11,16,24,.92)", color: "#FFFFFF", fontSize: 13, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(0,0,0,.42)" }}>&#10005;</button>
             </div>
             <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
               <IconicPlaceCard
                 place={withPhoto(mp)}
                 rank={pos}
-                editorial={typeof blurb === "string" ? blurb : null}
+                editorial={typeof blurb === "string" ? blurb : (typeof mp.editorial === "string" ? mp.editorial : (mp.editorialSummary?.text || null))}
                 aiSummary={blurb && typeof blurb === "object" ? blurb : null}
                 saved={isSaved(mp.id)}
                 liked={!!(liked && liked[mp.id])}
@@ -1011,14 +1080,20 @@ export default function MapScreen({ ctx }) {
       })()}
       {mapMode === "places" && !mapPreview && mapDrawer && view.length > 0 && (
         <div className="wf-map-results is-drawer-open" style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, maxWidth: "calc(100% - 24px)", boxSizing: "border-box", background: "rgba(11,16,24,.9)", border: "1px solid rgba(255,255,255,.12)", borderRadius: 18, boxShadow: "0 10px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08)", maxHeight: "min(44vh, 350px)", transition: "max-height .24s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-          <button onClick={() => { setHoveredPinId(null); setMapDrawer(false); }} aria-expanded="true" aria-label="Collapse list" style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+          <button onClick={() => { setHoveredPinId(null); setClusterSelection(null); setMapDrawer(false); }} aria-expanded="true" aria-label="Collapse list" style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
             <div style={{ width: 32, height: 3.5, background: C.border, borderRadius: 2, margin: "7px auto 4px" }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", padding: "2px 16px 10px" }}>
-              <span style={{ fontSize: 12, lineHeight: "18px", fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{filterTrim ? `${filteredView.length} of ${view.length}` : view.length}</span> place{view.length === 1 ? "" : "s"} in view · {mapStatus === "ready" ? (rankedBundle.sparseFallback ? "Best nearby" : rankingLabel) : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
+              <span style={{ fontSize: 12, lineHeight: "18px", fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{filterTrim ? `${filteredView.length} of ${view.length}` : view.length}</span> place{view.length === 1 ? "" : "s"} in view · {mapStatus === "ready" ? (rankedBundle.areaWidened ? "Closest nearby" : rankedBundle.sparseFallback ? "Best nearby" : rankingLabel) : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
               <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: C.accent, fontWeight: 800 }}>Hide list ▾</span>
             </div>
           </button>
           <>
+              {clusterIdSet && (
+                <div data-wf-cluster-banner style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, margin: "0 14px 8px", padding: "6px 10px", borderRadius: 10, background: "rgba(249,115,22,.14)", border: "1px solid rgba(249,115,22,.38)", fontSize: 11.5, color: "#FDBA74", fontWeight: 700 }}>
+                  <span>Showing {clusterSelection.length} places at this location</span>
+                  <button type="button" onClick={() => setClusterSelection(null)} style={{ flexShrink: 0, padding: "2px 8px", borderRadius: 999, border: "1px solid rgba(249,115,22,.45)", background: "transparent", color: "#FDBA74", fontSize: 11, fontWeight: 800, cursor: "pointer" }}>Show all {view.length}</button>
+                </div>
+              )}
               {mapSearch && mapSearch.query && (
                 <div data-wf-map-search-banner style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, margin: "0 14px 8px", padding: "6px 10px", borderRadius: 10, background: "rgba(249,115,22,.14)", border: "1px solid rgba(249,115,22,.38)", fontSize: 11.5, color: "#FDBA74", fontWeight: 700 }}>
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Showing map results for &ldquo;{mapSearch.query}&rdquo;{scopeMode.areaLabel && scopeMode.areaLabel !== "Map area" ? ` in ${scopeMode.areaLabel}` : ""}</span>
@@ -1093,9 +1168,9 @@ export default function MapScreen({ ctx }) {
                     <button type="button" onClick={() => setDrawerFilter("")} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: "none", fontWeight: 800, cursor: "pointer" }}>Clear filter</button>
                   </div>
                 )}
-                {view.map((p, i) => matchesDrawerFilter(p) && (
+                {view.map((p, i) => (!clusterIdSet || clusterIdSet.has(p?.id)) && matchesDrawerFilter(p) && (
                   <div key={p.id} onMouseEnter={() => setHoveredPinId(p.id)} onMouseLeave={() => setHoveredPinId((prev) => (prev === p.id ? null : prev))}>
-                    <PlaceCard p={withPhoto(p)} rank={i + 1} saved={isSaved(p.id)} liked={!!(liked && liked[p.id])} disliked={!!(disliked && disliked[p.id])} onDetail={() => { setHoveredPinId(null); setFiltersExpanded(false); setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, coordSource: p.coordSource, ts: Date.now() }); setMapDrawer(false); }} onSave={() => quickSaveFavorite(actionPlace(p))} onLike={(e) => toggleLike(e, actionPlace(p))} onDislike={(e) => toggleDislike(e, actionPlace(p))} onShareCard={(pl) => { try { addShared(actionPlace(p)); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id] || p.line} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals && beachSignals[p.id]} city={cityNowLabel || p.locality || p.city} />
+                    <PlaceCard p={withPhoto(p)} rank={i + 1} saved={isSaved(p.id)} liked={!!(liked && liked[p.id])} disliked={!!(disliked && disliked[p.id])} onDetail={() => { setHoveredPinId(null); setFiltersExpanded(false); setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, coordSource: p.coordSource, ts: Date.now() }); setMapDrawer(false); }} onSave={() => quickSaveFavorite(actionPlace(p))} onLike={(e) => toggleLike(e, actionPlace(p))} onDislike={(e) => toggleDislike(e, actionPlace(p))} onShareCard={(pl) => { try { addShared(actionPlace(p)); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id] || p.line || p.editorial || p.editorialSummary?.text} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals && beachSignals[p.id]} city={cityNowLabel || p.locality || p.city} />
                   </div>
                 ))}
               </div>

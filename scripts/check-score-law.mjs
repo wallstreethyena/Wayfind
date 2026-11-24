@@ -349,7 +349,7 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
   const mapSrc = readFileSync(path.resolve("app/components/screens/Map.js"), "utf8");
   const mapArea = readFileSync(path.resolve("lib/mapAreaData.js"), "utf8");
   ok(/p\.governed_score = governedScoreOf\(p, row\.metro\)/.test(mapArea) && /byGovernedScore\(a, b\)/.test(mapArea)
-    && /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(mapSrc),
+    && /selectMapPlaces(?:WithSparseTopUp)?\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(mapSrc),
     "the full map pool uses the same governed score (including recorded trend and creator inputs) that the shared card displays");
   // Owner 2026-11-23: the map preview renders the iconic homepage IconicPlaceCard
   // (which owns the 🔥 trend_reason disclosure and WayfindScoreBadge) instead of MapCompactPreviewCard.

@@ -19,10 +19,13 @@ export default function ThisWeekEvents({ events, guide = null }) {
   return (
     <section aria-label="This week in Florida" style={{ marginBottom: 12 }}>
       <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 4 }}>This week in Florida</div>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: guide && guide.brief ? 4 : 8 }}>
         <span style={{ fontSize: 12, color: "#8D9AAB" }}>Dated events with verified pages</span>
         <a href="/florida-events" style={{ fontSize: 12, fontWeight: 700, color: C.text, textDecoration: "none", whiteSpace: "nowrap" }}>See all events</a>
       </div>
+      {guide && guide.brief ? (
+        <div data-florida-intel-brief style={{ fontSize: 12, color: "#B8C4D4", lineHeight: 1.4, marginBottom: 8 }}>{guide.brief}</div>
+      ) : null}
       <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
         {cards.map((e) => (
           <a key={e.slug} href={e.href} data-hub={e.hub ? e.slug : undefined} style={{ flex: "0 0 168px", scrollSnapAlign: "start", textDecoration: "none", border: "1px solid " + C.border, borderRadius: 14, background: "#0B0E15", overflow: "hidden", fontFamily: "var(--wf-sans)" }}>

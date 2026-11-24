@@ -184,9 +184,9 @@ await Promise.all(allEntries.map(async ({ slug, pickName, entry }) => {
 // ── 4/5. LICENSE ALLOW-LIST + LICENSE URL MAPPING + NO ND/NC/GFDL ─────────
 const CC_RX = /^CC (BY|BY-SA) (2\.0|2\.5|3\.0|4\.0)$/;
 const PERMISSION_RX = /^Used with permission of .+ \(owner-confirmed \d{4}-\d{2}-\d{2}\); credit required$/;
-// Owner, 23 November 2026: a restaurant's own website photo may be used on a
-// restaurant guide pick, credited to the venue, when no freely licensed photo
-// exists. This exact string is the only venue-website license the guard accepts.
+// Owner, 23 November 2026: a venue's own official photo may be used on a guide
+// pick, credited to the venue, when no freely licensed photo exists. This exact
+// string is the only venue-website license the guard accepts.
 const VENUE_WEBSITE_GUIDE_PICK_LICENSE = "venue website photo, owner authorized Nov 23 2026 for guide picks";
 const isVenueWebsiteGuidePickLicense = (license) => String(license) === VENUE_WEBSITE_GUIDE_PICK_LICENSE;
 const ALLOWED_LICENSE_STRINGS = new Set([
@@ -236,9 +236,9 @@ function licenseProblem(license, licenseUrl) {
     }
   }
   ok(licenseProblem("Used with permission of Ringling Museum (owner-confirmed 2026-09-22); credit required", "https://www.ringling.org/") === null, "positive control: a well-formed permission license is legal");
-  ok(licenseProblem(VENUE_WEBSITE_GUIDE_PICK_LICENSE, "https://www.parkshoregrill.com/private-dining.html") === null, "positive control: the venue website guide pick license is legal with an https source page");
-  ok(licenseProblem(VENUE_WEBSITE_GUIDE_PICK_LICENSE, "http://www.parkshoregrill.com/private-dining.html") !== null, "red-proof: a venue website guide pick license still needs an https licenseUrl");
-  ok(licenseProblem("venue website photo, all rights reserved", "https://www.parkshoregrill.com/") !== null, "red-proof: a vague venue website license is not accepted");
+  ok(licenseProblem(VENUE_WEBSITE_GUIDE_PICK_LICENSE, "https://seaworld.com/orlando/events/christmas-celebration/shows/") === null, "positive control: the venue website guide pick license is legal with an https source page");
+  ok(licenseProblem(VENUE_WEBSITE_GUIDE_PICK_LICENSE, "http://seaworld.com/orlando/events/christmas-celebration/shows/") !== null, "red-proof: a venue website guide pick license still needs an https licenseUrl");
+  ok(licenseProblem("venue website photo, all rights reserved", "https://seaworld.com/orlando/") !== null, "red-proof: a vague venue website license is not accepted");
   ok(licenseProblem("Unsplash License", "https://unsplash.com/license") === null, "positive control: free Unsplash license accepted at its canonical URL");
   ok(licenseProblem("CC BY 3.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") === null, "positive control: the source-verified BY 3.0 US deed is preserved");
   ok(licenseProblem("CC BY-SA 3.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") !== null, "red-proof: US deed cannot change BY-SA into BY");

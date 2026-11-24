@@ -132,6 +132,9 @@ export const config = {
     "/api/reserve/agent/code",
     "/api/reserve/browser",
     "/api/viator/tours",
+    // Explicit Thanksgiving browser search can call the existing Viator API.
+    // Full origin and burst protection applies before any catalog/provider read.
+    "/api/holidays/thanksgiving",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
     // Browser-only same-origin XHR, so apply the full request guard.
@@ -186,6 +189,9 @@ export const config = {
     // access keeps that derived catalogue from becoming a public bulk-export
     // endpoint while the ordinary homepage request continues unchanged.
     "/api/trends/nearby",
+    // Florida Trending & Holiday Intelligence read endpoint (Gemini-monitored
+    // cache + deterministic fallback). Same-origin + per-IP rate limit.
+    "/api/intelligence/florida",
     // Commerce redirect (#469's missing half): /api/commerce/go is the GET-302
     // every schema-approved money link resolves through. It is matched to get the
     // per-IP rate limit — it mints a click_id and reads wf_experiences via the

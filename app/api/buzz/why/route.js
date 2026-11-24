@@ -4,11 +4,11 @@ export const runtime = "nodejs";
 // (which sources moved, percentile, freshness) plus the place's identity.
 // It explains what the DATA says — it never invents crowds, waits, lines,
 // or "busiest right now" claims (we have popularity signals, not door
-// counts). Shared 1-day pool per place (lib/serverCache). METERED Anthropic
+// counts). Shared 1-day pool per place (lib/serverCache). METERED OpenAI
 // proxy — this path MUST stay in middleware.js's matcher (the
 // /api/bestmove/why lesson).
-import { aiKey } from "../../../../lib/aiKey";
-import { paidAnthropicRequest } from "../../../../lib/paidAi";
+import { openaiKey } from "../../../../lib/openaiKey";
+import { paidOpenAiRequest, extractOpenAiText, OPENAI_DEFAULT_MODEL } from "../../../../lib/paidOpenAi";
 import { cget, cset, DAY } from "../../../../lib/serverCache";
 
 // The Atlas-590 voice, distilled for a single trending line (docs/
@@ -30,7 +30,7 @@ export async function POST(req) {
     const ckey = "buzz1|" + String(p.place_id).slice(0, 64);
     const hit = await cget(ckey);
     if (hit && typeof hit.v === "string") return Response.json({ line: hit.v || null, cached: true }, { status: 200 });
-    const key = aiKey();
+    const key = openaiKey();
     if (!key) return Response.json({ line: null, unavailable: true }, { status: 200 });
 
     const evidence = {
@@ -44,14 +44,21 @@ export async function POST(req) {
       by_source: p.by_source && typeof p.by_source === "object" ? p.by_source : null,
       signals_updated: String(p.freshest || "").slice(0, 24),
     };
-    const r = await paidAnthropicRequest({
-      method: "POST",
-      headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: "claude-haiku-5-5", max_tokens: 120, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(evidence) }] }),
+    const r = await paidOpenAiRequest({
+      model: OPENAI_DEFAULT_MODEL,
+      apiKey: key,
+      body: {
+        max_tokens: 120,
+        temperature: 0.3,
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content: JSON.stringify(evidence) },
+        ],
+      },
     });
     if (!r.ok) return Response.json({ line: null, error: true }, { status: 200 });
     const data = await r.json();
-    let line = (data?.content || []).filter((b) => b.type === "text").map((b) => b.text).join("").trim().replace(/^["']|["']$/g, "");
+    let line = extractOpenAiText(data).replace(/^["']|["']$/g, "");
     if (!line || /^skip$/i.test(line) || line.length > 220 || /[!—–]|hidden gem|nestled|boasts|stunning|must-see|busiest|packed|wait time/i.test(line)) line = "";
     await cset(ckey, line, 1 * DAY); // honest blanks cached too — no re-billing
     return Response.json({ line: line || null }, { status: 200 });

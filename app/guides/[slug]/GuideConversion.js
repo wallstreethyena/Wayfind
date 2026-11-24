@@ -162,11 +162,14 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
           >
             {cta.label}{cta.sponsored ? " ↗" : ""}
           </a>
+          {Array.isArray(cta.more) ? cta.more.map((extra) => (
+            <PartnerExtra key={extra.offerId || extra.label} extra={extra} slug={slug} region={region} />
+          )) : null}
 
           {/* Same sentence as the in-pick offer card, and only on a link that
               actually earns. Directions and other non-affiliate next steps
               stay quiet — a commission line under a link that earns nothing
-              is a false disclosure. */}
+              is a false disclosure. One line covers the partner buttons above. */}
           {cta.monetized && cta.sponsored ? <GuideCommissionLine /> : null}
 
           {/* Social proof NEXT TO the CTA, and only when the data exists. No
@@ -236,5 +239,29 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
         {saved ? "Saved for this trip" : "Save this guide for the trip"}
       </button>
     </section>
+  );
+}
+
+// The merchant's other seller, same block as the primary. The label is only
+// the partner name. This anchor is not data-commerce-owner'd: the page beacon
+// records its one commerce click, and this file keeps a single owner marker
+// so the analytics red-prove still has one marker to remove.
+function PartnerExtra({ extra, slug, region }) {
+  if (!extra || !extra.href || !extra.label) return null;
+  return (
+    <a
+      href={extra.href}
+      rel="noreferrer sponsored"
+      onClick={(event) => {
+        try {
+          const productEvent = "guide_cta_clicked";
+          const clickId = event.currentTarget && event.currentTarget.getAttribute("data-wf-click-id");
+          track(productEvent, { slug, region, cta_kind: "deal", monetized: true, exact: !!extra.exact, place: null, click_id: clickId });
+        } catch (e) {}
+      }}
+      style={{ display: "block", marginTop: 10, padding: "14px 18px", borderRadius: 14, background: "#F97316", color: "#0B0F14", fontSize: 16, fontWeight: 800, textAlign: "center", textDecoration: "none" }}
+    >
+      {extra.label} ↗
+    </a>
   );
 }

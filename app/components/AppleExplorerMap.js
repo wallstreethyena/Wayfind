@@ -11,16 +11,16 @@ function MapFallback({ count, onRetry }) {
 }
 
 export default function AppleExplorerMap({
-  places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus,
+  places, center, category, deviceLoc, onSelect, onSelectCluster, events, onSelectEvent, focus,
   fit, rings, compact = false, styleMode = "bright", onRetry, onLoadError,
   selectedId = null, onAreaChange = null, onViewportChange = null,
   showOrigin = true, onReady = null,
 }) {
   const hostRef = useRef(null);
   const controllerRef = useRef(null);
-  const callbacksRef = useRef({ onSelect, onSelectEvent, onAreaChange, onViewportChange, onLoadError, onReady });
+  const callbacksRef = useRef({ onSelect, onSelectCluster, onSelectEvent, onAreaChange, onViewportChange, onLoadError, onReady });
   const dataRef = useRef({ places, center, category, deviceLoc, events, selectedId, fit, rings, showOrigin, focus });
-  callbacksRef.current = { onSelect, onSelectEvent, onAreaChange, onViewportChange, onLoadError, onReady };
+  callbacksRef.current = { onSelect, onSelectCluster, onSelectEvent, onAreaChange, onViewportChange, onLoadError, onReady };
   // MapKit loads asynchronously. Keep the newest result set here so a category
   // response that arrives during SDK startup cannot be dropped and leave a
   // fully loaded Apple map with zero markers until some unrelated rerender.
@@ -41,6 +41,7 @@ export default function AppleExplorerMap({
       const controller = createAppleExplorerController({
         mapkit, container: hostRef.current, ...dataRef.current, compact,
         onSelect: (place) => callbacksRef.current.onSelect?.(place),
+        onSelectCluster: (clusterPlaces) => callbacksRef.current.onSelectCluster?.(clusterPlaces),
         onSelectEvent: (event) => callbacksRef.current.onSelectEvent?.(event),
         onAreaChange: (area) => callbacksRef.current.onAreaChange?.(area),
         onViewportChange: (bounds) => callbacksRef.current.onViewportChange?.(bounds),

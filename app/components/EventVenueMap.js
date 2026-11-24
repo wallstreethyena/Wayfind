@@ -11,6 +11,7 @@ import { VENUE_MAP_SHELL_CSS } from "./VenueMapLoading.js";
 // only the controls and summary shown below this map.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createAppleMapController, loadAppleMapKit } from "../../lib/appleMapsRuntime.js";
+import { readGrantedDeviceLocation } from "../../lib/mapPinStandard.js";
 import { appleMapsTokenUsable } from "../../lib/appleMapsToken.js";
 import { EVENT_MAP_FAMILY, eventMapFamily } from "../../lib/eventMapPlaces.js";
 import { hasParkingCoordinate } from "../../lib/appleParking.js";
@@ -36,7 +37,7 @@ ${VENUE_MAP_SHELL_CSS}
 
 const thumb = (p) => p.photo || (p.photoRef ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=640" : "/api/photo?place=" + encodeURIComponent(p.id) + "&g=2&w=640");
 
-export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady, venueKind = "event", parkingEnabled = true, nearbyStatus }) {
+export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady, venueKind = "event", parkingEnabled = true, nearbyStatus, deviceLoc = null }) {
   const hostRef = useRef(null);
   const controllerRef = useRef(null);
   // Under a PhotoPolicyProvider (guides) the pin card shows no Google photo:
@@ -49,6 +50,15 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
   const [active, setActive] = useState(null);
   const [parking, setParking] = useState({ status: "idle", places: [] });
   const [parkingAttempt, setParkingAttempt] = useState(0);
+  const [grantedLoc, setGrantedLoc] = useState(null);
+  const hasExplicitDeviceLoc = !!(deviceLoc && Number.isFinite(Number(deviceLoc.lat)) && Number.isFinite(Number(deviceLoc.lng)));
+  useEffect(() => {
+    if (hasExplicitDeviceLoc) return undefined;
+    return readGrantedDeviceLocation(setGrantedLoc);
+  }, [hasExplicitDeviceLoc]);
+  const effectiveDeviceLoc = hasExplicitDeviceLoc
+    ? { lat: Number(deviceLoc.lat), lng: Number(deviceLoc.lng) }
+    : grantedLoc;
   const parkingCache = useRef(new Map());
   const parkingRequest = useRef(0);
   // The venue the map, parking search and Walk link actually use. A provider
@@ -133,6 +143,10 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
 
   const pinIdentity = JSON.stringify(shown.map(p => [p.id, p.lat, p.lng, p.name, p.cat, p.primaryType, p.mapKind, p.mapRank]));
   useEffect(() => { controllerRef.current?.setPicks(shown); }, [pinIdentity, ready]);
+  useEffect(() => {
+    if (!ready || !controllerRef.current) return;
+    if (effectiveDeviceLoc) controllerRef.current.setUserLocation?.(effectiveDeviceLoc);
+  }, [ready, effectiveDeviceLoc?.lat, effectiveDeviceLoc?.lng]);
   useEffect(() => {
     if (active && active !== "parking" && !groups.some((group) => group.family === active)) setActive(null);
   }, [active, groups]);

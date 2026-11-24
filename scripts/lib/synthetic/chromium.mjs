@@ -68,3 +68,26 @@ export async function launchChromium(extraArgs = {}) {
   const args = [...QUIET_ARGS, ...(extraArgs.args || [])];
   return chromium.launch({ ...launchOpts, ...extraArgs, args });
 }
+
+// Required rendered guards use the same packaged Linux browser in merge CI and
+// Vercel's build image. This is a dev-only dependency: it decompresses its
+// bundled binary and AL2023 libraries, never downloads a browser at test time.
+// Optional monitor callers above keep their existing availability policy.
+export async function launchRequiredChromium() {
+  const chromium = await resolvePlaywright();
+  if (!chromium) throw new Error("Required browser check needs the Playwright development dependency.");
+  if (process.platform === "linux") {
+    const { default: portable } = await import("@sparticuz/chromium");
+    return chromium.launch({
+      headless: true,
+      // Keep Playwright's normal security and process settings; the package's
+      // convenience args also disable web security and force one process.
+      args: [...QUIET_ARGS],
+      executablePath: await portable.executablePath(),
+    });
+  }
+  const macChrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+  const options = existsSync(macChrome) ? { executablePath: macChrome } : resolveLaunchOptions(chromium);
+  if (!options) throw new Error("Required browser check needs an installed Chromium executable.");
+  return chromium.launch({ ...options, headless: true, args: [...QUIET_ARGS] });
+}

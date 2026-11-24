@@ -1,4 +1,6 @@
+import { notFound } from "next/navigation";
 import { CreatorPage, creatorMetadata, creatorSlugs } from "../../../lib/creatorPages";
+import { hasCreatorPage } from "../../../lib/creatorVideos";
 
 // Indexable per-creator page; the canonical is carried by creatorMetadata().
 // dynamicParams=false, the same rule /trending/[city] follows: a handle that is
@@ -7,10 +9,18 @@ import { CreatorPage, creatorMetadata, creatorSlugs } from "../../../lib/creator
 // crawler enumerating handles would otherwise mine.
 export const dynamicParams = false;
 export function generateStaticParams() { return creatorSlugs().map((handle) => ({ handle })); }
-export function generateMetadata({ params }) { return creatorMetadata(params.handle); }
+export async function generateMetadata({ params }) {
+  const { handle } = await params;
+  if (!hasCreatorPage(handle)) notFound();
+  return creatorMetadata(handle);
+}
 // ASYNC: CreatorPage awaits a wf_inventory join for its map (lib/creatorPlaces.js).
 // revalidate is a day because the inputs move on that scale — a curated spot is
 // added by hand and an inventory row's rating/photo is refreshed by the ingest
 // crons — so anything shorter buys nothing and spends a database read per hit.
 export const revalidate = 86400;
-export default async function Page({ params }) { return CreatorPage({ handle: params.handle }); }
+export default async function Page({ params }) {
+  const { handle } = await params;
+  if (!hasCreatorPage(handle)) notFound();
+  return CreatorPage({ handle });
+}

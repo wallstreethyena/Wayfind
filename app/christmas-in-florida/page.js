@@ -36,6 +36,11 @@ const seasonal = seasonalSearchMetadata("christmas-in-florida");
 const title = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events | Wayfind";
 const description = "Plan Christmas in Florida 2026: light shows, theme park parties, boat parades, snow and holiday shows, with dates, hours and tickets across Orlando, Tampa Bay, Sarasota, St. Augustine and more.";
 const ogTitle = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events";
+// Versioned first-party artwork keeps shared links in the page's festive theme.
+const christmasShareImage = {
+  url: SITE_URL + "/christmas/share-christmas-v1.png",
+  alt: "Christmas in Florida by Wayfind, with colorful holiday lights, snow and a decorated tree on a burgundy background.",
+};
 export const metadata = {
   ...seasonal,
   title,
@@ -47,9 +52,9 @@ export const metadata = {
     description,
     url: SITE_URL + "/christmas-in-florida",
     siteName: "Wayfind",
-    images: [{ url: SITE_URL + "/api/og?t=" + encodeURIComponent("Christmas in Florida 2026"), width: 1200, height: 630 }],
+    images: [{ ...christmasShareImage, width: 1200, height: 630 }],
   },
-  twitter: { ...seasonal.twitter, title: ogTitle, description, images: [SITE_URL + "/api/og?t=" + encodeURIComponent("Christmas in Florida 2026")] },
+  twitter: { ...seasonal.twitter, card: "summary_large_image", title: ogTitle, description, images: [christmasShareImage] },
 };
 
 // 2026-11-03 (owner, "Fix it") — creator videos tagged with the christmas
@@ -74,9 +79,7 @@ function ChristmasCreatorPosts({ posts: allPosts, covers = {} }) {
       <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>{post.creator ? `Seen by @${post.creator}. ` : ""}Open the post here to see more.</p>
     </div>
     <CreatorVideoAction platform={post.platform} url={post.url} style={SOCIAL_LINK}
-      label={post.creator ? `Open @${post.creator}'s post about ${post.name} in Wayfind` : `Open the post about ${post.name} in Wayfind`}>
-      {post.creator ? <>Watch @{post.creator}&rsquo;s post in Wayfind</> : "Watch the post in Wayfind"}
-    </CreatorVideoAction>
+      label={post.creator ? `Open @${post.creator}'s post about ${post.name} in Wayfind` : `Open the post about ${post.name} in Wayfind`} />
   </>;
   return <section id="christmas-creators" data-christmas-section="Creator posts" style={SOCIAL} aria-label="Creator posts about Christmas in Florida">
     <h2 style={{ marginTop: 0 }}>Seen from local creators</h2>
@@ -116,7 +119,8 @@ export default async function Page() {
   // tapped that ad (lib/socialAdLanding.js SOCIAL_AD_FEATURES); the inline
   // script picks it before first paint.
   const featured = (await Promise.all(SOCIAL_AD_FEATURE_IDS.map((id) => christmasFeaturePickServable(listings, id, today)))).filter(Boolean);
-  const topPicks = [...featured, ...christmasTopPicks(tickets).filter((r) => !featured.some((f) => f.id === r.id))];
+  const tourRows = listings.filter((c) => c && c.kind === "tour" && c.tourRow).map((c) => c.tourRow);
+  const topPicks = [...featured, ...christmasTopPicks(tickets, undefined, { extraRows: tourRows }).filter((r) => !featured.some((f) => f.id === r.id))];
   const creatorPosts = seasonalCreatorVideos("christmas");
   const creatorCovers = await creatorCoversFor(creatorPosts.filter((p) => !christmasCreatorPoster(p.key)).map((p) => p.placeId));
   return <>

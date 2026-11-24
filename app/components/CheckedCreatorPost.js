@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import CreatorVideoPlayer from "./CreatorVideoPlayer";
+import { creatorPostCover } from "../../lib/creatorPostCover.js";
 import styles from "./CreatorPostRail.module.css";
 
 // One creator post tile for the shared guide creator rail (CreatorPostRail).
@@ -28,11 +29,19 @@ export function isInstagramRendered(data) {
 
 export default function CheckedCreatorPost({ post, kicker = null }) {
   const host = useRef(null);
+  const photoRef = useRef(null);
   const loadingLink = useRef(null);
   const [state, setState] = useState("idle"); // idle | loading | ready | unavailable
   const [attempt, setAttempt] = useState(0);
   const [focusAfter, setFocusAfter] = useState(false);
+  const [failedPhoto, setFailedPhoto] = useState(null);
+  const photo = creatorPostCover(post.cover);
+  const photoSrc = photo?.src;
   const started = state !== "idle";
+  useEffect(() => {
+    const image = photoRef.current;
+    if (photoSrc && image?.complete && !image.naturalWidth) setFailedPhoto(photoSrc);
+  }, [photoSrc, state]);
   useEffect(() => {
     if (!started) return undefined;
     const onMessage = (event) => {
@@ -56,12 +65,16 @@ export default function CheckedCreatorPost({ post, kicker = null }) {
   const title = post.coverTitle || post.label;
   const hidden = state !== "ready";
   const cover = <>
+    {photo && failedPhoto !== photoSrc ? <>
+      <img ref={photoRef} className={styles.coverPhoto} src={photoSrc} alt={photo.alt} loading="lazy" decoding="async" onError={() => setFailedPhoto(photoSrc)} />
+      <span className={styles.coverCredit}>Photo: {photo.credit}</span>
+    </> : null}
     <span className={styles.coverEyebrow}>THE @{post.creator} EDIT</span>
     <span className={styles.coverTitle}>{kicker ? <span>{kicker}</span> : null}{title}</span>
   </>;
   return <div ref={host} className={styles.post} data-creator-post={post.url} data-creator-post-state={state}>
     {started ? <div className={styles.player} aria-hidden={hidden ? true : undefined} inert={hidden ? "inert" : undefined}>
-      <CreatorVideoPlayer key={attempt} platform="instagram" url={post.url} label={post.label} />
+      <CreatorVideoPlayer key={attempt} platform="instagram" url={post.url} label={post.label} showRetry={false} />
     </div> : null}
     {state === "idle" ? <button type="button" className={styles.cover} onClick={start} aria-label={(photos ? "View post" : "Play in Wayfind") + ": @" + post.creator + "’s " + kind + ", " + title}>
       {cover}

@@ -3,9 +3,9 @@
   "verifiedAt": "2026-11-23",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0), or a venue website photo owner-authorized on 23 November 2026 for restaurant guide picks; NC and ND never pass.",
   "summary": {
-    "files": 415,
-    "usages": 444,
-    "verified": 415,
+    "files": 426,
+    "usages": 456,
+    "verified": 434,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
@@ -15,7 +15,7 @@
       "CC BY 3.0": 22,
       "CC BY 2.0": 104,
       "CC0 1.0 Universal": 26,
-      "venue website photo, owner authorized Nov 23 2026 for guide picks": 8,
+      "venue website photo, owner authorized Nov 23 2026 for guide picks": 19,
       "CC BY-SA 2.0": 41,
       "Unsplash License": 4,
       "Public domain": 4,
@@ -27,7 +27,8 @@
       "/guides/picks/things-to-do-daytona-beach-summer-2026/crabby-joes-sunglow-pier.webp",
       "/guides/picks/things-to-do-naples-summer-2026/fifth-avenue-south-inn-on-fifth.webp",
       "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/caladesi-ferry-dock.webp"
-    ]
+    ],
+    "totalFiles": 434
   },
   "files": [
     {
@@ -801,6 +802,161 @@
       "verifiedAt": "2026-11-23"
     },
     {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/aloha-isle-santa-surf-shack-float.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Aloha Isle"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/backlot-express-life-day-wookiee-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Backlot Express"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/cosmic-rays-mickey-the-elf.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Cosmic Ray’s Starlight Café"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-mickeys-very-merry-christmas-party/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/epcot-hot-cocoa-funnel-cake.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Funnel Cake kiosk"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/epcot-maple-leaf-shortbread-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Yukon Holiday Kitchen"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-epcot-international-festival-of-the-holidays/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
       "src": "/guides/picks/disney-world-holiday-food-guide-2026/epic-eats-cookie-butter-beignets.jpg",
       "usedBy": [
         {
@@ -863,6 +1019,99 @@
       "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/jock-lindseys-oh-christmas-brie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Jock Lindsey’s Hangar Bar"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/first-look-at-holidays-at-jock-lindseys-hangar-bar/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/karamell-kuche-caramel-mickey-holiday-cookie.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Karamell-Küche"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/kusafiri-festive-chocolate-twist.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Kusafiri Coffee Shop & Bakery"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
       "src": "/guides/picks/disney-world-holiday-food-guide-2026/main-street-confectionery-holiday-cookie-popcorn.jpg",
       "usedBy": [
         {
@@ -886,6 +1135,37 @@
         "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
         "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
         "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/santas-grove-cookie-butter-milkshake.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Cookie Butter Milkshake at Santa’s Holiday Grove"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -925,6 +1205,37 @@
       "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/swirls-gingerbread-mickey-cone.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Swirls on the Water"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
       "src": "/guides/picks/disney-world-holiday-food-guide-2026/terra-treats-reindeer-sundae.jpg",
       "usedBy": [
         {
@@ -948,6 +1259,37 @@
         "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
         "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
         "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/disney-world-holiday-food-guide-2026/woodys-hot-cocoa-lunch-box-tart.jpg",
+      "usedBy": [
+        {
+          "slug": "disney-world-holiday-food-guide-2026",
+          "role": "pick",
+          "pick": "Woody’s Lunch Box"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "title": "Walt Disney World",
+        "author": "Walt Disney World",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/"
+      },
+      "wayfind": {
+        "credit": "Walt Disney World",
+        "creditHref": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-holidays-at-walt-disney-world-resort/",
+        "modificationNotice": "Resized and converted to JPEG for display."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -1081,6 +1423,15 @@
           "slug": "fall-events-orlando-2026",
           "role": "pick",
           "pick": "FusionFest"
+        },
+        {
+          "slug": "florida-thanksgiving-weekend-2026",
+          "role": "pick",
+          "pick": "FusionFest"
+        },
+        {
+          "slug": "florida-thanksgiving-weekend-2026",
+          "role": "hero"
         }
       ],
       "source": {
@@ -2351,13 +2702,7 @@
     },
     {
       "src": "/guides/picks/florida-thanksgiving-weekend-2026/daytona-turkey-run-1940-ford-truck.jpg",
-      "usedBy": [
-        {
-          "slug": "florida-thanksgiving-weekend-2026",
-          "role": "pick",
-          "pick": "Daytona Turkey Run"
-        }
-      ],
+      "usedBy": [],
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/14580956@N08/3063924727",
@@ -5065,6 +5410,250 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/bayside-stadium.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Public ice skating at Bayside Stadium"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Bayside_Stadium.jpg",
+        "title": "Bayside Stadium",
+        "author": "Adog104",
+        "dateTaken": "2018-09-22 15:48:07",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Adog104",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Bayside_Stadium.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/holiday-reflections.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Holiday Reflections"
+        }
+      ],
+      "source": {
+        "kind": "flickr",
+        "url": "https://www.flickr.com/photos/60243770@N00/923516901",
+        "title": "More Fireworks",
+        "author": "Matt Keefe",
+        "displayName": "M. Keefe",
+        "dateTaken": "2007-07-14 21:10:14",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
+      },
+      "wayfind": {
+        "credit": "Matt Keefe",
+        "creditHref": "https://www.flickr.com/photos/60243770@N00/923516901",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/holiday-train.jpg",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Holiday train by Dolphin Nursery"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://seaworld.com/orlando/events/christmas-celebration/shows/",
+        "title": "SeaWorld",
+        "author": "SeaWorld",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://seaworld.com/orlando/events/christmas-celebration/shows/"
+      },
+      "wayfind": {
+        "credit": "SeaWorld",
+        "creditHref": "https://seaworld.com/orlando/events/christmas-celebration/shows/",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://seaworld.com/orlando/events/christmas-celebration/shows/",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/main-entrance.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Main entrance"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:The_Park_Entrance_gate_at_SeaWorld_Orlando_with_the_Sky_Tower_behind_it,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+        "title": "The Park Entrance gate at SeaWorld Orlando with the Sky Tower behind it, SeaWorld Orlando, March 2021 - ThrillZing",
+        "author": "ThrillZing",
+        "dateTaken": "2021-03-10",
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0"
+      },
+      "wayfind": {
+        "credit": "ThrillZing",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:The_Park_Entrance_gate_at_SeaWorld_Orlando_with_the_Sky_Tower_behind_it,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/manta-over-lagoon.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Mako and Manta"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Manta's_track_sweeping_over_the_lagoon_with_pink_flowers_in_the_foreground_under_a_clear_blue_sky,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+        "title": "Manta's track sweeping over the lagoon with pink flowers in the foreground under a clear blue sky, SeaWorld Orlando, March 2021 - ThrillZing",
+        "author": "ThrillZing",
+        "dateTaken": "2021-03-10",
+        "licence": "CC BY 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/4.0"
+      },
+      "wayfind": {
+        "credit": "ThrillZing",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Manta's_track_sweeping_over_the_lagoon_with_pink_flowers_in_the_foreground_under_a_clear_blue_sky,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/rudolphs-christmastown.jpg",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Rudolph's Christmastown"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "title": "SeaWorld",
+        "author": "SeaWorld",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf"
+      },
+      "wayfind": {
+        "credit": "SeaWorld",
+        "creditHref": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/sunny-day-carousel-sign.webp",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Sesame Street Christmas Parade"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Sunny_Day_Carousel_sign.jpg",
+        "title": "Sunny Day Carousel sign",
+        "author": "HyenaWaltz",
+        "dateTaken": "2024-01-11 15:11:48",
+        "licence": "CC0 1.0 Universal",
+        "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+      },
+      "wayfind": {
+        "credit": "HyenaWaltz",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Sunny_Day_Carousel_sign.jpg",
+        "license": "CC0 1.0 Universal",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23"
+    },
+    {
+      "src": "/guides/picks/seaworld-orlando-christmas-celebration-2026/winter-wonderland-on-ice.jpg",
+      "usedBy": [
+        {
+          "slug": "seaworld-orlando-christmas-celebration-2026",
+          "role": "pick",
+          "pick": "Winter Wonderland on Ice"
+        }
+      ],
+      "source": {
+        "kind": "permission",
+        "url": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "title": "SeaWorld",
+        "author": "SeaWorld",
+        "dateTaken": null,
+        "licence": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenceUrl": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf"
+      },
+      "wayfind": {
+        "credit": "SeaWorld",
+        "creditHref": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "license": "venue website photo, owner authorized Nov 23 2026 for guide picks",
+        "licenseUrl": "https://seaworld.com/orlando/-/media/commercial/seaworld-orlando/files/pdfs/press-releases/swo_2026-1030_pr-christmas-celebration-final-(2).pdf",
+        "modificationNotice": "Resized and cropped for display."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-23",
+      "verificationMethod": "owner-authorized-venue-website-photo"
     },
     {
       "src": "/guides/picks/siesta-key-drum-circle/parking-without-the-meltdown.webp",

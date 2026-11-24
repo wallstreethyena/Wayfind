@@ -85,7 +85,7 @@ function TicketCards() {
 
 function QuickAnswer() {
   return <div className={styles.quickAnswer}>
-    <p className={styles.answerLead}><strong>The short answer:</strong> the 2026 Disney World Christmas food worth planning around is spread across four parks and Disney Springs, and the EPCOT International Festival of the Holidays adds 16 food spots from {EPCOT_FESTIVAL.dates}. Here is every pick, where it is and what you need to get in.</p>
+    <p className={styles.answerLead}><strong>The short answer:</strong> find 2026 Disney World Christmas food in all four parks and at Disney Springs. The EPCOT International Festival of the Holidays runs {EPCOT_FESTIVAL.dates}. Check each pick for its location, price and admission.</p>
     <div className={styles.answerTable}><table>
       <thead><tr><th scope="col">Treat</th><th scope="col">Where</th><th scope="col">Posted price</th><th scope="col">Ticket</th></tr></thead>
       <tbody>
@@ -104,14 +104,13 @@ const PARK_HEADINGS = {
   "animal-kingdom": "Animal Kingdom Christmas snacks",
   "epcot": "EPCOT holiday food and Festival of the Holidays booths",
   "magic-kingdom": "Magic Kingdom Christmas treats",
-  "hollywood-studios": "Hollywood Studios holiday food at Jollywood Nights",
+  "hollywood-studios": "Hollywood Studios holiday food and Jollywood Nights",
   "disney-springs": "Disney Springs holiday desserts, no park ticket",
 };
 // One numbered section per park, in the same order as the map's park chips.
 const PARK_SECTIONS = ["animal-kingdom", "epcot", "magic-kingdom", "hollywood-studios", "disney-springs"]
   .map((id) => DISNEY_FOOD_PARKS.find((park) => park.id === id)).filter(Boolean)
   .map((park) => ({ id: "park-" + park.id, parkId: park.id, eyebrow: park.id === "disney-springs" ? "No theme park ticket" : "Theme park admission", title: PARK_HEADINGS[park.id] || park.name }));
-const EPCOT_STOP_COUNT = DISNEY_FOOD_STOPS.filter((stop) => stop.parkId === "epcot").length;
 
 const SECTIONS = [
   ...PARK_SECTIONS,
@@ -122,17 +121,18 @@ const SECTIONS = [
 ];
 
 const stopPhotos = Object.fromEntries(DISNEY_FOOD_STOPS.flatMap((stop) => {
-  const entry = guidePickPhoto(DISNEY_FOOD_SLUG, stop.venue);
+  const entry = guidePickPhoto(DISNEY_FOOD_SLUG, stop.photoName || stop.venue);
   if (!entry?.src) return [];
   return [[stop.id, { src: entry.src, credit: entry.credit, creditHref: entry.creditHref, position: entry.position || "50% 50%" }]];
 }));
+const EPCOT_STOP_COUNT = DISNEY_FOOD_STOPS.filter((stop) => stop.parkId === EPCOT_FESTIVAL.parkId && stopPhotos[stop.id]).length;
 
 export default function DisneyHolidayFoodGuidePage() {
   const past = isGuidePast(guide);
   return <GuideStandardShell
     slug={DISNEY_FOOD_SLUG}
     title="Disney World Christmas food guide 2026"
-    description="Holiday snacks at every Walt Disney World park, with prices and the ticket you need, plus all 16 EPCOT Festival of the Holidays food booths on the map."
+    description="Holiday snacks at every Walt Disney World park, with reported prices and admission details, plus EPCOT Festival of the Holidays food booths on the map."
     image={hero}
     region="Walt Disney World"
     category="Holiday food guide 2026"
@@ -173,10 +173,10 @@ export default function DisneyHolidayFoodGuidePage() {
 
       <GuideSection index={PARK_SECTIONS.length + 4} {...SECTIONS[PARK_SECTIONS.length + 3]}>
         <div className={styles.method}>
-          <p>Researched November 17, 2026 using Disney Parks Blog’s official 2026 menus, the Summer House menu, six reels by @disneyforfoodies and posts by @disneyfoodblog. The Anaheim bonus features @eatsbynatt’s reel. This is a researched planning guide, not a claim that Wayfind personally tasted each dish.</p>
-          <p>Prices come from the shared posts. Daily operating hours, current stock, the Cookie Bar sundae and the San Angel Inn special were not independently confirmed. Instagram controls post and embed availability. Only posts Instagram plays here on Wayfind are shown, and every creator is credited by name.</p>
+          <p>Menus and creator coverage checked November 23, 2026. Pick details link to Disney’s menus and the relevant tastings or festival previews. EPCOT’s festival opens November 27.</p>
+          <p>Prices come from the linked reviews, previews and posts. Check current hours, stock and prices before visiting. The Cookie Bar sundae and the San Angel Inn special remain creator-reported. Instagram controls playback.</p>
           <ul>{guide.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer">{source.label} ↗</a></li>)}</ul>
-          <p>The park maps locate food counters and mark the nearest known landmark for seasonal pop-ups. Select a pin to open its food details.</p>
+          <p>The park maps show food counters or a nearby landmark for seasonal pop-ups. Both Holiday Grove pins lead to the same counter. Select a pin to open its food details.</p>
         </div>
       </GuideSection>
 

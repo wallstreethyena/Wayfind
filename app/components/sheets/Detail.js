@@ -1,6 +1,6 @@
 "use client";
 import CreatorVideoAction from "../CreatorVideoAction";
-import { isEmbeddable } from "../../../lib/videoEmbed";
+import { creatorPostActionLabel } from "../../../lib/videoEmbed";
 import PlaceDistance, { usePlaceDistance } from "../PlaceDistance.js";
 // Extracted from app/home.js (G3, July 2026 decomposition). Render-only.
 // The place-detail bottom sheet — Wayfind's core, most-used UI surface.
@@ -1673,7 +1673,7 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               <div id="wf-place-parking-map">
-                <PlaceParkingMap place={detail} nearby={venueNearby} />
+                <PlaceParkingMap place={detail} nearby={venueNearby} deviceLoc={!ctx.locApprox ? (ctx.deviceLoc || null) : null} />
               </div>
 
               <div style={{ marginBottom: 16 }}>
@@ -1692,30 +1692,30 @@ export default function DetailSheet({ ctx }) {
               {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
               {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} addReservation={addReservation} />}
 
-              {/* Featured creator video: curated UGC social proof, credited to the creator and linked out to their real video, placed below core decision intelligence so visitor logistics answer first. */}
+              {/* Creator credit and official embeds follow the place logistics. */}
               {!detail._event && (() => {
-                // Owner 2026-11-20: only creator posts that play inside Wayfind get a tile.
-                const cvs = creatorVideosFor(detail, locName).filter((v) => isEmbeddable(v.platform, v.url));
-                if (!cvs.length) return null;
+                const posts = creatorVideosFor(detail, locName).map((post) => ({ post, actionLabel: creatorPostActionLabel(post.platform, post.url) }));
+                const cvs = posts.filter(({ actionLabel }) => actionLabel);
+                const unavailable = posts.find(({ post, actionLabel }) => post.creator && !actionLabel);
+                if (!cvs.length && !unavailable) return null;
                 return (
                   <div style={{ marginBottom: 16 }}>
-                    {cvs.map((v, i) => {
+                    {cvs.map(({ post: v, actionLabel }, i) => {
                       const p = PLATFORM[v.platform] || PLATFORM.tiktok;
                       const handle = v.creator ? "@" + v.creator : null;
-                      const instagramPost = v.platform === "instagram";
+                      const instagramPost = actionLabel === "View post";
                       const headline = instagramPost
                         ? (handle ? `View ${handle}'s post about ${detail.name}` : `View ${detail.name} on Instagram`)
                         : (handle ? `Watch ${handle}'s video about ${detail.name}` : `See ${detail.name} on ${p.label}`);
-                      const actionLabel = "Watch in Wayfind";
                       return (
                         <CreatorVideoAction key={"cvid" + i} platform={v.platform} url={v.url} label={`${headline} in Wayfind`}
                            onClick={() => { try { logEvent("creator_video", detail, { platform: v.platform, creator: v.creator || "" }); } catch (e) {} }}
                            className="wf-social-glow"
                            style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, "--glow-rgb": PLATFORM_RGB[v.platform] || PLATFORM_RGB.tiktok }}>
                           <div style={{ position: "relative", flexShrink: 0, width: 88, height: 88, borderRadius: 11, overflow: "hidden", background: `linear-gradient(135deg, ${p.color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            {v.thumbnail ? <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                            {v.thumbnail ? <FallbackImg src={v.thumbnail} icon={instagramPost ? "▧" : "▶️"} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                               : <CreatorPlaceCover placeId={detail.id} alt={detail.name || ""} compact />}
-                            <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span>
+                            {!instagramPost ? <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span> : null}
                           </div>
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: p.color, marginBottom: 3 }}>Featured on {p.label}</div>
@@ -1729,6 +1729,9 @@ export default function DetailSheet({ ctx }) {
                         </CreatorVideoAction>
                       );
                     })}
+                    {unavailable ? <p data-creator-post-unavailable="" style={{ color: C.muted, fontSize: 12.5, margin: cvs.length ? "10px 0 0" : 0 }}>
+                      @{unavailable.post.creator}&apos;s {PLATFORM[unavailable.post.platform]?.label || unavailable.post.platform} post is unavailable in Wayfind.
+                    </p> : null}
                   </div>
                 );
               })()}

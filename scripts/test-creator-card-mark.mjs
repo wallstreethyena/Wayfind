@@ -15,7 +15,7 @@
  *   3. the mark carries a truthful accessible label and makes no affiliation
  *      claim (the lib/creatorRights.js ban, checked on the rendered STRING
  *      rather than on the source, which is the only place it can actually be
- *      violated);
+ *      violated); a play cue requires that creator's video on that platform;
  *   4. it is inert — no href, no onClick, no button — because three of the four
  *      cards it renders inside own every tap at the card level;
  *   5. the CSS it needs is really in WF_PLACE_CARD_CSS, so the mark cannot ship
@@ -26,7 +26,9 @@ import React from "react";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { loadComponent } from "./lib/jsxLoad.mjs";
-import { creatorVideosFor } from "../lib/creatorVideos.js";
+import { creatorVideosFor } from "../lib/creatorSignals.js";
+import { creatorVideosFor as fullCreatorVideosFor } from "../lib/creatorVideos.js";
+import { christmasEventCard } from "../lib/christmasCards.js";
 import { claimsAffiliation } from "../lib/creatorRights.js";
 import { readFileSync } from "node:fs";
 
@@ -54,6 +56,7 @@ const NOT_CURATED = { id: "ChIJ-definitely-not-real", name: "Some Diner", city: 
 const vids = creatorVideosFor(CINDY_PLACE);
 ok(vids.length > 0, "the fixture place really does resolve a curated video (got " + vids.length + ")");
 ok(vids.every((v) => v.creator === "cindy.selects"), "…and it is attributed to the creator this batch credits");
+ok(vids.some((v) => v.playable), "the place has an in-app video from the credited creator");
 ok(creatorVideosFor(NOT_CURATED).length === 0, "the control place resolves nothing");
 
 // 1 + 2. renders for a curated place, renders nothing for anything else.
@@ -61,7 +64,7 @@ const html = render(React.createElement(CreatorCardMark, { videos: vids }));
 ok(html.includes("wf-place-card-credit"), "a place with a curated video renders the credit row");
 ok(html.includes("@cindy.selects"), "…and NAMES the creator — a face with no name is decoration, which is why v8.34 moved it off the photo");
 ok(html.includes("wf-pcc-plat"), "…and says which platform, in that platform's own colour");
-ok(html.includes("wf-pcc-play"), "…with the play affordance, which is what makes a portrait read as a video");
+ok(html.includes("wf-pcc-play") && html.includes("Video available in details"), "…with a visible and accessible play cue for the in-app video");
 ok(render(React.createElement(CreatorCardMark, { videos: [] })) === "", "a place with no video renders NOTHING — no empty scrim");
 ok(render(React.createElement(CreatorCardMark, { videos: null })) === "", "…and a null list is not a crash");
 ok(render(React.createElement(CreatorCardMark, { videos: [{ platform: "tiktok", url: "x" }] })) === "",
@@ -74,11 +77,53 @@ ok(!claimsAffiliation(html), "the RENDERED markup makes no affiliation claim —
 
 // A verified static flyer is a real creator association, but it must not be
 // announced as video footage by assistive technology.
-const flyer = creatorVideosFor({ id: "ChIJPWsUhY9Aw4gRoltOtGa3nPM" });
+const flyerPlace = { id: "ChIJPWsUhY9Aw4gRoltOtGa3nPM" };
+const flyer = fullCreatorVideosFor(flyerPlace);
 ok(flyer.some((video) => video.url === "https://www.instagram.com/p/DeZO5ntRRM9/"), "the static flyer fixture really resolves on Sarasota Fairgrounds");
-const flyerHtml = render(React.createElement(CreatorCardMark, { videos: flyer }));
+const flyerHtml = render(React.createElement(CreatorCardMark, { videos: creatorVideosFor(flyerPlace) }));
 ok(/aria-label="Found on Instagram[^\"]*a post by @sarasota_lifebynay/.test(flyerHtml), "a known static post gets truthful rendered post attribution");
-ok(!/a video by|footage|filmed/i.test(flyerHtml), "the static flyer's rendered credit does not claim video footage or a filmed visit");
+ok(!/wf-pcc-play|video available|a video by|footage|filmed/i.test(flyerHtml), "the static flyer's rendered credit offers no video cue");
+
+for (const [name, id] of [
+  ["Orange Blossom Coffee", "ChIJPfVM-xIXw4gRiT1_XuUakks"],
+  ["Cedar Fox Coffee", "ChIJww1nz5VBw4gRl0xv985c9E4"],
+  ["Riviera French Café", "ChIJ32YG_ao5w4gRpzcR49e5sMo"],
+  ["Mayfair Grill", "ChIJ9R87L0i32YgR57jkvcj_oVI"],
+]) {
+  const markup = render(React.createElement(CreatorCardMark, { videos: creatorVideosFor({ id }) }));
+  ok(markup.includes("wf-place-card-credit") && !/wf-pcc-play|video available/i.test(markup),
+    `${name}: the real place card keeps attribution without a video cue`);
+}
+
+const mixed = [
+  { creator: "lead", platform: "instagram" },
+  { creator: "lead", platform: "tiktok", playable: true },
+  { creator: "another", platform: "instagram", playable: true },
+];
+const mixedMarkup = render(React.createElement(CreatorCardMark, { videos: mixed }));
+ok(mixedMarkup.includes("@lead") && !/wf-pcc-play|video available/i.test(mixedMarkup),
+  "a different creator or platform cannot lend its play cue to the lead credit");
+const matching = [...mixed, { creator: " Lead ", platform: "instagram", playable: true }];
+ok(render(React.createElement(CreatorCardMark, { videos: matching })).includes("wf-pcc-play"),
+  "a later eligible video for the same creator and platform enables the play cue");
+
+// Christmas rails use separate server-owned creator rows. Protect working
+// event reels and keep attribution for handoffs and cached credit-only rows.
+for (const [slug, creator, playable] of [
+  ["water-street-season-spectacular-2026", "wanderwithemely", true],
+  ["christmas-at-gaylord-palms-2026", "briantreks", false],
+]) {
+  const row = { event_id: slug, event_name: slug, slug };
+  const { creatorReels } = christmasEventCard(row, { today: "2026-11-23", pageSlugs: new Set([slug]) });
+  ok(creatorReels.some((v) => v.creator === creator && v.playable === playable && !("url" in v)),
+    `${slug}: the event projection passes playback eligibility without the post URL`);
+  const markup = render(React.createElement(CreatorCardMark, { videos: creatorReels }));
+  ok(markup.includes("@" + creator) && markup.includes("wf-pcc-play") === playable,
+    `${slug}: the event card displays its credited creator and their correct play cue`);
+}
+const cachedCredit = render(React.createElement(CreatorCardMark, { videos: [{ creator: "wanderwithemely", platform: "instagram" }] }));
+ok(cachedCredit.includes("@wanderwithemely") && !cachedCredit.includes("wf-pcc-play"),
+  "an older cached event credit without playback eligibility remains credit only");
 
 // 4. inert.
 ok(!/<a\b|<button\b|href=|onclick=/i.test(html),

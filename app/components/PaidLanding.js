@@ -378,7 +378,7 @@ export default function PaidLanding({ city, places }) {
   const firstPlan = plan[0] || picks[0];
 
   return (
-    <div className="paid">
+    <div className="paid" data-wf-own-theme="paid-landing">
       <style dangerouslySetInnerHTML={styleHtml(css)} />
       <main className="shell">
         <header className="brandbar">

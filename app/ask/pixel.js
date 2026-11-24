@@ -181,7 +181,7 @@ function BooDropGlyph({ x, y, scale = 1, className = "" }) {
  * Wayfind's adorable Chibi Elf mascot in the Official Mascot Bible vector style.
  * Keeps the `Cat` export name so every caller and test imports it seamlessly.
  */
-export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false, delay = 0, look, fidget = 0, snuggle = false }) {
+export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false, delay = 0, look, fidget = 0, snuggle = false, prop = "" }) {
   const pal = P[tone] || P.cream;
   const m = MOODS[mood] || MOODS.hopeful;
   const lx = look && typeof look.x === "number" ? Math.max(-1, Math.min(1, look.x)) : 0;
@@ -222,11 +222,12 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
   return (
     <span className={"wfc-lean" + (rung > 0 ? " wfc-eager wfc-fid" + rung : "")}
       style={{ "--lean": Math.round(lx * px) + "px", "--liftv": Math.round(ly * px * 0.6) + "px" }}>
-    <svg width={Math.round(box * 1.16)} height={Math.round(box * 1.16)} viewBox="6 -14 228 236" shapeRendering="geometricPrecision"
+    <svg width={Math.round(box * 1.24)} height={Math.round(box * 1.24)} viewBox="10 -18 220 242" shapeRendering="geometricPrecision"
       className={"wfc " + m.anim + " wfc-mood-" + mood}
       style={{
         animationDelay: delay + "s",
         transform: flip ? "scaleX(-1)" : "none",
+        overflow: "visible",
       }} aria-hidden="true">
 
       {/* Hidden grid layer preserving structural guard invariants */}
@@ -480,162 +481,268 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
         </g>
       ) : null}
 
-      {/* Rosy Elf Blush Cheeks + Cute Button Nose */}
-      <ellipse
-        cx="72" cy="140"
-        rx={mood === "love" || mood === "happy" || mood === "hopeful" ? "15" : "13"}
-        ry={mood === "love" || mood === "happy" || mood === "hopeful" ? "8.5" : "7.2"}
-        fill="#FF7597" opacity="0.88"
-      />
-      <ellipse
-        cx="168" cy="140"
-        rx={mood === "love" || mood === "happy" || mood === "hopeful" ? "15" : "13"}
-        ry={mood === "love" || mood === "happy" || mood === "hopeful" ? "8.5" : "7.2"}
-        fill="#FF7597" opacity="0.88"
-      />
-      <ellipse cx="120" cy="131" rx="4.8" ry="3.4" fill="#FF8DA8" opacity="0.9" />
+      {/* Rosy Elf Blush Cheeks with Kawaii Specular Dots + Cute Button Nose */}
+      <g className="wfc-blush">
+        <ellipse
+          cx="70" cy="140"
+          rx={mood === "love" || mood === "happy" || mood === "hopeful" ? "16.5" : "14.5"}
+          ry={mood === "love" || mood === "happy" || mood === "hopeful" ? "9.5" : "8"}
+          fill="#FF5E8E" opacity="0.88"
+        />
+        <circle cx="65" cy="138" r="2.2" fill="#FFFFFF" opacity="0.75" />
+        <ellipse
+          cx="170" cy="140"
+          rx={mood === "love" || mood === "happy" || mood === "hopeful" ? "16.5" : "14.5"}
+          ry={mood === "love" || mood === "happy" || mood === "hopeful" ? "9.5" : "8"}
+          fill="#FF5E8E" opacity="0.88"
+        />
+        <circle cx="175" cy="138" r="2.2" fill="#FFFFFF" opacity="0.75" />
+      </g>
+      <ellipse cx="120" cy="130" rx="5.2" ry="3.6" fill="#FF7597" opacity="0.92" />
+      <circle cx="118.5" cy="129" r="1.4" fill="#FFFFFF" opacity="0.85" />
 
-      {/* ── MOOD FACES ── */}
+      {/* ── MOOD FACES (Fully Animated Sub-Parts: Brows, Catchlights, Tear Pools & Mouths) ── */}
 
-      {/* 1. HOPEFUL: Signature Star-Wink + Glossy Eye + Sweet Open Smile */}
+      {/* 1. HOPEFUL: Signature Star-Wink + Huge Glossy Anime Eye + Bouncing Sweet Smile */}
       {mood === "hopeful" ? (
         <g>
-          <path d="M 79 126 Q 93 109 107 126" fill="none" stroke="#1E1233" strokeWidth="7" strokeLinecap="round" />
+          <path className="wfc-browL" d="M 76 101 Q 92 94 106 101" fill="none" stroke="#23143B" strokeWidth="4.2" strokeLinecap="round" />
+          <path className="wfc-browR" d="M 134 101 Q 148 94 164 101" fill="none" stroke="#23143B" strokeWidth="4.2" strokeLinecap="round" />
+          <path d="M 76 125 Q 92 106 108 125" fill="none" stroke="#1E1233" strokeWidth="7.5" strokeLinecap="round" />
+          <path d="M 75 121 L 70 116" stroke="#1E1233" strokeWidth="4" strokeLinecap="round" />
           <g transform={"translate(" + gx + " " + gy + ")"}>
-            <ellipse cx="147" cy="122" rx="16" ry="18.5" fill="#1E1233" />
-            <g className="wfc-starwink" style={{ transformOrigin: "150px 118px" }}>
-              <BooStar cx={150} cy={118} r={10} fill="#FFD166" />
+            <ellipse cx="147" cy="121" rx="17.5" ry="20" fill="#1E1233" />
+            <path d="M 133 128 Q 147 139 161 128" fill="none" stroke="#FF7597" strokeWidth="4.5" strokeLinecap="round" opacity="0.55" />
+            <g className="wfc-starwink" style={{ transformOrigin: "150px 117px" }}>
+              <BooStar cx={150} cy={117} r={11} fill="#FFD166" />
             </g>
-            <circle cx="140" cy="129" r="3.4" fill="#FFFFFF" />
+            <circle className="wfc-eye-shine" cx="139" cy="129" r="4" fill="#FFFFFF" />
+            <circle className="wfc-eye-shine" cx="155" cy="110" r="2.6" fill="#FFFFFF" />
           </g>
-          <path d="M 105 138 C 107 155 133 155 135 138 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.5" strokeLinejoin="round" />
-          <path d="M 111 146 C 115 153 125 153 129 146 C 125 143 115 143 111 146 Z" fill="#FF7597" />
+          <g className="wfc-mouth-joy" style={{ transformOrigin: "120px 144px" }}>
+            <path d="M 103 137 C 105 157 135 157 137 137 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.8" strokeLinejoin="round" />
+            <path d="M 109 146 C 115 154 125 154 131 146 C 125 142 115 142 109 146 Z" fill="#FF7597" />
+            <path d="M 112 138 L 116 142 L 120 138" fill="#FFFFFF" />
+          </g>
         </g>
       ) : null}
 
-      {/* 2. WORRIED: Anime Shock Wide Shimmering Eyes + Nervous Mouth */}
+      {/* 2. WORRIED: Twitching Brows + Shimmering Wide Anime Eyes + Gasping Mouth + Shock Lines */}
       {mood === "worried" ? (
         <g>
-          <path d="M 76 102 Q 90 96 102 103" fill="none" stroke="#23143B" strokeWidth="4.2" strokeLinecap="round" />
-          <path d="M 164 102 Q 150 96 138 103" fill="none" stroke="#23143B" strokeWidth="4.2" strokeLinecap="round" />
-          <g transform={"translate(" + gx + " " + gy + ")"}>
-            <ellipse cx="93" cy="122" rx="15" ry="18" fill="#1E1233" />
-            <circle cx="89" cy="114" r="5.6" fill="#FFFFFF" />
-            <circle cx="98" cy="129" r="3.4" fill="#00F5D4" />
-            <ellipse cx="147" cy="122" rx="15" ry="18" fill="#1E1233" />
-            <circle cx="143" cy="114" r="5.6" fill="#FFFFFF" />
-            <circle cx="152" cy="129" r="3.4" fill="#00F5D4" />
+          <g className="wfc-fx-shock">
+            <line x1="26" y1="54" x2="14" y2="44" stroke="#FFD166" strokeWidth="4.5" strokeLinecap="round" />
+            <line x1="22" y1="68" x2="8" y2="66" stroke="#00F5D4" strokeWidth="4.5" strokeLinecap="round" />
+            <line x1="214" y1="54" x2="226" y2="44" stroke="#FFD166" strokeWidth="4.5" strokeLinecap="round" />
           </g>
-          <ellipse cx="120" cy="145" rx="6.2" ry="7.2" fill="#1E1233" />
-          <ellipse cx="120" cy="148" rx="3.8" ry="2.8" fill="#FF7597" />
+          <path className="wfc-browL" d="M 74 103 Q 89 94 104 104" fill="none" stroke="#23143B" strokeWidth="4.8" strokeLinecap="round" />
+          <path className="wfc-browR" d="M 166 103 Q 151 94 136 104" fill="none" stroke="#23143B" strokeWidth="4.8" strokeLinecap="round" />
+          <g transform={"translate(" + gx + " " + gy + ")"}>
+            <ellipse cx="92" cy="122" rx="16.5" ry="19.5" fill="#1E1233" />
+            <circle className="wfc-eye-shine" cx="87" cy="113" r="6.4" fill="#FFFFFF" />
+            <circle className="wfc-eye-shine" cx="98" cy="129" r="3.8" fill="#00F5D4" />
+            <ellipse cx="148" cy="122" rx="16.5" ry="19.5" fill="#1E1233" />
+            <circle className="wfc-eye-shine" cx="143" cy="113" r="6.4" fill="#FFFFFF" />
+            <circle className="wfc-eye-shine" cx="154" cy="129" r="3.8" fill="#00F5D4" />
+          </g>
+          <g className="wfc-mouth-gasp" style={{ transformOrigin: "120px 146px" }}>
+            <ellipse cx="120" cy="146" rx="7.2" ry="8.5" fill="#1E1233" />
+            <ellipse cx="120" cy="149" rx="4.5" ry="3.2" fill="#FF7597" />
+          </g>
         </g>
       ) : null}
 
-      {/* 3. TEARY: Huge Watery Puppy-Dog Eyes + Quivering Lip */}
+      {/* 3. TEARY: Huge Watery Puppy-Dog Eyes with Rippling Tear Pools + Quivering Lip */}
       {mood === "teary" ? (
         <g>
-          <path d="M 74 100 Q 88 92 104 101" fill="none" stroke="#23143B" strokeWidth="4.5" strokeLinecap="round" />
-          <path d="M 166 100 Q 152 92 136 101" fill="none" stroke="#23143B" strokeWidth="4.5" strokeLinecap="round" />
+          <path className="wfc-browL" d="M 72 101 Q 87 90 105 102" fill="none" stroke="#23143B" strokeWidth="5" strokeLinecap="round" />
+          <path className="wfc-browR" d="M 168 101 Q 153 90 135 102" fill="none" stroke="#23143B" strokeWidth="5" strokeLinecap="round" />
           <g transform={"translate(" + gx + " " + gy + ")"}>
-            <ellipse cx="93" cy="122" rx="16.5" ry="19.5" fill="#1E1233" />
-            <circle cx="88" cy="113" r="6.5" fill="#FFFFFF" />
-            <circle cx="100" cy="123" r="2.8" fill="#FFFFFF" />
-            <path d="M 78 131 Q 93 143 108 131" fill="#00F5D4" opacity="0.85" />
-            <ellipse cx="147" cy="122" rx="16.5" ry="19.5" fill="#1E1233" />
-            <circle cx="142" cy="113" r="6.5" fill="#FFFFFF" />
-            <circle cx="154" cy="123" r="2.8" fill="#FFFFFF" />
-            <path d="M 132 131 Q 147 143 162 131" fill="#00F5D4" opacity="0.85" />
+            <ellipse cx="92" cy="122" rx="18" ry="21" fill="#1E1233" />
+            <circle className="wfc-eye-shine" cx="86" cy="112" r="7.4" fill="#FFFFFF" />
+            <circle className="wfc-eye-shine" cx="99" cy="123" r="3.4" fill="#FFFFFF" />
+            <path className="wfc-tear-pool" d="M 75 131 Q 92 146 109 131" fill="#00F5D4" opacity="0.92" />
+            <ellipse cx="148" cy="122" rx="18" ry="21" fill="#1E1233" />
+            <circle className="wfc-eye-shine" cx="142" cy="112" r="7.4" fill="#FFFFFF" />
+            <circle className="wfc-eye-shine" cx="155" cy="123" r="3.4" fill="#FFFFFF" />
+            <path className="wfc-tear-pool" d="M 131 131 Q 148 146 165 131" fill="#00F5D4" opacity="0.92" />
           </g>
-          <path d="M 106 148 Q 113 141 120 147 Q 127 141 134 148" fill="none" stroke="#1E1233" strokeWidth="5" strokeLinecap="round" />
+          <path className="wfc-mouth-quiver" style={{ transformOrigin: "120px 147px" }}
+            d="M 104 149 Q 112 140 120 147 Q 128 140 136 149" fill="none" stroke="#1E1233" strokeWidth="5.4" strokeLinecap="round" />
         </g>
       ) : null}
 
-      {/* 4. CRYING: Squeezed Chibi Crying Arcs + Dual Waterfall Streams + Wailing Mouth */}
+      {/* 4. CRYING: Squeezed Crying Arcs + Animated Gushing Waterfall Streams + Flying Tear Splashes + Wailing Mouth */}
       {mood === "crying" ? (
         <g>
-          <path d="M 80 128 L 76 168" stroke="#00F5D4" strokeWidth="9" strokeLinecap="round" opacity="0.72" />
-          <path d="M 160 128 L 164 168" stroke="#00F5D4" strokeWidth="9" strokeLinecap="round" opacity="0.72" />
-          <path d="M 77 114 L 99 124 L 77 134" fill="none" stroke="#1E1233" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M 163 114 L 141 124 L 163 134" fill="none" stroke="#1E1233" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="76" cy="134" r="5.5" fill="#00F5D4" />
-          <circle cx="164" cy="134" r="5.5" fill="#00F5D4" />
-          <path d="M 102 150 C 104 133 136 133 138 150 C 138 158 102 158 102 150 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.5" strokeLinejoin="round" />
-          <ellipse cx="120" cy="152" rx="9.5" ry="5" fill="#FF7597" />
+          {/* Animated Waterfall Tear Streams + Flying Splash Drops */}
+          <path d="M 80 126 L 75 174" stroke="#00C4B4" strokeWidth="11" strokeLinecap="round" opacity="0.45" />
+          <path className="wfc-stream" d="M 80 126 L 75 174" stroke="#00F5D4" strokeWidth="9" strokeLinecap="round" strokeDasharray="10 8" />
+          <path d="M 160 126 L 165 174" stroke="#00C4B4" strokeWidth="11" strokeLinecap="round" opacity="0.45" />
+          <path className="wfc-stream" d="M 160 126 L 165 174" stroke="#00F5D4" strokeWidth="9" strokeLinecap="round" strokeDasharray="10 8" />
+          <circle className="wfc-splashL" cx="56" cy="144" r="4.5" fill="#00F5D4" />
+          <circle className="wfc-splashL" cx="48" cy="158" r="3.2" fill="#FFFFFF" />
+          <circle className="wfc-splashR" cx="184" cy="144" r="4.5" fill="#00F5D4" />
+          <circle className="wfc-splashR" cx="192" cy="158" r="3.2" fill="#FFFFFF" />
+          <path d="M 75 113 L 100 124 L 75 135" fill="none" stroke="#1E1233" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M 165 113 L 140 124 L 165 135" fill="none" stroke="#1E1233" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="75" cy="134" r="6" fill="#00F5D4" />
+          <circle cx="165" cy="134" r="6" fill="#00F5D4" />
+          <g className="wfc-mouth-wail" style={{ transformOrigin: "120px 148px" }}>
+            <path d="M 100 151 C 102 131 138 131 140 151 C 140 160 100 160 100 151 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.8" strokeLinejoin="round" />
+            <ellipse cx="120" cy="153" rx="10.5" ry="5.5" fill="#FF7597" />
+            <path d="M 108 137 L 132 137" stroke="#FFFFFF" strokeWidth="3.5" strokeLinecap="round" />
+          </g>
         </g>
       ) : null}
 
-      {/* 5. HEARTBROKEN: Sad Closed Eyes + Quivering Frown */}
+      {/* 5. HEARTBROKEN: Quivering Closed Eyes + Welling Tears + Trembling Frown */}
       {mood === "heartbroken" ? (
         <g>
-          <path d="M 77 121 Q 92 135 107 121" fill="none" stroke="#1E1233" strokeWidth="6.2" strokeLinecap="round" />
-          <path d="M 133 121 Q 148 135 163 121" fill="none" stroke="#1E1233" strokeWidth="6.2" strokeLinecap="round" />
-          <circle cx="80" cy="131" r="4" fill="#00F5D4" />
-          <circle cx="160" cy="131" r="4" fill="#00F5D4" />
-          <path d="M 105 151 Q 120 138 135 151" fill="none" stroke="#1E1233" strokeWidth="5.5" strokeLinecap="round" />
+          <path className="wfc-browL" d="M 73 104 Q 88 94 104 106" fill="none" stroke="#23143B" strokeWidth="4.8" strokeLinecap="round" />
+          <path className="wfc-browR" d="M 167 104 Q 152 94 136 106" fill="none" stroke="#23143B" strokeWidth="4.8" strokeLinecap="round" />
+          <path d="M 75 120 Q 92 136 108 120" fill="none" stroke="#1E1233" strokeWidth="6.8" strokeLinecap="round" />
+          <path d="M 132 120 Q 148 136 165 120" fill="none" stroke="#1E1233" strokeWidth="6.8" strokeLinecap="round" />
+          <circle className="wfc-tear-pool" cx="78" cy="132" r="5.2" fill="#00F5D4" />
+          <circle className="wfc-tear-pool" cx="162" cy="132" r="5.2" fill="#00F5D4" />
+          <path className="wfc-mouth-quiver" style={{ transformOrigin: "120px 148px" }}
+            d="M 103 152 Q 120 137 137 152" fill="none" stroke="#1E1233" strokeWidth="5.8" strokeLinecap="round" />
         </g>
       ) : null}
 
-      {/* 6. CURLED: Giant Shimmering Puppy-Dog Pleading Eyes + Elf Hands Clasped Together */}
+      {/* 6. CURLED: Giant Shimmering Puppy-Dog Pleading Eyes + Clasped Begging Hands */}
       {mood === "curled" ? (
         <g>
-          <path d="M 74 100 Q 89 91 105 101" fill="none" stroke="#23143B" strokeWidth="4.8" strokeLinecap="round" />
-          <path d="M 166 100 Q 151 91 135 101" fill="none" stroke="#23143B" strokeWidth="4.8" strokeLinecap="round" />
-          <ellipse cx="93" cy="123" rx="17.5" ry="20" fill="#1E1233" />
-          <circle cx="86" cy="114" r="7" fill="#FFFFFF" />
-          <circle cx="99" cy="127" r="3.5" fill="#FFFFFF" />
-          <path d="M 77 132 Q 93 145 109 132" fill="#00F5D4" opacity="0.9" />
-          <ellipse cx="147" cy="123" rx="17.5" ry="20" fill="#1E1233" />
-          <circle cx="140" cy="114" r="7" fill="#FFFFFF" />
-          <circle cx="153" cy="127" r="3.5" fill="#FFFFFF" />
-          <path d="M 131 132 Q 147 145 163 132" fill="#00F5D4" opacity="0.9" />
+          <path className="wfc-browL" d="M 72 99 Q 88 89 105 101" fill="none" stroke="#23143B" strokeWidth="5" strokeLinecap="round" />
+          <path className="wfc-browR" d="M 168 99 Q 152 89 135 101" fill="none" stroke="#23143B" strokeWidth="5" strokeLinecap="round" />
+          <ellipse cx="92" cy="123" rx="19" ry="21.5" fill="#1E1233" />
+          <circle className="wfc-eye-shine" cx="85" cy="113" r="7.8" fill="#FFFFFF" />
+          <circle className="wfc-eye-shine" cx="99" cy="127" r="4" fill="#FFFFFF" />
+          <circle className="wfc-eye-shine" cx="83" cy="129" r="2.2" fill="#FFD166" />
+          <path className="wfc-tear-pool" d="M 74 132 Q 92 147 110 132" fill="#00F5D4" opacity="0.94" />
+          <ellipse cx="148" cy="123" rx="19" ry="21.5" fill="#1E1233" />
+          <circle className="wfc-eye-shine" cx="141" cy="113" r="7.8" fill="#FFFFFF" />
+          <circle className="wfc-eye-shine" cx="155" cy="127" r="4" fill="#FFFFFF" />
+          <circle className="wfc-eye-shine" cx="139" cy="129" r="2.2" fill="#FFD166" />
+          <path className="wfc-tear-pool" d="M 130 132 Q 148 147 166 132" fill="#00F5D4" opacity="0.94" />
           {/* Tiny trembling pleading mouth */}
-          <path d="M 111 149 Q 120 141 129 149" fill="none" stroke="#1E1233" strokeWidth="5" strokeLinecap="round" />
+          <path className="wfc-mouth-quiver" style={{ transformOrigin: "120px 148px" }}
+            d="M 109 150 Q 120 140 131 150" fill="none" stroke="#1E1233" strokeWidth="5.2" strokeLinecap="round" />
           {/* Stubby elf hands clasped together under chin in an animated begging pose */}
           <g className="wfc-plead-hands" style={{ transformOrigin: "120px 166px" }}>
-            <path d="M 88 170 C 92 154 112 152 119 163 C 122 171 104 178 88 170 Z" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.5" strokeLinejoin="round" />
-            <path d="M 152 170 C 148 154 128 152 121 163 C 118 171 136 178 152 170 Z" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.5" strokeLinejoin="round" />
+            <path d="M 86 170 C 90 152 112 150 119 163 C 122 172 103 179 86 170 Z" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" strokeLinejoin="round" />
+            <path d="M 154 170 C 150 152 128 150 121 163 C 118 172 137 179 154 170 Z" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" strokeLinejoin="round" />
           </g>
         </g>
       ) : null}
 
-      {/* 7. HAPPY: Happy Squint Arcs + Big Laughing Smile */}
+      {/* 7. HAPPY: Happy Squint Arcs + Big Bouncing Laughing Smile */}
       {mood === "happy" ? (
         <g>
-          <path d="M 78 125 Q 93 108 108 125" fill="none" stroke="#1E1233" strokeWidth="7" strokeLinecap="round" />
-          <path d="M 132 125 Q 147 108 162 125" fill="none" stroke="#1E1233" strokeWidth="7" strokeLinecap="round" />
-          <path d="M 103 137 C 105 155 135 155 137 137 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.5" strokeLinejoin="round" />
-          <path d="M 109 146 C 115 153 125 153 131 146 C 125 143 115 143 109 146 Z" fill="#FF7597" />
+          <path className="wfc-browL" d="M 76 101 Q 92 94 106 101" fill="none" stroke="#23143B" strokeWidth="4.2" strokeLinecap="round" />
+          <path className="wfc-browR" d="M 134 101 Q 148 94 164 101" fill="none" stroke="#23143B" strokeWidth="4.2" strokeLinecap="round" />
+          <path d="M 76 125 Q 92 106 108 125" fill="none" stroke="#1E1233" strokeWidth="7.5" strokeLinecap="round" />
+          <path d="M 132 125 Q 148 106 164 125" fill="none" stroke="#1E1233" strokeWidth="7.5" strokeLinecap="round" />
+          <g className="wfc-mouth-joy" style={{ transformOrigin: "120px 144px" }}>
+            <path d="M 102 137 C 104 157 136 157 138 137 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.8" strokeLinejoin="round" />
+            <path d="M 108 146 C 115 154 125 154 132 146 C 125 142 115 142 108 146 Z" fill="#FF7597" />
+          </g>
         </g>
       ) : null}
 
-      {/* 8. LOVE: Twin Star-Struck Eyes + Beaming Smile */}
+      {/* 8. LOVE: Huge Twin Star-Struck Eyes + Beaming Laughing Smile */}
       {mood === "love" ? (
         <g>
+          <path className="wfc-browL" d="M 76 100 Q 92 93 106 100" fill="none" stroke="#23143B" strokeWidth="4.2" strokeLinecap="round" />
+          <path className="wfc-browR" d="M 134 100 Q 148 93 164 100" fill="none" stroke="#23143B" strokeWidth="4.2" strokeLinecap="round" />
           <g transform={"translate(" + gx + " " + gy + ")"}>
-            <ellipse cx="93" cy="121" rx="16" ry="18.5" fill="#1E1233" />
-            <g className="wfc-starwink" style={{ transformOrigin: "95px 118px" }}>
-              <BooStar cx={95} cy={118} r={10} fill="#FFD166" />
+            <ellipse cx="92" cy="121" rx="17.5" ry="20" fill="#1E1233" />
+            <path d="M 78 128 Q 92 139 106 128" fill="none" stroke="#FF7597" strokeWidth="4.5" strokeLinecap="round" opacity="0.55" />
+            <g className="wfc-starwink" style={{ transformOrigin: "94px 117px" }}>
+              <BooStar cx={94} cy={117} r={11} fill="#FFD166" />
             </g>
-            <circle cx="86" cy="128" r="3.2" fill="#FFFFFF" />
-            <ellipse cx="147" cy="121" rx="16" ry="18.5" fill="#1E1233" />
-            <g className="wfc-starwink" style={{ transformOrigin: "149px 118px" }}>
-              <BooStar cx={149} cy={118} r={10} fill="#FFD166" />
+            <circle className="wfc-eye-shine" cx="84" cy="129" r="3.6" fill="#FFFFFF" />
+            <ellipse cx="148" cy="121" rx="17.5" ry="20" fill="#1E1233" />
+            <path d="M 134 128 Q 148 139 162 128" fill="none" stroke="#FF7597" strokeWidth="4.5" strokeLinecap="round" opacity="0.55" />
+            <g className="wfc-starwink" style={{ transformOrigin: "150px 117px" }}>
+              <BooStar cx={150} cy={117} r={11} fill="#FFD166" />
             </g>
-            <circle cx="140" cy="128" r="3.2" fill="#FFFFFF" />
+            <circle className="wfc-eye-shine" cx="140" cy="129" r="3.6" fill="#FFFFFF" />
           </g>
-          <path d="M 103 137 C 105 155 135 155 137 137 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.5" strokeLinejoin="round" />
-          <path d="M 109 146 C 115 153 125 153 131 146 C 125 143 115 143 109 146 Z" fill="#FF7597" />
+          <g className="wfc-mouth-joy" style={{ transformOrigin: "120px 144px" }}>
+            <path d="M 102 137 C 104 157 136 157 138 137 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.8" strokeLinejoin="round" />
+            <path d="M 108 146 C 115 154 125 154 132 146 C 125 142 115 142 108 146 Z" fill="#FF7597" />
+          </g>
         </g>
       ) : null}
 
-      {/* ── FLOATING EXTRAS ABOVE / AROUND ELF ── */}
-      {m.extra === "heart" ? <BooHeartGlyph x={120} y={8} scale={0.92} className="wfc-xheart" /> : null}
-      {m.extra === "broken" ? <BooHeartGlyph x={120} y={8} scale={0.92} broken className="wfc-xbreak" /> : null}
-      {m.extra === "sweat" ? <BooDropGlyph x={190} y={50} scale={0.95} className="wfc-xsweat" /> : null}
+      {/* ── FLOATING EXTRAS & SPECIAL EFFECTS ABOVE / AROUND ELF ── */}
+      {m.extra === "heart" ? <BooHeartGlyph x={120} y={6} scale={1.04} className="wfc-xheart" /> : null}
+      {m.extra === "broken" ? <BooHeartGlyph x={120} y={6} scale={1.08} broken className="wfc-xbreak" /> : null}
+      {m.extra === "sweat" ? <BooDropGlyph x={192} y={48} scale={1.02} className="wfc-xsweat" /> : null}
       {m.extra === "tear" || m.extra === "tears"
-        ? <BooDropGlyph x={72} y={140} scale={0.82} className="wfc-tear1" /> : null}
+        ? <BooDropGlyph x={70} y={140} scale={0.9} className="wfc-tear1" /> : null}
       {m.extra === "tears"
-        ? <BooDropGlyph x={168} y={140} scale={0.82} className="wfc-tear2" /> : null}
+        ? <BooDropGlyph x={170} y={140} scale={0.9} className="wfc-tear2" /> : null}
+
+      {/* ── ANIMATED ACTIVITY & DATE PROPS HELD BY ELF ── */}
+      {prop === "tonight" ? (
+        <g className="wfc-prop-pop" transform="translate(182 110)">
+          <path d="M 4 2 L 38 2 L 24 22 L 24 38 L 34 40 L 8 40 L 18 38 L 18 22 Z" fill="#FFF8FF" stroke="#23143B" strokeWidth="4.2" strokeLinejoin="round" />
+          <path d="M 9 7 L 33 7 L 22 20 L 20 20 Z" fill="#FF2A85" />
+          <circle cx="34" cy="4" r="7" fill="#FFD166" stroke="#23143B" strokeWidth="3.5" />
+          <circle cx="18" cy="-4" r="3" fill="#00F5D4" className="wfc-xheart" />
+          <circle cx="26" cy="-11" r="2.4" fill="#FFD166" className="wfc-xheart" />
+        </g>
+      ) : null}
+      {prop === "dinner" ? (
+        <g className="wfc-prop-pop" transform="translate(174 118)">
+          <ellipse cx="24" cy="28" rx="24" ry="6" fill="#FFF8FF" stroke="#23143B" strokeWidth="4" />
+          <path d="M 4 26 C 4 8 44 8 44 26 Z" fill="#FFD166" stroke="#23143B" strokeWidth="4.2" strokeLinejoin="round" />
+          <circle cx="24" cy="7" r="4.5" fill="#FF2A85" stroke="#23143B" strokeWidth="3.2" />
+          <BooHeartGlyph x={24} y={-14} scale={0.45} className="wfc-xheart" />
+        </g>
+      ) : null}
+      {prop === "bite" ? (
+        <g className="wfc-prop-pop" transform="translate(178 114)">
+          <path d="M 28 14 C 38 14 38 28 28 28" fill="none" stroke="#23143B" strokeWidth="4.5" strokeLinecap="round" />
+          <rect x="6" y="10" width="24" height="24" rx="7" fill="#FFF2F7" stroke="#23143B" strokeWidth="4.2" />
+          <rect x="6" y="17" width="24" height="9" fill="#FF7597" />
+          <BooHeartGlyph x={18} y={-8} scale={0.42} className="wfc-xheart" />
+        </g>
+      ) : null}
+      {prop === "hidden" ? (
+        <g className="wfc-prop-pop" transform="translate(178 106)">
+          <circle cx="22" cy="22" r="18" fill="#FFD166" stroke="#23143B" strokeWidth="4.5" />
+          <circle cx="22" cy="22" r="12" fill="#1B1030" />
+          <BooStar cx={22} cy={22} r={9} fill="#00F5D4" />
+          <BooStar cx={36} cy={4} r={6} fill="#FF2A85" />
+        </g>
+      ) : null}
+      {prop === "drive" ? (
+        <g className="wfc-prop-pop" transform="translate(174 114)">
+          <path d="M 4 26 L 44 26 C 46 18 38 12 28 12 L 16 12 C 8 12 2 18 4 26 Z" fill="#FF2A85" stroke="#23143B" strokeWidth="4" strokeLinejoin="round" />
+          <circle cx="13" cy="28" r="6" fill="#FFD166" stroke="#23143B" strokeWidth="3.5" />
+          <circle cx="35" cy="28" r="6" fill="#FFD166" stroke="#23143B" strokeWidth="3.5" />
+          <BooStar cx={24} cy={0} r={7} fill="#00F5D4" />
+        </g>
+      ) : null}
+      {prop === "surprise" ? (
+        <g className="wfc-prop-pop" transform="translate(178 110)">
+          <rect x="6" y="14" width="28" height="24" rx="5" fill="#FF2A85" stroke="#23143B" strokeWidth="4.2" />
+          <rect x="3" y="8" width="34" height="9" rx="4" fill="#FFD166" stroke="#23143B" strokeWidth="4" />
+          <rect x="17" y="8" width="6" height="30" fill="#FFD166" stroke="#23143B" strokeWidth="3" />
+          <BooStar cx={20} cy={-5} r={8} fill="#00F5D4" />
+        </g>
+      ) : null}
+      {prop === "calendar" ? (
+        <g className="wfc-prop-pop" transform="translate(176 108)">
+          <rect x="4" y="8" width="34" height="32" rx="7" fill="#FFF8FF" stroke="#23143B" strokeWidth="4.2" />
+          <path d="M 4 17 L 38 17" stroke="#23143B" strokeWidth="3.8" />
+          <rect x="6" y="10" width="30" height="6" rx="2" fill="#FF2A85" />
+          <BooHeartGlyph x={21} y={20} scale={0.42} className="wfc-xheart" />
+        </g>
+      ) : null}
     </svg>
     </span>
   );
@@ -687,6 +794,8 @@ export const Elf = Cat;
 /**
  * Wayfind Santa AI wingman avatar for /ask — drawn directly in app/ask/pixel.js
  * so the entire /ask cast is self-contained with unique per-instance gradient IDs.
+ * When `calling` is true, Santa holds a gleaming golden retro handset to his ear
+ * with animated golden soundwave arcs radiating out.
  */
 export function SantaConciergeSvg({ calling = false }) {
   let raw = "";
@@ -715,13 +824,15 @@ export function SantaConciergeSvg({ calling = false }) {
         <path d="M50 246 C80 256 160 256 190 246 L190 266 C160 276 80 276 50 266Z" fill={OL} />
         <rect x="104" y="246" width="32" height="24" rx="6" fill="#ffd34d" stroke={OL} strokeWidth="3.5" />
       </g>
-      <g className="s-rarm">
-        <path d="M206 214 L222 120" stroke={OL} strokeWidth="16" strokeLinecap="round" />
-        <path d="M206 214 L222 120" stroke="#fff" strokeWidth="10" strokeLinecap="round" />
-        <path d="M206 214 L222 120" stroke="#ff4d5e" strokeWidth="10" strokeLinecap="round" strokeDasharray="7 7" />
-        <path d="M223 86 L231 104 L250 105 L235 117 L240 137 L223 126 L206 137 L211 117 L196 105 L215 104Z" fill="#ffd34d" stroke={OL} strokeWidth="3.5" strokeLinejoin="round" />
-        <circle cx={208} cy={204} r="15" fill="#3fbf7f" stroke={OL} strokeWidth="4" />
-      </g>
+      {!calling ? (
+        <g className="s-rarm">
+          <path d="M206 214 L222 120" stroke={OL} strokeWidth="16" strokeLinecap="round" />
+          <path d="M206 214 L222 120" stroke="#fff" strokeWidth="10" strokeLinecap="round" />
+          <path d="M206 214 L222 120" stroke="#ff4d5e" strokeWidth="10" strokeLinecap="round" strokeDasharray="7 7" />
+          <path d="M223 86 L231 104 L250 105 L235 117 L240 137 L223 126 L206 137 L211 117 L196 105 L215 104Z" fill="#ffd34d" stroke={OL} strokeWidth="3.5" strokeLinejoin="round" />
+          <circle cx={208} cy={204} r="15" fill="#3fbf7f" stroke={OL} strokeWidth="4" />
+        </g>
+      ) : null}
       <g className="s-head">
         <ellipse cx="120" cy="128" rx="66" ry="58" fill={skin} stroke={OL} strokeWidth="4.5" />
         <path d="M58 140 C46 160 52 186 70 196 C74 214 96 222 108 214 C114 226 126 226 132 214 C144 222 166 214 170 196 C188 186 194 160 182 140 C170 156 150 160 120 160 C90 160 70 156 58 140Z" fill={fluff} stroke={OL} strokeWidth="4.5" strokeLinejoin="round" />
@@ -730,7 +841,7 @@ export function SantaConciergeSvg({ calling = false }) {
         <ellipse cx={92} cy="126" rx="14" ry="18" fill="#1a1033" />
         <circle cx={96.5} cy="119" r="5.8" fill="#fff" />
         {calling ? (
-          <path d="M136 128 Q148 118 160 128" stroke={OL} strokeWidth="5.5" fill="none" strokeLinecap="round" />
+          <path d="M136 128 Q148 114 160 128" stroke={OL} strokeWidth="6" fill="none" strokeLinecap="round" />
         ) : (
           <>
             <ellipse cx={148} cy="126" rx="14" ry="18" fill="#1a1033" />
@@ -743,8 +854,42 @@ export function SantaConciergeSvg({ calling = false }) {
         <circle cx="206" cy="102" r="16" fill={fluff} stroke={OL} strokeWidth="4" />
         <path d="M48 96 C48 80 70 76 120 76 C170 76 192 80 192 96 C192 112 170 112 120 110 C70 112 48 112 48 96Z" fill={fluff} stroke={OL} strokeWidth="4.5" />
       </g>
+      {calling ? (
+        <g className="wfc-santa-phone" style={{ transformOrigin: "44px 146px" }}>
+          {/* Golden Vintage Receiver Held to Santa's Outer Left Ear */}
+          <rect x="36" y="102" width="26" height="30" rx="10" transform="rotate(18 49 117)" fill="#FFD166" stroke={OL} strokeWidth="4.5" />
+          <path d="M 46 122 C 30 136 30 158 48 172" fill="none" stroke="#FFD166" strokeWidth="14" strokeLinecap="round" />
+          <path d="M 46 122 C 30 136 30 158 48 172" fill="none" stroke={OL} strokeWidth="4.5" strokeLinecap="round" />
+          <rect x="42" y="160" width="26" height="30" rx="10" transform="rotate(-18 55 175)" fill="#FFD166" stroke={OL} strokeWidth="4.5" />
+          <circle cx="42" cy="148" r="14" fill="#3fbf7f" stroke={OL} strokeWidth="4" />
+          {/* Animated Soundwave Arcs */}
+          <path className="wfc-phone-wave1" d="M 22 112 Q 6 136 22 162" fill="none" stroke="#00F5D4" strokeWidth="5" strokeLinecap="round" />
+          <path className="wfc-phone-wave2" d="M 8 100 Q -12 136 8 174" fill="none" stroke="#FFD166" strokeWidth="4.5" strokeLinecap="round" />
+        </g>
+      ) : null}
     </svg>
   );
 }
+
+/**
+ * Movie-like Duet Theatre Scene when Santa AI calls the date to lock in an upgrade:
+ * Chibi Santa holding the golden phone receiver on the left + cheering Chibi Elf on the right,
+ * surrounded by floating hearts and sound-wave sparkles inside the glowing stage medallion.
+ */
+export function SantaCallStage({ size = 60 }) {
+  const s = Math.round(size * 1.28);
+  return (
+    <div className="wfc-couple">
+      <div className="wfc-hugL" style={{ width: s, height: Math.round(s * 1.12), marginRight: "-6%" }}>
+        <SantaConciergeSvg calling />
+      </div>
+      <div className="wfc-heart"><Heart size={26} tone="cream" /></div>
+      <div className="wfc-heart-smL"><Heart size={15} tone="bear" /></div>
+      <div className="wfc-heart-smR"><Heart size={15} tone="cream" /></div>
+      <div className="wfc-hugR"><Cat tone="cream" mood="love" size={s} flip snuggle /></div>
+    </div>
+  );
+}
+
 
 

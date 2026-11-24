@@ -6,7 +6,7 @@ import { loadComponent } from './lib/jsxLoad.mjs';
 import { stampOwnerPick } from '../lib/ownerBump.js';
 import { applyCuratorPicks } from '../lib/curatorPicks.js';
 import { readCompleteMapArea } from '../lib/mapAreaRead.js';
-import { MAP_AREA_PAGE_SIZE, MAP_SPARSE_FALLBACK_MIN_SCORE, mergeMapAreaContext, keepMapPreview, mapInventoryPlace, readMapAreaPage, selectMapPlaces, selectMapPlacesSparseFallback, validMapBounds } from '../lib/mapAreaData.js';
+import { MAP_AREA_PAGE_SIZE, MAP_SPARSE_FALLBACK_MIN_SCORE, MAP_SPARSE_TOPUP_THRESHOLD, MAP_NEAREST_WIDEN_MAX_MILES, mergeMapAreaContext, keepMapPreview, mapInventoryPlace, readMapAreaPage, selectMapPlaces, selectMapPlacesSparseFallback, selectMapPlacesWithSparseTopUp, selectNearestAreaFallback, validMapBounds } from '../lib/mapAreaData.js';
 const now = Date.parse('2026-09-10T12:00:00Z');
 const origin = { lat: 28.5, lng: -81.5 };
 const bounds = { north: 29, south: 28, east: -81, west: -82 };
@@ -198,7 +198,7 @@ assert.match(screen, /<AppleExplorerMap/);
 assert.match(screen, /<MapView[\s\S]{0,400}onViewportChange=\{setViewport\}/);
 assert.match(screen, /<CategoryMenu compact activeCat=\{cat\}/, 'shared category and current default remain');
 assert.match(screen, /shouldApplyMapDefault/);
-assert.match(screen, /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/);
+assert.match(screen, /selectMapPlacesWithSparseTopUp\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/);
 assert.match(screen, /view\.map\(\(p, i\)/);
 assert.match(screen, /readCompleteMapArea/);
 assert.match(screen, /controller\.abort\(\)/);
@@ -214,7 +214,8 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const route = await loadComponent(path.join(root, 'app/api/places/map/route.js'), root, { onGraph(graph) {
   const configFile = graph.get(path.join(root, 'lib/serverCache.js'));
   assert.ok(configFile, 'production route config dependency was compiled');
-  writeFileSync(configFile, 'export const sbEnv = () => null;\n');
+  const orig = readFileSync(configFile, 'utf8');
+  writeFileSync(configFile, orig.replace(/export function sbEnv\(\)[\s\S]*?^\}/m, 'export const sbEnv = () => null;'));
 } });
 assert.equal((await route.GET(new Request('https://example.org/api/places/map'))).status, 400, 'invalid API origin is rejected by the real handler');
 const apiQuery = new URLSearchParams({ ...bounds, originLat: origin.lat, originLng: origin.lng });
@@ -222,10 +223,12 @@ const unavailable = await route.GET(new Request('https://example.org/api/places/
 assert.equal(unavailable.status, 503, 'missing owned source is a visible failure rather than normal empty');
 assert.equal(unavailable.headers.get('cache-control'), 'private, no-store');
 
-// Owner 2026-11-23: sparse-area fallback (e.g. Parrish Food -> Breakfast when 9.2+ is empty).
+// Owner 2026-11-23: sparse-area top-up (< 8 strict 9.2+) and bounded 15-mi nearest-area auto-widen.
 {
   assert.equal(MAP_SPARSE_FALLBACK_MIN_SCORE, 7.5);
-  const parrishBounds = { north: 27.7, south: 27.5, east: -82.3, west: -82.6 };
+  assert.equal(MAP_SPARSE_TOPUP_THRESHOLD, 8);
+  assert.equal(MAP_NEAREST_WIDEN_MAX_MILES, 15);
+  const parrishBounds = { north: 27.69, south: 27.55, east: -82.12, west: -82.58 };
   const parrishCafe = { id: 'parrish-bistro', name: 'Parrish Breakfast Cafe', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant', 'cafe'], lat: 27.58, lng: -82.42, wfScore: 84, governed_score: 84 };
   const parrishDiner = { id: 'parrish-diner', name: 'Countryside Diner', category: 'food', primaryType: 'diner', types: ['diner', 'restaurant'], lat: 27.59, lng: -82.41, wfScore: 75, governed_score: 75 };
   const fastFoodSubpar = { id: 'subpar-fast', name: 'Highway Drive-Thru Breakfast', category: 'food', primaryType: 'fast_food_restaurant', types: ['fast_food_restaurant', 'breakfast_restaurant'], lat: 27.58, lng: -82.43, wfScore: 74, governed_score: 74 };
@@ -236,10 +239,38 @@ assert.equal(unavailable.headers.get('cache-control'), 'private, no-store');
   const fallback = selectMapPlacesSparseFallback(sparsePool, 'food', parrishBounds, 'breakfast');
   assert.deepEqual(fallback.map(x => x.id), ['parrish-bistro', 'parrish-diner'], 'sparse fallback surfaces >= 7.5 local Breakfast spots and excludes < 7.5 and non-breakfast spots');
 
-  // Strict 9.2+ stays strict whenever 9.2+ matches exist.
-  const eliteSpot = { ...parrishCafe, id: 'elite-brunch', name: 'Elite Brunch House', wfScore: 93, governed_score: 93 };
-  const strictWithElite = selectMapPlaces([...sparsePool, eliteSpot], 'food', parrishBounds, 'breakfast');
-  assert.deepEqual(strictWithElite.map(x => x.id), ['elite-brunch'], 'when 9.2+ exists, strict selection never admits < 9.2');
+  // Sparse top-up (< 8 strict 9.2+): 2 strict Food spots + 2 >= 7.5 spots -> all 4 returned with 9.2+ leading.
+  const eliteSpot1 = { ...parrishCafe, id: 'elite-brunch-1', name: 'Elite Brunch House', wfScore: 95, governed_score: 95 };
+  const eliteSpot2 = { ...parrishCafe, id: 'elite-brunch-2', name: 'Morning Roasters', wfScore: 92, governed_score: 92 };
+  const topUpSparse = selectMapPlacesWithSparseTopUp([...sparsePool, eliteSpot1, eliteSpot2], 'food', parrishBounds, 'breakfast');
+  assert.equal(topUpSparse.sparseFallback, true, 'sparse top-up triggers when strict 9.2+ count is below MAP_SPARSE_TOPUP_THRESHOLD (8)');
+  assert.deepEqual(topUpSparse.places.map(x => x.id), ['elite-brunch-1', 'elite-brunch-2', 'parrish-bistro', 'parrish-diner'], 'sparse top-up leads with 9.2+ then >= 7.5 and excludes < 7.5');
+
+  // Dense area (>= 8 strict 9.2+) stays 100% strict 9.2+ with sparseFallback: false.
+  const denseElites = Array.from({ length: 8 }, (_, i) => ({ ...parrishCafe, id: `dense-${i}`, name: `Dense ${i}`, wfScore: 92 + (i % 6), governed_score: 92 + (i % 6) }));
+  const topUpDense = selectMapPlacesWithSparseTopUp([...denseElites, parrishCafe, parrishDiner], 'food', parrishBounds, 'breakfast');
+  assert.equal(topUpDense.sparseFallback, false, 'dense area with >= 8 strict 9.2+ stays strictly 9.2+');
+  assert.equal(topUpDense.places.length, 8, 'dense area never admits < 9.2 spots');
+
+  // Strict 9.2+ stays strict whenever called directly.
+  const strictWithElite = selectMapPlaces([...sparsePool, eliteSpot1], 'food', parrishBounds, 'breakfast');
+  assert.deepEqual(strictWithElite.map(x => x.id), ['elite-brunch-1'], 'when 9.2+ exists, strict selectMapPlaces never admits < 9.2');
+
+  // Bounded 15-mi nearest-area fallback (e.g. Parrish Creekside Commons Breakfast 0.4 mi south of viewport).
+  const parrishCenter = { lat: 27.588, lng: -82.426 };
+  const firstWatch = { id: 'first-watch', name: 'First Watch', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant'], lat: 27.542, lng: -82.425, wfScore: 92, governed_score: 92 };
+  const butterfields = { id: 'butterfields', name: 'Butterfields Family Restaurant', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant'], lat: 27.540, lng: -82.424, wfScore: 90, governed_score: 90 };
+  const tampaFar = { id: 'tampa-far-bfast', name: 'Tampa Far Brunch', category: 'food', primaryType: 'breakfast_restaurant', types: ['breakfast_restaurant'], lat: 27.95, lng: -82.46, wfScore: 98, governed_score: 98 };
+  const widened = selectNearestAreaFallback([firstWatch, butterfields, tampaFar, fastFoodSubpar], 'food', 'breakfast', parrishCenter);
+  assert.deepEqual(widened.map(x => x.id), ['first-watch', 'butterfields'], 'nearest-area fallback finds Creekside Commons breakfast spots within 15 mi and never widens across metros (> 15 mi)');
+  // When > 16 places exist within 15 mi, nearest 16 win over farther 14.9 mi places, then sort by governed_score.
+  const crowdedFarWithin15 = Array.from({ length: 18 }, (_, i) => ({
+    ...firstWatch, id: `edge-${i}`, name: `Edge ${i}`, lat: 27.40, lng: -82.426, wfScore: 96, governed_score: 96,
+  }));
+  const cappedWiden = selectNearestAreaFallback([...crowdedFarWithin15, butterfields, firstWatch], 'food', 'breakfast', parrishCenter, { limit: 16 });
+  assert.equal(cappedWiden.length, 16, 'nearest-area fallback respects limit');
+  assert.ok(cappedWiden.some(x => x.id === 'first-watch') && cappedWiden.some(x => x.id === 'butterfields'), 'closest 3-mi spots are preserved over 13-mi edge spots before final governed-score sort');
+  assert.deepEqual(selectNearestAreaFallback([firstWatch], 'food', 'breakfast', null), [], 'missing referenceCenter returns empty');
 
   // keepMapPreview respects allowSparseFallback.
   assert.equal(keepMapPreview(parrishCafe, fallback, 'food', 'ready'), false, 'keepMapPreview rejects < 9.2 without allowSparseFallback');
@@ -247,4 +278,180 @@ assert.equal(unavailable.headers.get('cache-control'), 'private, no-store');
   assert.equal(keepMapPreview(fastFoodSubpar, fallback, 'food', 'ready', { allowSparseFallback: true }), false, 'keepMapPreview still rejects < 7.5 even with allowSparseFallback=true');
 }
 
-console.log('Map area data: 1203-place traversal, six categories, post-context 9.0→9.6 admission/curator fallback/creator continuity, freshness, geo, dedupe, shared filters, sparse-area fallback, fetch/body deadlines and cancellation verified.');
+// Owner 2026-11-23: wire GoWayfind's existing inventory metadata + stored photos (Tier 1/2/3, zero external API calls).
+{
+  const { hydrateMapPlacesWithStoredPhotos } = await import('../lib/mapAreaPhotos.js');
+
+  // 1. mapInventoryPlace preserves existing GoWayfind fields from wf_inventory.
+  const richRow = row(42, {
+    place_id: 'ChIJRichInventoryPlace01',
+    editorial: 'Wood-fired pizzas and housemade pasta.',
+    signals: {
+      rating: 4.9,
+      reviews: 1200,
+      priceNum: 2,
+      website: 'https://richvenue.example/',
+      photo_url: '/places/rich-cover.webp',
+      photos: ['/place-photos/batch-1/rich.jpg'],
+      photo_gallery: [{
+        url: '/place-photos/batch-1/rich.jpg',
+        source: 'official_website',
+        license: 'Courtesy of venue',
+        attribution_text: 'Photo: Rich Venue',
+        attribution_url: 'https://richvenue.example/',
+      }],
+    },
+  });
+  const richMapped = mapInventoryPlace(richRow, now, origin);
+  assert.equal(richMapped.photo_url, '/places/rich-cover.webp');
+  assert.equal(richMapped.photoUrl, '/places/rich-cover.webp');
+  assert.deepEqual(richMapped.owned_photos, ['/place-photos/batch-1/rich.jpg']);
+  assert.equal(richMapped.photo_gallery.length, 1);
+  assert.deepEqual(richMapped.editorialSummary, { text: 'Wood-fired pizzas and housemade pasta.' });
+  assert.equal(richMapped.website, 'https://richvenue.example/');
+  assert.equal(richMapped.priceLevel, 2);
+
+  // 2. mergeMapAreaContext preserves GoWayfind photos, editorial, cuisines, tags, price, address, website, hours without replacing owned identity/score.
+  const bareArea = mapInventoryPlace(row(43, { place_id: 'ChIJBareAreaRow0000001', cuisines: [], tags: [], editorial: null, signals: { rating: 4.8, reviews: 900 } }), now, origin);
+  const ctxRich = {
+    id: bareArea.id,
+    name: 'Wrong Context Name',
+    lat: 0,
+    lng: 0,
+    governed_score: 100,
+    wfPhoto: { src: '/api/photo/stored/ChIJBareAreaRow0000001?v=' + 'a'.repeat(64), source: 'google', credit: { name: 'Photog', mapsUri: 'https://maps.google.com/?cid=1', authors: [{ name: 'Photog' }] } },
+    photo: '/api/photo/stored/ChIJBareAreaRow0000001?v=' + 'a'.repeat(64),
+    photo_url: '/places/ctx-cover.jpg',
+    photoRef: 'places/ChIJBareAreaRow0000001/photos/Ref123',
+    editorial: 'Neighborhood taco stand with handmade tortillas.',
+    line: 'Neighborhood taco stand with handmade tortillas.',
+    cuisines: ['Mexican'],
+    tags: ['lunch', 'dinner'],
+    priceNum: 2,
+    address: '123 Main St, Parrish, FL',
+    website: 'https://tacos.example/',
+  };
+  const mergedRich = mergeMapAreaContext([bareArea], [ctxRich])[0];
+  assert.equal(mergedRich.name, bareArea.name, 'mergeMapAreaContext never overrides owned name');
+  assert.equal(mergedRich.lat, bareArea.lat, 'mergeMapAreaContext never overrides owned lat');
+  assert.equal(mergedRich.governed_score, bareArea.governed_score, 'mergeMapAreaContext never borrows precomputed governed_score');
+  assert.equal(mergedRich.wfPhoto.src, ctxRich.wfPhoto.src, 'mergeMapAreaContext carries wfPhoto');
+  assert.equal(mergedRich.photo, ctxRich.photo, 'mergeMapAreaContext carries photo');
+  assert.equal(mergedRich.photoRef, ctxRich.photoRef, 'mergeMapAreaContext carries photoRef');
+  assert.equal(mergedRich.editorial, ctxRich.editorial, 'mergeMapAreaContext carries editorial');
+  assert.deepEqual(mergedRich.editorialSummary, { text: ctxRich.editorial }, 'mergeMapAreaContext derives editorialSummary');
+  assert.equal(mergedRich.line, ctxRich.line, 'mergeMapAreaContext carries line');
+  assert.deepEqual(mergedRich.cuisines, ['Mexican'], 'mergeMapAreaContext carries cuisines');
+  assert.deepEqual(mergedRich.tags, ['lunch', 'dinner'], 'mergeMapAreaContext carries tags');
+  assert.equal(mergedRich.priceNum, 2, 'mergeMapAreaContext carries priceNum');
+  assert.equal(mergedRich.address, ctxRich.address, 'mergeMapAreaContext carries address');
+  assert.equal(mergedRich.website, ctxRich.website, 'mergeMapAreaContext carries website');
+
+  // 3. hydrateMapPlacesWithStoredPhotos: Tier 1 gallery, Tier 2 wf_place_photo, Tier 3 wf_google_photo_store, ZERO external API calls, fail-soft.
+  const ID_T1 = 'ChIJTierOneGallery00001';
+  const ID_T2 = 'ChIJTierTwoFreePhoto002';
+  const ID_T3 = 'ChIJTierThreeGoogle0003';
+  const ID_NONE = 'ChIJNoStoredPhoto000004';
+  const HASH64 = 'b'.repeat(64);
+  const rawRowsById = new Map([
+    [ID_T1, {
+      place_id: ID_T1,
+      signals: {
+        photo_gallery: [{
+          url: `https://www.gowayfind.com/place-photos/batch-1/${ID_T1}/cover.jpg`,
+          source: 'official_website',
+          license: 'Courtesy of venue',
+          attribution_text: 'Photo: Tier One Cafe',
+          attribution_url: 'https://tierone.example/',
+        }],
+      },
+    }],
+  ]);
+  const requestedUrls = [];
+  const hydrated = await hydrateMapPlacesWithStoredPhotos(
+    [
+      { id: ID_T1, name: 'Tier One', photo_gallery: rawRowsById.get(ID_T1).signals.photo_gallery },
+      { id: ID_T2, name: 'Tier Two' },
+      { id: ID_T3, name: 'Tier Three' },
+      { id: ID_NONE, name: 'No Photo' },
+    ],
+    {
+      rawRowsById,
+      config: { url: 'https://owned.supabase.co', key: 'service-role-fixture' },
+      stripRawGallery: true,
+      vaultPublicUrl: (sp, base) => `${base}/storage/v1/object/public/place-photos/${sp}`,
+      renditionUrl: (u) => u,
+      fetcher: async (url, init) => {
+        requestedUrls.push(String(url));
+        assert.ok(String(url).startsWith('https://owned.supabase.co/rest/v1/'), 'must only hit configured Supabase REST, zero external APIs');
+        assert.equal(init.headers.apikey, 'service-role-fixture');
+        if (String(url).includes('/wf_place_photo')) {
+          return {
+            ok: true,
+            json: async () => [{
+              place_id: ID_T2,
+              image_url: 'https://upload.wikimedia.org/wikipedia/commons/a/ab/Spot.jpg',
+              storage_path: `${ID_T2}/vault.webp`,
+              license: 'CC BY-SA 4.0',
+              attribution_text: 'Commons Author',
+              attribution_url: 'https://commons.wikimedia.org/wiki/File:Spot.jpg',
+              source: 'wikimedia',
+              width: 1200,
+            }],
+          };
+        }
+        if (String(url).includes('/wf_google_photo_store')) {
+          return {
+            ok: true,
+            json: async () => [{
+              place_id: ID_T3,
+              state: 'ready',
+              version: HASH64,
+              storage_path: `${ID_T3}/12345678-1234-1234-1234-123456789abc/${HASH64}`,
+              content_type: 'image/jpeg',
+              width: 1200,
+              height: 800,
+              bytes: 95000,
+              credit: {
+                name: 'Jane Google Photog',
+                uri: 'https://maps.google.com/maps/contrib/1',
+                mapsUri: 'https://maps.google.com/?cid=999',
+                authors: [{ name: 'Jane Google Photog', uri: 'https://maps.google.com/maps/contrib/1' }],
+              },
+            }],
+          };
+        }
+        throw new Error('unexpected URL: ' + url);
+      },
+    },
+  );
+  assert.equal(requestedUrls.length, 2, 'batch hydration makes at most 1 wf_place_photo + 1 wf_google_photo_store query');
+  assert.ok(!requestedUrls[0].includes(ID_T1), 'Tier 1 hit is excluded from Tier 2 batch query');
+  assert.ok(!requestedUrls[1].includes(ID_T1) && !requestedUrls[1].includes(ID_T2), 'Tier 1 & 2 hits are excluded from Tier 3 batch query');
+  const h1 = hydrated.find((x) => x.id === ID_T1);
+  const h2 = hydrated.find((x) => x.id === ID_T2);
+  const h3 = hydrated.find((x) => x.id === ID_T3);
+  const h4 = hydrated.find((x) => x.id === ID_NONE);
+  assert.equal(h1.photo, `/place-photos/batch-1/${ID_T1}/cover.jpg`, 'Tier 1 sets photo from signals.photo_gallery');
+  assert.equal(h1.wfPhoto.source, 'permitted');
+  assert.equal(h1.wfPhoto.credit.name, 'Photo: Tier One Cafe');
+  assert.equal('photo_gallery' in h1, false, 'stripRawGallery removes raw photo_gallery after hydrating wfPhoto');
+  assert.equal(h2.photo, `https://owned.supabase.co/storage/v1/object/public/place-photos/${ID_T2}/vault.webp`, 'Tier 2 serves vaulted wf_place_photo URL');
+  assert.equal(h2.wfPhoto.source, 'licensed');
+  assert.equal(h2.wfPhoto.credit.license, 'CC BY-SA 4.0');
+  assert.equal(h3.photo, `/api/photo/stored/${ID_T3}?v=${HASH64}`, 'Tier 3 sets stored Google photo URL');
+  assert.equal(h3.wfPhoto.source, 'google');
+  assert.equal(h3.wfPhoto.credit.name, 'Jane Google Photog', 'Tier 3 preserves photographer credit');
+  assert.equal(h3.wfPhoto.credit.mapsUri, 'https://maps.google.com/?cid=999', 'Tier 3 preserves Google Maps credit link');
+  assert.equal(h4.wfPhoto, undefined, 'place with no stored photo remains clean without fabrication');
+
+  // Fail-soft: DB network errors never break map area responses.
+  const failSoft = await hydrateMapPlacesWithStoredPhotos(
+    [{ id: ID_T3, name: 'Still Here' }],
+    { config: { url: 'https://owned.supabase.co', key: 'k' }, fetcher: async () => { throw new Error('db timeout'); } },
+  );
+  assert.equal(failSoft.length, 1);
+  assert.equal(failSoft[0].id, ID_T3);
+}
+
+console.log('Map area data: 1203-place traversal, six categories, post-context 9.0→9.6 admission/curator fallback/creator continuity, freshness, geo, dedupe, shared filters, sparse-area top-up (<8), bounded 15-mi nearest-area fallback, GoWayfind Tier 1/2/3 batch photo hydration & metadata preservation, fetch/body deadlines and cancellation verified.');

@@ -33,7 +33,9 @@ const MAP_CSS = `.xm-map-toggle{display:inline-flex;align-items:center;justify-c
 .xm-temporal-btn{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border:1px solid #E8B48A66;border-radius:999px;background:#230710aa;color:#FFE9C8;font:inherit;font-size:14px;font-weight:750;white-space:nowrap;cursor:pointer}
 .xm-temporal-btn[aria-pressed="true"]{border-color:#E8B48A;background:linear-gradient(180deg,#FFE9C8,#E8C395);color:#3D0914;box-shadow:0 3px 12px #18020833}
 .xm-temporal-btn:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
-.xm-temporal-cnt{font-size:12px;opacity:.82}`;
+.xm-temporal-cnt{font-size:12px;opacity:.82}
+@media(min-width:720px){.xm-area-bar{flex-wrap:wrap;overflow-x:visible;gap:6px;padding-bottom:8px}.xm-area-btn{min-height:36px;padding:0 12px;font-size:13px}}`;
+const AREA_CHIP_ORDER = ["Central Florida", "Tampa Bay", "South Florida & Keys", "First Coast", "Suncoast", "Southwest Florida", "Daytona & Space Coast", "Treasure Coast & Palm Beaches", "Panhandle", "North Florida & Big Bend"];
 const TEMPORAL_TABS = [
   { id: "", countKey: "all", label: "All Christmas" },
   { id: "tonight", countKey: "tonight", label: "Open tonight" },
@@ -226,6 +228,10 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
 
   const pills = Array.isArray(facets.pills) ? facets.pills : [];
   const dates = Array.isArray(facets.dates) ? facets.dates : [];
+  const regions = (Array.isArray(facets.regions) ? [...facets.regions] : []).sort((a, b) => {
+    const ai = AREA_CHIP_ORDER.indexOf(a), bi = AREA_CHIP_ORDER.indexOf(b);
+    return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+  });
   const temporalCounts = data?.temporalCounts || initial?.temporalCounts || null;
   const activeWhen = query.date || query.undated ? "__custom__" : (query.when || "");
   const summary = [(pills.find((p) => p.id === query.category) || {}).label, (dates.find((d) => d.id === query.when) || {}).label, query.region].filter(Boolean).join(" · ");
@@ -239,7 +245,6 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   const shownCards = cards.length;
   const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
-    <ChristmasWeekendRow initial={weekend} lat={located ? query.lat : null} lng={located ? query.lng : null} />
     <ChristmasPlan />
     <div className="xm-temporal-bar" role="group" aria-label="When to go" data-christmas-temporal-modes="" data-boo-clear="">
       {TEMPORAL_TABS.map((tab) => {
@@ -259,6 +264,25 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
         );
       })}
     </div>
+    {regions.length ? (
+      <div className="xm-temporal-bar xm-area-bar" role="group" aria-label="Florida areas" data-christmas-areas="" data-boo-clear="">
+        <button
+          type="button"
+          className="xm-temporal-btn xm-area-btn"
+          aria-pressed={!query.region ? "true" : "false"}
+          onClick={() => set("region", "")}
+        >All Florida</button>
+        {regions.map((region) => (
+          <button
+            key={region}
+            type="button"
+            className="xm-temporal-btn xm-area-btn"
+            aria-pressed={query.region === region ? "true" : "false"}
+            onClick={() => set("region", query.region === region ? "" : region)}
+          >{region}</button>
+        ))}
+      </div>
+    ) : null}
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
       <span className="xm-sort-note">{ticketsFirst ? "Book online first, then tickets" : located ? "Book online first, then top rated near you" : "Book online first, then top rated and trending"}</span>
@@ -281,6 +305,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     </div>
     {!loading && !failed && !cards.length ? <p className="xm-empty">No Christmas events match this filter right now. Try another experience or region.</p> : null}
     {data.hasMore ? <button type="button" className="xm-more" onClick={more} disabled={loading}>{loading ? "Loading…" : "Show more"}</button> : null}
+    <ChristmasWeekendRow initial={weekend} lat={located ? query.lat : null} lng={located ? query.lng : null} />
     {hasPartner ? <div className="xm-foot"><GuideCommissionLine /></div> : null}
   </section>;
 }

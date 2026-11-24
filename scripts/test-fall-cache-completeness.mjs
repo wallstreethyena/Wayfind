@@ -5,6 +5,7 @@ import ts from "typescript";
 import { composeHalloweenRails } from "../lib/halloweenIntentRails.js";
 import * as seasonalHospitality from "../lib/seasonalHospitality.js";
 import * as eventSocial from "../lib/eventSocial.js";
+import * as videoEmbed from "../lib/videoEmbed.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
 import * as fallPhotoDestinations from "../lib/fallPhotoDestinations2026.js";
 import * as overnightClose from "../lib/overnightClose.js";
@@ -35,6 +36,7 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
     "../../../../lib/seasonalHospitality.js": seasonalHospitality,
     "../../../../lib/halloweenIntentRails.js": { composeHalloweenRails },
     "../../../../lib/eventSocial.js": eventSocial,
+    "../../../../lib/videoEmbed.js": videoEmbed,
     "../../../../lib/fallPlaceEvidence.js": { fallPlaceEvidenceCurrent: () => true },
     "../../../../lib/curatedOwnedPlacePhotos.js": { CURATED_OWNED_PLACE_PHOTOS: {} },
     "../../../../lib/fallFeaturedFestivals2026.js": { FALL_FEATURED_FESTIVALS_2026: [], FALL_FEATURED_FESTIVAL_IDS: new Set() },

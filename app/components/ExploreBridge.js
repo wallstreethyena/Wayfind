@@ -133,8 +133,11 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
   // server sent it; only the CSS gate decides whether it is visible.
   if (resolved && variant !== "treatment") return null;
 
+  const tonightParams = where && Number.isFinite(city?.lat) && Number.isFinite(city?.lng)
+    ? new URLSearchParams({ city: where, lat: city.lat, lng: city.lng }).toString()
+    : "";
   const intents = [
-    { k: "tonight", label: "Tonight", href: "/?go=events" },
+    { k: "tonight", label: "Tonight", href: "/tonight" + (tonightParams ? "?" + tonightParams : "") },
     { k: "free", label: "Free", href: "/?q=" + encodeURIComponent("free things to do" + (where ? " in " + where : "")) },
     { k: "family", label: "Family", href: "/?q=" + encodeURIComponent("family friendly things to do" + (where ? " in " + where : "")) },
     { k: "near", label: "Near me", href: "/" },
@@ -160,7 +163,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
 
       {list.length ? (
         <>
-          <p style={S.pickHead}>Open now, top rated nearby</p>
+          <p style={S.pickHead}>{list.every((p) => p.openNow === true) ? "Open now, top rated nearby" : "Top rated nearby"}</p>
           {list.map((p, i) => (
             <a
               key={p.id || i}

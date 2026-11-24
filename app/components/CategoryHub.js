@@ -50,7 +50,7 @@ export default function CategoryHub({ path, cat, h1, intro, extras = [] }) {
     itemListElement: rows.map((r, i) => ({ "@type": "ListItem", position: i + 1, name: `${label} in ${r.name}`, url: `${SITE_URL}${path}/${r.slug}` })),
   };
   return (
-    <div style={S.page}>
+    <div style={S.page} className="wf-page-canvas">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div style={S.kicker}>Wayfind {label}</div>
       <h1 style={S.h1}>{h1}</h1>

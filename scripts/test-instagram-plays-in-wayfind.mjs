@@ -15,11 +15,11 @@
 //   2. every Instagram post in the source has a verdict, so a new post cannot
 //      ship unchecked (run the classifier when this fails);
 //   3. embedSrc() gives a player to exactly the verified posts (calls, not greps);
-//   4. every playback surface asks isEmbeddable() before showing a post, and the
-//      Disney food posts carry no link out to Instagram.
+//   4. playback surfaces gate their controls using the shared eligibility rule,
+//      and the Disney food posts carry no link out to Instagram.
 import { readFileSync } from "node:fs";
 import { collectShortcodes, verdictFromEmbedHtml } from "./classify-instagram-embeds.mjs";
-import { embedSrc, isEmbeddable, instagramPlaysInWayfind } from "../lib/videoEmbed.js";
+import { creatorPostActionLabel, creatorPostKind, embedSrc, isCreatorVideoPost, isEmbeddable, instagramPlaysInWayfind } from "../lib/videoEmbed.js";
 import { INSTAGRAM_INLINE, INSTAGRAM_HANDOFF } from "../lib/instagramEmbedVerdicts.js";
 
 let pass = 0;
@@ -46,10 +46,23 @@ ok(missing.length === 0, `every Instagram post has a verdict; run node scripts/c
 ok(![...inline].some((c) => handoff.has(c)), "no post is recorded both ways");
 
 // 3. Players exactly where Instagram plays the post (calls the real function).
-let wrong = [];
-for (const c of inline) if (embedSrc("instagram", `https://www.instagram.com/reel/${c}/`) !== `https://www.instagram.com/reel/${c}/embed/`) wrong.push(c);
-for (const c of handoff) if (embedSrc("instagram", `https://www.instagram.com/reel/${c}/`) !== null || isEmbeddable("instagram", `https://www.instagram.com/reel/${c}/`)) wrong.push(c);
-ok(wrong.length === 0, `embedSrc matches every verdict (${inline.size} play here, ${handoff.size} Instagram only links out): ${wrong.slice(0, 8).join(" ")}`);
+const wrong = [];
+for (const c of inline) {
+  const reel = `https://www.instagram.com/reel/${c}/`;
+  const post = `https://www.instagram.com/p/${c}/`;
+  if (embedSrc("instagram", reel) !== reel + "embed/" || embedSrc("instagram", post) !== post + "embed/" ||
+      !isCreatorVideoPost("instagram", reel) || creatorPostKind("instagram", post) !== "post" ||
+      creatorPostActionLabel("instagram", reel) !== "Watch in Wayfind" ||
+      creatorPostActionLabel("instagram", post) !== "View post") wrong.push(c);
+}
+for (const c of handoff) {
+  for (const type of ["reel", "p"]) {
+    const url = `https://www.instagram.com/${type}/${c}/`;
+    if (embedSrc("instagram", url) !== null || isEmbeddable("instagram", url) ||
+        isCreatorVideoPost("instagram", url) || creatorPostActionLabel("instagram", url) !== null) wrong.push(c);
+  }
+}
+ok(wrong.length === 0, `embed and action kind match every verdict (${inline.size} play here, ${handoff.size} Instagram only links out): ${wrong.slice(0, 8).join(" ")}`);
 ok(!instagramPlaysInWayfind("NOTCHECKED1") && embedSrc("instagram", "https://www.instagram.com/reel/NOTCHECKED1/") === null, "an unchecked post gets no player (fail closed)");
 ok(handoff.has("DfN3Hxph0jD") && embedSrc("instagram", "https://www.instagram.com/reel/DfN3Hxph0jD/") === null, "the owner's reported Robert's Christmas Wonderland reel gets no player");
 ok(Boolean(embedSrc("tiktok", "https://www.tiktok.com/@a/video/6718335390845095173")), "TikTok still plays (control)");
@@ -60,13 +73,14 @@ const surfaces = {
   "app/christmas-in-florida/page.js": /\(allPosts \|\| \[\]\)\.filter\(\(post\) => isEmbeddable\(post\.platform, post\.url\)\)/,
   // Guides show creator posts only through the shared rail (check-guide-standard rule 4).
   "app/components/CreatorPostRail.js": /posts\.filter\(\(post\) => isEmbeddable\("instagram", post\.url\)\)/,
-  "app/components/sheets/Detail.js": /creatorVideosFor\(detail, locName\)\.filter\(\(v\) => isEmbeddable\(v\.platform, v\.url\)\)/,
-  "app/components/CreatorVideoAction.js": /if \(!isEmbeddable\(platform, safeUrl\(url\)\)\) return null;/,
+  "app/components/sheets/Detail.js": /const posts = creatorVideosFor\(detail, locName\)\.map\(\(post\) => \(\{ post, actionLabel: creatorPostActionLabel\(post\.platform, post\.url\) \}\)\);\s*const cvs = posts\.filter\(\(\{ actionLabel \}\) => actionLabel\);[\s\S]*?\{cvs\.map\(/,
+  "app/components/CreatorVideoAction.js": /const actionLabel = creatorPostActionLabel\(platform, safeUrl\(url\)\);\s*if \(!actionLabel\) return null;/,
+  "app/components/VideoFacade.js": /const kind = creatorPostKind\(platform, url\);\s*if \(!kind\) return null;/,
 };
-for (const [file, re] of Object.entries(surfaces)) ok(re.test(read(file)), `${file} only shows posts that play inside Wayfind`);
+for (const [file, re] of Object.entries(surfaces)) ok(re.test(read(file)), `${file} only offers media actions for posts that open inside Wayfind`);
 const foodPost = read("app/components/CreatorPostRail.js") + read("app/components/CheckedCreatorPost.js") + read("app/guides/disney-world-holiday-food-guide-2026/FoodStop.js");
 ok(!/<a\b[^>]*post\.url/.test(foodPost) && !/<a\b/.test(read("app/components/CreatorPostRail.js") + read("app/components/CheckedCreatorPost.js")), "guide creator posts (Disney food guide) carry no link out to Instagram");
 ok(/<a\b/.test('<a href="x">'), "anchor probe detects a link (positive control)");
 
 if (fails.length) { console.error("test-instagram-plays-in-wayfind: FAIL\n  - " + fails.join("\n  - ")); process.exit(1); }
-console.log(`test-instagram-plays-in-wayfind: OK — ${pass} assertions; ${codes.length} Instagram posts in source, ${inline.size} play in Wayfind, ${handoff.size} Instagram only links out (hidden), ${Object.keys(surfaces).length} surfaces gated`);
+console.log(`test-instagram-plays-in-wayfind: OK — ${pass} assertions; ${codes.length} Instagram posts in source, ${inline.size} play in Wayfind, ${handoff.size} Instagram handoffs offer no playback, ${Object.keys(surfaces).length} surfaces gated`);

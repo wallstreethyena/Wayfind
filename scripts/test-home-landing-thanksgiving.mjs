@@ -107,7 +107,7 @@ const { isFloridaVenue } = await import("../lib/floridaVenue.js");
   ok(after.rails.find((r) => r.id === "thanksgiving").cards.length === 0 && after.rails[0].id !== "thanksgiving", "after Thanksgiving weekend the rail empties and stops leading");
   const route = read("app/api/events/fall/route.js");
   ok((route.match(/\.\.\.FALL_THANKSGIVING_2026/g) || []).length === 2, "the fall route loads the picks' venues and merges the picks");
-  ok(/value\?\.rails\?\.length === FALL_INTENT_RAIL_DEFS\.length/.test(route) && /fall-intents:v49:/.test(route), "the cache admits the eleven rail answer under a new key");
+  ok(/value\?\.rails\?\.length === FALL_INTENT_RAIL_DEFS\.length/.test(route) && Number((route.match(/fall-intents:v(\d+):/) || [])[1]) >= 50, "the cache admits the eleven rail answer under a new key");
   ok(/const expectedRailCount = collection === "halloween" \? 9 : 11;/.test(read("app/components/FallIntentRails.js")), "the client expects eleven fall rails");
 }
 

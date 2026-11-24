@@ -73,7 +73,8 @@ export async function GET(request) {
     // must not outlive this deploy.
     // v16: verified November 17 schedules, venue pins and the promoted Eola
     // nightly show must not reuse a cached payload from the prior research data.
-    const key = `christmas-intents:v16:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v17 adds in-app playback eligibility to the compact creator credit.
+    const key = `christmas-intents:v17:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     // Viator Christmas light tours for the tile's own small rail (owner,
     // 2026-11-04). Read beside the rails, never inside the cached answer, so a
     // tour read can never mark the rails degraded; it never throws (snapshot

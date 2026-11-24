@@ -48,7 +48,7 @@ for (const id of ids) {
   } else if (eventTicketDeal(id)) {
     ok(cta.provider !== "ticketmaster", id + ": the registry partner still comes first");
   } else {
-    ok(cta.provider === "ticketmaster" && cta.label === "Ticketmaster", id + " button names Ticketmaster");
+    ok(cta.provider === "ticketmaster" && cta.label === "Get Tickets" && /Ticketmaster/.test(cta.via || ""), id + " button uses action-first Get Tickets and names Ticketmaster in via");
     ok(/^\/api\/ticketmaster\/go\?/.test(cta.href), id + " button goes through our redirect, never the raw page");
     const q = new URL(cta.href, "https://x.test").searchParams;
     ok(q.get("url") === christmasTicketmasterUrl(id, TODAY) && q.get("content") === id && q.get("offer") === id && q.get("surface") === "christmas_tickets", id + " redirect carries the page and attribution");

@@ -272,14 +272,18 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   for (const row of m.rows) {
     ok(row.cta.kind === "affiliate" && /^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href), row.id + " partner link is our /api/*/go route");
     ok(!/https?:\/\/|anrdoezrs|cj\.com|jdoqocy|tkqlhce/i.test(row.cta.href), row.id + " href is not a partner URL");
-    ok(["Undercover Tourist", "TicketSmarter", "Ticketmaster", "Tiqets", "Klook", "TicketNetwork", "Viator", "See availability ↗"].includes(row.cta.label), row.id + " button names only the partner: " + row.cta.label);
+    ok(["Get Park Tickets", "Get Tickets", "Book Tour ↗"].includes(row.cta.label), row.id + " button uses action-first copy: " + row.cta.label);
     ok(!/commission|we may earn|disclosure/i.test(row.cta.label), row.id + " button has no disclosure words");
     ok(/^(?:Admission|Event) tickets at \S/.test(row.cta.via) || row.cta.via === "Tour tickets at Viator", row.id + " carries the partner line: " + row.cta.via);
     eventTicketHrefs.set(row.id, row.cta.href);
   }
-  // Same bytes the registry hands every other surface (surface differs, the rest is the registry's).
-  const { eventTicketHref } = await import("../lib/eventTicketDeals.js");
-  for (const [id, href] of eventTicketHrefs) ok(href === eventTicketHref(id, { surface: "christmas_intent_rail" }), id + " href equals the registry href exactly");
+  // Same bytes the registry hands every other surface (surface differs, and Viator carries page=christmas-in-florida).
+  const { eventTicketHref, eventTicketDeal } = await import("../lib/eventTicketDeals.js");
+  for (const [id, href] of eventTicketHrefs) {
+    const entry = eventTicketDeal(id);
+    const expectedHref = eventTicketHref(id, { surface: "christmas_intent_rail", ...(entry?.provider === "viator" ? { page: "christmas-in-florida" } : {}) });
+    ok(href === expectedHref, id + " href equals the registry href exactly");
+  }
   // A dead or unread Undercover Tourist deal hides its button (no partner link), never fakes one.
   const noDeals = christmasTicketsModel(partner, "2026-11-01", { dealsById: new Map() });
   ok(noDeals.rows.every((r) => r.cta.kind === "organizer" || r.cta.provider !== "undercover_tourist"), "with no healthy wf_deals row an Undercover Tourist button is not shown");
@@ -315,7 +319,7 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
     ok(live, today + ": " + row.id + " is upcoming or ongoing");
     ok(/^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href) || /^https:\/\/[^/\s]+\.[^/\s]+/.test(row.cta.href), row.id + " href is our /api/*/go or an https official page: " + row.cta.href);
     ok(row.cta.kind !== "organizer" || (new URL(row.cta.href).hostname === new URL(card.official_ticket_url).hostname && new URL(row.cta.href).pathname.replace(/\/$/, "") === new URL(card.official_ticket_url).pathname.replace(/\/$/, "")), row.id + " organizer link is the row's own official_ticket_url");
-    ok(["Undercover Tourist", "TicketSmarter", "Ticketmaster", "Tiqets", "Klook", "TicketNetwork", "Viator", "Official Tickets", "See availability ↗"].includes(row.cta.label), row.id + " label approved");
+    ok(["Get Park Tickets", "Get Tickets", "Book Tour ↗", "Official Tickets"].includes(row.cta.label), row.id + " label approved: " + row.cta.label);
     for (const [k, v] of Object.entries({ name: row.name, chip: row.chip, city: row.city, venue: row.venue, when: row.when, price: row.price.text, unit: row.price.unit || "", via: row.cta.via, label: row.cta.label })) {
       ok(typeof v === "string" && !DASH.test(v), row.id + " " + k + " is dash free: " + v);
     }
@@ -507,11 +511,11 @@ ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !htm
 // Owner 2026-11-01 ("Why dint we use this filter? … Please fix it"): the list
 // uses the site's one filter pill (CollectionFilter look), not its own region
 // <select> and "Nearest to me" button.
-ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
+ok(html.includes("data-christmas-filter") && html.includes("Full menu") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "Full menu opens the standard filter pill, with no region select or nearest button beside it");
 {
   const f = strip(read("app/components/ChristmasFilter.js"));
-  ok(/"Best rated"/.test(f) && /"Best near you"/.test(f) && /"Tickets first"/.test(f) && /onSet\("sort", "tickets"\)/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
-    "Best rated near you is the default (owner 2026-11-11) and the one menu offers categories, date, region and an opt in Tickets first order");
+  ok(/Full menu/.test(f) && /"Best near you"/.test(f) && /"Tickets first"/.test(f) && /onSet\("sort", "tickets"\)/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
+    "Full menu offers categories, date, region, best near you and an opt in Tickets first order");
   ok(/createPortal/.test(f) && /aria-modal="true"/.test(f) && /Escape/.test(f) && /event.shiftKey/.test(f) && /#E8B48A/.test(f) && /#3E0C19/.test(f), "the holiday menu is a burgundy and gold modal with Escape, a focus trap and a body portal");
 }
 // Top picks for social ad visitors (2026-11-12): Meta ad visitors stayed on the
@@ -528,8 +532,9 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   const photoModel = { ...partnerModel, rows: partnerModel.rows.map(withPhoto) };
   const picks = christmasTopPicks(photoModel);
   const eligible = photoModel.rows.filter((r) => r.cta && r.photos.length);
-  ok(CHRISTMAS_TOP_PICKS_MAX === 3 && picks.length === Math.min(3, eligible.length) && picks.every((r, i) => r === eligible[i]),
-    "top picks are the first featured rows with a photo and a way in, in merit order, at most three");
+  const firstAff = eligible.find((r) => r.cta.kind === "affiliate");
+  ok(CHRISTMAS_TOP_PICKS_MAX === 3 && picks.length === Math.min(3, eligible.length) && (!firstAff || picks[0].cta.kind === "affiliate"),
+    "top picks lead with monetized partner rows with a real photo and a way in, at most three");
   ok(christmasTopPicks({ rows: [] }).length === 0 && christmasTopPicks(null).length === 0, "no rows, no picks");
   const plainHtml = renderPage(partnerModel, partnerList);
   ok(!plainHtml.includes("data-top-picks") && !plainHtml.includes("Top picks with tickets"), "a visit without picks renders the page exactly as before");
@@ -546,16 +551,28 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   ok(!DASH.test(pickVisible) && ((pickVisible.match(/Wayfind may earn a commission/g)) || []).length === 1, "with picks the page is still dash free and keeps one commission line");
   ok(!renderPage(partnerModel, partnerList, { topPicks: [{ ...picks[0], photos: [] }] }).includes("data-top-picks"), "a pick without a photo is never drawn as an empty slot");
   const comp = strip(read("app/components/ChristmasTickets.js"));
-  ok(/data-commerce-owner=\{affiliate \|\| internal \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("export function TopPicks"))) && /onClick=\{affiliate \|\| internal \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
+  ok(/data-commerce-owner=\{affiliate \|\| internal \? undefined : "ChristmasTickets"\}/.test(comp.slice(comp.indexOf("function PickCard"))) && /onClick=\{affiliate \|\| internal \? undefined : \(\) => organizerTap\(row\)\}/.test(comp) && /import \{ XM_CARD_CSS, organizerTap \} from "\.\/ChristmasTicketCard\.js"/.test(comp) && !/commerce_cta_clicked/.test(comp),
     "pick organizer taps are recorded once here and /go taps by the beacon, under the same christmas_tickets surface");
   const page = strip(read("app/christmas-in-florida/page.js"));
-  ok(/const topPicks = \[\.\.\.featured, \.\.\.christmasTopPicks\(tickets\)/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /if \(isSocialAdLanding\(params\) \|\| feature\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp),
-    "the cached page always carries the picks; only a social landing URL shows them, from the same featured rows");
+  ok(/const topPicks = \[\.\.\.featured, \.\.\.christmasTopPicks\(tickets/.test(page) && /<ChristmasTickets model=\{tickets\} topPicks=\{topPicks\}/.test(page) && /if \(isSocialAdLanding\(params\) \|\| feature\) root\.setAttribute\(SOCIAL_AD_ATTR, ""\)/.test(comp) && /<SocialTopPicks picks=\{topPicks\} \/>/.test(comp) && /<div data-social-picks="">/.test(comp) && !/\[data-social-picks\]\{display:none\}/.test(comp),
+    "the cached page shows the ticket picks to every visitor, including Google paid, from the same featured rows");
   ok(/<script dangerouslySetInnerHTML=\{\{ __html: SOCIAL_AD_SCRIPT \}\} \/>/.test(page) && page.indexOf("SOCIAL_AD_SCRIPT }}") < page.indexOf("<ChristmasTickets ")
-    && /\[data-social-picks\]\{display:none\}html\[data-wf-social\] \[data-social-picks\]\{display:block\}/.test(comp),
-    "the social mark is set by an inline script before the picks are parsed, so they are drawn in place with no layout shift");
-  ok(!/fetchpriority/.test(comp.slice(comp.indexOf("export function TopPicks"), comp.indexOf("export default function"))) && !/loading=\{i === 0/.test(comp),
-    "pick photos are lazy, so the hidden row never downloads them for Google or plain visitors");
+    && /\.xm-pick\[data-feature-pick\]\{display:none\}/.test(comp),
+    "the ad subject card stays hidden until that ad, and the social script still runs before the picks");
+  const pickFns = comp.slice(comp.indexOf("function PickCard"), comp.indexOf("export default function"));
+  ok(pickFns.includes("function PickCard") && !/fetchpriority/.test(pickFns) && /loading=\{rank === 1 \? "eager" : "lazy"\}/.test(pickFns) && /useCommerceImpression\(/.test(pickFns),
+    "the first visible pick photo loads immediately and each pick measures a view");
+  {
+    const { christmasPickMeasurement } = await import("../lib/christmasPickMeasurement.js");
+    const { CHRISTMAS_TICKETS_SURFACE } = await import("../lib/christmasTickets.js");
+    ok(christmasPickMeasurement({ id: "x", photos: [{ src: "/a.webp" }], cta: { kind: "internal", href: "/florida-events/x" } }).card.surface === CHRISTMAS_TICKETS_SURFACE, "pick measurement uses the christmas tickets surface");
+    const measured = christmasPickMeasurement({ id: "enchant", cta: { kind: "affiliate", href: "/api/commerce/go?provider=viator&offer=abc&content=enchant" }, photos: [{ src: "/x.webp" }] });
+    ok(measured.commerce && measured.commerce.provider === "viator" && measured.commerce.offer_id === "abc" && measured.commerce.surface === "christmas_tickets" && measured.card && measured.card.content_id === "enchant" && measured.card.has_art === true,
+      "an affiliate pick measures a commerce impression with its partner and offer");
+    const official = christmasPickMeasurement({ id: "park", cta: { kind: "organizer", href: "https://example.com/tickets" }, photos: [{ src: "/x.webp" }] });
+    ok(official.commerce === null && official.card && official.card.content_id === "park", "an official link counts as a card view and not as commerce");
+    ok(christmasPickMeasurement({ cta: { kind: "affiliate", href: "https://evil.example/api/commerce/go?provider=viator" } }).commerce === null, "a foreign absolute partner path is not measured as our redirect");
+  }
   {
     const { SOCIAL_AD_SCRIPT, SOCIAL_AD_ATTR, isSocialAdLanding: isSocial } = await import("../lib/socialAdLanding.js");
     const saved = { location: globalThis.location, document: globalThis.document };
@@ -931,12 +948,13 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   void tier;
   const { eventOrganizerTicketUrl: orgUrl } = await import("../lib/curatedEvents.js");
   const { eventTicketDeal: dealOf } = await import("../lib/eventTicketDeals.js");
+  const { christmasTicketmasterUrl: tmUrl } = await import("../lib/christmasTicketmaster.js");
   const full = new Map(all.map((c) => [c.id, c]));
   // Shows within a week of their next performance lead the list (owner
   // 2026-11-10); the ticket order below applies to everything after them.
   const pinnedCount = page1.findIndex((c) => !b.christmasShowPinDate(full.get(c.id) || c, day));
   ok(page1.slice(0, pinnedCount < 0 ? page1.length : pinnedCount).every((c) => b.christmasShowPinDate(full.get(c.id) || c, day)) && page1.slice(pinnedCount < 0 ? page1.length : pinnedCount).every((c) => !b.christmasShowPinDate(full.get(c.id) || c, day)), "shows within a week of their next performance sit in one block at the top");
-  const flags = page1.slice(pinnedCount < 0 ? page1.length : pinnedCount).map((c) => !!(c.kind !== "place" && (orgUrl(full.get(c.id)) || dealOf(c.id))));
+  const flags = page1.slice(pinnedCount < 0 ? page1.length : pinnedCount).map((c) => !!(c.kind !== "place" && (orgUrl(full.get(c.id)) || dealOf(c.id) || tmUrl(c.id, day))));
   const firstNo = flags.indexOf(false);
   ok(flags.slice(0, 8).filter(Boolean).length >= 1 && (firstNo < 0 || !flags.slice(firstNo).includes(true)), "events with a real way in come first on the first page, then the rest in date order");
   const src = strip(read("lib/christmasBrowse.js"));
@@ -986,6 +1004,31 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
     const near = b.sortChristmasBrowse([nearA, farTop, nearB], b.parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), day).map((c) => c.id).join(",");
     ok(near === "near-b,near-a,far-top", "near the visitor: the closest ring first, then best rated, then trending inside the ring (" + near + ")");
     ok(b.parseChristmasBrowseQuery({ sort: "bogus" }).sort === "" && b.parseChristmasBrowseQuery({ sort: "tickets" }).sort === "tickets", "sort accepts only tickets");
+    // CRO locks (2026-11-23):
+    // 1. Located 20-mile ring beats a far-away pinned show (EPCOT 198mi away does not hijack Miami #1).
+    const miamiLocal = base({ id: "miami-local-show", lat: 25.77, lng: -80.19, start_date: "2026-12-10", end_date: "2026-12-10" });
+    const farPinned = base({ id: "far-pinned-show", browse_categories: ["theater"], lat: 28.37, lng: -81.55, start_date: "2026-11-12", end_date: "2026-11-12" });
+    const locPin = b.sortChristmasBrowse([farPinned, miamiLocal], b.parseChristmasBrowseQuery({ lat: "25.76", lng: "-80.19" }), "2026-11-10").map((c) => c.id).join(",");
+    ok(locPin === "miami-local-show,far-pinned-show", "located visitor sees local ring ahead of a far-away 7-day pinned show (" + locPin + ")");
+    // 2. Ticketmaster shows lead paidTier ahead of unmonetized organizer links.
+    const tmShow = base({ id: "orlando-ballet-nutcracker-2026", lat: 28.54, lng: -81.38, official_ticket_url: "https://www.ticketmaster.com/event/123", start_date: "2026-12-12", end_date: "2026-12-12" });
+    const orgOnly = base({ id: "org-only-unmonetized", lat: 28.54, lng: -81.38, wfScore: 99, official_ticket_url: "https://example.org/tickets", start_date: "2026-12-01", end_date: "2026-12-01" });
+    ok(b.sortChristmasBrowse([orgOnly, tmShow], b.parseChristmasBrowseQuery({}), "2026-11-23")[0].id === tmShow.id, "Ticketmaster affiliate show ranks ahead of unmonetized organizer link");
+    // 3. Duplicate park offer cards (e.g. Universal offer=66) spread out instead of crowding page 1 back-to-back.
+    const dupA = base({ id: "universal-holidays-2026", lat: 28.47, lng: -81.47, wfScore: 90 });
+    const dupB = base({ id: "universal-studios-holiday-parade-2026", lat: 28.47, lng: -81.47, wfScore: 90 });
+    const uniquePark = base({ id: "seaworld-christmas-2026", lat: 28.41, lng: -81.46, wfScore: 90 });
+    const spreadUnloc = b.spreadDuplicateOffers([dupA, dupB, uniquePark], "2026-11-23", false).map((c) => c.id).join(",");
+    const spreadLoc = b.spreadDuplicateOffers([dupA, dupB, uniquePark], "2026-11-23", true).map((c) => c.id).join(",");
+    ok(spreadUnloc === "universal-holidays-2026,seaworld-christmas-2026,universal-studios-holiday-parade-2026" && spreadLoc === spreadUnloc, "spreadDuplicateOffers separates identical park offers while preserving every listing");
+    // 4. Layout & icon CRO locks: weekend row after main grid, 1-tap area chips, InviteIcon on Ask someone, xm-honest below browse, PickCard price.
+    const bSrcCro = strip(read("app/components/ChristmasBrowse.js"));
+    const tSrcCro = strip(read("app/components/ChristmasTickets.js"));
+    const cSrcCro = strip(read("app/components/ChristmasTicketCard.js"));
+    ok(bSrcCro.indexOf('className="xm-grid"') < bSrcCro.indexOf("<ChristmasWeekendRow"), "ChristmasWeekendRow renders after the main ticket grid");
+    ok(/data-christmas-areas=""/.test(bSrcCro) && /aria-label="Florida areas"/.test(bSrcCro), "ChristmasBrowse renders 1-tap Florida area quick-filter chips");
+    ok(/<InviteIcon \/><span>Ask someone<\/span>/.test(cSrcCro), "Ask someone uses InviteIcon instead of repeating Heart");
+    ok(tSrcCro.indexOf("{browse}") < tSrcCro.indexOf('className="xm-honest"') && /xm-pick-price/.test(tSrcCro), "affiliate disclosure sits below browse and TopPicks cards show starting price");
   }
   ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0, local_rank: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured PredictHQ zero remains distinct from unknown demand");
   {
@@ -1035,14 +1078,18 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
     const failed = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async () => { throw new Error("down"); }, readGoogle: async () => { throw new Error("down"); }, readVault: async () => { throw new Error("down"); } });
     ok(failed.cards.length === 2 && renderToStaticMarkup(createElement(Card, { card: failed.cards[0], rank: 1, today: TODAY })).includes('class="xm-card"'), "a failed photo read still renders the card with its own photo");
   }
-  // theme, snow and lights source rules
+  // theme, snow and lights source rules. The field, doodles and garland
+  // moved to lib/christmasBackdrop.js and app/components/ChristmasDecor.js so
+  // the rest of the site paints the same art. The assertions follow that code.
   const shell = strip(read("app/components/ChristmasTickets.js"));
+  const decor = strip(read("lib/christmasBackdrop.js") + "\n" + read("app/components/ChristmasDecor.js"));
+  const theme = shell + "\n" + decor;
   ok(/w < 720 \? 36 : 70/.test(shell) && /visibilitychange/.test(shell) && /prefers-reduced-motion: reduce/.test(shell) && /aria-hidden="true" data-xm-snow/.test(shell), "snow: 36 flakes on a phone, 70 on desktop, pauses on a hidden tab, still frame for reduced motion, aria-hidden");
-  ok(/#FF4458/.test(shell) && /#3DDC84/.test(shell) && /#FFC94A/.test(shell) && /#4DA3FF/.test(shell) && /#FF7AC8/.test(shell) && /xm-chase/.test(shell) && /xm-alt/.test(shell) && /xm-twinkle/.test(shell), "lights: red, green, gold, blue and pink bulbs with chase, alternate and twinkle sequences");
-  ok(/#FF8A3D/.test(shell) && !/#B98CFF/i.test(shell) && !/#6A3FC2/i.test(shell), "the seventh bulb is amber; a purple bulb is not on the strand");
-  const kf = [...shell.matchAll(/@keyframes (xm-(?:twinkle|chase|alt|bloom|sparkle))\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
-  ok(kf.length === 4 && !/xm-bloom/.test(shell) && kf.every((m) => !/box-shadow|filter|top:|left:|width:|height:|background/.test(m[2]) && /opacity/.test(m[2])), "light animations touch only opacity and transform (GPU cheap), " + kf.length + " keyframes checked");
-  ok(/background:radial-gradient\(120% 55% at 50% 0%,#7A0F22/.test(shell) && !/--bg:#050A14/.test(shell), "the page background is deep red burgundy, not navy");
+  ok(/#FF4458/.test(decor) && /#3DDC84/.test(decor) && /#FFC94A/.test(decor) && /#4DA3FF/.test(decor) && /#FF7AC8/.test(decor) && /xm-chase/.test(decor) && /xm-alt/.test(decor) && /xm-twinkle/.test(decor), "lights: red, green, gold, blue and pink bulbs with chase, alternate and twinkle sequences");
+  ok(/#FF8A3D/.test(decor) && !/#B98CFF/i.test(theme) && !/#6A3FC2/i.test(theme), "the seventh bulb is amber; a purple bulb is not on the strand");
+  const kf = [...decor.matchAll(/@keyframes (xm-(?:twinkle|chase|alt|bloom|sparkle))\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
+  ok(kf.length === 4 && !/xm-bloom/.test(theme) && kf.every((m) => !/box-shadow|filter|top:|left:|width:|height:|background/.test(m[2]) && /opacity/.test(m[2])), "light animations touch only opacity and transform (GPU cheap), " + kf.length + " keyframes checked");
+  ok(/background:\$\{CHRISTMAS_BG_GRADIENT\}/.test(shell) && /radial-gradient\(120% 55% at 50% 0%,#7A0F22/.test(decor) && !/--bg:#050A14/.test(theme), "the page background is deep red burgundy, not navy");
 }
 
 {
@@ -1073,15 +1120,15 @@ ok(html.includes("data-christmas-filter") && html.includes(">Best rated<") && ht
   const pick = async (text) => act(async () => [...document.querySelectorAll("button")].find((b) => b.textContent === text).click());
   try {
     await act(async () => uiRoot.render(createElement(Harness)));
-    ok(/Best rated/.test(document.querySelector(".xm-filter-trigger").textContent) && !document.querySelector("input"), "interactive default is Best rated (owner 2026-11-11) with no search field");
+    ok(document.querySelector(".xm-filter-trigger").textContent === "Full menu▾" && !document.querySelector("input"), "interactive default is Full menu with no search field");
     await click(".xm-filter-trigger");
     ok(document.querySelector('[role="dialog"]').getAttribute("aria-modal") === "true" && document.querySelector(".xm-menu-overlay").parentNode === document.body, "the sheet is a body-level modal above page stacking contexts");
     ok(document.activeElement.className === "xm-menu-close" && document.body.style.overflow === "hidden", "opening focuses Close and locks background scrolling");
     await pick("Light shows"); await pick("This weekend");
     await act(async () => { const select = document.querySelector("select"); select.value = "Tampa Bay"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
     ok(queryNow.category === "lights" && queryNow.when === "weekend" && queryNow.region === "Tampa Bay" && document.querySelector('[role="dialog"]'), "category, date and region can be combined without repeatedly reopening the sheet");
-    await pick("Tickets first"); ok(queryNow.sort === "tickets", "Tickets first is an opt in order");
-    await pick("Best near you"); ok(queryNow.sort === "" && queryNow.lat === 27.9, "Best near you returns to the default order and asks for the precise location");
+    await pick("Tickets first"); ok(queryNow.sort === "tickets" && document.querySelector(".xm-filter-trigger").textContent === "Full menu3▾", "Tickets first is an opt in order and keeps Full menu with the active filter count");
+    await pick("Best near you"); ok(queryNow.sort === "" && queryNow.lat === 27.9 && document.querySelector(".xm-filter-trigger").textContent === "Full menu3▾", "Best near you returns to the default order and keeps Full menu with the active filter count");
     document.querySelector(".xm-menu-done").focus();
     await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true })));
     ok(document.activeElement.className === "xm-menu-close", "Tab wraps within the modal");

@@ -789,19 +789,15 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
           ) : null}
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
 
-          {/* Stay-card value fix — the booking CTA lives ON the card face,
-              directly above the creator credit and the Save/Like/Dislike/Share
-              row, instead of floating below the card as a separate element.
-              stopPropagation keeps a tap on the CTA from also opening the
-              card's detail sheet (the <li> opens on any click that is not
-              inside an a/button/etc — this wrapper is neither, so it needs
-              its own guard). */}
-          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (ReserveSlot ? <ReserveSlot place={place} surface={surface} lane={reserveEntry.lane} /> : null)}
-
-          {/* v8.34 — the creator credit sits in the bottom band, directly above
-              the actions (see css.js .wf-place-card-credit). It carries the
-              margin-top:auto that used to belong to the action row. */}
+          {/* v8.34 — the creator credit sits directly above the bottom interactive
+              band (CTA + actions), matching home.js PlaceCard and RailCard so
+              all three renderers share one identical slot order. */}
           <CreatorCardMark videos={creatorVideos} />
+
+          {/* Stay-card / Reserve CTA lives directly above the Save/Like/Dislike/Share
+              row. stopPropagation keeps a tap on the CTA from also opening the
+              card's detail sheet. */}
+          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : (ReserveSlot ? <ReserveSlot place={place} surface={surface} lane={reserveEntry.lane} /> : null)}
           <div className="wf-place-card-actions wf-sheet-card-actions">
             {/* v8.11 (owner, 2026-08-18): DIRECTIONS IS OFF THE CARD FACE —
                 "remove the directions from the place cards; only when the user
