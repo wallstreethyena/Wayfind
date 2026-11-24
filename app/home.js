@@ -12878,7 +12878,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank }));
   return (
-    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}${ReserveSlot || isTrueLodging(p) || (cardProduct && cardProduct.url) ? " has-cta" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}${ReserveSlot || (cardProduct && cardProduct.url) ? " has-cta" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
@@ -12939,7 +12939,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (wf_beach_water), both batched once per screen (see the
               `beachSignals` effect near `restView`) rather than per card. */}
           {((p.trending && p.trend_reason) || (isBeach(p) && beachSignal && beachSignal.water)) && (
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
+            <div className="wf-place-card-signals">
               {/* 2026-08-08: the 🔥 is the UNIFIED trend signal (lib/trendSignal.js)
                   and the mandatory disclosure for the +0.6 trending component the
                   chip's displayedWfScore now carries. All categories, one meaning

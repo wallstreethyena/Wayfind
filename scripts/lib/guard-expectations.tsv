@@ -383,7 +383,7 @@ scripts/check-pintos-farm-guide.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	df287
 scripts/check-place-card-css-contract.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	98736f7abb7347679c4506e488f2bef8dd1b9f938cb508ca882f3bc8f3e21cb9
 scripts/check-place-card-navigation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	875fd158c88addd7d6c406b210b8d94624318c1a88073377b8afc6371b0e23ab
 scripts/check-place-card-no-directions.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0	0	e6ed4eae6860d9404c893a77fc232e3fea714a5f80f768fc4619b44d523eed47
-scripts/check-place-card-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	119	0	0	e779a5982177a5433a36803f240b3158837728792af8cab7d4f1bf4020639914
+scripts/check-place-card-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	120	0	0	75f79bedc3b1b04cfdb0c69dd7bf432e12c28c89784a310ad4dc2a9b3aaffef8
 scripts/check-place-city.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8b501fdb89dbf973a84953aa47357b3b49888e2d305b90ac68e16595c82fa0dc
 scripts/check-place-classification.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	22f374da4912b35b0827396bc59e106eafa5376e7bd04991932d2c16e2109adc
 scripts/check-place-deal.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	d51c05e46c4c3b4c8e47f6440a318bb8c186b39550d55d25bd784b3d5b1c997e
