@@ -39,7 +39,7 @@ const ok = (c, m) => { if (!c) fail(m); };
     todayKey: "2026-10-04",
     asOf: new Date("2026-10-04T16:00:00.000Z"),
     dailyHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, devices: 110, sessions: 100, out_clicks: 10 }))),
-    trafficPace: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, devices: 100, sessions: 90 }))),
+    trafficPace: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, devices: 100, sessions: 90, out_clicks: 5 }))),
     todayK: good({ active_devices: 39, sessions: 40, out_clicks: 0 }),
     signupHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, signups: 10 }))),
     signupToday: good([{ signups: 0 }]),
@@ -47,7 +47,7 @@ const ok = (c, m) => { if (!c) fail(m); };
   };
   const has = (report, id) => report.alerts.some((a) => a.id === id);
   const measured = buildAlertsReport(fixture);
-  ok(has(measured, "traffic_drop") && has(measured, "signup_drop"), "alerts assembly: genuine measured drops still warn");
+  ok(has(measured, "traffic_drop") && has(measured, "signup_drop") && has(measured, "out_clicks_drop"), "alerts assembly: genuine measured drops still warn");
   const trackingGap = buildAlertsReport({ ...fixture, todayK: good({ active_devices: 39, sessions: 0, out_clicks: 0 }) });
   ok(has(trackingGap, "visit_tracking_gap") && !has(trackingGap, "traffic_drop"), "alerts assembly: a repaired-era session regression suppresses the unreliable downturn claim and shows the tracking gap instead");
   const inverseTrackingGap = buildAlertsReport({ ...fixture, todayK: good({ active_devices: 0, sessions: 9, out_clicks: 0 }) });
@@ -324,6 +324,26 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   const fine = computeAlerts({ fractionOfDay: 0.5, dailyHistory: histDays(10), trafficPaceHistory: histDays(10, 20), today: { devices: 25, out_clicks: 6, searches: 12, no_result_searches: 1 } });
   ok(!fine.find((a) => a.id === "traffic_drop"), "alerts: no drop alert when tracking at baseline");
 }
+
+// Nov 24 production replay: a full-day estimate predicted five early clicks,
+// but the measured 05:00 ET median was 1.5 and one click was recorded.
+{
+  const sameTimeClicks = [1, 4, 2, 3, 0, 0, 0, 2, 1, 3, 1, 1, 8, 5];
+  const bundle = {
+    fractionOfDay: 5 / 24,
+    dailyHistory: histDays(14, 100, { out_clicks: 24 }),
+    trafficPaceHistory: sameTimeClicks.map((out_clicks) => ({ out_clicks })),
+    today: { out_clicks: 1 },
+  };
+  const clickAlert = (report) => computeAlerts(report).find((a) => a.id === "out_clicks_drop");
+  ok(!clickAlert(bundle), "partner pace: the real 1-vs-1.5 morning count does not alert");
+  ok(!clickAlert({ ...bundle, trafficPaceHistory: [] }), "partner pace: missing samples cannot revive the full-day estimate");
+  const highPace = { ...bundle, trafficPaceHistory: histDays(7, 100, { out_clicks: 5 }) };
+  ok(clickAlert(highPace)?.baseline === "5 by the same ET time", "partner pace: genuine 1-vs-5 same-time drop warns");
+  ok(clickAlert({ ...highPace, today: { out_clicks: 0 } })?.current === "0", "partner pace: a measured zero still warns");
+  ok(!clickAlert({ ...highPace, today: {} }), "partner pace: a missing current count is not a measured zero");
+  ok(!clickAlert({ ...highPace, trafficPaceHistory: [...highPace.trafficPaceHistory.slice(1), { out_clicks: null }] }), "partner pace: fewer than seven measured samples stay silent");
+}
 // Oct 29 regression: midnight is not 2% of a full day, and missing
 // comparisons never fall back to a uniform estimate. Replay production counts.
 {
@@ -339,9 +359,10 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
     ok(zonedParts(to).hh === 0 && zonedParts(to).mm === 7 && zonedParts(to).ss === 33, "traffic pace: every historical cutoff matches 00:07:33 ET");
     ok(to > from && to - from === 453000, "traffic pace: samples cover seven minutes, not full days");
     active--;
-    return { source: srcOk("fixture"), data: { active_devices: partialCounts[index], sessions: partialCounts[index] } };
+    return { source: srcOk("fixture"), data: { active_devices: partialCounts[index], sessions: partialCounts[index], out_clicks: index } };
   });
   ok(reads === 14 && maxActive <= 4 && pace.source.connected && pace.data.length === 14, "traffic pace: all 14 clean days are measured with bounded concurrency");
+  ok(pace.data.every((row, i) => row.out_clicks === i), "partner pace: the same historical KPI calls supply outbound counts");
   const bundle = { fractionOfDay: 0.02, trafficHistory: history, trafficPaceHistory: pace.data, today: { devices: 0, sessions: 0 } };
   ok(!computeAlerts(bundle).some((a) => a.id === "traffic_drop"), "traffic pace: real Oct 29 midnight sample no longer sends the false 0-vs-7 alarm");
   ok(!computeAlerts({ ...bundle, trafficPaceHistory: [] }).some((a) => a.id === "traffic_drop"), "traffic pace: missing same-time history cannot revive the linear estimate");
