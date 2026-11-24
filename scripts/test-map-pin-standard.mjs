@@ -3,7 +3,7 @@ import { loadComponent } from './lib/jsxLoad.mjs';
 import { renderToStaticMarkup } from 'react-dom/server';
 import React from 'react';
 import { readFileSync, existsSync } from 'node:fs';
-import { PIN_CATEGORIES, mapPinUrl, mapPinSvg, appleLocationDotSvg, createLocationDotElement, readGrantedDeviceLocation } from '../lib/mapPinStandard.js';
+import { PIN_CATEGORIES, mapPinUrl, mapPinSvg, appleLocationDotSvg, appleClusterPinUrl, createLocationDotElement, readGrantedDeviceLocation } from '../lib/mapPinStandard.js';
 import assert from 'node:assert/strict';
 const root = process.cwd();
 const { default: EventVenueMap } = await loadComponent(root+'/app/components/EventVenueMap.js', root);
@@ -76,6 +76,28 @@ for (const [rel, pattern, msg] of [
     else delete globalThis.navigator;
   }
 }
+// Owner 2026-11-23: multi-option cluster pins use Wayfind's stacked pill SVG (never a bare round number circle).
+{
+  const foodCluster = decodeURIComponent(appleClusterPinUrl(10, { family: 'food', topScore: '9.5' }).replace('data:image/svg+xml;charset=utf-8,', ''));
+  assert.match(foodCluster, /width="94" height="40" viewBox="0 0 94 40"/, 'stacked cluster pill has crisp 94x40 dimensions');
+  assert.match(foodCluster, /<rect x="7" y="2"[^>]*fill="#1E293B" stroke="#F97316"/, 'stacked back-pill offset layer peeks behind main pill');
+  assert.ok(foodCluster.includes(PIN_CATEGORIES.food.path) && foodCluster.includes(`fill="${PIN_CATEGORIES.food.color}"`), 'dominant family cluster carries category badge & icon');
+  assert.match(foodCluster, />9\.5<\/text>/, 'scored cluster pill displays top Wayfind score');
+  assert.match(foodCluster, />\+9<\/text>/, 'scored 10-spot cluster pill displays +9 orange badge');
+
+  const twoCluster = decodeURIComponent(appleClusterPinUrl(2, { family: 'cafe', topScore: '9.3' }).replace('data:image/svg+xml;charset=utf-8,', ''));
+  assert.ok(twoCluster.includes(PIN_CATEGORIES.cafe.color) && />9\.3<\/text>/.test(twoCluster) && />\+1<\/text>/.test(twoCluster), '2-spot cafe cluster displays cafe badge + 9.3 + +1');
+
+  const hugeCluster = decodeURIComponent(appleClusterPinUrl(150, { family: null, topScore: '9.8' }).replace('data:image/svg+xml;charset=utf-8,', ''));
+  assert.ok(hugeCluster.includes('fill="#F97316"') && />\+99<\/text>/.test(hugeCluster), '150-spot mixed cluster caps extra badge at +99 with Wayfind Orange stacked badge');
+
+  const unscoredCompat = decodeURIComponent(appleClusterPinUrl(5).replace('data:image/svg+xml;charset=utf-8,', ''));
+  assert.match(unscoredCompat, />5 spots<\/text>/, '1-arg appleClusterPinUrl(5) renders "5 spots" inside stacked pill, never a bare circle');
+  assert.ok(!/viewBox="0 0 42 42"/.test(unscoredCompat), 'old 42x42 bare circle cluster SVG is gone');
+
+  const unscoredBig = decodeURIComponent(appleClusterPinUrl(120).replace('data:image/svg+xml;charset=utf-8,', ''));
+  assert.match(unscoredBig, />99\+ spots<\/text>/, 'unscored >99 cluster renders "99+ spots"');
+}
 if (!existsSync(chromium.executablePath())) {
   assert.ok(!process.argv.includes('--require-browser'), 'Chromium is required for merge verification');
   console.log('SSR pin/legend parity passed. BROWSER CHECK NOT RUN: Chromium unavailable; merge CI requires it.');
@@ -83,9 +105,11 @@ if (!existsSync(chromium.executablePath())) {
 const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:1400,height:840},deviceScaleFactor:2});
 const grid=Object.entries(PIN_CATEGORIES).map(([family,{label}])=>`<div class="sample"><img src="${mapPinUrl(family)}" width="51" height="69"><b>${label}</b><canvas data-family="${family}" width="102" height="138"></canvas></div>`).join('');
-await page.setContent(`<html><head><style>body{margin:0;padding:32px;background:#0d141e;color:white;font:15px system-ui}h1{font-size:26px;margin:0 0 6px}p{color:#aab7c6;margin:0 0 22px}.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin:22px 0}.sample{display:flex;min-height:132px;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:12px;background:#17212d;border-radius:16px}.sample b{width:100%;text-align:center;font-size:12px}.sample canvas{width:34px;height:46px}.wfev.wfev-h,.wfev-routing{display:none!important}</style></head><body><h1>Wayfind · Shared map pins</h1><p>Reference-style teardrops. The same category color and white symbol on every map and in its legend.</p>${markup}<div class="grid">${grid}</div><p>Local design verification · SVG markers alongside MapLibre canvas sprites · Not a live map</p></body></html>`);
+const clusterSamples=[appleClusterPinUrl(10,{family:'food',topScore:'9.5'}),appleClusterPinUrl(2,{family:'cafe',topScore:'9.3'}),appleClusterPinUrl(6)].map((src,i)=>`<img class="wf-cluster-sample" data-i="${i}" src="${src}" width="94" height="40">`).join('');
+await page.setContent(`<html><head><style>body{margin:0;padding:32px;background:#0d141e;color:white;font:15px system-ui}h1{font-size:26px;margin:0 0 6px}p{color:#aab7c6;margin:0 0 22px}.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin:22px 0}.sample{display:flex;min-height:132px;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:12px;background:#17212d;border-radius:16px}.sample b{width:100%;text-align:center;font-size:12px}.sample canvas{width:34px;height:46px}.wfev.wfev-h,.wfev-routing{display:none!important}</style></head><body><h1>Wayfind · Shared map pins</h1><p>Reference-style teardrops. The same category color and white symbol on every map and in its legend.</p>${markup}<div class="clusters">${clusterSamples}</div><div class="grid">${grid}</div><p>Local design verification · SVG markers alongside MapLibre canvas sprites · Not a live map</p></body></html>`);
 await page.addScriptTag({type:'module',content:readFileSync('lib/mapPinStandard.js','utf8').replaceAll('export ','')+'\nfor(const canvas of document.querySelectorAll("canvas")){const ctx=canvas.getContext("2d");ctx.scale(3,3);paintMapPin(ctx,canvas.dataset.family);}' });
 await page.waitForFunction(()=>[...document.images].every(i=>i.complete&&i.naturalWidth>0));
+assert.equal(await page.locator('.wf-cluster-sample').count(),3);
 assert.equal(await page.locator('.wfev-cats .wfev-cat img').count(),7);
 const legendSources=await page.locator('.wfev-cats .wfev-cat img').evaluateAll(imgs=>imgs.map(i=>i.getAttribute('src')));
 for(const family of ['stay','cafe','culture','food','shows']) assert.ok(legendSources.includes(mapPinUrl(family)),family+' legend must use exact map asset');
@@ -93,6 +117,6 @@ const canvasResult=await page.locator('canvas').evaluateAll(cs=>cs.map(c=>{const
 for(const result of canvasResult){assert.ok(result.tip>0,result.family+' tip');assert.equal(result.corner,0,result.family+' transparent corner');}
 for(const width of [390,768,1400]){await page.setViewportSize({width,height:840});const result=await page.locator('.wfev-cats').evaluate(el=>({client:el.clientWidth,scroll:el.scrollWidth,overflow:getComputedStyle(el).overflowX}));assert.ok(result.scroll<=result.client||['auto','scroll'].includes(result.overflow),'legend must fit or scroll at '+width);}
 
-console.log('PASS: real event legend matches 5 map assets; all '+canvasResult.length+' canvas sprites have pointed tips and transparent corners; legends fit/scroll at 390, 768 and 1400px.');
+console.log('PASS: real event legend matches 5 map assets; all '+canvasResult.length+' canvas sprites have pointed tips and transparent corners; 3 stacked multi-spot cluster pills decoded cleanly; legends fit/scroll at 390, 768 and 1400px.');
 await browser.close();
 }

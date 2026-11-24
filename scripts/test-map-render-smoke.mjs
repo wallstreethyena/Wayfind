@@ -30,7 +30,9 @@ const entry = fileURLToPath(new URL("../app/components/screens/Map.js", import.m
 // Product source is untouched, and exact initializer counts prevent an empty
 // injection from turning a loaded-drawer assertion into an empty-screen test.
 let appleCompiledForRuntime = null;
+let photoAnswersCompiled = null;
 const mod = await loadComponent(entry, REPO, { onGraph(graph) {
+  photoAnswersCompiled = graph.get(fileURLToPath(new URL("../lib/photoAnswers.js", import.meta.url)));
   const compiled = graph.get(entry);
   if (!compiled) throw new Error("MapScreen was not emitted");
   let source = readFileSync(compiled, "utf8");
@@ -458,5 +460,58 @@ ok(!/ackdropFilter/.test(mapScreenRaw), "the places sheet stays translucent with
   }
 }
 
+// Owner 2026-11-23: zero useMissingPlacePhotos external calls; plaza cluster switcher & GoWayfind wfPhoto seeding.
+ok(!/useMissingPlacePhotos/.test(mapScreenRaw), "Map.js never imports or calls useMissingPlacePhotos");
+{
+  const { peekPlacePhoto, resetPhotoAnswers } = await import(photoAnswersCompiled);
+  resetPhotoAnswers();
+  const cHooks = hookHost();
+  let cPreview = null;
+  let cDrawer = false;
+  const gId1 = "ChIJCreeksideSpot00001";
+  const gId2 = "ChIJCreeksideSpot00002";
+  const gHash = "c".repeat(64);
+  const spot1 = P({
+    id: gId1, name: "Keke's Breakfast Cafe", primaryType: "breakfast_restaurant", types: ["breakfast_restaurant", "restaurant"], lat: 27.581, lng: -82.421, wfScore: 95, governed_score: 95,
+    editorial: "Stuffed French toast and made-to-order omelets.",
+    wfPhoto: { src: `/api/photo/stored/${gId1}?v=${gHash}`, source: "google", credit: { name: "Local Photog", mapsUri: "https://maps.google.com/?cid=101", authors: [{ name: "Local Photog" }] } },
+    photo: `/api/photo/stored/${gId1}?v=${gHash}`,
+  });
+  const spot2 = P({
+    id: gId2, name: "Agave Bandido", primaryType: "mexican_restaurant", types: ["mexican_restaurant", "restaurant"], lat: 27.5812, lng: -82.4212, wfScore: 93, governed_score: 93,
+    wfPhoto: { src: `/place-photos/batch-1/${gId2}/cover.jpg`, source: "permitted", credit: { name: "Photo: Agave Bandido", uri: "https://agave.example/", license: "Courtesy of venue" } },
+    photo: `/place-photos/batch-1/${gId2}/cover.jpg`,
+  });
+  const renderCluster = () => cHooks.render(MapScreen, {
+    ctx: ctxFor({
+      map3D: false,
+      mapPreview: cPreview,
+      mapDrawer: cDrawer,
+      setMapPreview: (fn) => { cPreview = typeof fn === "function" ? fn(cPreview) : fn; },
+      setMapDrawer: (fn) => { cDrawer = typeof fn === "function" ? fn(cDrawer) : fn; },
+      __mapSmokePlaces: [spot1, spot2],
+      PlaceCard: (props) => createElement("div", { "data-cluster-card": props.p.id, "data-nospend": String(!!props.p.photoNoSpend) }),
+    }),
+  });
+  let cTree = renderCluster();
+  const appleEl = visitElement(cTree, (el) => typeof el.props?.onSelectCluster === "function");
+  ok(!!appleEl, "MapScreen wires onSelectCluster to AppleExplorerMap");
+  appleEl.props.onSelectCluster([spot1, spot2]);
+  cTree = renderCluster();
+  const clusterHtml = renderToStaticMarkup(cTree);
+  ok(cPreview?.id === gId1 && clusterHtml.includes("1 / 2 here") && clusterHtml.includes("All 2 here"), "tapping a plaza cluster opens its top spot with '1 / 2 here' pager and 'All 2 here' control");
+  ok(clusterHtml.includes("Stuffed French toast and made-to-order omelets"), "IconicPlaceCard receives GoWayfind editorial hook from inventory");
+  ok(peekPlacePhoto(gId1, { nospend: true })?.src === `/api/photo/stored/${gId1}?v=${gHash}`, "withPhoto synchronously seeds wfPhoto into photoAnswers for frame-1 CardPhoto rendering");
+  const allHereBtn = visitElement(cTree, (el) => el.type === "button" && el.props["data-wf-cluster-list"] === true);
+  ok(!!allHereBtn, "All N here button is present on plaza cluster preview");
+  allHereBtn.props.onClick();
+  cTree = renderCluster();
+  const drawerClusterHtml = renderToStaticMarkup(cTree);
+  ok(cDrawer === true && drawerClusterHtml.includes("data-wf-cluster-banner") && drawerClusterHtml.includes('data-nospend="true"'), "All N here opens drawer scoped to plaza cluster with photoNoSpend=true");
+  ok(peekPlacePhoto(gId2, { nospend: true })?.credit?.name === "Photo: Agave Bandido", "drawer PlaceCard seeds permitted venue photo credit into photoAnswers");
+  cHooks.unmount();
+  resetPhotoAnswers();
+}
+
 if (fail.length) { console.error(`test-map-render-smoke: ${fail.length} FAILURE(S)`); for (const f of fail) console.error("  ✗ " + f); process.exit(1); }
-console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen SSR-rendered in ${STATES.length} states plus Apple/MapLibre framing parity; emitted-component hook/effect harness verified SDK rejection, retry, switching, drawer filter/hover/actions, and unmount safety`);
+console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen SSR-rendered in ${STATES.length} states plus Apple/MapLibre framing parity; emitted-component hook/effect harness verified SDK rejection, retry, switching, drawer filter/hover/actions, plaza cluster switcher, wfPhoto seeding, and unmount safety`);
