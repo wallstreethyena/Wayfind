@@ -118,6 +118,7 @@ const gateShut=()=>true, isAutomatedPhotoReader=()=>globalThis.__sharedPhotoRout
 const ledgerOutcomeClass=reason=>'ledger-'+reason, photosCeiling=()=>10000;
 const bucketHash=()=>'',idempotencyKey=()=>'',uaClass=()=>'';
 const PHOTO_REF_RX=/^places\\//, FALLBACK_PATH='/wf-photo-fallback.svg';
+const refundToLedger=async()=>true, googlePhotoBackfillEligible=()=>false, takeGoogleBackfillPhotoGrant=async()=>({ok:false}), refundGoogleBackfillPhotoGrant=async()=>true;
 const recordPhotoDeniedCeiling=async()=>{},recordReaderPhotoMiss=async()=>{};`;
 try {
   const { GET } = await import("data:text/javascript," + encodeURIComponent(prelude + src.replace(/^import[^;]+;\n/gm, "")));

@@ -237,7 +237,7 @@ const MISSING = "ChIJ5Td41Gd754gRUqGcJ45Mi0U";
     isAutomatedPhotoReader,
     creditedRequest,
   };
-  const prelude = `const { NextResponse, waitUntil, gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photosCeiling, FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto, findFreePhoto, LICENSED_SOURCES, recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass, recordPhotoPurchase, bucketHash, idempotencyKey, uaClass, recordReaderPhotoMiss, isAutomatedPhotoReader, creditedRequest } = globalThis.__wfGalleryRouteDeps;`;
+  const prelude = `const { NextResponse, waitUntil, gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photosCeiling, FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto, findFreePhoto, LICENSED_SOURCES, recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass, recordPhotoPurchase, bucketHash, idempotencyKey, uaClass, recordReaderPhotoMiss, isAutomatedPhotoReader, creditedRequest } = globalThis.__wfGalleryRouteDeps; const refundToLedger=async()=>true, googlePhotoBackfillEligible=()=>false, takeGoogleBackfillPhotoGrant=async()=>({ok:false}), refundGoogleBackfillPhotoGrant=async()=>true;`;
   const routeMod = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + routeSrc));
 
   const hitRes = await routeMod.GET(new Request(`https://www.gowayfind.com/api/photo?place=${TARTINI}&s=card&fmt=json&w=1200`, {

@@ -1,4 +1,4 @@
-import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photosCeiling } from "../../../lib/spendGate";
+import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photosCeiling, refundToLedger } from "../../../lib/spendGate";
 // Server-side Places photo resolution keeps API keys out of the browser.
 // Licensed images keep their normal cache policy. Google image bytes and same-
 // photo credits use the shared private store; metadata remains revocable.
@@ -11,6 +11,7 @@ import { recordPhotoPurchase, bucketHash, idempotencyKey, uaClass } from "../../
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 import { isAutomatedPhotoReader } from "../../../lib/crawler.js";
 import { creditedRequest } from "../../../lib/apiGuard.js";
+import { googlePhotoBackfillEligible, takeGoogleBackfillPhotoGrant, refundGoogleBackfillPhotoGrant } from "../../../lib/googlePhotoBackfill.js";
 
 // Licensed/owned photos of THIS place come first. Live Google photos require
 // a credited surface: the detail page or a card with a same-image full-credit
@@ -177,10 +178,30 @@ async function handlePhotoGet(req) {
     return freePhotoPromise;
   };
 
+  // ONE OFF GOOGLE COVER BACKFILL (owner, 2026-11-23; lib/googlePhotoBackfill.js).
+  // Only a cover request by place id (`?place=`, never a `?ref=` photo name) for a
+  // place on lib/googlePhotoBackfillAllowlist.js may fall through to the separate
+  // backfill allowance, and only after the main `photos` allowance said no. Grants
+  // taken here are refunded to the backfill rows, never to `photos`.
+  const backfillEligible = googlePhotoBackfillEligible({ placeId: place, ref });
+  const backfillGrants = [];
+  let backfillUsed = false;
+  const refundPhotoGrants = async (sku, n = 1) => {
+    let left = Math.max(0, Math.floor(Number(n)) || 0);
+    if (sku === "photos") {
+      while (left > 0 && backfillGrants.length) {
+        try { await refundGoogleBackfillPhotoGrant(backfillGrants.pop()); } catch { /* best effort */ }
+        left--;
+      }
+    }
+    return left > 0 ? refundToLedger(sku, left) : true;
+  };
+
   const resolved = await resolvePlacePhoto({
     ref,
     place,
     w,
+    preferLandscape: backfillEligible,
     retainGoogle: true,
     storedSurface: surfaceWanted && wantJson,
     // Google is asked ONLY for a credited surface; everywhere else the
@@ -218,10 +239,17 @@ async function handlePhotoGet(req) {
       if (shut) return { ok: false, reason: "shut" };
       if (sku === "photos" && free) return { ok: false, reason: "free-photo" };
       // No per-visitor cutoff. Each paid photo still requires the global grant.
-      return sku === "photos" ? spendAllowPhotosDetailed() : spendAllow(sku);
+      return sku === "photos" ? spendAllowPhotosDetailed().then(async (main) => {
+        if ((main && main.ok) || !backfillEligible) return main;
+        const extra = await takeGoogleBackfillPhotoGrant(place).catch(() => ({ ok: false, reason: "http" }));
+        if (!extra.ok) return main; // the main allowance's own refusal stays the recorded reason
+        backfillGrants.push(extra);
+        backfillUsed = true;
+        return { ok: true, reason: "granted-backfill" };
+      }) : spendAllow(sku);
     }),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
-  });
+  }, { refund: refundPhotoGrants });
   // Name the refusal: a surface that WOULD have been credited but arrived without
   // page-origin evidence is `not-page-request`, not an anonymous not-google-surface.
   const result = surfaceWanted && !pageRequest && !probe && resolved.reason === "not-google-surface"
@@ -274,7 +302,7 @@ async function handlePhotoGet(req) {
           surface: surf,
           requestId: req.headers.get("x-vercel-id"),
           idempotencyKey: idempotencyKey({ placeId: recoveryPlaceId, surface: surf, bucket }),
-          ledgerReason: result.reason === "spend-denied" ? (result.ledgerReason || null) : "granted",
+          ledgerReason: result.reason === "spend-denied" ? (result.ledgerReason || null) : (backfillGrants.length || backfillUsed ? "granted-backfill" : "granted"),
           upstream: result.upstream,
           retried: result.retried,
           refunded: result.refunded,

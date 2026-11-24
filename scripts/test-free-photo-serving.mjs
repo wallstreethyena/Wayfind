@@ -49,6 +49,8 @@ import { ledgerOutcomeClass } from "../lib/photoOutcomes.js";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } from "../lib/placePhotoServe.js";
 import { isAutomatedPhotoReader } from "../lib/crawler.js";
 import { creditedRequest } from "../lib/apiGuard.js";
+import { refundToLedger } from "../lib/spendGate.js";
+import { googlePhotoBackfillEligible, takeGoogleBackfillPhotoGrant, refundGoogleBackfillPhotoGrant } from "../lib/googlePhotoBackfill.js";
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -254,6 +256,12 @@ async function sourceRoute(routeSource) {
     const ledgerOutcomeClass = (...a) => globalThis.__wfFreePhotoTest.ledgerOutcomeClass(...a);
     const isAutomatedPhotoReader = (...a) => globalThis.__wfFreePhotoTest.isAutomatedPhotoReader(...a);
     const creditedRequest = (...a) => globalThis.__wfFreePhotoTest.creditedRequest(...a);
+    // One off Google cover backfill (lib/googlePhotoBackfill.js): the REAL module.
+    // Its switches are never set here, so it refuses before any ledger call.
+    const refundToLedger = (...a) => globalThis.__wfFreePhotoTest.refundToLedger(...a);
+    const googlePhotoBackfillEligible = (...a) => globalThis.__wfFreePhotoTest.googlePhotoBackfillEligible(...a);
+    const takeGoogleBackfillPhotoGrant = (...a) => globalThis.__wfFreePhotoTest.takeGoogleBackfillPhotoGrant(...a);
+    const refundGoogleBackfillPhotoGrant = (...a) => globalThis.__wfFreePhotoTest.refundGoogleBackfillPhotoGrant(...a);
     // Purchase log bucket is a hermetic no-op here (covered by test-photo-purchase-log).
     const bucketHash = () => null;
   `;
@@ -268,6 +276,10 @@ globalThis.__wfFreePhotoTest = {
   FALLBACK_PATH,
   isAutomatedPhotoReader, // real UA rule (lib/crawler.js): automated readers never buy
   creditedRequest, // real page-origin rule (lib/apiGuard.js)
+  refundToLedger,
+  googlePhotoBackfillEligible,
+  takeGoogleBackfillPhotoGrant,
+  refundGoogleBackfillPhotoGrant,
   PHOTO_REF_RX,
   placeIdFromRef,
   gateShut,

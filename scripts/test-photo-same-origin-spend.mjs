@@ -75,6 +75,10 @@ const prelude = `
   const spendAllowPhotos = (...a) => t().spendAllowPhotos(...a);
   const spendAllowPhotosDetailed = (...a) => t().spendAllowPhotosDetailed(...a);
   const photosCeiling = (...a) => t().photosCeiling(...a);
+  const refundToLedger = async () => true;
+  const googlePhotoBackfillEligible = () => false;
+  const takeGoogleBackfillPhotoGrant = async () => ({ ok: false });
+  const refundGoogleBackfillPhotoGrant = async () => true;
   const ledgerOutcomeClass = (...a) => t().ledgerOutcomeClass(...a);
   const isAutomatedPhotoReader = (...a) => t().isAutomatedPhotoReader(...a);
   const creditedRequest = (...a) => t().creditedRequest(...a);

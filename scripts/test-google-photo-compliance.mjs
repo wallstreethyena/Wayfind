@@ -417,6 +417,11 @@ async function routeSurfaceFindings(routeSource) {
     photosCeiling: () => 0,
     isAutomatedPhotoReader: () => false,
     creditedRequest,
+    // One off Google cover backfill: off in this harness (never eligible, never grants).
+    refundToLedger: async () => false,
+    googlePhotoBackfillEligible: () => false,
+    takeGoogleBackfillPhotoGrant: async () => ({ ok: false, reason: "off" }),
+    refundGoogleBackfillPhotoGrant: async () => false,
   };
   const prelude = `
     const NextResponse = {
@@ -437,6 +442,10 @@ async function routeSurfaceFindings(routeSource) {
     const photosCeiling = (...a) => T.photosCeiling(...a);
     const isAutomatedPhotoReader = (...a) => T.isAutomatedPhotoReader(...a);
     const creditedRequest = (...a) => T.creditedRequest(...a);
+    const refundToLedger = (...a) => T.refundToLedger(...a);
+    const googlePhotoBackfillEligible = (...a) => T.googlePhotoBackfillEligible(...a);
+    const takeGoogleBackfillPhotoGrant = (...a) => T.takeGoogleBackfillPhotoGrant(...a);
+    const refundGoogleBackfillPhotoGrant = (...a) => T.refundGoogleBackfillPhotoGrant(...a);
   `;
   const mod = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + routeSource.replace(/^import[^;]+;\n/gm, "")));
   const out = [];
