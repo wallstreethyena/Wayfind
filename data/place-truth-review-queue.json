@@ -8,12 +8,14 @@
     "AMBIGUOUS_PROSE": 10,
     "PARTIAL_WEEK_OR_MISSING_CLOSE": 7,
     "STRUCTURED_HOURS_RESOLVED_ACTION_GAP": 54,
-    "DAYLIGHT_BOUND": 32,
-    "SEASONAL_VARIABLE": 11,
+    "SEASONAL_VARIABLE": 9,
     "VARIABLE_OR_UNPOSTED": 31,
     "SUBFACILITY_OR_BOX_OFFICE_ONLY": 14,
+    "DAYLIGHT_ASTRONOMICAL_RESOLVED": 27,
     "LODGING_CHECKIN_ONLY": 24,
-    "CONFLICTING_OFFICIAL_CLOCKS": 3
+    "DAYLIGHT_BOUND": 5,
+    "CONFLICTING_OFFICIAL_CLOCKS": 3,
+    "SEASONAL_MONTH_BOUND_RESOLVED": 2
   },
   "items": [
     {
@@ -892,27 +894,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJn79uD1s6w4gR2VbHR5rFDGU",
-      "name": "Bob Gardner Community Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.25,
-      "missing_fields": [
-        "canGoNow",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "structured_hours"
-      ],
-      "hours_prose": "Dawn–dusk daily",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJOdY8qlHEwogRXPbXY1cq2xo",
       "name": "Coyote Ugly Saloon",
       "locality": "Tampa",
@@ -971,27 +952,6 @@
       "hours_prose": "Open 10 AM–11 PM Monday–Thursday, 10 AM–11:30 PM Friday–Saturday, 10 AM–11 PM Sunday.",
       "hours_confidence": "EXACT",
       "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJPSh7g6-s3IgROUqupmIgQ8M",
-      "name": "Blue Ridge Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.25,
-      "missing_fields": [
-        "canGoNow",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "structured_hours"
-      ],
-      "hours_prose": "Daily sunrise–sunset",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
       "affects_wayfind_score": false
     },
     {
@@ -1446,26 +1406,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJhaFa_yE8w4gRO3UanoqVLv8",
-      "name": "Braden River Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.38,
-      "missing_fields": [
-        "canGoNow",
-        "cost",
-        "needsTickets",
-        "whereToGetTickets",
-        "duration",
-        "structured_hours"
-      ],
-      "hours_prose": "Grounds sunrise–sunset; facilities Mon–Thu 9am–8pm, Fri–Sat 9am–6pm, closed Sun",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJJWCbj5kRw4gRYkZ7QJ-L91s",
       "name": "Gulf Drive Cafe",
       "locality": "Sarasota",
@@ -1600,6 +1540,46 @@
       "hours_prose": "Rooftop bar Sun–Thu 11am–11pm, Fri–Sat 11am–1am; Tzeva breakfast 7–11am, lunch 11am–2pm, dinner 5–10pm",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJn79uD1s6w4gR2VbHR5rFDGU",
+      "name": "Bob Gardner Community Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.38,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Dawn–dusk daily",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJPSh7g6-s3IgROUqupmIgQ8M",
+      "name": "Blue Ridge Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.38,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily sunrise–sunset",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
       "affects_wayfind_score": false
     },
     {
@@ -1812,6 +1792,25 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJhaFa_yE8w4gRO3UanoqVLv8",
+      "name": "Braden River Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.5,
+      "missing_fields": [
+        "cost",
+        "needsTickets",
+        "whereToGetTickets",
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Grounds sunrise–sunset; facilities Mon–Thu 9am–8pm, Fri–Sat 9am–6pm, closed Sun",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJHZo0qDhA24gR1ifSPvqF-Ag",
       "name": "Broadway Palm Dinner Theatre",
       "locality": "Fort Myers",
@@ -1828,25 +1827,6 @@
       "hours_prose": null,
       "hours_confidence": "UNKNOWN",
       "recommended_action": "Add verified Hours fact to Atlas editorial card or owned truth override",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJjZhUvSU9w4gRCuTRgyrctZA",
-      "name": "Gamble Plantation Historic State Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.5,
-      "missing_fields": [
-        "canGoNow",
-        "whereToGetTickets",
-        "duration",
-        "parking",
-        "structured_hours"
-      ],
-      "hours_prose": "Grounds free daily 8am–sunset; mansion tours Thu–Mon (6×daily), no Tue/Wed",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
       "affects_wayfind_score": false
     },
     {
@@ -1967,21 +1947,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJ-Q5hegpw54gR1N58sp-UbH0",
-      "name": "Mead Botanical Garden",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Open daily 8:00 a.m. to dusk; admission free",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Open daily 8:00 a.m. to dusk; admission free\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJ11G8j3tbw4gRoPyXlmEh7mQ",
       "name": "Suntan Terrace",
       "locality": "Sarasota",
@@ -1994,36 +1959,6 @@
       "hours_prose": "Check-in after 3pm; check-out 11am; pool 7am–10pm",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in after 3pm; check-out 11am; pool 7am–10pm\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ1eqMbxNBw4gRC0e1cpyN2BM",
-      "name": "Red Bug Slough",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "6 a.m. to sunset",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"6 a.m. to sunset\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ1xoFMTYQw4gRmslQtAXM8A4",
-      "name": "Keyes Marina",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "SEASONAL_VARIABLE",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31\") with exact weekday clock ranges if posted by venue",
       "affects_wayfind_score": false
     },
     {
@@ -2117,21 +2052,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJ70cZMQIRw4gRKMQdhqFMqV0",
-      "name": "Neal Preserve",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Sunrise to sunset, 365 days",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Sunrise to sunset, 365 days\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJ7aIAgJd654gRjUN8WsPaaI4",
       "name": "Orlando Museum of Art",
       "locality": "Sarasota",
@@ -2159,21 +2079,6 @@
       "hours_prose": "Check-in not posted; confirm at the desk",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Clarify ambiguous/variable hours prose (\"Check-in not posted; confirm at the desk\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ8UkA7pI5w4gRaYMt-S87XLQ",
-      "name": "Greenbrook Adventure Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Dawn to dusk daily",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Dawn to dusk daily\") with exact weekday clock ranges if posted by venue",
       "affects_wayfind_score": false
     },
     {
@@ -2252,21 +2157,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJBbWy1CkRw4gR2nakL2nnFjU",
-      "name": "Palma Sola Causeway",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Sunrise to sunset unless posted.",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Sunrise to sunset unless posted.\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJBcDh9bdbw4gRyOaF8EDbJtU",
       "name": "Island Sun Inn",
       "locality": "Sarasota",
@@ -2279,36 +2169,6 @@
       "hours_prose": "Heated pool 9am–10pm; check-in not posted",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Clarify ambiguous/variable hours prose (\"Heated pool 9am–10pm; check-in not posted\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJD0ckhqNUw4gRAvHrRaqP-po",
-      "name": "Dallas White Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Daily, sunrise to sunset; lighted fields and courts stay open until 10pm",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily, sunrise to sunset; lighted fields and courts stay open until 10pm\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJD9-FOtUzw4gRUHyJorxDf9w",
-      "name": "Lake Manatee fish camp",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Daily 8am–sunset, 365 days; $5 per vehicle",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily 8am–sunset, 365 days; $5 per vehicle\") with exact weekday clock ranges if posted by venue",
       "affects_wayfind_score": false
     },
     {
@@ -2462,21 +2322,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJH4KtoA5Uw4gREg3LM44Iaic",
-      "name": "Deer Prairie Creek Preserve",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "6 a.m. to sunset",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"6 a.m. to sunset\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJhaIxXaNbw4gRTOeKz2fPVpI",
       "name": "Epiphany Cathedral",
       "locality": "Sarasota",
@@ -2537,21 +2382,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJhW6JF_MWw4gRUxIRevnpN4k",
-      "name": "G.T. Bray Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Park sunrise to sunset. Recreation Center Monday–Thursday 5:30 a.m.–9 p.m.; Friday 5:30 a.m.–7 p.m.; Saturday–Sunday 7 a.m.–4 p.m.",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Park sunrise to sunset. Recreation Center Monday–Thursday 5:30 a.m.–9 p.m.; Friday 5:30 a.m.–7 p.m.; Saturday–Sunday 7 a.m.–4 p.m.\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJi43QGNE5w4gRgxvO7rqqJfE",
       "name": "Waterside Place",
       "locality": "Sarasota",
@@ -2582,21 +2412,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJJ2DbfIc9w4gRM-UmRpZNBeM",
-      "name": "Red Barn Flea Market",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "SEASONAL_VARIABLE",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Full market Fri–Sun 9am–4pm (seasonal Wed Nov–Apr); free admission & parking",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Full market Fri–Sun 9am–4pm (seasonal Wed Nov–Apr); free admission & parking\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJjRZP47wRw4gRUurwE1ZgRaQ",
       "name": "Anna Maria Island Inn",
       "locality": "Sarasota",
@@ -2624,21 +2439,6 @@
       "hours_prose": "Standing weekly open/close not posted",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Clarify ambiguous/variable hours prose (\"Standing weekly open/close not posted\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJkasGmR0Rw4gROhuiN0N8Zdo",
-      "name": "Perico Preserve",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Sunrise to sunset, 365 days",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Sunrise to sunset, 365 days\") with exact weekday clock ranges if posted by venue",
       "affects_wayfind_score": false
     },
     {
@@ -2699,21 +2499,6 @@
       "hours_prose": "Golden Hour at the bar Sun–Thu 5–7pm; prix-fixe brunch Sat–Sun 11:30am–2:30pm; dinner clock not posted on Winter Park pages",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Clarify ambiguous/variable hours prose (\"Golden Hour at the bar Sun–Thu 5–7pm; prix-fixe brunch Sat–Sun 11:30am–2:30pm; dinner clock not posted on Winter Park pages\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJlxmvm6hDw4gRqN5ExwCJfbU",
-      "name": "Neville Marine Preserve",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Daily 6am–sunset",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily 6am–sunset\") with exact weekday clock ranges if posted by venue",
       "affects_wayfind_score": false
     },
     {
@@ -2879,21 +2664,6 @@
       "hours_prose": "Daily 11am; kitchen closes 10pm",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily 11am; kitchen closes 10pm\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJq_OdjK4-w4gRHDtAsN8WP34",
-      "name": "Jiggs Landing",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Preserve sunrise to sunset, 365 days. Night ramp access by $30 gate card from G.T. Bray.",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Preserve sunrise to sunset, 365 days. Night ramp access by $30 gate card from G.T. Bray.\") with exact weekday clock ranges if posted by venue",
       "affects_wayfind_score": false
     },
     {
@@ -3122,21 +2892,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
-      "name": "Fort Hamer Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Sunrise to sunset, unless posted or permitted.",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Sunrise to sunset, unless posted or permitted.\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJV1EQn5wRw4gRL9F20zVGaG4",
       "name": "Bridge Tender Inn",
       "locality": "Sarasota",
@@ -3257,21 +3012,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJWUyEEXojw4gRsFy9QmBgWq4",
-      "name": "Buffalo Creek Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Daily, sunrise to sunset; lit basketball and football fields stay playable until 10pm",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Daily, sunrise to sunset; lit basketball and football fields stay playable until 10pm\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJWX9OfIQTw4gRx1EvEznuHaQ",
       "name": "The Lazy Lobster Of Longboat Key",
       "locality": "Sarasota",
@@ -3362,21 +3102,6 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJz7YUx3lZw4gRJeIPONRtRbg",
-      "name": "Shamrock Park Nature Center",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_PROSE_HOURS",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.6,
-      "missing_fields": [
-        "structured_hours"
-      ],
-      "hours_prose": "Park 6 a.m. to sunset. Nature Center Saturdays 9 a.m.–1 p.m.",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Clarify ambiguous/variable hours prose (\"Park 6 a.m. to sunset. Nature Center Saturdays 9 a.m.–1 p.m.\") with exact weekday clock ranges if posted by venue",
-      "affects_wayfind_score": false
-    },
-    {
       "place_id": "ChIJzzanZcVDw4gR-toGS9h8PBI",
       "name": "Hidden Harbor Marina",
       "locality": "Sarasota",
@@ -3406,24 +3131,6 @@
       "hours_prose": "The museum is open daily 10am-5pm, with general admission free on Mondays; it is closed Thanksgiving, Christmas Day, and New Year's Day.",
       "hours_confidence": "EXACT",
       "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJ7-I5X4tHw4gRAK6g4JEha7M",
-      "name": "Celery Fields",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.63,
-      "missing_fields": [
-        "canGoNow",
-        "duration",
-        "parking",
-        "structured_hours"
-      ],
-      "hours_prose": "Daily 6am–sunset; free entry",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
       "affects_wayfind_score": false
     },
     {
@@ -3463,39 +3170,21 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJE0_XXFVJw4gRroRqJ-TSTXg",
-      "name": "Myakka Canopy Walkway and Observation Tower",
-      "locality": "Sarasota",
-      "gap_class": "D",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.63,
-      "missing_fields": [
-        "canGoNow",
-        "duration",
-        "parking",
-        "structured_hours"
-      ],
-      "hours_prose": "Park 8 a.m.–sunset daily. North Gate Sat, Sun, and state holidays 8 a.m.–5 p.m.",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJezvwN98-w4gR9LoM9TPNCuQ",
-      "name": "Conservatory Park",
+      "place_id": "ChIJjZhUvSU9w4gRCuTRgyrctZA",
+      "name": "Gamble Plantation Historic State Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
       "actionability_score": 0.63,
       "missing_fields": [
-        "canGoNow",
+        "whereToGetTickets",
         "duration",
         "parking",
         "structured_hours"
       ],
-      "hours_prose": "Sunrise–sunset; free",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "hours_prose": "Grounds free daily 8am–sunset; mansion tours Thu–Mon (6×daily), no Tue/Wed",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
       "affects_wayfind_score": false
     },
     {
@@ -3547,24 +3236,6 @@
         "structured_hours"
       ],
       "hours_prose": "Late-night hours on Fridays and Saturdays for laser light shows",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
-      "affects_wayfind_score": false
-    },
-    {
-      "place_id": "ChIJpSsncQ5Fw4gRPwZCzCeVvgU",
-      "name": "Oscar Scherer State Park",
-      "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.63,
-      "missing_fields": [
-        "canGoNow",
-        "duration",
-        "parking",
-        "structured_hours"
-      ],
-      "hours_prose": "Daily 8am–sundown (365 days); $5 per vehicle",
       "hours_confidence": "PROSE_ONLY",
       "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
       "affects_wayfind_score": false
@@ -3622,21 +3293,18 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJyYEUav8P54gRatuv_zQzm20",
-      "name": "Blue Spring State Park",
+      "place_id": "ChIJ-Q5hegpw54gR1N58sp-UbH0",
+      "name": "Mead Botanical Garden",
       "locality": "Sarasota",
-      "gap_class": "D",
-      "schedule_classification": "DAYLIGHT_BOUND",
-      "actionability_score": 0.63,
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
       "missing_fields": [
-        "canGoNow",
-        "duration",
-        "parking",
         "structured_hours"
       ],
-      "hours_prose": "Open every day of the year, from 8 a.m. until sundown.",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "hours_prose": "Open daily 8:00 a.m. to dusk; admission free",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Open daily 8:00 a.m. to dusk; admission free\") resolved at runtime via astronomical sunrise/sunset bounds",
       "affects_wayfind_score": false
     },
     {
@@ -3657,6 +3325,36 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJ1eqMbxNBw4gRC0e1cpyN2BM",
+      "name": "Red Bug Slough",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "6 a.m. to sunset",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"6 a.m. to sunset\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ1xoFMTYQw4gRmslQtAXM8A4",
+      "name": "Keyes Marina",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_MONTH_BOUND_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Month-bounded seasonal schedule (\"Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31\") resolved at runtime against active calendar month",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJ4XkjoBtw54gRGiqFxtWvbM8",
       "name": "Scenic Boat Tour",
       "locality": "Winter Park",
@@ -3673,6 +3371,53 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJ7-I5X4tHw4gRAK6g4JEha7M",
+      "name": "Celery Fields",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 6am–sunset; free entry",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ70cZMQIRw4gRKMQdhqFMqV0",
+      "name": "Neal Preserve",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Sunrise to sunset, 365 days",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Sunrise to sunset, 365 days\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJ8UkA7pI5w4gRaYMt-S87XLQ",
+      "name": "Greenbrook Adventure Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Dawn to dusk daily",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Dawn to dusk daily\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJ9RsHDcVDw4gRg3ftHUNMwco",
       "name": "Turtle Beach",
       "locality": "Sarasota",
@@ -3686,6 +3431,68 @@
       "hours_prose": "Daily 6am–10pm; free entry",
       "hours_confidence": "EXACT",
       "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJBbWy1CkRw4gR2nakL2nnFjU",
+      "name": "Palma Sola Causeway",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Sunrise to sunset unless posted.",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Sunrise to sunset unless posted.\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJD0ckhqNUw4gRAvHrRaqP-po",
+      "name": "Dallas White Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily, sunrise to sunset; lighted fields and courts stay open until 10pm",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Daily, sunrise to sunset; lighted fields and courts stay open until 10pm\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJD9-FOtUzw4gRUHyJorxDf9w",
+      "name": "Lake Manatee fish camp",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 8am–sunset, 365 days; $5 per vehicle",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Daily 8am–sunset, 365 days; $5 per vehicle\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJE0_XXFVJw4gRroRqJ-TSTXg",
+      "name": "Myakka Canopy Walkway and Observation Tower",
+      "locality": "Sarasota",
+      "gap_class": "D",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Park 8 a.m.–sunset daily. North Gate Sat, Sun, and state holidays 8 a.m.–5 p.m.",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
       "affects_wayfind_score": false
     },
     {
@@ -3706,20 +3513,35 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJh6_HnNcRw4gR2SpbLik_gEk",
-      "name": "Manatee Public Beach",
+      "place_id": "ChIJezvwN98-w4gR9LoM9TPNCuQ",
+      "name": "Conservatory Park",
       "locality": "Sarasota",
       "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
       "actionability_score": 0.75,
       "missing_fields": [
-        "canGoNow",
         "duration",
+        "parking",
         "structured_hours"
       ],
-      "hours_prose": "Daily sunrise–10pm",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "hours_prose": "Sunrise–sunset; free",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJH4KtoA5Uw4gREg3LM44Iaic",
+      "name": "Deer Prairie Creek Preserve",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "6 a.m. to sunset",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"6 a.m. to sunset\") resolved at runtime via astronomical sunrise/sunset bounds",
       "affects_wayfind_score": false
     },
     {
@@ -3736,6 +3558,66 @@
       "hours_prose": "Open Monday to Friday 12pm to 9:30pm, and Saturday to Sunday 10:30am to 9:30pm",
       "hours_confidence": "EXACT",
       "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJhW6JF_MWw4gRUxIRevnpN4k",
+      "name": "G.T. Bray Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Park sunrise to sunset. Recreation Center Monday–Thursday 5:30 a.m.–9 p.m.; Friday 5:30 a.m.–7 p.m.; Saturday–Sunday 7 a.m.–4 p.m.",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Park sunrise to sunset. Recreation Center Monday–Thursday 5:30 a.m.–9 p.m.; Friday 5:30 a.m.–7 p.m.; Saturday–Sunday 7 a.m.–4 p.m.\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJJ2DbfIc9w4gRM-UmRpZNBeM",
+      "name": "Red Barn Flea Market",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "SEASONAL_MONTH_BOUND_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Full market Fri–Sun 9am–4pm (seasonal Wed Nov–Apr); free admission & parking",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Month-bounded seasonal schedule (\"Full market Fri–Sun 9am–4pm (seasonal Wed Nov–Apr); free admission & parking\") resolved at runtime against active calendar month",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJkasGmR0Rw4gROhuiN0N8Zdo",
+      "name": "Perico Preserve",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Sunrise to sunset, 365 days",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Sunrise to sunset, 365 days\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJlxmvm6hDw4gRqN5ExwCJfbU",
+      "name": "Neville Marine Preserve",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 6am–sunset",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Daily 6am–sunset\") resolved at runtime via astronomical sunrise/sunset bounds",
       "affects_wayfind_score": false
     },
     {
@@ -3804,6 +3686,23 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJpSsncQ5Fw4gRPwZCzCeVvgU",
+      "name": "Oscar Scherer State Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "duration",
+        "parking",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 8am–sundown (365 days); $5 per vehicle",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJpY1xybu6woARL9_iGplujMI",
       "name": "Venice Beach",
       "locality": "Sarasota",
@@ -3821,20 +3720,33 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJRzUAPopDw4gR8YbL_V5iSWo",
-      "name": "The Legacy Trail - McIntosh Parking Lot",
+      "place_id": "ChIJq_OdjK4-w4gRHDtAsN8WP34",
+      "name": "Jiggs Landing",
       "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
       "actionability_score": 0.75,
       "missing_fields": [
-        "canGoNow",
-        "duration",
         "structured_hours"
       ],
-      "hours_prose": "Daily 6am–sunset; free",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "hours_prose": "Preserve sunrise to sunset, 365 days. Night ramp access by $30 gate card from G.T. Bray.",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Preserve sunrise to sunset, 365 days. Night ramp access by $30 gate card from G.T. Bray.\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJu9V8cNY6w4gR14jQbFoNfsE",
+      "name": "Fort Hamer Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Sunrise to sunset, unless posted or permitted.",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Sunrise to sunset, unless posted or permitted.\") resolved at runtime via astronomical sunrise/sunset bounds",
       "affects_wayfind_score": false
     },
     {
@@ -3854,6 +3766,21 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJWUyEEXojw4gRsFy9QmBgWq4",
+      "name": "Buffalo Creek Park",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Daily, sunrise to sunset; lit basketball and football fields stay playable until 10pm",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Daily, sunrise to sunset; lit basketball and football fields stay playable until 10pm\") resolved at runtime via astronomical sunrise/sunset bounds",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJx4O9VBdw54gRcQ8akxK7nkc",
       "name": "The Charles Hosmer Morse Museum of American Art",
       "locality": "Winter Park",
@@ -3870,20 +3797,35 @@
       "affects_wayfind_score": false
     },
     {
-      "place_id": "ChIJzzGPjSkRw4gRfecn6X09ufk",
-      "name": "Coquina Beach",
+      "place_id": "ChIJyYEUav8P54gRatuv_zQzm20",
+      "name": "Blue Spring State Park",
       "locality": "Sarasota",
-      "gap_class": "ATLAS_TOP_INVENTORY",
-      "schedule_classification": "DAYLIGHT_BOUND",
+      "gap_class": "D",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
       "actionability_score": 0.75,
       "missing_fields": [
-        "canGoNow",
         "duration",
+        "parking",
         "structured_hours"
       ],
-      "hours_prose": "Daily sunrise–sunset; free entry",
-      "hours_confidence": "PROSE_ONLY",
-      "recommended_action": "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods",
+      "hours_prose": "Open every day of the year, from 8 a.m. until sundown.",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJz7YUx3lZw4gRJeIPONRtRbg",
+      "name": "Shamrock Park Nature Center",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_PROSE_HOURS",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.75,
+      "missing_fields": [
+        "structured_hours"
+      ],
+      "hours_prose": "Park 6 a.m. to sunset. Nature Center Saturdays 9 a.m.–1 p.m.",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule (\"Park 6 a.m. to sunset. Nature Center Saturdays 9 a.m.–1 p.m.\") resolved at runtime via astronomical sunrise/sunset bounds",
       "affects_wayfind_score": false
     },
     {
@@ -3929,6 +3871,22 @@
       "hours_prose": "Daily 6am–10pm; free entry",
       "hours_confidence": "EXACT",
       "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJh6_HnNcRw4gR2SpbLik_gEk",
+      "name": "Manatee Public Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily sunrise–10pm",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
       "affects_wayfind_score": false
     },
     {
@@ -4007,6 +3965,22 @@
       "affects_wayfind_score": false
     },
     {
+      "place_id": "ChIJRzUAPopDw4gR8YbL_V5iSWo",
+      "name": "The Legacy Trail - McIntosh Parking Lot",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily 6am–sunset; free",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
+      "affects_wayfind_score": false
+    },
+    {
       "place_id": "ChIJVcqB2MUQw4gRbN_T0WF8QEw",
       "name": "De Soto National Memorial",
       "locality": "Sarasota",
@@ -4019,6 +3993,22 @@
       "hours_prose": "Visitor area daily 9am–4:45pm; grounds dawn–dusk (gate closes 5pm); free",
       "hours_confidence": "EXACT",
       "recommended_action": "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      "affects_wayfind_score": false
+    },
+    {
+      "place_id": "ChIJzzGPjSkRw4gRfecn6X09ufk",
+      "name": "Coquina Beach",
+      "locality": "Sarasota",
+      "gap_class": "ATLAS_TOP_INVENTORY",
+      "schedule_classification": "DAYLIGHT_ASTRONOMICAL_RESOLVED",
+      "actionability_score": 0.88,
+      "missing_fields": [
+        "duration",
+        "structured_hours"
+      ],
+      "hours_prose": "Daily sunrise–sunset; free entry",
+      "hours_confidence": "HIGH_CONFIDENCE",
+      "recommended_action": "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists",
       "affects_wayfind_score": false
     }
   ]

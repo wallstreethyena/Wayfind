@@ -158,8 +158,10 @@ const HIGH_INTENT_FIXTURES = {
   },
 };
 
-function classifyQueueItemSchedule({ hasStructuredHours, sourceFact, parsedReason }) {
+function classifyQueueItemSchedule({ hasStructuredHours, hasDaylightSchedule, hasSeasonalSchedule, sourceFact, parsedReason }) {
   if (hasStructuredHours) return "STRUCTURED_HOURS_RESOLVED_ACTION_GAP";
+  if (hasSeasonalSchedule) return "SEASONAL_MONTH_BOUND_RESOLVED";
+  if (hasDaylightSchedule) return "DAYLIGHT_ASTRONOMICAL_RESOLVED";
   const fact = String(sourceFact || "").trim();
   const reason = String(parsedReason || "").trim();
   if (!fact) return "UNPOSTED_OR_NO_CARD";
@@ -219,6 +221,8 @@ const allTargetIds = Array.from(baseIds).sort();
 // Compute Atlas-wide hours parsing metrics
 let atlasWithHoursText = 0;
 let atlasStructuredHoursCount = 0;
+let atlasDaylightResolvedCount = 0;
+let atlasSeasonalMonthResolvedCount = 0;
 let atlasHolidayProtectedCount = 0;
 let atlasProseOnlyCount = 0;
 
@@ -230,6 +234,8 @@ for (const { raw, editorial } of atlasById.values()) {
     atlasStructuredHoursCount += 1;
   } else {
     atlasProseOnlyCount += 1;
+    if (parsed.daylightSchedule?.ok) atlasDaylightResolvedCount += 1;
+    if (parsed.seasonalSchedule?.ok) atlasSeasonalMonthResolvedCount += 1;
   }
   if (Array.isArray(parsed.specialHours) && parsed.specialHours.length > 0) {
     atlasHolidayProtectedCount += 1;
@@ -240,6 +246,8 @@ const placesLedger = {};
 const reviewQueue = [];
 
 let structuredHoursCount = 0;
+let daylightResolvedCount = 0;
+let seasonalMonthResolvedCount = 0;
 let officialWebsiteCount = 0;
 let ticketOrAdmissionCount = 0;
 let menuOrReserveCount = 0;
@@ -342,10 +350,14 @@ for (const placeId of allTargetIds) {
   const periods = ownedHours.oh?.periods || [];
   const weekdayDescriptions = ownedHours.oh?.weekdayDescriptions || [];
   const hasStructuredHours = Boolean(ownedHours.ok && periods.length > 0);
+  const hasDaylightSchedule = Boolean(ownedHours.daylightBound && ownedHours.daylightSchedule?.ok);
+  const hasSeasonalSchedule = Boolean(ownedHours.seasonalSchedule?.ok);
   const hasClassifiedAdmission = admissionTruth.status !== "UNKNOWN";
-  const isZeroPaidReady = Boolean(hasWebsite || hasTicketOrAdmission || hasMenuOrReserve || hasStructuredHours || hasClassifiedAdmission);
+  const isZeroPaidReady = Boolean(hasWebsite || hasTicketOrAdmission || hasMenuOrReserve || hasStructuredHours || hasDaylightSchedule || hasClassifiedAdmission);
 
   if (hasStructuredHours) structuredHoursCount += 1;
+  if (hasDaylightSchedule) daylightResolvedCount += 1;
+  if (hasSeasonalSchedule) seasonalMonthResolvedCount += 1;
   if (hasWebsite) officialWebsiteCount += 1;
   if (hasTicketOrAdmission) ticketOrAdmissionCount += 1;
   if (hasMenuOrReserve) menuOrReserveCount += 1;
@@ -373,6 +385,10 @@ for (const placeId of allTargetIds) {
     reservation_url: resolvedActions?.reservation_url || null,
     owned_hours: {
       ok: ownedHours.ok,
+      daylight_bound: Boolean(ownedHours.daylightBound),
+      daylight_schedule: ownedHours.daylightSchedule || null,
+      seasonal_schedule: ownedHours.seasonalSchedule || null,
+      active_seasonal_window: ownedHours.activeSeasonalWindow || null,
       source: ownedHours.source,
       confidence: ownedHours.confidence,
       parser_version: ownedHours.parserVersion || null,
@@ -410,6 +426,8 @@ for (const placeId of allTargetIds) {
     const parsedForReason = atlasEditorial ? parseEditorialHours(atlasEditorial, { venueName: syntheticDetail.name }) : null;
     const scheduleClassification = classifyQueueItemSchedule({
       hasStructuredHours,
+      hasDaylightSchedule,
+      hasSeasonalSchedule,
       sourceFact: ownedHours.sourceFact || parsedForReason?.sourceFact || null,
       parsedReason: parsedForReason?.reason || null,
     });
@@ -426,11 +444,13 @@ for (const placeId of allTargetIds) {
       ],
       hours_prose: ownedHours.sourceFact || null,
       hours_confidence: ownedHours.confidence || "NONE",
-      recommended_action: !hasStructuredHours && ownedHours.sourceFact
-        ? "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods"
-        : !hasStructuredHours
-          ? "Add verified Hours fact to Atlas editorial card or owned truth override"
-          : "Verify deep subpage action link (tickets/menu/reservations) if applicable",
+      recommended_action: hasDaylightSchedule
+        ? "Daylight-bound schedule resolved via astronomical sunrise/sunset bounds; no fixed year-round closing clock exists"
+        : !hasStructuredHours && ownedHours.sourceFact
+          ? "Verify exact opening/closing clock times from official venue page to upgrade PROSE_ONLY hours to structured periods"
+          : !hasStructuredHours
+            ? "Add verified Hours fact to Atlas editorial card or owned truth override"
+            : "Verify deep subpage action link (tickets/menu/reservations) if applicable",
       affects_wayfind_score: false,
     });
   }
@@ -441,8 +461,12 @@ for (const [placeId, { raw, editorial }] of atlasById.entries()) {
   if (placesLedger[placeId]) continue;
   const parsed = parseEditorialHours(editorial, { venueName: raw.name || null });
   if (!parsed.ok && parsed.sourceFact) {
+    const hasDaylightSchedule = Boolean(parsed.daylightSchedule?.ok);
+    const hasSeasonalSchedule = Boolean(parsed.seasonalSchedule?.ok);
     const scheduleClassification = classifyQueueItemSchedule({
       hasStructuredHours: false,
+      hasDaylightSchedule,
+      hasSeasonalSchedule,
       sourceFact: parsed.sourceFact,
       parsedReason: parsed.reason,
     });
@@ -452,11 +476,15 @@ for (const [placeId, { raw, editorial }] of atlasById.entries()) {
       locality: raw.city || "Sarasota",
       gap_class: "ATLAS_PROSE_HOURS",
       schedule_classification: scheduleClassification,
-      actionability_score: 0.6,
+      actionability_score: (hasDaylightSchedule || hasSeasonalSchedule) ? 0.75 : 0.6,
       missing_fields: ["structured_hours"],
       hours_prose: parsed.sourceFact,
-      hours_confidence: parsed.confidence,
-      recommended_action: `Clarify ambiguous/variable hours prose ("${parsed.sourceFact}") with exact weekday clock ranges if posted by venue`,
+      hours_confidence: (hasDaylightSchedule || hasSeasonalSchedule) ? "HIGH_CONFIDENCE" : parsed.confidence,
+      recommended_action: hasDaylightSchedule
+        ? `Daylight-bound schedule ("${parsed.sourceFact}") resolved at runtime via astronomical sunrise/sunset bounds`
+        : hasSeasonalSchedule
+          ? `Month-bounded seasonal schedule ("${parsed.sourceFact}") resolved at runtime against active calendar month`
+          : `Clarify ambiguous/variable hours prose ("${parsed.sourceFact}") with exact weekday clock ranges if posted by venue`,
       affects_wayfind_score: false,
     });
   }
@@ -495,6 +523,8 @@ const ownedTruthPayload = {
     },
     after: {
       structured_hours_count: structuredHoursCount,
+      daylight_astronomical_resolved_count: daylightResolvedCount,
+      seasonal_month_bound_resolved_count: seasonalMonthResolvedCount,
       official_website_count: officialWebsiteCount,
       ticket_or_admission_count: ticketOrAdmissionCount,
       menu_or_reservation_count: menuOrReserveCount,
@@ -507,6 +537,8 @@ const ownedTruthPayload = {
     atlas_wide: {
       cards_with_hours_fact: atlasWithHoursText,
       deterministic_structured_hours_count: atlasStructuredHoursCount,
+      daylight_astronomical_resolved_count: atlasDaylightResolvedCount,
+      seasonal_month_bound_resolved_count: atlasSeasonalMonthResolvedCount,
       holiday_closure_protected_count: atlasHolidayProtectedCount,
       honest_prose_only_count: atlasProseOnlyCount,
     },

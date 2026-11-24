@@ -19,6 +19,8 @@ import { fileURLToPath } from "node:url";
 import {
   parseEditorialHours,
   parseEditorialHoursString,
+  parseDaylightSchedule,
+  parseMonthBoundedSchedule,
   extractHolidayClosures,
   usHolidaysForYear,
   EDITORIAL_HOURS_PARSER_VERSION,
@@ -29,6 +31,7 @@ import {
   isMunicipalSplashOrPublicPark,
   resolveAdmissionTruth,
   resolveOwnedHours,
+  evaluateDaylightSchedule,
   computeActionabilityCoverage,
   buildPlaceTruthTrace,
   resolveOwnedTruthFallback,
@@ -584,6 +587,105 @@ function eq(a, b, msg) {
     const strippedComments = src.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
     ok(!/\(\?<=|\(\?<!/.test(strippedComments), `${relFile} contains zero regex lookbehinds`);
   }
+}
+
+// ── 10. Astronomical Daylight Bounds & Month-Bounded Seasonal Schedules ─────
+{
+  // A. Astronomical daylight-bound schedule (Blue Spring State Park: "Open every day of the year, from 8 a.m. until sundown.")
+  const blueSpringParsed = parseEditorialHoursString("Open every day of the year, from 8 a.m. until sundown.");
+  eq(blueSpringParsed.ok, false, "Daylight-bound schedule never fabricates static year-round clock periods (ok === false)");
+  eq(blueSpringParsed.periods.length, 0, "Daylight-bound schedule emits 0 static periods");
+  ok(Boolean(blueSpringParsed.daylightSchedule && blueSpringParsed.daylightSchedule.ok), "Daylight-bound schedule parses deterministic daylightSchedule metadata");
+  eq(blueSpringParsed.daylightSchedule.openKind, "clock", "Blue Spring opens at fixed clock time (8:00 AM)");
+  eq(blueSpringParsed.daylightSchedule.openHour, 8, "Blue Spring openHour === 8");
+  eq(blueSpringParsed.daylightSchedule.closeKind, "sunset", "Blue Spring closes at astronomical sunset");
+
+  // Midday in November (14:00 EST = 19:00 UTC on Nov 19, 2026) -> Open until sunset (~5:32 PM today)
+  const blueSpringDetail = {
+    id: "ChIJyYEUav8P54gRatuv_zQzm20",
+    name: "Blue Spring State Park",
+    lat: 28.9481,
+    lng: -81.3392,
+  };
+  const middayNovMs = Date.parse("2026-11-19T19:00:00Z");
+  const blueSpringMidday = resolveOwnedHours({
+    detail: blueSpringDetail,
+    detailExtra: null,
+    editorial: { hoursText: "Open every day of the year, from 8 a.m. until sundown." },
+    nowMs: middayNovMs,
+  });
+  eq(blueSpringMidday.ok, false, "Blue Spring static periods remain false");
+  eq(blueSpringMidday.daylightBound, true, "Blue Spring resolves daylightBound === true");
+  eq(blueSpringMidday.openState, true, "Blue Spring is OPEN at 2:00 PM EST via astronomical sunset bounds");
+  ok(/Open until sunset \(~5:\d{2} PM today\)/i.test(blueSpringMidday.business?.label || ""), `Blue Spring midday label cites computed sunset time: "${blueSpringMidday.business?.label}"`);
+
+  // After dark in November (20:00 EST = 01:00 UTC Nov 20, 2026) -> Closed after sunset
+  const nightNovMs = Date.parse("2026-11-20T01:00:00Z");
+  const blueSpringNight = resolveOwnedHours({
+    detail: blueSpringDetail,
+    detailExtra: null,
+    editorial: { hoursText: "Open every day of the year, from 8 a.m. until sundown." },
+    nowMs: nightNovMs,
+  });
+  eq(blueSpringNight.openState, false, "Blue Spring is CLOSED at 8:00 PM EST after astronomical sunset");
+  ok(/Opens tomorrow 8:00 AM/i.test(blueSpringNight.business?.nextTransition?.label || ""), "Blue Spring night nextTransition reports Opens tomorrow 8:00 AM");
+
+  // Ambiguous daylight strings with conditional closures MUST NOT resolve a daylightSchedule
+  const rayCanoe = parseDaylightSchedule("Dawn to dusk. Closed Wednesdays except holidays, weather, or by arrangement.");
+  eq(rayCanoe, null, "Conditional/weather-dependent daylight string returns null daylightSchedule");
+  const weddingsPark = parseDaylightSchedule("8 a.m. to dusk daily; confirm the calendar — weddings can close the grounds");
+  eq(weddingsPark, null, "Wedding-closure daylight string returns null daylightSchedule");
+
+  // B. Month-bounded seasonal schedule (Keyes Marina: "Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31")
+  const keyesParsed = parseEditorialHoursString("Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31");
+  eq(keyesParsed.ok, false, "Month-bounded seasonal schedule keeps static year-round ok === false");
+  ok(Boolean(keyesParsed.seasonalSchedule && keyesParsed.seasonalSchedule.ok), "Keyes Marina parses month-bounded seasonalSchedule");
+  eq(keyesParsed.seasonalSchedule.windows.length, 2, "Keyes Marina has 2 seasonal windows covering all 12 months");
+
+  // In November (Sept–Feb window: closes 5:00 PM / 17:00), at 5:30 PM EST (22:30 UTC Nov 19, 2026) -> CLOSED
+  const nov530pmMs = Date.parse("2026-11-19T22:30:00Z");
+  const keyesNov = resolveOwnedHours({
+    detail: { id: "ChIJ1xoFMTYQw4gRmslQtAXM8A4", name: "Keyes Marina", lat: 27.496, lng: -82.703 },
+    detailExtra: null,
+    editorial: { hoursText: "Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31" },
+    nowMs: nov530pmMs,
+  });
+  eq(keyesNov.ok, true, "Keyes Marina resolves active seasonal window periods for November");
+  eq(keyesNov.activeSeasonalWindow, "Sept–Feb", "Active seasonal window in November is Sept–Feb");
+  eq(keyesNov.openState, false, "Keyes Marina is CLOSED at 5:30 PM EST in November (Sept–Feb 7am–5pm window)");
+
+  // In July (Mar–Aug window: closes 6:00 PM / 18:00), at 5:30 PM EDT (21:30 UTC Jul 15, 2026) -> OPEN
+  const jul530pmMs = Date.parse("2026-07-15T21:30:00Z");
+  const keyesJul = resolveOwnedHours({
+    detail: { id: "ChIJ1xoFMTYQw4gRmslQtAXM8A4", name: "Keyes Marina", lat: 27.496, lng: -82.703 },
+    detailExtra: null,
+    editorial: { hoursText: "Daily 7am–5pm Sept 1–Feb 28; 7am–6pm Mar 1–Aug 31" },
+    nowMs: jul530pmMs,
+  });
+  eq(keyesJul.ok, true, "Keyes Marina resolves active seasonal window periods for July");
+  eq(keyesJul.activeSeasonalWindow, "Mar–Aug", "Active seasonal window in July is Mar–Aug");
+  eq(keyesJul.openState, true, "Keyes Marina is OPEN at 5:30 PM EDT in July (Mar–Aug 7am–6pm window)");
+
+  // Red Barn Flea Market ("Full market Fri–Sun 9am–4pm (seasonal Wed Nov–Apr); free admission & parking")
+  // Wednesday in November (Nov 18, 2026 at 12:00 PM EST = 17:00 UTC) -> OPEN; Wednesday in July (Jul 15, 2026 at 12:00 PM EDT = 16:00 UTC) -> CLOSED
+  const redBarnNovWed = resolveOwnedHours({
+    detail: { id: "ChIJJ2DbfIc9w4gRM-UmRpZNBeM", name: "Red Barn Flea Market", lat: 27.482, lng: -82.562 },
+    detailExtra: null,
+    editorial: { hoursText: "Full market Fri–Sun 9am–4pm (seasonal Wed Nov–Apr); free admission & parking" },
+    nowMs: Date.parse("2026-11-18T17:00:00Z"),
+  });
+  eq(redBarnNovWed.openState, true, "Red Barn Flea Market is OPEN on Wednesday in November (Nov–Apr seasonal Wed window)");
+
+  const redBarnJulWed = resolveOwnedHours({
+    detail: { id: "ChIJJ2DbfIc9w4gRM-UmRpZNBeM", name: "Red Barn Flea Market", lat: 27.482, lng: -82.562 },
+    detailExtra: null,
+    editorial: { hoursText: "Full market Fri–Sun 9am–4pm (seasonal Wed Nov–Apr); free admission & parking" },
+    nowMs: Date.parse("2026-07-15T16:00:00Z"),
+  });
+  eq(redBarnJulWed.openState, false, "Red Barn Flea Market is CLOSED on Wednesday in July (May–Oct Fri–Sun only window)");
+
+  // Vague seasonal strings without explicit month bounds ("Summer Hours: 9 a.m. - 6 p.m.") remain null
+  eq(parseMonthBoundedSchedule("Summer Hours: 9 a.m. - 6 p.m., Thursdays: 9 a.m. - 8 p.m."), null, "Unbounded Summer Hours string does not fabricate month bounds");
 }
 
 console.log(`test-owned-place-truth-frontier: ${assertions} assertions OK`);
