@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { SOCIAL_AD_ATTR, SOCIAL_AD_FEATURE_ATTR, isSocialAdLanding, socialAdFeature } from "../../lib/socialAdLanding.js";
 import { christmasPickMeasurement } from "../../lib/christmasPickMeasurement.js";
 import { XM_CARD_CSS, organizerTap } from "./ChristmasTicketCard.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { useCommerceImpression } from "./useCommerceImpression.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
+import { CHRISTMAS_BG_GRADIENT, CHRISTMAS_DOODLE_CSS, CHRISTMAS_LIGHTS_CSS } from "../../lib/christmasBackdrop.js";
 import ChristmasElves from "./ChristmasElves.js";
+import { FestivalLights } from "./ChristmasDecor.js";
 import GuidePhoto from "./GuidePhoto.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
@@ -17,57 +19,6 @@ import { styleHtml } from "../../lib/styleHtml.js";
 // visible string comes from the server model (lib/christmasTickets.js) and is
 // dash free. The statewide browse and the watchlist arrive as `browse`.
 const SURFACE = "christmas_tickets";
-const BULB_COUNT = 18;
-const WIRE_PITCH = 1200 / BULB_COUNT;
-const WIRE_PATH = (() => {
-  let d = "M0 6";
-  for (let i = 0; i < BULB_COUNT; i += 1) {
-    d += " Q" + ((i + 0.5) * WIRE_PITCH).toFixed(1) + " 30 " + ((i + 1) * WIRE_PITCH).toFixed(1) + " 6";
-  }
-  return d;
-})();
-// Rotating light sequences (chase, alternate, twinkle). CSS only: each pattern
-// animates opacity and transform on the bulbs, so it stays GPU cheap.
-// Phones get half the strand (every other bulb) on a wire with half the dips,
-// so the lights read as a cute string instead of a crowded row.
-const PHONE_DIPS = BULB_COUNT / 2;
-const PHONE_WIRE_PATH = (() => {
-  const pitch = 1200 / PHONE_DIPS;
-  let d = "M0 4";
-  for (let i = 0; i < PHONE_DIPS; i += 1) d += " Q" + ((i + 0.5) * pitch).toFixed(1) + " 24 " + ((i + 1) * pitch).toFixed(1) + " 4";
-  return d;
-})();
-// Seven colors (an odd count), so every other bulb on a phone still cycles
-// through all of them: red, green, gold, blue, pink, warm white, amber.
-// Amber, not purple. A purple bulb is off the palette.
-const BULB_COLORS = [
-  ["#FF4458", "#B3111F", "rgba(255,68,88,.75)", "rgba(255,68,88,.32)"],
-  ["#3DDC84", "#13803F", "rgba(61,220,132,.7)", "rgba(61,220,132,.3)"],
-  ["#FFC94A", "#C98A0B", "rgba(255,201,74,.78)", "rgba(255,201,74,.34)"],
-  ["#4DA3FF", "#1456B8", "rgba(77,163,255,.75)", "rgba(77,163,255,.32)"],
-  ["#FF7AC8", "#B02C86", "rgba(255,122,200,.75)", "rgba(255,122,200,.32)"],
-  ["#FFF1D6", "#D8B27A", "rgba(255,241,214,.7)", "rgba(255,241,214,.28)"],
-  ["#FF8A3D", "#C4510A", "rgba(255,138,61,.75)", "rgba(255,138,61,.32)"],
-];
-const LIGHT_PATTERNS = ["twinkle", "chase", "alt", "chase"];
-
-// Faint festive doodles (gift, holly, candy cane, ornament, tree, snowflake) as
-// one tiling line drawing, plus a separate tile of gold sparkles that twinkles.
-const DOODLE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520" fill="none" stroke="#E8B48A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-<g transform="translate(46 62) rotate(-8)"><rect x="0" y="16" width="52" height="38"/><rect x="-4" y="6" width="60" height="12"/><path d="M26 6v48M26 6c-12-14-24-2-10 0M26 6c12-14 24-2 10 0"/></g>
-<g transform="translate(318 40) rotate(14)"><path d="M0 30c6-18 22-22 32-12-4 14-18 22-32 12zM34 30c8-16 24-18 32-6-6 14-20 20-32 6z"/><circle cx="30" cy="40" r="5"/><circle cx="40" cy="46" r="5"/><circle cx="24" cy="48" r="5"/></g>
-<g transform="translate(400 250)"><path d="M30 0l26 36H4zM30 24l34 44H-4zM30 52l42 52H-12z"/><path d="M30 104v14M30 -10l3 7 8 1-6 5 2 8-7-4-7 4 2-8-6-5 8-1z"/></g>
-<g transform="translate(120 290) rotate(-12)"><path d="M0 70V18a18 18 0 0 1 36 0v6"/><path d="M0 52l16-8M0 38l16-8M0 24l16-8"/></g>
-<g transform="translate(250 390)"><circle cx="30" cy="40" r="26"/><path d="M24 14h12v-8H24zM30 6V-2"/><path d="M14 36c10 8 22 8 32 0"/></g>
-<g transform="translate(40 410)"><path d="M0 -26v52M-22 -13l44 26M-22 13l44 -26M-6 -22l6 6 6 -6M-6 22l6 -6 6 6"/></g>
-<g transform="translate(250 190)"><path d="M0 -14v28M-14 0h28M-10 -10l20 20M-10 10l20 -20"/></g>
-<g transform="translate(470 120)" stroke-width="2"><path d="M0 -12v24M-12 0h24"/></g>
-<g transform="translate(180 470)" stroke-width="2"><path d="M0 -10v20M-10 0h20"/></g>
-</svg>`;
-const SPARKLE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="340" height="340" viewBox="0 0 340 340" fill="#F5C451">
-<path d="M40 30l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path d="M250 70l2.4 7 7 2.4-7 2.4-2.4 7-2.4-7-7-2.4 7-2.4z" opacity=".8"/><path d="M130 150l3.4 10 10 3.4-10 3.4-3.4 10-3.4-10-10-3.4 10-3.4z"/><path d="M300 230l2.6 7.5 7.5 2.6-7.5 2.6-2.6 7.5-2.6-7.5-7.5-2.6 7.5-2.6z" opacity=".8"/><path d="M60 280l3 8.5 8.5 3-8.5 3-3 8.5-3-8.5-8.5-3 8.5-3z"/><circle cx="200" cy="300" r="2.4"/><circle cx="90" cy="100" r="2"/><circle cx="310" cy="140" r="2"/><circle cx="190" cy="40" r="1.8"/></svg>`;
-const svgUrl = (svg) => 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
-
 
 function askSanta() {
   if (typeof window === "undefined") return;
@@ -80,47 +31,17 @@ const CSS = XM_CARD_CSS + `
   --red:#E8343F;--redfill:#D92C37;--green:#3FBF7F;--gold:#F5C451;--cream:#FFF6F0;--muted:#F0D3C4;--soft:#E2BBA8;
   color:var(--cream);
   font-family:var(--wf-sans),sans-serif;font-weight:400;position:relative;isolation:isolate;
-  background:radial-gradient(120% 55% at 50% 0%,#7A0F22 0%,rgba(122,15,34,0) 62%),linear-gradient(180deg,#4A0816 0%,#38060F 38%,#2C0610 70%,#220409 100%);
+  background:${CHRISTMAS_BG_GRADIENT};
   min-height:100dvh;overflow-x:clip;box-sizing:border-box;padding-bottom:56px;
 }
 .xm-page *,.xm-page *::before,.xm-page *::after{box-sizing:border-box}
 .xm-page button,.xm-page a,.xm-page input,.xm-page select{font-family:inherit}
 
-/* Whole page theme: faint line doodles and gold sparkles behind everything */
-.xm-doodles,.xm-sparkles{position:absolute;inset:0;z-index:0;pointer-events:none}
-.xm-doodles{background-image:${svgUrl(DOODLE_SVG)};background-size:520px 520px;opacity:.16}
-.xm-sparkles{background-image:${svgUrl(SPARKLE_SVG)};background-size:340px 340px;opacity:.5;animation:xm-sparkle 7s ease-in-out infinite}
-@keyframes xm-sparkle{0%,100%{opacity:.25}50%{opacity:.45}}
+${CHRISTMAS_DOODLE_CSS}
 .xm-snow{position:fixed;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
 .xm-main{position:relative;z-index:2}
 
-/* Festival string lights: green garland, multicolor bulbs with real glow, rotating chase and twinkle sequences */
-.xm-lights{position:relative;height:36px;margin-bottom:12px;pointer-events:none;overflow-x:clip;z-index:30}
-.xm-wire{position:absolute;inset:0;width:100%;height:100%}
-/* Cute bulbs (owner 2026-11-03): chubby round glass with a shine dot and a gold
-   cap, each hanging from the wire and gently swaying; little red bows on the wire. */
-.xm-sway{position:absolute;top:9px;width:0;height:0;transform-origin:0 0;animation:xm-sway var(--sw,3.6s) ease-in-out var(--d,0s) infinite alternate}
-@keyframes xm-sway{from{rotate:-7deg}to{rotate:7deg}}
-.xm-bulb{
-  position:absolute;left:-8px;top:5px;width:16px;height:20px;
-  border-radius:50% 50% 48% 48% / 42% 42% 58% 58%;
-  background:radial-gradient(ellipse 22% 30% at 33% 30%,rgba(255,255,255,.95),rgba(255,255,255,0) 72%),radial-gradient(circle at 42% 38%,var(--bc) 0 38%,var(--bd) 100%);
-  box-shadow:0 0 6px 1px var(--bg-glow),0 0 16px 4px var(--bg-glow2);
-  will-change:opacity,transform;
-}
-.xm-bow{position:absolute;top:2px;width:16px;height:12px;margin-left:-8px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
-.xm-wire-phone{display:none}
-@media(max-width:600px){.xm-bulb{left:-9px;width:18px;height:22px}.xm-wire-desk{display:none}.xm-wire-phone{display:block}.xm-sway{left:var(--lp)!important}.xm-sway:nth-of-type(even),.xm-bow.xm-bow-desk{display:none}.xm-bow{left:var(--bp)!important}}
-.xm-bulb::before{content:"";position:absolute;left:4px;top:-5px;width:7px;height:6px;border-radius:2px 2px 1px 1px;background:linear-gradient(180deg,#F7D774,#B8860B)}
-.xm-bulb::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,var(--bg-glow) 0%,rgba(0,0,0,0) 66%);opacity:.45}
-[data-pattern="twinkle"] .xm-bulb{animation:xm-twinkle var(--f,3.2s) ease-in-out var(--d,0s) infinite}
-[data-pattern="chase"] .xm-bulb{animation:xm-chase 2s linear infinite;animation-delay:calc(var(--i) * -.11s)}
-[data-pattern="alt"] .xm-bulb{animation:xm-alt 1.5s ease-in-out infinite}
-[data-pattern="alt"] .xm-sway:nth-of-type(even) .xm-bulb{animation-delay:-.75s}
-@keyframes xm-twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.93)}}
-@keyframes xm-chase{0%,100%{opacity:.6;transform:scale(.95)}14%,26%{opacity:1;transform:scale(1.06)}48%{opacity:.6;transform:scale(.95)}}
-@keyframes xm-alt{0%,100%{opacity:1;transform:scale(1.03)}50%{opacity:.62;transform:scale(.95)}}
-@media(prefers-reduced-motion:reduce){.xm-bulb,.xm-sway,.xm-sparkles{animation:none!important}.xm-sparkles{opacity:.4}}
+${CHRISTMAS_LIGHTS_CSS}
 
 /* Wayfind header replica (home classes and values) */
 .wf-topbar{background:transparent;border:0;padding:4px 16px 6px;position:relative;z-index:20}
@@ -182,64 +103,6 @@ const CSS = XM_CARD_CSS + `
 .xm-foot .wf-guide-commission{font-size:12px !important;color:var(--soft) !important;margin:0 !important}
 .xm-empty{margin:16px 0 0;color:var(--muted);font-size:14px}
 `;
-
-function FestivalLights() {
-  const [pattern, setPattern] = useState("twinkle");
-  useEffect(() => {
-    if (typeof window === "undefined" || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return undefined;
-    let n = 0;
-    const id = window.setInterval(() => {
-      if (document.hidden) return;
-      n += 1;
-      setPattern(LIGHT_PATTERNS[n % LIGHT_PATTERNS.length]);
-    }, 6500);
-    return () => window.clearInterval(id);
-  }, []);
-  return (
-    <div className="xm-lights" aria-hidden="true" data-pattern={pattern}>
-      <svg className="xm-wire xm-wire-desk" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={WIRE_PATH} fill="none" stroke="#143B22" strokeWidth="2.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        <path d={WIRE_PATH} fill="none" stroke="#3E8F5A" strokeWidth="1" strokeDasharray="3 4" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-      </svg>
-      <svg className="xm-wire xm-wire-phone" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={PHONE_WIRE_PATH} fill="none" stroke="#143B22" strokeWidth="2.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        <path d={PHONE_WIRE_PATH} fill="none" stroke="#3E8F5A" strokeWidth="1" strokeDasharray="3 4" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-      </svg>
-      {Array.from({ length: BULB_COUNT }, (_, i) => (
-        <span
-          key={i}
-          className="xm-sway"
-          style={{
-            left: (((i + 0.5) / BULB_COUNT) * 100).toFixed(2) + "%",
-            "--lp": (((Math.floor(i / 2) + 0.5) / PHONE_DIPS) * 100).toFixed(2) + "%",
-            "--d": "-" + ((i * 1.7) % 9).toFixed(1) + "s",
-            "--sw": (3 + ((i * 13) % 12) / 10).toFixed(1) + "s",
-          }}
-        >
-          <span
-            className="xm-bulb"
-            style={{
-              "--i": i,
-              "--bc": BULB_COLORS[i % BULB_COLORS.length][0],
-              "--bd": BULB_COLORS[i % BULB_COLORS.length][1],
-              "--bg-glow": BULB_COLORS[i % BULB_COLORS.length][2],
-              "--bg-glow2": BULB_COLORS[i % BULB_COLORS.length][3],
-              "--d": "-" + ((i * 1.7) % 9).toFixed(1) + "s",
-              "--f": (2.6 + ((i * 37) % 30) / 10).toFixed(1) + "s",
-            }}
-          />
-        </span>
-      ))}
-      {Array.from({ length: Math.floor(BULB_COUNT / 3) }, (_, k) => (
-        <svg key={"bow" + k} className={"xm-bow" + (k % 2 ? " xm-bow-desk" : "")} viewBox="0 0 16 12" style={{ left: (((k * 3 + 2) / BULB_COUNT) * 100).toFixed(2) + "%", "--bp": ((((k * 3 + 2) / 2) / PHONE_DIPS) * 100).toFixed(2) + "%" }}>
-          <path d="M8 6 L1.5 1.5 Q0 6 1.5 10.5 Z M8 6 L14.5 1.5 Q16 6 14.5 10.5 Z" fill="#D92C37" />
-          <path d="M8 6 L5 11.5 M8 6 L11 11.5" stroke="#B3111F" strokeWidth="1.6" strokeLinecap="round" />
-          <circle cx="8" cy="6" r="2" fill="#F5C451" />
-        </svg>
-      ))}
-    </div>
-  );
-}
 
 // Gentle falling snow, drawn behind the page content (z-index below it, no
 // pointer events, hidden from assistive tech). Capped at 36 flakes on a phone

@@ -376,7 +376,7 @@ export default async function GoFloridaPage({ searchParams }) {
   const focus = (params && params.focus) || "";
   const order = orderedSections(focus);
   const mark = activeSeasonalMark() || NORMAL_MARK;
-  return <main id="go-florida" className={styles.page}>
+  return <main id="go-florida" className={styles.page} data-wf-own-theme="florida-landing">
     <CommerceClickBeacon surface={SURFACE} />
     <div className={styles.opening}>
     <header className={styles.header}>

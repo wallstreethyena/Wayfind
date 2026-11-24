@@ -1405,7 +1405,7 @@ export default function CommandCenter() {
   // no SSR HTML for this <img> to disagree with at hydration.
   const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
-    <div className={styles.root}>
+    <div className={styles.root} data-wf-own-theme="command-center">
       <header className={styles.header}>
         <div className={styles.headerMain}>
           <a href="#today" onClick={() => setActiveGroup("today")} className={styles.brand} aria-label="Wayfind Command Center home">

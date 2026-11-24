@@ -73,6 +73,7 @@ export default async function SharePage({ params, searchParams }) {
   const target = `/?list=${payload}`;
   return (
     <div
+      className="wf-page-canvas"
       style={{
         minHeight: "100dvh",
         background: "#0D1117",

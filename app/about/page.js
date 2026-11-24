@@ -50,7 +50,7 @@ const DIFFERENTIATORS = [
 
 export default function Page() {
   return (
-    <article style={S.page}>
+    <article style={S.page} className="wf-page-canvas">
       <ReturnToWayfind style={S.back} />
       <div style={S.kicker}>About Wayfind</div>
       <h1 style={S.h1}>Built to answer one question honestly: what&apos;s actually worth your time, right now?</h1>
