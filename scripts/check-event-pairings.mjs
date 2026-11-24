@@ -267,10 +267,23 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
   }
 }
 
-// 8. SOURCE — the ISR event page uses the cache boundary and only renders
-// nearby places when non-empty.
+// 8. Execute the ISR page's real pairing decision with a cache double.
 const slug = readFileSync(path.join(ROOT, "app/florida-events/[slug]/page.js"), "utf8");
-ok(/pairingResult\s*=\s*await cachedEventPairings\(e\)/.test(slug) && /pairingResult\.places\.map/.test(slug) && /pairingHref\(/.test(slug), "the ISR event page fetches pairings through the cache boundary and links complete places");
+const pairingExpression = slug.match(/\bconst pairingResult\s*=\s*([^;]+);/)?.[1];
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+const pagePairings = pairingExpression ? new AsyncFunction("e", "cachedEventPairings", `return (${pairingExpression});`) : null;
+const ordinaryEvent = { ...ORIGIN, event_id: "ordinary-event" };
+const parkEvent = { ...ORIGIN, event_id: "ticketed-park-event", christmas_park_admission_note: "Enter with a party ticket." };
+const cacheResult = { places: [{ id: "cache-fixture-place" }], unavailable: false };
+const cacheCalls = [];
+const readCached = async (event) => { cacheCalls.push(event); return cacheResult; };
+const ordinaryResult = await pagePairings?.(ordinaryEvent, readCached);
+ok(ordinaryResult === cacheResult && cacheCalls.length === 1 && cacheCalls[0] === ordinaryEvent
+  && /pairingResult\.places\.map/.test(slug) && /pairingHref\(/.test(slug),
+  "the ordinary ISR event page fetches pairings through the cache boundary and links complete places");
+const parkResult = await pagePairings?.(parkEvent, readCached);
+ok(parkResult?.places?.length === 0 && parkResult.unavailable === false && cacheCalls.length === 1,
+  "the verified park admission note prevents unverified nearby pairings without reporting an outage");
 ok(!/import\s*\{[^}]*\beventPairings\b[^}]*\}\s*from/.test(slug), "the ISR event page cannot bypass the cached pairing entrypoint");
 ok(/pairingResult\.unavailable[\s\S]*Nearby picks are temporarily unavailable/.test(slug), "the ISR page distinguishes unavailable pairing inventory from a healthy empty shelf");
 // v8.99 — the nearby cards render INSIDE the shared <EventWhere> block (with

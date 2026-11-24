@@ -277,4 +277,45 @@ equal(analytics.clickProperties(goLink, { origin: "https://gowayfind.com" }), { 
 const placeLink = { tagName: "A", textContent: "Open place", getAttribute: (name) => (name === "href" ? "/places/ChIJGSMzu2Oi54gR-rlDDL6V3Qs" : null), closest: (sel) => (sel.startsWith("[data") ? null : placeLink) };
 equal(analytics.clickProperties(placeLink, { origin: "https://gowayfind.com" }).place_id, "ChIJGSMzu2Oi54gR-rlDDL6V3Qs", "a link to a place page names that place");
 
-console.log(`test-browser-analytics: OK — ${passed} assertions (owner/bot gate, URL redaction, safe clicks, incremental attention + visible duration)`);
+{
+  const id = analytics.analyticsUuidV7(1_700_000_000_000, new Uint8Array(16));
+  ok(analytics.isAnalyticsUuidV7(id), "analyticsUuidV7 is a version 7 uuid PostHog will bootstrap, got " + id);
+  const body = analytics.earlyPageviewBody({ apiKey: "phc_testkey", distinctId: "person-1", sessionId: id, origin: "https://www.gowayfind.com", pathname: "/christmas-in-florida?fbclid=secret", timestamp: "2026-11-23T00:00:00.000Z" });
+  equal(body.event, "$pageview", "early body is a pageview");
+  equal(body.properties.$current_url, "https://www.gowayfind.com/christmas-in-florida", "the landing URL drops the query");
+  equal(body.properties.$pathname, "/christmas-in-florida", "pathname is the page path");
+  equal(body.properties.$session_id, id, "the pageview carries the bootstrapped session");
+  ok(analytics.earlyPageviewScript("") === "void 0" && analytics.earlyPageviewScript("not-a-key") === "void 0", "a missing or malformed PostHog key emits no script");
+  const script = analytics.earlyPageviewScript("phc_abc123");
+  ok(script.includes('"$pageview"') && script.includes("https://us.i.posthog.com/capture/") && script.includes("wf_internal_browser_v1") && !script.includes("location.search"), "the head script sends a pageview and does not read the query string");
+  const sent = [];
+  const store = new Storage();
+  const ss = new Storage();
+  const win = {
+    webdriver: false,
+    location: { pathname: "/christmas-in-florida", origin: "https://www.gowayfind.com", search: "?fbclid=secret" },
+    navigator: { webdriver: false, userAgent: "Mozilla/5.0", sendBeacon: (url, blob) => { sent.push({ url, blob }); return true; } },
+    crypto: { getRandomValues: (b) => b, randomUUID: () => "11111111-1111-4111-8111-111111111111" },
+    sessionStorage: ss,
+    localStorage: store,
+    Blob,
+  };
+  // The script closes over the real navigator/location/window names. Run a
+  // stand-in of dispatchEarlyPageview, which is the same beacon the pagehide
+  // fallback uses, so a failed head beacon still records the landing.
+  ok(analytics.dispatchEarlyPageview(win, "phc_abc123") === true, "a fast leave beacons the landing pageview");
+  ok(win.__WF_EARLY_PAGEVIEW === 1 && sent.length === 1 && sent[0].url === "https://us.i.posthog.com/capture/", "the beacon hits the capture endpoint once and marks the landing sent");
+  const parsed = JSON.parse(await sent[0].blob.text());
+  equal(parsed.event, "$pageview", "the beacon body is a pageview");
+  equal(parsed.properties.$current_url, "https://www.gowayfind.com/christmas-in-florida", "the beacon URL has no click id");
+  ok(analytics.isAnalyticsUuidV7(parsed.properties.$session_id), "the beacon session id is a uuid v7");
+  ok(analytics.dispatchEarlyPageview(win, "phc_abc123") === false && sent.length === 1, "a second leave does not send a second pageview");
+  const owner = { ...win, __WF_EARLY_PAGEVIEW: 0, __WF_ANALYTICS_SUPPRESSED: "internal", navigator: { ...win.navigator, sendBeacon: () => { sent.push("nope"); return true; } } };
+  ok(analytics.dispatchEarlyPageview(owner, "phc_abc123") === false, "a suppressed browser does not beacon a pageview");
+  const group = { ...win, __WF_EARLY_PAGEVIEW: 0, __WF_ANALYTICS_SUPPRESSED: undefined, location: { pathname: "/group-plans/abc", origin: "https://www.gowayfind.com" }, navigator: { ...win.navigator, sendBeacon: () => { sent.push("group"); return true; } } };
+  ok(analytics.dispatchEarlyPageview(group, "phc_abc123") === false && !sent.includes("group"), "a private group plan does not beacon a pageview");
+  ok(/earlyPageviewScript\(process\.env\.NEXT_PUBLIC_POSTHOG_KEY\)/.test(readFileSync(new URL("../app/layout.js", import.meta.url), "utf8")), "the root layout renders the early pageview script");
+  ok(/capture_pageview: earlyPageview \? "history_change" : true/.test(provider), "a beaconed landing does not get a second pageview from the SDK");
+}
+
+console.log(`test-browser-analytics: OK — ${passed} assertions (owner/bot gate, URL redaction, safe clicks, incremental attention + visible duration, early pageview)`);

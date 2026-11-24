@@ -13,7 +13,6 @@ import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
-import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { spookyOverFall } from "../lib/spookySkin.js";
@@ -268,7 +267,9 @@ import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
-import * as Hol from "../lib/holidays";
+import { activeHoliday as _holActive, worldCup as _holWc, worldCupDaysToNext as _holWcDays, worldCupMatchToday as _holWcToday, themeFor as _holTheme, contentFor as _holContent } from "../lib/holidays";
+const Hol = { activeHoliday: _holActive, worldCup: _holWc, worldCupDaysToNext: _holWcDays, worldCupMatchToday: _holWcToday, themeFor: _holTheme, contentFor: _holContent };
+import { thanksgivingLocationResumeDecision } from "../lib/thanksgivingReturn.js";
 import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
@@ -321,8 +322,10 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import { useReserveEntry } from "../lib/reserveClient.js";
-import LocalEdit from "./components/LocalEdit";
-import ThisWeekEvents from "./components/ThisWeekEvents";
+// Guide links sit below the discovery rails. Keep their rendering and location
+// gate unchanged while loading their client code separately from the menu.
+const LocalEdit = nextDynamic(() => import("./components/LocalEdit"), { loading: () => null });
+const ThisWeekEvents = nextDynamic(() => import("./components/ThisWeekEvents"), { loading: () => null });
 import { MARKETS, marketForLocation } from "../lib/destinations";
 // v9 (2026-09-02, WO9 bundle fix) — from lib/creatorSignals.js, not
 // lib/creatorVideos.js. Both remaining call sites (hasCreatorVideo() at the
@@ -570,7 +573,7 @@ const WF_DESTINATIONS = [
   { id: "map", icon: "map", label: "Map", href: "/map" },
 ];
 
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, panelCollapsed = false, onExpandPanel, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, subsExpanded = true, compact, panelCollapsed = false, onExpandPanel, allActive = false, onAll, nav, navRegion, navCitySlug, navOpenCat, onNavOpen, onNavSub }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
@@ -645,9 +648,9 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           <div className="wf-mapfp-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 8px" }}>
             <button type="button" onClick={expandPanel} style={{ background: "none", border: 0, padding: "4px 2px", color: "#FFFFFF", fontSize: 12.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7 }}>
               <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.accent, color: "#0B0F14", padding: "3px 10px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
-                {activeTile ? activeTile.label : "All categories"}
+                {allActive ? "All" : (activeTile ? activeTile.label : "All")}
               </span>
-              {activeSubObj && activeSubObj.id !== "all" ? <span style={{ color: C.accent, fontSize: 11.5, fontWeight: 700 }}>· {activeSubObj.label}</span> : null}
+              {!allActive && activeSubObj && activeSubObj.id !== "all" ? <span style={{ color: C.accent, fontSize: 11.5, fontWeight: 700 }}>· {activeSubObj.label}</span> : null}
             </button>
             <button type="button" className="wf-mapfp-tap" onClick={expandPanel} aria-expanded="false">
               <span className="wf-mapfp-pill"><span>{"Filters \u25BE"}</span></span>
@@ -658,7 +661,15 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
         <div className="wf-mapfp-row">
           <div style={{ position: "relative", flex: 1, minWidth: 0 }}>
             <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
-              {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
+              {typeof onAll === "function" ? (
+                <button key="__all" type="button" role="tab" data-wf-all-places aria-selected={allActive ? "true" : "false"} aria-pressed={allActive ? "true" : "false"} className="wf-mapfp-tap" onClick={onAll}>
+                  <span className="wf-mapfp-pill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={allActive ? "#0B0F14" : "#FFFFFF"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg>
+                    <span>All</span>
+                  </span>
+                </button>
+              ) : null}
+              {Cats.CATEGORY_TILES.map((m) => { const on = !allActive && activeCat === m.id; return (
                 <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
                   onClick={() => tapCat(m.id, m.label)}>
                   <span className="wf-mapfp-pill">
@@ -2181,142 +2192,14 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
 // (~25 with farOk, for items whose story frames the drive honestly).
 // Fail-closed: an unverified named business is hidden, never shown as fact.
 // Verdicts cache on-device for 7 days so this costs one findPlace per name.
-const CULT_STOP = /^(the|and|for|its|it's)$/i;
-function cultNameMatch(placeQuery, resultName) {
-  const rn = _wfNorm(resultName);
-  if (!rn) return false;
-  const words = String(placeQuery || "").toLowerCase().split(/[^a-z0-9']+/).filter((w) => w.length >= 3 && !CULT_STOP.test(w));
-  const hit = words.filter((w) => rn.includes(_wfNorm(w))).length;
-  return hit >= Math.min(2, words.length);
-}
-async function verifyCulturePlaces(items, center) {
-  const CK = "wf_cultground_v1";
-  let cache = {};
-  try { cache = JSON.parse(localStorage.getItem(CK) || "{}"); } catch (e) {}
-  const now = Date.now();
-  const out = {};
-  let dirty = false;
-  for (const it of items) {
-    const k = it.place;
-    const hit = cache[k];
-    if (hit && hit.exp > now) { out[k] = !!hit.ok; continue; }
-    let good = false;
-    try {
-      const pl = await findPlace(it.place, center);
-      good = !!(pl && cultNameMatch(it.place, pl.name)
-        && (!pl.status || pl.status === "OPERATIONAL")
-        && (pl.distMi == null || pl.distMi <= (it.farOk ? 25 : 10)));
-    } catch (e) {}
-    out[k] = good;
-    cache[k] = { ok: good, exp: now + 7 * 864e5 };
-    dirty = true;
-  }
-  if (dirty) { try { localStorage.setItem(CK, JSON.stringify(cache)); } catch (e) {} }
-  return out;
-}
-function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
-  const [openIt, setOpenIt] = useState(false);
-  const [grounded, setGrounded] = useState({});
-  // The researched notes are a separate chunk. They load when a category
-  // browse opens, not with the first homepage paint.
-  const [pack, setPack] = useState(null);
-  useEffect(() => {
-    let live = true;
-    import("../lib/cultureNotes.js").then((m) => { if (live) setPack(m); }).catch(() => {});
-    return () => { live = false; };
-  }, []);
-  // v4.84 — the culture card renders on ALL SIX categories. Root cause of it
-  // only showing on Food and Beach day: the category menu passes Google
-  // category ids (nightlife, attractions, hotels, shopping) but this map only
-  // knew the legacy short keys, so four categories never matched a note.
-  const map = { food: "food", nightlife: "night", night: "night", attractions: "todo", todo: "todo", hotels: "stays", stays: "stays", beach: "todo", shopping: "shop", shop: "shop", events: "events" };
-  const key = map[cat];
-  // v4.30: a town with its own researched notes outranks the metro story.
-  // v4.82: town notes come from TOWN_PROFILES via townNotesFor (alias-aware —
-  // "Holmes Beach" lands on Anna Maria Island). Beach browses prefer the
-  // town's real beach note over its things-to-do note.
-  const tn = pack && town && pack.townNotesFor ? pack.townNotesFor(town) : null;
-  const townNote = tn ? ((cat === "beach" && tn.beach) || (key && tn[key]) || null) : null;
-  const notes = townNote || (pack && metro && key && pack.CAT_NOTES[metro] ? pack.CAT_NOTES[metro][key] : null);
-  const cTitle = metro ? CULTURE_TITLES[metro] : null;
-  const isTown = !!townNote;
-  const named = isTown && notes ? (notes.items || []).filter((x) => x.place) : [];
-  const namedKey = named.map((x) => x.place).join("|");
-  useEffect(() => {
-    if (!namedKey || !center) return;
-    let cancelled = false;
-    verifyCulturePlaces(named, center).then((v) => { if (!cancelled) setGrounded(v); });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [namedKey, center && center.lat, center && center.lng]);
-  if (!notes || !cTitle) return null;
-  const placeLabel = isTown ? town : (town && town.toLowerCase() !== cTitle.toLowerCase() ? town + " + " + cTitle : cTitle);
-  const headline = notes.headline || ("A local read on " + placeLabel + ".");
-  const visibleItems = (notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]);
-  const readCount = Math.max(1, Math.ceil((visibleItems.length + (notes.mistake ? 1 : 0) + (isTown && tn && tn.one ? 1 : 0)) * 0.66));
-  const featureRow = (marker, title, body, tone, onClick, keyId) => (
-    <div key={keyId} onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined} onKeyDown={onClick ? KB_CLICK : undefined} style={{ display: "grid", gridTemplateColumns: "38px minmax(0,1fr)", gap: 12, padding: "13px 12px", borderTop: "1px solid rgba(255,255,255,.08)", cursor: onClick ? "pointer" : "default" }}>
-      <span style={{ width: 31, height: 31, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "#151F2B", color: tone, fontSize: 11.5, fontWeight: 900 }}>{marker}</span>
-      <span style={{ minWidth: 0 }}>
-        <span style={{ display: "block", color: "#FFFFFF", fontSize: 13, lineHeight: 1.25, fontWeight: 850, textDecoration: onClick ? "underline" : "none", textDecorationColor: onClick ? "rgba(255,151,70,.36)" : "transparent", textUnderlineOffset: 3 }}>{title}</span>
-        <span style={{ display: "block", color: "#AFBBC9", fontSize: 12, lineHeight: 1.45, marginTop: 4 }}>{body}</span>
-      </span>
-    </div>
-  );
-  return (
-    <div style={{ position: "relative", margin: "0 0 14px", borderRadius: 24, border: "1px solid rgba(255,255,255,.13)", background: "#0B1119", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055), 0 30px 70px rgba(0,0,0,.42)", overflow: "hidden" }}>
-      <div style={{ height: 5, background: "linear-gradient(90deg,#FF7A1A,#FFB35F 42%,#42D3AE)" }} />
-      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { onLog("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" aria-expanded={openIt} tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "clamp(24px,4vw,27px) clamp(20px,4vw,25px) clamp(19px,3vw,21px)", cursor: "pointer", background: "radial-gradient(circle at 92% 0,rgba(255,122,26,.18),transparent 45%),linear-gradient(145deg,#121C27,#0A1119)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0, color: "#FFB16E", fontSize: 10, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>
-            <span style={{ width: 30, height: 36, display: "inline-grid", placeItems: "center", flex: "0 0 auto", filter: "drop-shadow(0 7px 12px rgba(255,122,26,.28))" }}>
-              <img src="/brand/wayfind-pin-transparent.png" alt="" width="27" height="35" style={{ display: "block", width: 27, height: 35, objectFit: "contain", transform: "scale(1.55)" }} />
-            </span>
-            <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{placeLabel} local culture</span>
-          </span>
-          <span style={{ flex: "0 0 auto", padding: "7px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.13)", color: "#B8C4D2", fontSize: 10, fontWeight: 800 }}>{readCount} min local read</span>
-        </div>
-        <span style={{ display: "block", color: "#FFFFFF", fontSize: "clamp(15px,3.1vw,18px)", lineHeight: 1.1, letterSpacing: "-.025em", fontWeight: 900, whiteSpace: headline.length < 54 ? "nowrap" : "normal" }}>{headline}</span>
-        <span style={{ display: "block", maxWidth: 455, color: "#B9C6D3", fontSize: 13.5, lineHeight: 1.52, marginTop: 11 }}>{notes.line}</span>
-        <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 19, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.1)", color: openIt ? "#D5DEE8" : "#FFFFFF" }}>
-          <span>
-            <span style={{ display: "block", fontSize: 11, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".08em", textTransform: "uppercase" }}>{openIt ? "Collapse local guide" : "Open local guide"}</span>
-            <span style={{ display: "block", marginTop: 3, color: "#8F9BAA", fontSize: 10.5, lineHeight: 1.35, fontWeight: 700 }}>{openIt ? "Return to the quick overview" : "See what locals know"}</span>
-          </span>
-          <span aria-hidden="true" style={{ width: 34, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto", borderRadius: "50%", border: "1px solid rgba(255,177,110,.38)", background: "linear-gradient(145deg,rgba(255,122,26,.16),rgba(255,255,255,.045))", color: "#FFB16E", fontSize: 14, boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)", transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}>{"\u2304"}</span>
-        </span>
-      </div>
-      {openIt && (
-        <div style={{ padding: "19px 20px 21px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
-          <div style={{ marginBottom: 11, color: "#7F8C9B", fontSize: 9.5, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>What locals know</div>
-          {visibleItems.map((x, i) => {
-            // 2026-09-10 (affiliate deep-link audit, owner P0): this was
-            // Aff.viatorDirectUrl(), which renders a LIVE monetized viator.com
-            // href straight into crawlable DOM — every click bypassed
-            // /api/viator/go, so there was no provider_redirect_started, no
-            // server record, and any JS-rendering crawler "clicked" it. Same
-            // destination and same attribution (the route re-applies
-            // withViatorTracking), but the handoff is ours and can fail closed.
-            // /culture/[metro] and /guides/[slug] already do exactly this.
-            const book = x.viatorUrl ? Aff.viatorProductGoUrl(x.viatorUrl, cTitle, "culture", "culture_local_guide") : null;
-            const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { onLog("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
-            return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { onLog("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
-          })}
-          {notes.say ? featureRow("“”", "Talk local: “" + notes.say.phrase + "”", notes.say.meaning, "#8ED6C4", null, "say") : null}
-          {notes.mistake ? featureRow("!", "The rookie mistake", notes.mistake, "#FFD15D", null, "mistake") : null}
-          {isTown && tn && tn.one ? featureRow("★", "The one thing", tn.one, "#64DFBF", null, "one") : null}
-        </div>
-      )}
-    </div>
-  );
-}
+const AreaInsight = nextDynamic(() => import("./components/AreaInsight"), { ssr: false, loading: () => null });
 
-function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals }) {
+function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals, menuAtRowStart = false }) {
   const [openMenu, setOpenMenu] = useState(false);
   const OPTIONS = [["near", "Closest first"], ["rated", "Top rated"], ["price", "Price: low to high"]]; // v4.83: "Best experiences" removed — it duplicated Top rated in practice; "near" is the default everywhere
   const current = (OPTIONS.find(([k]) => k === sortBy) || OPTIONS[0])[1];
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
+    <div style={{ position: menuAtRowStart ? "static" : "relative", display: "inline-block" }}>
       <div onClick={(e) => { e.stopPropagation(); setOpenMenu((o) => !o); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${openMenu ? C.accent : C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: "8px 14px" }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
         <span>{sortBy === "near" && mi ? `Within ${mi} mi` : current}</span>
@@ -4169,6 +4052,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [mapSearchOpen, setMapSearchOpen] = useState(false); // map keeps a magnifier; tap slides the field down
   const mapCameraRef = useRef(null);
   const [mapSearch, setMapSearch] = useState(null);
+  const [mapCatRev, setMapCatRev] = useState(0);
   const [mapUrlLens, setMapUrlLens] = useState(null);
   const [mapUrlPlaceId, setMapUrlPlaceId] = useState(null);
   const pendingColdMapUrlRef = useRef(null);
@@ -4441,6 +4325,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [mapBrowse, setMapBrowse] = useState(true); // Map opens on Food; category browsing is immediate and avoids six parallel searches.
   const [mapPool, setMapPool] = useState([]); // neutral map: all-category pool (cached searches)
   const [mapListOverride, setMapListOverride] = useState(null); // v4.95: a list's map icon pins THAT list on the in-app map (never a Google-Maps directions-to-all handoff)
+  const [mapListSession, setMapListSession] = useState(0); // A Thanksgiving handoff resets an already-mounted map's local area/search filters.
+  const [thanksgivingLocationReturn, setThanksgivingLocationReturn] = useState(null);
   // COMPASS REMOVED (owner, 2026-08-06) — control, state, refs, the
   // deviceorientation handler registered with capture:true, and the
   // screen-change cleanup effect that called stopCompass(). Removing the button
@@ -4648,22 +4534,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const [hookLikes, setHookLikes] = useState(() => new Set());
   const [cuisineSheet, setCuisineSheet] = useState(null);
   const openHoliday = async (h) => {
-    const hol = typeof h === "string" ? (Hol.holidaysFor(new Date().getFullYear()).find((x) => x.key === h) || null) : h;
+    const hol = typeof h === "string" ? { key: h } : h;
     if (!hol) return;
-    const content = Hol.contentFor(hol.key, hol.name);
-    const theme = Hol.themeFor(hol.key);
-    try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
+    if (hol.key === "thanksgiving") {
+      // Open immediately; the lazy sheet validates these raw shared controls
+      // before making any request, using this holiday's year as its fallback.
+      const params = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+      const fallbackYear = hol.year || hol.date?.getFullYear() || new Date().getFullYear();
+      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: params.get("holidayYear") || fallbackYear, holidayDate: params.get("holidayDate"), holidayMi: params.get("holidayMi"), holidayFallbackYear: fallbackYear });
+      try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
+      return;
+    }
     try {
-      const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
-      let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
-      // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 });
-      pool.sort((a, b) => rankScore(b) - rankScore(a));
-      pool = pool.slice(0, 12);
-      try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
-      if (!pool.length) { showToast("Nothing found for " + hol.name + " nearby yet"); return; }
-      setHookDetail({ id: "hol-" + hol.key, key: "hol-" + hol.key, theme: "hol-" + hol.key, hol: hol.key, title: content.headline(locName), themeTitle: content.headline(locName), label: hol.name + " picks", take: content.sub, themeBody: content.sub, emoji: hol.emoji, accent: theme.accent, places: pool });
-    } catch (e) { showToast("Could not load " + hol.name + " picks"); }
+      const { runOpenHoliday } = await import("../lib/holidayIntelClient");
+      const searchQuery = (q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p)));
+      const rankWithBoost = (p, boost) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 });
+      await runOpenHoliday(h, { center, locName, supabase, logEvent, searchQuery, dedupePlaces, rankWithBoost, fetchMemberSignals, withMemberSignal, showToast, setHookDetail });
+    } catch (e) { showToast("Could not load holiday picks"); }
   };
 
   // Neighborhood partner collection (lib/partnerCollections.js). Unlike a
@@ -5020,6 +4907,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   const suggestionRequestRef = useRef(0);
   const mainSearchAbortRef = useRef(null);
   const searchInputRef = useRef(null);
+  function chooseThanksgivingLocation(options) {
+    setThanksgivingLocationReturn({ options, origin: center, expiresAt: Date.now() + 60000, awaitCurrent: false });
+    setHookDetail(null);
+    setDetail(null);
+    setScreen("suggested");
+    setScopeOpen(true);
+    requestAnimationFrame(() => searchInputRef.current?.focus({ preventScroll: true }));
+  }
+  useEffect(() => {
+    const decision = thanksgivingLocationResumeDecision(thanksgivingLocationReturn, { center, locResolved, scopeOpen, screen, detailOpen: !!hookDetail || !!detail });
+    if (decision === "resume") {
+      const options = thanksgivingLocationReturn.options;
+      setThanksgivingLocationReturn(null);
+      setScopeOpen(false);
+      setHookDetail({ id: "hol-thanksgiving", key: "hol-thanksgiving", theme: "hol-thanksgiving", hol: "thanksgiving", holidayYear: options.year, holidayDate: options.date, holidayMi: options.mi, holidaySort: options.sort });
+    } else if (decision === "cancel") setThanksgivingLocationReturn(null);
+  }, [thanksgivingLocationReturn, center, locResolved, scopeOpen, screen, hookDetail, detail]);
+  useEffect(() => {
+    if (!thanksgivingLocationReturn) return;
+    const timer = setTimeout(() => setThanksgivingLocationReturn(null), Math.max(0, thanksgivingLocationReturn.expiresAt - Date.now()));
+    return () => clearTimeout(timer);
+  }, [thanksgivingLocationReturn]);
   const mainSearchAttemptRef = useRef(null);
   useEffect(() => () => {
     suggestionRequestRef.current++;
@@ -7160,6 +7069,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     if (detailRequest !== detailOpenRequestRef.current) return;
     setDetailExtra(extra);
     if (extra && extra.ok) {
+      const { mergeHealedPlacePhotos } = await import("../lib/detailHero");
+      if (detailRequest !== detailOpenRequestRef.current) return;
       setDetail((cur) => {
         if (!cur || cur.id !== p.id) return cur;
         return mergeHealedPlacePhotos(cur, extra);
@@ -7610,11 +7521,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // Cloud sync is a second writer behind itinerary_v2 + itinerary_sync. With
   // the flags off this stays the browser store it has always been.
   useEffect(() => {
+    let owned = false;
     try {
-      if (localStorage.getItem("wayfind_trips_owner")) return;
-      const raw = localStorage.getItem("wayfind_trips");
-      if (raw) setTrips(JSON.parse(raw) || {});
+      owned = !!localStorage.getItem("wayfind_trips_owner");
+      if (!owned) {
+        const raw = localStorage.getItem("wayfind_trips");
+        if (raw) setTrips(JSON.parse(raw) || {});
+      }
     } catch {}
+    if (owned) return undefined;
+    let cancel = false;
+    import("../lib/trips.js").then((m) => {
+      if (cancel) return;
+      try {
+        const store = safeLocalStorage();
+        if (!store || store.getItem("wayfind_trips_owner")) return;
+        const merged = m.readMergedTripStores(store);
+        if (merged && Object.keys(merged).length) setTrips(merged);
+      } catch {}
+    }).catch(() => {});
+    return () => { cancel = true; };
   }, []);
   const tripsHydrated = useRef(false);
   useEffect(() => {
@@ -7644,6 +7570,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     } catch {}
   }, [screen, detail, activeTrip, trips]);
   useEffect(() => {
+    const sess = safeSessionStorage();
+    if (!sess) return;
+    try {
+      const city = locName && !/^this map area$/i.test(locName) ? String(locName).split(",")[0].trim().slice(0, 40) : "";
+      const date = typeof eventDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(eventDate) ? eventDate : "";
+      const q = String(query || "").trim().slice(0, 80);
+      sess.setItem("wf_planner_browse_v1", JSON.stringify({
+        city,
+        date,
+        query: q,
+        screen: screen || "",
+        path: window.location.pathname,
+        at: Date.now(),
+      }));
+    } catch {}
+  }, [locName, eventDate, query, screen]);
+  useEffect(() => {
     let stop = false;
     const read = () => { if (!stop) { try { const next = readItineraryFlags(window.posthog); setItineraryFlags((prev) => nextItineraryFlags(prev, next)); } catch (e) {} } };
     read();
@@ -7665,6 +7608,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (!owner || owner === String(user.id)) {
           const raw = localStorage.getItem("wayfind_trips");
           if (raw) setTrips(JSON.parse(raw) || {});
+          const userId = String(user.id);
+          import("../lib/trips.js").then((m) => {
+            try {
+              const store = safeLocalStorage();
+              if (!store) return;
+              const ownerNow = store.getItem("wayfind_trips_owner");
+              if (ownerNow && ownerNow !== userId) return;
+              const merged = m.readMergedTripStores(store);
+              if (merged && Object.keys(merged).length) setTrips(merged);
+            } catch {}
+          }).catch(() => {});
         }
       } catch {}
     }
@@ -8428,6 +8382,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         }
         return;
       }
+      // A date plan arrives as /itinerary?city=&date=&plan=1. Keep the city and
+      // the dates in the address bar (events and map already keep theirs) and
+      // open the planner once when the visitor asked to build the day.
+      if (go === "itinerary") {
+        const search = window.location.search;
+        import("../lib/itineraryHandoff.js").then((m) => {
+          try {
+            const arrival = m.itineraryArrivalDetail(search);
+            window.history.replaceState({ wf: "screen" }, "", arrival.href);
+            if (arrival.detail) {
+              window.__wfPendingPlannerOpen = arrival.detail;
+              window.dispatchEvent(new CustomEvent("wf:planner-open", { detail: arrival.detail }));
+            }
+          } catch (err) {}
+        }).catch(() => {});
+        return;
+      }
       // v5.78 (B1): the other standalone screens restore their OWN path (was:
       // stripped to "/", which lost the view on refresh/share).
       const scr = valid[go];
@@ -8460,21 +8431,30 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
           if (eventDate !== "all") sp.set("date", eventDate);
           if (eventCat !== "auto") sp.set("cat", eventCat);
           if (sp.toString()) target += "?" + sp.toString();
+        } else if (screen === "itinerary") {
+          // Keep city and date on /itinerary. The landing cleaner lives in
+          // itineraryHandoff.js and is loaded only for ?go=itinerary.
+          if (window.location.pathname === "/itinerary" && window.location.search) target += window.location.search;
         } else if (screen === "map") {
           const curSp = new URLSearchParams(window.location.search);
           const safeSp = new URLSearchParams();
+          const coldHydrating = !!pendingColdMapUrlRef.current || prev !== "map";
           const coldCity = pendingColdMapUrlRef.current?.city;
           const cleanCity = (coldCity && !/^this map area$/i.test(coldCity))
             ? coldCity
             : ((locName && !/^this map area$/i.test(locName)) ? locName.split(",")[0].trim() : (curSp.get("city") || ""));
           if (cleanCity && /^[A-Za-z0-9 .,\x27-]{2,64}$/.test(cleanCity)) safeSp.set("city", cleanCity);
-          const c = cat && cat !== "all" && cat !== "attractions" ? cat : curSp.get("cat");
+          const c = coldHydrating
+            ? (cat && cat !== "all" && cat !== "attractions" ? cat : curSp.get("cat"))
+            : (cat && cat !== "all" && cat !== "attractions" ? cat : null);
           if (c && ["food", "nightlife", "attractions", "beach", "hotels", "shopping"].includes(c)) safeSp.set("cat", c);
-          const s = sub && sub !== "all" ? sub : curSp.get("sub");
+          const s = coldHydrating
+            ? (sub && sub !== "all" ? sub : curSp.get("sub"))
+            : (sub && sub !== "all" ? sub : null);
           if (s && /^[a-z0-9_-]{2,32}$/.test(s)) safeSp.set("sub", s);
-          const l = mapUrlLens || curSp.get("lens");
+          const l = mapUrlLens || (coldHydrating ? curSp.get("lens") : null);
           if (l) safeSp.set("lens", l);
-          const p = mapUrlPlaceId || curSp.get("place");
+          const p = mapUrlPlaceId || (coldHydrating ? curSp.get("place") : null);
           if (p && /^[A-Za-z0-9_:-]{6,180}$/.test(p)) safeSp.set("place", p);
           if (mapSearch && mapSearch.query) {
             safeSp.set("q", String(mapSearch.query).trim().slice(0, 120));
@@ -9627,19 +9607,82 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       const ql = q.toLowerCase();
       const parkIntent = themeParkIntent(q);
       if (!options.placeIntent && !parkIntent) {
-        const category = /^(restaurants?|restaurantes?|food)$/.test(ql) ? "food" : /^(hotels?|stays?)$/.test(ql) ? "hotels" : null;
+        const nearbyTrimmed = ql
+          .replace(/^(?:best|good|great|top|find|show(?:\s+me)?)\s+/i, "")
+          .replace(/\s+(?:near\s+me|near\s+by|nearby|around\s+(?:me|here)|close\s+by|in\s+the\s+area|here)$/i, "")
+          .trim();
+        const leadTrimmed = ql.replace(/^(?:best|good|great|top|find|show(?:\s+me)?)\s+/i, "").trim();
+        const hasEventOrTemporalMod = /\b(?:christmas|holiday|tonight|today|tomorrow|weekend|open\s+now|free|events?|festivals?|lights?|santa|concerts?|shows?|tickets?|parades?|markets?)\b/i.test(leadTrimmed);
+        const matchMapCategory = (phrase) => (
+          /^(?:restaurants?|restaurantes?|food|places?\s+to\s+eat|dining|eats?)$/.test(phrase) ? { cat: "food", sub: "all" }
+          : /^(?:breakfast|brunch|breakfast\s+spots?|brunch\s+spots?)$/.test(phrase) ? { cat: "food", sub: "breakfast" }
+          : /^(?:coffee|cafes?|cafés?|coffee\s+shops?)$/.test(phrase) ? { cat: "food", sub: "cafes" }
+          : /^(?:lunch|lunch\s+spots?)$/.test(phrase) ? { cat: "food", sub: "lunch" }
+          : /^(?:dinner|dinner\s+spots?)$/.test(phrase) ? { cat: "food", sub: "dinner" }
+          : /^(?:desserts?|ice\s+cream|gelato|bakeries|bakery)$/.test(phrase) ? { cat: "food", sub: "dessert" }
+          : /^(?:quick\s+bites?)$/.test(phrase) ? { cat: "food", sub: "quickbites" }
+          : /^(?:delivery)$/.test(phrase) ? { cat: "food", sub: "delivery" }
+          : /^(?:bars?|nightlife|night\s+out|drinks?|cocktails?)$/.test(phrase) ? { cat: "nightlife", sub: "all" }
+          : /^(?:live\s+music)$/.test(phrase) ? { cat: "nightlife", sub: "music" }
+          : /^(?:things?\s+to\s+do|activities|attractions?)$/.test(phrase) ? { cat: "attractions", sub: "all" }
+          : /^(?:parks?|outdoors?|trails?|nature)$/.test(phrase) ? { cat: "attractions", sub: "outdoors" }
+          : /^(?:beaches?)$/.test(phrase) ? { cat: "attractions", sub: "beaches" }
+          : /^(?:museums?)$/.test(phrase) ? { cat: "attractions", sub: "museums" }
+          : /^(?:spas?)$/.test(phrase) ? { cat: "attractions", sub: "spa" }
+          : /^(?:family|kids|family\s+fun)$/.test(phrase) ? { cat: "family", sub: "all" }
+          : /^(?:hotels?|stays?|places?\s+to\s+stay|resorts?)$/.test(phrase) ? { cat: "hotels", sub: "all" }
+          : /^(?:shopping|shops?|malls?|outlets?)$/.test(phrase) ? { cat: "shopping", sub: "all" }
+          : null
+        );
+        const mapCategoryHit = onMapScreen && !hasEventOrTemporalMod ? matchMapCategory(nearbyTrimmed) : null;
+        const category = mapCategoryHit
+          ? mapCategoryHit.cat
+          : (!hasEventOrTemporalMod && /^(restaurants?|restaurantes?|food)$/.test(nearbyTrimmed) ? "food"
+            : !hasEventOrTemporalMod && /^(hotels?|stays?)$/.test(nearbyTrimmed) ? "hotels"
+            : null);
         if (category) {
           closeSearchLayers();
           setQuery("");
           if (onMapScreen) {
+            if (typeof categoryChosenRef === "object" && categoryChosenRef) categoryChosenRef.current = true;
             setMapSearch(null);
             setMapSearchOpen(false);
+            setMapBrowse(true);
             setCat(category);
+            setSub(mapCategoryHit ? mapCategoryHit.sub : "all");
+            setVibe("all");
+            setMapCatRev((n) => (n || 0) + 1);
           } else {
             pickCat(category);
           }
           attempt.finish("category_opened", { status: "opened", category });
           return;
+        }
+        if (onMapScreen && !hasEventOrTemporalMod) {
+          const words = leadTrimmed.split(/\s+/).filter(Boolean);
+          if (words.length >= 2) {
+            for (let len = Math.min(3, words.length - 1); len >= 1; len--) {
+              const catHit = matchMapCategory(words.slice(0, len).join(" "));
+              if (!catHit) continue;
+              const cityPart = words.slice(len).join(" ").replace(/^(?:in|near|around)\s+/i, "").trim();
+              if (!cityPart || cityPart.length < 3 || /^(?:in|near|around|me|here|by)$/i.test(cityPart)) continue;
+              const cityGeo = await geoTry(cityPart);
+              if (!current()) return;
+              if (cityGeo && cityGeo.isArea) {
+                goTo(cityGeo);
+                setScreen("map");
+                if (typeof categoryChosenRef === "object" && categoryChosenRef) categoryChosenRef.current = true;
+                setMapSearch(null);
+                setMapSearchOpen(false);
+                setMapBrowse(true);
+                setCat(catHit.cat);
+                setSub(catHit.sub);
+                setVibe("all");
+                setMapCatRev((n) => (n || 0) + 1);
+                return;
+              }
+            }
+          }
         }
         // A recognized search phrase ("date night", "brunch") renders cards.
         // The experience poster and the mood shortcut stay for everything else.
@@ -10468,7 +10511,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // sheets (G2): drag-to-dismiss handlers shared by every sheet
     sheetDragStart, sheetDragMove, sheetDragEnd,
     // hookDetail sheet
-    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
+    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, setMapListSession, setScopeOpen, chooseThanksgivingLocation, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
     // place-suggestion flow (v6.53) — user-submitted places, stored pending review
     sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion,
     // account sheet
@@ -10490,7 +10533,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // places/locName/dedupePlaces, all already passed through ctx elsewhere.
     socialFind, setSocialFind, screen,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, searchMode, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch, mapUrlLens, setMapUrlLens, mapUrlPlaceId, setMapUrlPlaceId, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, searchMode, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, categoryChosenRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, locApprox, mapCameraRef, mapSearch, setMapSearch, mapCatRev, mapUrlLens, setMapUrlLens, mapUrlPlaceId, setMapUrlPlaceId, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
@@ -10700,12 +10743,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // was 200 in 0.44s while the client sat on LOAD_PENDING). When a real
   // center arrives, firstPaintRailOrigin returns it and the rail refetches.
   const inlineRail = readInlineRailHints();
-  const railCenter = firstPaintRailOrigin({
-    resolved: center,
-    locResolved,
-    prime: inlineRail.prime,
-    stored: inlineRail.stored,
-  });
+  const railCenter = {
+    ...firstPaintRailOrigin({ resolved: center, locResolved, prime: inlineRail.prime, stored: inlineRail.stored }),
+    // A denied GPS and refused IP lookup can adopt the seed to start search.
+    // Keep serving that bootstrap path without giving its pin a local brief.
+    hasLocalOrigin: Boolean(locResolved && center && (
+      !isSeedCenter(center) || manualRef.current || (deviceLoc?.lat === center.lat && deviceLoc?.lng === center.lng)
+    )),
+  };
 
   // Live event poster tiles (Sporting Events, Concerts). They ride the
   // ordinary poster rail below at the same size as every other poster, and
@@ -10864,8 +10909,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   );
 
   return (
-    <div style={shell}>
-    <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
+    <div className="wf-xmas-canvas" style={shell}>
+    <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }} data-wf-own-theme={screen === "map" ? "map" : undefined}>
       <style dangerouslySetInnerHTML={styleHtml(`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}${WF_ASIDE_CSS}${WF_RAIL_MENU_CSS}`)} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
@@ -11095,7 +11140,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                       the premium treatment (blur, entrance animation, a
                       RECENT group label) in .wf-scope-menu. */}
                   <li className="wf-scope-cur" role="option" aria-selected={false}
-                      onMouseDown={(e) => { e.preventDefault(); setScopeOpen(false); recenterToMe(); }}>
+                      onMouseDown={(e) => { e.preventDefault(); setThanksgivingLocationReturn((pending) => pending ? { ...pending, awaitCurrent: true } : pending); setScopeOpen(false); recenterToMe(); }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4Z" /></svg>
                     Current location
                   </li>
@@ -11298,7 +11343,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       <div ref={scrollRef} className="wf-scrollarea" data-analytics-page={screen} data-analytics-overlay={detail ? "place" : undefined} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overscrollBehavior: "contain", overflowX: "hidden", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(28px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
-            <MapErrorBoundary>{screen === "map" && <MapScreen ctx={ctx} />}</MapErrorBoundary>
+            <MapErrorBoundary>{screen === "map" && <MapScreen key={mapListSession} ctx={ctx} />}</MapErrorBoundary>
           </>
 
         {/* v6.56 (owner, screenshot + "remove the item on image 2 ... put the
@@ -12747,15 +12792,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   }).map((c) => c.kind === "cuisine" ? { key: "cuisine", icon: "🍴", label: _chipCuisine }
     // Owner, 2026-10-29: a cindy.selects video carries its own score term, so
     // the disclosure names it (she is Wayfind's own creator series).
-    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: hasFeaturedCreatorVideoAt(p) ? "Cindy Selects pick" : "Creator post" }
+    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "👤", label: hasFeaturedCreatorVideoAt(p) ? "Cindy Selects pick" : "Creator pick" }
     : c.key === "featured" ? { key: "featured", icon: "🏅", label: "Featured" }
     : { key: c.key, icon: EXPERIENCES[c.key].icon, label: EXPERIENCES[c.key].label });
-  // v8.33 (owner, 2026-08-22) — the SAME resolved set the "Creator video" chip
-  // above is derived from (hasCreatorVideo() is creatorVideosFor().length > 0),
-  // so the face on the photo and the chip in the pills lane can never disagree
-  // about whether this place has a video. The chip stays: it is the ranking
-  // DISCLOSURE the score law requires to be visible, and a portrait discloses
-  // nothing on its own. See app/components/CreatorCardMark.js.
+  // The chip discloses the ranking signal. CreatorCardMark uses the same
+  // curated credit, adding a play cue only for an eligible in-app video.
   let cardCreatorVideos = [];
   try { cardCreatorVideos = creatorVideosFor(p) || []; } catch (e) { cardCreatorVideos = []; }
   const pcat = primaryCategory(p);
@@ -12837,7 +12878,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank }));
   return (
-    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}${ReserveSlot || isTrueLodging(p) || (cardProduct && cardProduct.url) ? " has-cta" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
@@ -12866,7 +12907,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               {(() => { const where = storedPlaceHeader(p); return where ? <div className="wf-place-card-where">{where}</div> : null; })()}
             </div>
           </div>
-          <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
+          <div className="wf-place-card-meta">
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {!offer && (() => { const cpn = couponForPlace(p); /* Identity-first, location-safe deal lookup shared with every other place-card renderer. */ return cpn ? <span className="wf-place-card-deal" title={cpn.title}>🏷️ Deal</span> : null; })()}
             {/* v6.48: the "★ Wayfind Pick" chip that used to sit HERE is now the
@@ -12933,7 +12974,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               not fit drops out WHOLE and the lowest value chip is the one that
               goes. Scoped to this card only: IconicPlaceCard keeps its swipe lane
               because its LAST pill is the partner ticket link. */}
-          <div className="wf-place-card-highlights wf-chip-fit" style={{ display: "flex", gap: 6, marginBottom: 7 }}>
+          <div className="wf-place-card-highlights wf-chip-fit">
             {badges.map((b) => (
               <button key={b.key} onClick={(e) => {
                 e.stopPropagation();
@@ -12941,20 +12982,19 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 // happened"). ROOT CAUSE: openExperience() no-ops on any key
                 // absent from EXPERIENCES, and "creatorvideo" is a score
                 // DISCLOSURE, not an experience — so the tap died silently.
-                // The honest destination for that chip is the place's own
-                // detail, where the creator video actually plays.
+                // The chip opens place details, including any available posts.
                 if (b.key === "creatorvideo") { if (onDetail) onDetail(); return; }
                 if (b.key === "cuisine") { if (onCuisineTap) onCuisineTap(b.label, p); return; }
                 if (onBadge) onBadge(b.key);
-              }} style={{ pointerEvents: "auto", display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
+              }} style={{ pointerEvents: "auto", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
+            {Array.isArray(p._children) && p._children.length ? <span>+{p._children.length} inside</span> : null}
+            {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <AffiliateChip provider={_prov} /> : null; })()}
           </div>
-          {curatedHook ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{curatedHook}</div>
-          ) : knownForHook ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{knownForHook}</div>
+          {(curatedHook || knownForHook) ? (
+            <div className="wf-place-card-take">{curatedHook || knownForHook}</div>
           ) : aiSummary ? (
-            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>
+            <div className="wf-place-card-take">
               <div>{aiSummary.card_line_1}</div>
               <div style={{ marginTop: 2 }}>{aiSummary.card_line_2}</div>
             </div>
@@ -12972,14 +13012,22 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (Book on Viator) that the sheet cards never do; css.js adds a
               :has(.wf-place-card-book) 5-column variant so that case stays
               consistent too, rather than breaking under the 4-column grid. */}
-          {/* v8.34 — the creator credit sits in the bottom band, directly above
-              the actions (see css.js .wf-place-card-credit). The sibling rule
-              there zeroes the inline marginTop below with !important, which is
-              why the credit's own margin-top:auto is what bottom-anchors the
-              pair. */}
+          {/* v8.34 — the creator credit sits directly above the bottom
+              interactive band (CTA + actions), matching IconicPlaceCard and
+              RailCard so all three renderers share one locked slot order. */}
           <CreatorCardMark videos={cardCreatorVideos} />
-          {ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
-          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
+          {/* v8.57 (owner, 2026-09-22: "make sure our hotel place card are wire
+              to the affiliate so we can generate revenue"). Rendered inside the
+              shared .wf-place-card-cta slot ABOVE .wf-place-card-actions (same
+              position as EventStayCards and ReserveSlot) so it never gets
+              clipped below the fixed 268px card edge. */}
+          {isTrueLodging(p) ? (
+            <div className="wf-place-card-cta" style={{ pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
+              <BookingCTA variant="primary" detail={p} kind="hotels" label="Check rates" city={city} locName={city} />
+            </div>
+          ) : null}
+          {!isTrueLodging(p) && ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
+          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ pointerEvents: "auto" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
                 className="wf-place-card-book"
@@ -12988,7 +13036,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 surface="place_card"
                 rank={rank}
                 onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}
               >{/* v8.23 (owner, on Robinson Preserve: "not sure why robinson
                   preserve has a book it with viator link"). The product behind
                   this button IS verified (wf_place_products rn=1) — but on a
@@ -13019,67 +13066,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 IconicPlaceCard's HeartIcon and RailCard's/ThingsToDoList's
                 HeartGlyph, so it is one drawing across the app, not four
                 that almost match. */}
-            <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}><svg className="wf-save-heart" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z" /></svg>{saved ? "Saved" : "Save"}</button>
+            <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }}><svg className="wf-save-heart" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.2c-.3 0-.6-.1-.8-.3-1.6-1.3-7.7-6.5-7.7-11 0-3 2.3-5.2 5.1-5.2 1.5 0 2.9.7 3.4 1.8.5-1.1 1.9-1.8 3.4-1.8 2.8 0 5.1 2.2 5.1 5.2 0 4.5-6.1 9.7-7.7 11-.2.2-.5.3-.8.3Z" /></svg>{saved ? "Saved" : "Save"}</button>
             {onLike && (
-              <button className={`wf-place-card-like${liked ? " is-active" : ""}`} onClick={onLike} aria-label={liked ? "Remove like" : "Like this place"} aria-pressed={liked} title={liked ? "Remove like" : "Like this place"} style={{ display: "inline-flex", alignItems: "center", background: liked ? "#34D399" : "transparent", border: `1.5px solid ${liked ? "#34D399" : C.border}`, borderRadius: 999, color: liked ? "#06231A" : C.muted, padding: "5px 11px", cursor: "pointer" }}><svg viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></svg></button>
+              <button className={`wf-place-card-like${liked ? " is-active" : ""}`} onClick={onLike} aria-label={liked ? "Remove like" : "Like this place"} aria-pressed={liked} title={liked ? "Remove like" : "Like this place"}><svg viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></svg></button>
             )}
             {onDislike && (
-              <button className={`wf-place-card-dislike${disliked ? " is-active" : ""}`} onClick={onDislike} aria-label={disliked ? "Remove dislike" : "Not for me"} aria-pressed={disliked} title={disliked ? "Remove dislike" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", background: disliked ? "#F87171" : "transparent", border: `1.5px solid ${disliked ? "#F87171" : C.border}`, borderRadius: 999, color: disliked ? "#2A0A0A" : C.muted, padding: "5px 11px", cursor: "pointer" }}><svg viewBox="0 0 24 24" fill={disliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></svg></button>
+              <button className={`wf-place-card-dislike${disliked ? " is-active" : ""}`} onClick={onDislike} aria-label={disliked ? "Remove dislike" : "Not for me"} aria-pressed={disliked} title={disliked ? "Remove dislike" : "Not for me"}><svg viewBox="0 0 24 24" fill={disliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></svg></button>
             )}
-            <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} askShareIntent({ name: p.name, city: "", id: p.id, kind: placeKinds(p), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEventAnon("share", p, { kind: "invite", from: "place_card" }); } catch (er) {} }), onPlain: () => shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr())) }); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
+            <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} askShareIntent({ name: p.name, city: "", id: p.id, kind: placeKinds(p), onInvite: (u, t) => shareLink("A question for you", u, null, t, () => { try { logEventAnon("share", p, { kind: "invite", from: "place_card" }); } catch (er) {} }), onPlain: () => shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, fallShareLine("Check out " + p.name + " on Wayfind", p.id, siteTodayStr())) }); }}>↗ Share</button>
           </div>
-          {/* Restored 2026-07-25: the per-card affiliate disclosure (spec Sec.2,
-              shipped v6.67) was dropped from the homepage in the design-release-01
-              rewrite -- lib/cardAffiliate.js + AffiliateChip.js were untouched and
-              still work, only this render call was lost. Owner-audit mode
-              (NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT=1) still surfaces coverage gaps;
-              production hides an absent chip, so this is a pure disclosure add. */}
-          {/* v8.57 (owner, 2026-09-22: "make sure our hotel place card are wire
-              to the affiliate so we can generate revenue"). A lodging card used
-              to carry NO earning link at all: the Stay22/Booking handoff only
-              appeared one tap deeper, inside the Detail sheet, so every user who
-              browsed stays and never opened a card was a lost commission. The
-              stay rails (EventStayCards, TripConnections) already shipped this
-              button; the browse card — the surface most stays are seen on — did
-              not. Rendered through <BookingCTA>, never a hand-built href: the
-              booking-integrity contract (scripts/check-booking-cta.mjs) allows
-              exactly one place to turn a place into a booking URL. The gate is
-              isTrueLodging, the SAME predicate the stays rail filters on, so a
-              restaurant can never grow a "Check rates" button; BookingCTA itself
-              refuses any place lib/affiliates.hotelGoUrl will not build (no
-              address, campground/outfitter names), so the button cannot appear
-              on a card that would land the user on a useless search. The wrapper
-              stops click propagation because the card body opens the Detail
-              sheet — without it the sheet would open UNDER the outbound
-              navigation. The commission line rides along: a card that earns must
-              disclose on the same surface (FTC, spec Sec.2). */}
-          {isTrueLodging(p) ? (
-            <div style={{ marginTop: 9, display: "flex", flexDirection: "column", pointerEvents: "auto" }} onClick={(e) => e.stopPropagation()}>
-              <BookingCTA variant="primary" detail={p} kind="hotels" label="Check rates" city={city} locName={city} />
-            </div>
-          ) : null}
-          {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
-          {/* What's inside. Rides and in-park venues used to occupy their own
-              cards, so one theme park could fill half the feed and a visitor had
-              to scroll past four rows describing the same place. They live here
-              now: a ride is not somewhere you can go, it is a REASON to pick the
-              park. Tapping one opens the park (that is the bookable thing), so
-              this adds decision detail without adding dead ends. */}
-          {Array.isArray(p._children) && p._children.length ? (
-            <div style={{ marginTop: 10, paddingTop: 9, borderTop: `1px solid ${C.border}` }}>
-              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.muted, marginBottom: 7 }}>
-                Top rated inside
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {p._children.slice(0, 6).map((c) => (
-                  <span key={c.id || c.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 600, color: C.light, maxWidth: "100%" }}>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150 }}>{c.name}</span>
-                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}{"\u2605"}</span> : null}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </div>
       </div>
     </div>

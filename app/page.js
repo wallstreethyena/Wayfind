@@ -29,6 +29,7 @@ import { thisWeekEventsForHome } from "../lib/thisWeekEventsServer";
 import { guideDiscoveryIndex } from "../lib/guideDiscoveryIndex";
 import { weeklyTrendGuideCard } from "../lib/thisWeekEvents";
 import { christmasHubStripCard } from "../lib/christmasHubCard";
+import { readFloridaIntelligence } from "../lib/floridaIntelligenceServer";
 // v8 — the rail menu's places are ranked HERE, on the server, at regeneration.
 // lib/railsData.js reaches lib/landing.js, which holds the Places call, the junk
 // filter, the quality floor and the Bayesian rank; none of that may ship to a
@@ -145,7 +146,14 @@ export default async function Page() {
   // the weekly guide plus events, unchanged.
   const christmasHubCard = christmasHubStripCard(siteTodayStr());
   const thisWeekEvents = christmasHubCard && thisWeekRows.length >= 2 ? [christmasHubCard, ...thisWeekRows] : thisWeekRows;
-  const thisWeekGuide = weeklyTrendGuideCard(guideDiscoveryIndex(currentGuides(GUIDES)));
+  const baseThisWeekGuide = weeklyTrendGuideCard(guideDiscoveryIndex(currentGuides(GUIDES)));
+  const floridaIntel = await Promise.race([
+    readFloridaIntelligence().catch(() => null),
+    new Promise((resolve) => setTimeout(() => resolve(null), 1200)),
+  ]);
+  const thisWeekGuide = baseThisWeekGuide
+    ? (floridaIntel && floridaIntel.floridaBrief ? { ...baseThisWeekGuide, brief: floridaIntel.floridaBrief } : baseThisWeekGuide)
+    : (floridaIntel && floridaIntel.floridaBrief ? { brief: floridaIntel.floridaBrief } : null);
   return (
     <>
       {/* v5.38 a11y/SEO: one descriptive server-rendered H1, always present

@@ -1,4 +1,11 @@
 .page { max-width: 1120px; margin: 0 auto; padding: 28px 24px 72px; background: #040810; color: #edf0f2; font-family: var(--wf-sans), sans-serif; line-height: 1.6; }
+/* The hub and the past index share this canvas. Let the site Christmas field
+   show through while the season is on. Seasonal hubs set data-seasonal-search
+   and keep this background; /christmas-in-florida already paints its own. */
+:global(html[data-wf-xmas="on"]:not(:has([data-wf-own-theme])):not(:has(.xm-page)):not(:has(.boo-page)):not(:has([data-seasonal-search]))) .page {
+  background-color: transparent !important;
+  background-image: none !important;
+}
 .header { padding: 34px 0 42px; border-bottom: 1px solid #25303b; }
 .eyebrow { margin: 0 0 18px; color: #f6a36c; font-size: 11px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
 .header h1 { max-width: 800px; margin: 0 0 20px; font-family: var(--wf-display), Georgia, serif; font-size: clamp(40px, 6vw, 72px); font-weight: 400; line-height: 1.07; letter-spacing: -.045em; text-wrap: balance; }

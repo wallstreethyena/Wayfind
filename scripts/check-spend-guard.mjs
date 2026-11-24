@@ -269,5 +269,76 @@ const other = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "open", LEDGER: "true", 
 const otherBody = other.calls.length === 2 ? sentBody(other) : {};
 ok(otherBody.temperature === 0.4 && !("thinking" in otherBody) && !("output_config" in otherBody), "paid AI: other models' request bodies pass through byte-for-byte unchanged");
 
+// 7 — Gemini requests follow the same single-gate discovery & fail-closed law.
+function discoverGeminiEndpointLiterals() {
+  const out = [];
+  const walk = (dir) => {
+    let entries = [];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const entry of entries) {
+      const full = dir + "/" + entry.name;
+      if (entry.isDirectory()) { if (entry.name !== "node_modules" && entry.name !== ".next") walk(full); continue; }
+      if (!/\.js$/.test(entry.name)) continue;
+      const code = read(full).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+      if (/generativelanguage\.googleapis\.com/.test(code)) out.push(full);
+    }
+  };
+  ["app/api", "lib"].forEach(walk);
+  return out.sort();
+}
+const GEMINI_LITERAL_CALLERS = discoverGeminiEndpointLiterals();
+if (JSON.stringify(GEMINI_LITERAL_CALLERS) !== JSON.stringify(["lib/paidGemini.js"])) {
+  die(`Gemini endpoint literals must live only in lib/paidGemini.js; found ${GEMINI_LITERAL_CALLERS.join(", ") || "none"}`);
+}
+const paidGeminiProbe = (env) => {
+  const code = `
+    const calls = [];
+    globalThis.fetch = async (url, init = {}) => {
+      const target = String(url);
+      calls.push({ target, init: { method: init.method, redirect: init.redirect, cache: init.cache, headers: init.headers } });
+      if (target.includes("/rest/v1/rpc/wf_spend_take")) return new Response(process.env.LEDGER === "true" ? "true" : "false", { status: 200, headers: { "content-type": "application/json" } });
+      if (target.startsWith("https://generativelanguage.googleapis.com/v1beta/models/")) return new Response('{"candidates":[{"content":{"parts":[{"text":"ok"}]}}]}', { status: 200, headers: { "content-type": "application/json" } });
+      throw new Error("unexpected network target: " + target);
+    };
+    const { paidGeminiRequest } = await import("./lib/paidGemini.js");
+    const kind = process.env.PROBE_KIND;
+    const body = kind === "bad_shape"
+      ? { contents: [], generationConfig: { maxOutputTokens: 100 } }
+      : { contents: [{ role: "user", parts: [{ text: kind === "oversize" ? "x".repeat(65_537) : "test" }] }], generationConfig: { maxOutputTokens: kind === "bad_max" ? 4097 : 100 } };
+    const response = await paidGeminiRequest({
+      model: kind === "bad_model" ? "gpt-4o" : "gemini-2.5-flash",
+      apiKey: "AIzaTestKeyValue0000000000000000000000",
+      body,
+    });
+    console.log(JSON.stringify({ status: response.status, calls }));
+  `;
+  const result = spawnSync(process.execPath, ["--input-type=module", "-e", code], {
+    cwd: process.cwd(),
+    env: { ...env }, encoding: "utf8",
+  });
+  if (result.status !== 0) throw new Error(`paid Gemini probe failed: ${(result.stderr || result.stdout).slice(0, 500)}`);
+  return JSON.parse(result.stdout.trim());
+};
+const gemEnv = { SUPABASE_URL: "https://ledger.test", SUPABASE_SERVICE_ROLE_KEY: "test-service-key", GEMINI_MONTHLY_REQUEST_CAP: "120" };
+ok(paidGeminiProbe({ ...gemEnv, PROBE_KIND: "bad_shape", LEDGER: "true" }).status === 400, "paid Gemini: malformed contents blocks before ledger");
+ok(paidGeminiProbe({ ...gemEnv, PROBE_KIND: "bad_model", LEDGER: "true" }).status === 400, "paid Gemini: non-gemini model blocks before ledger");
+ok(paidGeminiProbe({ ...gemEnv, PROBE_KIND: "bad_max", LEDGER: "true" }).status === 400, "paid Gemini: maxOutputTokens above ceiling blocks before ledger");
+ok(paidGeminiProbe({ ...gemEnv, PROBE_KIND: "oversize", LEDGER: "true" }).status === 400, "paid Gemini: oversized payload blocks before ledger");
+ok(paidGeminiProbe({ ...gemEnv, GEMINI_MONTHLY_REQUEST_CAP: "", WAYFIND_GATE: "open", LEDGER: "true" }).status === 503, "paid Gemini: missing GEMINI_MONTHLY_REQUEST_CAP fails closed before network");
+ok(paidGeminiProbe({ ...gemEnv, WAYFIND_GATE: "shut", LEDGER: "true" }).status === 503, "paid Gemini: WAYFIND_GATE=shut fails closed before ledger");
+const gemDenied = paidGeminiProbe({ ...gemEnv, WAYFIND_GATE: "free", LEDGER: "false" });
+ok(gemDenied.status === 503 && gemDenied.calls.length === 1 && /wf_spend_take$/.test(gemDenied.calls[0].target), "paid Gemini: denied ledger grant never reaches Gemini");
+const gemOk = paidGeminiProbe({ ...gemEnv, WAYFIND_GATE: "open", LEDGER: "true" });
+ok(
+  gemOk.status === 200 && gemOk.calls.length === 2
+  && /wf_spend_take$/.test(gemOk.calls[0].target)
+  && gemOk.calls[1].target === "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+  && !gemOk.calls[1].target.includes("AIza")
+  && gemOk.calls[1].init.headers["x-goog-api-key"] === "AIzaTestKeyValue0000000000000000000000"
+  && gemOk.calls[1].init.redirect === "error"
+  && gemOk.calls[1].init.cache === "no-store",
+  "paid Gemini: granted request takes ledger, passes API key only in x-goog-api-key header (never URL), and uses redirect:error + no-store"
+);
+
 if (failed) { console.error(`check-spend-guard: ${failed} failure(s)`); process.exit(1); }
-console.log("check-spend-guard: OK — Google and Anthropic requests are discovered, fail-closed, and capped");
+console.log("check-spend-guard: OK — Google, Anthropic, and Gemini requests are discovered, fail-closed, and capped");

@@ -86,7 +86,7 @@ export default async function Page({ params }) {
   const { ids: placeNavIds, names: placeNavNames } = selectEligiblePlaceLinks(topTen, eligiblePlaceIds);
   const nearby = Object.entries(TOWN_HUBS).filter(([k]) => k !== key);
   return (
-    <main style={S.page}>
+    <main style={S.page} className="wf-page-canvas">
       <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Florida", item: SITE_URL + "/culture/sarasota" }, { "@type": "ListItem", position: 3, name: t.title, item: SITE_URL + "/florida/" + params.town }] }) }} />
       {topTen.length >= 3 ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: `Top things to do in ${t.title}, Florida`, itemListElement: topTen.map((p, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "LocalBusiness", name: p.name } })) }) }} /> : null}

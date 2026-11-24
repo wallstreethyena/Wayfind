@@ -130,7 +130,11 @@ export const config = {
     "/api/reserve/agent/status",
     "/api/reserve/agent/cancel",
     "/api/reserve/agent/code",
+    "/api/reserve/browser",
     "/api/viator/tours",
+    // Explicit Thanksgiving browser search can call the existing Viator API.
+    // Full origin and burst protection applies before any catalog/provider read.
+    "/api/holidays/thanksgiving",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
     // Browser-only same-origin XHR, so apply the full request guard.
@@ -185,6 +189,9 @@ export const config = {
     // access keeps that derived catalogue from becoming a public bulk-export
     // endpoint while the ordinary homepage request continues unchanged.
     "/api/trends/nearby",
+    // Florida Trending & Holiday Intelligence read endpoint (Gemini-monitored
+    // cache + deterministic fallback). Same-origin + per-IP rate limit.
+    "/api/intelligence/florida",
     // Commerce redirect (#469's missing half): /api/commerce/go is the GET-302
     // every schema-approved money link resolves through. It is matched to get the
     // per-IP rate limit — it mints a click_id and reads wf_experiences via the
@@ -239,7 +246,7 @@ const IMAGE_ROUTES = new Set(["/api/photo", "/api/creator-avatar"]);
 // Unmetered routes for Reserve a table (book, cancel, proposal, manage, slots): per-IP rate limit, no middleware
 // same-origin block (the routes check the exact Origin themselves; a restaurant
 // opening an emailed link may arrive with stripped browser headers).
-const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/slots", "/api/reserve/book", "/api/reserve/cancel", "/api/reserve/proposal", "/api/reserve/manage", "/api/reserve/path", "/api/reserve/find", "/api/reserve/profile", "/api/reserve/history", "/api/reserve/go", "/api/reserve/agent/start", "/api/reserve/agent/status", "/api/reserve/agent/cancel", "/api/reserve/agent/code", "/api/reserve/phone"]);
+const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/slots", "/api/reserve/book", "/api/reserve/cancel", "/api/reserve/proposal", "/api/reserve/manage", "/api/reserve/path", "/api/reserve/find", "/api/reserve/profile", "/api/reserve/history", "/api/reserve/go", "/api/reserve/agent/start", "/api/reserve/agent/status", "/api/reserve/agent/cancel", "/api/reserve/agent/code", "/api/reserve/phone", "/api/reserve/browser"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;

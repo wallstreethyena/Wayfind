@@ -9,9 +9,12 @@
 // connect-src, worker-src all set) and needed no change.
 //
 // `defaults: "2026-05-30"` opts into PostHog's current dated default
-// bundle, which handles SPA pageview capture on history change — no manual
-// usePathname/useSearchParams $pageview component, that's the older
-// pattern and undercounts/miscounts App Router navigations.
+// bundle. That default sets capture_pageview to "history_change", which
+// records a later client navigation and never the document that just loaded.
+// The landing $pageview is sent by earlyPageviewScript in app/layout.js,
+// before hydration. When that beacon lands, init keeps history_change so the
+// landing is not counted again. When it does not, init captures the initial
+// view itself.
 // `person_profiles: "identified_only"` is deliberate: Wayfind traffic is
 // mostly anonymous, and we don't want to pay for a person profile per
 // drive-by visitor — only identify() calls (real sign-ins) create one.
@@ -20,10 +23,15 @@ import { usePathname } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { isGroupPlanPath } from "../../lib/groupPlanPrivacy.js";
 import {
+  EARLY_DISTINCT_KEY,
+  EARLY_PAGEVIEW_FLAG,
+  EARLY_SESSION_KEY,
   analyticsSuppressionReason,
   clearPreReadyQueue,
   createPageVisitTracker,
+  dispatchEarlyPageview,
   drainPreReadyQueue,
+  isAnalyticsUuidV7,
   isOwnerUser,
   markInternalBrowser,
   sanitizeAnalyticsProperties,
@@ -62,6 +70,12 @@ export default function PostHogProvider({ children }) {
     } catch (e) {}
     window._phInit = "starting";
     let cancelled = false;
+    // A leave before the idle SDK boot still needs a landing pageview when the
+    // head beacon did not succeed (no sendBeacon, or it returned false).
+    const onEarlyLeave = () => {
+      try { dispatchEarlyPageview(window, key); } catch (e) {}
+    };
+    window.addEventListener("pagehide", onEarlyLeave);
     let tracker = null;
     let idleHandle = null;
     let timerHandle = null;
@@ -106,9 +120,25 @@ export default function PostHogProvider({ children }) {
         if (cancelled) return;
         const blocked = reason(bootUser);
         if (blocked) { suppress(blocked); return; }
+        let bootstrap = null;
+        try {
+          const ss = safeSessionStorage();
+          const distinct = ss && ss.getItem(EARLY_DISTINCT_KEY);
+          const sessionId = ss && ss.getItem(EARLY_SESSION_KEY);
+          const next = {};
+          if (typeof distinct === "string" && distinct && distinct.length <= 200 && distinct.indexOf("@") < 0) next.distinctID = distinct;
+          if (isAnalyticsUuidV7(sessionId)) next.sessionID = sessionId;
+          if (Object.keys(next).length) bootstrap = next;
+        } catch (e) {}
+        const earlyPageview = !!(typeof window !== "undefined" && window[EARLY_PAGEVIEW_FLAG]);
         ph.init(key, {
           api_host: "https://us.i.posthog.com",
           defaults: "2026-05-30",
+          // history_change keeps SPA navigations and does not repeat the
+          // landing view the head script already sent. true is the fallback
+          // when that beacon never left the browser.
+          capture_pageview: earlyPageview ? "history_change" : true,
+          ...(bootstrap ? { bootstrap } : {}),
           person_profiles: "identified_only",
           // Preserve the existing automatic signals, but prevent their DOM
           // payload from carrying text, input content, attributes or raw URLs.
@@ -177,6 +207,7 @@ export default function PostHogProvider({ children }) {
 
     return () => {
       cancelled = true;
+      try { window.removeEventListener("pagehide", onEarlyLeave); } catch (e) {}
       if (idleHandle != null && typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(idleHandle);
       if (timerHandle != null) clearTimeout(timerHandle);
       if (tracker) tracker.stop();

@@ -55,8 +55,9 @@
 import { useEffect } from "react";
 import { emitCommerce, mintClickId } from "../../lib/commerce";
 import { forwardToGoogle, PARTNER_CLICK_EVENT } from "../../lib/analytics";
-import { planPartnerClick, planOrganizerClick } from "../../lib/partnerClick";
+import { planPartnerClick, planOrganizerClick, partnerOutboundEvent } from "../../lib/partnerClick";
 import { analyticsSuppressionReason } from "../../lib/browserAnalytics";
+import { track } from "../../lib/track";
 import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie";
 
 // Two clicks on the same partner anchor closer together than this are one
@@ -157,6 +158,20 @@ export default function CommerceClickBeacon({ surface }) {
             { dedupeKey: "partner_click|" + plan.clickId },
           );
         } catch (e) {}
+        // deal_card_outbound is the countable PostHog event for every partner
+        // hand-off. partner_click above stays the only Google Ads conversion
+        // (deal_card_outbound is analytics-tier, so track() does not convert
+        // twice). A guide deal card already emits the same event from its own
+        // click handler; firing it here too would double count.
+        if (!(a.getAttribute && a.getAttribute("data-deal-card"))) {
+          try {
+            const outbound = partnerOutboundEvent(plan, {
+              href: plan.rewriteHref || planHref,
+              pagePath: typeof window !== "undefined" && window.location ? window.location.pathname : "",
+            });
+            if (outbound) track("deal_card_outbound", outbound);
+          } catch (e) {}
+        }
       } catch (e) {}
     }
     document.addEventListener("click", onClick, true);

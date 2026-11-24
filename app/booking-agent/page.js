@@ -18,7 +18,7 @@ const S = {
 
 export default function Page() {
   return (
-    <article style={S.page}>
+    <article style={S.page} className="wf-page-canvas">
       <div style={S.kicker}>Wayfind booking agent</div>
       <h1 style={S.h1}>A supervised helper for OpenTable's own form</h1>
       <p style={S.p}>When a guest asks, and only when they tap the button, Wayfind can open OpenTable's guest booking page for the restaurant, date, time and party they chose. It types the guest's own name, phone and email from their Booking Profile and submits that form once. If OpenTable shows a confirmation that matches the request, we say so. Otherwise we stop.</p>

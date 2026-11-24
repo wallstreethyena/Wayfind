@@ -116,7 +116,7 @@ export default async function CosmicBaseballFlorida() {
   };
 
   return (
-    <main style={S.page}>
+    <main style={S.page} className="wf-page-canvas">
       <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS + ".wf-cosmic-stays{margin:12px -4px 0;min-width:0}.wf-cosmic-stays:not(:has(.wf-event-place-rail)){display:none}")} />
       {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />

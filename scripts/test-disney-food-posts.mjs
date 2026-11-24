@@ -55,10 +55,20 @@ for (const booth of EPCOT_FESTIVAL.booths) {
 assert.ok(/November 27 to December 30, 2026/.test(fest), "festival dates shown");
 assert.ok(!/\$\d/.test(fest), "no invented prices for festival items");
 
-// Map: every EPCOT card has a pin, pin numbers equal card ranks, booth cards open their list entry.
-const spots = disneyFoodSpots(DISNEY_FOOD_STOPS, EPCOT_FESTIVAL);
+// Map: treat stops without a registered photo stay off the rail; festival
+// booths still appear. Every visible EPCOT card has a pin, pin numbers equal
+// card ranks, and booth cards open their list entry.
+const spotsBare = disneyFoodSpots(DISNEY_FOOD_STOPS, EPCOT_FESTIVAL);
+const epcotBare = spotsBare.filter((spot) => spot.groups[0] === "epcot");
+assert.equal(epcotBare.length, 16, "photoless treat stops stay off the map; all 16 booths remain");
+assert.ok(!epcotBare.some((s) => s.id === "san-angel-margarita"), "San Angel stays off the map until it has a photo of the drink");
+const withPhoto = { "san-angel-margarita": { src: "/test-san-angel.jpg", credit: "Walt Disney World", creditHref: "https://disneyparksblog.com/" } };
+const spots = disneyFoodSpots(DISNEY_FOOD_STOPS, EPCOT_FESTIVAL, withPhoto);
 const epcot = spots.filter((spot) => spot.groups[0] === "epcot");
-assert.equal(epcot.length, epcotStops + 16);
+assert.equal(epcot.length, 1 + 16);
+assert.equal(epcot[0].id, "san-angel-margarita");
+assert.equal(epcot[0].image, "/test-san-angel.jpg");
+assert.equal(epcot[0].photoAttr, "Walt Disney World");
 const pins = disneyMapPins("epcot", epcot);
 assert.equal(pins.length, epcot.length, "every EPCOT card has a pin");
 pins.forEach((pin, i) => assert.equal(pin.number, i + 1, "pin number matches card rank"));

@@ -20,10 +20,18 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react"
 import { usePathname } from "next/navigation";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { setLocal } from "../../lib/localStore.js";
-import { safeLocalStorage } from "../../lib/safeStorage.js";
+import { safeLocalStorage, safeSessionStorage } from "../../lib/safeStorage.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 import { SantaSvg } from "./santaArt.js";
 import { plannerPersona, plannerVoiceForCharacter, pickLine, stopEmoji, sortStopsByTime } from "../../lib/plannerPersona.js";
+import {
+  collectPlannerArrival,
+  loadPlannerThread,
+  packPlannerThread,
+  readPlannerSources,
+  resolvePlannerOpen,
+  savePlannerThread,
+} from "../../lib/plannerArrival.js";
 import { pickCharacter, santaOffPath } from "./companionCharacter.js";
 import {
   PLANNER_OPEN_EVENT,
@@ -423,6 +431,7 @@ export default function WayfindPlannerSheet() {
     setPlanState("draft");
     setChangedStopIds([]);
     setRevisionNotice(null);
+    savePlannerThread(safeSessionStorage(), null);
   }, []);
 
   // ---- Reserve inside the thread -------------------------------------------------------------------------
@@ -840,26 +849,59 @@ export default function WayfindPlannerSheet() {
       const nextVoice = detail.voice || defaultVoiceForPath(detail.pathname || pathname);
       const nextSurface = detail.surface || "button";
       const pathCity = extractCityFromPath(detail.pathname || pathname);
-      const nextCity = detail.city || (pathCity && pathCity.name) || null;
       const currentAuthId = readCurrentAuthUserId();
-
-      const reset = shouldResetPlannerSession(sessionMetaRef.current, { ...detail, authUserId: currentAuthId, city: nextCity });
-      if (reset) {
-        resetSession();
-      }
+      const openedAtMs = Date.now();
+      const arrival = collectPlannerArrival({
+        ...readPlannerSources(safeLocalStorage(), safeSessionStorage(), {
+          search: window.location.search,
+          pathname: detail.pathname || pathname,
+          referrer: typeof document !== "undefined" ? document.referrer : "",
+          origin: window.location.origin,
+          now: openedAtMs,
+        }),
+        detail: {
+          city: detail.city || (pathCity && pathCity.name) || "",
+          startDate: detail.startDate || "",
+          endDate: detail.endDate || "",
+          activity: detail.activity || "",
+          party: detail.party || "",
+          source: detail.source || "",
+        },
+        today: siteTodayStr(),
+        now: openedAtMs,
+      });
+      const resolvedCity = arrival.city || null;
+      const reset = shouldResetPlannerSession(sessionMetaRef.current, {
+        ...detail,
+        authUserId: currentAuthId,
+        city: resolvedCity,
+        prompt: detail.prompt || (detail.build ? "build" : ""),
+      });
+      if (reset) resetSession();
+      const decision = resolvePlannerOpen({
+        voice: nextVoice,
+        reset,
+        inMemoryMessages: reset ? [] : messagesRef.current,
+        storedThread: reset ? null : loadPlannerThread(safeSessionStorage()),
+        authUserId: currentAuthId,
+        arrival,
+        detail,
+        now: openedAtMs,
+      });
+      if (decision.clearThread) savePlannerThread(safeSessionStorage(), null);
       // Reopening from the dock keeps the selected trip; a new trip key (or a reset) replaces it.
       const keepTrip = reset ? null : activeTripKeyRef.current;
-      const nextTripKey = detail.activeTripKey || keepTrip || null;
+      const nextTripKey = detail.activeTripKey || decision.tripKey || keepTrip || null;
 
       sessionMetaRef.current = {
         authUserId: currentAuthId,
         activeTripKey: nextTripKey,
-        city: nextCity,
+        city: resolvedCity,
       };
 
       setVoice(nextVoice);
       setSurface(nextSurface);
-      setContextCity(nextCity);
+      setContextCity(resolvedCity);
       setSeedPlace(detail.seedPlace || null);
       setActiveTripKey(nextTripKey);
       activeTripKeyRef.current = nextTripKey;
@@ -872,31 +914,31 @@ export default function WayfindPlannerSheet() {
         city_slug: pathCity ? pathCity.slug : undefined,
       });
 
+      const turnOpts = {
+        voice: nextVoice,
+        surface: nextSurface,
+        contextCity: resolvedCity,
+        seedPlace: detail.seedPlace || null,
+        activeTripKey: nextTripKey,
+      };
       if (Array.isArray(detail.chooseTrips) && detail.chooseTrips.length > 1 && detail.choosePrompt) {
         const v = plannerPersona(nextVoice);
         setMessages((prev) => [...prev, { role: "user", text: String(detail.choosePrompt) }, { role: "assistant", text: v.whichTrip }, { role: "tripchoice", trips: detail.chooseTrips.slice(0, 6), prompt: String(detail.choosePrompt) }]);
-      } else if (!detail.prompt) {
-        setMessages((prev) =>
-          prev.length
-            ? prev
-            : [
-                {
-                  role: "assistant",
-                  text: pickLine(plannerPersona(nextVoice).greet, siteTodayStr()),
-                },
-              ]
-        );
+      } else if (decision.mode === "keep") {
+        // The thread is already on screen. Reopening Itinerary resumes it.
+      } else if (decision.mode === "resume") {
+        setMessages(decision.messages);
+        if (decision.proposedPlan) setProposedPlan(decision.proposedPlan);
+        setDraft("");
+      } else if (decision.mode === "prompt") {
+        window.setTimeout(() => submitPlannerPrompt(decision.submitPrompt, turnOpts), 20);
       } else {
-        // Trigger immediate planning turn when opened with a prompt
-        window.setTimeout(() => {
-          submitPlannerPrompt(detail.prompt, {
-            voice: nextVoice,
-            surface: nextSurface,
-            contextCity: nextCity,
-            seedPlace: detail.seedPlace || null,
-            activeTripKey: nextTripKey,
-          });
-        }, 20);
+        const text = (decision.messages[0] && decision.messages[0].text) || pickLine(plannerPersona(nextVoice).greet, siteTodayStr());
+        setMessages([{ role: "assistant", text }]);
+        setDraft(decision.draft || "");
+        if (decision.mode === "build" && decision.submitPrompt) {
+          window.setTimeout(() => submitPlannerPrompt(decision.submitPrompt, turnOpts), 20);
+        }
       }
     };
     window.addEventListener(PLANNER_OPEN_EVENT, onOpen);
@@ -909,6 +951,22 @@ export default function WayfindPlannerSheet() {
     } catch {}
     return () => window.removeEventListener(PLANNER_OPEN_EVENT, onOpen);
   }, [pathname, resetSession, submitPlannerPrompt]);
+
+  // The thread lives in the tab, not only in React, so a reload of Itinerary
+  // resumes the same conversation instead of the stock hello.
+  useEffect(() => {
+    const packed = packPlannerThread({
+      authUserId: readCurrentAuthUserId(),
+      voice,
+      activeTripKey,
+      city: contextCity,
+      messages,
+      proposedPlan,
+      now: Date.now(),
+    });
+    if (!packed) return;
+    savePlannerThread(safeSessionStorage(), packed);
+  }, [messages, proposedPlan, voice, activeTripKey, contextCity]);
 
   const handleClose = useCallback(() => {
     if (proposedRef.current && !savedRef.current) {

@@ -600,7 +600,7 @@ export default function RailCard({
       data-place-id={place?.id || undefined}
       data-guide-id={variant === "guide" && guideId ? guideId : undefined}
       data-guide-matched-id={variant === "guide" && guideId && guideMatchedId ? guideMatchedId : undefined}
-      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteDay)}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteDay)}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${ReserveSlot ? " has-cta" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onPointerDown={tapIntent.onPointerDown}
@@ -732,6 +732,11 @@ export default function RailCard({
               their markup stays byte-identical (check-guide-card fixture). */}
           {variant === "guide" && lead ? <div className="wf-guide-card-lead">{lead}</div> : null}
 
+          {/* v8.34 — the creator credit sits directly above the bottom interactive
+              band (CTA + actions), matching home.js PlaceCard and IconicPlaceCard. */}
+          <CreatorCardMark videos={railCreatorVideos} />
+          {!place && actionItem?.type === "experience" ? <ExperienceVideoAction provider={actionItem.provider} id={actionItem.id} /> : null}
+
           {ctaNode || (ctaHref || (cta && !cta.external) ? (
             <a
               className="wf-place-card-book wf-rail-card-cta"
@@ -743,12 +748,6 @@ export default function RailCard({
 
           {/* Every card exposes the same four controls. Non-place cards use
               contentCardActions; place cards keep the ranking-aware store. */}
-          {/* v8.34 — the creator credit sits in the bottom band, directly above
-              the actions (see css.js .wf-place-card-credit). It renders even on
-              a read-only card: the credit is a fact about the place, not a
-              control, and a tour card simply resolves no videos. */}
-          <CreatorCardMark videos={railCreatorVideos} />
-          {!place && actionItem?.type === "experience" ? <ExperienceVideoAction provider={actionItem.provider} id={actionItem.id} /> : null}
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <button
               type="button"

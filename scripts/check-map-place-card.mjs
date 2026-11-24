@@ -26,10 +26,13 @@ const map = strip(readFileSync(new URL("../app/components/screens/Map.js", impor
 const view = strip(readFileSync(new URL("../app/components/MapView.js", import.meta.url), "utf8"));
 const iconic = strip(readFileSync(new URL("../app/components/IconicPlaceCard.js", import.meta.url), "utf8"));
 
-// ── the card: MapCompactPreviewCard in a compact 168px-max shell ────────
-ok(/<MapCompactPreviewCard/.test(map) && /className="wf-map-preview-card"/.test(map), "the bottom slot renders MapCompactPreviewCard (.wf-map-preview-card)");
-ok(/WayfindScoreBadge/.test(map) && /<WayfindScoreBadge/.test(map), "Map.js renders WayfindScoreBadge inside the compact preview card");
-ok(/maxHeight: 168/.test(map) && /overflow: "hidden"/.test(map), "the compact preview card shell is capped at 168px so 80–90% of the map stays visible");
+// ── the card: IconicPlaceCard in .wf-map-preview-shell (Owner 2026-11-23) ──
+ok(!/<MapCompactPreviewCard/.test(map) && /<IconicPlaceCard[\s\S]{0,3000}?eagerMedia/.test(map) && /className="wf-map-results wf-map-preview-shell" data-wf-map-preview-card=\{mp\.id\}/.test(map),
+  "Owner 2026-11-23: the bottom slot renders IconicPlaceCard (eagerMedia) inside .wf-map-preview-shell (data-wf-map-preview-card), not MapCompactPreviewCard");
+ok(/<WayfindScoreBadge/.test(iconic) && /onOpen/.test(map) && /surface="map_preview"/.test(map),
+  "IconicPlaceCard renders WayfindScoreBadge for the map_preview surface with onOpen wired");
+ok(/Parking &amp; nearby/.test(map) && /aria-label="Close"/.test(map),
+  "the preview micro-bar exposes Parking & nearby and Close above IconicPlaceCard so Close never touches the score badge");
 ok(/Wayfind Score 9\.2\+/.test(map), "the ranked-position footer is gone — it is the payoff of a ranked map");
 ok(/aria-label="Next place"/.test(map) && /aria-label="Previous place"/.test(map), "the paging arrows are gone");
 ok(/onTouchEnd=/.test(map) && /dy > 60/.test(map), "swipe-down no longer dismisses the card");
@@ -95,7 +98,7 @@ ok(!/const ranked = \(places \|\| \[\]\)\.filter\([^)]*\)\.slice\(/.test(view),
   "`ranked` must not be sliced — the map has to show every place the list loaded, not a merchandising cap");
 ok(/window\.__wfMapPins\s*=\s*\{\s*ids:\s*placeFeatures\.map/.test(view),
   "MapView exposes window.__wfMapPins for a live parity check between the map and the list — see redraw()");
-ok(/selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(map) && !/slice\(0, (40|60)\)/.test(map), "the complete qualifying area pool must feed pins and cards without a top-N cap");
+ok(/selectMapPlaces(?:WithSparseTopUp)?\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/.test(map) && !/slice\(0, (40|60)\)/.test(map), "the complete qualifying area pool must feed pins and cards without a top-N cap");
 ok(/clusterRadius: 30/.test(view), "the cluster radius widened again — more clustering means fewer visible pins");
 ok(/pixelRatio: PIN_DPR/.test(view), "pin sprites are not registered at 2x — they would render blurry on retina");
 // v8.94 — PARSED, NOT MATCHED. This was a literal of the whole dependency

@@ -1,7 +1,7 @@
 // Behavior test for lib/photoAnswers.js — the single per-page answer for a place's photo.
 // Executes the real module with scripted fetches (no network, no spend).
 import assert from "node:assert/strict";
-import { forgetPlacePhoto, getPlacePhoto, resetPhotoAnswers, photoAnswerStats, normalizePhotoAnswer, mapsLinkForPlace, MAX_ATTEMPTS, RETRY_DELAY_MS } from "../lib/photoAnswers.js";
+import { forgetPlacePhoto, getPlacePhoto, peekPlacePhoto, resetPhotoAnswers, seedPlacePhoto, photoAnswerStats, normalizePhotoAnswer, mapsLinkForPlace, MAX_ATTEMPTS, RETRY_DELAY_MS } from "../lib/photoAnswers.js";
 import { cardPhotoRequest, fetchCardPhoto, railPhotoSrc } from "../lib/cardPhotoRequest.js";
 import { fetchLivePhoto } from "../lib/livePhoto.js";
 
@@ -137,4 +137,34 @@ const removed = scripted(() => jsonRes({ src: null, source: "none" }, { "x-wayfi
 await getPlacePhoto(A, { fetchImpl: removed, now }); t += RETRY_DELAY_MS + 1;
 await getPlacePhoto(A, { fetchImpl: removed, now });
 eq(removed.calls.length, 1, "owner removal is definitive for the client");
-console.log("test-photo-answers: OK — " + n + " assertions; pairing, reuse, source/storage recovery, bounded retries and removal");
+
+// 10. seedPlacePhoto & peekPlacePhoto: synchronous zero-API-call client hydration.
+{
+  resetPhotoAnswers();
+  const SEED_HASH = "e".repeat(64);
+  const seeded = seedPlacePhoto(A, {
+    src: `/api/photo/stored/${A}?v=${SEED_HASH}`,
+    source: "google",
+    credit: { name: "Stored Photog", uri: "https://maps.google.com/contrib/1", authors: [{ name: "Stored Photog" }] },
+  });
+  ok(seeded && seeded.src === `/api/photo/stored/${A}?v=${SEED_HASH}` && seeded.source === "google", "seedPlacePhoto returns normalized stored photo");
+  ok(seeded.credit.mapsUri && seeded.credit.mapsUri.includes(A), "seedPlacePhoto fills Google Maps credit link when omitted");
+  ok(peekPlacePhoto(A)?.src === seeded.src && peekPlacePhoto(A, { nospend: true })?.src === seeded.src, "peekPlacePhoto returns seeded answer synchronously for both spend and nospend lanes");
+  const neverCalled = scripted(() => { throw new Error("must not call /api/photo when seeded"); });
+  const fromGet = await getPlacePhoto(A, { surface: "card", nospend: true, fetchImpl: neverCalled });
+  ok(fromGet === seeded && neverCalled.calls.length === 0, "getPlacePhoto resolves seeded answer with 0 network calls");
+  // Never overwrites an existing live photo answer.
+  seedPlacePhoto(A, { src: "/places/should-not-overwrite.jpg", source: "wayfind", credit: null });
+  ok(peekPlacePhoto(A)?.src === seeded.src && peekPlacePhoto(A, { nospend: true })?.src === seeded.src, "seedPlacePhoto never overwrites an existing live answer");
+  // Rejects invalid ids and unsafe URLs.
+  eq(seedPlacePhoto("bad-slug", { src: "/places/x.jpg", source: "wayfind" }), null, "seedPlacePhoto rejects non-place ids");
+  eq(seedPlacePhoto(B, { src: "http://insecure.example/x.jpg", source: "wayfind" }), null, "seedPlacePhoto rejects non-https URLs");
+  eq(peekPlacePhoto(B), null, "unseeded place peeks as null");
+  // Never leaks an un-retained live Google URL into nospend peek.
+  resetPhotoAnswers();
+  const liveOnly = scripted(() => jsonRes(google(A)));
+  await getPlacePhoto(A, { surface: "card", fetchImpl: liveOnly });
+  ok(peekPlacePhoto(A)?.src === google(A).src, "non-nospend peek finds live Google answer");
+  eq(peekPlacePhoto(A, { nospend: true }), null, "nospend peek refuses un-retained live Google URL");
+}
+console.log("test-photo-answers: OK — " + n + " assertions; pairing, reuse, seeding/peeking, source/storage recovery, bounded retries and removal");

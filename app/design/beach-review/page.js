@@ -7,7 +7,7 @@ export const metadata = { title: 'Beach responsive review', robots: { index: fal
 // The review is intentionally unavailable on the production deployment.
 export default function BeachResponsiveReview() {
   if (process.env.VERCEL_ENV !== 'preview') notFound();
-  return <div style={{ padding: 20, background: '#080b11', color: '#f1f5f9' }}>
+  return <div data-wf-own-theme="beach-review" style={{ padding: 20, background: '#080b11', color: '#f1f5f9' }}>
     <h1>Beach responsive review</h1>
     <p>Real page at three phone widths. This checks responsive layout, not a physical iPhone or Safari.</p>
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, alignItems: 'flex-start' }}>

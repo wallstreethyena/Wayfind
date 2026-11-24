@@ -2,8 +2,9 @@
 import { useEffect, useRef, useState } from "react";
 import { loadAppleMapKit } from "../../lib/appleMapsRuntime.js";
 import { createCreatorAppleMap } from "../../lib/creatorAppleMap.js";
+import { readGrantedDeviceLocation } from "../../lib/mapPinStandard.js";
 
-export default function CreatorAppleMap({ places, onSelect, selectedId = null }) {
+export default function CreatorAppleMap({ places, onSelect, selectedId = null, deviceLoc = null }) {
   const host = useRef(null);
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
@@ -11,6 +12,17 @@ export default function CreatorAppleMap({ places, onSelect, selectedId = null })
   selectedRef.current = selectedId;
   const [status, setStatus] = useState("loading");
   const [attempt, setAttempt] = useState(0);
+  const [grantedLoc, setGrantedLoc] = useState(null);
+  const hasExplicitDeviceLoc = !!(deviceLoc && Number.isFinite(Number(deviceLoc.lat)) && Number.isFinite(Number(deviceLoc.lng)));
+  useEffect(() => {
+    if (hasExplicitDeviceLoc) return undefined;
+    return readGrantedDeviceLocation(setGrantedLoc);
+  }, [hasExplicitDeviceLoc]);
+  const effectiveDeviceLoc = hasExplicitDeviceLoc
+    ? { lat: Number(deviceLoc.lat), lng: Number(deviceLoc.lng) }
+    : grantedLoc;
+  const deviceLocRef = useRef(effectiveDeviceLoc);
+  deviceLocRef.current = effectiveDeviceLoc;
   const controllerRef = useRef(null);
   useEffect(() => {
     let dead = false;
@@ -18,7 +30,11 @@ export default function CreatorAppleMap({ places, onSelect, selectedId = null })
     setStatus("loading");
     loadAppleMapKit(process.env.NEXT_PUBLIC_APPLE_MAPS_TOKEN).then(mapkit => {
       if (dead || !host.current) return;
-      controller = createCreatorAppleMap({ mapkit, container: host.current, places, onSelect: id => selectRef.current?.(id) });
+      controller = createCreatorAppleMap({
+        mapkit, container: host.current, places,
+        onSelect: id => selectRef.current?.(id),
+        deviceLoc: deviceLocRef.current,
+      });
       controllerRef.current = controller;
       if (selectedRef.current != null) controller.select?.(selectedRef.current);
       setStatus("ready");
@@ -30,6 +46,11 @@ export default function CreatorAppleMap({ places, onSelect, selectedId = null })
     if (status !== "ready") return;
     controllerRef.current?.select?.(selectedId);
   }, [selectedId, status]);
+
+  useEffect(() => {
+    if (status !== "ready") return;
+    controllerRef.current?.setUserLocation?.(effectiveDeviceLoc || null);
+  }, [effectiveDeviceLoc?.lat, effectiveDeviceLoc?.lng, status]);
 
   return <>
     <div ref={host} aria-label="Apple map of reviewed places" style={{ position: "absolute", inset: 0 }} />

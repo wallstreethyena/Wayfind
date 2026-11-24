@@ -67,18 +67,18 @@ export const XM_CARD_CSS = `
 .xm-from{font-size:11.5px;line-height:1.15;color:var(--xm-soft)}
 .xm-amt{font-size:21px;line-height:1.1;font-weight:800;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7)}
 .xm-note{margin:0;font-size:12.5px;line-height:1.35;color:var(--xm-soft);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:center;overflow-wrap:anywhere}
-.xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
+.xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:6px 10px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15.5px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 4px 14px rgba(245,196,81,.3)}
 .xm-via{margin:0;font-size:11.5px;line-height:1.6;color:var(--xm-soft);text-align:center}
 .xm-bottom>.xm-pricerow+.xm-buybox{grid-column:2}
-.xm-buybox{display:flex;flex-direction:column;width:100%;min-width:0;background:linear-gradient(180deg,#FFE9B8,#F5C451);border:2px solid var(--xm-rose);border-radius:12px;box-shadow:0 0 10px rgba(232,180,138,.25);overflow:hidden}
-.xm-buybox>.xm-buy{min-height:40px;padding-bottom:2px;background:none;border:0;border-radius:0;box-shadow:none}
+.xm-buybox{display:flex;flex-direction:column;width:100%;min-width:0;background:linear-gradient(180deg,#FFE9B8,#F5C451);border:2px solid var(--xm-rose);border-radius:12px;box-shadow:0 4px 14px rgba(245,196,81,.3);overflow:hidden}
+.xm-buybox>.xm-buy{min-height:42px;padding-bottom:2px;background:none;border:0;border-radius:0;box-shadow:none}
 .xm-buyalt{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0 4px;margin:0;padding:0 8px 3px;font-size:11.5px;font-weight:600;line-height:1.2;color:var(--xm-ink)}
 .xm-buyalt a{display:inline-flex;align-items:center;min-height:24px;padding:0 3px;color:var(--xm-ink);font-weight:800;text-decoration:underline;text-underline-offset:2px;white-space:nowrap}
 .xm-event{color:#FFD9AE;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .xm-title{color:inherit;text-decoration:none}
-.xm-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin:0;min-width:0}
-.xm-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:0!important;width:100%;min-height:44px;margin:0;padding:4px;border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);border:1.5px solid rgba(245,196,81,.75);font:inherit;font-size:12px;font-weight:700;line-height:1.1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.xm-actions>button svg{flex:0 0 auto;width:14px;height:14px;color:#F5C451}
+.xm-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;margin:2px 0 0;min-width:0}
+.xm-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:0!important;width:100%;min-height:44px;margin:0;padding:4px;border-radius:999px;background:rgba(34,2,8,.42);color:var(--xm-warm);border:1px solid rgba(232,180,138,.42);font:inherit;font-size:12px;font-weight:600;line-height:1.1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.xm-actions>button svg{flex:0 0 auto;width:14px;height:14px;color:#E8B48A}
 .xm-actions>button[aria-pressed="true"]{background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border-color:var(--xm-rose)}
 .xm-actions>button[aria-pressed="true"] svg{color:#C0102A}
 .xm-actions>button:focus-visible,.xm-card button:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
@@ -170,6 +170,15 @@ function Heart({ on }) {
   );
 }
 
+function InviteIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M22 2 11 13" />
+      <path d="M22 2 15 22 11 13 2 9 22 2z" />
+    </svg>
+  );
+}
+
 // Save and Remind me (owner 2026-11-01). Save uses the content card store
 // (lib/contentCardActions.js: local first, synced to saved_items when signed
 // in) under the same event id the Christmas rails use, so a heart set on one
@@ -214,7 +223,7 @@ function CardActions({ row, item }) {
             directInvite: true,
           });
         }}
-      ><Heart on={false} /><span>Ask someone</span></button>
+      ><InviteIcon /><span>Ask someone</span></button>
     </div>
   );
 }

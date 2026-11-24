@@ -14,7 +14,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { FALL_SEASON_START_MD, FALL_EVIDENCE_START_MD, FALL_CARD_IDS, fallSkinLive, fallCardClass, fallShareLine, fallSeasonEnd } from "../lib/fallSkin.js";
+import { FALL_SEASON_START_MD, FALL_SEASON_END_MD, FALL_EVIDENCE_START_MD, FALL_CARD_IDS, fallSkinLive, fallCardClass, fallShareLine, fallSeasonEnd } from "../lib/fallSkin.js";
 import { spookySkinLive, SPOOKY_SKIN_START_MD, spookyOverFall, fallSpookyCardClass, SPOOKY_PLACE_IDS } from "../lib/spookySkin.js";
 import { POSTER_SEASONS, posterSeasonLive, posterSeasonWindow, railOnPosterTrack } from "../lib/posterSeasons.js";
 import { orderFor, DAYPART_IDS, christmasLeads, halloweenLeads, HALLOWEEN_LEADS_START_MD } from "../lib/dayparts.js";
@@ -44,23 +44,25 @@ ok(seasonal("morning", "2027-10-20").length === 3 && FALL_ID && SPOOKY_FALL_ID &
 
 for (const y of [2026, 2027, 2028]) {
   const T = THANKS[y];
-  ok(fallSeasonEnd(y) === T, `${y}: Thanksgiving is ${T}`);
+  ok(fallSeasonEnd(y) === T, `${y}: evidence season still ends on Thanksgiving ${T}`);
+  const last = `${y}-11-10`, retired = `${y}-11-11`;
 
-  // ── TASK 1: the fall card skin starts Aug 15, ends Thanksgiving ──
+  // ── TASK 1: fall displays Aug 15..Nov 10, retires starting Nov 11 ──
   ok(FALL_SEASON_START_MD === "08-15", "fall skin start is Aug 15");
   ok(fallSkinLive(`${y}-08-15`) && !fallSkinLive(`${y}-08-14`), `${y}: fall skin live Aug 15, dead Aug 14`);
-  ok(fallSkinLive(T) && !fallSkinLive(addDays(T, 1)), `${y}: fall skin live on Thanksgiving ${T}, dead the day after`);
+  ok(FALL_SEASON_END_MD === "11-10" && fallSkinLive(last) && !fallSkinLive(retired) && !fallSkinLive(T), `${y}: fall skin live Nov 10, retired Nov 11 and Thanksgiving`);
   ok(!fallSkinLive(`${y}-07-04`) && !fallSkinLive(`${y}-12-25`) && !fallSkinLive(`${y}-01-15`), `${y}: dead in July, December, January`);
   eq(fallCardClass(FALL_ID, `${y}-08-15`), " wf-fall-card", `${y}: a fall place wears the fall class Aug 15`);
   eq(fallCardClass(FALL_ID, `${y}-08-14`), "", `${y}: and not Aug 14`);
-  eq(fallCardClass(FALL_ID, addDays(T, 1)), "", `${y}: ordinary again the morning after Thanksgiving`);
+  eq(fallCardClass(FALL_ID, retired), "", `${y}: ordinary again starting Nov 11`);
   eq(fallCardClass(ORDINARY_ID, `${y}-10-20`), "", `${y}: a non-fall place never wears it (negative control)`);
-  ok(fallShareLine("x", FALL_ID, `${y}-08-15`).startsWith("🍁") && fallShareLine("x", FALL_ID, `${y}-08-14`) === "x" && fallShareLine("x", FALL_ID, addDays(T, 1)) === "x", `${y}: the share leaf follows the same dates`);
+  ok(fallShareLine("x", FALL_ID, `${y}-08-15`).startsWith("🍁") && fallShareLine("x", FALL_ID, last).startsWith("🍁") && fallShareLine("x", FALL_ID, `${y}-08-14`) === "x" && fallShareLine("x", FALL_ID, retired) === "x", `${y}: the share leaf follows the same dates`);
   // ONE source of truth: the card skin and the Fall poster agree on EVERY day of the year.
   let disagree = 0;
   for (let d = `${y}-01-01`; d.startsWith(String(y)); d = addDays(d, 1)) if (fallSkinLive(d) !== posterSeasonLive("augtober", d)) disagree++;
   ok(disagree === 0, `${y}: fall skin and Fall poster disagree on ${disagree} days`);
   ok(posterSeasonWindow("augtober", y).start === `${y}-${FALL_SEASON_START_MD}`, `${y}: the poster window start IS the skin constant`);
+  ok(posterSeasonWindow("augtober", y).end === `${y}-${FALL_SEASON_END_MD}`, `${y}: the poster window end IS the skin constant`);
   ok(FALL_EVIDENCE_START_MD === "08-26", "the evidence window keeps its own Aug 26");
 
   // ── Halloween skin unchanged, and its combination with the fall class ──
@@ -91,13 +93,12 @@ for (const y of [2026, 2027, 2028]) {
       eq(seasonal(band, d).slice().sort(), ["augtober", "christmas", "halloween"], `${band} ${d}: all three`);
       ok(t[0] === "halloween" && t[1] === "augtober" && halloweenLeads(d), `${band} ${d}: Halloween leads and Fall in Florida sits immediately right of Halloween on Oct 25-31 every year (got ${t.slice(0, 3)})`);
     }
-    for (const d of [`${y}-11-01`, `${y}-11-10`, T]) {
+    for (const d of [`${y}-11-01`, last]) {
       const s = seasonal(band, d);
       eq(s.slice().sort(), ["augtober", "christmas"], `${band} ${d}: Fall and Christmas only`);
-      ok(track(band, d)[0] === "christmas", `${band} ${d}: Christmas first from Nov 1, Fall stays visible until Thanksgiving ends`);
+      ok(track(band, d)[0] === "christmas", `${band} ${d}: Christmas first from Nov 1, Fall stays visible through Nov 10`);
     }
-    const after = addDays(T, 1);
-    for (const d of [after, `${y}-12-25`, `${y}-12-31`]) { eq(seasonal(band, d), ["christmas"], `${band} ${d}: Christmas alone`); ok(track(band, d)[0] === "christmas", `${band} ${d}: Christmas FIRST`); ok(christmasLeads(d), `${d}: christmasLeads`); }
+    for (const d of [retired, `${y}-11-23`, T, `${y}-12-25`, `${y}-12-31`]) { eq(seasonal(band, d), ["christmas"], `${band} ${d}: Christmas alone`); ok(track(band, d)[0] === "christmas", `${band} ${d}: Christmas FIRST`); ok(christmasLeads(d), `${d}: christmasLeads`); }
     eq(seasonal(band, `${y + 1}-01-01`), ["christmas"], `${band} ${y + 1}-01-01: Christmas only`);
     ok(track(band, `${y + 1}-01-01`)[0] === "christmas", `${band}: Christmas first on Jan 1`);
     eq(seasonal(band, `${y + 1}-01-02`), [], `${band} ${y + 1}-01-02: none of the three`);
@@ -117,15 +118,15 @@ for (const y of [2026, 2027, 2028]) {
 
   // ── boundary days, exact ──
   const EXPECT = {
-    2026: ["2026-01-02", "2026-06-01", "2026-08-15", "2026-08-26", "2026-09-01", "2026-10-10", "2026-10-13", "2026-10-25", "2026-11-01", "2026-11-02", "2026-11-27"],
-    2027: ["2027-01-02", "2027-06-01", "2027-08-15", "2027-08-26", "2027-09-01", "2027-10-10", "2027-10-13", "2027-10-25", "2027-11-01", "2027-11-02", "2027-11-26"],
-    2028: ["2028-01-02", "2028-06-01", "2028-08-15", "2028-08-26", "2028-09-01", "2028-10-10", "2028-10-13", "2028-10-25", "2028-11-01", "2028-11-02", "2028-11-24"],
+    2026: ["2026-01-02", "2026-06-01", "2026-08-15", "2026-08-26", "2026-09-01", "2026-10-10", "2026-10-13", "2026-10-25", "2026-11-01", "2026-11-02", "2026-11-11"],
+    2027: ["2027-01-02", "2027-06-01", "2027-08-15", "2027-08-26", "2027-09-01", "2027-10-10", "2027-10-13", "2027-10-25", "2027-11-01", "2027-11-02", "2027-11-11"],
+    2028: ["2028-01-02", "2028-06-01", "2028-08-15", "2028-08-26", "2028-09-01", "2028-10-10", "2028-10-13", "2028-10-25", "2028-11-01", "2028-11-02", "2028-11-11"],
   }[y];
   eq(seasonBoundaryDays(y), EXPECT, `${y}: boundary days`);
   // independent derivation from the window table + skin windows, so the signature approach cannot agree with itself by accident
   const derived = new Set();
   for (const id of Object.keys(POSTER_SEASONS)) for (const sy of [y - 1, y]) { const w = posterSeasonWindow(id, sy); for (const dte of [w.start, addDays(w.end, 1)]) if (dte.startsWith(String(y))) derived.add(dte); }
-  derived.add(`${y}-${SPOOKY_SKIN_START_MD}`); derived.add(`${y}-${HALLOWEEN_LEADS_START_MD}`); derived.add(`${y}-11-02`); derived.add(addDays(T, 1));
+  derived.add(`${y}-${SPOOKY_SKIN_START_MD}`); derived.add(`${y}-${HALLOWEEN_LEADS_START_MD}`); derived.add(`${y}-11-02`); derived.add(retired);
   eq([...derived].sort(), EXPECT, `${y}: boundary days re-derived from the window table`);
   for (const d of [`${y}-08-14`, `${y}-08-16`, `${y}-10-24`, `${y}-10-31`, T, `${y}-12-25`, `${y}-12-31`, `${y}-06-15`]) ok(!isSeasonBoundaryDay(d), `${y}: ${d} is NOT a boundary day (negative control)`);
 }
@@ -165,10 +166,16 @@ h = await hit("2027-09-14T04:01:00Z", "s3cret");
 ok(h.status === 200 && h.body.skipped === true && h.calls.length === 0, "route: a non-boundary day (Sep 14 2027) skips and never calls revalidatePath");
 h = await hit("2027-08-15T04:01:00Z", "s3cret");
 ok(h.status === 200 && h.body.skipped === false && JSON.stringify(h.calls) === JSON.stringify(["/", "/v8"]), `route: Aug 15 2027 00:01 EDT calls revalidatePath for / and /v8 (got ${JSON.stringify(h.calls)})`);
-h = await hit("2027-11-26T04:01:00Z", "s3cret");
-ok(h.body.skipped === true && h.calls.length === 0, "route: 04:01 UTC on Nov 26 2027 is still Nov 25 23:01 EST - Thanksgiving is not a boundary - skips");
-h = await hit("2027-11-26T05:01:00Z", "s3cret");
-ok(h.body.skipped === false && h.calls.length === 2, "route: 05:01 UTC Nov 26 2027 (00:01 EST, the day after Thanksgiving) revalidates");
+h = await hit("2027-11-11T04:59:59Z", "s3cret");
+ok(h.body.skipped === true && h.calls.length === 0, "route: 04:59:59 UTC Nov 11 is still Nov 10 EST, before retirement - skips");
+h = await hit("2027-11-11T05:00:00Z", "s3cret");
+ok(h.body.skipped === false && h.calls.length === 2, "route: Nov 11 midnight EST retires Fall and revalidates");
+for (const y of [2026, 2027, 2028]) {
+  const before = siteTodayStr(new RealDate(`${y}-11-11T04:59:59Z`));
+  const after = siteTodayStr(new RealDate(`${y}-11-11T05:00:00Z`));
+  ok(fallSkinLive(before) && !fallSkinLive(after), `${y}: Fall skin retires at midnight Eastern Nov 11`);
+  for (const band of DAYPART_IDS) ok(track(band, before).includes("augtober") && !track(band, after).includes("augtober"), `${y} ${band}: Fall poster retires at midnight Eastern Nov 11`);
+}
 h = await hit("2027-01-02T05:01:00Z", "s3cret");
 ok(h.body.skipped === false, "route: Jan 2 (Christmas poster ends) revalidates");
 h = await hit("2026-10-10T04:01:00Z", "s3cret");

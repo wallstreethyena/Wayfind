@@ -42,6 +42,9 @@ export function shellFiles() {
   // CTA and disclosure guardrail greps this concatenation for. Unregistered, a
   // claim could be written there that no guard would ever read.
   if (existsSync(new URL("app/components/HomeAside.js", root))) files.push("app/components/HomeAside.js");
+  // The category/Events local guide remains shell content after its renderer
+  // moves behind a user-triggered chunk; copy and commerce guards still read it.
+  if (existsSync(new URL("app/components/AreaInsight.js", root))) files.push("app/components/AreaInsight.js");
   // NOTE: app/components/BookingCTA.js is deliberately NOT in this set. The
   // booking CTA was extracted there so check-booking-cta.mjs can assert the raw
   // construction (Aff.ticketsUrl / experienceGoUrl) lives ONLY in that component

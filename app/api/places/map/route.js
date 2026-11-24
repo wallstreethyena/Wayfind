@@ -3,6 +3,7 @@ import { sbEnv } from '../../../../lib/serverCache';
 import { fetchDeadline, DB_DEADLINE_MS } from '../../../../lib/fetchDeadline';
 import { loadOwnerPickIds } from '../../../../lib/curatorPicksServer.js';
 import { readMapAreaPage, validMapBounds } from '../../../../lib/mapAreaData';
+import { hydrateMapPlacesWithStoredPhotos } from '../../../../lib/mapAreaPhotos.js';
 import { enrichMapPlacesWithRepoOwnedHours } from '../../../../lib/ownedHours.js';
 
 export async function GET(request) {
@@ -15,11 +16,14 @@ export async function GET(request) {
   try {
     const config = sbEnv();
     if (!config) throw new Error("Map inventory configuration is unavailable");
-    const ids = await loadOwnerPickIds({ fresh: true, fetchImpl: (url, init) => fetchDeadline(url, init, DB_DEADLINE_MS) }).catch(() => null);
+    const fetcher = (url, init) => fetchDeadline(url, init, DB_DEADLINE_MS);
+    const ids = await loadOwnerPickIds({ fresh: true, fetchImpl: fetcher }).catch(() => null);
     const ownerPickIds = ids ? new Set(ids.map(String)) : null;
-    const result = await readMapAreaPage({ bounds, origin, cursor, ownerPickIds, config, fetcher: (url, init) => fetchDeadline(url, init, DB_DEADLINE_MS) });
+    const rawRowsById = new Map();
+    const result = await readMapAreaPage({ bounds, origin, cursor, ownerPickIds, config, fetcher, rawRowsById });
     if (result && Array.isArray(result.places)) {
       result.places = enrichMapPlacesWithRepoOwnedHours(result.places);
+      result.places = await hydrateMapPlacesWithStoredPhotos(result.places, { rawRowsById, config, fetcher, stripRawGallery: true });
     }
     return NextResponse.json(result, { headers: { 'Cache-Control': 'private, no-store' } });
   } catch (error) {

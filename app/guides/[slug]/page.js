@@ -953,26 +953,6 @@ export default async function GuidePage({ params }) {
         .wf-guide-now-handoff a{color:#7DD3FC;font-weight:750}
         .wf-guide-now-live{background:rgba(94,232,180,.07);border-color:rgba(94,232,180,.30)}
         .wf-guide-now-live .wf-guide-now-head{color:#5EE8B4}
-        /* Live deal cards. Sized so the whole card is one tap target on a phone,
-           and min-width:0 on the text column is what stops a long merchant name
-           forcing the grid wider than the viewport — the classic overflow. */
-        .wf-gd-wrap{margin:34px 0 0}
-        .wf-gd-h{font-size:22px;color:#F1F5F9;margin:0 2px 12px}
-        .wf-gd-list{list-style:none;margin:0;padding:0}
-        .wf-gd-card{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;text-decoration:none;color:inherit;background:#141c27;border:1px solid #2D3748;border-radius:14px;padding:12px;margin:0 0 10px;transition:border-color .15s ease}
-        .wf-gd-card:hover{border-color:#FBBF24}
-        .wf-gd-photo{position:relative;display:block;width:fit-content}.wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}.wf-gd-credit{position:absolute;left:4px;right:4px;bottom:4px;margin:0;color:rgba(255,255,255,.6);font-size:9px;font-weight:500;line-height:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65)}
-        .wf-gd-body{min-width:0}
-        .wf-gd-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-        .wf-gd-title{font-size:16px;font-weight:750;color:#F1F5F9;overflow-wrap:anywhere}
-        .wf-gd-badge{flex:none;font-size:11px;font-weight:750;color:#0B0F14;background:#FBBF24;border-radius:999px;padding:2px 8px}
-        .wf-gd-merchant{font-size:12.5px;color:#94A3B8;margin-top:3px;overflow-wrap:anywhere}
-        .wf-gd-details{font-size:13.5px;color:#c8d1dd;line-height:1.45;margin:7px 0 0;overflow-wrap:anywhere}
-        .wf-gd-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;flex-wrap:wrap}
-        .wf-gd-loc{font-size:12px;color:#94A3B8;min-width:0;overflow-wrap:anywhere}
-        .wf-gd-cta{flex:none;font-size:13px;font-weight:750;color:#FBBF24}
-        .wf-gd-ends{font-size:12.5px;color:#94A3B8;margin-top:5px}
-        .wf-gd-disc{font-size:12.5px;color:#94A3B8;line-height:1.45;margin:12px 2px 0}
         .wf-guide-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
         .wf-guide-actions a{border-radius:4px!important}
         .wf-guide-quick,.wf-guide-related{margin:18px 0 22px;padding:16px;border:1px solid #263548;border-radius:14px;background:#0b121d}
@@ -987,9 +967,6 @@ export default async function GuidePage({ params }) {
         .wf-guide-related a{font-size:13px;line-height:1.4;justify-content:center}
         @media(max-width:760px){
           .wf-guide-quick>div,.wf-guide-related>div{grid-template-columns:1fr}
-          .wf-gd-card{grid-template-columns:72px minmax(0,1fr);gap:11px;padding:10px}
-          .wf-gd-img{width:72px;height:72px}
-          .wf-gd-h{font-size:19px}
           .wf-guide-actions a{margin:7px 0 0!important;padding:8px 13px!important;font-size:12.5px!important}
           /* v8.14: at phone width the pick grid's number gutter (35px column
              + 11px gap) squeezes the iconic card until the Share button clips.

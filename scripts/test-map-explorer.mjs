@@ -78,7 +78,12 @@ const mapExplorerSrc = readFileSync(new URL("../lib/mapExplorer.js", import.meta
 ok(/setCat\("attractions"\)/.test(screen) && /shouldApplyMapDefault\(/.test(screen) && /cat === MAP_DEFAULT_CATEGORY/.test(mapExplorerSrc), "the map opens defaulted to Activities (attractions) the first time it is visited in a session, unless the reader already chose a category");
 ok(/key=\{mapRetryKey\}/.test(screen) && /onRetry=\{/.test(screen), "the map view remounts on retry via a key change");
 ok(!/Numbered by rank/.test(screen), "the bulky map legend is gone; numbered pins and the result drawer carry that meaning");
-ok(/bottom: 76/.test(screen) && /Browse list/.test(screen), "the result drawer floats above bottom navigation and remains discoverable");
+// Owner 2026-11-23: deleted the collapsed "Browse list" floating bar in favor
+// of the right-edge circular List icon button (data-wf-map-list-toggle); the
+// open drawer still floats at bottom: 76 with "Hide list".
+ok(!screen.includes("Browse list"), "Owner 2026-11-23: the collapsed Browse list floating bar is gone");
+ok(/bottom: 76/.test(screen) && /Hide list/.test(screen) && /data-wf-map-list-toggle/.test(screen),
+  "the open result drawer floats at bottom: 76 with Hide list and the right-edge data-wf-map-list-toggle button");
 // FLOATING CONTROLS CLEAR THE HEADER — asserted as the INVARIANT, not as three
 // pixel coordinates (owner-approved rewrite, 2026-08-06).
 //

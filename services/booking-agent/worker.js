@@ -2,7 +2,7 @@
 // Exports runWorker (single claim) and startWorkerLoop (continuous polling daemon).
 
 import { runNext } from "../../lib/bookingAgent/run.js";
-import { launchHonestChromium } from "./browser.js";
+import { launchHonestChromium, launchBrowserbaseSession } from "./browser.js";
 import { createBookingAgentStore } from "../../lib/bookingAgent/repository.js";
 import { reserveConfiguration, createReserveRepository } from "../../lib/reserveRepository.js";
 
@@ -13,11 +13,16 @@ export async function runWorker(deps = {}) {
   const fetchImpl = deps.fetchImpl;
   const repository = deps.repository || (config ? createReserveRepository(config, fetchImpl) : null);
   const store = deps.store || createBookingAgentStore(config, fetchImpl);
+  const defaultLaunch = (opts) => {
+    const mode = opts.mode || env.BOOKING_AGENT_BROWSER_MODE;
+    if (mode === "browserbase") return launchBrowserbaseSession({ ...opts, env, fetchImpl });
+    return launchHonestChromium({ ...opts, mode });
+  };
   return runNext({
     env,
     store,
     now: deps.now,
-    launch: deps.launch || ((opts) => launchHonestChromium({ ...opts, mode: opts.mode || env.BOOKING_AGENT_BROWSER_MODE })),
+    launch: deps.launch || defaultLaunch,
     loadProfile: deps.loadProfile || (repository ? (userId) => repository.readBookingProfile(userId) : async () => null),
     placeName: deps.placeName || (repository ? async (id) => (await repository.getInventoryPlace(id))?.name || null : async () => null),
     log: deps.log || (() => {}),
@@ -25,6 +30,8 @@ export async function runWorker(deps = {}) {
     runTimeoutMs: deps.runTimeoutMs,
     smsTimeoutMs: deps.smsTimeoutMs,
     smsPollMs: deps.smsPollMs,
+    liveViewTimeoutMs: deps.liveViewTimeoutMs,
+    liveViewPollMs: deps.liveViewPollMs,
     fetchImpl,
     selectors: deps.selectors,
   });

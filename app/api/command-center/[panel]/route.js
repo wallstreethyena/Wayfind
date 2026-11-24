@@ -35,6 +35,11 @@ import { dailyTrendIntelligence } from "../../../../lib/dailyTrendReport.js";
 import dailyTrendReport from "../../../../data/trend-reports/latest.json";
 import { gatherOwnerBriefing } from "../../../../lib/commandCenter/briefing.js";
 import { partnersPanelData, mutatePartnerCrmRecord } from "../../../../lib/commandCenter/sources/partners.js";
+import { readFloridaIntelligence } from "../../../../lib/floridaIntelligenceServer.js";
+import { geminiKey } from "../../../../lib/geminiKey.js";
+import { geminiMonthlyCap } from "../../../../lib/paidGemini.js";
+import { gateMode } from "../../../../lib/spendGate.js";
+import { breakerOpen } from "../../../../lib/providerHealth.js";
 
 function parseRange(searchParams, now) {
   const key = String(searchParams.get("range") || "today");
@@ -282,7 +287,25 @@ async function alertsPanel(now) {
   return gatherAlerts(now);
 }
 
-function intelligence(now) {
+async function intelligence(now) {
+  const [live, openBreaker] = await Promise.all([
+    readFloridaIntelligence({ now }).catch(() => null),
+    breakerOpen("gemini").catch(() => null),
+  ]);
+  const hasKey = !!geminiKey();
+  const cap = geminiMonthlyCap();
+  const gate = gateMode();
+  const connected = hasKey && !!cap && gate !== "shut" && !openBreaker;
+  let nextStep = null;
+  if (!hasKey) {
+    nextStep = "Create a Gemini API key in Google AI Studio (aistudio.google.com) using the Google account tied to your AI Pro subscription, claim your monthly API credits, and add GEMINI_API_KEY + GEMINI_MONTHLY_REQUEST_CAP (e.g. 500) in Vercel Environment Variables.";
+  } else if (!cap) {
+    nextStep = "Set GEMINI_MONTHLY_REQUEST_CAP (for example 500) in Vercel Environment Variables so the fail-closed ledger grants scheduled runs.";
+  } else if (gate === "shut") {
+    nextStep = "WAYFIND_GATE is shut. Set WAYFIND_GATE=free or open in Vercel to allow metered Gemini cron runs.";
+  } else if (openBreaker) {
+    nextStep = `Gemini circuit breaker is open (${openBreaker.kind || "quota"}): ${openBreaker.reason || "cooldown active"}. Reset via /api/cron/breaker-reset?provider=gemini once billing/quota is restored.`;
+  }
   return {
     source: {
       name: "Owner supplied daily trend report",
@@ -291,6 +314,16 @@ function intelligence(now) {
       confidence: "mixed",
     },
     ...dailyTrendIntelligence({ nowMs: now.getTime(), input: dailyTrendReport }),
+    geminiMonitor: {
+      source: {
+        name: "Gemini Florida & Holiday Monitor",
+        connected,
+        fetchedAt: (live && live.generatedAt) || now.toISOString(),
+        confidence: connected && live && live.monitor && live.monitor.aiActive ? "measured" : "mixed",
+        ...(connected ? {} : { reason: openBreaker ? "circuit_open" : "not_configured", nextStep }),
+      },
+      data: live,
+    },
   };
 }
 
@@ -331,7 +364,7 @@ export async function GET(req, ctx) {
       case "health": data = await health(range); break;
       case "ops": data = await ops(); break;
       case "alerts": data = await alertsPanel(now); break;
-      case "intelligence": data = intelligence(now); break;
+      case "intelligence": data = await intelligence(now); break;
       case "briefing": data = await briefing(now); break;
       case "feedback": data = await feedbackPanel(); break;
       case "meta": data = { eventMap: EVENT_MAP, definitions: KPI_DEFS, authMode: gate.mode }; break;

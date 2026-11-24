@@ -1,34 +1,19 @@
-// Real Chrome launcher for the booking agent. No extra flags that hide automation.
+// Browser launcher for the booking agent. No extra flags that hide automation.
+// Supports local Chromium/Chrome (launchHonestChromium) and Browserbase cloud sessions
+// with embedded Live View (launchBrowserbaseSession via playwright-core connectOverCDP).
 // playwright-core is the only runtime dependency of this folder. It is not installed
 // into the Next.js app and this file is not imported by any route.
 
 import { AGENT_UA } from "../../lib/bookingAgent/constants.js";
+import {
+  browserbaseConfig,
+  createBrowserbaseSession,
+  getBrowserbaseLiveView,
+  releaseBrowserbaseSession,
+} from "../../lib/bookingAgent/browserbase.js";
 
-export async function launchHonestChromium(opts = {}) {
-  const { chromium } = await import("playwright-core");
-  const chromeMode = opts.mode === "chrome";
-  const headless = opts.headless ?? !chromeMode;
-  const launchOpts = {
-    headless,
-    args: ["--no-sandbox"],
-  };
-  if (opts.executablePath) {
-    launchOpts.executablePath = opts.executablePath;
-  } else {
-    launchOpts.channel = opts.channel || "chrome";
-  }
-  const browser = await chromium.launch(launchOpts);
-  // Headed or headless, the agent always announces itself with the honest Wayfind UA.
-  // Chrome mode only changes the window mode; it never disguises the agent as a person.
-  const context = await browser.newContext({ userAgent: opts.userAgent || AGENT_UA });
-  const page = await context.newPage();
-  const actualUserAgent = await page.evaluate(() => navigator.userAgent);
-  let httpStatus = 0;
-  page.on("response", (res) => {
-    if (res.request().resourceType() === "document") httpStatus = res.status();
-  });
+function wrapPage(page, getStatus) {
   return {
-    userAgent: actualUserAgent,
     async open(url, { timeoutMs = 15000 } = {}) {
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: timeoutMs });
       // Allow OpenTable's client hydration (availability slots or details form) to render.
@@ -43,7 +28,7 @@ export async function launchHonestChromium(opts = {}) {
       } catch { /* banner absent */ }
       return {
         async snapshot() {
-          return { html: await page.content(), httpStatus, url: page.url(), title: await page.title() };
+          return { html: await page.content(), httpStatus: getStatus(), url: page.url(), title: await page.title() };
         },
         async clickSlot(selector, targetLabel) {
           const base = page.locator(selector);
@@ -83,9 +68,65 @@ export async function launchHonestChromium(opts = {}) {
         url() { return page.url(); },
       };
     },
+  };
+}
+
+export async function launchHonestChromium(opts = {}) {
+  const { chromium } = await import("playwright-core");
+  const chromeMode = opts.mode === "chrome";
+  const headless = opts.headless ?? !chromeMode;
+  const launchOpts = {
+    headless,
+    args: ["--no-sandbox"],
+  };
+  if (opts.executablePath) {
+    launchOpts.executablePath = opts.executablePath;
+  } else {
+    launchOpts.channel = opts.channel || "chrome";
+  }
+  const browser = await chromium.launch(launchOpts);
+  // Headed or headless, the local agent always announces itself with the honest Wayfind UA.
+  const context = await browser.newContext({ userAgent: opts.userAgent || AGENT_UA });
+  const page = await context.newPage();
+  const actualUserAgent = await page.evaluate(() => navigator.userAgent);
+  let httpStatus = 0;
+  page.on("response", (res) => {
+    if (res.request().resourceType() === "document") httpStatus = res.status();
+  });
+  const handle = wrapPage(page, () => httpStatus);
+  return {
+    userAgent: actualUserAgent,
+    open: handle.open,
     async close() {
       await context.close();
       await browser.close();
+    },
+  };
+}
+
+export async function launchBrowserbaseSession(opts = {}) {
+  const { chromium } = await import("playwright-core");
+  const cfg = browserbaseConfig(opts.env || process.env);
+  const fetchImpl = opts.fetchImpl || fetch;
+  const created = await createBrowserbaseSession({ ...cfg, fetchImpl });
+  const debug = await getBrowserbaseLiveView({ apiKey: cfg.apiKey, sessionId: created.id, fetchImpl });
+  const browser = await chromium.connectOverCDP(created.connectUrl);
+  const context = browser.contexts()[0] || await browser.newContext();
+  const page = context.pages()[0] || await context.newPage();
+  const actualUserAgent = await page.evaluate(() => navigator.userAgent);
+  let httpStatus = 0;
+  page.on("response", (res) => {
+    if (res.request().resourceType() === "document") httpStatus = res.status();
+  });
+  const handle = wrapPage(page, () => httpStatus);
+  return {
+    userAgent: actualUserAgent,
+    liveViewUrl: debug.liveViewUrl,
+    providerSessionId: created.id,
+    open: handle.open,
+    async close() {
+      try { await browser.close(); } catch { /* already closed */ }
+      await releaseBrowserbaseSession({ ...cfg, sessionId: created.id, fetchImpl });
     },
   };
 }

@@ -25,6 +25,7 @@ import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import ts from "typescript";
 
 let pass = 0;
 const fail = (m) => { console.error("check-universal-links: FAIL — " + m); process.exit(1); };
@@ -153,7 +154,58 @@ ok(/SceneDelegateProxy\.shared\.scene\(\s*scene,\s*continue:/.test(scene),
    "…and forwards it to Capacitor's SceneDelegateProxy, which is what turns it into an appUrlOpen event");
 const nativeJs = read("lib/native.js");
 ok(/addListener\(\s*"appUrlOpen"/.test(nativeJs), "lib/native.js listens for appUrlOpen");
-ok(/onDeepLink\(\s*\(?url\.pathname/.test(nativeJs),
-   "…and routes the incoming pathname to onDeepLink, so the app NAVIGATES to the shared page rather than merely opening");
+// Invoke the real shell setup and its registered callback. A pathname-only
+// source check missed both custom-scheme route loss and dropped section links.
+const nativeModule = { exports: {} };
+const linkCallbacks = [];
+const routed = [];
+const mocks = {
+  "@capacitor/core": { Capacitor: { isNativePlatform: () => true }, registerPlugin: () => ({}) },
+  "@capacitor/app": { App: { addListener: async (event, callback) => {
+    ok(event === "appUrlOpen", "shell subscribes to the native URL event");
+    linkCallbacks.push(callback);
+    return { remove() {} };
+  } } },
+  "@capacitor/splash-screen": { SplashScreen: { hide: async () => {} } },
+  "@capacitor/status-bar": { StatusBar: { setStyle: async () => {} }, Style: { Dark: "DARK" } },
+  "./shareContext.js": await import("../lib/shareContext.js"),
+};
+const nativeCode = ts.transpileModule(nativeJs, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+new Function("require", "module", "exports", nativeCode)((id) => {
+  if (!(id in mocks)) throw new Error("Unexpected native dependency: " + id);
+  return mocks[id];
+}, nativeModule, nativeModule.exports);
+await nativeModule.exports.initNativeShell({ onDeepLink: (path) => routed.push(path) });
+ok(linkCallbacks.length === 1, "the real init registers exactly one deep-link callback");
+const incoming = (url) => {
+  const before = routed.length;
+  linkCallbacks[0]({ url });
+  ok(routed.length <= before + 1, "one link causes at most one navigation");
+  return routed.length > before ? routed.at(-1) : null;
+};
+const placePath = "/p/ChIJdd8VlMN-54gRoaU0d_zYhfk";
+ok(incoming("https://www.gowayfind.com" + placePath) === placePath, "a canonical place link reaches the exact place");
+ok(incoming("wayfind:/" + placePath) === placePath, "a custom-scheme link retains the route in its authority");
+ok(incoming("wayfind://" + placePath) === placePath, "a custom-scheme link with an empty authority retains its path");
+const eventPath = "/florida-events/halloween-horror-nights-orlando-2026?utm_source=instagram#event-tickets";
+ok(incoming("https://www.gowayfind.com" + eventPath) === eventPath, "an event link preserves both attribution and the ticket section");
+ok(incoming("https://gowayfind.com" + eventPath) === eventPath, "the apex host has the same destination semantics");
+ok(incoming("wayfind:/" + eventPath) === eventPath, "custom event links preserve attribution and the ticket section too");
+ok(incoming("https://www.gowayfind.com/") === "/", "the canonical home link remains usable");
+ok(incoming("wayfind://guides/caf%C3%A9?from=share#details") === "/guides/caf%C3%A9?from=share#details", "legitimate encoded page segments keep their encoding and destination");
+for (const raw of [
+  "wayfind://auth/callback?code=fixture", "not a URL", "javascript:alert(1)",
+  "https://example.org/p/fixture", "https://www.gowayfind.com.evil.test/p/fixture",
+  "https://www.gowayfind.com@evil.test/p/fixture", "https://user@www.gowayfind.com/p/fixture",
+  "https://www.gowayfind.com:444/p/fixture", "http://www.gowayfind.com/p/fixture",
+  "https://www.gowayfind.com/api/commerce/go?provider=fixture", "wayfind://api/commerce/go",
+  "https://www.gowayfind.com/.well-known/apple-app-site-association",
+  "https://www.gowayfind.com//example.org/p/fixture",
+  "wayfind:/\\example.org/p/fixture", "wayfind://./api/commerce/go",
+  "wayfind://%2e%2e/api/commerce/go", "wayfind://./.well-known/apple-app-site-association",
+  "wayfind://%61pi/commerce/go", "wayfind://api%2fcommerce/go",
+  "https://www.gowayfind.com/%61pi/commerce/go", "wayfind://%2ewell-known/apple-app-site-association",
+  "wayfind://%5cexample.org/p/fixture", "wayfind://%2fexample.org/p/fixture", "wayfind://p/%ZZ",
+]) ok(incoming(raw) === null, `non-page or untrusted input does not route: ${raw}`);
 
 console.log(`check-universal-links: OK — ${pass} assertions (GET() CALLED: 200, application/json, appID ${expected} cross-checked against the pbxproj; ${excludes.length} exclusion(s) proven to precede the catch-all; served by rewrite not redirect on the exact path, unguarded by middleware; entitlement claims exactly ${claimed.join(", ")} incl. the canonical host; receiving chain asserted through SceneDelegate -> Capacitor -> appUrlOpen -> onDeepLink)`);

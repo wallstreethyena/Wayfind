@@ -1,0 +1,93 @@
+{
+ "read_at": "2026-11-23 America/New_York",
+ "cards": {
+  "ChIJD0N73GTFwogRuJTf5jAk5B8": {
+   "photos": null,
+   "photo_gallery": null
+  },
+  "wfadd_centro_ybor_tampa": {
+   "photos": null,
+   "photo_gallery": null
+  },
+  "ChIJWSFAm9XE54gRynJk-W1qRFA": {
+   "photos": null,
+   "photo_gallery": null
+  },
+  "ChIJq6E9W8_HwogRUggO5759Ook": {
+   "photos": [
+    "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_3f73f6d31eb331a9.jpg",
+    "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_abaaac4f8430323e.jpg",
+    "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_91848e3434be8dca.jpg",
+    "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_76629f134a0dabab.jpg",
+    "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_4232e3393c66ecbe.jpg"
+   ],
+   "photo_gallery": [
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_3f73f6d31eb331a9.jpg",
+     "phash": "bd9a985c4e85cd34",
+     "width": 1280,
+     "height": 853,
+     "source": "wikimedia",
+     "license": "CC BY-SA 4.0",
+     "source_ref": "File:FL Tampa MOSI04.jpg",
+     "original_url": "https://upload.wikimedia.org/wikipedia/commons/6/67/FL_Tampa_MOSI04.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+     "storage_path": null,
+     "attribution_url": "https://commons.wikimedia.org/wiki/File:FL_Tampa_MOSI04.jpg",
+     "attribution_text": "Ebyabe via Wikimedia Commons, CC BY SA 4.0"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_abaaac4f8430323e.jpg",
+     "phash": "cb03847ced8378ba",
+     "width": 1280,
+     "height": 853,
+     "source": "wikimedia",
+     "license": "CC BY-SA 4.0",
+     "source_ref": "File:FL Tampa MOSI02.jpg",
+     "original_url": "https://upload.wikimedia.org/wikipedia/commons/1/10/FL_Tampa_MOSI02.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+     "storage_path": null,
+     "attribution_url": "https://commons.wikimedia.org/wiki/File:FL_Tampa_MOSI02.jpg",
+     "attribution_text": "Ebyabe via Wikimedia Commons, CC BY SA 4.0"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_91848e3434be8dca.jpg",
+     "phash": "fc7a821f25804e7b",
+     "width": 1280,
+     "height": 853,
+     "source": "wikimedia",
+     "license": "CC BY-SA 4.0",
+     "source_ref": "File:FL Tampa MOSI01.jpg",
+     "original_url": "https://upload.wikimedia.org/wikipedia/commons/3/30/FL_Tampa_MOSI01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+     "storage_path": null,
+     "attribution_url": "https://commons.wikimedia.org/wiki/File:FL_Tampa_MOSI01.jpg",
+     "attribution_text": "Ebyabe via Wikimedia Commons, CC BY SA 4.0"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_76629f134a0dabab.jpg",
+     "phash": "c160ca19d47b3f1d",
+     "width": 1280,
+     "height": 853,
+     "source": "wikimedia",
+     "license": "CC0",
+     "source_ref": "File:Mission Moonbase at MOSI.jpg",
+     "original_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Mission_Moonbase_at_MOSI.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+     "storage_path": null,
+     "attribution_url": "https://commons.wikimedia.org/wiki/File:Mission_Moonbase_at_MOSI.jpg",
+     "attribution_text": "Novioboy via Wikimedia Commons, CC0"
+    },
+    {
+     "url": "https://www.gowayfind.com/place-photos/batch-2026-11-09s/ChIJq6E9W8_HwogRUggO5759Ook/pl_4232e3393c66ecbe.jpg",
+     "phash": "94d06b1b34d8cad7",
+     "width": 1280,
+     "height": 853,
+     "source": "wikimedia",
+     "license": "CC BY-SA 4.0",
+     "source_ref": "File:FL Tampa MOSI05.jpg",
+     "original_url": "https://upload.wikimedia.org/wikipedia/commons/b/b3/FL_Tampa_MOSI05.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+     "storage_path": null,
+     "attribution_url": "https://commons.wikimedia.org/wiki/File:FL_Tampa_MOSI05.jpg",
+     "attribution_text": "Ebyabe via Wikimedia Commons, CC BY SA 4.0"
+    }
+   ]
+  }
+ }
+}

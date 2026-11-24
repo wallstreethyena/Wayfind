@@ -243,10 +243,12 @@ const bookBody = (o) => ({ placeId: KITCHEN, partySize: 4, date: "2026-11-12", t
 
 // ---- F. cards, parser, wiring ------------------------------------------------------------------------------
 {
-  const anon = await say(harness({ extra: noAi }), "Book Wayfind Test Kitchen tomorrow around 7 for four", { anon: true });
-  ok(anon.body.card?.type === "signin" && /sign in/i.test(anon.body.say) && anon.body.profile.hasName === false, "F: signed out on a Wayfind lane gets a signin card");
+  const anon = await say(harness({ extra: noAi }), "Book Wayfind Test Kitchen tomorrow around 7 for four", { anon: true, context: { hasGuestName: true } });
+  ok(anon.body.card?.type === "signin" && /sign in/i.test(anon.body.say) && anon.body.profile.hasName === false, "F: a one-time name hint does not bypass sign in");
   const noName = await say(harness({ extra: noAi, profile: null }), "Book Wayfind Test Kitchen tomorrow around 7 for four");
   ok(noName.body.card?.type === "profile" && JSON.stringify(noName.body.card.needs) === '["name"]' && noName.body.profile.hasName === false, "F: signed in without a name gets a profile card");
+  const oneTimeName = await say(harness({ extra: noAi, profile: null }), "Book Wayfind Test Kitchen tomorrow around 7 for four", { context: { hasGuestName: true } });
+  ok(oneTimeName.body.card?.type === "times" && oneTimeName.body.profile.hasName === false, "F: a one-time name can reach verified times without a saved profile");
   const choose = await say(harness({ extra: noAi }), "Book Taco tomorrow around 7 for four");
   ok(choose.body.card?.type === "choose" && choose.body.card.restaurants.length === 2 && choose.body.card.restaurants.every((x) => x.placeId && x.name) && choose.body.state.placeId === null, "F: an ambiguous name gets a choose card");
   const chosen = await say(harness({ extra: noAi }), "around 7", { state: { placeId: KITCHEN, date: "2026-11-12", time: null, partySize: 4 } });

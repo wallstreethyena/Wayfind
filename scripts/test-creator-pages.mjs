@@ -91,7 +91,7 @@ const roundupHtml = renderToStaticMarkup(await CreatorPage({ handle: "yanetfins"
 ok(roundupProfile.placeCount === 5 && roundupProfile.count === 1 && roundupProfile.spots.length === 5, "one native carousel across five parent venues is five places and one post, with every association retained");
 ok(creators.find((creator) => creator.handle === "yanetfins").postCount === 1, "the shared creator-library post count also counts distinct native URLs");
 ok(/>1<\/span> post</.test(roundupHtml) && />5<\/span> places featured</.test(roundupHtml), "the actual roundup page visibly discloses five places and one post");
-ok(roundupHtml.includes("original Instagram post") && !roundupHtml.includes("original Instagram video"), "a static carousel's rendered lede identifies the original as a post");
+ok(roundupHtml.includes("open available posts in Wayfind") && !roundupHtml.includes("original Instagram video"), "a roundup profile describes available posts without a universal video promise");
 ok(roundupProfile.spots.every((spot) => roundupHtml.includes(spot.placeId)), "all five exact parent-venue links survive the post-count deduplication");
 ok(htmlNoMap.length > 2000, `negative control: with no map rows the page still renders in full (${htmlNoMap.length} bytes)`);
 ok(!htmlNoMap.includes("wfcm-grid"), "…and renders NO map frame rather than an empty panel");
@@ -115,6 +115,22 @@ ok(html.includes("/creators\"") || html.includes("href=\"/creators\""), "links b
 // Audit every published creator page, not only Cindy's positive control.
 // Real rendered cover buttons must carry the SVG matching their media kind.
 let auditedCovers = 0;
+let auditedUnavailable = 0;
+function creatorCards(markup) {
+  return [...markup.matchAll(/<article class="wfcr-card">[\s\S]*?<\/article>/g)].map(([card]) => card);
+}
+const photoProfile = renderToStaticMarkup(await CreatorPage({ handle: "fashion.eat.travel", mapPlaces: [] }));
+const mayfair = creatorCards(photoProfile).find((card) => card.includes(">Mayfair Grill<"));
+ok(mayfair?.includes('data-creator-embed-action="view-post"') &&
+  /<button[^>]*data-creator-video-action="in-app"[^>]*>View post<\/button>/.test(mayfair) &&
+  !/Watch in Wayfind|data-creator-play-icon/.test(mayfair), "Mayfair Grill's photo carousel has a View post cover and Details action");
+const cindyCards = creatorCards(html);
+for (const name of ["Orange Blossom Coffee", "Cedar Fox Coffee", "Riviera French Café"]) {
+  const card = cindyCards.find((item) => item.includes(">" + name + "<"));
+  ok(card?.includes("Instagram post unavailable in Wayfind") && !card.includes("data-creator-video-action"),
+    name + ": unavailable source shows credit and no playback action");
+}
+
 function auditVideoCovers(markup, route) {
   const covers = [...markup.matchAll(/<button\b[^>]*data-creator-embed-action="(play|view-post)"[^>]*>[\s\S]*?<\/button>/g)];
   for (const [button, action] of covers) {
@@ -132,7 +148,18 @@ for (const handle of slugs) {
   // shows its videos as the Cindy Selects card, in the swipe rail.
   const tiles = [...markup.matchAll(/<button[^>]*data-creator-embed-action="[^"]*"[^>]*>/g)].map(m => m[0]);
   ok(tiles.length === expected && tiles.every(t => /aspect-ratio:\s*3\s*\/\s*4/.test(t)), `${handle}: all ${expected} video tiles use the card face (3:4 cover), not the plain 9:16 tile`);
-  ok((markup.match(/class="wfcr-card"/g) || []).length === creatorProfile(handle).spots.length, `${handle}: every spot is a card`);
+  const cards = creatorCards(markup);
+  const spots = [...creatorProfile(handle).cities.flatMap(g => g.spots), ...creatorProfile(handle).noCity];
+  ok(cards.length === spots.length, `${handle}: every spot is a card`);
+  for (const [index, spot] of spots.entries()) {
+    const card = cards[index];
+    const embeddable = isEmbeddable(spot.video.platform, spot.video.url);
+    if (!embeddable) auditedUnavailable++;
+    ok(card?.includes("Explore place") &&
+      card.includes('data-creator-video-action="in-app"') === embeddable &&
+      card.includes("data-creator-post-unavailable") === !embeddable &&
+      !card.includes("href=\"" + spot.video.url), `${handle}: correct media state and place link for ${spot.name}`);
+  }
   ok(/aria-label="[^"]* posts"[^>]*role="region"|role="region"[^>]*aria-label="[^"]* posts"/.test(markup) || /Swipe to find your next stop/.test(markup), `${handle}: cards sit in the swipe rail`);
   if (handle === "cindy.selects") ok(markup.includes("THE CINDY SELECTS EDIT"), "Cindy keeps her own label");
   else {
@@ -151,6 +178,7 @@ for (const slug of trendingMod.trendingCitySlugs()) {
   ok(tTiles.length === expected && tTiles.every(t => /aspect-ratio:\s*3\s*\/\s*4/.test(t)), `${slug}: trending video tiles use the card face`);
   ok((expected === 0 || /THE @[^<]+ EDIT|CREATOR POST/.test(markup)) && !markup.includes("cindy-selects-portrait"), `${slug}: trending cards carry a creator label, never Cindy's photo`);
 }
+ok(auditedUnavailable > 100, "non-vacuous test covers more than 100 unavailable profile posts");
 ok(auditedCovers > 50, `non-vacuous sitewide creator/trending audit (${auditedCovers} covers)`);
 
 // ── v8.94: the creator's own map, and the share control ─────────────────────
@@ -188,7 +216,16 @@ ok(/on the map, across Bradenton and Orlando/.test(html),
 // A regex over lib/creatorPlaces.js would pass on a version that fell back to a
 // default lat/lng, because the fallback would be new code the regex never saw.
 {
-  const { placeIdsFor, invRowToMapRow } = await import("../lib/creatorPlaces.js");
+  const { creatorMapRowsFromInventory, placeIdsFor, invRowToMapRow } = await import("../lib/creatorPlaces.js");
+  for (const place of ["Bellabean", "ATRIA Cafe", "Fruitville Grove"]) {
+    const spots = featured.spots.filter(spot => spot.name === place);
+    const first = spots[0];
+    const selected = creatorMapRowsFromInventory(spots, [{ place_id: first?.placeId, lat: 27.5, lng: -82.5 }]);
+    ok(spots.length === 2 && spots.every(spot => spot.placeId === first?.placeId) &&
+      !isEmbeddable(first.video.platform, first.video.url) && selected.length === 1 &&
+      selected[0].videoUrl === spots[1].video.url && selected[0].name === first.name,
+      place + ": one exact map pin keeps its first label and offers the later available post");
+  }
   ok(placeIdsFor([{ placeId: "ChIJIQGDwpgXw4gRxIJcGmjtyK4" }, { placeId: "ChIJIQGDwpgXw4gRxIJcGmjtyK4" }]).length === 1,
     "a placeId curated twice is queried once");
   ok(placeIdsFor([{ placeId: "not,a,place,id" }, { placeId: "'; drop --" }, {}, null]).length === 0,
@@ -307,6 +344,37 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
   // and the map renders a single pin instead of the whole category (shipped
   // 2026-09-22 on /guides/florida-fall-festivals-2026, nine pins became one).
   ok(drawn.every(pin => pin.calloutEnabled === false), "no pin asks Apple Maps to position a callout it cannot measure");
+  const addedSingle = [];
+  const removedSingle = [];
+  const userMapkit = {
+    ...mapkit,
+    Map: class {
+      addAnnotations(a) { drawn = [...a]; }
+      addAnnotation(a) { addedSingle.push(a); }
+      removeAnnotation(a) { removedSingle.push(a); }
+      showItems(a) { fitted = [...a]; }
+      addEventListener(t, fn) { listeners[t] = fn; }
+      removeEventListener(t, fn) { delete listeners[t]; }
+      destroy() { destroyed = true; }
+    },
+  };
+  let userSel = "unchanged";
+  const uCtrl = createCreatorAppleMap({
+    mapkit: userMapkit, container: {},
+    places: [
+      { id: "cafe", name: "Coffee", lat: 27, lng: -82, primary_type: "coffee_shop" },
+      { id: "park", name: "Park", lat: 28, lng: -81, primary_type: "park" },
+    ],
+    onSelect: id => { userSel = id; },
+  });
+  ok(addedSingle.length === 0 && fitted.length === 2, "creator map draws zero user dot without a real deviceLoc (no synthetic centroid)");
+  uCtrl.setUserLocation({ lat: 27.5, lng: -82.4 });
+  ok(addedSingle.length === 1 && addedSingle[0].__wayfindOrigin === true && addedSingle[0].calloutEnabled === false && addedSingle[0].enabled === false && decodeURIComponent(addedSingle[0].image[1]).includes("#F97316"), "setUserLocation adds one non-interactive Wayfind Orange dot without altering showItems(pins)");
+  ok(fitted.length === 2, "setUserLocation never alters creator map framing");
+  listeners.select?.({ annotation: addedSingle[0] });
+  ok(userSel === "unchanged", "selecting the orange user dot never fires onSelect");
+  uCtrl.destroy();
+  ok(removedSingle.length === 1 && removedSingle[0] === addedSingle[0], "destroy cleans up the creator map user location annotation");
   controller.destroy(); ok(destroyed, "map is destroyed when filters change or page unmounts");
   const { RAILS } = await import("../lib/rails.js");
   ok(RAILS.find(r => r.id === "lunchcity").posterHidden === true, "Lunch poster is hidden");

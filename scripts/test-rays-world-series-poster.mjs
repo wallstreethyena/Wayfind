@@ -97,7 +97,7 @@ try {
   const sports = { id: 'live-sports', title: 'Florida Hockey', livePosterType: 'sports', livePosterSrc: '/hockey.jpg', href: '/events' };
   let seasonalRenders = 0;
   for (const year of [2026, 2027, 2028]) {
-    for (const md of ['11-01', '11-15', '12-31', '01-01', '01-02', '10-31']) {
+    for (const md of ['11-01', '11-10', '11-11', '11-15', '12-31', '01-01', '01-02', '10-31']) {
       const day = `${year}-${md}`;
       globalThis.Date = class extends NativeDate {
         constructor(...args) { super(...(args.length ? args : [`${day}T16:00:00Z`])); }
@@ -114,8 +114,8 @@ try {
           assert.equal(new Set(ids).size, ids.length, `${day} ${initialDaypart}: every tile appears once`);
           assert.equal(ids.includes(sponsor.id), !!promotions.sponsor, 'sponsor remains visible when supplied');
           assert.equal(ids.includes(sports.id), !!promotions.livePosters, 'live event remains visible when supplied');
-          if (md === '11-01' || md === '11-15') {
-            assert.equal(ids.includes('augtober'), true, 'Fall remains visible before Thanksgiving');
+          if (md.startsWith('11-')) {
+            assert.equal(ids.includes('augtober'), md <= '11-10', `${day}: Fall retires starting November 11`);
             assert.equal(ids.includes('halloween'), false, 'Halloween stays hidden in November');
           }
           if (md === '01-02') assert.equal(ids.includes('christmas'), false, 'Christmas stays hidden after Jan 1');
@@ -158,6 +158,6 @@ try {
       assert.deepEqual(ids.slice(0, 4), ['christmas', RAYS_POSTER.id, sponsor.id, sports.id], 'Christmas leads even if a Rays campaign overlaps November; Rays, sponsor and live insertion retain relative order');
     } else assert.notEqual(ids[0], 'christmas', `${mutation}: the real-render first-poster assertion detects this regression`);
   }
-  assert.equal(seasonalRenders, 288, 'all year, date, band and synthetic-promotion combinations rendered');
+  assert.equal(seasonalRenders, 384, 'all year, date, band and synthetic-promotion combinations rendered');
 } finally { globalThis.Date = NativeDate; }
-console.log('Rays campaign: status positive/negative controls, date boundaries, real 4-band render, duplicate suppression, first-load artwork, guide link, 288 seasonal promotion renders, 2 detected mutations and forced Rays overlap passed');
+console.log('Rays campaign: status positive/negative controls, date boundaries, real 4-band render, duplicate suppression, first-load artwork, guide link, 384 seasonal promotion renders, 2 detected mutations and forced Rays overlap passed');

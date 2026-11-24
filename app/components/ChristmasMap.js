@@ -6,6 +6,7 @@
 // selected pin's name and link sit BELOW the map, never over it.
 import { useEffect, useMemo, useState } from "react";
 import AppleExplorerMap from "./AppleExplorerMap.js";
+import { readGrantedDeviceLocation } from "../../lib/mapPinStandard.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
 const CSS = `
@@ -28,10 +29,19 @@ export function pinsUrl(query) {
   return "/api/christmas/browse?" + params.toString();
 }
 
-export default function ChristmasMap({ query }) {
+export default function ChristmasMap({ query, deviceLoc = null }) {
   const [pins, setPins] = useState(null);
   const [failed, setFailed] = useState(false);
   const [picked, setPicked] = useState(null);
+  const [grantedLoc, setGrantedLoc] = useState(null);
+  const hasExplicitDeviceLoc = !!(deviceLoc && Number.isFinite(Number(deviceLoc.lat)) && Number.isFinite(Number(deviceLoc.lng)));
+  useEffect(() => {
+    if (hasExplicitDeviceLoc) return undefined;
+    return readGrantedDeviceLocation(setGrantedLoc);
+  }, [hasExplicitDeviceLoc]);
+  const effectiveDeviceLoc = hasExplicitDeviceLoc
+    ? { lat: Number(deviceLoc.lat), lng: Number(deviceLoc.lng) }
+    : grantedLoc;
   const url = pinsUrl(query);
   useEffect(() => {
     const controller = new AbortController();
@@ -51,7 +61,7 @@ export default function ChristmasMap({ query }) {
       : pins === null ? <p className="xmap-note" role="status">Loading the map…</p>
       : !pins.length ? <p className="xmap-note" role="status">No places with an exact location match this filter. They are all in the list below.</p>
       : <>
-        <div className="xmap-box"><AppleExplorerMap compact events={events} center={center} fit showOrigin={false} selectedId={picked} onSelectEvent={(e) => setPicked(e && e.id ? String(e.id) : null)} /></div>
+        <div className="xmap-box"><AppleExplorerMap compact events={events} center={center} deviceLoc={effectiveDeviceLoc} fit showOrigin={!!effectiveDeviceLoc} selectedId={picked} onSelectEvent={(e) => setPicked(e && e.id ? String(e.id) : null)} /></div>
         <p className="xmap-note" role="status">{pins.length} {pins.length === 1 ? "place" : "places"} on the map. Listings without an exact spot are only in the list.</p>
         {chosen ? <div className="xmap-pick" data-map-pick="">
           <div><strong>{chosen.title}</strong>{chosen.city ? <span>{chosen.city}</span> : null}</div>

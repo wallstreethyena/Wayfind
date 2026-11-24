@@ -72,6 +72,7 @@ import { scoringCreatorVideos } from "../lib/creatorIndependence.js";
 import { governedScoreOf } from "../lib/lawfulOrder.js";
 import { wayfindScore, governedWayfindScore } from "../lib/wayfindScore.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
+import { isCreatorVideoPost } from "../lib/videoEmbed.js";
 
 const REPO = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 
@@ -199,6 +200,7 @@ function expectedVideoField(oldV) {
     creator: oldV.creator || null,
     platform: oldV.platform || null,
     reach: (typeof oldV.reach === "number" && oldV.reach !== 0) ? oldV.reach : null,
+    playable: isCreatorVideoPost(oldV.platform, oldV.url),
   };
 }
 function assertVideosMatch(oldVideos, newVideos, label) {
@@ -211,6 +213,7 @@ function assertVideosMatch(oldVideos, newVideos, label) {
     ok(got.creator === exp.creator, `${label}: video[${i}].creator matches ("${got.creator}" vs "${exp.creator}")`);
     ok(got.platform === exp.platform, `${label}: video[${i}].platform matches ("${got.platform}" vs "${exp.platform}")`);
     ok(got.reach === exp.reach, `${label}: video[${i}].reach matches (${got.reach} vs ${exp.reach})`);
+    ok(got.playable === exp.playable, `${label}: video[${i}].playable matches the in-app player policy`);
   }
 }
 

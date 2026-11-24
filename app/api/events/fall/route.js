@@ -41,6 +41,7 @@ import { readSeasonalPendingInventory } from "../../../../lib/seasonalLiveAreaIn
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, eventImageIsVenue, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
+import { isCreatorVideoPost } from "../../../../lib/videoEmbed.js";
 import { fallStayDestinations } from "../../../../lib/fallStayDestinations.js";
 import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../../lib/curatorPicksServer.js";
 
@@ -150,7 +151,7 @@ export async function GET(request) {
     // Fish, Wonderland at the National Hotel); a warm v46 rail predates them.
     // v48 (2026-11-16, owner) adds the Thanksgiving rail (eleven rails); a warm v47 payload has ten.
     // v49 drops four Thanksgiving picks whose venues have no stored photo; a warm v48 payload still shows them.
-    const key = `fall-intents:v49:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v50:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -261,11 +262,11 @@ export async function GET(request) {
         // when our event page exists and only for canonical Instagram reels.
         // /p/ may be a still or carousel and stays available on the detail page
         // under truthful "post" wording. URLs do not ride in the rail payload:
-        // CreatorCardMark needs only platform + handle, while the page resolves
-        // the server-owned association again when opened.
+        // The credit includes playback eligibility; the page resolves the
+        // server-owned association again when opened.
         const creatorReels = detailHref ? eventSocialPosts(e.event_id)
           .filter((post) => post.platform === "instagram" && /instagram\.com\/reels?\/[\w-]+\/?(?:[?#].*)?$/.test(post.url))
-          .map((post) => ({ platform: post.platform, creator: post.creator })) : [];
+          .map((post) => ({ platform: post.platform, creator: post.creator, playable: isCreatorVideoPost(post.platform, post.url) })) : [];
         return ({
         ...e,
         kind: "event",

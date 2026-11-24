@@ -51,11 +51,18 @@ for (const [slug, guide] of Object.entries(GUIDES)) {
   }
 }
 
-// The November 22 and 23 pulse pages that shipped with Photo unavailable
-// stay hidden until a registered photo exists for every pick.
+// The November 22 and 23 pulse pages shipped with Photo unavailable. They stay
+// hidden only while every pick is still waiting. A registered photo lets the
+// guide ship; any pick that still has none stays off the page.
 for (const slug of ["sarasota-this-week-nov-23-2026", "tampa-bay-this-week-nov-22-2026", "river-of-lights-tampa-2026"]) {
-  ok(guideAwaitingPhotos(slug, GUIDES[slug]), `${slug} stays withheld until its picks have registered photos`);
-  ok(!listed[slug], `${slug} is off current listings on ${today}`);
+  const guide = GUIDES[slug];
+  if (guideAwaitingPhotos(slug, guide)) {
+    ok(isGuideWithheld(slug, guide), `${slug} stays withheld until its picks have registered photos`);
+    ok(!listed[slug], `${slug} is off current listings on ${today}`);
+  } else {
+    ok(guideHeroReady(slug), `${slug}: a guide with a registered pick photo has a hero`);
+    ok(Boolean(listed[slug]) || isGuidePast(guide, today), `${slug}: a guide with a registered pick photo is listed unless it is past`);
+  }
 }
 
 // Red control: a neutral guide pick with no photo is waiting, and a guide
