@@ -13,8 +13,10 @@ import RemindMe from "./RemindMe.js";
 
 // Owner 2026-11-17: "make it look more like the Viator card" and "too long from top to bottom":
 // every card the same shape, the photo on top at full width (16:9, never a cropped portrait
-// sliver), chip, title (tap opens the event page), one line each for dates and city, the price
-// beside the one gold button, a short disclosure line with the event page link, one action row.
+// sliver), chip, title (tap opens the event page), one line each for dates and city.
+// Owner 2026-11-23: the footer is pinned to the bottom and is the same on every
+// card. One full-width button, then the price line, then the partner line, then
+// the action row. The price never sits beside the button.
 // THE one Christmas card on /christmas-in-florida (owner direction 2026-11-01:
 // "I like the one from image 1 better but add the background similar to image
 // 2"). The dark ticket card (originally photo 40% left; photo on top since 2026-11-17: chip, title, when, city, price,
@@ -59,17 +61,14 @@ export const XM_CARD_CSS = `
 .xm-line{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;line-height:1.4;color:var(--xm-warm);text-shadow:0 1px 2px rgba(40,0,6,.65);min-width:0;overflow-wrap:anywhere}
 .xm-line>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .xm-line svg{flex:0 0 auto;width:15px;height:15px;margin-top:1px}
-.xm-bottom{margin-top:auto;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;row-gap:6px;align-items:center;padding-top:4px}
-.xm-bottom>*{grid-column:1/-1}
-.xm-bottom>.xm-pricerow{grid-column:1}
-.xm-bottom>.xm-pricerow+.xm-buy{grid-column:2}
-.xm-pricerow{display:flex;flex-direction:column;align-items:flex-start;gap:0;margin:0;min-width:0}
-.xm-from{font-size:11.5px;line-height:1.15;color:var(--xm-soft)}
-.xm-amt{font-size:21px;line-height:1.1;font-weight:800;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7)}
-.xm-note{margin:0;font-size:12.5px;line-height:1.35;color:var(--xm-soft);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:center;overflow-wrap:anywhere}
+.xm-bottom{margin-top:auto;display:flex;flex-direction:column;align-items:stretch;gap:6px;width:100%;padding-top:8px}
+.xm-price{display:flex;align-items:center;justify-content:center;min-height:1.4em;margin:0;font-size:13px;line-height:1.4;text-align:center;color:var(--xm-soft);overflow-wrap:anywhere}
+.xm-pricerow{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:0 4px;margin:0;min-width:0}
+.xm-from{font-size:13px;line-height:1.4;color:var(--xm-soft)}
+.xm-amt{font-size:15px;line-height:1.2;font-weight:800;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7)}
+.xm-note{margin:0;font-size:13px;line-height:1.4;color:var(--xm-soft);text-shadow:0 1px 2px rgba(40,0,6,.65);text-align:center;overflow-wrap:anywhere}
 .xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:6px 10px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15.5px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 4px 14px rgba(245,196,81,.3)}
-.xm-via{margin:0;font-size:11.5px;line-height:1.6;color:var(--xm-soft);text-align:center}
-.xm-bottom>.xm-pricerow+.xm-buybox{grid-column:2}
+.xm-via{display:flex;align-items:center;justify-content:center;min-height:1.6em;margin:0;font-size:11.5px;line-height:1.6;color:var(--xm-soft);text-align:center}
 .xm-buybox{display:flex;flex-direction:column;width:100%;min-width:0;background:linear-gradient(180deg,#FFE9B8,#F5C451);border:2px solid var(--xm-rose);border-radius:12px;box-shadow:0 4px 14px rgba(245,196,81,.3);overflow:hidden}
 .xm-buybox>.xm-buy{min-height:42px;padding-bottom:2px;background:none;border:0;border-radius:0;box-shadow:none}
 .xm-buyalt{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0 4px;margin:0;padding:0 8px 3px;font-size:11.5px;font-weight:600;line-height:1.2;color:var(--xm-ink)}
@@ -249,7 +248,19 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
     if (!ok) next.ok.delete(src);
     return next;
   });
-  const noteEl = price && price.kind === "note" ? <p className="xm-note" data-price-note="">{price.text}</p> : null;
+  const priceEl = !price ? <p className="xm-price" aria-hidden="true" />
+    : price.kind === "from" ? (
+      <p className="xm-pricerow xm-price" aria-label={"From " + price.text + (price.unit ? " " + price.unit : "")}>
+        <span className="xm-from">from</span>
+        <span className="xm-amt">{price.text}</span>
+        {price.unit ? <span className="xm-from">{price.unit}</span> : null}
+      </p>
+    ) : price.kind === "free" ? (
+      <p className="xm-pricerow xm-price" aria-label={price.text}><span className="xm-amt">{price.text}</span></p>
+    ) : price.kind === "note" ? (
+      <p className="xm-note xm-price" data-price-note="">{price.text}</p>
+    ) : <p className="xm-price" aria-hidden="true" />;
+  const showFooter = !!(cta || fallback || price || saveItem);
   return (
     <article id={idPrefix + row.id} data-ticket-id={row.id} className="xm-card">
       <PhotoStrip row={row} priority={priority} failed={photoState.bad} onPhotoState={onPhotoState} />
@@ -271,73 +282,58 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
             <span>{row.city}</span>
           </p>
         ) : null}
-        <div className="xm-bottom">
-          {!price ? null : price.kind === "from" ? (
-            <p className="xm-pricerow" aria-label={"From " + price.text + (price.unit ? " " + price.unit : "")}>
-              <span className="xm-from">from</span>
-              <span className="xm-amt">{price.text}</span>
-              {price.unit ? <span className="xm-from">{price.unit}</span> : null}
-            </p>
-          ) : price.kind === "free" ? (
-            <p className="xm-pricerow" aria-label={price.text}><span className="xm-amt">{price.text}</span></p>
-          ) : null}
+        {showFooter ? <div className="xm-bottom">
           {cta ? (
-            <>
-              {(() => {
-                const buy = (
-                  <a
-                    className="xm-buy"
-                    href={cta.href}
-                    target="_blank"
-                    rel={affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
-                    data-commerce-owner={affiliate ? undefined : "ChristmasTickets"}
-                    onClick={affiliate ? undefined : () => organizerTap(row)}
-                  >{cta.label}</a>
-                );
-                // Owner rule 2026-11-18 (global): another ticket seller never gets
-                // its own big chip. It rides inside the main buy button as one
-                // small "Also on ..." line.
-                const opts = Array.isArray(row.options) ? row.options : [];
-                if (!opts.length) return buy;
-                return (
-                  <div className="xm-buybox">
-                    {buy}
-                    <p className="xm-buyalt" data-ticket-options="">
-                      <span>Also on</span>
-                      {opts.map((o, i) => (
-                        <span key={o.provider}>
-                          {i ? <span aria-hidden="true">{"· "}</span> : null}
-                          <a href={o.href} target="_blank" rel="sponsored nofollow noopener" data-option-provider={o.provider} aria-label={"Tickets at " + o.label + ", opens in a new tab"}>{o.label}</a>
-                        </span>
-                      ))}
-                    </p>
-                  </div>
-                );
-              })()}
-              {noteEl}
-              <p className="xm-via">{cta.via}{row.eventHref ? <>{" · "}<a className="xm-event" href={row.eventHref}>{chrome.eventPage}</a></> : null}</p>
-              {secondaryTicketPrimaryMatches(cta, secondaryCta) ? (
-                <p className="xm-via" data-secondary-resale="">
-                  <a href={secondaryCta.href} target="_blank" rel="sponsored nofollow noopener">
-                    {secondaryCta.label} at TicketSmarter
-                  </a>
-                  {" · "}{secondaryCta.via}
-                </p>
-              ) : null}
-            </>
+            (() => {
+              const buy = (
+                <a
+                  className="xm-buy"
+                  href={cta.href}
+                  target="_blank"
+                  rel={affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
+                  data-commerce-owner={affiliate ? undefined : "ChristmasTickets"}
+                  onClick={affiliate ? undefined : () => organizerTap(row)}
+                >{cta.label}</a>
+              );
+              // Owner rule 2026-11-18 (global): another ticket seller never gets
+              // its own big chip. It rides inside the main buy button as one
+              // small "Also on ..." line.
+              const opts = Array.isArray(row.options) ? row.options : [];
+              if (!opts.length) return buy;
+              return (
+                <div className="xm-buybox">
+                  {buy}
+                  <p className="xm-buyalt" data-ticket-options="">
+                    <span>Also on</span>
+                    {opts.map((o, i) => (
+                      <span key={o.provider}>
+                        {i ? <span aria-hidden="true">{"· "}</span> : null}
+                        <a href={o.href} target="_blank" rel="sponsored nofollow noopener" data-option-provider={o.provider} aria-label={"Tickets at " + o.label + ", opens in a new tab"}>{o.label}</a>
+                      </span>
+                    ))}
+                  </p>
+                </div>
+              );
+            })()
           ) : fallback ? (
-            <>
             <a
               className="xm-buy"
               href={fallback.href}
               {...(fallback.external ? { target: "_blank", rel: "nofollow noopener" } : {})}
             >{fallback.label}</a>
-            {noteEl}
-            </>
           ) : null}
-          {!cta && !fallback ? noteEl : null}
+          {price || cta || fallback ? priceEl : null}
+          {cta ? <p className="xm-via">{cta.via}{row.eventHref ? <>{" · "}<a className="xm-event" href={row.eventHref}>{chrome.eventPage}</a></> : null}</p> : null}
+          {secondaryTicketPrimaryMatches(cta, secondaryCta) ? (
+            <p className="xm-via" data-secondary-resale="">
+              <a href={secondaryCta.href} target="_blank" rel="sponsored nofollow noopener">
+                {secondaryCta.label} at TicketSmarter
+              </a>
+              {" · "}{secondaryCta.via}
+            </p>
+          ) : null}
           {saveItem ? <CardActions row={row} item={saveItem} /> : null}
-        </div>
+        </div> : null}
       </div>
     </article>
   );
