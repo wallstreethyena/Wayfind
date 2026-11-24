@@ -315,7 +315,22 @@ equal(analytics.clickProperties(placeLink, { origin: "https://gowayfind.com" }).
   const group = { ...win, __WF_EARLY_PAGEVIEW: 0, __WF_ANALYTICS_SUPPRESSED: undefined, location: { pathname: "/group-plans/abc", origin: "https://www.gowayfind.com" }, navigator: { ...win.navigator, sendBeacon: () => { sent.push("group"); return true; } } };
   ok(analytics.dispatchEarlyPageview(group, "phc_abc123") === false && !sent.includes("group"), "a private group plan does not beacon a pageview");
   ok(/earlyPageviewScript\(process\.env\.NEXT_PUBLIC_POSTHOG_KEY\)/.test(readFileSync(new URL("../app/layout.js", import.meta.url), "utf8")), "the root layout renders the early pageview script");
-  ok(/capture_pageview: earlyPageview \? "history_change" : true/.test(provider), "a beaconed landing does not get a second pageview from the SDK");
+  ok(/capture_pageview:\s*false/.test(provider), "the SDK is told not to capture pageviews; history_change is truthy and would repeat the landing");
+  ok(/captureSpaPageview\(window\)/.test(provider) && /if \(!landingPageview\.current\)/.test(provider), "the landing pathname is skipped and each later pathname is one pageview");
+  const spa = [];
+  const spaWin = {
+    location: { pathname: "/guides/things-to-do-sarasota", origin: "https://www.gowayfind.com" },
+    navigator: { userAgent: "Mozilla/5.0", webdriver: false },
+    _phInit: "ready",
+    posthog: { capture: (name, props) => spa.push([name, props]) },
+  };
+  ok(analytics.captureSpaPageview(spaWin) === "captured" && spa.length === 1 && spa[0][0] === "$pageview" && spa[0][1].$pathname === "/guides/things-to-do-sarasota", "a client navigation captures one pageview");
+  ok(analytics.captureSpaPageview(spaWin) === false && spa.length === 1, "the same pathname is not a second pageview");
+  spaWin.location = { pathname: "/christmas-in-florida", origin: "https://www.gowayfind.com" };
+  ok(analytics.captureSpaPageview(spaWin) === "captured" && spa.length === 2, "a different in-site pathname counts once");
+  spaWin.__WF_ANALYTICS_SUPPRESSED = "internal";
+  spaWin.location = { pathname: "/guides/anna-maria-island-day-trip", origin: "https://www.gowayfind.com" };
+  ok(analytics.captureSpaPageview(spaWin) === false && spa.length === 2, "a suppressed browser does not record a navigation pageview");
 }
 
 console.log(`test-browser-analytics: OK — ${passed} assertions (owner/bot gate, URL redaction, safe clicks, incremental attention + visible duration, early pageview)`);
