@@ -14,6 +14,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import {
+  CHRISTMAS_LIGHTS_CSS,
   CHRISTMAS_BG_ENDS_AT,
   CHRISTMAS_BG_ENDS_AT_MS,
   CHRISTMAS_BG_GRADIENT,
@@ -105,5 +106,29 @@ ok(html.includes('class="xm-doodles"') && html.includes('class="xm-sparkles"') &
 ok(html.includes(CHRISTMAS_BG_GRADIENT), "the rendered stylesheet uses the shared gradient");
 ok(html.includes("xm-doodles{background-image:"), "the doodle tile is the same CSS background, not a new image");
 ok(html.includes('data-pattern="twinkle"'), "the lights start on the same twinkle pattern");
+
+// 2026-11-24 (owner: "the light bulbs look off"): each bulb hangs from the
+// bottom of a wire dip. Read the rendered wire paths and the bulb CSS and
+// prove the lowest wire point lands on the bulb cap, on desktop and phone.
+{
+  const decor = await loadComponent(path.join(root, "app/components/ChristmasDecor.js"), root);
+  const swayTop = Number((CHRISTMAS_LIGHTS_CSS.match(/\.xm-sway\{position:absolute;top:(\d+)px/) || [])[1]);
+  const bulbTop = Number((CHRISTMAS_LIGHTS_CSS.match(/\.xm-bulb\{\s*position:absolute;left:-8px;top:(\d+)px/) || [])[1]);
+  const capTop = (CHRISTMAS_LIGHTS_CSS.match(/\.xm-bulb::before\{[^}]*top:(-?\d+)px;[^}]*height:(\d+)px/) || []);
+  const capFrom = swayTop + bulbTop + Number(capTop[1]);
+  const capTo = capFrom + Number(capTop[2]);
+  ok(Number.isFinite(capFrom) && Number.isFinite(capTo), "bulb cap position is readable from the shared CSS");
+  const lowOf = (cls) => {
+    const svg = (html.match(new RegExp('<svg class="xm-wire ' + cls + '"[\\s\\S]*?</svg>')) || [])[0] || "";
+    const d = (svg.match(/ d="([^"]+)"/) || [])[1] || "";
+    const q = d.match(/M0 ([\d.]+) Q[\d.]+ ([\d.]+) [\d.]+ ([\d.]+)/);
+    return q ? (Number(q[1]) + 2 * Number(q[2]) + Number(q[3])) / 4 : NaN;
+  };
+  for (const [cls, expected] of [["xm-wire-desk", decor.WIRE_LOW_DESK], ["xm-wire-phone", decor.WIRE_LOW_PHONE]]) {
+    const low = lowOf(cls);
+    ok(low === expected, cls + ": the rendered wire matches its documented low point (" + low + ")");
+    ok(low >= capFrom && low <= capTo, cls + ": the wire's lowest point (" + low + "px) lands on the bulb cap (" + capFrom + " to " + capTo + "px), not through the glass");
+  }
+}
 
 console.log("test-christmas-site-backdrop: " + checks + " checks ok");

@@ -618,7 +618,7 @@ scripts/test-christmas-card-gallery.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	a
 scripts/test-christmas-city-guides.mjs	0	RENDER	blocks-ci-and-deploy	1	-	15	0	0	7f432dd250f794709d723abf23519d44ac60825faf7c183a109a60ad9ad0c428
 scripts/test-christmas-map-pins.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	ce7eb25a6d52acc1778155e2fc619cf565d30344327c62cca5ff7ba782695f5a
 scripts/test-christmas-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	64f422e5a4fc0dc8199e11d05b6198b3adaf7c36b48d3c88835a58f70053a80a
-scripts/test-christmas-site-backdrop.mjs	0	RENDER	blocks-ci-and-deploy	1	-	42	0	0	b265ab6dda4a7e315f812565a639cef0a802fc253a9b4cf0470b394118bb1218
+scripts/test-christmas-site-backdrop.mjs	0	RENDER	blocks-ci-and-deploy	1	-	45	0	0	a76480e23ba7365e0b647fb77f7c5627e5874f2446c4a135562caaa9a1e0944e
 scripts/test-christmas-stubhub-dark.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	ad380a9fc53e69ad945dcb9f970bc7f1c71c059938b3a37961298b70d18e6a58
 scripts/test-christmas-temporal-modes.mjs	0	RENDER	blocks-ci-and-deploy	1	-	39	0	0	44d8334b696cfaaed3a411235a2b3f447afbc2387ecbdba6382c7cd3759d21fe
 scripts/test-christmas-ticketmaster.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	35	0	0	1e2e375e82e90100ee9a3b3664020e0b21075b50628ffb92ba667e6d720ce80a

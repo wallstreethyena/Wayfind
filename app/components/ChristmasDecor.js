@@ -4,12 +4,20 @@ import { useEffect, useState } from "react";
 
 // The string lights from /christmas-in-florida, shared with the site backdrop
 // so both paint the same garland. CSS lives in lib/christmasBackdrop.js.
+// Each bulb hangs at the bottom of a wire dip. A quadratic dip's lowest point
+// is (start + 2 * control + end) / 4, so control 14 puts the desktop wire at
+// 10px and control 16 puts the phone wire at 10px, right on the bulb caps
+// (.xm-sway top 9px + cap 6px). The old 30 / 24 controls put the wire at 18px
+// and 14px, through the glass, so the bulbs looked pinned to nothing
+// (owner, 2026-11-24: "the light bulbs look off").
+export const WIRE_LOW_DESK = (6 + 2 * 14 + 6) / 4;
+export const WIRE_LOW_PHONE = (4 + 2 * 16 + 4) / 4;
 const BULB_COUNT = 18;
 const WIRE_PITCH = 1200 / BULB_COUNT;
 const WIRE_PATH = (() => {
   let d = "M0 6";
   for (let i = 0; i < BULB_COUNT; i += 1) {
-    d += " Q" + ((i + 0.5) * WIRE_PITCH).toFixed(1) + " 30 " + ((i + 1) * WIRE_PITCH).toFixed(1) + " 6";
+    d += " Q" + ((i + 0.5) * WIRE_PITCH).toFixed(1) + " 14 " + ((i + 1) * WIRE_PITCH).toFixed(1) + " 6";
   }
   return d;
 })();
@@ -17,7 +25,7 @@ const PHONE_DIPS = BULB_COUNT / 2;
 const PHONE_WIRE_PATH = (() => {
   const pitch = 1200 / PHONE_DIPS;
   let d = "M0 4";
-  for (let i = 0; i < PHONE_DIPS; i += 1) d += " Q" + ((i + 0.5) * pitch).toFixed(1) + " 24 " + ((i + 1) * pitch).toFixed(1) + " 4";
+  for (let i = 0; i < PHONE_DIPS; i += 1) d += " Q" + ((i + 0.5) * pitch).toFixed(1) + " 16 " + ((i + 1) * pitch).toFixed(1) + " 4";
   return d;
 })();
 const BULB_COLORS = [
