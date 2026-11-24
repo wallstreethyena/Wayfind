@@ -1541,6 +1541,7 @@ node scripts/check-guard-registry.mjs
 node scripts/test-secret-output-guard.mjs
 node scripts/test-viator-smoke-shape.mjs
 node scripts/test-viator-campaign.mjs
+node scripts/test-poster-rail-tracking.mjs
 node scripts/check-viator-pid.mjs
 node scripts/test-no-paid-placement-policy.mjs
 # Layer 2: THE INVERSE TEST. check-book-cta-needs-a-seller.mjs already locks

@@ -521,6 +521,9 @@ ${HAS_CTA(".wf-place-card-take", ":has(.wf-place-card-award)")} {display:none!im
 .wf-rail-card-cta{display:flex!important;align-items:center;justify-content:center;min-height:30px;margin-top:auto;padding:0 12px;border:1px solid rgba(249,115,22,.5);border-radius:11px;background:linear-gradient(180deg,rgba(249,115,22,.22),rgba(249,115,22,.07));color:#FFB27A!important;font-size:11px;font-weight:800;letter-spacing:.2px;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%;font-size:9.5px;letter-spacing:0;padding-inline:4px;font-variant-emoji:text;transition:border-color .18s ease,background .18s ease;}
 @media(max-width:340px){.wf-rail-card-cta{padding-inline:2px;font-size:9px;letter-spacing:-.3px}}
 .wf-rail-card-cta:hover,.wf-rail-card-cta:focus-visible{border-color:rgba(255,155,80,.85);background:linear-gradient(180deg,rgba(249,115,22,.3),rgba(249,115,22,.12))}
+.wf-rail-earn{margin:2px 0 0;color:#E7EEF8;font-size:11px;line-height:1.3;font-weight:650}
+.wf-place-card-content:has(.wf-rail-earn)>.wf-place-card-actions{padding-top:3px}
+
 .wf-rail-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 10px;font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}
 .wf-rail-heading-copy{flex:1 1 160px;min-width:0}
 .wf-rail-heading h2{margin:0;font-family:inherit;font-size:18px;line-height:1.25;font-weight:850;letter-spacing:normal;color:#F8FAFC;overflow-wrap:anywhere}

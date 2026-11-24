@@ -61,6 +61,6 @@ ok(src.includes("We may earn a commission when you book through partner links"),
 ok(/surface="guide_stays"/.test(src) && /accept: acceptVerifiedHotel/.test(src), "rail is tagged surface guide_stays and reads verified hotels only");
 const cta = readFileSync(at("app/components/BookingCTA.js"), "utf8");
 ok(/surface: commerceSurface \|\| "detail_primary"/.test(cta) && /commerceSurface\) \|\| "detail_primary"/.test(cta), "hotel impression and click both carry the guide_stays surface");
-ok(/commerceSurface=\{surface === "guide_stays"/.test(readFileSync(at("app/components/EventStayCards.js"), "utf8")), "EventStayCards passes the guide surface to the CTA");
+ok(/commerceSurface=\{surface\}/.test(readFileSync(at("app/components/EventStayCards.js"), "utf8")) && /surface="guide_stays"/.test(src), "EventStayCards forwards its surface prop, and the guide rail sets that surface to guide_stays");
 
 console.log(`test-guide-stays: ${passed} checks passed`);

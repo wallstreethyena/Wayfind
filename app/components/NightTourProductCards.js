@@ -25,6 +25,7 @@ export default function NightTourProductCards({ items = [], city = "", rankOffse
       actionItem={{ id: item.code, type: "experience", title: item.title, image: item.image || null, url: item.url || "", provider: "viator" }}
       ariaLabel={`See availability for ${item.title}`}
       onOpen={(event) => event?.currentTarget?.querySelector?.("a[data-offer]")?.click()}
+      disclose
       ctaNode={<ViatorCommerceLink t={item} surface="night_out_night_tours" contentId={city} rank={rank}
         className="wf-place-card-book wf-rail-card-cta"
         title="Affiliate partner link. Wayfind may earn a commission; ranking does not change.">

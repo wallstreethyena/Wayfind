@@ -1059,6 +1059,7 @@ scripts/test-poster-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	9712528791
 scripts/test-poster-json.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	fdde8d17ee267346f01f616761d40ad0538850c40238dfc00d607609c79169a9
 scripts/test-poster-performance.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	16a1bb6fe762b6eb0b792b5d193d40e9e1415267923a0ac743426eb82da02b5f
 scripts/test-poster-pool-parallel.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	abfc3ebbd7b4a8b1cabab27faafa58d999d4e34409d825abf6fdb9d5d826f189
+scripts/test-poster-rail-tracking.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0	2fa5e2c055cf52b9a4b0e6cc75d1c4e92de5dde0f0429e08b1331aca4c61c1b2
 scripts/test-poster-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	e09b852a9b3589f74c4cde20e53c470dcc9f7a0ad1f2bf6173ca408b61891c83
 scripts/test-posthog-timeout-retry.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	dcbd93054dc45c2404fd5141d1af648aa8a488955f78bbf9ee0eb31a27571aa6
 scripts/test-price.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	f383792345d3a5c88cf0fe6729d8fe0a3adae15c1a68e7224b1cced23c927d7b
@@ -1224,13 +1225,13 @@ scripts/test-venue-parking-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0	45534
 scripts/test-venue-resolution-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	c60bca2c5b6f5c8ffe3d6e8f69eb16ec66d4a5883f261146f79434bc1dc0e021
 scripts/test-vercel-ignore-build.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	576f6c48d6ceb6ea672f1bee9e3601804e77f4f7640157edd86474d4e72663fd
 scripts/test-viator-booking-attribution.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	90	0	0	586bb4425802c705fdb100d0aee6d0cccad196a5b59813191054dba867953726
-scripts/test-viator-campaign.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	77a8cd2adcfe7a64b361c83e01bcb32af49561c846d7433fcd7f00b410ec10bb
+scripts/test-viator-campaign.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	42	0	0	cda7f065f62fd0fe826ebafa950c0a9aa754d724197aedf1886ae7954e645211
 scripts/test-viator-click-row-db-contract.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	25	0	0	f5b341b9038c41aa709e83b025b321e2c33d06c7bd33cadae8f6043a39bde196
 scripts/test-viator-consent-basis.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	27	0	0	2ed4f35eb02b9f7450e10eb4472cc7b1293bd1517097808b4f10355acf9d6377
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
 scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	88	0	0	dce0ae8e257685c4282ed9d18e4caaa7b192bf6baabb6c97020bd2ee4c3ac5a1
-scripts/test-viator-rail-fallback.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	26	0	0	7b6caec676534e80397b19c3804116794a32e751cdbc50ad3136ac1e44a136cc
+scripts/test-viator-rail-fallback.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	27	0	0	66bb79e9f8d8d3d29ba116f8e3debae9d9750b51c5c578ce8043f73ca23168f6
 scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	45	0	0	d77554d6d755f9189e9914dcd1e4a8559c23763bfd3e0d41a0b99249f6dad54a
 scripts/test-viator-visitor-hash.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	10	0	0	7a37ff9b87109fa15474fe363781d6b4dda9f04b58467493c869839147ea45be
 scripts/test-vitals-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	9f1223849f2faf480ee689775d31c65ce07fcc79a0dd3cdd4ae04333776da676

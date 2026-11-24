@@ -1,7 +1,8 @@
 // Empty Viator rails switch partners on their own.
 // Viator product in hand stays Viator. ledger_denied, zero results, and errors
-// try GetYourGuide when NEXT_PUBLIC_GYG_PID is set, then Tiqets. Neither live
-// keeps today's empty rail. Ranking never reads a payout, and the button names
+// GetYourGuide is not a live provider, so a pid in env must not offer it.
+// An empty rail uses Tiqets when that program is live. Neither live keeps
+// today's empty rail. Ranking never reads a payout, and the button names
 // the partner company only.
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -20,10 +21,11 @@ ok(viatorOk.partner === "viator" && viatorOk.label === "Viator", "a Viator rail 
 ok(railFallbackHref({ partner: viatorOk.partner, query: "Tampa" }) == null, "a healthy Viator rail does not build a fallback link");
 
 const denied = viatorRailFallback({ items: [], providerState: "ledger_denied", env: { NEXT_PUBLIC_GYG_PID: "TESTPID" }, commission: 1 });
-ok(denied.partner === "getyourguide" && denied.label === "GetYourGuide", "ledger_denied switches to GetYourGuide when its pid is set");
-const gygHref = railFallbackHref({ partner: denied.partner, query: "Tampa", contentId: "events-tours" });
-ok(typeof gygHref === "string" && gygHref.startsWith("/api/commerce/go?") && gygHref.includes("provider=getyourguide") && gygHref.includes("offer=q-tampa"), "the GetYourGuide button routes through /api/commerce/go");
-ok(!/getyourguide\.com|partner_id|commission|earn/i.test(gygHref), "the button href is our route, not a partner URL or a disclosure");
+ok(denied.partner === "tiqets" && denied.label === "Tiqets", "ledger_denied does not offer GetYourGuide even when a pid is set");
+ok(denied.partner !== "getyourguide", "GetYourGuide stays off the empty rail");
+const tiqetsInstead = railFallbackHref({ partner: denied.partner, query: "Tampa", contentId: "events-tours" });
+ok(typeof tiqetsInstead === "string" && tiqetsInstead.startsWith("/api/commerce/go?") && tiqetsInstead.includes("provider=tiqets") && tiqetsInstead.includes("offer=q-tampa"), "the replacement button is Tiqets through /api/commerce/go");
+ok(!/getyourguide/i.test(tiqetsInstead), "the replacement href does not name GetYourGuide");
 
 const noPid = viatorRailFallback({ items: [], providerState: "ledger_denied", env: {}, commission: 99 });
 ok(noPid.partner === "tiqets" && noPid.label === "Tiqets", "an unset GetYourGuide pid switches to Tiqets");
@@ -37,7 +39,7 @@ ok(railFallbackHref({ partner: none.partner, query: "Tampa" }) == null, "an empt
 ok(viatorRailFallback({ items: [], providerState: "zero_candidates", env: {}, tiqetsLive: false }).partner == null, "zero results with no partner stays empty");
 
 const higherFirst = viatorRailFallback({ items: [], providerState: "zero_candidates", env: { NEXT_PUBLIC_GYG_PID: "TESTPID" }, tiqetsRate: 40, gygRate: 8 });
-ok(higherFirst.partner === "getyourguide", "a higher Tiqets rate does not jump the line");
+ok(higherFirst.partner === "tiqets", "a configured GetYourGuide pid and a rate comparison still do not offer GetYourGuide");
 
 const gyg = await resolveOffer("getyourguide", "q-tampa", { env: { NEXT_PUBLIC_GYG_PID: "TESTPID" } });
 ok(gyg.dest && new URL(gyg.dest).hostname.endsWith("getyourguide.com") && new URL(gyg.dest).searchParams.get("partner_id") === "TESTPID", "GetYourGuide resolve adds the publisher id on our side");
@@ -59,8 +61,8 @@ ok(!/earn a commission/i.test(railSrc), "the rail adds no commission line");
 process.env.NEXT_PUBLIC_GYG_PID = "TESTPID";
 const Rail = (await loadComponent(new URL("../app/components/ViatorRail.js", import.meta.url).pathname, process.cwd())).default;
 const gygHtml = renderToStaticMarkup(createElement(Rail, { title: "Top-rated experiences", items: [], query: "Tampa", providerState: "ledger_denied" }));
-ok(gygHtml.includes(">GetYourGuide<") && !gygHtml.includes("Book now") && !/earn a commission|affiliate disclosure/i.test(gygHtml), "the fallback button names GetYourGuide and adds no disclosure words");
-ok(gygHtml.includes("/api/commerce/go?") && gygHtml.includes("provider=getyourguide"), "the rendered GetYourGuide button uses the commerce route");
+ok(!gygHtml.includes(">GetYourGuide<") && gygHtml.includes(">Tiqets<") && !gygHtml.includes("Book now") && !/earn a commission|affiliate disclosure/i.test(gygHtml), "a set GetYourGuide pid still renders Tiqets, not a homepage redirect");
+ok(gygHtml.includes("/api/commerce/go?") && gygHtml.includes("provider=tiqets") && !gygHtml.includes("provider=getyourguide"), "the rendered fallback uses the Tiqets commerce route");
 
 delete process.env.NEXT_PUBLIC_GYG_PID;
 const tiqetsHtml = renderToStaticMarkup(createElement(Rail, { title: "Top-rated experiences", items: [], query: "Tampa", providerState: "ledger_denied" }));
