@@ -2595,6 +2595,8 @@ node scripts/test-refresh-reserve.mjs
 # Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
 node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
+# 2026-11-23: This week in Florida rail cards must have a self hosted photo.
+node scripts/test-this-week-rail-photos.mjs
 # 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
 node scripts/test-viator-booking-attribution.mjs
 # 2026-11-12: a built Viator click row is ACCEPTED by the real wf_viator_clicks constraints and keeps its gclid (campaign names never go into observed_utm_campaign).
