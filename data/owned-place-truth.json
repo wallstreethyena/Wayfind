@@ -20,19 +20,23 @@
     },
     "after": {
       "structured_hours_count": 54,
+      "daylight_astronomical_resolved_count": 12,
+      "seasonal_month_bound_resolved_count": 0,
       "official_website_count": 127,
       "ticket_or_admission_count": 24,
       "menu_or_reservation_count": 28,
       "free_paid_classified_count": 49,
       "zero_paid_ready_count": 129,
-      "avg_actionability_score": 0.4,
-      "avg_verified_coverage_score": 0.4,
-      "avg_fallback_readiness_score": 0.75
+      "avg_actionability_score": 0.41,
+      "avg_verified_coverage_score": 0.41,
+      "avg_fallback_readiness_score": 0.73
     },
     "atlas_wide": {
       "cards_with_hours_fact": 424,
       "deterministic_structured_hours_count": 291,
-      "holiday_closure_protected_count": 12,
+      "daylight_astronomical_resolved_count": 27,
+      "seasonal_month_bound_resolved_count": 2,
+      "holiday_closure_protected_count": 11,
       "honest_prose_only_count": 133
     }
   },
@@ -56,6 +60,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -261,6 +269,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -371,6 +383,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -485,6 +501,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -591,6 +611,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -707,6 +731,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -817,6 +845,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -1021,6 +1053,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -1228,6 +1264,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -1338,6 +1378,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -1446,6 +1490,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -1558,6 +1606,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -1660,6 +1712,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -1778,6 +1834,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -1890,6 +1950,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -2000,6 +2064,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -2116,6 +2184,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -2232,6 +2304,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -2445,6 +2521,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -2671,9 +2751,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "clock",
+          "openHour": 6,
+          "openMinute": 0,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Daily 6am–sunset; free entry"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Daily 6am–sunset; free entry",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -2696,11 +2798,11 @@
         "reason": "editorial-free-statement"
       },
       "actionability": {
-        "score": 0.63,
-        "answered_count": 5,
+        "score": 0.75,
+        "answered_count": 6,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -2710,16 +2812,15 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration",
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.63,
-          "answeredCount": 5,
+          "score": 0.75,
+          "answeredCount": 6,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -2729,20 +2830,19 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration",
             "parking"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -2773,6 +2873,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -2984,6 +3088,10 @@
       },
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -3183,6 +3291,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -3382,6 +3494,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -3573,6 +3689,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -3772,6 +3892,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -4031,6 +4155,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -4290,6 +4418,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -4491,6 +4623,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -4605,6 +4741,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -4713,6 +4853,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -4819,6 +4963,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -5016,9 +5164,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "clock",
+          "openHour": 8,
+          "openMinute": 0,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Park 8 a.m.–sunset daily. North Gate Sat, Sun, and state holidays 8 a.m.–5 p.m."
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Park 8 a.m.–sunset daily. North Gate Sat, Sun, and state holidays 8 a.m.–5 p.m.",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -5041,11 +5211,11 @@
         "reason": "explicit-admission-price"
       },
       "actionability": {
-        "score": 0.63,
-        "answered_count": 5,
+        "score": 0.75,
+        "answered_count": 6,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -5055,16 +5225,15 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration",
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.63,
-          "answeredCount": 5,
+          "score": 0.75,
+          "answeredCount": 6,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -5074,20 +5243,19 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration",
             "parking"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -5124,6 +5292,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -5236,6 +5408,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -5423,6 +5599,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -5651,6 +5831,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -5767,6 +5951,10 @@
       },
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -5968,6 +6156,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "HIGH_CONFIDENCE",
         "parser_version": "editorial-hours-v1",
@@ -6169,6 +6361,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -6279,6 +6475,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -6490,6 +6690,10 @@
       },
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -6600,6 +6804,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -6708,6 +6916,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -6915,6 +7127,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -7019,6 +7235,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -7216,6 +7436,10 @@
       },
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -7326,6 +7550,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -7430,6 +7658,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -7625,6 +7857,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -7796,6 +8032,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -7979,6 +8219,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -8079,9 +8323,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "sunrise",
+          "openHour": null,
+          "openMinute": null,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Daily sunrise–sunset"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Daily sunrise–sunset",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -8104,11 +8370,11 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.25,
-        "answered_count": 2,
+        "score": 0.38,
+        "answered_count": 3,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": false,
           "needsTickets": false,
@@ -8118,7 +8384,6 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -8126,11 +8391,11 @@
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.25,
-          "answeredCount": 2,
+          "score": 0.38,
+          "answeredCount": 3,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": false,
             "needsTickets": false,
@@ -8140,7 +8405,6 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -8149,14 +8413,14 @@
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -8193,6 +8457,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -8397,6 +8665,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -8592,6 +8864,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -8799,6 +9075,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -8903,6 +9183,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -9015,6 +9299,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -9121,6 +9409,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -9355,6 +9647,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -9550,9 +9846,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "clock",
+          "openHour": 6,
+          "openMinute": 0,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Daily 6am–sunset; free"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Daily 6am–sunset; free",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -9575,11 +9893,11 @@
         "reason": "editorial-free-statement"
       },
       "actionability": {
-        "score": 0.75,
-        "answered_count": 6,
+        "score": 0.88,
+        "answered_count": 7,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -9589,15 +9907,14 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration"
         ],
         "verified_coverage": {
-          "score": 0.75,
-          "answeredCount": 6,
+          "score": 0.88,
+          "answeredCount": 7,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -9607,19 +9924,18 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -9656,6 +9972,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -9766,6 +10086,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -9973,6 +10297,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -10083,6 +10411,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -10272,6 +10604,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -10394,6 +10730,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -10587,6 +10927,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -10780,6 +11124,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -10987,6 +11335,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -11103,6 +11455,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -11215,6 +11571,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -11329,6 +11689,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -11435,6 +11799,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -11634,6 +12002,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -11831,6 +12203,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -12022,6 +12398,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -12136,6 +12516,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -12240,6 +12624,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -12358,6 +12746,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -12468,6 +12860,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -12578,6 +12974,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -12680,9 +13080,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "sunrise",
+          "openHour": null,
+          "openMinute": null,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Sunrise–sunset; free"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Sunrise–sunset; free",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -12705,11 +13127,11 @@
         "reason": "editorial-free-statement"
       },
       "actionability": {
-        "score": 0.63,
-        "answered_count": 5,
+        "score": 0.75,
+        "answered_count": 6,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -12719,16 +13141,15 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration",
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.63,
-          "answeredCount": 5,
+          "score": 0.75,
+          "answeredCount": 6,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -12738,20 +13159,19 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration",
             "parking"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -12782,6 +13202,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -13065,6 +13489,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -13266,9 +13694,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "sunrise",
+          "openHour": null,
+          "openMinute": null,
+          "closeKind": "clock",
+          "closeHour": 22,
+          "closeMinute": 0,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Daily sunrise–10pm"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Daily sunrise–10pm",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -13291,11 +13741,11 @@
         "reason": "public-beach"
       },
       "actionability": {
-        "score": 0.75,
-        "answered_count": 6,
+        "score": 0.88,
+        "answered_count": 7,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -13305,15 +13755,14 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration"
         ],
         "verified_coverage": {
-          "score": 0.75,
-          "answeredCount": 6,
+          "score": 0.88,
+          "answeredCount": 7,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -13323,19 +13772,18 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -13372,6 +13820,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -13482,9 +13934,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "sunrise",
+          "openHour": null,
+          "openMinute": null,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Grounds sunrise–sunset; facilities Mon–Thu 9am–8pm, Fri–Sat 9am–6pm, closed Sun"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Grounds sunrise–sunset; facilities Mon–Thu 9am–8pm, Fri–Sat 9am–6pm, closed Sun",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -13507,11 +13981,11 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.38,
-        "answered_count": 3,
+        "score": 0.5,
+        "answered_count": 4,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": false,
           "needsTickets": false,
@@ -13521,18 +13995,17 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "cost",
           "needsTickets",
           "whereToGetTickets",
           "duration"
         ],
         "verified_coverage": {
-          "score": 0.38,
-          "answeredCount": 3,
+          "score": 0.5,
+          "answeredCount": 4,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": false,
             "needsTickets": false,
@@ -13542,7 +14015,6 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -13550,14 +14022,14 @@
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -13594,6 +14066,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -13793,6 +14269,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -13903,9 +14383,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "clock",
+          "openHour": 8,
+          "openMinute": 0,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Grounds free daily 8am–sunset; mansion tours Thu–Mon (6×daily), no Tue/Wed"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Grounds free daily 8am–sunset; mansion tours Thu–Mon (6×daily), no Tue/Wed",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -13930,11 +14432,11 @@
         "reason": "explicit-admission-price"
       },
       "actionability": {
-        "score": 0.5,
-        "answered_count": 4,
+        "score": 0.63,
+        "answered_count": 5,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -13944,17 +14446,16 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "whereToGetTickets",
           "duration",
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.5,
-          "answeredCount": 4,
+          "score": 0.63,
+          "answeredCount": 5,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -13964,21 +14465,20 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "whereToGetTickets",
             "duration",
             "parking"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -14009,6 +14509,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -14206,6 +14710,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -14407,6 +14915,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -14517,6 +15029,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -14725,6 +15241,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -14831,6 +15351,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -14949,6 +15473,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -15061,6 +15589,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -15254,9 +15786,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "dawn",
+          "openHour": null,
+          "openMinute": null,
+          "closeKind": "dusk",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Dawn–dusk daily"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Dawn–dusk daily",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -15279,11 +15833,11 @@
         "reason": "no-admission-evidence"
       },
       "actionability": {
-        "score": 0.25,
-        "answered_count": 2,
+        "score": 0.38,
+        "answered_count": 3,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": false,
           "needsTickets": false,
@@ -15293,7 +15847,6 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "cost",
           "needsTickets",
           "whereToGetTickets",
@@ -15301,11 +15854,11 @@
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.25,
-          "answeredCount": 2,
+          "score": 0.38,
+          "answeredCount": 3,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": false,
             "needsTickets": false,
@@ -15315,7 +15868,6 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "cost",
             "needsTickets",
             "whereToGetTickets",
@@ -15324,14 +15876,14 @@
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -15362,6 +15914,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -15480,6 +16036,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -15598,6 +16158,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -15700,6 +16264,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -15810,6 +16378,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -15918,9 +16490,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "clock",
+          "openHour": 8,
+          "openMinute": 0,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Daily 8am–sundown (365 days); $5 per vehicle"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Daily 8am–sundown (365 days); $5 per vehicle",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -15945,11 +16539,11 @@
         "reason": "vehicle-entry-fee-only"
       },
       "actionability": {
-        "score": 0.63,
-        "answered_count": 5,
+        "score": 0.75,
+        "answered_count": 6,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -15959,16 +16553,15 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration",
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.63,
-          "answeredCount": 5,
+          "score": 0.75,
+          "answeredCount": 6,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -15978,20 +16571,19 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration",
             "parking"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -16034,6 +16626,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -16258,6 +16854,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -16364,6 +16964,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -16577,6 +17181,10 @@
       },
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -16685,6 +17293,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -16795,6 +17407,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -17006,6 +17622,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -17191,6 +17811,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -17301,6 +17925,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -17502,6 +18130,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -17612,6 +18244,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -17813,6 +18449,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -18014,6 +18654,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -18124,6 +18768,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -18234,6 +18882,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -18435,6 +19087,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -18549,6 +19205,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": true,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "wayfind_editorial_hours",
         "confidence": "EXACT",
         "parser_version": "editorial-hours-v1",
@@ -18730,6 +19390,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "PROSE_ONLY",
         "parser_version": null,
@@ -18840,6 +19504,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -18956,9 +19624,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "clock",
+          "openHour": 8,
+          "openMinute": 0,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Open every day of the year, from 8 a.m. until sundown."
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Open every day of the year, from 8 a.m. until sundown.",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -18981,11 +19671,11 @@
         "reason": "vehicle-entry-fee-only"
       },
       "actionability": {
-        "score": 0.63,
-        "answered_count": 5,
+        "score": 0.75,
+        "answered_count": 6,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -18995,16 +19685,15 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration",
           "parking"
         ],
         "verified_coverage": {
-          "score": 0.63,
-          "answeredCount": 5,
+          "score": 0.75,
+          "answeredCount": 6,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -19014,20 +19703,19 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration",
             "parking"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -19058,6 +19746,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,
@@ -19170,9 +19862,31 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
-        "source": "none",
-        "confidence": "PROSE_ONLY",
-        "parser_version": null,
+        "daylight_bound": true,
+        "daylight_schedule": {
+          "ok": true,
+          "openKind": "sunrise",
+          "openHour": null,
+          "openMinute": null,
+          "closeKind": "sunset",
+          "closeHour": null,
+          "closeMinute": null,
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sourceFact": "Daily sunrise–sunset; free entry"
+        },
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
+        "source": "wayfind_daylight_astronomy",
+        "confidence": "HIGH_CONFIDENCE",
+        "parser_version": "editorial-hours-v1",
         "source_fact": "Daily sunrise–sunset; free entry",
         "timezone": "America/New_York",
         "verified_at": null,
@@ -19195,11 +19909,11 @@
         "reason": "public-beach"
       },
       "actionability": {
-        "score": 0.75,
-        "answered_count": 6,
+        "score": 0.88,
+        "answered_count": 7,
         "total_dimensions": 8,
         "dimensions": {
-          "canGoNow": false,
+          "canGoNow": true,
           "whenToGo": true,
           "cost": true,
           "needsTickets": true,
@@ -19209,15 +19923,14 @@
           "whatToKnow": true
         },
         "missing_dimensions": [
-          "canGoNow",
           "duration"
         ],
         "verified_coverage": {
-          "score": 0.75,
-          "answeredCount": 6,
+          "score": 0.88,
+          "answeredCount": 7,
           "totalDimensions": 8,
           "dimensions": {
-            "canGoNow": false,
+            "canGoNow": true,
             "whenToGo": true,
             "cost": true,
             "needsTickets": true,
@@ -19227,19 +19940,18 @@
             "whatToKnow": true
           },
           "missingDimensions": [
-            "canGoNow",
             "duration"
           ]
         },
         "fallback_readiness": {
-          "score": 0.75,
-          "readyCount": 3,
+          "score": 0.5,
+          "readyCount": 2,
           "totalFallbacks": 4,
           "fallbacks": {
             "hasDirectionsFallback": true,
             "canPlanShare": true,
             "hasBackupOrEventOption": false,
-            "hasSafeGracefulDegradation": true
+            "hasSafeGracefulDegradation": false
           }
         },
         "affects_wayfind_score": false
@@ -19270,6 +19982,10 @@
       "reservation_url": null,
       "owned_hours": {
         "ok": false,
+        "daylight_bound": false,
+        "daylight_schedule": null,
+        "seasonal_schedule": null,
+        "active_seasonal_window": null,
         "source": "none",
         "confidence": "UNKNOWN",
         "parser_version": null,

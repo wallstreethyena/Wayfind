@@ -29,6 +29,7 @@ import { filterEligibleVenueEvents } from "../../../lib/gamePlan";
 import { firstPartyActionsForPlace } from "../../../lib/firstPartyActionStore";
 import { parseEditorialHours } from "../../../lib/editorialHoursParser";
 import { resolveAdmissionTruth, resolveOwnedTruthFallback as resolveOwnedTruthFromStore } from "../../../lib/ownedPlaceTruth";
+import { PRECOMPILED_OWNED_HOURS } from "../../../lib/ownedHoursVerifiedData";
 
 const FPA_STORES = {
   places: (firstPartyLedger && firstPartyLedger.places) || {},
@@ -38,7 +39,32 @@ const FPA_STORES = {
 const OWNED_TRUTH_PLACES = (ownedTruthLedger && ownedTruthLedger.places) || {};
 
 export function resolveOwnedTruthFallback(placeId, name, fpa = null) {
-  return resolveOwnedTruthFromStore(placeId, name, fpa, OWNED_TRUTH_PLACES);
+  const base = resolveOwnedTruthFromStore(placeId, name, fpa, OWNED_TRUTH_PLACES);
+  if (base && base.ownedHours) return base;
+  const precompiled = placeId && PRECOMPILED_OWNED_HOURS && PRECOMPILED_OWNED_HOURS[placeId]
+    ? PRECOMPILED_OWNED_HOURS[placeId]
+    : null;
+  if (precompiled && Array.isArray(precompiled.periods) && precompiled.periods.length > 0) {
+    return {
+      ...base,
+      ownedHours: {
+        ok: true,
+        periods: precompiled.periods,
+        weekdayDescriptions: precompiled.weekdayDescriptions || [],
+        specialHours: precompiled.specialHours || [],
+        holidayClosures: [],
+        exceptions: [],
+        confidence: precompiled.confidence || "HIGH_CONFIDENCE",
+        parserVersion: "editorial-hours-v1",
+        sourceFact: precompiled.sourceFact || null,
+        source: precompiled.source || "wayfind_editorial_hours",
+        timezone: precompiled.timeZone || "America/New_York",
+        verifiedAt: null,
+        freshness: "unverified_timestamp",
+      },
+    };
+  }
+  return base;
 }
 
 export const dynamic = "force-dynamic";
