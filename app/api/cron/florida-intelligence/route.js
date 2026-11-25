@@ -11,6 +11,8 @@ export const maxDuration = 60;
 
 import { recordPulse } from "../../../../lib/jobPulse.js";
 import { runFloridaIntelligenceMonitor } from "../../../../lib/floridaIntelligenceServer.js";
+import { createAiBulletinBoard } from "../../../../lib/aiBulletinBoard.server.js";
+import { createFloridaPosterBulletin } from "../../../../lib/floridaPosterBulletin.js";
 
 const JOB = "florida-intelligence";
 
@@ -22,7 +24,15 @@ export async function GET(req) {
   }
 
   try {
-    const result = await runFloridaIntelligenceMonitor();
+    const now = new Date();
+    const bulletinEnabled = process.env.WF_AI_BULLETIN_BOARD_ENABLED === "1";
+    const bulletin = bulletinEnabled
+      ? createFloridaPosterBulletin({ createBoard: () => createAiBulletinBoard({ req }), now })
+      : null;
+    const boardContext = bulletin ? await bulletin.readContext() : null;
+    const result = await runFloridaIntelligenceMonitor({ now, boardContext });
+    const boardStatus = bulletin ? await bulletin.report(result.boardOutcomes) : null;
+    const posterBands = Object.keys(result.snapshot.posterPlan?.bands || {}).length;
     const prefix = result.breakerKind === "billing" ? "billing: "
       : result.breakerKind === "quota" ? "quota: "
       : "";
@@ -30,7 +40,8 @@ export async function GET(req) {
     const note = (
       prefix +
       `ai=${result.aiStatus}(${result.model}); health=${result.healthScore}/100(${result.auditStatus}); ` +
-      `trending=${result.trendingCount}; holiday=${result.holidayKey || "none"}; issues=${result.issuesCount}` +
+      `trending=${result.trendingCount}; poster_bands=${posterBands}; holiday=${result.holidayKey || "none"}; issues=${result.issuesCount}` +
+      (boardStatus ? (boardStatus.notAvailable ? "; bulletin=unavailable" : "; bulletin=reported") : "") +
       (result.aiReason ? `; ${result.aiReason}` : "")
     ).slice(0, 200);
 

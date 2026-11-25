@@ -48,6 +48,7 @@ import { useReserveEntry } from "../../lib/reserveClient.js";
 import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useRef, useState } from "react";
+import { PosterSpotlightBadge, usePosterSpotlight } from "./PosterSpotlight.js";
 import CardPhoto from "./CardPhoto";
 import PlaceCardPhotoFallback from "./PlaceCardPhotoFallback.js";
 import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
@@ -537,6 +538,10 @@ export default function RailCard({
   const visitNow = useEventClock(!!visitFacts);
   const liveWhen = visitFacts ? eventVisitStatus(visitFacts, visitNow) : null;
   if (liveWhen) when = liveWhen;
+  const posterPick = usePosterSpotlight({ place, href: cardHref, actionItem, liveWhen,
+    excluded: disliked === true || (place && cta?.sponsored === true) ||
+      /sold[_ -]?out|lottery/i.test(String(visitFacts?.ticket_status || visitFacts?.ticket?.status || "")),
+  });
   const [imgFailed, setImgFailed] = useState("");
   const [fallbackPhoto, setFallbackPhoto] = useState(null);
   const tapIntent = useCardTapIntent();
@@ -692,6 +697,7 @@ export default function RailCard({
                 : <span className="wf-place-card-category">{shownEyebrow}</span>) : null; })()}
               <AwardListRank award={shownAward} rank={rank} />
               <div className="wf-place-card-name">{title}</div>
+              {posterPick && !isDislikedNow ? <PosterSpotlightBadge /> : null}
               {place ? (() => { const where = storedPlaceHeader(place); return where ? <div className="wf-place-card-where">{where}</div> : null; })() : null}
             </div>
           </div>

@@ -74,6 +74,7 @@ const deps = {
   react: React,
   "./home": { default: Home },
   "./components/SiteDaySeed": { default: function SiteDaySeed() {} },
+  "./components/PosterSpotlight.js": { PosterPlanSeed: function PosterPlanSeed({ children }) { return children; } },
   "../lib/siteTime": siteTime,
   "./components/ProofVeil": veil,
   "../lib/locationHonesty": { homeProofCopy: () => ({ kicker: "Example", heading: "Fixture proof", sub: "Verified control" }) },
@@ -95,7 +96,11 @@ const deps = {
   } },
 };
 const Page = compile(read("app/page.js"), deps).default;
-const homeProps = tree => React.Children.toArray(tree.props.children).find(child => child.type === Home)?.props;
+const homeProps = tree => {
+  const children = React.Children.toArray(tree.props.children);
+  const seed = children.find(child => child.type === deps["./components/PosterSpotlight.js"].PosterPlanSeed);
+  return React.Children.toArray(seed?.props.children || children).find(child => child.type === Home)?.props;
+};
 
 // AbortSignal.timeout is unref'd; the real server keeps the event loop alive.
 const keepAlive = setInterval(() => {}, 1000);

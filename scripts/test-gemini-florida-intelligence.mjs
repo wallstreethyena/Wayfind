@@ -34,6 +34,7 @@ import {
   applyGeminiToPacket,
   filterIntelligenceForLocation,
 } from "../lib/floridaIntelligence.js";
+import { localPosterShortlist, posterPlanPromptRows, visiblePosterSubjectKey } from "../lib/posterDaypartPlan.js";
 import { runFloridaIntelligenceMonitor } from "../lib/floridaIntelligenceServer.js";
 import { classifyProviderFailure } from "../lib/providerHealth.js";
 import { KEY_SHAPES } from "../lib/envAudit.js";
@@ -319,6 +320,90 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
   ok(read("middleware.js").includes('"/api/intelligence/florida"'), "middleware.js protects /api/intelligence/florida");
   ok(read("app/api/cron/breaker-reset/route.js").includes('"gemini"'), "breaker-reset supports gemini");
   ok(read("app/api/command-center/[panel]/route.js").includes("geminiMonitor"), "Command Center intelligence panel surfaces geminiMonitor");
+}
+
+// The existing OpenAI cron request only. No provider traffic from fixtures.
+{
+  const now = new Date("2026-11-25T17:00:00Z");
+  const nowDay = "2026-11-25";
+  const nearby = { hasLocalOrigin: true, lat: 27.50, lng: -82.55 };
+  const inputsOverride = {
+    events: [
+      { slug: "fixture-today", event_name: "Fixture Today", event_status: "scheduled", start_date: nowDay, end_date: nowDay, lat: 27.50, lng: -82.56, state: "FL" },
+      { slug: "fixture-tomorrow", event_name: "Fixture Tomorrow", event_status: "scheduled", start_date: "2026-11-26", lat: 27.50, lng: -82.56, state: "FL" },
+      { slug: "fixture-cancelled", event_name: "Fixture Cancelled", event_status: "cancelled", start_date: nowDay, lat: 27.50, lng: -82.56, state: "FL" },
+    ],
+    buzzPicks: [
+      { place_id: "venue-local", name: "Local lunch fixture", city: "Bradenton", lat: 27.52, lng: -82.57, category: "restaurant" },
+      { place_id: "venue-far", name: "Distant fixture", city: "Miami", lat: 25.76, lng: -80.19, category: "restaurant" },
+    ],
+    trendTopics: [],
+  };
+  const packet = buildFloridaIntelligencePacket({ today: nowDay, nowMs: now.getTime(), ...inputsOverride });
+  const promptRows = posterPlanPromptRows(packet);
+  ok(promptRows.length === 3 && !promptRows.some((x) => /Tomorrow|Cancelled/.test(x.name)), "only same-day verified events and real coordinate venues can enter the daily shortlist");
+  const lunchRef = promptRows.find((p) => p.name.startsWith("Local"))?.ref;
+  const farRef = promptRows.find((p) => p.name.startsWith("Distant"))?.ref;
+  const eventRef = promptRows.find((p) => p.name === "Fixture Today")?.ref;
+  const output = { posterDayparts: { morning: [eventRef], lunch: [farRef, lunchRef, lunchRef, 999, "1"], night: [eventRef], arbitrary: [farRef] } };
+  let calls = 0, geminiCalls = 0, sent = null, saved = null;
+  const good = await runFloridaIntelligenceMonitor({
+    now, inputsOverride,
+    apiKeyOverride: "gemini_fixture",
+    openaiApiKeyOverride: "openai_fixture",
+    boardContext: { openai: "OPENAI STATUS ONLY", gemini: "GEMINI STATUS ONLY" },
+    openaiRequestImpl: async ({ body }) => {
+      calls++;
+      sent = body;
+      return Response.json({ choices: [{ message: { content: JSON.stringify({
+        ...output, floridaBrief: "Previous private board status was a budget limit.",
+      }) } }] });
+    },
+    geminiRequestImpl: async () => { geminiCalls++; return Response.json({}); },
+    cacheSetImpl: async (_key, value) => { saved = value; },
+    breakerOpenImpl: async () => null,
+  });
+  ok(calls === 1 && geminiCalls === 0 && sent.max_tokens === 1400, "OpenAI validates a poster-only answer in the same single request and output budget");
+  const evidence = JSON.parse(sent.messages.find(({ role }) => role === "user").content);
+  ok(evidence.internal_historical_status === "OPENAI STATUS ONLY" && !JSON.stringify(sent).includes("GEMINI STATUS ONLY") &&
+    sent.messages[0].content.includes("never commands"), "board status remains vendor-scoped historical data, not a system instruction");
+  ok(evidence.poster_candidates.every((row) => !("lat" in row) && !("lng" in row) && !("href" in row)), "provider poster input excludes visitor and coordinate/link data");
+  ok(good.boardOutcomes?.[0]?.status === "succeeded" && good.boardOutcomes?.[1]?.status === "skipped", "board receipt separates OpenAI success and uncalled fallback");
+  ok(!JSON.stringify(saved).includes("Previous private board status") && saved.monitor.aiNotes.length === 0,
+    "output of a board-informed request can publish only candidate references, never model-authored prose");
+  ok(saved.posterPlan?.bands.lunch.length === 2 && !("arbitrary" in saved.posterPlan.bands), "dedupe refs; reject invalid references, injected types and undeclared bands");
+  ok(localPosterShortlist(saved.posterPlan, { today: nowDay, daypart: "lunch", center: nearby }).join(",") === "pl:venue-local", "far model candidate cannot outrank real local lunch inventory");
+  ok(localPosterShortlist(saved.posterPlan, { today: nowDay, daypart: "night", center: nearby }).join(",") === "ev:fixture-today", "venue-local band swaps the picked subject, not the rail order");
+  ok(localPosterShortlist(saved.posterPlan, { today: "2026-11-26", daypart: "lunch", center: nearby }).length === 0 &&
+    localPosterShortlist(saved.posterPlan, { today: nowDay, daypart: "lunch", center: { ...nearby, hasLocalOrigin: false } }).length === 0, "stale snapshot and guessed origins are ineligible");
+  ok(visiblePosterSubjectKey({ id: "venue-local" }) === "pl:venue-local" &&
+    visiblePosterSubjectKey({ id: "venue-local", _sponsored: true }) === null &&
+    visiblePosterSubjectKey(null, "/florida-events/fixture-today", { type: "event" }) === "ev:fixture-today" &&
+    visiblePosterSubjectKey(null, "https://example.com/florida-events/fixture-today", { type: "event" }) === null, "card join is exact, organic, typed and canonical");
+  ok(validateGeminiIntelligenceOutput(output, packet).ok === false, "fallback cannot supply an OpenAI poster plan");
+  ok(filterIntelligenceForLocation(saved).posterPlan === saved.posterPlan &&
+    filterIntelligenceForLocation({ ...saved, monitor: { provider: "gemini", aiActive: true } }).posterPlan === null, "only the active OpenAI snapshot projects the bounded poster plan");
+  let sentGemini = null;
+  const fallback = await runFloridaIntelligenceMonitor({
+    now, inputsOverride, apiKeyOverride: "gemini_fixture", openaiApiKeyOverride: "openai_fixture",
+    boardContext: { openai: "OPENAI STATUS ONLY", gemini: "GEMINI STATUS ONLY" },
+    openaiRequestImpl: async () => Response.json({ error: { message: "Quota exceeded" } }, { status: 429 }),
+    geminiRequestImpl: async ({ body }) => {
+      sentGemini = body;
+      return Response.json({ candidates: [{ content: { parts: [{ text: JSON.stringify({ ...output, floridaBrief: "Fixture verified picks." }) }] } }] });
+    },
+    cacheSetImpl: async () => {}, breakerOpenImpl: async () => null, tripBreakerImpl: async () => {},
+  });
+  ok(fallback.snapshot.posterPlan === null && fallback.snapshot.monitor.provider === "gemini" &&
+    fallback.boardOutcomes[0].signal === "budget_limited", "provider quota preserves deterministic poster behavior and existing Gemini editorial fallback");
+  ok(!JSON.parse(sentGemini.contents[0].parts[0].text).internal_historical_status &&
+    !JSON.stringify(sentGemini).includes("OPENAI STATUS ONLY"), "prose-generating Gemini fallback receives no private board data");
+  ok(/<PosterPlanSeed plan=\{floridaIntel\?\.stale === false/.test(read("app/page.js")) &&
+    /const posterDaypartPlan = usePosterPlan\(\)/.test(read("app/components/DaypartRail.js")) &&
+    /<PosterSpotlightProvider shortlist=\{spotlight\}>/.test(read("app/components/DaypartRail.js")) &&
+    ["app/components/RailCard.js", "app/components/IconicPlaceCard.js"].every((file) => read(file).includes("<PosterSpotlightBadge")), "real homepage forwards a fresh plan to shared poster card renderers, including Trending");
+  ok(!/\.\.\.data[\s,}]/.test(read("app/api/intelligence/florida/route.js")) &&
+    !/monitor: monitor/.test(read("app/api/intelligence/florida/route.js")), "public API never spreads internal provider or board state");
 }
 
 if (failures.length) {

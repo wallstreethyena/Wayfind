@@ -6,6 +6,7 @@ import { formatDistanceMiles } from "../../lib/deviceDistance.js";
 // classes and geometry come from WF_PLACE_CARD_CSS; keeping those names here
 // means collection cards cannot quietly become a second, taller card system.
 import { WayfindScoreBadge } from "./kit";
+import { PosterSpotlightBadge, usePosterSpotlight } from "./PosterSpotlight.js";
 import CardPhoto from "./CardPhoto";
 import PlaceCardPhotoFallback from "./PlaceCardPhotoFallback.js";
 import { businessStatus } from "../../lib/businessStatus";
@@ -330,6 +331,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   cta = null }) {
   const scoredPlace = useCuratedPlace(!cardActionsReadOnly ? place : null) || place;
   const userDistance = usePlaceDistance(place);
+  const posterPick = usePosterSpotlight({ place, href, excluded: disliked === true || cardActionsReadOnly || surface === "rail_sponsored_card" || cta?.sponsored === true });
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
   // action its caller did not wire. A fully wired card (the home shell's, which
@@ -641,6 +643,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               <span className="wf-place-card-category">{category}</span>
               <AwardListRank award={award} rank={rank} />
               <a className="wf-place-card-name" href={cardHref} onClick={onOpen ? (e) => { e.preventDefault(); e.stopPropagation(); onOpen(place); } : undefined} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
+              {posterPick && !isDislikedNow ? <PosterSpotlightBadge /> : null}
               {(() => { const where = storedPlaceHeader(place); return where ? <div className="wf-place-card-where">{where}</div> : null; })()}
             </div>
           </div>
