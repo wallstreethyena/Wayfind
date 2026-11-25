@@ -20,6 +20,8 @@ import { isTicketmasterFamily } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow, spreadAcrossDays } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
+import { ticketDecisionLine } from "../../../../lib/ticketDecisionLine.js";
+import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { addressLine, appleDirectionsUrl, websiteUrl } from "../../../../lib/placeWhere.js";
 import { eventPairings, pairingHref } from "../../../../lib/eventPairings.js";
 import { anchorEventVenue } from "../../../../lib/venueAnchor.js";
@@ -406,6 +408,7 @@ export default async function EventPage({ params }) {
             label={e.ticketed ? "Get tickets ↗" : "Official site ↗"}
             eventId={e.id}
             provider={isTicketmasterFamily(e.url) ? "ticketmaster" : "event_official"}
+            lead={ticketDecisionLine(e, siteTodayStr())}
           />
         )}
             <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
