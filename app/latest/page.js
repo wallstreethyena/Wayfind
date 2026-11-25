@@ -87,7 +87,7 @@ const S = {
   reelLink: { color: WHITE, fontSize: 14, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3 },
   card: { background: CARD, border: `1px solid ${HAIR}`, borderRadius: 18, overflow: "hidden", marginTop: 18 },
   credit: { margin: 0, padding: "6px 16px 0", fontSize: 11, color: MUTE },
-  img: { display: "block", width: "100%", aspectRatio: "16 / 10", objectFit: "cover", background: "#1B1F25" },
+  img: { display: "block", width: "100%", height: "auto", aspectRatio: "16 / 10", objectFit: "cover", background: "#1B1F25" },
   body: { padding: "16px 16px 18px" },
   title: { fontSize: 20, fontWeight: 800, lineHeight: 1.2, margin: "0 0 6px", overflowWrap: "anywhere" },
   meta: { fontSize: 14, color: MUTE, margin: "0 0 4px", lineHeight: 1.4 },
