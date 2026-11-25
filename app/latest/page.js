@@ -18,6 +18,8 @@ import { siteTodayStr } from "../../lib/siteTime";
 import { readOwnedRows } from "../../lib/ownedSocialStore";
 import { fetchCuratedEventBySlug, dateRangeLabel, eventDetailTicketAction } from "../../lib/curatedEvents";
 import { eventVenueImageSrc } from "../../lib/eventPageImage";
+import { loadEventDetailPhotos } from "../../lib/placeDetailGallery.js";
+import { eventRailPhotoCredit } from "../../lib/christmasPlacePhotos.js";
 import { eventTitleWithYear } from "../../lib/eventTitle";
 import { pickLatestReel, eventSlugOf, LATEST_SURFACE, LATEST_REEL } from "../../lib/latestReel";
 
@@ -40,14 +42,26 @@ async function loadReel(today) {
   return pickLatestReel(rows, today) || pickLatestReel([], today, { override: LATEST_REEL });
 }
 
+const OWN_OR_HTTPS = /^(?:https:\/\/|\/(?!api\/))/;
+
 async function loadCard(link, today) {
   const slug = eventSlugOf(link.href);
   if (!slug) return { kind: "place", href: link.href, title: link.label };
   let e = null;
   try { e = await fetchCuratedEventBySlug(slug); } catch { e = null; }
   if (!e) return { kind: "place", href: link.href, title: link.label };
-  let img = "";
-  try { img = eventVenueImageSrc(e) || ""; } catch { img = ""; }
+  // Same first photo as the event page's own rail (credited official photos),
+  // else the venue photo its rail card shows. Only a direct https photo or an
+  // owned site file is used: a proxied Google venue photo (any /api/ route) is
+  // never a bare cover, same rule as the event page hero.
+  let img = "", credit = null;
+  try {
+    const photos = (await loadEventDetailPhotos(link.href, { name: e.event_name, placeId: e.place_id || "" })) || [];
+    const first = photos.find((p) => p && p.src && OWN_OR_HTTPS.test(String(p.src)));
+    if (first) { img = first.src; credit = eventRailPhotoCredit(first); }
+  } catch { img = ""; credit = null; }
+  if (!img) { try { img = eventVenueImageSrc(e) || ""; } catch { img = ""; } }
+  if (!OWN_OR_HTTPS.test(img)) img = "";
   return {
     kind: "event",
     href: link.href,
@@ -55,7 +69,8 @@ async function loadCard(link, today) {
     when: dateRangeLabel(e),
     where: [e.venue, e.city].filter(Boolean).join(", "),
     hook: e.card_hook || e.why_go || "",
-    img: /^https:\/\//.test(img) || img.startsWith("/") ? img : "",
+    img,
+    credit: credit && credit.text ? credit.text : "",
     ticket: eventDetailTicketAction(e, { surface: LATEST_SURFACE, today }),
     eventId: e.event_id,
   };
@@ -71,6 +86,7 @@ const S = {
   sub: { fontSize: 15, color: MUTE, margin: "0 0 18px", lineHeight: 1.45 },
   reelLink: { color: WHITE, fontSize: 14, fontWeight: 700, textDecoration: "underline", textUnderlineOffset: 3 },
   card: { background: CARD, border: `1px solid ${HAIR}`, borderRadius: 18, overflow: "hidden", marginTop: 18 },
+  credit: { margin: 0, padding: "6px 16px 0", fontSize: 11, color: MUTE },
   img: { display: "block", width: "100%", aspectRatio: "16 / 10", objectFit: "cover", background: "#1B1F25" },
   body: { padding: "16px 16px 18px" },
   title: { fontSize: 20, fontWeight: 800, lineHeight: 1.2, margin: "0 0 6px", overflowWrap: "anywhere" },
@@ -106,6 +122,7 @@ export default async function LatestReelPage() {
         {cards.map((c) => (
           <section key={c.href} style={S.card} data-latest-card={c.kind}>
             {c.img ? <GuidePhoto src={c.img} alt={c.title} width={1040} height={650} loading="eager" style={S.img} fallbackText="" /> : null}
+            {c.img && c.credit ? <p style={S.credit} data-latest-photo-credit="">{c.credit}</p> : null}
             <div style={S.body}>
               <h2 style={S.title}>{c.title}</h2>
               {c.when ? <p style={S.meta}>{c.when}</p> : null}
