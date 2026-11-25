@@ -658,6 +658,7 @@ scripts/test-community-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	33	0	0	a66
 scripts/test-competitor-watch-schema.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	30	0	0	1be82233b0fa7ce051c39bb41dff97231e0fb964a7e690894d91391e56c062fd
 scripts/test-composition-render.mjs	1	RENDER	blocks-ci-and-deploy	1	Qwen (Engineering)	41	0	0	8f246bcf131f8ed8032dacb9816c4f68503012dc4747945e8af11b1fe07d428f
 scripts/test-containment.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	bc739fcab0a3ca6dc0d12b73110640258a4f1a13cd32d92d2bfccfa13650593f
+scripts/test-conversion-boosters.mjs	0	CALL	blocks-ci-and-deploy	1	-	89	0	0	bdbcce3b2c816039090f1f65ef1891698f67903f36ff7938c0666bddc6dc8996
 scripts/test-coord-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	130	0	0	1d3057e8a25c0c20cc687f2483f65a4afdc4005fd9761314ab62e2ceac97d46e
 scripts/test-coords-independent-verified.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	d15edc8d3044c115a3d72aace64ee0f920825eb134db6fd206c085e924403679
 scripts/test-coupon-audit-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	835d984a74b19306428710e68e47ece1d3c9160e1e5be871fe558ad51ac17656
