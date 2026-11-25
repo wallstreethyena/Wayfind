@@ -2806,3 +2806,4 @@ node scripts/test-competitor-watch-schema.mjs
 node scripts/test-ci-monitor.mjs
 node scripts/test-holiday-promos.mjs
 node scripts/test-new-years-eve.mjs
+node scripts/test-spring-break.mjs
