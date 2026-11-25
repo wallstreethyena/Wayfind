@@ -24,6 +24,15 @@ const ok = (cond, msg) => { if (cond) passes++; else { fails++; console.error("F
 const eq = (a, b, msg) => ok(a === b, `${msg}: expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`);
 const DASH = /[–—]/;
 
+// Positive controls: every absence probe below is first shown to FIND what it
+// looks for, so a "not found" result means absent, not a blind probe.
+const SCARCITY = /sell|sold|almost|few left|hurry|limited/i;
+const STICKY_STYLE = /position:\s*["'](?:fixed|sticky)["']/;
+ok(SCARCITY.test("Selling fast"), "positive control: the scarcity probe finds a scarcity claim");
+ok(DASH.test("Dec 12 \u2013 Jan 4"), "positive control: the dash probe finds an en dash");
+ok(/\d/.test("9.4"), "positive control: the digit probe finds a number");
+ok(STICKY_STYLE.test('style={{ position: "fixed", bottom: 0 }}'), "positive control: the sticky probe finds a fixed style");
+
 // ── 1. honest urgency ────────────────────────────────────────────────────────
 // 2026-12-22 is a Tuesday; 2026-12-27 a Sunday; 2026-12-26 a Saturday.
 eq(shortDayLabel("2026-12-27"), "Sun, Dec 27", "short day label");
@@ -50,7 +59,7 @@ for (let d = 1; d <= 31; d++) {
   const today = `2026-12-${String(d).padStart(2, "0")}`;
   const u = honestUrgency(run("2026-11-01", "2026-12-28"), today);
   if (!u) continue;
-  ok(!/sell|sold|almost|few left|hurry|limited/i.test(u.label), `no scarcity claim on ${today}: ${u.label}`);
+  ok(!SCARCITY.test(u.label), `no scarcity claim on ${today}: ${u.label}`);
   ok(!DASH.test(u.label), `dash free on ${today}: ${u.label}`);
   ok(u.last === "2026-12-28", `label rests on the confirmed last date on ${today}`);
 }
@@ -115,7 +124,7 @@ ok(/\{bookable && topRatedLine\(p\) \? \(/.test(place), "place page Top rated li
 for (const [name, src] of [["TicketButton", tb], ["event page", evPage], ["florida event page", fe], ["ChristmasTicketCard", card], ["ChristmasTickets", picks], ["placePage", place]]) {
   ok(!/data-ticket-decision[^>]*position:\s*["']?(?:fixed|sticky)/.test(src), `${name}: decision line is not sticky`);
 }
-ok(!/position:\s*["'](?:fixed|sticky)["']/.test(tb), "TicketButton is not sticky");
+ok(!STICKY_STYLE.test(tb), "TicketButton is not sticky");
 
 if (fails) { console.error(`test-conversion-boosters: ${fails} failed, ${passes} passed`); process.exit(1); }
 console.log(`test-conversion-boosters: OK (${passes} checks: urgency, price/date line, top rated line, 6 surfaces, no sticky ticket button)`);
