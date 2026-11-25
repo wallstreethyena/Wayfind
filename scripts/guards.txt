@@ -2811,3 +2811,4 @@ node scripts/test-holiday-promos.mjs
 # /latest, the Instagram bio link page (2026-11-25): newest Reel wins, hand-set fallback, no partner URL in source.
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
+node scripts/test-spring-break.mjs
