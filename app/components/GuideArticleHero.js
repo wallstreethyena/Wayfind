@@ -25,6 +25,7 @@ export default function GuideArticleHero({
   category,
   updatedLabel = null,
   actions = null,
+  primaryAction = null,
   backHref = "/guides",
   backLabel = "All guides",
   jumpHref = "#guide",
@@ -72,6 +73,7 @@ export default function GuideArticleHero({
             {place ? <><span className={styles.dot} aria-hidden="true" /> <span>{place}</span></> : null}
           </div>
           <h1 className={styles.title}>{headline}</h1>
+          {primaryAction}
           {introduction ? <p className={styles.description}>{introduction}</p> : null}
 
           <div className={styles.tools}>

@@ -25,6 +25,8 @@ import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta, ctaProofSco
 import { guidePickTicket } from "../../../lib/guidePickTicket";
 import { withPageParam } from "../../../lib/commerce";
 import GuideConversion from "./GuideConversion";
+import GuideDayAction from "../../components/GuideDayAction";
+import { guideDayAction, scopedGuideBodyCta, visibleQuickChoices } from "../../../lib/guideActionPlan.js";
 import { noSaleEvents, unavailableDestination } from "../../../lib/ticketAvailability.js";
 import GuideStays from "../../components/GuideStays";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
@@ -566,7 +568,7 @@ export default async function GuidePage({ params }) {
   const liveGuides = currentGuides(GUIDES);
   const continueTo = guideContinue(g, params.slug, liveGuides);
   const contextLinks = guideContextLinks(params.slug, liveGuides);
-  const quickChoices = guideQuickChoices(params.slug);
+  const quickChoices = visibleQuickChoices(guideQuickChoices(params.slug), shippingPicks);
   const articleImage = guideArticleImage(guideHero(params.slug));
 
   // ── UPGRADE A bookQuery PICK INTO A PRODUCT, at render time ──────────────
@@ -603,6 +605,8 @@ export default async function GuidePage({ params }) {
   // The earning link opens with rel="noreferrer", so the redirect cannot read
   // the page from a Referer: name it in the href for the Viator campaign tag.
   if (primaryCta && primaryCta.href) primaryCta = { ...primaryCta, href: withPageParam(primaryCta.href, "g-" + params.slug) };
+  const dayAction = guideDayAction({ slug: params.slug, guide: g, shippingPicks, primary: primaryCta, noSale: unavailableFor(g.eventTicket) });
+  primaryCta = scopedGuideBodyCta(primaryCta, shippingPicks, params.slug);
 
   // LIVE DEAL CARDS. A guide opts in by listing REGISTRY IDS — it cannot supply
   // an offer, a price or a URL of its own, so an unregistered deal has no route
@@ -1017,7 +1021,8 @@ export default async function GuidePage({ params }) {
         // promise could not be kept.
         //
         // What is left is what actually works: the guide itself, one tap down.
-        // The money CTA is unchanged and still lives once, in GuideConversion.
+        // One relevant first-screen action; only its mobile echo follows the reader.
+        primaryAction={dayAction ? <GuideDayAction action={dayAction} slug={params.slug} region={g.region} /> : null}
         jumpHref="#guide"
         jumpLabel={params.slug === "fall-events-orlando-2026" ? "Explore the events" : "Explore the guide"}
         // v8.23 (owner: "why is it that none of these blog has a share button
@@ -1186,6 +1191,7 @@ export default async function GuidePage({ params }) {
           railIdPrefix={params.slug}
         />
       ) : null}
+      {dayAction?.href === "#guide-plan-options" ? <div id="guide-plan-options" style={{ scrollMarginTop: 16 }} /> : null}
       {shippingPicks.map(({ pick, index: i }, visibleIndex) => {
         const resolved = pickPlaces[i];
         const noSale = unavailableFor(pick.eventSlug);
@@ -1294,6 +1300,7 @@ export default async function GuidePage({ params }) {
         slug={params.slug}
         region={g.region || "Orlando"}
         cta={primaryCta}
+        primaryPromoted={dayAction?.promoted === true}
         next={chrome.keepExploring ? continueTo : null}
         social={social}
         socialStatus={socialStatus}
