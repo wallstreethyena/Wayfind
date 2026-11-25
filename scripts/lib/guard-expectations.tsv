@@ -909,7 +909,7 @@ scripts/test-jev-mcp.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	92b552a17c1ffe5e
 scripts/test-job-pulse.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	b81158f224bb3bd309b31a39a9a1de2cca6bd4f42f5e44ef816fdfe7a65a438b
 scripts/test-job-watch-delivery.mjs	0	CALL	blocks-ci-and-deploy	1	-	67	0	0	df76dd94b6770dcfae50db47072103f726eb1c89dd9312d5bd6d2086fd47ae3d
 scripts/test-job-watch-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	b7f5c6f7a43097623bfc6f10187dbec6d55d2e1492ae7fb363cf64732ffd85c6
-scripts/test-journey-telemetry.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	6f9240e950089d9d21b2590c048cfe7dae65fedc450b4c8000bca500d07b27e3
+scripts/test-journey-telemetry.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	81a76c7c32e82594d3c38f602be34ae7a05752e0952103952faf97f800000cd6
 scripts/test-klook-coupons.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	1	1	d7efb4345c9406c83eb6adc4a834da403059c6184833e56161aea1884a9dbb99
 scripts/test-known-city-geocode.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	4f1f09a84ce21fa499e78b6d603035e6f653597930a543720e24c6d0c8a23f06
 scripts/test-landing-card-cue.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	7f37b0f1ad366e367173e1e5185dd1e9038e7cf7a295677ed20110a344313236

@@ -3,6 +3,7 @@
 // interruption per visit budget. Pure modules with injected storage; no network.
 import assert from "node:assert/strict";
 import * as A from "../lib/campaignAttribution.js";
+import { SOCIAL_AD_SOURCES } from "../lib/socialAdLanding.js";
 import { canInterrupt, claimInterruption, MAX_INTERRUPTIONS_PER_SESSION, INTERRUPTION_KEY } from "../lib/interruptionBudget.js";
 import { selectProactivePlannerOffer, recordProactiveShown } from "../lib/plannerProactive.js";
 import { shouldFire, _resetDedupe } from "../lib/analytics.js";
@@ -13,6 +14,7 @@ const ok = (v, m) => { assert.ok(v, m); n += 1; };
 const mem = () => { const m = new Map(); return { _m: m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) }; };
 
 // ── trafficChannel: every Meta spelling is one channel ────────────────────
+eq([...A.META_UTM_SOURCES].sort(), [...SOCIAL_AD_SOURCES].sort(), "the channel's Meta list and the social ad landing list are the same list");
 const ch = (p, extra = {}) => A.trafficChannel({ p, ct: "", rd: "", ...extra });
 for (const src of ["fb", "facebook", "ig", "instagram", "IG", "Instagram", "meta", "threads", "an", "msg"]) eq(ch({ utm_source: src }), "meta", `utm_source=${src} is meta`);
 eq(ch({}, { ct: "fbclid" }), "meta", "fbclid alone is meta");
