@@ -1,4 +1,5 @@
 import { SITE_URL } from "../../../lib/site";
+import { styleHtml } from "../../../lib/styleHtml.js";
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import ShareButton from "../../components/ShareButton";
 import { browseTicketFields } from "../../../lib/christmasTickets.js";
@@ -138,7 +139,7 @@ export default async function ChristmasTopicPage({ params }) {
   const others = christmasTopicLinks().filter((l) => l.href !== christmasTopicPath(topic.slug));
   const shareUrl = SITE_URL + christmasTopicPath(topic.slug);
   return <main className="xt" data-christmas-topic={topic.slug}>
-    <style dangerouslySetInnerHTML={{ __html: CSS }} />
+    <style dangerouslySetInnerHTML={styleHtml(CSS)} />
     <CommerceClickBeacon surface="christmas_topic_page" />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
     <nav className="xt-crumbs" aria-label="Breadcrumb"><a href="/">Wayfind</a> › <a href="/christmas-in-florida">Christmas in Florida</a> › {topic.label}</nav>
