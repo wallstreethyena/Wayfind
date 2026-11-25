@@ -4,17 +4,17 @@ _Seeded 2026-08-25 from evidence in-session. **Numbers re-verified against live 
 ## LIVE STATE — generated, never typed
 _Written by `scripts/os-state.mjs` from live sources. Do not hand-edit._
 
-<!-- WF-LIVE-STATE:BEGIN generated=2026-10-11T19:55:20Z by=scripts/os-state.mjs -->
+<!-- WF-LIVE-STATE:BEGIN generated=2026-11-25T22:14:11Z by=scripts/os-state.mjs -->
 
 <!-- DO NOT HAND-EDIT. Regenerate: `node scripts/os-state.mjs --write --mirror` -->
 
 | fact | value | source |
 |---|---|---|
-| CI guards | **856** | `scripts/guards.txt`, counted as run-guards counts |
+| CI guards | **1,232** | `scripts/guards.txt`, counted as run-guards counts |
 | package version | **6.56.0** | `package.json` |
-| repo HEAD | **`6587335` on `curation/discovery-cove-tiktok-20261011`** | git |
+| repo HEAD | **`8bbc29b` on `os-state-refresh`** | git |
 
-_Read from live sources at 2026-10-11T19:55:20Z. Any live number outside this block is unverified prose._
+_Read from live sources at 2026-11-25T22:14:11Z. Any live number outside this block is unverified prose._
 
 > ⚠️ Supabase credentials absent — inventory and ledger rows omitted. Run with .env.local present.
 
