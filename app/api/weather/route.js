@@ -1,5 +1,8 @@
 export const runtime = "nodejs";
 
+// Must stay under the self-check probe's 6s budget; see the fetch below.
+const WEATHER_UPSTREAM_DEADLINE_MS = 4500;
+
 // Server-side proxy for the keyless Open-Meteo weather API. The client used to
 // call Open-Meteo directly from the browser, which a network filter or content
 // blocker can silently block even when everything else (Google, etc.) works —
@@ -28,7 +31,14 @@ export async function GET(req) {
     // response" for a request we had already answered. Awaiting the fetch
     // ourselves, with our own deadline, keeps every failure inside the catch;
     // the cache-control header below still gives the CDN its 10 minute cache.
-    const r = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(6000) });
+    //
+    // 4.5s, not 6s. The Command Center self-check (lib/commandCenter/sources/
+    // synthetic.js) gives this route 6s in total. With the upstream deadline
+    // ALSO at 6s, a slow Open-Meteo made the route and the probe give up at the
+    // same instant, so the probe recorded "timeout (6005ms)" and paged the
+    // owner instead of seeing the {} soft-fail below (2026-11-24 14:07 ET). A
+    // visitor is better served by no weather chip at 4.5s than a 6s wait too.
+    const r = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(WEATHER_UPSTREAM_DEADLINE_MS) });
     if (!r.ok) return new Response("{}", { status: 200, headers: { "content-type": "application/json" } });
     const body = await r.text();
     return new Response(body, { status: 200, headers: { "content-type": "application/json", "cache-control": "public, max-age=600, s-maxage=600" } });
