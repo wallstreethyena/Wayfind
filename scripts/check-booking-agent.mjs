@@ -18,6 +18,8 @@ const BANNED = [
   "fingerprint",
   "residential",
   "playwright-extra-plugin-stealth",
+  // Cookie banners get the most private choice. "Accept all" is never clicked for a guest.
+  "onetrust-accept-btn-handler",
 ];
 
 export function findBanned(text) {
@@ -67,6 +69,22 @@ function main() {
 
   const uaFile = readFileSync(join(ROOT, "lib/bookingAgent/constants.js"), "utf8");
   if (!uaFile.includes('export const AGENT_UA = "WayfindBookingAgent/0.1 (+https://www.gowayfind.com/booking-agent)"')) fail("the user agent string is not exact");
+
+  // Honest in the cloud too (owner decision 2026-11-25, the agent runs on Vercel with Browserbase):
+  // both Browserbase launchers ask for no proxy and set the Wayfind user agent on the page, and
+  // runNext refuses any browser, in any mode, that reports a different user agent.
+  const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const cdpSrc = strip(readFileSync(join(ROOT, "lib/bookingAgent/cdpSession.js"), "utf8"));
+  const svcSrc = strip(readFileSync(join(ROOT, "services/booking-agent/browser.js"), "utf8"));
+  const runSrc = strip(readFileSync(join(ROOT, "lib/bookingAgent/run.js"), "utf8"));
+  const sessionCalls = (src) => (src.match(/createBrowserbaseSession\(\{[^}]*\}/g) || []);
+  for (const [name, src] of [["lib/bookingAgent/cdpSession.js", cdpSrc], ["services/booking-agent/browser.js", svcSrc]]) {
+    const calls = sessionCalls(src);
+    if (calls.length !== 1 || !/proxies:\s*false/.test(calls[0])) fail(`${name} must create exactly one Browserbase session with proxies: false, found ${JSON.stringify(calls)}`);
+    if (!/["']Network\.setUserAgentOverride["']/.test(src)) fail(`${name} must set the Wayfind user agent on the cloud page`);
+  }
+  if (!/const uaOk = session\.userAgent === AGENT_UA;/.test(runSrc)) fail("lib/bookingAgent/run.js must require the exact Wayfind user agent in every browser mode");
+  if (sessionCalls("createBrowserbaseSession({ apiKey, proxies: true })").length !== 1 || /proxies:\s*false/.test("createBrowserbaseSession({ apiKey, proxies: true })")) fail("the Browserbase session probe did not parse a known sample");
 
   const map = readFileSync(join(ROOT, "lib/bookingAgent/selectors/opentable.v1.json"), "utf8");
   if (!map.includes("PLACEHOLDER") && !map.includes("CAPTURED")) fail("the selector map must be marked PLACEHOLDER or CAPTURED");

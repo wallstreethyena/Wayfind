@@ -2,16 +2,26 @@
 
 This folder is a separate Node process that claims queued rows and runs `runNext` in `lib/bookingAgent/run.js`.
 
-## Status: OFF (owner decision, 2026-11-20)
+## Status: runs on Wayfind's own hosting (owner decision, 2026-11-25)
 
-The booking agent is merged dark. Do not apply `20261117143000_wf_booking_agent.sql`, set
-`BOOKING_AGENT_ENABLED` / `BOOKING_AGENT_SITE_OPENTABLE`, or start this worker in production
-without a new owner decision. Reserve sends OpenTable restaurants through the prefilled
-`/api/reserve/go` handoff instead.
+On 2026-11-21 the owner chose to turn on the honest OpenTable booking agent, and on 2026-11-25
+chose to run it on Vercel instead of a separate server. Production does not use this folder:
+`app/api/cron/booking-agent` (every minute) and `app/api/reserve/agent/start` (right after a
+guest's tap, through `after()`) call `lib/bookingAgent/serverlessRun.js`, which drives a
+Browserbase cloud browser over raw CDP (`lib/bookingAgent/cdpSession.js`), so the Next.js app
+never imports playwright-core. The tables are applied (`20261117143000_wf_booking_agent.sql`).
+It still runs only when `BOOKING_AGENT_ENABLED=1`, `BOOKING_AGENT_SITE_OPENTABLE=1`, the
+opentable row in `wf_booking_agent_sites` is `on`, and the restaurant is on the allowlist
+(`lib/bookingAgent/placeAllowlist.js`, Summer House on the Lake only). Set the row to `paused`
+or `off` to stop it at once.
+
+This folder stays for local fixture runs and a hosted worker if one is ever approved.
 
 Standing rules for this worker:
 - It always identifies itself with the honest Wayfind agent user agent (`AGENT_UA`) in every
-  mode; `runNext` refuses any browser presenting a different user agent.
+  mode, Browserbase included; `runNext` refuses any browser presenting a different user agent.
+- Its Browserbase sessions ask for no proxy and solve no challenge, and a cookie banner gets
+  its most private choice, never "accept all".
 - It never bypasses CAPTCHA or anti-bot checks; if blocked, the user gets the exact booking page.
 - A personal Mac is never production infrastructure, and any hosted worker is new spend that
   needs owner approval first.
