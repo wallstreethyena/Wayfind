@@ -1,0 +1,5 @@
+[
+  { "event_id": "e1", "slug": "tampa-holiday-market", "event_name": "Holiday Market Tampa Bay", "city": "Tampa", "county": "Hillsborough" },
+  { "event_id": "e2", "slug": "zootampa-christmas-lights", "event_name": "ZooTampa Christmas Lights", "city": "Tampa", "county": "Hillsborough" },
+  { "event_id": "e3", "slug": "nights-of-lights", "event_name": "Nights of Lights", "city": "St. Augustine", "county": "St. Johns" }
+]

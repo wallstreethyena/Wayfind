@@ -36,6 +36,9 @@ export const config = {
     "/api/events/venue-nearby",
     // In-app feedback and recommendations write to the existing review inbox.
     "/api/feedback",
+    // Log your visit / rewards read (2026-11-25): signed in members only, the
+    // route verifies the session itself; this adds same-origin + per-IP limits.
+    "/api/trip-log",
     // Private group ballots use their own capability/owner authorization too.
     "/api/group-plans/:path*",
     // Friend votes on a shared Christmas plan (anonymous voter token, service role write): same-origin + per-IP rate limit.

@@ -78,6 +78,8 @@ export function offerLinkRel(offer, href) {
 // the homepage's eager detail bundle and request it only for plausible hotel
 // or flagship-attraction details; the server still verifies the exact ID.
 const TripConnections = dynamic(() => import("../TripConnections"), { ssr: false, loading: () => null });
+// Log your visit (2026-11-25). Lazy; the placeholder reserves the collapsed card's height so nothing below it moves when the chunk lands.
+const LogVisitCard = dynamic(() => import("../LogVisitCard"), { ssr: false, loading: () => <div aria-hidden="true" style={{ minHeight: 92, marginBottom: 14 }} /> });
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -1943,6 +1945,18 @@ export default function DetailSheet({ ctx }) {
 
               {detailExtra && detailExtra.editorial && (
                 <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginBottom: 14, paddingLeft: 10, borderLeft: `3px solid ${C.border}` }}>{detailExtra.editorial}</div>
+              )}
+
+              {/* Log your visit: real Google places only (never an event card or a synthetic id). */}
+              {detail && !detail._event && isLivePlaceId(detail.id) && (
+                <LogVisitCard
+                  refKind="place"
+                  refId={detail.id}
+                  placeName={detail.name || ""}
+                  user={user}
+                  onSignIn={() => setAuthOpen(true)}
+                  logEvent={(action, extra) => logEvent(action, detail, extra)}
+                />
               )}
 
               {/* Worth the Drive? widget — shows for far-away places or when opened from the drive hook */}

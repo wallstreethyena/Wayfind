@@ -5,6 +5,7 @@ import SeasonalSearchHub, { seasonalSearchMetadata } from "../components/Seasona
 import ChristmasBrowse from "../components/ChristmasBrowse";
 import ChristmasCityGuides from "../components/ChristmasCityGuides";
 import ChristmasTickets from "../components/ChristmasTickets";
+import HolidayPromoSlot from "../components/HolidayPromoSlot";
 import FieldVitals from "../components/FieldVitals";
 import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
@@ -130,6 +131,7 @@ export default async function Page() {
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
       <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} weekend={weekend} />
+      <HolidayPromoSlot surface="christmas-in-florida" today={today} />
       <ChristmasCreatorPosts posts={creatorPosts} covers={creatorCovers} />
       <ChristmasCityGuides today={today} />
 

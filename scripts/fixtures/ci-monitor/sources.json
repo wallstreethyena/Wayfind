@@ -1,0 +1,27 @@
+[
+  { "slug": "alpha", "name": "Alpha Weekly", "tier": 2, "sources": [
+    { "id": "alpha-tampa", "metro": "tampa", "host": "www.alpha.example", "discover": "robots-sitemaps", "urls": [
+      { "kind": "feed", "url": "https://www.alpha.example/private/feed.xml" },
+      { "kind": "listing", "url": "https://www.alpha.example/members/deals" },
+      { "kind": "listing", "url": "https://www.alpha.example/go-deals" }
+    ] }
+  ] },
+  { "slug": "beta", "name": "Beta Tickets", "tier": 1, "sources": [
+    { "id": "beta-tampa", "metro": "tampa", "urls": [ { "kind": "listing", "url": "https://beta.example/tampa" } ] }
+  ] },
+  { "slug": "gamma", "name": "Gamma Deals", "tier": 1, "sources": [
+    { "id": "gamma-orlando", "metro": "orlando", "urls": [
+      { "kind": "promo", "url": "https://www.gamma.example/deals" },
+      { "kind": "feed", "url": "https://www.gamma.example/feed/" }
+    ] }
+  ] },
+  { "slug": "delta", "name": "Delta Guide", "tier": 2, "sources": [
+    { "id": "delta-miami", "metro": "miami", "urls": [ { "kind": "listing", "url": "https://delta.example/events" } ] }
+  ] },
+  { "slug": "epsilon", "name": "Epsilon Events", "tier": 1, "sources": [
+    { "id": "epsilon-sarasota", "metro": "sarasota", "urls": [ { "kind": "listing", "url": "https://epsilon.example/sarasota" } ] }
+  ] },
+  { "slug": "zeta", "name": "Zeta Magazine", "tier": 2, "sources": [
+    { "id": "zeta-miami", "metro": "miami", "urls": [], "disabled": "Fixture: host not confirmed." }
+  ] }
+]
