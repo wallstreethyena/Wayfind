@@ -222,6 +222,11 @@ export const config = {
     // server-witnessed sponsor outbound GET 302 (navigation rate-limit only).
     "/api/partner/inquire",
     "/api/partner/outbound",
+    // AI team board (owner order 2026-11-25: "not accessible to scrapers hackers
+    // anybody from the outside"). Owner-only route: requireOwner() inside is the
+    // authority; this adds the same-origin block + per-IP rate limit in front so
+    // an off-site script is refused before any owner check or database read.
+    "/api/command-center/ai-board",
   ],
 };
 

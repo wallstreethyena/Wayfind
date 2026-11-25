@@ -13,7 +13,7 @@
 // refetch holds the previous render at reduced opacity (no skeleton jumps);
 // every chart has a table view; every KPI a definition tooltip; every section
 // a per-source freshness badge. Anchors: #alerts #overview #traffic #journey
-// #places #retention #health #ops #sources.
+// #places #retention #health #ops #sources #ai-team.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase, hasSupabase } from "../../lib/supabase";
@@ -23,6 +23,7 @@ import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
 import { C, TYPE, RADII, MOTION } from "../components/kit";
 import styles from "./command-center.module.css";
 import VisitorReport from "./VisitorReport";
+import AiBoard from "./AiBoard";
 import {
   CAT, STATUS, Delta, DefTip, SourceBadge, NotConnected, Frame, DataTable, EmptyNote,
   StatTile, Sparkline, LineChart, Columns, StackedColumns, HBarList, Funnel, CohortGrid, StatusPill,
@@ -39,6 +40,7 @@ const GROUPS = [
   { id: "visitors", label: "Visitors", short: "Visitors", sections: ["traffic", "journey", "retention"], description: "How people find Wayfind, what they do next, and whether they come back." },
   { id: "commerce", label: "Places & sponsors", short: "Places", sections: ["places", "partners"], description: "Which places people open, save, share, and choose for tickets, plus direct sponsor pipeline, campaign health, and Florida pilot prospects." },
   { id: "reliability", label: "Reliability", short: "Health", sections: ["health"], description: "Whether Wayfind is working quickly and reliably for visitors." },
+  { id: "ai-team", label: "AI team board", short: "AI team", sections: [], description: "Where Wayfind's AIs say what they own, take on new work, ask each other for help, and bring you proposals. They can only post here; nothing they write changes the site." },
   { id: "details", label: "Details", short: "Details", sections: ["intelligence", "feedback", "ops", "sources"], description: "Research leads, the saved team inbox, releases, and the exact definitions behind every number." },
 ];
 const SECTION_GROUP = Object.fromEntries(GROUPS.flatMap((group) => group.sections.map((id) => [id, group.id])));
@@ -1456,6 +1458,12 @@ export default function CommandCenter() {
           <>
             <GroupHeading group={group} />
             <HealthSection auth={auth} range={range} />
+          </>
+        ) : null}
+        {activeGroup === "ai-team" ? (
+          <>
+            <GroupHeading group={group} />
+            <AiBoard auth={auth} authHeaders={authHeaders} />
           </>
         ) : null}
         {activeGroup === "details" ? (
