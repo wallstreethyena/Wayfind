@@ -8,6 +8,7 @@ import { FLORIDA_CITY_GUIDES } from "../../lib/guidesCoverage2026";
 import { guideHero } from "../../lib/guideHero";
 import { guideRegions } from "../../lib/guideIndex";
 import { currentGuides, pastGuides } from "../../lib/guideLifecycle";
+import { STANDALONE_GUIDE_INDEX } from "../../lib/guideDedicatedRoutes";
 import styles from "./guides.module.css";
 import { SITE_URL } from "../../lib/site";
 import { pageShareUrl } from "../../lib/pageShareUrl";
@@ -46,6 +47,7 @@ export default function GuidesHub() {
   // Current guides only. Anything that already happened lives on /guides/past
   // (owner, 2026-09-23); its article URL is untouched.
   const regions = guideRegions(currentGuides(GUIDES));
+  const standalonePast = STANDALONE_GUIDE_INDEX.filter(({ slug }) => !GUIDES[slug]);
   const pastCount = pastGuides(GUIDES).length;
   return (
     <div className={styles.page}>
@@ -70,6 +72,7 @@ export default function GuidesHub() {
             meta={{ surface: "guides_index", placement: "header" }}
           />
         </div>
+        <p className={styles.description}>Want fresh stories and local finds? <a style={S.link} href="https://blog.gowayfind.com/">Read the Wayfind Blog</a>.</p>
         <nav className={styles.regions} aria-label="Browse guides by destination">
           {regions.map(({ region }, i) => <a key={region} href={"#destination-" + i}>{region}</a>)}
         </nav>
@@ -143,12 +146,13 @@ export default function GuidesHub() {
         }}
         next={{ label: "Read the Orlando guide", href: "/guides/things-to-do-orlando-not-theme-parks" }}
       />
-      {pastCount ? (
+      {pastCount || standalonePast.length ? (
         <section className={styles.section} aria-labelledby="guides-past-title" data-guides-past-link>
           <div className={styles.sectionHead}>
             <h2 id="guides-past-title">Already happened</h2><span>{pastCount} {pastCount === 1 ? "guide" : "guides"}</span>
           </div>
           <p className={styles.description}>Event weekends and seasonal editions that have wrapped. <a href="/guides/past" style={S.link}>See past guides</a></p>
+          {standalonePast.map(({ slug, label }) => <p key={slug} className={styles.description}><a href={`/guides/${slug}`} style={S.link}>{label}</a></p>)}
         </section>
       ) : null}
       <p style={S.foot}>Planning around a specific spot? <a href="/" style={S.link}>Open Wayfind</a> and search it, or start with what each city is known for: <a href="/culture/orlando" style={S.link}>Orlando</a>, <a href="/culture/sarasota" style={S.link}>Sarasota</a>, <a href="/culture/tampa" style={S.link}>Tampa</a>.</p>

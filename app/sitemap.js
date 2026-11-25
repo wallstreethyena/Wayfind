@@ -4,6 +4,7 @@ import { EVENT_SERIES_HUBS } from "../lib/eventSeriesHubs.js";
 // made 678 URLs share one churning lastmod and taught crawlers nothing.
 import { GUIDES } from "../lib/guides";
 import { currentGuides } from "../lib/guideLifecycle";
+import { STANDALONE_GUIDE_INDEX } from "../lib/guideDedicatedRoutes";
 import { BEACH_METROS } from "../lib/beaches";
 import { EVENT_WINDOWS } from "../lib/eventsList";
 import { TOWN_HUBS } from "../lib/cultureHubs";
@@ -110,7 +111,7 @@ export default async function sitemap() {
   // Dedicated guide routes with their own page.js (robots index:true). The
   // fall-festivals guide has no GUIDES entry, so the loop above never listed
   // it; a slug that IS in GUIDES is already listed and is skipped here.
-  const dedicatedGuides = ["florida-fall-festivals-2026"].filter((slug) => !GUIDES[slug]).map((slug) => ({ url: `${SITE_URL}/guides/${slug}` }));
+  const dedicatedGuides = STANDALONE_GUIDE_INDEX.filter(({ slug }) => !GUIDES[slug]).map(({ slug }) => ({ url: `${SITE_URL}/guides/${slug}` }));
   const placeIds = await placeIdsPromise;
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
   // Seasonal movie pages (/movies/<id>), one per live registry movie, each with Movie JSON-LD.

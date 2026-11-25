@@ -35,7 +35,7 @@ import { mintClickId, withClickId, isEarningGoHref } from "../../../lib/hubConve
 import { isSearchAsBookHref } from "../../../lib/viatorDenylist";
 import { GuideCommissionLine } from "../../components/GuideCommissionLine";
 
-export default function GuideConversion({ slug, region, cta, next, social, socialStatus, vacationRental }) {
+export default function GuideConversion({ slug, region, cta, next, social, socialStatus, vacationRental, primaryPromoted = false }) {
   const ref = useRef(null);
   const seen = useRef(false);
   const [saved, setSaved] = useState(false);
@@ -74,7 +74,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
   // Impression = actually on screen, once. A render-time impression would count
   // readers who never scrolled to it and make the click-through rate meaningless.
   useEffect(() => {
-    if (!cta || !cta.href || !ref.current || typeof IntersectionObserver === "undefined") return;
+    if (primaryPromoted || !cta || !cta.href || !ref.current || typeof IntersectionObserver === "undefined") return;
     const el = ref.current;
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
@@ -124,7 +124,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".9px", textTransform: "uppercase", color: "#8A97A6" }}>
             {cta.monetized ? "Your next step" : "One clear next step"}
           </div>
-          <a
+          {!primaryPromoted ? <a
             href={ctaHref}
             data-commerce-owner="GuideConversion"
             {...(cta.sponsored
@@ -161,7 +161,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
             style={{ display: "block", marginTop: 10, padding: "14px 18px", borderRadius: 14, background: "#F97316", color: "#0B0F14", fontSize: 16, fontWeight: 800, textAlign: "center", textDecoration: "none" }}
           >
             {cta.label}{cta.sponsored ? " ↗" : ""}
-          </a>
+          </a> : null}
           {Array.isArray(cta.more) ? cta.more.map((extra) => (
             <PartnerExtra key={extra.offerId || extra.label} extra={extra} slug={slug} region={region} />
           )) : null}

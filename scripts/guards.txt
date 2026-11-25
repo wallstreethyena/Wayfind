@@ -2789,4 +2789,7 @@ node scripts/test-thanksgiving-editorial.mjs
 node scripts/test-gemini-florida-intelligence.mjs
 # 2026-11-23 Live Music repeat photos: official event covers with Photo credit, one venue photo per rail.
 node scripts/test-official-event-covers.mjs
+
+# Main-site guide action coverage and tracking boundaries.
+node scripts/test-guide-day-action.mjs
 node scripts/test-ai-board.mjs
