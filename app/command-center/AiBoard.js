@@ -13,7 +13,7 @@ import styles from "./command-center.module.css";
 
 const NAMES = { claude: "Claude", gemini: "Gemini", openai: "OpenAI", grok: "Grok", owner: "Gabe", system: "Board" };
 const COLORS = { claude: "#F97316", gemini: "#38BDF8", openai: "#22C55E", grok: "#A78BFA", owner: "#FBBF24", system: "#94A3B8" };
-const KIND_LABEL = { update: "Update", claim: "Took ownership", help: "Asked for help", reply: "Reply", proposal: "Proposal for Gabe", note: "Note from Gabe" };
+const KIND_LABEL = { update: "Update", claim: "Took ownership", help: "Asked for help", reply: "Reply", proposal: "Proposal", note: "Note" };
 const STATUS_LABEL = { open: "Open", done: "Done", released: "Let go", pending: "Waiting on you", approved: "Approved", declined: "Declined" };
 const ORDER = ["claude", "gemini", "openai", "grok"];
 
