@@ -23,6 +23,7 @@ import { readFileSync } from "fs";
 import { register } from "node:module";
 import { listPublishReadyAtlasIds, unionIndexedAndAtlasIds } from "../lib/atlasPlaceAllowlist.js";
 import { listGuidePlaceIds } from "../lib/guidePlaceIndex.js";
+import { STANDALONE_GUIDE_INDEX } from "../lib/guideDedicatedRoutes.js";
 
 let pass = 0;
 const fail = (m) => { console.error("check-sitemap: FAIL — " + m); process.exit(1); };
@@ -109,7 +110,7 @@ console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable 
   ok(/try\s*\{[^}]*floridaEventSitemapRows[^}]*\}\s*catch/.test(smCode), "a failed events read is caught, so it drops the events and never the whole sitemap");
   ok(/\.\.\.floridaEvents\b/.test(smCode) && /\.\.\.dedicatedGuides\b/.test(smCode), "events + dedicated guides are spread into the returned sitemap array");
   ok(/`\$\{SITE_URL\}\/florida-events`/.test(smCode), "/florida-events hub is listed");
-  ok(/"florida-fall-festivals-2026"/.test(smCode), "dedicated fall-festivals guide is listed");
+  ok(STANDALONE_GUIDE_INDEX.some(({ slug }) => slug === "florida-fall-festivals-2026") && /const dedicatedGuides = STANDALONE_GUIDE_INDEX\.filter[\s\S]*?\.map/.test(smCode), "dedicated fall-festivals guide is listed through the shared index");
 
   // Functional: CALL the row builder with fixtures, including negative controls.
   const { floridaEventSitemapRows } = await import("../lib/curatedEvents.js");
