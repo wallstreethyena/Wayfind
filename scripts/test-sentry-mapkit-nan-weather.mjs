@@ -64,4 +64,62 @@ try {
   ok(call === null && (await bad.text()) === "{}", "non-numeric coordinates never reach Open-Meteo");
 } finally { globalThis.fetch = realFetch; }
 
+// ── WAYFIND-10, second pass (event seen again 2026-11-23) ──
+// #2566 guarded only the event venue map. The main map (appleExplorerMap) still
+// let |lat| up to 90 through, and the creator map checked finiteness only.
+{
+  const { finitePoint, MERCATOR_MAX_LAT } = await import("../lib/appleExplorerMap.js");
+  ok(MERCATOR_MAX_LAT === 85.0511, "explorer map uses the Web Mercator limit");
+  for (const [name, point, expected] of [
+    ["Gulf Coast place", { lat: 27.5, lng: -82.4 }, true],
+    ["pole 90", { lat: 90, lng: 0 }, false],
+    ["86 (finite but unprojectable)", { lat: 86, lng: 0 }, false],
+    ["-89 south", { lat: -89, lng: 0 }, false],
+    ["lng 181", { lat: 27, lng: 181 }, false],
+  ]) ok(!!finitePoint(point) === expected, "explorer finitePoint: " + name);
+
+  const { createCreatorAppleMap } = await import("../lib/creatorAppleMap.js");
+  const pinned = [];
+  const noop = () => {};
+  const permissive = (target) => new Proxy(target, { get: (t, k) => (k in t ? t[k] : noop) });
+  const creatorKit = {
+    Coordinate: class { constructor(lat, lng) { this.latitude = lat; this.longitude = lng; } },
+    Padding: class {},
+    ImageAnnotation: class { constructor(coordinate, options) { this.coordinate = coordinate; this.options = options; } },
+    Map: class { constructor() { return permissive({ addAnnotations: (items) => pinned.push(...items), showItems: noop }); } },
+  };
+  createCreatorAppleMap({ mapkit: creatorKit, container: {}, places: [
+    { id: "ok", name: "Real", lat: 27.33, lng: -82.53 },
+    { id: "pole", name: "Pole", lat: 90, lng: 0 },
+    { id: "far", name: "Far north", lat: 87, lng: 0 },
+  ], onSelect: noop });
+  ok(pinned.length === 1 && pinned[0].options.title === "Real", "creator map drops unprojectable pins before MapKit sees them");
+  ok(pinned.every((a) => Math.abs(a.coordinate.latitude) <= 85.0511), "every creator pin is projectable");
+}
+
+// ── /api/weather vs the Command Center self-check (alert 2026-11-24 14:07 ET) ──
+// The probe gives the route 6s. With the upstream deadline also 6s, a slow
+// Open-Meteo made both give up together and the probe paged "timeout (6005ms)"
+// instead of seeing the route's {} soft-fail. EXECUTED: a hung upstream.
+{
+  const { GET: weatherGET } = await import("../app/api/weather/route.js");
+  const probeSrc = (await import("node:fs")).readFileSync(new URL("../lib/commandCenter/sources/synthetic.js", import.meta.url), "utf8");
+  ok(/t\.timeoutMs \|\| opts\.timeoutMs \|\| 6000/.test(probeSrc) && /key: "api_weather"(?![^}]*timeoutMs)/.test(probeSrc), "the self-check still gives /api/weather the 6s default budget");
+  const saved = globalThis.fetch;
+  try {
+    globalThis.fetch = (url, init) => new Promise((_, reject) => {
+      init.signal.addEventListener("abort", () => reject(Object.assign(new Error("aborted"), { name: "TimeoutError" })), { once: true });
+    });
+    // AbortSignal.timeout's timer is unref'd; hold the loop open so the
+    // deadline can actually fire in this script.
+    const keepAlive = setInterval(() => {}, 1000);
+    const t0 = Date.now();
+    const hung = await weatherGET(new Request("https://www.gowayfind.com/api/weather?lat=27.34&lng=-82.53"));
+    const ms = Date.now() - t0;
+    clearInterval(keepAlive);
+    ok(hung.status === 200 && (await hung.text()) === "{}", "a hung upstream soft-fails to {}");
+    ok(ms < 5500, `…and answers well inside the probe's 6s budget (${ms}ms)`);
+  } finally { globalThis.fetch = saved; }
+}
+
 console.log("test-sentry-mapkit-nan-weather: OK — " + assertions + " assertions");
