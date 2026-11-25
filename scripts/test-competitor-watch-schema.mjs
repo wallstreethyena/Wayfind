@@ -56,9 +56,9 @@ const INTEL_INSERT = `insert into public.wf_competitor_intel
   values ($1, 1, $2, 'www.example.com', 'Winter lights guide', 'tampa', $3, 'New seasonal guide URL')
   on conflict (competitor, source_url_hash, signal_type) do nothing returning id`;
 const PROMO_INSERT = `insert into public.wf_competitor_promos
-  (competitor, metro, subject, discount_pct, impact_level, source_url, source_url_hash)
-  values ($1, 'orlando', $2, $3, 'medium', 'https://www.example.com/deals', $4)
-  on conflict (competitor, source_url_hash, subject) do nothing returning id, status`;
+  (competitor, metro, subject, discount_pct, impact_level, source_url, source_url_hash, block_hash)
+  values ($1, 'orlando', $2, $3, 'medium', 'https://www.example.com/deals', $4, encode(sha256(convert_to($4 || '|block', 'UTF8')), 'hex'))
+  on conflict (competitor, source_url_hash, block_hash) do nothing returning id, status`;
 
 // ── the real migration ──────────────────────────────────────────────────────
 {
@@ -102,7 +102,26 @@ const PROMO_INSERT = `insert into public.wf_competitor_promos
   const p1 = await asRole("service_role", PROMO_INSERT, ["fever", "25% off: lights", 25, h("p1")]);
   eq(p1.rows[0].status, "new", "a promo starts as status new");
   const p2 = await asRole("service_role", PROMO_INSERT, ["fever", "25% off: lights", 25, h("p1")]);
-  eq(p2.rows.length, 0, "the same (competitor, url hash, subject) promo is deduped");
+  eq(p2.rows.length, 0, "the same (competitor, url hash, block hash) promo is deduped");
+  const p3 = await asRole("service_role", PROMO_INSERT, ["fever", "25% off holiday lights tickets", 25, h("p1")]);
+  eq(p3.rows.length, 0, "a different subject for the same promo block is still one row (dedupe is on block_hash, not wording)");
+
+  // First and last seen: an upsert refreshes last_seen_at and keeps detected_at.
+  await db.query("update public.wf_competitor_intel set detected_at = '2026-01-01T00:00:00Z', last_seen_at = '2026-01-01T00:00:00Z' where signal_type = 'new_guide'");
+  await asRole("service_role", `insert into public.wf_competitor_intel (competitor, tier, source_url_hash, source_host, title, metro, signal_type, diff_summary, last_seen_at)
+    values ('fever', 1, $1, 'www.example.com', 'Winter lights guide', 'tampa', 'new_guide', 'Seasonal guide URL', '2026-11-25T09:30:00Z')
+    on conflict (competitor, source_url_hash, signal_type) do update set last_seen_at = excluded.last_seen_at, diff_summary = excluded.diff_summary`, [h("u1")]);
+  const seenRow = await asRole("service_role", "select detected_at::text as d, last_seen_at::text as l from public.wf_competitor_intel where signal_type = 'new_guide'");
+  ok(seenRow.rows.length === 1 && seenRow.rows[0].d.startsWith("2026-01-01") && seenRow.rows[0].l.startsWith("2026-11-25"), "merge upsert: detected_at (first seen) kept, last_seen_at refreshed");
+  const promoCols = await db.query("select column_name from information_schema.columns where table_name = 'wf_competitor_promos' and column_name in ('block_hash', 'last_seen_at') order by 1");
+  eq(promoCols.rows.map((r) => r.column_name), ["block_hash", "last_seen_at"], "promos carry block_hash and last_seen_at");
+
+  // Retention: the service role deletes rows unseen for 180 days; anon cannot delete.
+  await db.query("update public.wf_competitor_intel set last_seen_at = '2026-01-01T00:00:00Z' where signal_type = 'new_event'");
+  await assert.rejects(() => asRole("anon", "delete from public.wf_competitor_intel where last_seen_at < now()"), /permission denied/i, "anon cannot delete");
+  count += 1;
+  const pruned = await asRole("service_role", "delete from public.wf_competitor_intel where last_seen_at < $1 returning signal_type", ["2026-05-29T09:30:00Z"]);
+  eq(pruned.rows.map((r) => r.signal_type), ["new_event"], "retention deletes only the row unseen for 180 days");
 
   // The checks that keep page bodies and bad values out.
   const bad = [
@@ -123,12 +142,12 @@ const PROMO_INSERT = `insert into public.wf_competitor_promos
   );
   count += 1;
   await assert.rejects(
-    () => asRole("service_role", `insert into public.wf_competitor_promos (competitor, metro, subject, impact_level, status, source_url, source_url_hash) values ('fever', 'miami', 's', 'medium', 'published', 'https://www.example.com', $1)`, [h("p9")]),
+    () => asRole("service_role", `insert into public.wf_competitor_promos (competitor, metro, subject, impact_level, status, source_url, source_url_hash, block_hash) values ('fever', 'miami', 's', 'medium', 'published', 'https://www.example.com', $1, $1)`, [h("p9")]),
     /check constraint/i, "a promo status outside new/reviewed/dismissed is refused",
   );
   count += 1;
   await assert.rejects(
-    () => asRole("service_role", `insert into public.wf_competitor_promos (competitor, metro, subject, impact_level, source_url, source_url_hash) values ('fever', 'miami', 's', 'extreme', 'https://www.example.com', $1)`, [h("p8")]),
+    () => asRole("service_role", `insert into public.wf_competitor_promos (competitor, metro, subject, impact_level, source_url, source_url_hash, block_hash) values ('fever', 'miami', 's', 'extreme', 'https://www.example.com', $1, $1)`, [h("p8")]),
     /check constraint/i, "an impact level outside low/medium/high is refused",
   );
   count += 1;

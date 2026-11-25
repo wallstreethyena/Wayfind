@@ -8,17 +8,26 @@
 --   wf_competitor_promos  one row per competitor discount of 10% or more, with a
 --                         review status for the owner.
 --
--- WHAT IS NEVER STORED: page bodies. Only sha256 hashes of URLs and promo blocks,
--- short titles (160 chars) and a short structured summary in our own words
--- (400 chars). The checks below hold that line in the database too.
+-- WHAT IS NEVER STORED: page bodies or copied sentences. Only sha256 hashes of URLs
+-- and promo blocks, short titles (160 chars), a promo subject built from the stated
+-- percentage plus a fixed category word ("25% off show tickets"), and a short
+-- structured summary in our own words (400 chars). The checks below hold the
+-- lengths in the database too.
+--
+-- FIRST AND LAST SEEN. detected_at is the first sighting and is never sent on an
+-- upsert; last_seen_at is refreshed by every run that still sees the row.
+--
+-- RETENTION (bounded). Each live run deletes rows whose last_seen_at is older than
+-- 180 days (scripts/ci-monitor.mjs pruneOldRows, service role).
 --
 -- SECURITY. Row level security is ON with NO policies, and every grant to anon
 -- and authenticated is revoked, exactly like wf_ai_board. Only the service role
 -- (the scheduled workflow) can read or write. The public anon key gets nothing.
 --
 -- Dedupe is the database's job: unique (competitor, source_url_hash, signal_type)
--- and unique (competitor, source_url_hash, subject), so a daily rerun never
--- doubles a row. Locked by scripts/test-competitor-watch-schema.mjs (PGlite).
+-- and unique (competitor, source_url_hash, block_hash), where block_hash is a hash
+-- of the promo's structured fields, so a daily rerun or reworded copy for the same
+-- offer never doubles a row. Locked by scripts/test-competitor-watch-schema.mjs (PGlite).
 --
 -- Additive only. Reverse:
 --   begin;
@@ -40,11 +49,16 @@ create table if not exists public.wf_competitor_intel (
   matched_wayfind boolean not null default false,
   match_ref       text check (match_ref is null or char_length(match_ref) <= 120),
   detected_at     timestamptz not null default now(),
+  last_seen_at    timestamptz not null default now(),
   constraint wf_competitor_intel_dedupe unique (competitor, source_url_hash, signal_type)
 );
 
 create index if not exists wf_competitor_intel_detected_idx
   on public.wf_competitor_intel (detected_at desc);
+create index if not exists wf_competitor_intel_competitor_id_idx
+  on public.wf_competitor_intel (competitor, id);
+create index if not exists wf_competitor_intel_last_seen_idx
+  on public.wf_competitor_intel (last_seen_at);
 
 create table if not exists public.wf_competitor_promos (
   id              bigint generated always as identity primary key,
@@ -57,12 +71,16 @@ create table if not exists public.wf_competitor_promos (
   status          text not null default 'new' check (status in ('new', 'reviewed', 'dismissed')),
   source_url      text not null check (char_length(source_url) <= 2048 and source_url ~ '^https://'),
   source_url_hash text not null check (source_url_hash ~ '^[a-f0-9]{64}$'),
+  block_hash      text not null check (block_hash ~ '^[a-f0-9]{64}$'),
   detected_at     timestamptz not null default now(),
-  constraint wf_competitor_promos_dedupe unique (competitor, source_url_hash, subject)
+  last_seen_at    timestamptz not null default now(),
+  constraint wf_competitor_promos_dedupe unique (competitor, source_url_hash, block_hash)
 );
 
 create index if not exists wf_competitor_promos_detected_idx
   on public.wf_competitor_promos (detected_at desc);
+create index if not exists wf_competitor_promos_last_seen_idx
+  on public.wf_competitor_promos (last_seen_at);
 
 alter table public.wf_competitor_intel  enable row level security;
 alter table public.wf_competitor_promos enable row level security;
