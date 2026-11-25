@@ -1,0 +1,48 @@
+# Daily competitor watch (scripts/ci-monitor.mjs). Reads competitors' PUBLIC
+# feeds, sitemaps and listing pages, politely (robots.txt first, one request per
+# host per 3 s, WayfindBot UA), and upserts short signals into the private
+# wf_competitor_intel / wf_competitor_promos tables. Blocked sources are
+# recorded and skipped. The brief is kept as a run artifact for 30 days.
+#
+# No issues, no emails, no posting anywhere: the only outputs are the two
+# service-role-only tables and the artifact.
+#
+# 09:30 UTC = 4:30 AM ET in winter (EST), 5:30 AM ET in summer (EDT). Clear of the
+# 08:00 UTC verify-offers Vercel cron.
+name: ci-monitor
+on:
+  schedule:
+    - cron: "30 9 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-monitor
+  cancel-in-progress: false
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # public/ is most of the tree and nothing here reads it (see canary.yml).
+      - uses: actions/checkout@v4
+        with: { sparse-checkout: "/*\n!/public/\n", sparse-checkout-cone-mode: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Test the monitor on fixtures first
+        run: node scripts/test-ci-monitor.mjs
+      - name: Watch competitors
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/ci-monitor.mjs
+      - name: Keep the brief
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-monitor-brief
+          path: |
+            ci-monitor-brief.md
+            ci-monitor-brief.json
+          retention-days: 30
+          if-no-files-found: warn

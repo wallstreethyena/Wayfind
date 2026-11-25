@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+  <url><loc>https://www.alpha.example/2026/11/best-christmas-lights-tampa-bay/</loc><lastmod>2026-11-20T10:00:00+00:00</lastmod></url>
+  <url><loc>https://www.alpha.example/2026/11/new-coffee-shop-opens/</loc><lastmod>2026-11-19</lastmod></url>
+  <url><loc>https://www.alpha.example/2026/11/holiday-boat-parade-guide/</loc><lastmod>2026-11-18</lastmod></url>
+  <url><loc>https://www.alpha.example/2024/12/new-years-eve-guide-2024/</loc><lastmod>2024-12-20</lastmod></url>
+  <url><loc>https://www.alpha.example/2026/11/nye-fireworks/</loc><lastmod>2026-11-21</lastmod>
+    <news:news><news:title>Where to watch New Year's Eve fireworks</news:title></news:news></url>
+  <url><loc>https://other.example/2026/11/offsite-christmas-guide/</loc><lastmod>2026-11-21</lastmod></url>
+</urlset>

@@ -70,6 +70,10 @@
       "schedule": "42 12 * * *"
     },
     {
+      "path": "/api/cron/ai-board",
+      "schedule": "5 13 * * *"
+    },
+    {
       "path": "/api/cron/atlas-build?limit=3",
       "schedule": "15 * * * *"
     },

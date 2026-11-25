@@ -1,5 +1,10 @@
 // v4.17 — robots directives; everything public, sitemap declared.
 //
+// /command-center and /api/command-center ARE DISALLOWED (2026-11-25). Owner-only
+// tooling (the Command Center and its AI team board). The page is already
+// noindex and every API requires the owner server-side; this keeps polite
+// crawlers from even knocking. It is not the lock: lib/commandCenter/auth.js is.
+//
 // /api/photo IS DISALLOWED (2026-09-09). It is a metered Google Places photo
 // proxy (see app/api/photo/route.js) — every crawler hit on an uncached ref
 // is a real billable Google request, and a compliant crawler (Googlebot,
@@ -23,7 +28,7 @@ export default function robots() {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/photo", "/api/commerce/go", "/api/hotels/go", "/api/reserve/go", "/api/stubhub/go", "/api/ticketmaster/go", "/api/viator/go"],
+      disallow: ["/command-center", "/api/command-center", "/api/photo", "/api/commerce/go", "/api/hotels/go", "/api/reserve/go", "/api/stubhub/go", "/api/ticketmaster/go", "/api/viator/go"],
     },
     sitemap: SITE_URL + "/sitemap.xml",
   };

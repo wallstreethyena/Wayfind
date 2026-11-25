@@ -10,6 +10,9 @@
 // fails the build when a dedicated route skips this shell or GuideSection.
 import ReturnToWayfind from "./ReturnToWayfind";
 import GuideArticleHero from "./GuideArticleHero";
+import GuideDayAction from "./GuideDayAction";
+import { dedicatedGuideAction } from "../../lib/guideActionPlan.js";
+import { siteTodayStr } from "../../lib/siteTime.js";
 import { WF_PLACE_CARD_CSS } from "./css";
 import { GUIDE_STANDARD_CSS } from "../../lib/guideStandardCss.js";
 import { GUIDE_EDITORIAL_CSS } from "../guides/[slug]/GuideEditorial";
@@ -88,6 +91,7 @@ export default function GuideStandardShell({
   quick = null, intro = null, contents = [], lead = null, extraLd = [], css = "", children,
 }) {
   if (!slug || !title || !updated) throw new Error("GuideStandardShell needs slug, title and updated");
+  const action = dedicatedGuideAction(slug, siteTodayStr());
   return (
     <div style={PAGE} className="wf-guide-editorial" data-guide-standard={slug}>
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
@@ -97,7 +101,8 @@ export default function GuideStandardShell({
       {[...guideStandardLd({ slug, title, description, published, updated, image }), ...extraLd].map((ld, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={ldJson(ld)} />
       ))}
-      <GuideArticleHero backHref="/guides" backLabel="All guides" category={category} region={region} title={title} description={description} image={image} jumpHref={jumpHref} jumpLabel={jumpLabel} actions={actions}>
+      <GuideArticleHero backHref="/guides" backLabel="All guides" category={category} region={region} title={title} description={description} image={image} jumpHref={action?.href === jumpHref ? null : jumpHref} jumpLabel={jumpLabel} actions={actions}
+        primaryAction={action ? <GuideDayAction action={action} slug={slug} region={region} /> : null}>
         {quick}
       </GuideArticleHero>
       <article id="guide" className="wf-guide-article">
