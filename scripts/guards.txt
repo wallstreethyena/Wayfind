@@ -2798,3 +2798,10 @@ node scripts/test-ai-board.mjs
 node scripts/test-trip-rewards-rls.mjs
 node scripts/test-trip-rewards.mjs
 node scripts/test-journey-telemetry.mjs
+
+# 2026-11-25 Competitor watch: private wf_competitor_intel / wf_competitor_promos (PGlite: service role only, dedupe),
+# the polite monitor (robots first, WayfindBot UA, 3 s per host, no stored bodies, 2-competitor gap rule),
+# and the holiday promo slot that renders nothing until a promo is verified.
+node scripts/test-competitor-watch-schema.mjs
+node scripts/test-ci-monitor.mjs
+node scripts/test-holiday-promos.mjs

@@ -1,0 +1,15 @@
+{
+  "https://www.alpha.example/robots.txt": { "file": "alpha-robots.txt" },
+  "https://www.alpha.example/sitemap_index.xml": { "file": "alpha-sitemap-index.xml" },
+  "https://www.alpha.example/post-sitemap.xml": { "file": "alpha-post-sitemap.xml" },
+  "https://www.alpha.example/event-sitemap.xml": { "file": "alpha-event-sitemap.xml" },
+  "https://www.alpha.example/private/feed.xml": { "file": "gamma-feed.xml" },
+  "https://www.alpha.example/members/deals": { "file": "gamma-deals.html" },
+  "https://www.alpha.example/go-deals": { "status": 302, "headers": { "location": "/login?next=%2Fgo-deals" } },
+  "https://beta.example/tampa": { "file": "beta-tampa.html" },
+  "https://www.gamma.example/deals": { "file": "gamma-deals.html" },
+  "https://www.gamma.example/feed/": { "file": "gamma-feed.xml" },
+  "https://delta.example/robots.txt": { "status": 403, "file": "epsilon-wall.html" },
+  "https://delta.example/events": { "file": "beta-tampa.html" },
+  "https://epsilon.example/sarasota": { "file": "epsilon-wall.html" }
+}
