@@ -831,6 +831,7 @@ scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	194	0	0	
 scripts/test-group-vote-overhaul.mjs	0	RENDER	blocks-ci-and-deploy	1	-	59	0	0	2b9d8bbb5269eb5101717d3d1c895e12bd7532bbfb7d68f3771432ec366a8ffd
 scripts/test-group-vote-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	-	57	0	0	5106470cfbf6c6f3231d6823ade1ef54396405b3df0d77e481ebd612468b98a1
 scripts/test-guard-shards.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	3a4ae5e50aa2dd75c86f1f8a55d5d4b6be34d45a9da2dcb2947e7daefd50e6ed
+scripts/test-guide-bundle.mjs	0	RENDER	blocks-ci-and-deploy	1	-	109	0	0	16e3da2acfbcd3400118423089cf7730ea0709f9b99fe5b8aad20e5d52ecb2d3
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
 scripts/test-guide-commerce-exit.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	5	0	0	8a2ba9479167f59ac0f8eb3f7d0a2befac1f6a04f78edd66ea9556f557f02e2e
 scripts/test-guide-commerce-measurement.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	31	0	0	fa5b5652425a0349567726dff834cfb3a5633c94fa0afe53ef33971e315938d1
