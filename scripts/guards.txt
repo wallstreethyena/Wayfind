@@ -2793,3 +2793,8 @@ node scripts/test-official-event-covers.mjs
 # Main-site guide action coverage and tracking boundaries.
 node scripts/test-guide-day-action.mjs
 node scripts/test-ai-board.mjs
+# Trip log rewards (2026-11-25): RLS, points rule, anti spam (PGlite) and the
+# rules, server flow and renders of Log your visit and the rewards drawer.
+node scripts/test-trip-rewards-rls.mjs
+node scripts/test-trip-rewards.mjs
+node scripts/test-journey-telemetry.mjs

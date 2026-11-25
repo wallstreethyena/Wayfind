@@ -131,5 +131,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "Group Vote overhaul 2026-11-23, follows #2701",
     "reason": "NOT APPLIED YET. Additive Group Vote overhaul verified in embedded PostgreSQL (scripts/test-group-plan-schema.mjs, 95 assertions): widens wf_group_plans places check from 1..3 to 1..5 and invitees check to 0..10 for shareMode=group; extends wf_group_plan_commit for join_respond and group-mode early close while keeping prior slots immutable; adds service_role-only RLS tables wf_group_plan_sms_optins and wf_group_plan_sms (on delete cascade) and SECURITY INVOKER owner RPCs wf_group_plan_delete, wf_group_plan_clean_history, and wf_group_plan_dismiss_notice. Pending canonical scripts/apply-migration.mjs application by owner (SUPABASE_ACCESS_TOKEN absent in this session)."
+  },
+  {
+    "file": "supabase/migrations/20261125180000_wf_trip_rewards.sql",
+    "sha256": "00f953969937214ee9ae60d85e4ad22bd4d884f400ac9fbbc22585d63ea66ecd",
+    "decision_owner": "wallstreethyena",
+    "tracking": "owner order 2026-11-25 (trip logs and rewards)",
+    "reason": "PENDING APPLY right after merge, under the owner's 2026-11-25 mission (verified trip logs, tiered rewards, badges). Additive only: three new tables (wf_trip_logs, wf_reward_events, wf_rewards_profile) with RLS on, owner select policies only, no anon or authenticated writes, and one service role only writer function wf_log_visit. No existing table touched. Tested on isolated PGlite by scripts/test-trip-rewards-rls.mjs. Reverse in the file header. The applied receipt replaces this entry."
   }
 ]

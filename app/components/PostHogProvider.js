@@ -39,7 +39,7 @@ import {
   sanitizeAnalyticsProperties,
 } from "../../lib/browserAnalytics";
 import { readCrownCampaign } from "../../lib/crownCampaign.js";
-import { attributionProps, captureLanding, installBridge, readState, sessionCampaignProps, writeLandingCookie } from "../../lib/campaignAttribution.js";
+import { attributionProps, captureLanding, installBridge, readState, sessionCampaignProps, visitorProps, writeLandingCookie } from "../../lib/campaignAttribution.js";
 import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie.js";
 import { isNative } from "../../lib/native";
 import { safeLocalStorage, safeSessionStorage } from "../../lib/safeStorage.js";
@@ -154,6 +154,9 @@ export default function PostHogProvider({ children }) {
           const sess = attributionProps(st, "sess");
           if (Object.keys(ft).length) ph.register(ft);
           if (Object.keys(sess).length && typeof ph.register_for_session === "function") ph.register_for_session(sess);
+          // First visit or a return (a device count, no identity): lets every event split new from returning visitors.
+          const visit = visitorProps(safeLocalStorage());
+          if (Object.keys(visit).length && typeof ph.register_for_session === "function") ph.register_for_session(visit);
           // The landing's own utm_* and click ids, so the session keeps its
           // source even when the page rewrote the address before this boot.
           const landing = sessionCampaignProps(st);

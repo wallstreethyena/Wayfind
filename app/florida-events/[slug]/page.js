@@ -39,6 +39,7 @@ import { secondaryEventTicketAction } from "../../../lib/secondaryEventTickets.j
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
+import EventLogVisit from "../../components/EventLogVisit.js";
 import EventWhere from "../../components/EventWhere";
 import CrownOutbound from "../../components/CrownOutbound.js";
 import { CROWN_EVENT_SLUGS } from "../../../lib/crownCampaign.js";
@@ -619,6 +620,10 @@ export default async function CuratedEventPage({ params }) {
           </a>
         </p>
       ) : null}
+
+      {/* Log your visit (2026-11-25): members log an event they went to, for points and badges.
+          Low on the page, after the facts, so a card that appears after hydration moves nothing a reader is looking at. */}
+      <EventLogVisit eventId={e.event_id || ""} eventName={e.event_name || ""} />
 
       <section style={S.shareEnd}>
         <p style={S.shareAsk}>

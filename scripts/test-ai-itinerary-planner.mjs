@@ -404,18 +404,20 @@ delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     "Missing destination triggers a single concise clarifying question instead of hallucinating a city"
   );
 
-  // Proactive assistant moments & strict session cap (<= 2 per session)
+  // Proactive assistant moments & strict session cap: ONE unsolicited
+  // interruption per visit across every surface (owner rule 2026-11-25,
+  // lib/interruptionBudget.js).
   const sess = makeMemoryStorage();
   const placeOffer = selectProactivePlannerOffer({ pathname: "/p/ChIJ_test_place", storage: sess });
   ok(placeOffer && placeOffer.kind === "place" && /whole day/i.test(placeOffer.message) && /build a day around this/i.test(placeOffer.ctaLabel), "Place page surfaces contextual 'build a day around this' offer");
   recordProactiveShown(sess, placeOffer.kind);
 
-  const xmasOffer = selectProactivePlannerOffer({ pathname: "/christmas-in-florida", storage: sess });
+  const xmasSess = makeMemoryStorage();
+  const xmasOffer = selectProactivePlannerOffer({ pathname: "/christmas-in-florida", storage: xmasSess });
   ok(xmasOffer && xmasOffer.kind === "christmas" && /Christmas plan/i.test(xmasOffer.message), "Christmas page surfaces contextual Christmas plan offer");
-  recordProactiveShown(sess, xmasOffer.kind);
 
-  const cappedOffer = selectProactivePlannerOffer({ pathname: "/things-to-do/orlando", unassignedSaveCount: 5, storage: sess });
-  ok(MAX_PROACTIVE_OFFERS_PER_SESSION === 2 && cappedOffer === null, "Proactive offers strictly stop after 2 impressions per session (non-spammy)");
+  const cappedOffer = selectProactivePlannerOffer({ pathname: "/christmas-in-florida", unassignedSaveCount: 5, storage: sess });
+  ok(MAX_PROACTIVE_OFFERS_PER_SESSION === 1 && cappedOffer === null, "Proactive offers strictly stop after 1 impression per session (one interruption per visit)");
 
   const sess2 = makeMemoryStorage();
   const savesOffer = selectProactivePlannerOffer({ pathname: "/", unassignedSaveCount: 4, storage: sess2 });
