@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { track } from "../../lib/track.js";
-import { emitCommerce } from "../../lib/commerce.js";
+import { emitCommerce, sanitizeClientClickId } from "../../lib/commerce.js";
 import { mintClickId, withClickId, isEarningGoHref } from "../../lib/hubConversion.js";
 import { GuideCommissionLine } from "./GuideCommissionLine";
 import styles from "./GuideDayAction.module.css";
@@ -11,6 +11,7 @@ export default function GuideDayAction({ action, slug, region }) {
   const hero = useRef(null);
   const clickId = useRef(null);
   const impressed = useRef(false);
+  const lastActivation = useRef(null);
   const [hydratedId, setHydratedId] = useState(null);
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -18,6 +19,7 @@ export default function GuideDayAction({ action, slug, region }) {
   useEffect(() => {
     clickId.current = mintClickId();
     impressed.current = false;
+    lastActivation.current = null;
     setHydratedId(clickId.current);
   }, [slug, action?.href]);
 
@@ -67,7 +69,7 @@ export default function GuideDayAction({ action, slug, region }) {
 
   if (!action?.href || !action?.label) return null;
 
-  function commerceProps(placement) {
+  function commerceProps(placement, activationId = clickId.current) {
     return {
       surface: "guide",
       provider: action.provider || (action.kind === "hotel" ? "stay22" : (action.kind === "deal" ? "deal" : "viator")),
@@ -76,18 +78,37 @@ export default function GuideDayAction({ action, slug, region }) {
       city_id: region || null,
       category: action.kind || null,
       placement,
-      click_id: clickId.current,
+      click_id: activationId,
     };
   }
-  const href = earningGo && hydratedId ? withClickId(action.href, hydratedId) : action.href;
+  const href = action.href;
   const attributes = action.sponsored
     ? earningGo ? { rel: "noreferrer sponsored" } : { target: "_blank", rel: "noreferrer sponsored" }
     : action.kind === "directions" ? { target: "_blank", rel: "noopener noreferrer" } : {};
   const anchor = (placement, ref) => <a ref={ref} className={styles.link} href={href}
-    {...attributes} data-guide-conversion={placement} data-guide-action-kind={action.kind}
-    onClick={() => {
-      try { track("guide_cta_clicked", { slug, region, cta_kind: action.kind, monetized: !!action.monetized, exact: !!action.exact, place: action.place || null, placement, click_id: clickId.current }); } catch {}
-      if (action.monetized) { try { emitCommerce("commerce_cta_clicked", commerceProps(placement)); } catch {} }
+    {...attributes} data-commerce-owner={action.monetized ? "GuideDayAction" : undefined}
+    data-guide-conversion={placement} data-guide-action-kind={action.kind}
+    onClick={(event) => {
+      const now = Date.now();
+      const anchor = event.currentTarget;
+      if (lastActivation.current && now - lastActivation.current.at < 1000) {
+        if (earningGo) anchor.setAttribute("href", withClickId(href, lastActivation.current.id));
+        return;
+      }
+      // Share the beacon's capture-phase id with PostHog and the redirect.
+      // A repeat from either placement is one intent, not a second lead.
+      const stamp = earningGo ? Number(anchor.getAttribute("data-wf-click-ts")) : 0;
+      const stamped = stamp > 0 && Math.abs(now - stamp) <= 1000
+        ? sanitizeClientClickId(anchor.getAttribute("data-wf-click-id")) : null;
+      const activationId = stamped || mintClickId();
+      lastActivation.current = { at: now, id: activationId };
+      if (earningGo) {
+        anchor.removeAttribute("data-wf-click-ts");
+        anchor.removeAttribute("data-wf-click-id");
+        anchor.setAttribute("href", withClickId(href, activationId));
+      }
+      try { track("guide_cta_clicked", { slug, region, cta_kind: action.kind, monetized: !!action.monetized, exact: !!action.exact, place: action.place || null, placement, click_id: activationId }); } catch {}
+      if (action.monetized) { try { emitCommerce("commerce_cta_clicked", commerceProps(placement, activationId)); } catch {} }
     }}
   >{action.label}{action.sponsored ? " ↗" : null}</a>;
   return <div ref={hero} className={styles.hero} data-guide-primary-action>

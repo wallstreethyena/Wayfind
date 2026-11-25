@@ -77,5 +77,11 @@ ok(component.includes('if (action?.href && hydratedId && typeof IntersectionObse
   component.includes('if (action.monetized) { try { emitCommerce("commerce_impression",'), "all visible actions receive product impressions; only monetary actions enter commerce");
 ok(component.includes('track("guide_cta_clicked"') && component.includes('if (action.monetized) { try { emitCommerce("commerce_cta_clicked",') &&
   component.includes("entry.intersectionRatio >= .5") && component.includes("impressed.current = true"), "both placements have one viewability-gated impression per action and distinct click taxonomy");
+ok(component.includes('data-commerce-owner={action.monetized ? "GuideDayAction" : undefined}'),
+  "both placements claim beacon ownership only for monetary actions, preventing a second PostHog event");
+ok(component.includes('anchor.getAttribute("data-wf-click-id")') &&
+  component.includes('anchor.setAttribute("href", withClickId(href, activationId))') &&
+  component.includes('commerceProps(placement, activationId)'),
+  "the beacon capture, product click and exact server redirect share a single per-activation id");
 const newCount = Object.keys(active).length + STANDALONE_GUIDE_INDEX.length;
 console.log(`test-guide-day-action: OK — ${checks} assertions; ${newCount} public guide actions at audit date`);
