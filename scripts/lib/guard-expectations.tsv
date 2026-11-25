@@ -923,6 +923,7 @@ scripts/test-landing-ssr-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	6c8d
 scripts/test-landing-tours.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0	caec75b9b5823ff17ce05b402240fe13720495de2318d2e6df181e9bf156c46f
 scripts/test-landing-why-fits.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	58328c2df1d05a58bd8a4d9e461db7b1e4a439b9c9ebac2a2ee66295d19b6471
 scripts/test-lane-lock-ownership.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	28f83475a21d3262a8d0d3073a767c215e703926c2e63445a7af3bf94397d76a
+scripts/test-latest-reel.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	d19cc64c41f34ea86bdbcfcc2cfac8209e71dd2b9ac863f16b334989fb0df87e
 scripts/test-layout-shift.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	ee84e4446b11d86b42730cea038cc2cebf715de1e5f926c04a98491e16d16fd5
 scripts/test-ledger-failure-classes.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0	b93be7f5a10c4ae6366a458d8396d37a79fc50609b7557a954e816b20d6d6719
 scripts/test-ledger-month.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	d1711bd14395d993a38e53a448dff3dc2c23c70d4256b169ab7a4653dc0cf269

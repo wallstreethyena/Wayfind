@@ -149,6 +149,7 @@ const EXEMPT = {
   "app/itinerary/page.js": { kind: "handoff", why: "route shim: a person's own plan, shared from inside the shell" },
   "app/go/[city]/page.js": { kind: "paid", why: "paid-ad landing: one conversion action, and a share would forward the ad click's attribution" },
   "app/go/florida/page.js": { kind: "paid", why: "paid-ad landing (Google Ads): same reason" },
+  "app/latest/page.js": { kind: "landing", why: "Instagram bio link landing (noindex): one tap from a Reel to its place; it changes with every Reel, and each card opens the event or place page, which carries its own Share" },
   "app/halloween-tickets/page.js": { kind: "handoff", why: "social shortlink: permanent redirect to /halloween-in-florida, not a second destination" },
   "app/go/halloween-tickets/page.js": { kind: "handoff", why: "social shortlink: permanent redirect to /halloween-in-florida, not a second destination" },
   "app/ask/page.js": { kind: "invite", why: "invite reply page: its primary action already IS a native share of the reply" },
