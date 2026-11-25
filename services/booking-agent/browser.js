@@ -21,10 +21,10 @@ function wrapPage(page, getStatus) {
         page.waitForSelector("[data-test='slot-button'], #firstName, [data-synthetic='first-name'], [data-synthetic='slot-button']", { timeout: Math.min(timeoutMs, 10000) }).catch(() => {}),
         page.waitForTimeout(3500),
       ]);
-      // Dismiss OneTrust cookie banner if it is covering controls.
+      // A OneTrust cookie banner gets its most private choice (reject all, or close). Never "accept all".
       try {
-        const accept = page.locator("#onetrust-accept-btn-handler");
-        if (await accept.isVisible({ timeout: 500 })) await accept.click({ timeout: 1500 });
+        const reject = page.locator("#onetrust-reject-all-handler, .ot-pc-refuse-all-handler, #onetrust-close-btn-container button").first();
+        if (await reject.isVisible({ timeout: 500 })) await reject.click({ timeout: 1500 });
       } catch { /* banner absent */ }
       return {
         async snapshot() {
@@ -120,11 +120,15 @@ export async function launchBrowserbaseSession(opts = {}) {
   const { chromium } = await import("playwright-core");
   const cfg = browserbaseConfig(opts.env || process.env);
   const fetchImpl = opts.fetchImpl || fetch;
-  const created = await createBrowserbaseSession({ ...cfg, fetchImpl });
+  // The booking agent never routes through a proxy pool.
+  const created = await createBrowserbaseSession({ ...cfg, proxies: false, fetchImpl });
   const debug = await getBrowserbaseLiveView({ apiKey: cfg.apiKey, sessionId: created.id, fetchImpl });
   const browser = await chromium.connectOverCDP(created.connectUrl);
   const context = browser.contexts()[0] || await browser.newContext();
   const page = context.pages()[0] || await context.newPage();
+  // Same honest user agent as the local browser, set on the cloud page itself.
+  const cdp = await context.newCDPSession(page);
+  await cdp.send("Network.setUserAgentOverride", { userAgent: opts.userAgent || AGENT_UA });
   const actualUserAgent = await page.evaluate(() => navigator.userAgent);
   let httpStatus = 0;
   page.on("response", (res) => {
