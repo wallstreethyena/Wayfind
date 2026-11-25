@@ -29,8 +29,12 @@ export async function GET(req) {
     }
 
     const data = await readFloridaIntelligence({ lat, lng, radiusMi: mi, holidayKey });
+    // Command Center and cron can see private diagnostics. The public feed
+    // must not disclose provider errors, AI audit notes or board receipts.
+    const { monitor, qualityAudit, posterPlan, ...content } = data;
+    const publicMonitor = monitor ? { aiActive: monitor.aiActive === true } : null;
     return Response.json(
-      { ok: true, ...data },
+      { ok: true, ...content, monitor: publicMonitor },
       {
         status: 200,
         headers: {

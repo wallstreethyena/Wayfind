@@ -37,6 +37,8 @@ import { openShareFlow } from "../../lib/shareFlow.js";
 import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { guideForPlaceRail } from "../../lib/guideDiscovery.js";
+import { PosterSpotlightProvider, usePosterPlan } from "./PosterSpotlight.js";
+import { localPosterShortlist } from "../../lib/posterDaypartPlan.js";
 import { GuideDiscoveryContext } from "./GuideDiscoveryContext";
 import { applyCuratorPicks, useCuratorPicks } from "../../lib/curatorPicks.js";
 import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
@@ -1382,6 +1384,10 @@ export default function DaypartRail({
   // pool. What kept the wrong list off this drop was never this condition — it
   // was #1033's pool fix, and that is still here.
   const selRail = selected && (selected !== "augtober" || fallPosterLive) ? railById.get(selected) : null;
+  const posterDaypartPlan = usePosterPlan();
+  const spotlight = useMemo(() => selected ? localPosterShortlist(posterDaypartPlan, {
+    today: siteDay, daypart, center,
+  }) : [], [selected, posterDaypartPlan, siteDay, daypart, center]);
   // …and when a rail brings its OWN answer, the shared pool below must not
   // speak for it AT ALL — neither its empty copy nor its cards.
   //
@@ -1956,6 +1962,7 @@ export default function DaypartRail({
       </section>
 
       <section className={"wf8-menusec" + (railOwnsItsOwnAnswer ? " is-composed" : "")} ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
+        <PosterSpotlightProvider shortlist={spotlight}>
         <div className="wf8-in">
           <div className="wf8-mbar">
             <p className="wf8-mhd">{selThumb ? <picture aria-hidden="true">
@@ -2608,6 +2615,7 @@ export default function DaypartRail({
             ? <ExtraMilesTail lat={center.lat} lng={center.lng} />
             : null}
         </div>
+        </PosterSpotlightProvider>
       </section>
     </div>
     </GuideDiscoveryContext.Provider>

@@ -9,6 +9,7 @@
 import { Suspense } from "react";
 import Home from "./home";
 import SiteDaySeed from "./components/SiteDaySeed";
+import { PosterPlanSeed } from "./components/PosterSpotlight.js";
 import { siteTodayStr } from "../lib/siteTime";
 import ProofVeil from "./components/ProofVeil";
 import { homeProofCopy } from "../lib/locationHonesty";
@@ -163,7 +164,9 @@ export default async function Page() {
         Wayfind: find the best things to do, right now
       </h1>
       <SiteDaySeed day={siteTodayStr()} />
-      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} />
+      <PosterPlanSeed plan={floridaIntel?.stale === false ? floridaIntel.posterPlan : null}>
+        <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} />
+      </PosterPlanSeed>
       {/* Keep the optional proof independent of shell rendering. HomeProof
           resolves its data before emitting ProofVeil and its children together,
           avoiding a streamed placeholder inside an already-emitted client
