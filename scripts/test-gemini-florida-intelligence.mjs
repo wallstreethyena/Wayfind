@@ -189,6 +189,50 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
   });
   ok(unconf.ok && unconf.aiStatus === "unconfigured" && called === 0 && Boolean(cachedWritten), "missing GEMINI_API_KEY skips network call and still persists deterministic snapshot");
 
+  // 3a-openai. OpenAI key set, no Gemini key, OpenAI refuses: the run must say
+  // WHY (status + scrubbed message), not "key is not set", and trip the breaker.
+  {
+    const tripped = [];
+    const refused = await runFloridaIntelligenceMonitor({
+      now: new Date("2026-11-23T19:00:00Z"),
+      apiKeyOverride: "",
+      openaiApiKeyOverride: "sk-test-fixture",
+      openaiRequestImpl: async () => new Response(JSON.stringify({ error: { message: "You exceeded your current quota, please check your plan and billing details.", type: "insufficient_quota" } }), { status: 429 }),
+      inputsOverride: fixedInputs,
+      geminiRequestImpl: async () => { throw new Error("must not call Gemini without key"); },
+      cacheSetImpl: async () => {},
+      breakerOpenImpl: async () => null,
+      tripBreakerImpl: async (provider, kind) => { tripped.push(provider + ":" + kind); },
+    });
+    ok(refused.ok && refused.aiStatus === "provider_error" && /^openai 429: .*quota/.test(refused.aiReason || ""), "an OpenAI refusal is reported as provider_error with its status and reason, not as a missing key");
+    ok(tripped.includes("openai:quota"), "an OpenAI quota refusal trips the openai breaker");
+
+    const badKey = await runFloridaIntelligenceMonitor({
+      now: new Date("2026-11-23T19:00:00Z"),
+      apiKeyOverride: "",
+      openaiApiKeyOverride: "sk-test-fixture",
+      openaiRequestImpl: async () => new Response(JSON.stringify({ error: { message: "Incorrect API key provided: sk-proj-****abcd. You can find your API key at platform.openai.com." } }), { status: 401 }),
+      inputsOverride: fixedInputs,
+      geminiRequestImpl: async () => { throw new Error("must not call Gemini without key"); },
+      cacheSetImpl: async () => {},
+      breakerOpenImpl: async () => null,
+      tripBreakerImpl: async () => {},
+    });
+    ok(badKey.aiStatus === "provider_error" && /^openai 401: /.test(badKey.aiReason || "") && !/sk-/.test(badKey.aiReason || ""), "an OpenAI 401 is reported with any key-shaped text scrubbed");
+
+    const noKeys = await runFloridaIntelligenceMonitor({
+      now: new Date("2026-11-23T19:00:00Z"),
+      apiKeyOverride: "",
+      openaiApiKeyOverride: "",
+      openaiRequestImpl: async () => { throw new Error("must not call OpenAI without key"); },
+      inputsOverride: fixedInputs,
+      geminiRequestImpl: async () => { throw new Error("must not call Gemini without key"); },
+      cacheSetImpl: async () => {},
+      breakerOpenImpl: async () => null,
+    });
+    ok(noKeys.aiStatus === "unconfigured", "with neither key set the run still reads unconfigured");
+  }
+
   // 3b. Active Gemini response -> validated and merged
   const activeRes = await runFloridaIntelligenceMonitor({
     now: new Date("2026-11-23T19:00:00Z"),

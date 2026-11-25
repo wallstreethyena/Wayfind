@@ -169,7 +169,7 @@ export default function TrendingNowClient() {
       const withWhy = await Promise.all(ranked.map(async (p) => {
         let line = null;
         try {
-          const r = await fetch("/api/buzz/why", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ place_id: p.place_id, name: p.name, category: p.category, city: loc.city, rating: p.rating, reviews: p.reviews, popularity: p.popularity, sources_count: p.sources_count, by_source: p.by_source, freshest: p.freshest }) });
+          const r = await fetch("/api/buzz/why", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ place_id: p.place_id, name: p.name, category: p.category, metro: p.metro, rating: p.rating, reviews: p.reviews, popularity: p.popularity, sources_count: p.sources_count, by_source: p.by_source, freshest: p.freshest }) });
           const j = r.ok ? await r.json() : null; line = j && j.line ? j.line : null;
         } catch (e) {}
         if (!line && p.place_id && intelByPlaceId[p.place_id]) line = intelByPlaceId[p.place_id];
