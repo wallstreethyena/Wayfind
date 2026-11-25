@@ -1,0 +1,11 @@
+# Hand-written fixture robots.txt (not copied from any site)
+User-agent: *
+Disallow: /private/
+Allow: /private/press$
+Disallow: /*?replytocom=
+
+User-agent: WayfindBot
+Disallow: /members
+
+Sitemap: https://www.alpha.example/sitemap_index.xml
+Sitemap: https://cdn.other.example/sitemap.xml
