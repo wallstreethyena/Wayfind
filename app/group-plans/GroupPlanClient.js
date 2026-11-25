@@ -461,7 +461,7 @@ export default function GroupPlanClient({mode="view",planId,placeId,placeName=""
         </div>
         {list?.plans?.length?list.plans.map((item)=>{
           const label=item.draftExpired?"Draft expired":(PLAN_STATUS_LABELS[item.status]||item.status);
-          const replyText=Number.isFinite(item.responseCount)&&(item.expectedCount>0||item.responseCount>0)?(item.expectedCount>0?` · ${item.responseCount}/${item.expectedCount} replied`:` · ${item.responseCount} replied`):"";
+          const replyText=Number.isFinite(item.responseCount)&&(item.expectedCount>0||item.responseCount>0)?(item.openGroup?` · ${item.responseCount} ${item.responseCount===1?"reply":"replies"} so far`:item.expectedCount>0?` · ${item.responseCount}/${item.expectedCount} replied`:` · ${item.responseCount} replied`):"";
           return <div className="gp-row" key={item.id}>
             <div className="gp-row-meta">
               <span className="gp-row-title">{item.title||"Group vote"}</span>

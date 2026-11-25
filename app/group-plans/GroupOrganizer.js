@@ -100,18 +100,24 @@ function Friend({slot}) {
   return <span className="gpo-friend"><span className={`gpo-circle ${state}`} role="img" aria-label={`${slot.name}: ${words}`}>{initialsOf(slot.name)}</span><span className="gpo-friend-name">{slot.name}<span className="gpo-friend-state">{friendStateText(slot)}</span></span></span>;
 }
 function names(list) {return list.join(", ");}
+const openReplyLabel=(count)=>count===0?"No replies yet":`${count} ${count===1?"reply":"replies"} so far`;
+export function groupFinalShareText(plan) {
+  return plan.finalPlan?.isCommonTime
+    ? plan.openGroup ? "Our plan is ready. This time works for the organizer and everyone who voted." : "Our plan is ready. The time works for everyone in the group."
+    : "Here’s the plan. Check the attendance details on Wayfind.";
+}
 function Results({plan,onCommand,busy}) {
   const summary=plan.summary,invitees=plan.invitees||[];
   const pending=invitees.filter((s)=>!s.response),declined=invitees.filter((s)=>s.response?.declined);
   const organizerTimes=plan.organizer?.availableTimeIds||[];
   const top=Math.max(0,...summary.placeResults.map((r)=>r.votes));
   const denom=summary.expectedCount>0?summary.expectedCount:Math.max(1,summary.votedCount);
-  const heading=plan.openGroup&&summary.expectedCount===0?"No votes yet":plan.openGroup?`${summary.responseCount} ${summary.responseCount===1?"reply":"replies"} so far`:`${summary.responseCount} of ${summary.expectedCount} replied`;
+  const heading=plan.openGroup?openReplyLabel(summary.responseCount):`${summary.responseCount} of ${summary.expectedCount} replied`;
   return <section className="gp-panel gpo-results" aria-label="Results so far">
     <div className="gp-step">2 · Crew votes on the spot</div>
     <h2>{heading}</h2>
     <div className="gpo-bars">{plan.places.map((p)=>{const votes=summary.placeResults.find((r)=>r.placeId===p.id)?.votes||0;const pct=summary.expectedCount>0?Math.round(100*votes/denom):0;
-      return <div key={p.id} className={`gpo-vote-result${votes>0&&votes===top?" is-leading":""}`}><div className="gpo-bar-label"><span>{p.name}</span><span>{votes} {votes===1?"vote":"votes"}</span></div><div className={`gpo-bar${votes>0&&votes===top?" lead":""}`} role="meter" aria-label={`${p.name}: ${votes} of ${summary.expectedCount} votes`} aria-valuemin={0} aria-valuemax={Math.max(1,summary.expectedCount)} aria-valuenow={votes}><span style={{width:`${pct}%`}}/></div></div>;})}</div>
+      return <div key={p.id} className={`gpo-vote-result${votes>0&&votes===top?" is-leading":""}`}><div className="gpo-bar-label"><span>{p.name}</span><span>{votes} {votes===1?"vote":"votes"}</span></div><div className={`gpo-bar${votes>0&&votes===top?" lead":""}`} role={plan.openGroup?undefined:"meter"} aria-hidden={plan.openGroup||undefined} aria-label={plan.openGroup?undefined:`${p.name}: ${votes} of ${summary.expectedCount} votes`} aria-valuemin={plan.openGroup?undefined:0} aria-valuemax={plan.openGroup?undefined:Math.max(1,summary.expectedCount)} aria-valuenow={plan.openGroup?undefined:votes}><span style={{width:`${pct}%`}}/></div></div>;})}</div>
     {declined.length>0&&<p className="gpo-listing">Can’t make it, not counted as votes: {names(declined.map((s)=>s.name))}</p>}
     {pending.length>0&&<p className="gpo-listing">No reply yet, not counted as votes: {names(pending.map((s)=>s.name))}</p>}
     {plan.status==="open"&&plan.shareMode==="group"&&summary.responseCount>0&&<div className="gp-actions" style={{marginBottom:16}}><button type="button" className="gp-button primary" disabled={busy} onClick={()=>onCommand({type:"close"})}>Close voting & pick winner</button></div>}
@@ -121,7 +127,7 @@ function Results({plan,onCommand,busy}) {
       const organizerOk=organizerTimes.includes(t.id);const everyone=organizerOk&&unconfirmed.length===0&&summary.commonTimeIds.includes(t.id);
       const count=summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0;
       const missing=organizerOk?unconfirmed:[...unconfirmed,"You"];
-      return <div key={t.id} className={`gpo-time${everyone?" everyone":""}`}><strong>{formatGroupTimeShort(t,plan.timeZone)}</strong>{everyone&&<span className="gpo-pill">Works for everyone</span>}<p className="gpo-listing" style={{margin:"4px 0 0"}}>{summary.expectedCount>0?`${count} of ${summary.expectedCount} friends said yes.`:`${count} friends said yes so far.`}{!everyone&&summary.expectedCount>0&&missing.length>0&&` Not confirmed by: ${names(missing)}.`}</p></div>;})}</div>
+      return <div key={t.id} className={`gpo-time${everyone?" everyone":""}`}><strong>{formatGroupTimeShort(t,plan.timeZone)}</strong>{everyone&&<span className="gpo-pill">{plan.openGroup?"Works for the organizer and everyone who voted":"Works for everyone"}</span>}<p className="gpo-listing" style={{margin:"4px 0 0"}}>{plan.openGroup?`${count} ${count===1?"friend":"friends"} said yes so far.`:`${count} of ${summary.expectedCount} friends said yes.`}{!everyone&&summary.expectedCount>0&&missing.length>0&&` Not confirmed by: ${names(missing)}.`}</p></div>;})}</div>
   </section>;
 }
 function FinalPlaceCard({place,plan}) {
@@ -172,10 +178,10 @@ export function GroupOrganizer({plan,onCommand,onDelete,busy,nowMs:nowOverride})
     if(result!=="failed"){setNotice(`Share options opened for ${slot.name}. Choose how to send their private link. Delivery isn’t confirmed by Wayfind.`);onCommand({type:"start",slotId:slot.id},{quiet:true});}
     else setNotice("Share options could not open. Please try again.");
   };
-  const finalShare=()=>{if(!plan.finalToken)return;shareOut({title:"Our plan is ready",text:plan.finalPlan.isCommonTime?"Our plan is ready. The time works for everyone in the group.":"Here’s the plan. Check the attendance details on Wayfind.",url:planUrl(plan,plan.finalToken,"final")},()=>setNotice("Final plan link copied."));};
+  const finalShare=()=>{if(!plan.finalToken)return;shareOut({title:"Our plan is ready",text:groupFinalShareText(plan),url:planUrl(plan,plan.finalToken,"final")},()=>setNotice("Final plan link copied."));};
   const finalPlace=plan.finalPlan&&plan.places.find((p)=>p.id===plan.finalPlan.placeId),finalTime=plan.finalPlan&&plan.times.find((t)=>t.id===plan.finalPlan.timeId);
   const ackBox=(checked,set,text)=><label className="gp-choice"><input type="checkbox" checked={checked} onChange={(e)=>set(e.target.checked)}/><span>{text}</span></label>;
-  const openHeadline=plan.openGroup?(summary.responseCount===0?"Ready to share with your group":`${summary.responseCount} ${summary.responseCount===1?"friend":"friends"} voted`):`${summary.responseCount} of ${summary.expectedCount} friends replied`;
+  const openHeadline=plan.openGroup?(summary.responseCount===0?"Ready to share with your group":openReplyLabel(summary.responseCount)):`${summary.responseCount} of ${summary.expectedCount} friends replied`;
   return <div className="gpo">
     <style dangerouslySetInnerHTML={styleHtml(GROUP_ORGANIZER_CSS)}/>
     <div className="gpo-head"><GroupVoteIntro><p className="gp-lede">{plan.status==="draft"?"Your next good day starts here. Review your group, then open the vote.":"Your people. A few great options. One plan together."}</p></GroupVoteIntro>{plan.status==="open"&&<CountdownRing plan={plan} nowMs={nowMs}/>}</div>
@@ -184,7 +190,7 @@ export function GroupOrganizer({plan,onCommand,onDelete,busy,nowMs:nowOverride})
       <div className="gpo-overview-head"><div><div className="gp-step">{plan.status==="draft"?"1 · Get your crew together":plan.status==="finalized"?"Plan locked":plan.status==="cancelled"?"Plan cancelled":"1 · Your crew’s ballot"}</div>
       <h2>{plan.status==="draft"?`Make a day of ${plan.places.find((p)=>p.id===plan.originalPlaceId)?.name||"your idea"}`:plan.status==="finalized"?"Make it happen.":plan.status==="cancelled"?"This plan was cancelled.":openHeadline}</h2>
       {plan.organizerSmsTail&&<span className="gp-tag green">Text updates on · ••{plan.organizerSmsTail}</span>}
-      </div>{plan.status!=="draft"&&(!plan.openGroup||summary.expectedCount>0)&&<div className="gpo-response-ring" role="img" aria-label={`${summary.responseCount} of ${summary.expectedCount} friends replied`} style={{"--response":`${summary.expectedCount?100*summary.responseCount/summary.expectedCount:0}%`}}><b aria-hidden="true">{plan.openGroup?summary.responseCount:`${summary.responseCount}/${summary.expectedCount}`}</b></div>}</div>
+      </div>{plan.status!=="draft"&&(!plan.openGroup||summary.expectedCount>0)&&<div className="gpo-response-ring" role="img" aria-label={plan.openGroup?openReplyLabel(summary.responseCount):`${summary.responseCount} of ${summary.expectedCount} friends replied`} style={{"--response":`${!plan.openGroup&&summary.expectedCount?100*summary.responseCount/summary.expectedCount:0}%`}}><b aria-hidden="true">{plan.openGroup?summary.responseCount:`${summary.responseCount}/${summary.expectedCount}`}</b></div>}</div>
       {plan.status!=="draft"&&plan.invitees.length>0&&<ul className="gpo-members" aria-label="Your crew">{plan.invitees.map((slot)=><li key={slot.id} className={`gpo-member${slot.response?" is-replied":""}`}><i aria-hidden="true">{initialsOf(slot.name)}</i><span className="gpo-member-name">{slot.name}</span><span className="gpo-member-check" role="img" aria-label={slot.response?(slot.response.declined?"Can’t make it":"Voted"):"Awaiting reply"}>{slot.response?(slot.response.declined?"−":"✓"):"…"}</span></li>)}</ul>}
       {plan.status==="draft"&&<div className="gpo-summary-grid"><div><h3>When could we go?</h3><ul className="gpo-date-list">{plan.times.map((t)=><li key={t.id}><span aria-hidden="true">◷</span>{formatGroupTimeShort(t,plan.timeZone)}</li>)}</ul></div><div><h3>Your people</h3><ul className="gpo-friends">{plan.invitees.length?plan.invitees.map((slot)=><li key={slot.id}><span className="gpo-friend"><span className="gpo-circle" aria-hidden="true">{initialsOf(slot.name)}</span><span className="gpo-friend-name">{slot.name}</span></span></li>):<li className="gp-note">Anyone with your group link can vote (up to 10 people).</li>}</ul></div></div>}
       <p className="gp-note">Reply by {formatGroupTimeShort(plan.deadline,plan.timeZone)}.{plan.openGroup?" Close voting anytime once your group replies.":" Voting closes earlier if everyone responds."}</p>
@@ -210,17 +216,17 @@ export function GroupOrganizer({plan,onCommand,onDelete,busy,nowMs:nowOverride})
     </section>}
     {["closed","finalized"].includes(plan.status)&&plan.invitees.length>0&&<section className="gp-panel"><details><summary>Reply details</summary><ul className="gpo-friends">{plan.invitees.map((slot)=><li key={slot.id}><Friend slot={slot}/></li>)}</ul></details></section>}
     {["open","closed","finalized"].includes(plan.status)&&<Results plan={plan} onCommand={onCommand} busy={busy}/>}
-    {plan.status==="closed"&&<section className="gp-panel"><div className="gp-step">Your result</div><h2>{summary.commonTimeIds.length?"A time works for everyone":summary.pendingCount?"A result, with replies missing":"No time works for everyone"}</h2>
+    {plan.status==="closed"&&<section className="gp-panel"><div className="gp-step">Your result</div><h2>{summary.commonTimeIds.length?(plan.openGroup?"A time works for the organizer and everyone who voted":"A time works for everyone"):summary.pendingCount?"A result, with replies missing":plan.openGroup?"No time is confirmed for all voters and the organizer":"No time works for everyone"}</h2>
       <p>{summary.tie?"The place vote is tied. You get to choose.":summary.winnerPlaceId?`${plan.places.find((p)=>p.id===summary.winnerPlaceId)?.name} has the most votes.`:"There are no place votes yet."}</p>
       {summary.pendingCount>0&&<p>{summary.pendingCount} {summary.pendingCount===1?"friend hasn’t":"friends haven’t"} replied yet. A time that works for respondents is not confirmed for everyone.</p>}
       {summary.declinedCount>0&&<p>{summary.declinedCount} friend{summary.declinedCount===1?" can’t":"s can’t"} make it. Declines are not votes and don’t block you.</p>}
       <label className="gp-field">Choose the place<select value={placeId} onChange={(e)=>{setPlaceId(e.target.value);clearAcks();}}>{plan.places.map((p)=><option key={p.id} value={p.id}>{p.name} · {(()=>{const v=summary.placeResults.find((r)=>r.placeId===p.id)?.votes||0;return `${v} ${v===1?"vote":"votes"}`;})()}</option>)}</select></label>
-      <label className="gp-field">Choose a time<select required value={timeId} onChange={(e)=>{setTimeId(e.target.value);clearAcks();}}><option value="">Pick a time</option>{plan.times.map((t)=><option key={t.id} value={t.id}>{formatGroupTimeShort(t,plan.timeZone)} · {summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0} of {summary.expectedCount} {summary.expectedCount===1?"friend":"friends"} can make it</option>)}</select></label>
+      <label className="gp-field">Choose a time<select required value={timeId} onChange={(e)=>{setTimeId(e.target.value);clearAcks();}}><option value="">Pick a time</option>{plan.times.map((t)=><option key={t.id} value={t.id}>{formatGroupTimeShort(t,plan.timeZone)} · {(() => {const count=summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0;return plan.openGroup?`${count} ${count===1?"friend":"friends"} said yes`:`${count} of ${summary.expectedCount} ${summary.expectedCount===1?"friend":"friends"} can make it`;})()}</option>)}</select></label>
       {timeId&&venueClosed?<p className="gp-status gp-error">The venue’s known hours conflict with this time. Choose another time or place.</p>:needHours?<><p className="gp-status">Your friends’ availability does not tell us the venue’s hours. Check the venue before confirming.</p>{selectedPlace?.placeUrl&&<a className="gp-button" href={selectedPlace.placeUrl} target="_blank" rel="noopener noreferrer">Check venue details</a>}</>:null}
       {(needPartial||needTie||needUnavailable||needHours)&&<div className="gpo-acks">
         {needPartial&&ackBox(ackPartial,setAckPartial,"Not everyone replied. Finalize anyway.")}
         {needTie&&ackBox(ackTie,setAckTie,"It’s a tie. I’m choosing.")}
-        {needUnavailable&&ackBox(ackUnavailable,setAckUnavailable,"Not everyone can make this time. Finalize anyway.")}
+        {needUnavailable&&ackBox(ackUnavailable,setAckUnavailable,plan.openGroup?"This time is not confirmed for all voters and the organizer. Finalize anyway.":"Not everyone can make this time. Finalize anyway.")}
         {needHours&&!venueClosed&&ackBox(hoursAck,setHoursAck,"Opening hours for this time aren’t confirmed. I’ve checked with the venue that this time works.")}
       </div>}
       <p className="gp-note">Missing replies, tied votes and unconfirmed availability will stay visible on the final plan.</p>
@@ -249,7 +255,7 @@ export function GroupFinal({plan,headline=true,withStyle=true}) {
     {headline&&<><p className="gpo-locked">Plan locked</p><h2>{place?.name||"The final plan"}</h2>{time&&<p>{formatGroupTimeShort(time,plan.timeZone)}</p>}</>}
     {plan.organizerName&&<p className="gp-note">Organized by {plan.organizerName}</p>}
     <FinalPlaceCard place={place} plan={plan}/>
-    <p className="gp-status">{final.isCommonTime?"This time was marked available by every invited person and the organizer.":`${final.confirmedInviteeCount} of ${final.expectedInviteeCount} friends marked this time available. It is not confirmed for everyone.`}</p>
+    <p className="gp-status">{final.isCommonTime?(plan.openGroup?"This time works for the organizer and everyone who voted.":"This time was marked available by every invited person and the organizer."):plan.openGroup?`${final.confirmedInviteeCount} ${final.confirmedInviteeCount===1?"friend":"friends"} marked this time available. It is not confirmed for all voters and the organizer.`:`${final.confirmedInviteeCount} of ${final.expectedInviteeCount} friends marked this time available. It is not confirmed for everyone.`}</p>
     {final.isTie&&<p className="gp-note">The organizer resolved a tied place vote.</p>}
     {final.isPartial&&<p className="gp-note">Some friends had not replied when the plan was chosen.</p>}
     <p className="gp-note">This is a plan, not a reservation. Check opening hours and book directly if needed.</p>
