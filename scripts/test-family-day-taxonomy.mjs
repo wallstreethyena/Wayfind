@@ -3,9 +3,9 @@ import { mock } from "node:test";
 import { FAMILY_DAY_RAILS, canonicalFamilyRailId, familyRailMatches, familyWeatherSafe, matchesFamilyFilters } from "../lib/familyDayTaxonomy.js";
 
 // Exercise the reviewed evidence window without depending on the wall clock.
-// Inside the current audit window of lib/familyDayEvidence.js (2026-10-27 batch: 10-27 to 11-27);
+// Inside the current audit window of lib/familyDayEvidence.js (2026-11-24 batch: 11-24 to 12-24);
 // moves with each re-audit, like test-family-day-data's REF_MS.
-mock.method(Date, "now", () => Date.parse("2026-11-05T12:00:00Z"));
+mock.method(Date, "now", () => Date.parse("2026-11-25T12:00:00Z"));
 
 assert.deepEqual(FAMILY_DAY_RAILS.map((rail) => rail.id), [
   "beach", "attractions", "water", "animals", "outdoors",
