@@ -35,7 +35,18 @@ ok(base(null, null)?.businessStatus === null, "no status anywhere stays null");
 // wf_place_ids skeleton (which carries no status) opened the page.
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const placeDataSrc = readFileSync(join(root, "lib/placeData.js"), "utf8");
-ok(placeDataSrc.includes('if (row && row.status && row.status !== "OPERATIONAL") page.businessStatus = row.status;'), "loadPlace applies wf_inventory closure over the merged page");
+ok(placeDataSrc.includes('if (row && (row.status === "CLOSED_PERMANENTLY" || row.status === "CLOSED_TEMPORARILY")) page.businessStatus = row.status;'), "loadPlace applies wf_inventory closure over the merged page");
+
+// 2026-11-25: wf_inventory.status also carries curation marks. EXCLUDED is
+// not a business status; it rendered a duplicate, bookable Robinson Preserve
+// page as "Permanently closed". Only a real closure may reach the label.
+ok(base("EXCLUDED", "OPERATIONAL")?.businessStatus === "OPERATIONAL", "inventory EXCLUDED never overrides an open status");
+ok(base("EXCLUDED", null)?.businessStatus === null, "inventory EXCLUDED alone is no business status");
+ok(base("FUTURE_OPENING", null)?.businessStatus === "FUTURE_OPENING", "FUTURE_OPENING still flows as data");
+const placePageSrc = readFileSync(join(root, "lib/placePage.js"), "utf8");
+ok(placePageSrc.includes('const closedLabel = p.businessStatus === "CLOSED_TEMPORARILY" ? "Temporarily closed" : null;'), "the open-page closed label speaks only for a temporary closure");
+ok(/"Permanently closed"/.test(placePageSrc), "positive control: the permanently closed page still exists");
+ok(!/: "Permanently closed"\}/.test(placePageSrc), "no fall-through maps an unknown status to Permanently closed");
 
 console.log(`test-closed-place-pages: ${bad ? "FAIL" : "OK"} — ${n} assertions`);
 if (bad) process.exit(1);
