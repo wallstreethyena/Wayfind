@@ -105,13 +105,6 @@
     "reason": "NOT APPLIED YET. Data only: marks ~5,017 OPERATIONAL non-Florida inventory rows excluded (out_of_scope:non_florida); reversible, deletes nothing. Verified not visitor-visible 2026-11-19 (404s, absent from sitemap). Owner-approved 2026-11-19 (full-audit P3 fix). Applied after merge with the exact file bytes, then this entry is replaced by an apply receipt. Rollback in the file header."
   },
   {
-    "file": "supabase/migrations/20261117143000_wf_booking_agent.sql",
-    "sha256": "3b2ba29b47079f60526fbf1ac6aea83298637591b8bf92109b7d04c26746af93",
-    "decision_owner": "wallstreethyena",
-    "tracking": "supervised OpenTable booking agent draft, not applied #20261117",
-    "reason": "NOT APPLIED. New tables wf_booking_agent_runs, wf_booking_agent_events, wf_booking_agent_sites (RLS on, owner select on runs and events, service role writes, opentable seeded off). Additive. Unused until BOOKING_AGENT_ENABLED=1, BOOKING_AGENT_SITE_OPENTABLE=1 and the site row is on. Owner applies after review. Do not apply from this draft."
-  },
-  {
     "file": "supabase/migrations/20261117120000_wf_reserve_phone.sql",
     "sha256": "45a0d9ab8f1ff5da9fbf44d64e89803211afa9e3706504d459afff58d94911ce",
     "decision_owner": "wallstreethyena",
@@ -131,5 +124,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "Group Vote overhaul 2026-11-23, follows #2701",
     "reason": "NOT APPLIED YET. Additive Group Vote overhaul verified in embedded PostgreSQL (scripts/test-group-plan-schema.mjs, 95 assertions): widens wf_group_plans places check from 1..3 to 1..5 and invitees check to 0..10 for shareMode=group; extends wf_group_plan_commit for join_respond and group-mode early close while keeping prior slots immutable; adds service_role-only RLS tables wf_group_plan_sms_optins and wf_group_plan_sms (on delete cascade) and SECURITY INVOKER owner RPCs wf_group_plan_delete, wf_group_plan_clean_history, and wf_group_plan_dismiss_notice. Pending canonical scripts/apply-migration.mjs application by owner (SUPABASE_ACCESS_TOKEN absent in this session)."
+  },
+  {
+    "file": "supabase/migrations/20261125223000_wf_reserve_platform_link_summer_house.sql",
+    "sha256": "5fe2d887bf77900b1a5cb5cf6bc61c68a5013d7fc785b8cd3756a1ef509f4304",
+    "decision_owner": "wallstreethyena",
+    "tracking": "OpenTable booking agent on Vercel #2788",
+    "reason": "PENDING until this PR merges, then applied with its exact bytes and a receipt. One additive row: the verified OpenTable link (rid 1280968) for Summer House on the Lake, the one allowlisted booking agent restaurant."
   }
 ]

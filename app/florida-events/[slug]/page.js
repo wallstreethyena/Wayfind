@@ -35,6 +35,8 @@ import { partnerAvailabilityNote } from "../../../lib/eventTicketDeals.js";
 import { ticketsUnavailable } from "../../../lib/ticketAvailability.js";
 import { availableAlternatives, alternativeLabel, unavailableNote } from "../../../lib/eventAlternatives.js";
 import { siteTodayStr } from "../../../lib/siteTime.js";
+import { ticketDecisionLine } from "../../../lib/ticketDecisionLine.js";
+import { ticketPrice as christmasTicketPrice } from "../../../lib/christmasTickets.js";
 import { secondaryEventTicketAction } from "../../../lib/secondaryEventTickets.js";
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
@@ -163,6 +165,7 @@ const S = {
   // action, one level down inside EventWhere — the hierarchy the owner asked
   // for. scripts/check-event-hero-and-directions.mjs proves the count of one.
   ticketWrap: { margin: "16px 0 24px" },
+  decision: { margin: "0 0 10px", textAlign: "center", fontSize: 15, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.35 },
   tix: {
     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
     width: "100%", boxSizing: "border-box", maxWidth: "100%", textAlign: "center", overflowWrap: "anywhere", padding: "16px 20px", borderRadius: 14,
@@ -257,6 +260,18 @@ export default async function CuratedEventPage({ params }) {
   // organiser's own verified ticket link (rel nofollow, not sponsored). Same
   // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
   const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
+  // Price, date and honest urgency right above the ticket button (owner
+  // 2026-11-25, lib/ticketDecisionLine.js). A Christmas row prints the same
+  // figure its card does (lib/christmasTickets.ticketPrice); an unknown price
+  // prints nothing here, and a sold out page gets no line at all.
+  const decisionLine = (() => {
+    if (!ticket || ticketsUnavailable(e)) return null;
+    if (!e.christmas_research_id) return ticketDecisionLine(e, siteTodayStr());
+    const xp = christmasTicketPrice(e);
+    if (xp.soldOut) return null;
+    const price = xp.kind === "from" ? `From ${xp.text}${xp.unit ? " " + xp.unit : ""}` : xp.kind === "free" ? (/^free$/i.test(xp.text) ? "Free admission" : xp.text) : null;
+    return ticketDecisionLine(e, siteTodayStr(), { price });
+  })();
   const resaleTicket = secondaryEventTicketAction(e, { surface: "florida_event_page", primaryAction: ticket });
   // Partner tickets gone (NO_EXACT_AFFILIATE_PRODUCT visitorNote): say so plainly
   // and offer the bookable alternatives, instead of a silent organizer fallback.
@@ -388,6 +403,7 @@ export default async function CuratedEventPage({ params }) {
         actions={<>
       {ticket ? (
         <div style={S.ticketWrap}>
+          {decisionLine ? <p style={S.decision} data-ticket-decision="">{decisionLine}</p> : null}
           <a style={S.tix} href={ticket.href} target="_blank" rel={ticket.kind === "affiliate" ? "sponsored nofollow noopener" : ticket.rel}
             aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}
             {...(crownTracked ? { "data-wf-ticket": "1", ...(ticket.kind === "affiliate" ? { "data-wf-ticket-kind": "affiliate" } : {}) } : {})}
