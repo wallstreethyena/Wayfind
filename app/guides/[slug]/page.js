@@ -26,7 +26,7 @@ import { guidePickTicket } from "../../../lib/guidePickTicket";
 import { withPageParam } from "../../../lib/commerce";
 import GuideConversion from "./GuideConversion";
 import GuideDayAction from "../../components/GuideDayAction";
-import { guideDayAction, scopedGuideBodyCta, visibleQuickChoices } from "../../../lib/guideActionPlan.js";
+import { guideDayAction, guideEventOfferEnded, scopedGuideBodyCta, visibleQuickChoices } from "../../../lib/guideActionPlan.js";
 import { noSaleEvents, unavailableDestination } from "../../../lib/ticketAvailability.js";
 import GuideStays from "../../components/GuideStays";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
@@ -563,7 +563,7 @@ export default async function GuidePage({ params }) {
   // /api/commerce/go re-checks every click within five minutes regardless.
   const unavailable = await noSaleEvents({ revalidate: 900 });
   const unavailableFor = (id) => (id ? unavailable.get(String(id)) || null : null);
-  let primaryCta = guidePrimaryCta(past || unavailableFor(g.eventTicket) ? { ...g, eventTicket: undefined } : g);
+  let primaryCta = guidePrimaryCta(past || guideEventOfferEnded(params.slug, g.eventTicket) || unavailableFor(g.eventTicket) ? { ...g, eventTicket: undefined } : g);
   const vacationRental = past ? null : guideVacationRentalCta(params.slug);
   const liveGuides = currentGuides(GUIDES);
   const continueTo = guideContinue(g, params.slug, liveGuides);

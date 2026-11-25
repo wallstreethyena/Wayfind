@@ -6,7 +6,7 @@ import { guidePrimaryCta } from "../lib/guideCta.js";
 import { currentGuides, isGuidePast, isGuideWithheld } from "../lib/guideLifecycle.js";
 import { DEDICATED_GUIDE_ROUTES, STANDALONE_GUIDE_INDEX } from "../lib/guideDedicatedRoutes.js";
 import { guidePickAwaitingPhoto } from "../lib/guidePhotoGate.js";
-import { dedicatedGuideAction, guideDayAction, GUIDE_ACTION_PICK_ANCHOR, scopedGuideBodyCta, visibleQuickChoices } from "../lib/guideActionPlan.js";
+import { dedicatedGuideAction, guideDayAction, guideEventOfferEnded, GUIDE_ACTION_PICK_ANCHOR, scopedGuideBodyCta, visibleQuickChoices } from "../lib/guideActionPlan.js";
 import { guideQuickChoices } from "../lib/guideSeo.js";
 
 let checks = 0;
@@ -46,6 +46,9 @@ ok(guideDayAction({...bio, shippingPicks:bio.shippingPicks.slice(1,2)})?.kind !=
 const sea = input("seaworld-orlando-christmas-celebration-2026");
 ok(guideDayAction(sea)?.label === "SeaWorld park admission", "the existing day pass is not mislabeled a separately-ticketed party");
 ok(guideDayAction({...sea, noSale:{kind:"sold_out"}})?.kind === "plan", "sold-out check removes both money placements");
+ok(guideDayAction({...sea, today:"2027-01-04"})?.label === "SeaWorld park admission", "permit the named admission product on the last operator-listed day");
+ok(!isGuidePast(sea.guide, "2027-01-05") && guideDayAction({...sea, today:"2027-01-05"})?.kind === "plan" &&
+  guideEventOfferEnded(sea.slug, sea.guide.eventTicket, "2027-01-05"), "the SeaWorld sale ends with its operator-listed season without archiving the article early");
 ok(guideDayAction({...sea, today:"2027-01-07"}) === null, "expired seasonal edition stays dormant");
 const drum = guideDayAction(input("siesta-key-drum-circle"));
 ok(drum?.kind === "directions" && drum.href.includes("948%20Beach%20Road"), "drum circle sends a direct named beach address action");
@@ -61,6 +64,7 @@ const generic = src("app/guides/[slug]/page.js"), standard = src("app/components
 const index = src("app/guides/page.js"), sitemap = src("app/sitemap.js");
 ok(generic.includes("primaryAction={dayAction ? <GuideDayAction") && standard.includes("primaryAction={action ? <GuideDayAction") &&
   hero.indexOf("{primaryAction}") > hero.indexOf("<h1") && hero.indexOf("{primaryAction}") < hero.indexOf("{introduction ?"), "mounted before the longer intro in both production frames");
+ok(generic.includes("past || guideEventOfferEnded(params.slug, g.eventTicket) || unavailableFor(g.eventTicket)"), "the body cannot revive the expired holiday ticket either");
 ok(generic.includes('id="guide-plan-options"') && generic.includes("primaryPromoted={dayAction?.promoted"), "real anchor required and same money anchor not repeated at the footer");
 ok(index.includes('href="https://blog.gowayfind.com/">Read the Wayfind Blog'), "main guide index has one crawlable editorial path to the blog");
 ok(index.includes("regions = guideRegions(currentGuides(GUIDES))") && index.includes("STANDALONE_GUIDE_INDEX.filter") && sitemap.includes("Object.keys(currentGuides(GUIDES))") && sitemap.includes("STANDALONE_GUIDE_INDEX.filter"), "sitemap and index preserve both current and standalone route rules");
