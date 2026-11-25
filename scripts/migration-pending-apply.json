@@ -136,7 +136,7 @@
     "file": "supabase/migrations/20261125130000_wf_ai_board.sql",
     "sha256": "76553a3411f8e1215c88de1b1b35e463124a4ca697928551e1d6d85579d3c4e5",
     "decision_owner": "wallstreethyena",
-    "tracking": "#0 (this PR, set after open)",
+    "tracking": "#2781",
     "reason": "Owner order 2026-11-25 (AI team board, private to the owner). Additive: three new RLS-on, policy-free tables revoked from anon/authenticated, plus four seed lane rows. Applied through the Supabase connector right after this PR merges; the applied receipt replaces this entry. Reverse in the file header."
   }
 ]
