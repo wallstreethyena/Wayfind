@@ -62,6 +62,8 @@ const STANDARD = {
   "app/halloween-in-florida/page.js": "app/halloween-in-florida/page.js",
   "app/sarasota-halloween-crown/page.js": "app/sarasota-halloween-crown/page.js",
   "app/christmas-in-florida/page.js": "app/components/SeasonalSearchHub.js",
+  // 2026-11-25: Christmas overview pages (parades, light shows, zoo lights, Nutcracker), own ShareButton.
+  "app/christmas-in-florida/[topic]/page.js": "app/christmas-in-florida/[topic]/page.js",
   "app/new-years-in-florida/page.js": "app/new-years-in-florida/page.js",
   // 2026-11-25: New Year's Eve area pages, own ShareButton.
   "app/new-years-in-florida/[region]/page.js": "app/new-years-in-florida/[region]/page.js",

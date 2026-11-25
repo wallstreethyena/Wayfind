@@ -2,7 +2,7 @@
 // (SEO engine 2026-11-20). Facts from the row only: no date, no date; unknown
 // price, no price word; sold out says so; the page uses the shared function.
 import { readFileSync } from "node:fs";
-import { eventSeoTitle, eventSeoDates, eventIsFree } from "../lib/eventSeoTitle.js";
+import { eventSeoTitle, eventSeoDates, eventIsFree, eventSeoTime } from "../lib/eventSeoTitle.js";
 
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -17,6 +17,12 @@ ok(unknown === "DeLand Christmas Boat Parade 2026: Dec 6, Times & Details", "unk
 ok(!/\d/.test(eventSeoTitle({ event_name: "No Date Fair", city: "Ocala", is_free: true }).replace("No Date Fair", "")), "no date on the row: no date in the title");
 ok(eventSeoTitle({ event_name: "W", christmas_watchlist: true }) === "W: Dates & What to Know", "a watchlist twin never claims dates");
 ok(/Free Entry$/.test(eventSeoTitle({ event_name: "Park Fest", start_date: "2026-12-01", admission_offer: "free_admission_paid_activities" })), "free entry with paid extras says Free Entry");
+// 2026-11-25: a one night event adds its start time; a multi night run never does; no time on the row, no time.
+const parade = eventSeoTitle({ event_name: "Ocala Christmas Parade", year: "2026", start_date: "2026-12-12", end_date: "2026-12-12", start_time: "17:30:00", city: "Ocala", is_free: true });
+ok(parade === "Ocala Christmas Parade 2026: Dec 12, 5:30 PM, Free", "one night: date, start time, Free (got " + parade + ")");
+ok(!/PM|AM/.test(eventSeoTitle({ event_name: "Zoo Lights", year: "2026", start_date: "2026-11-20", end_date: "2027-01-03", start_time: "18:00:00", price_min: 30 })), "a run of dates gets no single time");
+ok(eventSeoTime("18:00:00") === "6 PM" && eventSeoTime("00:15") === "12:15 AM" && eventSeoTime("12:00:00") === "12 PM", "clock labels");
+ok(eventSeoTime("25:00") === null && eventSeoTime("") === null && eventSeoTime("7pm") === null, "a malformed time is dropped, never guessed");
 ok(eventSeoDates({ start_date: "2026-13-01" }) === null && eventSeoDates({}) === null, "a malformed date is dropped, never guessed");
 ok(eventIsFree({ price_kind: "free" }) && !eventIsFree({ is_free: false }) && !eventIsFree(null), "free detection");
 ok(!/—|–| - /.test([free, { event_name: "A", start_date: "2026-01-02", end_date: "2026-01-05", price_min: 3 }].map(eventSeoTitle).join(" ")), "no dashes in titles");

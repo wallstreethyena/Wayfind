@@ -527,6 +527,8 @@ node scripts/check-tampa-bay-region.mjs
 node scripts/check-commerce-redirect.mjs
 node scripts/test-sold-out-handoffs.mjs
 node scripts/test-event-seo-title.mjs
+# Christmas overview pages, hub title, ZooLights merge, ended event pages, topic links (2026-11-25).
+node scripts/test-christmas-topic-pages.mjs
 node scripts/check-earning-integrations.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs

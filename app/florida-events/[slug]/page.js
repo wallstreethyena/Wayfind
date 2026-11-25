@@ -22,7 +22,9 @@ import EventExperienceStyles from "../../components/EventExperienceStyles.js";
 import { notFound, permanentRedirect } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
-import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
+import { fetchCuratedEvents, fetchCuratedEventBySlug, fetchEndedEventBySlug, fetchNextEditionSlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
+import EndedEvent, { endedEventDescription } from "./EndedEvent.js";
+import { christmasTopicForEvent, christmasTopicPath } from "../../../lib/christmasTopicPages.js";
 import { eventPhotos } from "../../../lib/eventPhotos";
 import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
 import { eventDatesLabel, occurrenceDatesFor } from "../../../lib/eventOccurrences.js";
@@ -81,7 +83,22 @@ export async function generateMetadata({ params }) {
   // has no metadata", and catching would hide the same soft-fail the hub
   // used to cache as a successful empty page.
   const e = await fetchCuratedEventBySlug(params.slug).then((row) => christmasEventPageRow(row, params.slug)).then(withTampaPassFacts);
-  if (!e) return {};
+  if (!e) {
+    // A finished event keeps its page (owner, 2026-11-25): see EndedEvent.js.
+    const ended = await fetchEndedEventBySlug(params.slug);
+    if (!ended) return {};
+    const endedTitle = `${eventTitleWithYear(ended.event_name, ended.year)} (Ended): Next Dates & Nearby Events`;
+    const endedDesc = endedEventDescription(ended);
+    const endedOg = `${SITE_URL}/api/og/hero?kind=event&id=${encodeURIComponent(ended.event_id)}`
+      + `&t=${encodeURIComponent(eventTitleWithYear(ended.event_name, ended.year))}&cat=Event&loc=${encodeURIComponent(ended.city || "")}`;
+    return {
+      title: endedTitle + " | Wayfind",
+      description: endedDesc,
+      openGraph: { type: "article", title: endedTitle, description: endedDesc, url: `${SITE_URL}/florida-events/${ended.slug}`, siteName: "Wayfind", images: [{ url: endedOg, width: 1200, height: 630, type: "image/jpeg", alt: endedTitle }] },
+      twitter: { card: "summary_large_image", title: endedTitle, images: [endedOg] },
+      alternates: { canonical: `${SITE_URL}/florida-events/${ended.slug}` },
+    };
+  }
   // Search title leads with the date and "Free" when entry is free (SEO engine
   // 2026-11-20, lib/eventSeoTitle.js). Facts from the row only.
   const title = eventSeoTitle(e);
@@ -201,6 +218,24 @@ async function redirectRetiredChristmasEvent(slug) {
   if (landing) permanentRedirect("/florida-events/" + moved);
 }
 
+// A finished event (event_status "completed") keeps its page instead of a
+// 404 (owner, 2026-11-25; 447 such URLs in Search Console). When the same
+// series has a newer scheduled edition, the old URL redirects to it.
+async function endedEventPage(slug) {
+  const ended = await fetchEndedEventBySlug(slug);
+  if (!ended) return null;
+  const next = await fetchNextEditionSlug(ended);
+  if (next) permanentRedirect("/florida-events/" + next);
+  let upcoming = [];
+  try {
+    const today = siteTodayStr();
+    const city = String(ended.city || "").toLowerCase();
+    upcoming = city ? (await fetchCuratedEvents()).filter((u) => u && u.slug && String(u.city || "").toLowerCase() === city && (u.end_date || u.start_date || "") >= today)
+      .sort((a, b) => String(a.start_date || "").localeCompare(String(b.start_date || ""))).slice(0, 6) : [];
+  } catch { upcoming = []; }
+  return <EndedEvent e={ended} upcoming={upcoming} />;
+}
+
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
@@ -208,6 +243,7 @@ export default async function CuratedEventPage({ params }) {
   // A merged research id keeps a valid destination (lib/christmasEventPage.js):
   // redirect after a successful miss, and only to a listing that resolves.
   if (!e) await redirectRetiredChristmasEvent(params.slug);
+  if (!e) { const ended = await endedEventPage(params.slug); if (ended) return ended; }
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
@@ -256,6 +292,7 @@ export default async function CuratedEventPage({ params }) {
   // beside directions, not a text link at the foot of the page — owner,
   // 2026-09-06: "does not have the address nor the website for the place".
   const site = eventWebsiteUrl(e) || null;
+  const christmasTopic = siteTodayStr() <= "2027-01-06" ? christmasTopicForEvent(e) : null;
   // ONE ticket button: the affiliate deal when the registry has one, else the
   // organiser's own verified ticket link (rel nofollow, not sponsored). Same
   // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
@@ -626,6 +663,17 @@ export default async function CuratedEventPage({ params }) {
       {seriesHubFor(e) ? (
         <p style={S.p}>
           <a style={S.link} href={seriesHubFor(e).href} data-wf-series-hub="1">{seriesHubFor(e).label} &rsaquo;</a>
+        </p>
+      ) : null}
+
+      {/* 2026-11-25 (owner): every Christmas parade, light show, zoo lights and
+          Nutcracker page links up to its statewide overview and the hub, so
+          Google reads them as one topic (lib/christmasTopicPages.js). */}
+      {christmasTopic ? (
+        <p style={S.p} data-wf-christmas-topic={christmasTopic.slug}>
+          <a style={S.link} href={christmasTopicPath(christmasTopic.slug)}>See every listing: {christmasTopic.h1} &rsaquo;</a>
+          {" · "}
+          <a style={S.link} href="/christmas-in-florida">Christmas events in Florida 2026 &rsaquo;</a>
         </p>
       ) : null}
 

@@ -54,6 +54,7 @@ import ShareButton from "../../components/ShareButton";
 import { guideDealIds, guideDealCommerce } from "../../../lib/guideDeals";
 import { guideCommerceChrome } from "../../../lib/guideEditorialMode";
 import GuideEmailCapture from "./GuideEmailCapture";
+import ChristmasSeasonLinks from "../../components/ChristmasSeasonLinks";
 import GuidePickDecision from "./GuidePickDecision";
 import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import GuidePickOffer from "./GuidePickOffer";
@@ -1299,6 +1300,10 @@ export default async function GuidePage({ params }) {
       {chrome.liveDeals && dealCards.length ? (
         <GuideDealCards slug={params.slug} region={g.region || "Orlando"} deals={dealCards} />
       ) : null}
+      {/* 2026-11-25 (owner): the busiest guides point to the Christmas hub and
+          its overview pages while the season runs; Christmas guides already do. */}
+      {g.cluster !== "christmas-florida-2026" && !seasonalHubsForGuide(params.slug).some((h) => h.slug === "christmas-in-florida")
+        ? <ChristmasSeasonLinks place={g.region || ""} /> : null}
       {g.faq && g.faq.length ? (
         <section className="wf-guide-faq">
           <h2 style={S.h2}>Good to know</h2>
