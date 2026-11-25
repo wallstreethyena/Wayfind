@@ -2792,3 +2792,4 @@ node scripts/test-official-event-covers.mjs
 
 # Main-site guide action coverage and tracking boundaries.
 node scripts/test-guide-day-action.mjs
+node scripts/test-ai-board.mjs
