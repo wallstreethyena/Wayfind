@@ -101,7 +101,7 @@ export default function PastGuides() {
         category="tours"
         cta={{
           label: `See tours & tickets in ${city}`,
-          href: experienceGoUrl("things to do", city, "guides_past"),
+          href: experienceGoUrl("things to do", city, "guides_past", null, { surface: "guides_past" }),
           provider: "viator",
           offerId: "guides_past:" + city.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
           monetized: true,

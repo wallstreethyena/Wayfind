@@ -137,7 +137,7 @@ export default function GuidesHub() {
         category="tours"
         cta={{
           label: "See tours & tickets in Orlando",
-          href: experienceGoUrl("things to do", "Orlando", "guides_hub"),
+          href: experienceGoUrl("things to do", "Orlando", "guides_hub", null, { surface: "guides_hub" }),
           provider: "viator",
           offerId: "guides_hub:orlando",
           monetized: true,

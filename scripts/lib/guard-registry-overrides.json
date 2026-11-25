@@ -1263,6 +1263,14 @@
    "detail": "A broken switch or ledger SKU would let a paid Google SKU run unmetered; a dropped rating write would waste paid lookups and keep the held towns unrankable."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/check-partner-deep-links.mjs": {
+  "protects": "Partner buttons land on the exact verified product before any search page, and every Viator search redirect carries the surface that produced it.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "Partner deep-link audit 2026-11-25: 349 of 3,833 Viator clicks in 30 days opened a search page, 347 with no surface; a verified place card Book fell to search mode and the sheet hid verified place products behind Search Viator."
+  },
+  "owner": "Revenue QA"
  }
 }
 
