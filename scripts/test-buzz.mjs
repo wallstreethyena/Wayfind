@@ -127,6 +127,11 @@ const why = readFileSync(new URL("../app/api/buzz/why/route.js", import.meta.url
 ok(why.includes("THE SWAP TEST") && why.includes("NEVER INVENT") && why.includes("hidden gem, nestled, boasts, stunning"), "the why-line prompt carries the Wayfind editorial standard");
 ok(why.includes('cget(ckey)') && why.includes("1 * DAY"), "why-lines pool-cached one day");
 ok(/busiest|packed|wait time/.test(why) && /line = ""/.test(why), "output lint kills invented-crowd words");
+ok(!/p\.city/.test(why) && why.includes("METRO_GROUP") && why.includes('"buzz2|"'), "why-line never takes the visitor's city as the place's town; area comes from the place's own metro (Dalí Museum in Parrish bug)");
+{
+  const tnc = readFileSync(new URL("../app/components/TrendingNowClient.js", import.meta.url), "utf8");
+  ok(!/buzz\/why[^\n]*city: loc\.city/.test(tnc) && /buzz\/why[^\n]*metro: p\.metro/.test(tnc), "Trending Now sends the place's metro to the why-line, not the visitor's city");
+}
 const mw = readFileSync(new URL("../middleware.js", import.meta.url), "utf8");
 ok(mw.includes('"/api/buzz/why"'), "/api/buzz/why missing from the metered-API guard (the bestmove/why lesson)");
 const cron = readFileSync(new URL("../app/api/cron/hero-images/route.js", import.meta.url), "utf8");
