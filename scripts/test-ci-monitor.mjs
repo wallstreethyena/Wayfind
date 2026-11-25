@@ -158,30 +158,44 @@ for (const host of new Set(fetcher.requests.map((u) => new URL(u).host))) {
 eq(run1.blocked.map((b) => [b.id, b.reason]), [["delta-miami", "robots.txt answered 403"], ["epsilon-sarasota", "bot check or CAPTCHA page"]], "403 and CAPTCHA walls are recorded as blocked, not retried");
 eq(fetcher.requests.filter((u) => u.startsWith("https://epsilon.example/sarasota")).length, 1, "a bot wall is requested once and never retried");
 
-const guides = run1.signals.filter((s) => s.type === "new_guide").map((s) => s.title).sort();
+const guides = run1.signals.filter((s) => s.type === "new_guide" && s.report).map((s) => s.title).sort();
+const guideRows = run1.signals.filter((s) => s.type === "new_guide").map((s) => s.title);
+ok(guideRows.some((t) => /boat parade/.test(t)) && guideRows.some((t) => /2024/.test(t)), "known and stale guide URLs still get a row (refreshes last_seen_at) without being reported");
 eq(guides, ["Orlando Holiday Lights Guide & Map", "Where to watch New Year's Eve fireworks", "best christmas lights tampa bay"], "new seasonal guides: new URL + seasonal words, fresh lastmod");
 ok(!guides.some((t) => /boat parade/.test(t)), "a guide URL already seen is not new");
 ok(!guides.some((t) => /2024/.test(t)), "a stale lastmod is not a new guide");
 ok(!guides.some((t) => /offsite/.test(t)), "an off-site URL in a sitemap is ignored");
 const promoPcts = run1.promos.map((p) => p.discount.pct).sort((a, b) => a - b);
+eq(run1.promos.map((p) => p.subject).sort(), ["10% off holiday lights tickets", "15% off dining", "20% off theme park tickets", "25% off holiday lights tickets", "30% off tickets (sale banner)"], "promo subjects are pct + a fixed category word, never the competitor's sentence");
+for (const sig of run1.signals.filter((x) => x.type === "discount" || x.type === "sale_banner")) ok(/^\d+(\.\d+)?% off [a-z ]+( \(sale banner\))?$/.test(sig.title) && !/winter|wonderland|zootampa|admission|week/i.test(sig.title + sig.summary), `stored promo text is structured (${sig.title})`);
+eq([M.promoCategory("Save 25% on Nutcracker seats"), M.promoCategory("10% off parking"), M.promoCategory("deal on something")], ["show tickets", "parking", "tickets"], "promo categories come from a fixed list, default tickets");
+{
+  const a = { pct: 25, price: null, basis: "save-percent" };
+  const page = "https://beta.example/tampa";
+  ok(M.promoBlockHash(page, a, M.promoCategory("Save 25% on Winter Lights tickets"), false) === M.promoBlockHash(page, a, M.promoCategory("Holiday cheer: save 25% on lights tonight"), false), "reworded copy for the same offer has the same block hash (one row, not one a day)");
+  ok(M.promoBlockHash(page, a, "tickets", false) !== M.promoBlockHash(page, { ...a, pct: 30 }, "tickets", false), "a different stated discount is a different block");
+}
 eq(promoPcts, [10, 15, 20, 25, 30], "promos of 10% or more, each a stated number");
 ok(run1.signals.some((s) => s.type === "sale_banner") && run1.signals.some((s) => s.type === "discount"), "sale banners and ticket discounts are told apart");
 const shift = run1.signals.find((s) => s.type === "affiliate_shift");
-ok(shift && !shift.baseline && /prev=0000000000000000/.test(shift.summary), "a changed promo block hash is an affiliate shift");
+ok(shift && shift.report && !shift.baseline && /prev=0000000000000000/.test(shift.summary), "a changed promo block hash is an affiliate shift");
 eq(run1.gaps.map((g) => [g.title, g.metro, g.competitors]), [["Winter Wonderland Lights", "tampa", ["alpha", "beta"]]], "the fixture gap: on alpha and beta in Tampa, not on Wayfind");
 const newEvents = run1.signals.filter((s) => s.type === "new_event");
+eq(newEvents.filter((s) => s.report).map((s) => s.competitor).sort(), ["alpha", "alpha", "beta", "beta", "gamma"], "unseen events are reported for competitors with history");
 ok(!newEvents.some((s) => /mlm|dave|jazz|pumpkin/i.test(s.title)), "chain, MLM, cancelled and past events are not recorded");
 ok(newEvents.find((s) => /holiday market/i.test(s.title))?.matchRef === "tampa-holiday-market", "a matched event carries Wayfind's ref");
 
 // ── rows: hashes only, short text, dedupe ────────────────────────────────────
-const rows1 = M.buildRows(run1);
+const rows1 = M.buildRows(run1, { seenAt: "2026-11-25T09:30:00.000Z" });
+ok(rows1.intel.every((r) => r.last_seen_at === "2026-11-25T09:30:00.000Z" && !("detected_at" in r)) && rows1.promos.every((r) => r.last_seen_at === "2026-11-25T09:30:00.000Z" && !("detected_at" in r) && !("status" in r)), "every row refreshes last_seen_at and never sends detected_at or status");
+ok(rows1.promos.every((r) => /^[a-f0-9]{64}$/.test(r.block_hash)), "promo rows carry a structured block hash");
 ok(rows1.intel.length > 0 && rows1.promos.length === 5, "rows are built for intel and promos");
 for (const r of rows1.intel) {
   ok(/^[a-f0-9]{64}$/.test(r.source_url_hash) && r.title.length <= 160 && r.diff_summary.length <= 400 && M.SIGNAL_TYPES.includes(r.signal_type), `intel row is hash + short text (${r.signal_type})`);
   ok(!Object.values(r).some((v) => typeof v === "string" && /<\/?[a-z][^>]*>/i.test(v)), "no HTML ever reaches a row");
 }
 for (const p of rows1.promos) ok(p.discount_pct >= 10 && p.discount_pct <= 100 && p.subject.length <= 160 && /^[a-f0-9]{64}$/.test(p.source_url_hash), "promo row bounds hold");
-const doubled = M.buildRows({ signals: [...run1.signals, ...run1.signals], promos: [...run1.promos, ...run1.promos] });
+const doubled = M.buildRows({ signals: [...run1.signals, ...run1.signals], promos: [...run1.promos, ...run1.promos] }, { seenAt: "2026-11-25T09:30:00.000Z" });
 eq([doubled.intel.length, doubled.promos.length], [rows1.intel.length, rows1.promos.length], "the same signal twice is one row (hash dedupe)");
 // A second run that knows the first run's rows reports nothing new.
 const state1 = { seen: new Map(state0.seen), blocks: new Map(state0.blocks) };
@@ -190,7 +204,9 @@ for (const s of run1.signals) {
   if (s.pageKey) state1.blocks.set(s.pageKey, s.stateHash);
 }
 const run2 = await M.runMonitor({ sources: enabledSources(fixtureSources), fetcher: M.createFetcher({ fetchImpl: M.fixtureFetch(FIX), limiter: M.createRateLimiter({ now: M.virtualClock().now, sleep: M.virtualClock().sleep }) }), state: state1, wayfind, today: "2026-11-25" });
-eq(run2.signals.filter((s) => ["new_guide", "new_event", "affiliate_shift"].includes(s.type)).length, 0, "a rerun with the same pages finds no new guide, event or shift");
+eq(run2.signals.filter((s) => s.report && ["new_guide", "new_event", "affiliate_shift", "calendar_change"].includes(s.type)).length, 0, "a rerun with the same pages reports no new guide, event or shift");
+const rows2 = M.buildRows(run2, { seenAt: "2026-11-26T09:30:00.000Z" });
+ok(rows2.intel.filter((r) => r.signal_type === "new_guide" || r.signal_type === "new_event").length >= 6, "the rerun still upserts known URLs, so last_seen_at keeps them out of retention");
 // Baseline: a competitor with no history writes rows but reports nothing as new.
 const baseRun = await M.runMonitor({ sources: enabledSources(fixtureSources).filter((s) => s.competitor === "alpha"), fetcher: M.createFetcher({ fetchImpl: M.fixtureFetch(FIX), limiter: M.createRateLimiter({ minIntervalMs: 0 }) }), state: { seen: new Map(), blocks: new Map() }, wayfind, today: "2026-11-25" });
 const baseBrief = M.buildBrief(baseRun, { mode: "test", today: "2026-11-25" });
@@ -233,19 +249,91 @@ assert.throws(() => M.parseArgs(["--fixtures", FIX]), /only runs with --dry-run/
     ok(calls[0].method === "GET" && /\/rest\/v1\/wf_events\?select=event_id,slug,event_name,short_title,city,county,start_date,end_date,event_status&/.test(q), "wf_events is read with a narrow select, GET only");
     ok(/event_status=in\.\(scheduled,sold_out\)/.test(q) && /start_date=lte\.2027-03-25/.test(q) && /limit=1000/.test(q) && /end_date\.gte\.2026-11-25/.test(q), "the events read is a bounded upcoming window");
     ok(calls[0].headers.apikey === "fixture-only" && calls[0].headers.authorization === "Bearer fixture-only", "service role headers are sent");
-    const st = await M.loadState(sb, "2026-11-25");
-    ok(st.seen instanceof Map && st.blocks instanceof Map, "state loads (empty)");
+    const st = await M.loadState(sb, ["alpha"]);
+    ok(st.seen instanceof Map && st.blocks instanceof Map && !st.seen.has("alpha"), "state loads (empty: alpha has no history, so its run is a baseline)");
     calls.length = 0;
     await M.upsertRows(sb, "wf_competitor_intel", rows1.intel, "competitor,source_url_hash,signal_type", "merge-duplicates");
     ok(calls.length >= 1 && calls.every((c) => c.method === "POST" && c.url.endsWith("/wf_competitor_intel?on_conflict=competitor,source_url_hash,signal_type") && /resolution=merge-duplicates/.test(c.headers.prefer)), "intel upserts on the unique key");
     const sent = JSON.parse(calls[0].body);
     ok(sent.every((r) => !("detected_at" in r) && !("id" in r)), "an upsert never overwrites detected_at or id (first sighting is kept)");
-    await assert.rejects(() => M.upsertRows(sb, "wf_competitor_promos", rows1.promos, "competitor,source_url_hash,subject", "ignore-duplicates"), /wf_competitor_promos answered 404/);
+    await assert.rejects(() => M.upsertRows(sb, "wf_competitor_promos", rows1.promos, "competitor,source_url_hash,block_hash", "merge-duplicates"), /wf_competitor_promos answered 404/);
     checks += 1;
     ok(!calls.some((c) => /fixture-only/.test(c.url)), "the key never travels in a URL");
   } finally {
     globalThis.fetch = thrower;
   }
+}
+
+// ── state: keyset paging per competitor, no date window, loud cap ────────────
+{
+  const thrower = globalThis.fetch;
+  const sb = M.supabaseConfig({ SUPABASE_URL: "https://fixture.supabase.invalid", SUPABASE_SERVICE_ROLE_KEY: "fixture-only" });
+  const urls = [];
+  const hex = (n) => n.toString(16).padStart(64, "0");
+  const page = (from, n) => Array.from({ length: n }, (_, i) => ({ id: from + i, source_url_hash: hex(from + i), signal_type: "new_event", diff_summary: "", last_seen_at: "2026-01-01T00:00:00Z" }));
+  globalThis.fetch = async (url, init = {}) => {
+    const u = decodeURIComponent(String(url));
+    urls.push({ u, method: init.method || "GET" });
+    if (init.method === "DELETE") return new Response(null, { status: 204 });
+    const gt = Number((/id=gt\.(\d+)/.exec(u) || [])[1]);
+    if (/competitor=eq\.alpha/.test(u)) {
+      if (gt === 0) return new Response(JSON.stringify(page(1, M.STATE_PAGE_ROWS)), { status: 200 });
+      if (gt === M.STATE_PAGE_ROWS) return new Response(JSON.stringify([...page(M.STATE_PAGE_ROWS + 1, 4), { id: 2000, source_url_hash: hex(9), signal_type: "affiliate_shift", diff_summary: "page=aaaaaaaaaaaaaaaa state=bbbbbbbbbbbbbbbb prev=none | x", last_seen_at: "2026-11-01T00:00:00Z" }, { id: 2001, source_url_hash: hex(10), signal_type: "affiliate_shift", diff_summary: "page=aaaaaaaaaaaaaaaa state=cccccccccccccccc prev=none | x", last_seen_at: "2026-10-01T00:00:00Z" }]), { status: 200 });
+    }
+    return new Response("[]", { status: 200 });
+  };
+  try {
+    const st = await M.loadState(sb, ["alpha", "beta"]);
+    eq(st.seen.get("alpha").size, M.STATE_PAGE_ROWS + 4, "every known URL hash is loaded across pages (no 20,000 cap, no date window)");
+    ok(urls.some((x) => /competitor=eq\.alpha&id=gt\.1000&order=id\.asc/.test(x.u)) && !urls.some((x) => /offset=|detected_at=gte/.test(x.u)), "paging is keyset on id per competitor, never offset or a date window");
+    eq(st.blocks.get("aaaaaaaaaaaaaaaa"), "bbbbbbbbbbbbbbbb", "the promo state with the newest last_seen_at wins");
+    ok(!st.seen.has("beta"), "a competitor with no rows has no history (baseline)");
+    urls.length = 0;
+    const cutoff = await M.pruneOldRows(sb, new Date("2026-11-25T09:30:00Z"));
+    eq(cutoff, "2026-05-29T09:30:00.000Z", "retention cutoff is 180 days before the run");
+    eq(urls.map((x) => [x.method, x.u.replace(/^.*\/rest\/v1\//, "")]), [["DELETE", "wf_competitor_intel?last_seen_at=lt.2026-05-29T09:30:00.000Z"], ["DELETE", "wf_competitor_promos?last_seen_at=lt.2026-05-29T09:30:00.000Z"]], "the run deletes only rows unseen for 180 days, in both tables");
+    globalThis.fetch = async (url) => new Response(JSON.stringify(page(Number((/id=gt\.(\d+)/.exec(decodeURIComponent(String(url))) || [])[1]) + 1, M.STATE_PAGE_ROWS)), { status: 200 });
+    await assert.rejects(() => M.loadState(sb, ["endless"]), /more than 200000 intel rows; refusing to run on a partial state/);
+    checks += 1;
+  } finally {
+    globalThis.fetch = thrower;
+  }
+}
+
+// ── bodies: streamed with a hard cap; a failing body is one source's error ───
+{
+  let pulled = 0, cancelled = false;
+  const big = () => new ReadableStream({
+    pull(ctrl) { pulled += 1; ctrl.enqueue(new Uint8Array(64 * 1024).fill(0x61)); if (pulled > 10000) ctrl.close(); },
+    cancel() { cancelled = true; },
+  });
+  const f = M.createFetcher({
+    fetchImpl: async (url) => url.endsWith("/robots.txt") ? new Response("", { status: 404 }) : new Response(big(), { status: 200 }),
+    limiter: M.createRateLimiter({ minIntervalMs: 0 }), maxBytes: 256 * 1024,
+  });
+  const r = await f.get("https://huge.example/page");
+  ok(r.status === "ok" && r.text.length === 256 * 1024, "a huge body is cut at maxBytes");
+  ok(cancelled && pulled < 20, `the stream is cancelled once over the cap (${pulled} chunks pulled, not the whole body)`);
+  eq(f.bodyCaps, ["https://huge.example/page"], "a capped body is recorded, never silent");
+
+  const failing = () => new ReadableStream({ start(ctrl) { ctrl.enqueue(new TextEncoder().encode("<p>part")); }, pull(ctrl) { ctrl.error(Object.assign(new Error("aborted"), { name: "TimeoutError" })); } });
+  const f2 = M.createFetcher({
+    fetchImpl: async (url) => url.endsWith("/robots.txt") ? new Response("", { status: 404 }) : url.includes("slow.example") ? new Response(failing(), { status: 200 }) : new Response('<script type="application/ld+json">{"@type":"Event","name":"Harbor Lights","startDate":"2026-12-01"}</script>', { status: 200 }),
+    limiter: M.createRateLimiter({ minIntervalMs: 0 }),
+  });
+  eq(await f2.get("https://slow.example/a"), { status: "error", reason: "body read timeout" }, "a body that times out mid read is an error result, not a throw");
+  const res = await M.runMonitor({
+    sources: [
+      { id: "slow", competitor: "slow", tier: 1, metro: "tampa", urls: [{ kind: "listing", url: "https://slow.example/b" }] },
+      { id: "fine", competitor: "fine", tier: 1, metro: "tampa", urls: [{ kind: "listing", url: "https://fine.example/c" }] },
+    ],
+    fetcher: f2, state: { seen: new Map(), blocks: new Map() }, wayfind: [], today: "2026-11-25",
+  });
+  ok(res.perSource[0].notes.some((n) => /error: body read timeout/.test(n)) && res.perSource[1].events === 1, "one slow source is recorded and the run continues to the next");
+  const thrower2 = M.createFetcher({ fetchImpl: async () => { throw new Error("boom"); }, limiter: M.createRateLimiter({ minIntervalMs: 0 }) });
+  thrower2.get = async () => { throw new Error("unexpected"); };
+  const res2 = await M.runMonitor({ sources: [{ id: "x", competitor: "x", tier: 1, metro: "tampa", urls: [{ kind: "listing", url: "https://x.example/" }] }], fetcher: thrower2, state: { seen: new Map(), blocks: new Map() }, wayfind: [], today: "2026-11-25" });
+  ok(res2.perSource[0].notes.some((n) => /fetch threw/.test(n)), "even an unexpected throw inside a fetch is contained to its source");
 }
 
 // ── end to end: the CLI in fixture mode writes the brief ─────────────────────

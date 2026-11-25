@@ -141,9 +141,9 @@
   },
   {
     "file": "supabase/migrations/20261125190000_wf_competitor_watch.sql",
-    "sha256": "806a854f46fd65d6a3558dce45d67a3e3b952948089a5d48dd8cd77a2b59e4bc",
+    "sha256": "f286b0a95f5049eca30f07ea851e8cc35ab6ae068ea6a73c73526b38ad52b6cb",
     "decision_owner": "wallstreethyena",
     "tracking": "competitor watch lane, follows #2785",
-    "reason": "NOT APPLIED. Additive only: two private tables wf_competitor_intel and wf_competitor_promos for scripts/ci-monitor.mjs (daily .github/workflows/ci-monitor.yml). Row level security on, no policies, all grants revoked from anon and authenticated (service role only, same shape as wf_ai_board); unique (competitor, source_url_hash, signal_type) and (competitor, source_url_hash, subject) dedupe reruns. Verified in PGlite by scripts/test-competitor-watch-schema.mjs. Reverse in the file header. Until it is applied the scheduled ci-monitor run fails loudly when it reads wf_competitor_intel (no silent empty state); nothing else reads these tables."
+    "reason": "NOT APPLIED. Additive only: two private tables wf_competitor_intel and wf_competitor_promos for scripts/ci-monitor.mjs (daily .github/workflows/ci-monitor.yml). Row level security on, no policies, all grants revoked from anon and authenticated (service role only, same shape as wf_ai_board); unique (competitor, source_url_hash, signal_type) and (competitor, source_url_hash, subject) dedupe reruns (promos dedupe on a structured block_hash); last_seen_at refreshed every run, detected_at kept as first seen; each live run deletes rows unseen for 180 days. Verified in PGlite by scripts/test-competitor-watch-schema.mjs. Reverse in the file header. Until it is applied the scheduled ci-monitor run fails loudly when it reads wf_competitor_intel (no silent empty state); nothing else reads these tables."
   }
 ]

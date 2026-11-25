@@ -630,7 +630,7 @@ scripts/test-christmas-unservable-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0
 scripts/test-christmas-weekend.mjs	0	RENDER	blocks-ci-and-deploy	1	-	94	0	0	93fbcf553573b6a963fa767eaa4de92e6691ee591c101f3cced4f3231b701d46
 scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	77	0	0	d3a442fc69ea5673ca33b6090c435ee81b03498f796d36e40a3fd6b681032086
 scripts/test-chunk-warmup.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	34cfae56b42c0d4c9970b557ae1bf1ff05cdd03f2976a84bc9335f95ccd37b06
-scripts/test-ci-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	130	0	0	dbacbe46f8b8457edbb73439efd4fd0dee3044f3c9b5622003af0c762d6167d2
+scripts/test-ci-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	156	0	0	e2724fbd5ac7b2105f07ebd635157d35566a58b0d8ba81dd92b8890c2dcf573b
 scripts/test-cindy-reel-identities.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0	f4688ada7075e601c5fc3ea12f641bee1d19f15811fae70fb03e5385ba1181b9
 scripts/test-city-fetch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	964b0a958014d38059e7c12277c73bd25765d5dbaa51098530d845d74ff9de8c
 scripts/test-city-gate.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	20	1	0	912ef8bc336c6f85e2660ca914636023ed167c3386ca4e193e9b38393dcac6c0
@@ -655,7 +655,7 @@ scripts/test-commerce-emit-queue.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47
 scripts/test-commons-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	3cd60f01ee0cebb991c285d05245f5a0fabbdaa2112446b01001ab68ff1f3543
 scripts/test-commons-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	145	0	0	642075b6f6f3b80793948da599c35e7254b2a0b390d793b32c0438e58b94fb9b
 scripts/test-community-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	33	0	0	a668c8aa2e845d120b11a445106160739f0451fcd6336343d3952ec57e080532
-scripts/test-competitor-watch-schema.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	25	0	0	6eafe88f91e64c0896c114675e2c8a413b793a809fe01dcf12e7ca4d1c619a3c
+scripts/test-competitor-watch-schema.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	30	0	0	1be82233b0fa7ce051c39bb41dff97231e0fb964a7e690894d91391e56c062fd
 scripts/test-composition-render.mjs	1	RENDER	blocks-ci-and-deploy	1	Qwen (Engineering)	41	0	0	8f246bcf131f8ed8032dacb9816c4f68503012dc4747945e8af11b1fe07d428f
 scripts/test-containment.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	bc739fcab0a3ca6dc0d12b73110640258a4f1a13cd32d92d2bfccfa13650593f
 scripts/test-coord-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	130	0	0	1d3057e8a25c0c20cc687f2483f65a4afdc4005fd9761314ab62e2ceac97d46e

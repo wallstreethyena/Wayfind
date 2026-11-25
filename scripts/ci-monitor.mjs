@@ -334,6 +334,35 @@ export function extractAffiliateKeys(html, baseUrl) {
   return [...keys].sort();
 }
 
+// A small FIXED vocabulary for what a promo is on. The stored subject is built from
+// the stated percentage plus one of these words, never from the competitor's sentence.
+export const PROMO_CATEGORIES = Object.freeze([
+  ["parking", /\bparking\b/i],
+  ["hotel stays", /\b(hotel|resort|stay|stays|lodging)\b/i],
+  ["dining", /\b(dinner|brunch|lunch|dining|food|drinks?)\b/i],
+  ["tours", /\b(tours?|cruises?|boat|kayak|trolley)\b/i],
+  ["theme park tickets", /\b(theme park|park tickets?|disney|universal|seaworld|legoland|busch gardens)\b/i],
+  ["show tickets", /\b(shows?|concerts?|theater|theatre|musical|nutcracker)\b/i],
+  ["holiday lights tickets", /\b(lights?|light show)\b/i],
+  ["passes", /\b(pass|passes|annual|membership)\b/i],
+]);
+export function promoCategory(line) {
+  const hit = PROMO_CATEGORIES.find(([, re]) => re.test(String(line || "")));
+  return hit ? hit[0] : "tickets";
+}
+/** "25% off holiday lights tickets": structured fields only, no copied words. */
+export function promoSubject(discount, category, banner) {
+  return clip(`${discount.pct}% off ${category}${banner ? " (sale banner)" : ""}`, 160);
+}
+/**
+ * The identity of a promo block, from structured fields only (page, stated %, basis,
+ * category, banner). Reworded marketing copy for the same offer is the same row;
+ * a different stated number is a new row.
+ */
+export function promoBlockHash(pageUrl, discount, category, banner) {
+  return sha256Hex([pageUrl, discount.pct, discount.basis, discount.price == null ? "" : discount.price, category, banner ? 1 : 0].join("|"));
+}
+
 /** One hash for the watched promo state of a page: promo block hashes + affiliate keys. */
 export function promoStateHash(blocks, affiliateKeys) {
   return sha256Hex([...blocks.map((b) => b.hash)].sort().join("|") + "#" + affiliateKeys.join("|"));
@@ -480,6 +509,7 @@ export function createFetcher({ fetchImpl = globalThis.fetch, limiter = createRa
   const robotsCache = new Map();
   const pageCache = new Map(); // one fetch per URL per run, even when two sources share a sitemap
   const requests = [];
+  const bodyCaps = []; // URLs whose body hit maxBytes and was cut off (reported, never silent)
   const raw = async (url) => {
     const host = new URL(url).host;
     await limiter.wait(host);
@@ -491,9 +521,30 @@ export function createFetcher({ fetchImpl = globalThis.fetch, limiter = createRa
     });
     return res;
   };
+  // Streams the body and CANCELS it once maxBytes is reached, so an endless or huge
+  // page never sits in memory whole. A read error (timeout, abort, reset) throws to
+  // the caller, which records it as that source's error and moves on.
   const readBody = async (res, url) => {
-    const buf = Buffer.from(await res.arrayBuffer());
-    let body = buf.length > maxBytes ? buf.subarray(0, maxBytes) : buf;
+    const chunks = [];
+    let total = 0;
+    if (res.body && typeof res.body.getReader === "function") {
+      const reader = res.body.getReader();
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const room = maxBytes - total;
+        if (value.length >= room) {
+          chunks.push(Buffer.from(value.subarray(0, room)));
+          total += room;
+          bodyCaps.push(url);
+          await reader.cancel().catch(() => {});
+          break;
+        }
+        chunks.push(Buffer.from(value));
+        total += value.length;
+      }
+    }
+    let body = Buffer.concat(chunks, total);
     if (/\.gz($|\?)/i.test(url) && body[0] === 0x1f && body[1] === 0x8b) {
       try { body = gunzipSync(body, { maxOutputLength: maxBytes }); } catch (e) { return ""; }
     }
@@ -549,14 +600,15 @@ export function createFetcher({ fetchImpl = globalThis.fetch, limiter = createRa
         continue;
       }
       if (res.status === 401 || res.status === 403 || res.status === 429) return { status: "blocked", reason: `HTTP ${res.status}` };
-      const text = await readBody(res, url);
+      let text;
+      try { text = await readBody(res, url); } catch (e) { return { status: "error", reason: e && e.name === "TimeoutError" ? "body read timeout" : "body read failed" }; }
       if (isBotWall(res.status, text)) return { status: "blocked", reason: "bot check or CAPTCHA page" };
       if (res.status !== 200) return { status: "error", reason: `HTTP ${res.status}` };
       return { status: "ok", url, text };
     }
     return { status: "error", reason: "too many redirects" };
   }
-  return { get, robotsFor, requests, limiter };
+  return { get, robotsFor, requests, limiter, bodyCaps };
 }
 
 /** Fixture transport: URL -> file from <dir>/manifest.json. Unknown URLs answer 404. */
@@ -622,15 +674,19 @@ export async function runMonitor({ sources, fetcher, state, wayfind, today, maxP
       if (isEventUrl(url)) {
         discoveries.push({ competitor: src.competitor, tier: src.tier, metro, title: t, fromSlug, url, urlHash, host, isNew, baseline });
         stat.events++;
-      } else if (isSeasonalGuide(t, url) && isNew && (!lastmod || String(lastmod).slice(0, 10) >= guideCutoff)) {
-        signals.push({ type: "new_guide", competitor: src.competitor, tier: src.tier, metro, title: t, host, urlHash, baseline, summary: `New seasonal guide URL on ${siteOf(host)}${lastmod ? ", updated " + String(lastmod).slice(0, 10) : ""}` });
+      } else if (isSeasonalGuide(t, url)) {
+        // Every seasonal guide URL gets a row, so last_seen_at stays fresh and a known
+        // URL is never re-flagged; only an unseen, recently updated one is REPORTED.
+        const fresh = !lastmod || String(lastmod).slice(0, 10) >= guideCutoff;
+        signals.push({ type: "new_guide", competitor: src.competitor, tier: src.tier, metro, title: t, host, urlHash, baseline, report: isNew && fresh && !baseline, summary: `Seasonal guide URL on ${siteOf(host)}${lastmod ? ", updated " + String(lastmod).slice(0, 10) : ""}` });
       }
     };
 
     while (queue.length && !stop) {
       const job = queue.shift();
       if (stat.pages >= maxPagesPerSource) { stat.notes.push(`page cap ${maxPagesPerSource} reached`); break; }
-      const res = await fetcher.get(job.url);
+      let res;
+      try { res = await fetcher.get(job.url); } catch (e) { res = { status: "error", reason: "fetch threw (" + (e && e.name ? e.name : "error") + ")" }; }
       if (res.status === "blocked") { stat.status = "blocked"; blocked.push({ id: src.id, host: new URL(job.url).host, reason: res.reason }); stop = true; break; }
       if (res.status !== "ok") { stat.notes.push(`${res.status}: ${res.reason}`); continue; }
       stat.pages++;
@@ -654,9 +710,12 @@ export async function runMonitor({ sources, fetcher, state, wayfind, today, maxP
         const pageHash = sha256Hex(pageUrl);
         for (const b of blocks) {
           if (!qualifiesAsPromo(b.discount)) continue;
-          const subject = clip(`${b.discount.pct}% off: ${b.line}`, 160);
-          promos.push({ competitor: src.competitor, metro: src.metro, subject, discount: b.discount, sourceUrl: pageUrl, sourceUrlHash: pageHash, banner: b.banner, line: b.line });
-          signals.push({ type: b.banner ? "sale_banner" : "discount", competitor: src.competitor, tier: src.tier, metro: src.metro, title: subject, host: new URL(pageUrl).host, urlHash: sha256Hex(pageUrl + "|promo|" + b.hash), baseline: false, summary: `${b.banner ? "Sale banner" : "Ticket discount"} of ${b.discount.pct}% (${b.discount.basis}) on ${siteOf(new URL(pageUrl).host)}` });
+          const category = promoCategory(b.line);
+          const subject = promoSubject(b.discount, category, b.banner);
+          const blockHash = promoBlockHash(pageUrl, b.discount, category, b.banner);
+          // b.line stays in memory (Wayfind match only); it is never put in a row.
+          promos.push({ competitor: src.competitor, metro: src.metro, subject, category, discount: b.discount, sourceUrl: pageUrl, sourceUrlHash: pageHash, blockHash, banner: b.banner, line: b.line });
+          signals.push({ type: b.banner ? "sale_banner" : "discount", competitor: src.competitor, tier: src.tier, metro: src.metro, title: subject, host: new URL(pageUrl).host, urlHash: blockHash, baseline: false, report: true, summary: `${b.banner ? "Sale banner" : "Ticket discount"} of ${b.discount.pct}% (${b.discount.basis}) on ${category}, ${siteOf(new URL(pageUrl).host)}` });
           stat.promos++;
         }
         if (job.kind === "promo" || job.kind === "calendar") {
@@ -666,16 +725,19 @@ export async function runMonitor({ sources, fetcher, state, wayfind, today, maxP
           const full = isPromo ? promoStateHash(blocks, affiliate) : sha256Hex(events.map((e) => normalizeTitle(e.title)).sort().join("|"));
           const h16 = full.slice(0, 16);
           const prev = state.blocks.get(pageKey) || null;
-          if (prev !== h16) {
-            const what = isPromo ? `Promo block set ${prev ? "changed" : "first seen"} (${blocks.length} promo blocks, ${affiliate.length} affiliate links)` : `Calendar event list ${prev ? "changed" : "first seen"} (${events.length} events)`;
-            signals.push({
-              type: isPromo ? "affiliate_shift" : "calendar_change", competitor: src.competitor, tier: src.tier, metro: src.metro,
-              title: clip(`${src.competitorName} ${isPromo ? "deals page" : "calendar"}`, 160), host: new URL(pageUrl).host,
-              urlHash: sha256Hex(pageUrl + "|" + (isPromo ? "affiliate" : "calendar") + "|" + full),
-              baseline: !prev, pageKey, stateHash: h16,
-              summary: `page=${pageKey} state=${h16} prev=${prev || "none"} | ${what}`,
-            });
-          }
+          const changed = Boolean(prev) && prev !== h16;
+          const what = isPromo
+            ? `Promo block set ${!prev ? "first seen" : changed ? "changed" : "unchanged"} (${blocks.length} promo blocks, ${affiliate.length} affiliate links)`
+            : `Calendar event list ${!prev ? "first seen" : changed ? "changed" : "unchanged"} (${events.length} events)`;
+          // Emitted every run (an unchanged state refreshes last_seen_at on its row);
+          // reported only when a known state changed.
+          signals.push({
+            type: isPromo ? "affiliate_shift" : "calendar_change", competitor: src.competitor, tier: src.tier, metro: src.metro,
+            title: clip(`${src.competitorName} ${isPromo ? "deals page" : "calendar"}`, 160), host: new URL(pageUrl).host,
+            urlHash: sha256Hex(pageUrl + "|" + (isPromo ? "affiliate" : "calendar") + "|" + full),
+            baseline: !prev, report: changed, pageKey, stateHash: h16,
+            summary: `page=${pageKey} state=${h16} prev=${changed ? prev : !prev ? "none" : h16} | ${what}`,
+          });
         }
       }
     }
@@ -685,13 +747,14 @@ export async function runMonitor({ sources, fetcher, state, wayfind, today, maxP
   const gapResult = computeGaps(discoveries, wayfind || [], { today });
   const gapKeys = new Set();
   for (const g of gapResult.gaps) gapKeys.add(g.metro + "|" + normalizeTitle(g.title));
+  // Every usable event gets a row (refreshes last_seen_at); only unseen ones are REPORTED.
   for (const d of discoveries) {
-    if (!d.isNew || isChainOrMlm(d.title) || isClearlyClosed(d, today)) continue;
+    if (isChainOrMlm(d.title) || isClearlyClosed(d, today)) continue;
     const m = wayfind ? matchWayfind(d.title, d.metro, wayfind) : null;
     const cluster = gapResult.clusters.find((c) => metrosCompatible(c.metro, d.metro) && jaccard(c.title, d.title) >= MATCH_THRESHOLD);
     const n = cluster ? cluster.competitors.length : 1;
     signals.push({
-      type: "new_event", competitor: d.competitor, tier: d.tier, metro: d.metro, title: d.title, host: d.host, urlHash: d.urlHash, baseline: d.baseline,
+      type: "new_event", competitor: d.competitor, tier: d.tier, metro: d.metro, title: d.title, host: d.host, urlHash: d.urlHash, baseline: d.baseline, report: d.isNew && !d.baseline,
       matched: Boolean(m), matchRef: m ? m.ref : null,
       summary: `Event listed on ${n} competitor${n === 1 ? "" : "s"}; ${m ? "Wayfind has it" : "Wayfind has 0 matches"}${cluster && cluster.gap ? "; GAP" : ""}`,
     });
@@ -709,13 +772,19 @@ export function impactLevel(pct, matchedWayfind) {
   return matchedWayfind && base === "low" ? "medium" : base;
 }
 
-export function buildRows(result) {
+/**
+ * Rows for the two tables. last_seen_at is sent on every upsert so a row still on
+ * the competitor's page stays fresh; detected_at is never sent, so the database
+ * keeps the FIRST sighting (detected_at = first seen).
+ */
+export function buildRows(result, { seenAt = new Date().toISOString() } = {}) {
   const intel = new Map();
   for (const s of result.signals) {
     const row = {
       competitor: s.competitor, tier: s.tier, source_url_hash: s.urlHash, source_host: String(s.host).toLowerCase(),
       title: clip(s.title, 160), metro: s.metro, signal_type: s.type, diff_summary: clip(s.summary, 400),
       matched_wayfind: Boolean(s.matched), match_ref: s.matchRef ? clip(s.matchRef, 120) : null,
+      last_seen_at: seenAt,
     };
     intel.set(`${row.competitor}|${row.source_url_hash}|${row.signal_type}`, row);
   }
@@ -725,9 +794,10 @@ export function buildRows(result) {
       competitor: p.competitor, metro: p.metro, subject: clip(p.subject, 160),
       observed_price: p.discount.price == null ? null : p.discount.price,
       discount_pct: p.discount.pct, impact_level: impactLevel(p.discount.pct, Boolean(p.matchRef)),
-      source_url: p.sourceUrl, source_url_hash: p.sourceUrlHash,
+      source_url: p.sourceUrl, source_url_hash: p.sourceUrlHash, block_hash: p.blockHash,
+      last_seen_at: seenAt,
     };
-    promos.set(`${row.competitor}|${row.source_url_hash}|${row.subject}`, row);
+    promos.set(`${row.competitor}|${row.source_url_hash}|${row.block_hash}`, row);
   }
   return { intel: [...intel.values()], promos: [...promos.values()] };
 }
@@ -738,12 +808,13 @@ export function buildBrief(result, { mode, today, disabled = [], wayfindCount = 
     const c = byComp[s.competitor] || (byComp[s.competitor] = { sources: 0, pages: 0, items: 0, events: 0, promos: 0, blocked: 0, newGuides: 0, newEvents: 0, baseline: false });
     c.sources++; c.pages += s.pages; c.items += s.items; c.events += s.events; c.promos += s.promos; if (s.status === "blocked") c.blocked++;
   }
-  const reported = result.signals.filter((s) => !s.baseline);
+  const reported = result.signals.filter((s) => s.report);
   for (const s of result.signals) {
     const c = byComp[s.competitor];
     if (!c) continue;
-    if (s.baseline) c.baseline = true;
-    else if (s.type === "new_guide") c.newGuides++;
+    if (s.baseline && (s.type === "new_guide" || s.type === "new_event")) c.baseline = true;
+    if (!s.report) continue;
+    if (s.type === "new_guide") c.newGuides++;
     else if (s.type === "new_event") c.newEvents++;
   }
   const json = {
@@ -808,30 +879,53 @@ export async function loadWayfindEvents(sb, today) {
   return rows;
 }
 
-export async function loadState(sb, today) {
-  const since = addDays(today, -180);
+export const STATE_PAGE_ROWS = 1000;
+export const MAX_STATE_ROWS_PER_COMPETITOR = 200000;
+export const RETENTION_DAYS = 180;
+
+/**
+ * What the database already knows, per competitor, with KEYSET paging on id (no
+ * date window, no offset cap), so a known URL is never re-flagged as new however
+ * old or numerous. Retention (RETENTION_DAYS on last_seen_at) is what bounds the
+ * table; a competitor over MAX_STATE_ROWS_PER_COMPETITOR stops the run loudly
+ * rather than silently forgetting rows.
+ */
+export async function loadState(sb, competitors) {
   const seen = new Map();
   const blocks = new Map();
-  for (let page = 0; page < 20; page++) {
-    const q = `wf_competitor_intel?select=competitor,source_url_hash,signal_type,diff_summary&detected_at=gte.${since}&order=detected_at.asc,id.asc&limit=1000&offset=${page * 1000}`;
-    const data = await (await sbFetch(sb, q)).json();
-    for (const r of data) {
-      if (!seen.has(r.competitor)) seen.set(r.competitor, new Set());
-      if (r.signal_type === "affiliate_shift" || r.signal_type === "calendar_change") {
-        const m = /page=([a-f0-9]{16}) state=([a-f0-9]{16})/.exec(r.diff_summary || "");
-        if (m) blocks.set(m[1], m[2]); // ascending order: the newest state wins
+  const blockSeenAt = new Map();
+  for (const competitor of [...new Set(competitors)].sort()) {
+    let lastId = 0;
+    let total = 0;
+    for (;;) {
+      const q = `wf_competitor_intel?select=id,source_url_hash,signal_type,diff_summary,last_seen_at&competitor=eq.${encodeURIComponent(competitor)}&id=gt.${lastId}&order=id.asc&limit=${STATE_PAGE_ROWS}`;
+      const data = await (await sbFetch(sb, q)).json();
+      if (!Array.isArray(data)) throw new Error(`ci-monitor: state read for ${competitor} did not return rows`);
+      for (const r of data) {
+        if (!seen.has(competitor)) seen.set(competitor, new Set()); // any row = this competitor has history
+        if (r.signal_type === "new_guide" || r.signal_type === "new_event") seen.get(competitor).add(r.source_url_hash);
+        else if (r.signal_type === "affiliate_shift" || r.signal_type === "calendar_change") {
+          const m = /page=([a-f0-9]{16}) state=([a-f0-9]{16})/.exec(r.diff_summary || "");
+          const at = String(r.last_seen_at || "");
+          if (m && (!blockSeenAt.has(m[1]) || at >= blockSeenAt.get(m[1]))) { blocks.set(m[1], m[2]); blockSeenAt.set(m[1], at); }
+        }
       }
+      total += data.length;
+      if (total > MAX_STATE_ROWS_PER_COMPETITOR) throw new Error(`ci-monitor: FAIL — ${competitor} has more than ${MAX_STATE_ROWS_PER_COMPETITOR} intel rows; refusing to run on a partial state (it would re-flag known URLs as new).`);
+      if (data.length < STATE_PAGE_ROWS) break;
+      lastId = data[data.length - 1].id;
     }
-    if (data.length < 1000) break;
-  }
-  // URL hashes come from the rows' own source_url_hash for URL based signals.
-  for (let page = 0; page < 20; page++) {
-    const q = `wf_competitor_intel?select=competitor,source_url_hash&signal_type=in.(new_guide,new_event)&detected_at=gte.${since}&order=id.asc&limit=1000&offset=${page * 1000}`;
-    const data = await (await sbFetch(sb, q)).json();
-    for (const r of data) { if (!seen.has(r.competitor)) seen.set(r.competitor, new Set()); seen.get(r.competitor).add(r.source_url_hash); }
-    if (data.length < 1000) break;
   }
   return { seen, blocks };
+}
+
+/** Bounded retention: rows not seen for RETENTION_DAYS are deleted (service role). */
+export async function pruneOldRows(sb, now = new Date()) {
+  const cutoff = new Date(now.getTime() - RETENTION_DAYS * 86400000).toISOString();
+  for (const table of ["wf_competitor_intel", "wf_competitor_promos"]) {
+    await sbFetch(sb, `${table}?last_seen_at=lt.${encodeURIComponent(cutoff)}`, { method: "DELETE", headers: { prefer: "return=minimal" } });
+  }
+  return cutoff;
 }
 
 export async function upsertRows(sb, table, rows, onConflict, resolution) {
@@ -886,25 +980,30 @@ export async function main(argv, env) {
     sb = supabaseConfig(env);
     fetcher = createFetcher();
     wayfindRows = await loadWayfindEvents(sb, today);
-    state = await loadState(sb, today);
   }
   const wayfind = shapeWayfindEvents(wayfindRows);
   const gapsTrusted = wayfind.length > 0;
   const fixtureSources = args.fixtures && existsSync(path.join(args.fixtures, "sources.json")) ? JSON.parse(readFileSync(path.join(args.fixtures, "sources.json"), "utf8")) : null;
   const sources = fixtureSources ? enabledSources(fixtureSources) : enabledSources();
   const disabled = fixtureSources ? disabledSources(fixtureSources) : disabledSources();
+  if (!state) state = await loadState(sb, sources.map((s) => s.competitor));
+  const seenAt = new Date().toISOString();
   const result = await runMonitor({ sources, fetcher, state, wayfind: gapsTrusted ? wayfind : [], today });
   if (!gapsTrusted) { result.gaps = []; }
-  const rows = buildRows(result);
+  const rows = buildRows(result, { seenAt });
   const mode = args.fixtures ? "dry-run (fixtures)" : args.dryRun ? "dry-run (live, no writes)" : "live (writes)";
   const brief = buildBrief(result, { mode, today, disabled, wayfindCount: wayfind.length, gapsTrusted });
   brief.json.rows = { intel: rows.intel.length, promos: rows.promos.length, written: false };
+  brief.json.bodyCapped = fetcher.bodyCaps.length; // pages cut off at MAX_BODY_BYTES this run
   // The brief is written BEFORE the upserts, so a failed write still leaves it for the artifact.
   const saveBrief = () => { writeFileSync("ci-monitor-brief.json", JSON.stringify(brief.json, null, 2) + "\n"); writeFileSync("ci-monitor-brief.md", brief.md); };
   saveBrief();
   if (sb && !args.dryRun) {
     await upsertRows(sb, "wf_competitor_intel", rows.intel, "competitor,source_url_hash,signal_type", "merge-duplicates");
-    await upsertRows(sb, "wf_competitor_promos", rows.promos, "competitor,source_url_hash,subject", "ignore-duplicates");
+    // merge-duplicates updates only the columns sent: last_seen_at refreshes, while
+    // detected_at (first seen) and the owner's review status are never sent.
+    await upsertRows(sb, "wf_competitor_promos", rows.promos, "competitor,source_url_hash,block_hash", "merge-duplicates");
+    brief.json.rows.prunedBefore = await pruneOldRows(sb);
     brief.json.rows.written = true;
     saveBrief();
   }
