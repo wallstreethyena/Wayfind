@@ -136,14 +136,14 @@
     "file": "supabase/migrations/20261125180000_wf_trip_rewards.sql",
     "sha256": "27cff886cec1eed8b6b268b31af3b072940bf22d7488e49ff136d38474cba398",
     "decision_owner": "wallstreethyena",
-    "tracking": "owner order 2026-11-25 (trip logs and rewards)",
+    "tracking": "#2786 (owner order 2026-11-25)",
     "reason": "PENDING APPLY right after merge, under the owner's 2026-11-25 mission (verified trip logs, tiered rewards, badges). Additive only: three new tables (wf_trip_logs, wf_reward_events, wf_rewards_profile) with RLS on, owner select policies only, no anon or authenticated writes, and one service role only writer function wf_log_visit. No existing table touched. Tested on isolated PGlite by scripts/test-trip-rewards-rls.mjs. Reverse in the file header. The applied receipt replaces this entry."
   },
   {
     "file": "supabase/migrations/20261125190000_wf_competitor_watch.sql",
     "sha256": "f286b0a95f5049eca30f07ea851e8cc35ab6ae068ea6a73c73526b38ad52b6cb",
     "decision_owner": "wallstreethyena",
-    "tracking": "competitor watch lane, follows #2785",
+    "tracking": "#2786 (owner order 2026-11-25)",
     "reason": "NOT APPLIED. Additive only: two private tables wf_competitor_intel and wf_competitor_promos for scripts/ci-monitor.mjs (daily .github/workflows/ci-monitor.yml). Row level security on, no policies, all grants revoked from anon and authenticated (service role only, same shape as wf_ai_board); unique (competitor, source_url_hash, signal_type) and (competitor, source_url_hash, subject) dedupe reruns (promos dedupe on a structured block_hash); last_seen_at refreshed every run, detected_at kept as first seen; each live run deletes rows unseen for 180 days. Verified in PGlite by scripts/test-competitor-watch-schema.mjs. Reverse in the file header. Until it is applied the scheduled ci-monitor run fails loudly when it reads wf_competitor_intel (no silent empty state); nothing else reads these tables."
   }
 ]
