@@ -25,6 +25,7 @@ import { christmasResearchSitemapRows, withoutChristmasWatchlistTwins } from "..
 import { siteTodayStr } from "../lib/siteTime";
 import { movieSitemapRows } from "../lib/moviePages.js";
 import { nyeModel, nyeRegionPageIds, nyeRegionPath } from "../lib/newYearsEve.js";
+import { SPRING_BREAK_HUB_PATH, springBreakModel, springBreakRegionPageIds, springBreakRegionPath } from "../lib/springBreak.js";
 
 // Hourly, so the curated events layer below is read at request time. During
 // `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
@@ -123,8 +124,11 @@ export default async function sitemap() {
   // above leaves eventRows empty, which only drops the curated half.
   let nyeRegions = [];
   try { nyeRegions = nyeRegionPageIds(nyeModel(eventRows, siteTodayStr())).map((id) => ({ url: SITE_URL + nyeRegionPath(id) })); } catch { nyeRegions = []; }
+  // Spring break 2027 (lib/springBreak.js): the hub, plus areas with enough listings.
+  let springBreak = [];
+  try { springBreak = [{ url: SITE_URL + SPRING_BREAK_HUB_PATH }, ...springBreakRegionPageIds(springBreakModel(eventRows, siteTodayStr())).map((id) => ({ url: SITE_URL + springBreakRegionPath(id) }))]; } catch { springBreak = []; }
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
   // Tour hubs (lib/eventSeriesHubs.js): one page compares every Florida date of a tour.
   const seriesHubs = EVENT_SERIES_HUBS.map((h) => ({ url: `${SITE_URL}${h.href}` }));
-  return [...core, ...seasonal, ...nyeRegions, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...places];
+  return [...core, ...seasonal, ...nyeRegions, ...springBreak, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...places];
 }
