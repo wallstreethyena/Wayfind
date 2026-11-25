@@ -10,6 +10,10 @@
 --                       rules in lib/rewards.js read, plus the tier and badges
 --                       they produced.
 --
+-- VERIFICATION is a device position the browser reports, checked once against
+-- the place for a visit logged on the day; it is attested, not proven, which
+-- is why it adds points and a dormant giveaway entry only, never a prize.
+--
 -- PRIVACY. No free text, no name, email, phone, or coordinates are stored. A
 -- visit's verification is a word ('nearby' or 'self_reported') and a distance
 -- band; the device position used to decide it is never written anywhere.
@@ -21,7 +25,7 @@
 -- key that ships in the browser gets nothing.
 --
 -- ANTI SPAM is enforced here, not only in the route: one log per place per 7
--- days, at most 8 logs per rolling 24 hours, visit date within the last 14 days
+-- days (by visit date AND by when it was logged), at most 8 logs per rolling 24 hours, visit date within the last 14 days
 -- (US Eastern), and a per member advisory lock so two taps cannot race.
 --
 -- Additive only. Reverse:
@@ -132,10 +136,13 @@ begin
     where user_id = p_user_id and created_at > pg_catalog.now() - interval '24 hours';
   if v_recent >= 8 then raise exception 'WF_RATE_LIMITED' using errcode = 'P0001'; end if;
 
+  -- Both windows: a visit date within 6 days of an existing one, AND any log
+  -- of the same place made in the last 7 days, so back dating cannot farm it.
   if exists (
     select 1 from public.wf_trip_logs
     where user_id = p_user_id and ref_kind = p_ref_kind and ref_id = p_ref_id
-      and visited_on between p_visited_on - 6 and p_visited_on + 6
+      and (visited_on between p_visited_on - 6 and p_visited_on + 6
+           or created_at > pg_catalog.now() - interval '7 days')
   ) then
     raise exception 'WF_DUPLICATE' using errcode = 'P0001';
   end if;

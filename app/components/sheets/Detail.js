@@ -79,7 +79,7 @@ export function offerLinkRel(offer, href) {
 // or flagship-attraction details; the server still verifies the exact ID.
 const TripConnections = dynamic(() => import("../TripConnections"), { ssr: false, loading: () => null });
 // Log your visit (2026-11-25). Lazy; the placeholder reserves the collapsed card's height so nothing below it moves when the chunk lands.
-const LogVisitCard = dynamic(() => import("../LogVisitCard"), { ssr: false, loading: () => <div aria-hidden="true" style={{ minHeight: 76, marginBottom: 14 }} /> });
+const LogVisitCard = dynamic(() => import("../LogVisitCard"), { ssr: false, loading: () => <div aria-hidden="true" style={{ minHeight: 92, marginBottom: 14 }} /> });
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it

@@ -1224,8 +1224,8 @@ scripts/test-trending-page.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	699dd
 scripts/test-trending-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	fc98ef78482c3ac98c0b85b052b03a22e82021d18ccc666fb19562d222300cd5
 scripts/test-trending-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f09692794ca88e16f8e42aa820145034722fc51a0785fbaeeb190a14974a778d
 scripts/test-trip-connections.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	413f6ce0353bab239f53a94dbfbd32ecb9d1d0db414900575e223f6caf0b2a4b
-scripts/test-trip-rewards-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	0c19e021bc9325340ca30c937a71732239c50e8ab2ef0762856c97c1657d3b23
-scripts/test-trip-rewards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	95	0	0	dba6d1ffcb1b1438f5dcd7a3c67da91cde78f054cef126cb5b37853cdacffdfc
+scripts/test-trip-rewards-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	bd8948028eca3c336f82c46dd06fda748c2388184ede8d1316e0a5d51b9808b5
+scripts/test-trip-rewards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	98	0	0	5ebc34adad322639136779c79df3a0aac997f58206d712103dff46d0324764ac
 scripts/test-unified-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	7844d590417fb440747010014f739af5398efc44d3056094c6e2acfda8e95e9c
 scripts/test-unified-share-flow.mjs	0	RENDER	blocks-ci-and-deploy	1	-	80	0	0	62302e3a776f8d0a4cbf70991ab10ee7525699bdb4f43269378c92d718f794cb
 scripts/test-venue-anchor.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	b1637194e6027cff7cba765a3cfd264a466b5bbd8738faeb4ee47e6ad1f5d9a1

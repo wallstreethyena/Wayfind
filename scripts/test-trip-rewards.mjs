@@ -142,6 +142,12 @@ eq(rpcBody.p_verification, "nearby", "verification decided server side");
 ok(rpcCall.init.headers.Authorization === "Bearer " + cfg.service, "the writer uses the service role");
 const patch = f.calls.find((c) => c.init.method === "PATCH");
 eq(JSON.parse(patch.init.body), { tier: "florida_insider", badges: ["first_visit", "on_the_spot"] }, "stored tier and badges follow lib/rewards.js");
+f = fakeFetch();
+const backdated = await handleTripLog({ cfg, token: TOKEN, body: { refKind: "place", refId: "ChIJopen000001", visitedOn: "2026-11-20", device: { lat: 27.9507, lng: -82.4573 } }, todayStr: T, fetchImpl: f });
+eq([backdated.status, backdated.body.verification], [200, "self_reported"], "a back dated visit is self reported even with a position near the place");
+f = fakeFetch({ place: { place_id: "ChIJopen000001", lat: null, lng: null, status: "OPERATIONAL", excluded: false } });
+const nullIsland = await handleTripLog({ cfg, token: TOKEN, body: { refKind: "place", refId: "ChIJopen000001", device: { lat: 0, lng: 0 } }, todayStr: T, fetchImpl: f });
+eq(nullIsland.body.verification, "self_reported", "a place with no stored position never verifies, even for a device at 0,0");
 const forged = await handleTripLog({ cfg, token: TOKEN, body: { refKind: "place", refId: "ChIJopen000001", userId: "99999999-0000-0000-0000-000000000000" }, todayStr: T, fetchImpl: fakeFetch() });
 eq(forged.status, 200, "a body user id is ignored");
 
@@ -157,6 +163,8 @@ f = fakeFetch({ event: { event_id: "u-2026", slug: "u-2026", start_date: "2026-1
 eq((await handleTripLog({ cfg, token: TOKEN, body: { refKind: "event", refId: "u-2026" }, todayStr: T, fetchImpl: f })).status, 410, "an unannounced or paused event cannot be logged");
 f = fakeFetch({ event: { event_id: "y-2026", slug: "y-2026", start_date: "2026-12-01", event_status: "scheduled" } });
 eq((await handleTripLog({ cfg, token: TOKEN, body: { refKind: "event", refId: "y-2026" }, todayStr: T, fetchImpl: f })).body.code, "not_started", "an event that has not started cannot be logged");
+f = fakeFetch({ event: { event_id: "e-2026", slug: "e-2026", start_date: "2026-10-01", end_date: "2026-10-31", event_status: "completed" } });
+eq((await handleTripLog({ cfg, token: TOKEN, body: { refKind: "event", refId: "e-2026" }, todayStr: T, fetchImpl: f })).body.code, "ended", "a visit after an event ended cannot be logged");
 f = fakeFetch({ event: { event_id: "other-2026", slug: "other-2026", start_date: "2026-11-01" } });
 eq((await handleTripLog({ cfg, token: TOKEN, body: { refKind: "event", refId: "z-2026" }, todayStr: T, fetchImpl: f })).status, 404, "a row for another event is not accepted");
 
@@ -191,6 +199,6 @@ ok(signedOut.includes('data-log-visit="collapsed"') && signedOut.includes(">Sign
 const signedIn = renderToStaticMarkup(React.createElement(Card, { refId: "ChIJopen000001", user: { id: USER } }));
 ok(signedIn.includes(">Log your visit<") && !/[–—]/.test(signedIn), "signed in card offers Log your visit, no dashes");
 eq(renderToStaticMarkup(React.createElement(Card, { refId: "", user: null })), "", "no id renders nothing");
-ok(/min-height:76px/.test(signedIn.replace(/\s/g, "")) && card.LOG_VISIT_MIN_HEIGHT === 76, "collapsed card height matches the placeholder the detail sheet reserves");
+ok(/min-height:92px/.test(signedIn.replace(/\s/g, "")) && card.LOG_VISIT_MIN_HEIGHT === 92, "collapsed card height matches the placeholder the detail sheet reserves");
 
 console.log(`test-trip-rewards: OK (${n} assertions; rules, server flow with injected fetch, real renders)`);

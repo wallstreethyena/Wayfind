@@ -12,7 +12,7 @@ import { CROWD, VIBE, BEST_TIME, WAIT, LABELS, MAX_BACKDATE_DAYS } from "../../l
 import { submitTripLog, devicePosition } from "../../lib/tripLogClient.js";
 import { siteTodayStr, utcCalendarDateKey } from "../../lib/siteTime";
 
-export const LOG_VISIT_MIN_HEIGHT = 76;
+export const LOG_VISIT_MIN_HEIGHT = 92;
 
 // Civil calendar arithmetic on a YYYY-MM-DD that is already the Eastern day.
 function shiftDay(dateStr, delta) {

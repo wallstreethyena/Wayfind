@@ -83,8 +83,10 @@ eq(r2.giveaway_entry, false, "a self reported visit earns no giveaway entry");
 // ── duplicate and window rules ────────────────────────────────────────────
 await rejects(() => log(alice, "ChIJplaceA0001"), /WF_DUPLICATE/, "same place, same day is rejected");
 await rejects(() => log(alice, "ChIJplaceA0001", { day: shift(today, -3) }), /WF_DUPLICATE/, "same place within 7 days is rejected");
+await rejects(() => log(alice, "ChIJplaceA0001", { day: shift(today, -10) }), /WF_DUPLICATE/, "a back dated log of a place logged in the last 7 days is rejected (no farming by date)");
+await db.query("update public.wf_trip_logs set created_at = now() - interval '8 days' where user_id = $1 and ref_id = 'ChIJplaceA0001'", [alice]);
 const r3 = await log(alice, "ChIJplaceA0001", { day: shift(today, -7) });
-ok(r3.trip_log_id, "same place 7 days apart is a new visit");
+ok(r3.trip_log_id, "same place 7 days apart, logged over a week later, is a new visit");
 await rejects(() => log(alice, "ChIJfuture0001", { day: shift(today, 1) }), /WF_BAD_DATE/, "a future date is rejected");
 await rejects(() => log(alice, "ChIJoldvisit01", { day: shift(today, -15) }), /WF_BAD_DATE/, "more than 14 days back is rejected");
 const r4 = await log(alice, "ChIJoldvisit02", { day: shift(today, -14) });
@@ -102,8 +104,9 @@ eq(prof.points, r1.points_awarded + r2.points_awarded + r3.points_awarded + r4.p
 const ledgerSum = (await as("service_role", "select coalesce(sum(points),0)::int as s from public.wf_reward_events where user_id = $1", [alice])).rows[0].s;
 eq(ledgerSum, prof.points, "profile points equal the ledger total");
 
-// ── rate limit: 8 per rolling 24h (alice has 4) ───────────────────────────
-for (let i = 0; i < DAILY_LOG_CAP - 4; i += 1) await log(alice, "ChIJrate000" + i + "x");
+// ── rate limit: 8 per rolling 24h ───────────────────────────
+const inDay = Number((await db.query("select count(*) as n from public.wf_trip_logs where user_id = $1 and created_at > now() - interval '24 hours'", [alice])).rows[0].n);
+for (let i = 0; i < DAILY_LOG_CAP - inDay; i += 1) await log(alice, "ChIJrate000" + i + "x");
 await rejects(() => log(alice, "ChIJrateover01"), /WF_RATE_LIMITED/, "the ninth log in 24 hours is rejected");
 
 // ── giveaway cap: 10 per month, nearby only (bob, spread over 14 days) ─────

@@ -134,7 +134,7 @@
   },
   {
     "file": "supabase/migrations/20261125180000_wf_trip_rewards.sql",
-    "sha256": "00f953969937214ee9ae60d85e4ad22bd4d884f400ac9fbbc22585d63ea66ecd",
+    "sha256": "27cff886cec1eed8b6b268b31af3b072940bf22d7488e49ff136d38474cba398",
     "decision_owner": "wallstreethyena",
     "tracking": "owner order 2026-11-25 (trip logs and rewards)",
     "reason": "PENDING APPLY right after merge, under the owner's 2026-11-25 mission (verified trip logs, tiered rewards, badges). Additive only: three new tables (wf_trip_logs, wf_reward_events, wf_rewards_profile) with RLS on, owner select policies only, no anon or authenticated writes, and one service role only writer function wf_log_visit. No existing table touched. Tested on isolated PGlite by scripts/test-trip-rewards-rls.mjs. Reverse in the file header. The applied receipt replaces this entry."
