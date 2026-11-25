@@ -12,6 +12,7 @@
 // the organizer's verified link, nothing when sold out or past).
 import Link from "next/link";
 import CommerceClickBeacon from "../components/CommerceClickBeacon";
+import GuidePhoto from "../components/GuidePhoto";
 import { SITE_URL } from "../../lib/site";
 import { siteTodayStr } from "../../lib/siteTime";
 import { readOwnedRows } from "../../lib/ownedSocialStore";
@@ -104,7 +105,7 @@ export default async function LatestReelPage() {
 
         {cards.map((c) => (
           <section key={c.href} style={S.card} data-latest-card={c.kind}>
-            {c.img ? <img src={c.img} alt={c.title} style={S.img} loading="eager" /> : null}
+            {c.img ? <GuidePhoto src={c.img} alt={c.title} width={1040} height={650} loading="eager" style={S.img} fallbackText="" /> : null}
             <div style={S.body}>
               <h2 style={S.title}>{c.title}</h2>
               {c.when ? <p style={S.meta}>{c.when}</p> : null}
