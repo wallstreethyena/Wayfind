@@ -59,6 +59,7 @@ ok(/eventDetailTicketAction\(e, \{ surface: LATEST_SURFACE/.test(page), "ticket 
 ok(!/https?:\/\/(?!\/)(?:www\.)?(?:viator|ticketmaster|tiqets|klook|undercovertourist|getyourguide|gaylordpalms)/i.test(page), "no partner URL in app/latest/page.js");
 ok(/robots:\s*\{\s*index:\s*false/.test(page), "/latest is noindex (bio link, not search content)");
 ok(LATEST_SURFACE === "bio_latest", "surface is bio_latest");
+ok(/loadEventDetailPhotos\(link\.href/.test(page) && /eventRailPhotoCredit\(first\)/.test(page), "card photo is the event page rail photo, with its credit");
 ok(!/[–—]/.test(page.replace(/\/\/.*$/gm, "")), "no dashes in /latest copy");
 
 if (fail) { console.error(`test-latest-reel: ${fail} FAILED, ${pass} passed`); process.exit(1); }
