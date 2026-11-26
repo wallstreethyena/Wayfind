@@ -137,6 +137,8 @@ try {
   setGlobal("navigator", {});
   const { drainPendingActions, shareCard } = await loadComponent(path.join(ROOT, "lib/cardActions.js"), ROOT);
   assert.equal(shareCard({ id: "nearby-place", name: "Nearby Place" }, { surface: "event_nearby" }), "menu");
+  // lib/shareFlow.js fetches the intent sheet on the tap (dynamic import).
+  assert.equal(await waitFor(() => doc.getElementById("wf-share-intent")), true, "the share intent menu opens after the tap");
   flatten(doc.getElementById("wf-share-intent")).find((n) => n.tagName === "BUTTON" && n.children.some((x) => x.textContent === "Just share it")).click();
   const cardDialog = doc.getElementById("wf-share-out-chooser");
   assert.ok(cardDialog, "the real IconicPlaceCard store fallback opens the shared chooser");
@@ -175,7 +177,7 @@ try {
   }), 1, "hydration drains the queued Share once");
   assert.deepEqual(replayed, ["share"]);
   assert.deepEqual(window[PENDING_ACTIONS_KEY], []);
-  assert.ok(earlyDoc.getElementById("wf-share-intent"), "the replay reaches the real card share fallback and produces visible UI");
+  assert.equal(await waitFor(() => earlyDoc.getElementById("wf-share-intent")), true, "the replay reaches the real card share fallback and produces visible UI");
   earlyDoc.key("Escape");
 
   const earlySave = earlyDoc.createElement("button");
