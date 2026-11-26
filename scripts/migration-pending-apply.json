@@ -105,13 +105,6 @@
     "reason": "NOT APPLIED YET. Data only: marks ~5,017 OPERATIONAL non-Florida inventory rows excluded (out_of_scope:non_florida); reversible, deletes nothing. Verified not visitor-visible 2026-11-19 (404s, absent from sitemap). Owner-approved 2026-11-19 (full-audit P3 fix). Applied after merge with the exact file bytes, then this entry is replaced by an apply receipt. Rollback in the file header."
   },
   {
-    "file": "supabase/migrations/20261117143000_wf_booking_agent.sql",
-    "sha256": "3b2ba29b47079f60526fbf1ac6aea83298637591b8bf92109b7d04c26746af93",
-    "decision_owner": "wallstreethyena",
-    "tracking": "supervised OpenTable booking agent draft, not applied #20261117",
-    "reason": "NOT APPLIED. New tables wf_booking_agent_runs, wf_booking_agent_events, wf_booking_agent_sites (RLS on, owner select on runs and events, service role writes, opentable seeded off). Additive. Unused until BOOKING_AGENT_ENABLED=1, BOOKING_AGENT_SITE_OPENTABLE=1 and the site row is on. Owner applies after review. Do not apply from this draft."
-  },
-  {
     "file": "supabase/migrations/20261117120000_wf_reserve_phone.sql",
     "sha256": "45a0d9ab8f1ff5da9fbf44d64e89803211afa9e3706504d459afff58d94911ce",
     "decision_owner": "wallstreethyena",
@@ -124,5 +117,19 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2552 follow-up: reserve notification kinds beyond confirmation texts",
     "reason": "NOT APPLIED. Additive only, and only after 20261116120000_wf_reserve_notifications.sql. Widens the kind check to request_received_sms, request_accepted_sms, request_declined_sms, opentable_handoff, cancellation_sms and failure_sms. Adds status recorded and channel none so a row we chose not to text is not left queued. Recipient may be null only when channel is none. No new table, no grant, RLS unchanged. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials."
+  },
+  {
+    "file": "supabase/migrations/20261125223000_wf_reserve_platform_link_summer_house.sql",
+    "sha256": "5fe2d887bf77900b1a5cb5cf6bc61c68a5013d7fc785b8cd3756a1ef509f4304",
+    "decision_owner": "wallstreethyena",
+    "tracking": "OpenTable booking agent on Vercel #2788",
+    "reason": "PENDING until this PR merges, then applied with its exact bytes and a receipt. One additive row: the verified OpenTable link (rid 1280968) for Summer House on the Lake, the one allowlisted booking agent restaurant."
+  },
+  {
+    "file": "supabase/migrations/20261125220000_wf_events_zoolights_jacksonville_ticket_url.sql",
+    "sha256": "6c42935033ee4a4ccb718ca2c5645e38aed22f47cb538edfb7a66b7080beac3f",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2795: Jacksonville ZooLights ticket button",
+    "reason": "Owner approved 2026-11-25 (Christmas search pages scope). Sets official_ticket_url on one wf_events row (zoolights-jacksonville-zoo-2026) only where it is null; the URL is the zoo ticket page linked from jacksonvillezoo.org/zoolights. Applied after #2795 merges with the exact merged bytes, then this entry is replaced by a receipt. Reverse in the file header."
   }
 ]

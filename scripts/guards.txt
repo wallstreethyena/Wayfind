@@ -527,6 +527,8 @@ node scripts/check-tampa-bay-region.mjs
 node scripts/check-commerce-redirect.mjs
 node scripts/test-sold-out-handoffs.mjs
 node scripts/test-event-seo-title.mjs
+# Christmas overview pages, hub title, ZooLights merge, ended event pages, topic links (2026-11-25).
+node scripts/test-christmas-topic-pages.mjs
 node scripts/check-earning-integrations.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs
@@ -554,6 +556,8 @@ node scripts/test-guide-inline-book.mjs --red-prove
 node scripts/test-guide-park-ticket-cta.mjs
 node scripts/test-guide-pick-offers.mjs
 node scripts/test-guide-pick-offers.mjs --red-prove
+# 2026-11-25 "Make it a full day" bundle high on guide pages: 2 to 3 bookable options (activity, show, dining deal), one per pick or deal, [] below 2, no prices or ratings in copy, rendered once after the disclosure line. Red-proven by mutation.
+node scripts/test-guide-bundle.mjs
 node scripts/test-orlando-guide-tiqets.mjs
 node scripts/test-guide-pick-facts.mjs
 node scripts/check-guide-teasers.mjs
@@ -2723,6 +2727,7 @@ node scripts/test-quota-exhaustion-simulation.mjs
 node scripts/test-moment-search-redteam.mjs
 node scripts/test-search-moment-truth.mjs
 node scripts/test-christmas-temporal-modes.mjs
+node scripts/test-conversion-boosters.mjs
 node scripts/test-nervous-system-health.mjs
 node scripts/test-owned-hours-cohort.mjs
 # 2026-11-13: Wayfind Self-Healing "Should I Go?" Truth Engine (truth provenance, commerce health quarantine, owned hours persistence, 7-state cold location, event temporal eligibility, and actionability coverage).
@@ -2805,3 +2810,7 @@ node scripts/test-journey-telemetry.mjs
 node scripts/test-competitor-watch-schema.mjs
 node scripts/test-ci-monitor.mjs
 node scripts/test-holiday-promos.mjs
+# /latest, the Instagram bio link page (2026-11-25): newest Reel wins, hand-set fallback, no partner URL in source.
+node scripts/test-latest-reel.mjs
+node scripts/test-new-years-eve.mjs
+node scripts/test-spring-break.mjs

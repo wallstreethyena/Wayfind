@@ -54,9 +54,12 @@ import ShareButton from "../../components/ShareButton";
 import { guideDealIds, guideDealCommerce } from "../../../lib/guideDeals";
 import { guideCommerceChrome } from "../../../lib/guideEditorialMode";
 import GuideEmailCapture from "./GuideEmailCapture";
+import ChristmasSeasonLinks from "../../components/ChristmasSeasonLinks";
 import GuidePickDecision from "./GuidePickDecision";
 import { inlineBookConfig } from "../../../lib/guideInlineBook";
 import GuidePickOffer from "./GuidePickOffer";
+import GuideBundle from "./GuideBundle";
+import { guideBundleItems } from "../../../lib/guideBundle";
 import PlaceDealOffer from "../../components/PlaceDealOffer";
 import { placeDealFor, GUIDE_PICK_DEAL_SURFACE } from "../../../lib/placeDeal";
 import { guidePickOffers, replacesCityStrip } from "../../../lib/guidePickOffers";
@@ -1115,6 +1118,24 @@ export default async function GuidePage({ params }) {
         <GuidePickOffer entry={orlandoExactTiqetsEntry()} slug={params.slug} />
       ) : null}
       <div className="wf-guide-disclosure">We may earn a commission when you book through partner links. It never changes our rankings.</div>
+      {/* Make it a full day: 2 to 3 bookable options high on the page (lib/guideBundle.js).
+          Same tickets, offers and deals the picks loop and deal block use; editorial guides render nothing. */}
+      {chrome.bookableHighlights ? (
+        <GuideBundle
+          slug={params.slug}
+          items={guideBundleItems({
+            slug: params.slug,
+            picks: shippingPicks.map(({ pick, index }) => ({
+              key: index,
+              name: pick.name,
+              pickId: pick.id,
+              ticket: unavailableFor(pick.eventSlug) ? null : guidePickTicket(pick.ticket),
+              offerEntry: guidePickOffers(params.slug, pick),
+            })),
+            deals: chrome.liveDeals ? dealCards : [],
+          })}
+        />
+      ) : null}
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
           "Check tours & tickets" + "Check rates" + "Open in Wayfind"; measured
           dwell here is 0-25s and bounce ~50%, so almost nobody reached the end
@@ -1279,6 +1300,10 @@ export default async function GuidePage({ params }) {
       {chrome.liveDeals && dealCards.length ? (
         <GuideDealCards slug={params.slug} region={g.region || "Orlando"} deals={dealCards} />
       ) : null}
+      {/* 2026-11-25 (owner): the busiest guides point to the Christmas hub and
+          its overview pages while the season runs; Christmas guides already do. */}
+      {g.cluster !== "christmas-florida-2026" && !seasonalHubsForGuide(params.slug).some((h) => h.slug === "christmas-in-florida")
+        ? <ChristmasSeasonLinks place={g.region || ""} /> : null}
       {g.faq && g.faq.length ? (
         <section className="wf-guide-faq">
           <h2 style={S.h2}>Good to know</h2>

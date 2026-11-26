@@ -32,7 +32,7 @@ export function pickOfferHref(offer, slug, pickId, clickId) {
   return commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: SURFACE, contentId: slug + ":" + pickId, clickId, page: "g-" + slug });
 }
 
-function consumeBeaconClickId(anchor, nowMs = Date.now()) {
+export function consumeBeaconClickId(anchor, nowMs = Date.now()) {
   if (!anchor) return null;
   try {
     const stamped = typeof anchor.getAttribute === "function" ? anchor.getAttribute("data-wf-click-id") : null;
