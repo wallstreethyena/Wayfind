@@ -26,17 +26,17 @@ A real-world decision engine: gowayfind.com tells a person what's actually worth
 ## LIVE STATE — generated, never typed
 _This block is written by `scripts/os-state.mjs` straight from Supabase, `guards.txt` and git. Do not hand-edit it; `check-os-state.mjs` fails the build if it is missing, malformed, or if any of these metrics is restated as prose elsewhere. Regenerate: `node scripts/os-state.mjs --write --mirror`._
 
-<!-- WF-LIVE-STATE:BEGIN generated=2026-11-25T22:22:33Z by=scripts/os-state.mjs -->
+<!-- WF-LIVE-STATE:BEGIN generated=2026-11-25T22:14:11Z by=scripts/os-state.mjs -->
 
 <!-- DO NOT HAND-EDIT. Regenerate: `node scripts/os-state.mjs --write --mirror` -->
 
 | fact | value | source |
 |---|---|---|
-| CI guards | **1,233** | `scripts/guards.txt`, counted as run-guards counts |
+| CI guards | **1,232** | `scripts/guards.txt`, counted as run-guards counts |
 | package version | **6.56.0** | `package.json` |
-| repo HEAD | **`8bbc29b` on `claude/partner-deep-link-audit`** | git |
+| repo HEAD | **`8bbc29b` on `os-state-refresh`** | git |
 
-_Read from live sources at 2026-11-25T22:22:33Z. Any live number outside this block is unverified prose._
+_Read from live sources at 2026-11-25T22:14:11Z. Any live number outside this block is unverified prose._
 
 > ⚠️ Supabase credentials absent — inventory and ledger rows omitted. Run with .env.local present.
 

@@ -19,7 +19,7 @@ import { isTicketmasterFamily, ticketmasterGoUrl } from "../../../../lib/affilia
 import { emitCommerce, mintClickId } from "../../../../lib/commerce";
 import { withClickId } from "../../../../lib/hubConversion";
 
-export default function TicketButton({ url, label, eventId, provider = "event_official" }) {
+export default function TicketButton({ url, label, eventId, provider = "event_official", lead = null }) {
   const A = "#F97316";
   const safe = safeUrl(url);
   const clickId = useRef(null);
@@ -46,7 +46,7 @@ export default function TicketButton({ url, label, eventId, provider = "event_of
     });
   };
 
-  return (
+  const button = (
     <a
       href={href}
       onClick={onClick}
@@ -57,5 +57,15 @@ export default function TicketButton({ url, label, eventId, provider = "event_of
     >
       {label}
     </a>
+  );
+  // Price and date beside the button (owner 2026-11-25, lib/ticketDecisionLine.js).
+  // The page builds the line from the event's own data; null renders nothing.
+  if (!lead) return button;
+  return (
+    <>
+      <p data-ticket-decision="" style={{ margin: "18px 0 0", textAlign: "center", fontSize: 14.5, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.35 }}>{lead}</p>
+      {/* The button keeps its own top margin; tighten it under the line. */}
+      <div style={{ marginTop: -10 }}>{button}</div>
+    </>
   );
 }

@@ -74,6 +74,10 @@
       "schedule": "5 13 * * *"
     },
     {
+      "path": "/api/cron/booking-agent",
+      "schedule": "* * * * *"
+    },
+    {
       "path": "/api/cron/atlas-build?limit=3",
       "schedule": "15 * * * *"
     },

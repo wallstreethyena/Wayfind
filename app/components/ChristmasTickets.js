@@ -84,6 +84,7 @@ ${CHRISTMAS_LIGHTS_CSS}
 .xm-pick-body{flex:1 1 auto;display:flex;flex-direction:column;gap:4px;padding:10px 12px 12px}
 .xm-pick h3{margin:0;font-size:15px;line-height:1.3;font-weight:700;color:#FFF6F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .xm-pick-meta{margin:0;font-size:12.5px;line-height:1.35;color:#F7DCCB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xm-pick-urgent{align-self:flex-start;display:inline-block;margin:0;padding:2px 8px;border-radius:999px;background:#FFD24A;color:#3A0508;font-size:11px;font-weight:800;line-height:1.35}
 .xm-pick-cta-row{margin-top:auto;padding-top:6px;display:flex;align-items:center;gap:10px}
 .xm-pick-price{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;margin:0;line-height:1.1}
 .xm-pick-from-lbl{font-size:10.5px;color:#E9C3B0}
@@ -248,6 +249,7 @@ function PickCard({ row, rank }) {
         {photo && photo.credit ? <p className="xm-pick-credit">{photo.credit}</p> : null}
       </div>
       <div className="xm-pick-body">
+        {row.urgency && row.urgency.label ? <p className="xm-pick-urgent" data-urgency={row.urgency.kind}>{row.urgency.label}</p> : null}
         <h3>{row.name}</h3>
         {meta ? <p className="xm-pick-meta">{meta}</p> : null}
         <div className="xm-pick-cta-row">

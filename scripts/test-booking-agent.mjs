@@ -836,6 +836,20 @@ const confirmed = { html: html("confirmation.html") };
     placeName: async () => "Synthetic Grill",
   });
   ok(disguisedOut.status === "failed:browser", "chrome mode refuses a disguised (non Wayfind) user agent");
+
+  // Browserbase mode is held to the same rule: a cloud browser that hides what it is never opens OpenTable.
+  const bbDisguisedStore = createMemoryStore({ status: "on" });
+  await seedRun(bbDisguisedStore);
+  let bbDisguisedOpened = false;
+  const bbDisguisedOut = await runNext({
+    store: bbDisguisedStore,
+    env: { ...ON, BOOKING_AGENT_BROWSER_MODE: "browserbase" },
+    now: () => NOW,
+    launch: async () => ({ userAgent: "Mozilla/5.0 Chrome/131.0.0.0", liveViewUrl: null, async open() { bbDisguisedOpened = true; throw new Error("should not open"); }, async close() {} }),
+    loadProfile: async () => PROFILE,
+    placeName: async () => "Synthetic Grill",
+  });
+  ok(bbDisguisedOut.status === "failed:browser" && !bbDisguisedOpened, "browserbase mode refuses a disguised (non Wayfind) user agent before opening OpenTable");
 }
 
 // ---- Browserbase cloud browser + embedded Live View ----
@@ -892,8 +906,9 @@ const confirmed = { html: html("confirmation.html") };
     now: () => NOW + lvTicks * 50,
     launch: async (opts) => {
       ok(opts.mode === "browserbase", "browserbase mode passes mode=browserbase to launch");
+      ok(opts.userAgent === AGENT_UA, "browserbase mode asks the launcher for the honest Wayfind user agent");
       return {
-        userAgent: "Mozilla/5.0 Chrome/131.0.0.0",
+        userAgent: AGENT_UA,
         liveViewUrl: validLv,
         async open() {
           return {
@@ -1034,6 +1049,120 @@ const confirmed = { html: html("confirmation.html") };
   debugStatus = 503;
   const failedDebug = await lbHandlers.open(openRequest());
   ok(failedDebug.status === 503 && releasedId === "sess_live1", "Browserbase debug errors release the session");
+}
+
+// ---- Serverless agent on Wayfind's own hosting: raw CDP browser, stale-run cleanup, one pass ----
+{
+  const cdp = await import("../lib/bookingAgent/cdpSession.js");
+  const serverless = await import("../lib/bookingAgent/serverlessRun.js");
+
+  // Selector lists: the committed map's Playwright :has-text() parts work without Playwright.
+  const parts = cdp.compileSelector("button[type='submit'], button:has-text('Verify'), input[name*='code' i], [data-synthetic='sms-submit']");
+  ok(parts.length === 4 && parts[1].css === "button" && parts[1].text === "Verify" && parts[2].css === "input[name*='code' i]" && parts[2].text === null, "selector lists split on top-level commas and :has-text() becomes a text filter: " + JSON.stringify(parts));
+  ok(cdp.splitSelectorList("a[title='x, y'], b").length === 2, "a comma inside quotes does not split a selector");
+  const map = JSON.parse(readFileSync("lib/bookingAgent/selectors/opentable.v1.json", "utf8"));
+  const every = [map.slotButton, map.seatingOption, map.submit, map.smsCodeInput, map.smsCodeSubmit, ...Object.values(map.fields)];
+  ok(every.every((sel) => cdp.compileSelector(sel).every((p) => p.css && !/:has-text/.test(p.css))), "every selector in the committed OpenTable map compiles to plain CSS plus an optional text filter");
+
+  // A fake Browserbase + CDP endpoint. It records what the agent asks the cloud browser to do.
+  const sent = [];
+  let sessionBody = null;
+  let released = null;
+  let override = null;
+  const lv = "https://www.browserbase.com/devtools-fullscreen/inspector.html?wss=connect.browserbase.com/debug/sess_agent1&debug=true";
+  const bbFetch = async (url, init) => {
+    if (url.endsWith("/sessions") && init?.method === "POST") {
+      sessionBody = JSON.parse(init.body);
+      return new Response(JSON.stringify({ id: "sess_agent1", connectUrl: "wss://connect.browserbase.com?sessionId=sess_agent1" }), { status: 201 });
+    }
+    if (url.endsWith("/sessions/sess_agent1/debug")) return new Response(JSON.stringify({ debuggerFullscreenUrl: lv }), { status: 200 });
+    if (url.endsWith("/sessions/sess_agent1")) { released = JSON.parse(init.body); return new Response("{}", { status: 200 }); }
+    return new Response("{}", { status: 404 });
+  };
+  class FakeCdp {
+    constructor(url) { this.url = url; queueMicrotask(() => this.onopen && this.onopen()); }
+    send(raw) {
+      const msg = JSON.parse(raw);
+      sent.push(msg);
+      let result = {};
+      if (msg.method === "Target.getTargets") result = { targetInfos: [{ type: "page", targetId: "page1" }] };
+      if (msg.method === "Target.attachToTarget") result = { sessionId: "s1" };
+      if (msg.method === "Network.setUserAgentOverride") override = msg.params.userAgent;
+      if (msg.method === "Runtime.evaluate") {
+        const e = msg.params.expression;
+        if (e === "navigator.userAgent") result = { result: { value: override || "Mozilla/5.0 HeadlessChrome" } };
+        else if (/outerHTML/.test(e)) result = { result: { value: { html: "<html><body><input id=\"firstName\"> email</body></html>", url: "https://www.opentable.com/booking/details", title: "OpenTable" } } };
+        else if (/getBoundingClientRect\(\);\s*return \{ x/.test(e)) result = { result: { value: { x: 10, y: 20 } } };
+        else if (/document.activeElement === el/.test(e)) result = { result: { value: true } };
+        else if (/\.length > 0/.test(e)) result = { result: { value: true } };
+        else result = { result: { value: null } };
+      }
+      queueMicrotask(() => {
+        this.onmessage({ data: JSON.stringify({ id: msg.id, result }) });
+        if (msg.method === "Page.navigate") {
+          this.onmessage({ data: JSON.stringify({ method: "Network.responseReceived", sessionId: "s1", params: { type: "Document", response: { status: 200 } } }) });
+          this.onmessage({ data: JSON.stringify({ method: "Page.loadEventFired", sessionId: "s1", params: {} }) });
+        }
+      });
+    }
+    close() { this.closed = true; }
+  }
+  const env = { BROWSERBASE_API_KEY: "bb_test", BROWSERBASE_PROJECT_ID: "proj_test" };
+  const session = await cdp.launchBrowserbaseCdp({ env, fetchImpl: bbFetch, WebSocketImpl: FakeCdp, userAgent: AGENT_UA });
+  ok(sessionBody && sessionBody.proxies === false, "the agent's Browserbase session asks for no proxy: " + JSON.stringify(sessionBody && sessionBody.proxies));
+  ok(sessionBody && sessionBody.browserSettings && sessionBody.browserSettings.solveCaptchas === false && sessionBody.keepAlive === false && sessionBody.timeout === cdp.AGENT_SESSION_TIMEOUT_SECONDS, "the agent's session solves no challenge, does not outlive its run, and has a deadline");
+  ok(override === AGENT_UA && session.userAgent === AGENT_UA, "the cloud page announces the honest Wayfind user agent and launch reads it back");
+  ok(session.liveViewUrl === lv, "the session carries the validated live view address");
+  const page = await session.open("https://www.opentable.com/booking/restref/availability?rid=1", { timeoutMs: 400 });
+  const snap = await page.snapshot();
+  ok(snap.httpStatus === 200 && /firstName/.test(snap.html) && snap.url.includes("opentable.com"), "open navigates, waits for the load, and a snapshot carries the page and its status");
+  ok(sent.some((m) => m.method === "Page.navigate" && m.params.url.includes("rid=1")), "open asks the cloud browser to load the OpenTable page");
+  await page.fill("#firstName", "Ada");
+  ok(sent.some((m) => m.method === "Input.insertText" && m.params.text === "Ada"), "fill types through the browser's own input pipeline");
+  await page.click("#complete-reservation");
+  const mouse = sent.filter((m) => m.method === "Input.dispatchMouseEvent").map((m) => m.params.type);
+  ok(mouse.includes("mousePressed") && mouse.includes("mouseReleased"), "click is a real pointer press and release: " + mouse.join(","));
+  ok(!sent.some((m) => m.method === "Runtime.evaluate" && /onetrust-accept-btn-handler/.test(m.params.expression)), "the cookie banner is never answered with accept all");
+  await session.close();
+  ok(released && released.status === "REQUEST_RELEASE", "close releases the cloud browser");
+
+  // A launch whose browser will not take the override is refused by runNext (the page reports the real agent).
+  const sentBefore = sent.length;
+  class StubbornCdp extends FakeCdp { send(raw) { const m = JSON.parse(raw); if (m.method === "Network.setUserAgentOverride") { sent.push(m); queueMicrotask(() => this.onmessage({ data: JSON.stringify({ id: m.id, result: {} }) })); return; } super.send(raw); } }
+  override = null;
+  const stubborn = await cdp.launchBrowserbaseCdp({ env, fetchImpl: bbFetch, WebSocketImpl: StubbornCdp, userAgent: AGENT_UA });
+  ok(stubborn.userAgent !== AGENT_UA && sent.length > sentBefore, "launch reports the user agent the page really has, so runNext can refuse it");
+  await stubborn.close();
+
+  // Stale progress rows from a function the platform stopped are closed so the next guest is not blocked.
+  const staleStore = createMemoryStore({ status: "on" });
+  const old = new Date(NOW - 20 * 60 * 1000).toISOString();
+  const a = await seedRun(staleStore);
+  const b = await seedRun(staleStore);
+  const c = await seedRun(staleStore);
+  // Seed the rows a stopped function leaves behind (the memory store only allows one active run at a time).
+  Object.assign(staleStore.runs.find((r) => r.id === a.id), { status: "selecting_slot", updated_at: old });
+  Object.assign(staleStore.runs.find((r) => r.id === b.id), { status: "submitting", updated_at: old });
+  Object.assign(staleStore.runs.find((r) => r.id === c.id), { status: "opening", updated_at: new Date(NOW).toISOString() });
+  const closedCount = await serverless.closeStaleRuns(staleStore, NOW);
+  const [sa, sb, sc] = [await staleStore.getRun(a.id), await staleStore.getRun(b.id), await staleStore.getRun(c.id)];
+  ok(closedCount === 2 && sa.status === "handback:timeout" && sb.status === "unknown_after_submit" && sc.status === "opening", "stale runs close (before submit: hand back, after submit: check OpenTable) and a live run is left alone: " + [sa.status, sb.status, sc.status].join(","));
+
+  // One serverless pass runs the queued run through the Browserbase launcher with the honest agent.
+  const passStore = createMemoryStore({ status: "on" });
+  await seedRun(passStore);
+  const browser = scripted([form, confirmed]);
+  const pass = await serverless.runBookingAgentOnce({
+    env: { ...ON },
+    config: { url: "https://example.supabase.co", key: "test" },
+    store: passStore,
+    repository: { readBookingProfile: async () => PROFILE, getInventoryPlace: async () => ({ name: "Synthetic Grill" }) },
+    launch: async (opts) => { ok(opts.mode === "browserbase" && opts.userAgent === AGENT_UA, "the serverless pass launches a Browserbase browser with the honest user agent"); return browser.launch(opts); },
+    now: () => NOW,
+  });
+  ok(pass.ran && pass.status === "confirmed" && pass.reaped === 0, "a serverless pass books the queued run end to end on fixtures: " + JSON.stringify(pass));
+  const idle = await serverless.runBookingAgentOnce({ env: { ...ON }, config: { url: "https://example.supabase.co", key: "test" }, store: passStore, repository: { readBookingProfile: async () => PROFILE, getInventoryPlace: async () => null }, launch: async () => { throw new Error("idle pass must not launch"); }, now: () => NOW });
+  ok(idle.ran === false, "an idle pass launches nothing");
 }
 
 if (failed) { console.error(`test-booking-agent: ${failed} of ${count} assertions failed`); process.exit(1); }

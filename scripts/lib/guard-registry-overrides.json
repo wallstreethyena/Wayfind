@@ -1271,6 +1271,21 @@
    "detail": "Partner deep-link audit 2026-11-25: 349 of 3,833 Viator clicks in 30 days opened a search page, 347 with no surface; a verified place card Book fell to search mode and the sheet hid verified place products behind Search Viator."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-new-years-eve.mjs": {
+  "protects": "The New Year's Eve 2026 pages (lib/newYearsEve.js): only Dec 31 NYE rows that pass the /florida-events trust gates, no invented time, price, free or sold-out claim, every Ticketmaster listing routed through /api/ticketmaster/go with the nye_hub surface, organizer ticket links plain nofollow, Central Time for the Panhandle, sorting by start time, and area pages (and sitemap rows) only with at least 3 real listings.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "2026-11-25: the NYE hub and area pages carry ticket buttons for Dec 31 shows. A raw seller link loses the Impact commission, an invented time or price misleads a buyer under Wayfind's name, and a thin area page is a low-quality page offered to Google."
+  },
+  "owner": "Revenue QA"
+ },
+ "scripts/test-spring-break.mjs": {
+  "protects": "The spring break 2027 pages (lib/springBreak.js): only curated rows running Mar 1 to Apr 11, 2027 that pass the /florida-events trust gates, no invented price, free or sold-out claim, sorting by start date, and area pages (and sitemap rows) only with at least 3 real listings, retired after the window.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "2026-11-25: the spring break hub and area pages carry event ticket buttons months ahead so they can rank. A wrong window shows last year's or off-season events under Wayfind's name, and a thin area page is a low-quality page offered to Google."
+  },
+  "owner": "Revenue QA"
  }
 }
-
