@@ -32,6 +32,7 @@
  *      cluster immunity for selected pin).
  */
 import assert from "node:assert/strict";
+import { mock } from "node:test";
 import { fileURLToPath } from "node:url";
 import { readFileSync, writeFileSync } from "node:fs";
 import React, { createElement } from "react";
@@ -578,19 +579,13 @@ let mapComponentMod = null;
 }
 
 // ── 5. THE HARD TEST (Sarasota GPS + Tampa Pan + "Christmas tonight" + SSR) ─
-{
-  const nov13Evening = Date.parse("2026-11-13T23:30:00Z"); // Friday Nov 13, 2026 18:30 EST
-
+async function assertChristmasMapHardTest(nov13Evening) {
   // Build search result cards from `searchResultCards`:
   // - 1 valid Tampa Christmas event running tonight (venue_lat/venue_lng present)
   // - 1 off-night Tampa Christmas event (runs Saturdays only; Nov 13, 2026 is Friday!)
   // - 1 unpinned city-centroid event (`approx: true`, no `venue_lat` -> must NOT get fake map coords!)
-  // Calendar-invariant date window & off-day schedule for real `<MapScreen />` SSR clock:
-  const sysNow = new Date();
-  const estDayIdx = new Date(sysNow.getTime() - 5 * 3600000).getUTCDay();
-  const offDayPlural = ["Sundays", "Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays"][(estDayIdx + 2) % 7];
-  const winStart = new Date(sysNow.getTime() - 7 * 86400000).toISOString().slice(0, 10);
-  const winEnd = new Date(sysNow.getTime() + 30 * 86400000).toISOString().slice(0, 10);
+  const winStart = "2026-11-01";
+  const winEnd = "2027-01-04";
 
   const rawSearchResult = {
     places: [
@@ -636,7 +631,7 @@ let mapComponentMod = null;
         tags: ["christmas", "holiday"],
         start_date: winStart,
         end_date: winEnd,
-        schedule_note: `${offDayPlural} only`,
+        schedule_note: "Saturdays only",
       },
       {
         event_id: "ev-approx-centroid",
@@ -865,6 +860,29 @@ let mapComponentMod = null;
   assert.ok(html.includes("9.5"), "Public Wayfind Score 9.5 is unchanged");
   assert.ok(html.includes("Parking &amp; nearby"), "Preview micro-bar exposes Parking & nearby");
   assert.ok(html.includes("Save Tampa Riverwalk Holiday Market"), "IconicPlaceCard exposes Save action");
+}
+
+// Search and the real MapScreen both consult wall time. Keep this representative
+// non-holiday Friday independent of the build date; explicit holiday controls above
+// and below still exercise the live operating-hours behavior.
+const christmasMapFixtureTime = Date.parse("2026-11-13T23:30:00Z"); // Friday 6:30 p.m. EST
+mock.timers.enable({ apis: ["Date"], now: christmasMapFixtureTime });
+try {
+  await assertChristmasMapHardTest(christmasMapFixtureTime);
+} finally {
+  delete globalThis.__hardTestAppleProps;
+  mock.timers.reset();
+}
+
+// Later SSR controls share the same representative Friday, without changing
+// the clock for unrelated tests in this file.
+function renderChristmasMapFixture(element) {
+  mock.timers.enable({ apis: ["Date"], now: christmasMapFixtureTime });
+  try {
+    return renderToStaticMarkup(element);
+  } finally {
+    mock.timers.reset();
+  }
 }
 
 // ── 6. Pairings Hygiene & Multi-Stop Backtracking Optimizer ─────────────────
@@ -1424,7 +1442,7 @@ let mapComponentMod = null;
   // Part C: SSR Tests for MapScreen (Honest Recovery Text, Empty Search Camera Protection, and Parking Access)
   // 1. Open Now Honest Recovery:
   // a) Unconfirmed hours only -> "No verified open hours right now" + subtitle "X nearby places have unconfirmed hours"
-  const htmlUnconfirmed = renderToStaticMarkup(
+  const htmlUnconfirmed = renderChristmasMapFixture(
     createElement(mapComponentMod.default, {
       ctx: {
         searchMapArea: () => {}, mapMode: "places", setMapMode: () => {}, mapBrowse: true, setMapBrowse: () => {},
@@ -1458,19 +1476,8 @@ let mapComponentMod = null;
   assert.ok(htmlUnconfirmed.includes("nearby places have unconfirmed hours"), "Unconfirmed hours renders unconfirmed subtitle");
   assert.ok(htmlUnconfirmed.includes("Show all nearby"), "Exposes 1-tap Show all nearby button");
 
-  // Open for the one local hour that ended two hours ago, so the place is
-  // confirmed closed at whatever clock CI happens to run.
-  function closedForAnHourEndingTwoHoursAgo(utcOffsetMinutes) {
-    const then = new Date(Date.now() + utcOffsetMinutes * 60000 - 2 * 60 * 60 * 1000);
-    const day = then.getUTCDay();
-    const hour = then.getUTCHours();
-    const closeHour = (hour + 1) % 24;
-    const closeDay = closeHour === 0 ? (day + 1) % 7 : day;
-    return { periods: [{ open: { day, hour, minute: 0 }, close: { day: closeDay, hour: closeHour, minute: 0 } }] };
-  }
-
   // b) Confirmed closed only -> "Confirmed closed nearby right now" + "All X nearby places are closed at this hour"
-  const htmlClosed = renderToStaticMarkup(
+  const htmlClosed = renderChristmasMapFixture(
     createElement(mapComponentMod.default, {
       ctx: {
         searchMapArea: () => {}, mapMode: "places", setMapMode: () => {}, mapBrowse: true, setMapBrowse: () => {},
@@ -1495,10 +1502,8 @@ let mapComponentMod = null;
           {
             id: "p-closed-1", name: "Closed Place 1", lat: 27.95, lng: -82.45, category: "food", primaryType: "restaurant", types: ["restaurant"], governed_score: 95,
             utcOffset: -300,
-            // Open for the one hour that ended two hours ago in this offset.
-            // A fixed Monday 10–12 window is open when CI runs then, and the
-            // "confirmed closed" title disappears.
-            oh: closedForAnHourEndingTwoHoursAgo(-300),
+            // Friday 4 to 5 p.m., closed at the fixture's 6:30 p.m.
+            oh: { periods: [{ open: { day: 5, hour: 16, minute: 0 }, close: { day: 5, hour: 17, minute: 0 } }] },
           },
         ],
         __seedAreaStatus: "ready",
@@ -1512,7 +1517,7 @@ let mapComponentMod = null;
   // 2. Empty search state & camera protection:
   let searchCapturedProps = null;
   globalThis.__hardTestAppleProps = (p) => { searchCapturedProps = p; };
-  const htmlEmptySearch = renderToStaticMarkup(
+  const htmlEmptySearch = renderChristmasMapFixture(
     createElement(mapComponentMod.default, {
       ctx: {
         searchMapArea: () => {}, mapMode: "places", setMapMode: () => {}, mapBrowse: true, setMapBrowse: () => {},
