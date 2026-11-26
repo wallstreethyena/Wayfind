@@ -2,7 +2,7 @@
 // (SEO engine 2026-11-20). Facts from the row only: no date, no date; unknown
 // price, no price word; sold out says so; the page uses the shared function.
 import { readFileSync } from "node:fs";
-import { eventSeoTitle, eventSeoDates, eventIsFree, eventSeoTime } from "../lib/eventSeoTitle.js";
+import { eventSeoTitle, eventSeoDates, eventIsFree, eventSeoTime, eventSearchLead } from "../lib/eventSeoTitle.js";
 
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -26,6 +26,16 @@ ok(eventSeoTime("25:00") === null && eventSeoTime("") === null && eventSeoTime("
 ok(eventSeoDates({ start_date: "2026-13-01" }) === null && eventSeoDates({}) === null, "a malformed date is dropped, never guessed");
 ok(eventIsFree({ price_kind: "free" }) && !eventIsFree({ is_free: false }) && !eventIsFree(null), "free detection");
 ok(!/—|–| - /.test([free, { event_name: "A", start_date: "2026-01-02", end_date: "2026-01-05", price_min: 3 }].map(eventSeoTitle).join(" ")), "no dashes in titles");
+
+// 2026-11-26 search leads: the searched town words lead, dates and Free still come from the row.
+const snow = { slug: "celebration-now-snowing-2026", event_name: "Now Snowing Nightly in Celebration", year: "2026", start_date: "2026-11-28", end_date: "2026-12-31", city: "Celebration", is_free: true };
+ok(eventSeoTitle(snow) === "Celebration FL Christmas 2026: Now Snowing, Nov 28 to Dec 31, Free", "search lead title (got " + eventSeoTitle(snow) + ")");
+ok(eventSeoTitle({ ...snow, is_free: undefined }) === "Celebration FL Christmas 2026: Now Snowing, Nov 28 to Dec 31", "unknown price: no Free word under a lead");
+ok(!/Nov|Dec/.test(eventSeoTitle({ ...snow, start_date: null, end_date: null })), "no dates on the row: no dates under a lead");
+ok(eventSearchLead({ ...snow, city: "Kissimmee" }) === null && !/^Celebration FL/.test(eventSeoTitle({ ...snow, city: "Kissimmee" })), "a lead never lands on a row in another city");
+ok(eventSeoTitle({ ...snow, christmas_watchlist: true }) === "Now Snowing Nightly in Celebration 2026: Dates & What to Know", "a watchlist row keeps its honest title under a lead");
+ok(/Sold Out/.test(eventSeoTitle({ ...snow, ticket_status: "sold_out" })), "sold out wins over a lead");
+ok(eventSearchLead({ ...snow, slug: "other-2026" }) === null, "only listed slugs get a lead");
 
 const page = readFileSync(new URL("../app/florida-events/[slug]/page.js", import.meta.url), "utf8");
 ok(/const title = eventSeoTitle\(e\);/.test(page) && !/Dates, Tickets & What to Know/.test(page), "the event page uses the shared title (static)");
