@@ -131,12 +131,5 @@
     "decision_owner": "wallstreethyena",
     "tracking": "OpenTable booking agent on Vercel #2788",
     "reason": "PENDING until this PR merges, then applied with its exact bytes and a receipt. One additive row: the verified OpenTable link (rid 1280968) for Summer House on the Lake, the one allowlisted booking agent restaurant."
-  },
-  {
-    "file": "supabase/migrations/20261125220000_wf_events_zoolights_jacksonville_ticket_url.sql",
-    "sha256": "6c42935033ee4a4ccb718ca2c5645e38aed22f47cb538edfb7a66b7080beac3f",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2795: Jacksonville ZooLights ticket button",
-    "reason": "Owner approved 2026-11-25 (Christmas search pages scope). Sets official_ticket_url on one wf_events row (zoolights-jacksonville-zoo-2026) only where it is null; the URL is the zoo ticket page linked from jacksonvillezoo.org/zoolights. Applied after #2795 merges with the exact merged bytes, then this entry is replaced by a receipt. Reverse in the file header."
   }
 ]
