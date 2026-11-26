@@ -160,6 +160,12 @@ const homeSource = readFileSync(homeFile, "utf8");
 const homeAst = ts.createSourceFile(homeFile, homeSource, ts.ScriptTarget.ES2022, true, ts.ScriptKind.JSX);
 const shellDeclaration = homeAst.statements.find((node) => ts.isFunctionDeclaration(node) && node.name?.text === "shareLink");
 let shellAdapterVerified = false;
+// lib/shareFlow.js fetches its intent sheet on the tap (dynamic import), so the
+// menu appears a few ticks after openShareFlow returns. Bounded wait; an absent
+// menu is then caught by the assertions that look for its buttons.
+async function shareMenuOpen(doc) {
+  for (let i = 0; i < 500 && !descendants(doc.body).some((n) => n.id === "wf-share-intent"); i++) await new Promise((r) => setTimeout(r, 0));
+}
 let transportGraph;
 const flow = await loadComponent(path.join(ROOT, "lib/shareFlow.js"), ROOT, { onGraph(graph) {
   transportGraph = graph;
@@ -215,6 +221,7 @@ try {
   }
   const flowInput = "http://localhost:3111/p/fixture?loc=Tampa#invite=fixture-capability";
   ok(flow.openShareFlow({ title: "Fixture place", url: flowInput }) === "menu", "the real shared flow must open its intent menu");
+  await shareMenuOpen(doc);
   const justShare = descendants(doc.body).find((n) => n.tagName === "BUTTON" && n.textContent.startsWith("Just share it"));
   justShare?.click();
   const flowSms = descendants(doc.body).find((n) => n.tagName === "A" && n.textContent === "Text message");
@@ -232,6 +239,7 @@ try {
     const choiceSms = descendants(doc.body).find((n) => n.tagName === "A" && n.textContent === "Text message");
     ok(insideChoice === true && !!choiceSms && decodeURIComponent(choiceSms.href).includes(PROD + relative), "the actual ctx shareLink selected-choice branch must retain the canonical capability URL");
     const outsideChoice = shell("Fixture", "http://localhost:3111" + relative, null, "Use this link");
+    await shareMenuOpen(doc);
     const shellPlain = descendants(doc.body).find((n) => n.tagName === "BUTTON" && n.textContent.startsWith("Just share it"));
     shellPlain?.click();
     const plainSms = descendants(doc.body).find((n) => n.tagName === "A" && n.textContent === "Text message");
