@@ -289,6 +289,45 @@ eq(recs.experiences[0].id, "vx_11P1", "matched Riverwalk cruise experience");
   eq(listed.plans[0].title, "Ulele + 1 more", "history list hydrates real spot title");
   eq(listed.notices[0].planTitle, "Ulele + 1 more", "updates inherit real spot title");
   eq((await svc.deletePlan(created.id, owner)).deleted, true, "owner deletes plan from history");
+
+  // No-send customer path: five real fixture choices and no named invitees.
+  const beforeSend = smsCalls.length;
+  const five = await svc.create({
+    createKey: "99999999-0000-4000-8000-000000000004",
+    originalPlaceId: "ChIJ1",
+    selectedPlaceIds: ["ChIJ1", "vx_11P1", "ChIJ3", "ChIJ4", "ChIJ5"],
+    organizerName: "Test Organizer", shareMode: "group", openGroup: true,
+    autoStart: true, invitees: [], emailConsent: false, organizerSmsConsent: false,
+    times: [{ startsAt: "2026-11-28T23:00:00.000Z" }],
+    deadline: "2026-11-26T23:00:00.000Z", timeZone: "America/New_York",
+  }, owner);
+  eq([five.status, five.places.length, five.invitees.length], ["open", 5, 0], "five choices open with no named guests");
+  eq((await svc.read(five.id, { groupToken: five.groupToken })).spotsRemaining, 10, "guest sees the open one-link ballot");
+  const joinedFive = await svc.command(five.id, {
+    id: "99999999-0000-4000-8000-000000000005", type: "join_respond",
+    guestName: "Test Voter", placeId: "ChIJ5", availableTimeIds: [five.times[0].id],
+    declined: false, voterSmsConsent: false,
+  }, { groupToken: five.groupToken });
+  eq([joinedFive.summary.responseCount, joinedFive.summary.allResponded, joinedFive.status], [1, false, "open"],
+    "one reply is not the whole unknown group");
+  eq((await svc.notices(owner)).plans[0].openGroup, true, "history can render a count instead of a misleading fraction");
+  await svc.command(five.id, { id: "99999999-0000-4000-8000-000000000006", type: "close" }, { user: owner });
+  const locked = await svc.command(five.id, {
+    id: "99999999-0000-4000-8000-000000000007", type: "finalize", placeId: "ChIJ5",
+    timeId: five.times[0].id, acknowledgeVenueHours: true,
+  }, { user: owner });
+  const recipient = await svc.read(five.id, { finalToken: locked.finalToken });
+  eq([recipient.openGroup, recipient.finalPlan.isCommonTime, recipient.places[0].id], [true, true, "ChIJ5"],
+    "final read has correct scope and the actual fifth choice");
+  ok(!("invites" in recipient) && !("invitees" in recipient) && !("groupToken" in recipient),
+    "recipient does not receive any roster or voting capability");
+  eq([smsCalls.length, optIns.get(five.id), store.get(five.id).email_consent], [beforeSend, undefined, false],
+    "full isolated run requests neither SMS nor email");
+  const view = await loadComponent(path.join(ROOT, "app/group-plans/GroupOrganizer.js"), ROOT);
+  const finalHtml = renderToStaticMarkup(React.createElement(view.GroupFinal, { plan: recipient }));
+  matches(finalHtml, /This time works for the organizer and everyone who voted/, "recipient sees agreement scoped to voters");
+  absent(finalHtml, /every invited person/, "open link never claims an unknown audience agreed");
+  matches(view.groupFinalShareText(recipient), /organizer and everyone who voted/, "native final share uses the same scope");
 }
 
 // 6. Native Wayfind styling (ZERO purple/lavender/teal literals!) + simplified UI checks
