@@ -123,6 +123,7 @@ import * as Fam from "../lib/family";
 import { getSupabase } from "../lib/lazySupabase";
 let supabase = null;
 import { usePlaceProduct } from "../lib/placeProduct";
+import { placeProductCode } from "../lib/placeProductHref";
 import { useCardTapIntent } from "./components/useCardTapIntent.js";
 // v8: heroRefFromPlaces went with the date-night and hidden-gem hero photo
 // effects — the rail uses owned artwork and the place cards carry their own
@@ -13057,10 +13058,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           ) : null}
           {!isTrueLodging(p) && ReserveSlot ? <ReserveSlot place={p} surface="browse_card" lane={reserveEntry.lane} /> : null}
           <div className="wf-place-card-actions wf-sheet-card-actions" style={{ pointerEvents: "auto" }}>
-            {cardProduct && cardProduct.url && (
+            {cardProduct && cardProduct.url && placeProductCode(cardProduct.url) && (
               <ViatorCommerceLink
                 className="wf-place-card-book"
-                t={p}
+                // Partner deep-link audit (2026-11-25): t={p} carried no product
+                // code, so this verified "Book" fell to ViatorCommerceLink's
+                // search mode (intent=search on the place name). The verified
+                // product URL + its own code now take the exact ?product= path.
+                t={{ ...p, code: placeProductCode(cardProduct.url) }}
+                exactProductUrl={cardProduct.url}
                 city={city}
                 surface="place_card"
                 rank={rank}

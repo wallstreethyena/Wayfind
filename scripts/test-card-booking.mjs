@@ -34,7 +34,35 @@ ok(!/cardBookingHref/.test(home), "the cardBookingHref name-search helper is rem
 // 2) The card gates the booking button on a VERIFIED product, not on isTicketyPlace.
 ok(/const cardProduct = usePlaceProduct\(p && p\.id\)/.test(home), "PlaceCard resolves a verified product via usePlaceProduct(p.id)");
 ok(/import \{ usePlaceProduct \} from "\.\.\/lib\/placeProduct"/.test(home), "PlaceCard imports usePlaceProduct");
-ok(/\{cardProduct && cardProduct\.url && \(/.test(cardSrc), "the booking button renders ONLY when a verified product exists (cardProduct.url)");
+ok(/\{cardProduct && cardProduct\.url && placeProductCode\(cardProduct\.url\) && \(/.test(cardSrc), "the booking button renders ONLY when a verified product exists (cardProduct.url with a real product code)");
+// Partner deep-link audit (2026-11-25): the card passed t={p} (no code, no
+// exactProductUrl), so ViatorCommerceLink fell to SEARCH mode and the verified
+// "Book" opened searchResults. Lock the exact path by source AND by call.
+ok(/exactProductUrl=\{cardProduct\.url\}/.test(cardSrc), "the card hands the verified product URL to ViatorCommerceLink (exact mode, not search)");
+ok(/t=\{\{ \.\.\.p, code: placeProductCode\(cardProduct\.url\) \}\}/.test(cardSrc), "the card passes the product's own code so the exact-mode same-SKU check can pass");
+{
+  const { placeProductCode, placeProductHref } = await import("../lib/placeProductHref.js");
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const repoRoot = new URL("..", import.meta.url).pathname;
+  const { viatorExactProductHref } = await loadComponent(new URL("../app/components/ViatorCommerceLink.js", import.meta.url).pathname, repoRoot);
+  const url = "https://www.viator.com/tours/Tampa/Tampa-Bay-History-Center-Admission-Ticket/d666-12345P1?mcid=42383&pid=P00320881&medium=api";
+  ok(placeProductCode(url) === "12345P1", "placeProductCode reads the code from a viator.com product path");
+  for (const bad of ["https://www.viator.com/", "https://www.viator.com/searchResults/all?text=x", "https://www.viator.com/Sarasota-attractions/The-Ringling/d25738-a23676", "https://www.viator.com.evil.tld/tours/a/b/d1-X1", "javascript:alert(1)", ""]) {
+    ok(placeProductCode(bad) === null, "placeProductCode refuses a non-product URL: " + bad);
+    ok(placeProductHref({ provider: "viator", url: bad }, { surface: "x" }) === null, "placeProductHref fails closed (no button) on: " + bad);
+  }
+  ok(placeProductHref({ provider: "undercover_tourist", url }, { surface: "x" }) === null, "placeProductHref refuses a non-Viator provider instead of sending it to Viator");
+  const href = placeProductHref({ provider: "viator", url }, { city: "Tampa", kind: "museum", surface: "detail_place_product", contentId: "ChIJx" });
+  ok(typeof href === "string" && href.startsWith("/api/viator/go?product="), "placeProductHref returns the strict ?product= passthrough");
+  ok(!/intent=search/.test(href) && !/[?&]q=/.test(href), "placeProductHref never builds a search link");
+  ok(new URL(href, "https://x.invalid").searchParams.get("product") === url, "the exact product URL travels unchanged");
+  ok(/surface=detail_place_product/.test(href) && /content=ChIJx/.test(href), "the surface and content ride along for attribution");
+  ok(typeof viatorExactProductHref === "function", "ViatorCommerceLink loaded under the JSX loader (the card's exact path is CALLED, not grepped)");
+  {
+    const card = viatorExactProductHref({ productUrl: url, offerId: placeProductCode(url), city: "Tampa", surface: "place_card" });
+    ok(typeof card === "string" && card.startsWith("/api/viator/go?product=") && !/intent=search/.test(card), "the card's exact mode yields an exact ?product= href, never search");
+  }
+}
 ok(cardSrc.includes("ViatorCommerceLink"), "the booking button routes through ViatorCommerceLink so the click hits the server redirect layer");
 ok(!/href=\{cardProduct\.url\}/.test(cardSrc), "the verified product_url no longer renders directly in the DOM — attribution moves server-side");
 

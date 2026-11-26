@@ -2810,6 +2810,7 @@ node scripts/test-journey-telemetry.mjs
 node scripts/test-competitor-watch-schema.mjs
 node scripts/test-ci-monitor.mjs
 node scripts/test-holiday-promos.mjs
+node scripts/check-partner-deep-links.mjs
 # /latest, the Instagram bio link page (2026-11-25): newest Reel wins, hand-set fallback, no partner URL in source.
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs

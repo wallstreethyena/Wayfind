@@ -38,6 +38,8 @@ function clickIdFor(mapRef, key) {
 import { bookingTargets, hasBookingCTA, hasVerifiedTours, placeEvidence } from "../../lib/bookingResolve";
 import { nearbyTourListAllowed, placePartnerPick } from "../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
+import { usePlaceProduct } from "../../lib/placeProduct";
+import { placeProductHref } from "../../lib/placeProductHref";
 export { hasBookingCTA };
 
 // What `targets` is when there is no place yet. Every consumer below reads
@@ -65,6 +67,11 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   // because the snapshot is always a usable catalog there is no condition that
   // could make this call conditional.
   const pinQ = usePinQuarantine();
+  // The place's VERIFIED product (wf_place_products rn=1), the same source the
+  // place card's Book button reads. The tour list below prefers it over the
+  // "Search Viator" fallback (partner deep-link audit, 2026-11-25). Declared
+  // with the other hooks: nothing exits above a hook.
+  const verifiedPlaceProduct = usePlaceProduct(detail ? detail.id : null);
 
   // NOTHING EXITS ABOVE A HOOK. `detail` is null between sheet opens and
   // `variant` selects a different branch per call site; two hooks used to sit
@@ -81,7 +88,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   const topItem = rankedTourItems[0] || null;
   // One predicate drives both the primary earning CTA and its disclosure.
   const targets = detail
-    ? bookingTargets(detail, kind, topItem, locName, { placeEvidence: placeEvidence(viaTours, placeId) })
+    ? bookingTargets(detail, kind, topItem, locName, { placeEvidence: placeEvidence(viaTours, placeId), surface: "detail_primary" })
     : NO_TARGETS;
 
   // Instrument the demotions. This is the measurement the gate exists to produce:
@@ -304,7 +311,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           // URL, otherwise the honest tracked search).
           const rowBase = offerId
             ? commerceHref({ provider: "viator", offerId, surface: "detail_tour_list", contentId: listCity })
-            : (Aff.viatorProductGoUrl(t.url, listCity, kind, "detail_tour_list") || Aff.experienceGoUrl(t.title || detail.name, listCity, kind, listPlaceId));
+            : (Aff.viatorProductGoUrl(t.url, listCity, kind, "detail_tour_list") || Aff.experienceGoUrl(t.title || detail.name, listCity, kind, listPlaceId, { surface: "detail_tour_list" }));
           // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
           if (!rowBase) return null;
           const rowClickId = clickIdFor(listClickIds, offerId || t.url || String(i));
@@ -349,12 +356,67 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         </div>
       );
     }
+    // VERIFIED PLACE PRODUCT BEFORE SEARCH (partner deep-link audit,
+    // 2026-11-25). viaTours can come back empty for a place that
+    // wf_place_products already holds a verified product for (Tampa Bay History
+    // Center, Orlando Science Center), and the sheet then said "No verified
+    // product for this place" beside a card that sold one. The exact product
+    // wins; placeProductHref fails closed to null on anything that is not a
+    // viator.com product page, which falls through to the honest search below.
+    const placeProductLink = placeProductHref(verifiedPlaceProduct, { city: listCity, kind, surface: "detail_place_product", contentId: listPlaceId });
+    if (placeProductLink) {
+      const ppHref = hydrated ? withClickId(placeProductLink, fallbackClickId.current) : placeProductLink;
+      const ppTitle = String((verifiedPlaceProduct && verifiedPlaceProduct.title) || "").trim() || `Tickets for ${detail.name}`;
+      return (
+        <div ref={listRootRef} style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Viator option for this place</span>
+            <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
+          </div>
+          <a
+            data-offer={listPlaceId}
+            data-rank={1}
+            href={ppHref}
+            rel="noreferrer sponsored"
+            data-commerce-owner="BookingCTA"
+            onClick={() => {
+              const clickId = fallbackClickId.current;
+              try {
+                emitCommerce("commerce_cta_clicked", {
+                  surface: "detail_place_product",
+                  provider: "viator",
+                  offer_id: listPlaceId,
+                  city_id: listCity || null,
+                  canonical_place_id: detail.id || null,
+                  category: kind || null,
+                  rank_bucket: rankBucket(1),
+                  click_id: clickId,
+                });
+              } catch (er) {}
+              try { logEvent && logEvent("tour_card_out", detail, { click_id: clickId }); } catch (er) {}
+              try { addReservation && addReservation("tour", detail, "Viator", ppHref); } catch (er) {}
+            }}
+            style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0" }}
+          >
+            <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ppTitle}</div>
+            </div>
+            <span style={{ color: C.light, fontSize: 15, fontWeight: 800 }}>↗</span>
+          </a>
+        </div>
+      );
+    }
     if (suppressFallback) return null;
     // No verified product for this place -- the honest fallback is a tracked
     // SEARCH page, never a guessed product. But ONLY for genuinely bookable
     // inventory: a beach/natural feature is gated out (the Coquina->Mumbai fix).
     if (!Aff.isTicketyPlace(detail)) return null;
-    const fallbackBase = Aff.experienceGoUrl(detail.name, listCity, kind, listPlaceId);
+    // Not while the per-place product fetch is still in flight: a quick tap
+    // would otherwise open a search a moment before the exact product arrives.
+    const vtEntry = viaTours && placeId ? viaTours[placeId] : null;
+    if (vtEntry && vtEntry.loading) return null;
+    const fallbackBase = Aff.experienceGoUrl(detail.name, listCity, kind, listPlaceId, { surface: "detail_tour_fallback" });
     const fallbackHref = hydrated ? withClickId(fallbackBase, fallbackClickId.current) : fallbackBase;
     return (
       <div ref={listRootRef}>
