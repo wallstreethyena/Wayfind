@@ -511,11 +511,17 @@ ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !htm
 // Owner 2026-11-01 ("Why dint we use this filter? … Please fix it"): the list
 // uses the site's one filter pill (CollectionFilter look), not its own region
 // <select> and "Nearest to me" button.
-ok(html.includes("data-christmas-filter") && html.includes("Full menu") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "Full menu opens the standard filter pill, with no region select or nearest button beside it");
+ok(html.includes("data-christmas-filter") && html.includes(">Filters<") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "Filters opens the standard filter pill, with no region select or nearest button beside it");
 {
   const f = strip(read("app/components/ChristmasFilter.js"));
-  ok(/Full menu/.test(f) && /"Best near you"/.test(f) && /"Tickets first"/.test(f) && /onSet\("sort", "tickets"\)/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
-    "Full menu offers categories, date, region, best near you and an opt in Tickets first order");
+  ok(/Filters/.test(f) && /"Best near you"/.test(f) && /"Tickets first"/.test(f) && /onSet\("sort", "tickets"\)/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
+    "Filters offers categories, date, region, best near you and an opt in Tickets first order");
+  ok(!/xm-menu-lights|@keyframes|<Wreath|xm-choice-wreath|animation:/.test(f) && /PAGE_TIME_PILLS = new Set\(\["tonight", "weekend", "opening-soon"\]\)/.test(f), "the sheet is calm: no animated lights, wreaths or spotlight, and no duplicate time pills");
+  {
+    const pg = strip(read("app/christmas-in-florida/page.js"));
+    ok(pg.indexOf("<ChristmasBrowse") > 0 && pg.indexOf("<ChristmasTopicNav") > pg.indexOf("<ChristmasBrowse") && pg.indexOf("<ChristmasTopicNav") < pg.indexOf("<ChristmasCityGuides"), "the Christmas guide links sit below the event cards, beside the city guides");
+    ok(/data-santa-ask=""/.test(strip(read("app/components/ChristmasTickets.js"))) && /\[data-santa-ask\]/.test(read("lib/plannerProactive.js")) && /offerHeld/.test(read("app/components/WayfindPlannerLoader.js")), "the bottom Santa offer steps aside while the hero Ask Santa button is on screen");
+  }
   ok(/createPortal/.test(f) && /aria-modal="true"/.test(f) && /Escape/.test(f) && /event.shiftKey/.test(f) && /#E8B48A/.test(f) && /#3E0C19/.test(f), "the holiday menu is a burgundy and gold modal with Escape, a focus trap and a body portal");
 }
 // Top picks for social ad visitors (2026-11-12): Meta ad visitors stayed on the
@@ -1028,7 +1034,9 @@ ok(html.includes("data-christmas-filter") && html.includes("Full menu") && html.
     const tSrcCro = strip(read("app/components/ChristmasTickets.js"));
     const cSrcCro = strip(read("app/components/ChristmasTicketCard.js"));
     ok(bSrcCro.indexOf('className="xm-grid"') < bSrcCro.indexOf("<ChristmasWeekendRow"), "ChristmasWeekendRow renders after the main ticket grid");
-    ok(/data-christmas-areas=""/.test(bSrcCro) && /aria-label="Florida areas"/.test(bSrcCro), "ChristmasBrowse renders 1-tap Florida area quick-filter chips");
+    // Owner 2026-11-26 (mobile clutter): at most two compact rows above the cards.
+    ok(!/data-christmas-areas=""/.test(bSrcCro) && !/xm-area-bar/.test(bSrcCro) && !/xm-sort-note/.test(bSrcCro) && !/data-christmas-see-all/.test(bSrcCro), "no area chip row, sort note or full width See all button above the cards");
+    ok(/facets=\{\{ \.\.\.facets, regions \}\}/.test(bSrcCro) && /\{anyFilter \? <button type="button" className="xm-clear"/.test(bSrcCro), "region lives in the Filters sheet and Reset shows only while a filter is on");
     ok(/<InviteIcon \/><span>Ask someone<\/span>/.test(cSrcCro), "Ask someone uses InviteIcon instead of repeating Heart");
     ok(tSrcCro.indexOf("{browse}") < tSrcCro.indexOf('className="xm-honest"') && /xm-pick-price/.test(tSrcCro), "affiliate disclosure sits below browse and TopPicks cards show starting price");
   }
@@ -1115,22 +1123,24 @@ ok(html.includes("data-christmas-filter") && html.includes("Full menu") && html.
   let queryNow;
   function Harness() {
     const [query, set] = useState({}); queryNow = query;
-    return createElement(Filter, { query, facets: { pills: [{ id: "lights", label: "Light shows" }], dates: [{ id: "weekend", label: "This weekend" }], regions: ["Tampa Bay"] }, onSet: (k, v) => set((q) => ({ ...q, [k]: v })), onNear: () => set((q) => ({ ...q, sort: "", lat: 27.9, lng: -82.4 })), onReset: () => set({}) });
+    return createElement(Filter, { query, facets: { pills: [{ id: "lights", label: "Light shows" }], dates: [{ id: "weekend", label: "This weekend" }, { id: "dec", label: "December" }], regions: ["Tampa Bay"] }, onSet: (k, v) => set((q) => ({ ...q, [k]: v })), onNear: () => set((q) => ({ ...q, sort: "", lat: 27.9, lng: -82.4 })), onReset: () => set({}) });
   }
   const uiRoot = createRoot(document.getElementById("menu-test"));
   const click = async (selector) => act(async () => document.querySelector(selector).click());
   const pick = async (text) => act(async () => [...document.querySelectorAll("button")].find((b) => b.textContent === text).click());
   try {
     await act(async () => uiRoot.render(createElement(Harness)));
-    ok(document.querySelector(".xm-filter-trigger").textContent === "Full menu▾" && !document.querySelector("input"), "interactive default is Full menu with no search field");
+    ok(document.querySelector(".xm-filter-trigger").textContent === "Filters▾" && !document.querySelector("input"), "interactive default is Filters with no search field");
     await click(".xm-filter-trigger");
     ok(document.querySelector('[role="dialog"]').getAttribute("aria-modal") === "true" && document.querySelector(".xm-menu-overlay").parentNode === document.body, "the sheet is a body-level modal above page stacking contexts");
     ok(document.activeElement.className === "xm-menu-close" && document.body.style.overflow === "hidden", "opening focuses Close and locks background scrolling");
-    await pick("Light shows"); await pick("This weekend");
+    ok(![...document.querySelectorAll(".xm-menu-choice")].some((b) => b.textContent === "This weekend" || b.textContent === "Any time"), "the sheet drops the time pills the page strip already shows");
+    ok(!document.querySelector(".xm-menu-lights,.xm-wreath,.xm-wreath-mini,.xm-choice-wreath"), "the sheet has no lights border, wreaths or chip spotlight");
+    await pick("Light shows"); await pick("December");
     await act(async () => { const select = document.querySelector("select"); select.value = "Tampa Bay"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
-    ok(queryNow.category === "lights" && queryNow.when === "weekend" && queryNow.region === "Tampa Bay" && document.querySelector('[role="dialog"]'), "category, date and region can be combined without repeatedly reopening the sheet");
-    await pick("Tickets first"); ok(queryNow.sort === "tickets" && document.querySelector(".xm-filter-trigger").textContent === "Full menu3▾", "Tickets first is an opt in order and keeps Full menu with the active filter count");
-    await pick("Best near you"); ok(queryNow.sort === "" && queryNow.lat === 27.9 && document.querySelector(".xm-filter-trigger").textContent === "Full menu3▾", "Best near you returns to the default order and keeps Full menu with the active filter count");
+    ok(queryNow.category === "lights" && queryNow.when === "dec" && queryNow.region === "Tampa Bay" && document.querySelector('[role="dialog"]'), "category, date and region can be combined without repeatedly reopening the sheet");
+    await pick("Tickets first"); ok(queryNow.sort === "tickets" && document.querySelector(".xm-filter-trigger").textContent === "Filters3▾", "Tickets first is an opt in order and keeps Filters with the active filter count");
+    await pick("Best near you"); ok(queryNow.sort === "" && queryNow.lat === 27.9 && document.querySelector(".xm-filter-trigger").textContent === "Filters3▾", "Best near you returns to the default order and keeps Filters with the active filter count");
     document.querySelector(".xm-menu-done").focus();
     await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true })));
     ok(document.activeElement.className === "xm-menu-close", "Tab wraps within the modal");

@@ -169,6 +169,7 @@ html.wf-santa-docked.wf-has-bottom-nav body{padding-bottom:calc(var(--wf-santa-d
 html.wf-has-bottom-nav .wf-sd{--wf-santa-lift:78px}
 @media(min-width:1024px){html.wf-has-bottom-nav .wf-sd{--wf-santa-lift:118px}}
 .wf-sd{--wf-santa-lift:0px;position:fixed;left:0;right:0;bottom:var(--wf-santa-lift);z-index:930;box-sizing:border-box;padding:0 max(10px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(10px,env(safe-area-inset-left));background:rgba(10,15,24,.95);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -10px 28px rgba(0,0,0,.28);font-family:var(--wf-sans,system-ui,sans-serif);contain:layout paint}
+.wf-sd.is-yield{visibility:hidden;pointer-events:none;transform:translateY(calc(100% + 12px))}
 .wf-sd::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,#D92C37,#F5C451 50%,#3FBF7F);opacity:.85}
 .wf-sd.is-in{animation:wf-sd-rise .45s cubic-bezier(.2,.8,.25,1) both}
 @keyframes wf-sd-rise{from{transform:translateY(100%)}to{transform:none}}
@@ -362,6 +363,23 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
     return () => { clearTimeout(id); timers.current.delete(id); };
   }, [reduced, later]);
 
+  // One Santa call to action per phone screen (owner 2026-11-26): while a
+  // page's own Ask Santa button ([data-santa-ask], the Christmas hero) is on
+  // screen, the dock steps aside; it returns once that button scrolls away.
+  const [yielded, setYielded] = useState(false);
+  useEffect(() => {
+    setYielded(false);
+    if (typeof IntersectionObserver !== "function") return undefined;
+    const ask = document.querySelector("[data-santa-ask]");
+    if (!ask) return undefined;
+    const io = new IntersectionObserver((entries) => {
+      const e = entries[entries.length - 1];
+      setYielded(Boolean(e && e.isIntersecting));
+    });
+    io.observe(ask);
+    return () => io.disconnect();
+  }, [path]);
+
   const page = cleanPath(path);
   // Read the h1 once per page, not on every blink re-render.
   const action = useMemo(() => {
@@ -392,7 +410,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
   if (typeof document === "undefined" || !document.body) return null;
   return createPortal(
     <DockView
-      action={action} msg={msg && tight ? shortMessage(msg) : msg} quip={quip} tight={tight} act={act} face={face} arm={arm} reduced={reduced} rise={rise}
+      action={action} msg={msg && tight ? shortMessage(msg) : msg} quip={quip} tight={tight} act={act} face={face} arm={arm} reduced={reduced} rise={rise} yielded={yielded}
       onTap={tapSanta} onCta={runAction} onDismiss={() => setMsg("")} onFeedback={openFeedback}
     />,
     document.body
@@ -400,7 +418,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
 }
 
 /** The dock's markup, pure (no DOM reads), so a guard can render it. */
-export function DockView({ action, msg, quip = "", tight = false, act, face = "happy", arm = "wand", reduced = false, rise = false, onTap, onCta, onDismiss, onFeedback }) {
+export function DockView({ action, msg, quip = "", tight = false, act, face = "happy", arm = "wand", reduced = false, rise = false, yielded = false, onTap, onCta, onDismiss, onFeedback }) {
   const label = (
     <>
       <span className="wf-sd-l">{action.label}</span>
@@ -410,7 +428,7 @@ export function DockView({ action, msg, quip = "", tight = false, act, face = "h
   return (
     <>
       <style dangerouslySetInnerHTML={styleHtml(CSS)} />
-      <aside className={"wf-sd" + (rise && !reduced ? " is-in" : "")} aria-label="Santa, Wayfind's holiday host" data-santa-dock="">
+      <aside className={"wf-sd" + (rise && !reduced ? " is-in" : "") + (yielded ? " is-yield" : "")} aria-label="Santa, Wayfind's holiday host" data-santa-dock="">
         <div className="wf-sd-in">
           <button type="button" className="wf-sd-av" onClick={onTap} aria-label="Chat with Santa, Wayfind's holiday host" aria-haspopup="dialog">
             <span className={"wf-sd-fig" + (reduced ? "" : " wf-sd-live")} data-act={act || undefined} aria-hidden="true">

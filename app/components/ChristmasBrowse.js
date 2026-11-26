@@ -35,7 +35,7 @@ const MAP_CSS = `.xm-map-toggle{display:inline-flex;align-items:center;justify-c
 .xm-temporal-btn[aria-pressed="true"]{border-color:#E8B48A;background:linear-gradient(180deg,#FFE9C8,#E8C395);color:#3D0914;box-shadow:0 3px 12px #18020833}
 .xm-temporal-btn:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xm-temporal-cnt{font-size:12px;opacity:.82}
-@media(min-width:720px){.xm-area-bar{flex-wrap:wrap;overflow-x:visible;gap:6px;padding-bottom:8px}.xm-area-btn{min-height:36px;padding:0 12px;font-size:13px}}`;
+.xm-controls .xm-count-inline{margin:0 0 0 auto}`;
 const AREA_CHIP_ORDER = ["Central Florida", "Tampa Bay", "South Florida & Keys", "First Coast", "Suncoast", "Southwest Florida", "Daytona & Space Coast", "Treasure Coast & Palm Beaches", "Panhandle", "North Florida & Big Bend"];
 const TEMPORAL_TABS = [
   { id: "", countKey: "all", label: "All Christmas" },
@@ -269,42 +269,23 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
         );
       })}
     </div>
-    {regions.length ? (
-      <div className="xm-temporal-bar xm-area-bar" role="group" aria-label="Florida areas" data-christmas-areas="" data-boo-clear="">
-        <button
-          type="button"
-          className="xm-temporal-btn xm-area-btn"
-          aria-pressed={!query.region ? "true" : "false"}
-          onClick={() => set("region", "")}
-        >All Florida</button>
-        {regions.map((region) => (
-          <button
-            key={region}
-            type="button"
-            className="xm-temporal-btn xm-area-btn"
-            aria-pressed={query.region === region ? "true" : "false"}
-            onClick={() => set("region", query.region === region ? "" : region)}
-          >{region}</button>
-        ))}
-      </div>
-    ) : null}
+    {/* Owner 2026-11-26 (mobile clutter): two compact rows above the cards.
+        Row 1 is the time strip; row 2 is Filters (experience, order, dates,
+        region) + Map, with Reset only while a filter is on. The area chip row,
+        the sort note and the full width "See all" button are gone: Reset
+        already clears every filter. */}
     <div className="xm-controls" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
-      <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe} onReset={clearAll} />
-      <span className="xm-sort-note">{ticketsFirst ? "Book online first, then tickets" : located ? "Book online first, then top rated near you" : "Book online first, then top rated and trending"}</span>
+      <ChristmasFilter query={query} facets={{ ...facets, regions }} onSet={set} onNear={nearMe} onReset={clearAll} />
       <button type="button" className="xm-map-toggle" data-promoted={lightsView ? "" : undefined} aria-expanded={mapOpen} aria-controls="xm-map-panel" onClick={() => setMapOpen((v) => !v)}>
         {mapOpen ? "Hide the map" : lightsView ? "See the lights on a map" : "Map"}
       </button>
       {anyFilter ? <button type="button" className="xm-clear" onClick={clearAll}>Reset</button> : null}
+      <p className="xm-count xm-count-inline" role="status" aria-live="polite">
+        {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "Christmas plan" : "Christmas plans"}${summary ? " · " + summary : ""}`}
+      </p>
     </div>
     <style dangerouslySetInnerHTML={styleHtml(MAP_CSS)} />
     {mapOpen ? <div id="xm-map-panel" data-boo-clear=""><ChristmasMap query={query} /></div> : null}
-    <p className="xm-count" role="status" aria-live="polite">
-      {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "Christmas plan" : "Christmas plans"}${summary ? " · " + summary : ""}`}
-    </p>
-    {/* 2026-11-19 (owner, ads): a filtered link (an ad's ?category=theme-parks&when=tonight)
-        always shows the way back to every plan, so a broader search never dead ends. */}
-    {anyFilter && !loading && !failed && Number.isFinite(initial?.total) && initial.total > data.total
-      ? <button type="button" className="xm-see-all" data-christmas-see-all="" onClick={clearAll}>See all {initial.total} Florida Christmas plans &rarr;</button> : null}
     <div className="xm-grid" data-browse-total={data.total} data-browse-shown={shownCards}>
       {cards.map((card, i) => <ChristmasBrowseCard key={card.id} card={card} rank={i + 1} today={today} />)}
     </div>

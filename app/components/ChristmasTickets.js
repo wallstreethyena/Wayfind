@@ -94,6 +94,10 @@ ${CHRISTMAS_LIGHTS_CSS}
 .xm-pick-via{margin:2px 0 0;font-size:11px;line-height:1.3;color:#E9C3B0;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #xm-tickets{margin-top:16px;scroll-margin-top:12px}
 .xm-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-bottom:16px;border-bottom:1px solid rgba(232,180,138,.22)}
+/* Owner 2026-11-26 (mobile clutter): on a phone the first listing card reaches
+   the fold. Tighter title, a two line intro (the full text stays in the page),
+   and tighter spacing around the picks, actions, time strip and count. */
+@media(max-width:600px){.xm-controls{gap:8px;margin-top:2px;padding-bottom:10px}.xm-hero h1{font-size:22px}.xm-lede{font-size:14px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.xm-hero-actions{margin-top:12px}.xm-picks{margin:8px 0 2px}.xm-pick-photo{height:112px}.xm-count{margin-top:8px;font-size:13px}.xm-temporal-bar{padding-bottom:8px}}
 .xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}.xm-see-all{display:flex;align-items:center;width:100%;min-height:44px;margin:10px 0 0;padding:10px 14px;border:1px solid #E8B48A;border-radius:12px;background:#2a1a14;color:#FFE9C8;cursor:pointer;font:inherit;font-size:15px;font-weight:700;text-align:left}.xm-see-all:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xm-count{margin:14px 0 0;font-size:14px;color:var(--muted)}
 .xm-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
@@ -319,7 +323,7 @@ export default function ChristmasTickets({ model, share = null, browse = null, t
           <SocialTopPicks picks={topPicks} />
           <p className="xm-lede">{chrome.lede}</p>
           <div className="xm-hero-actions">
-            <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
+            <button type="button" className="xm-ask" data-santa-ask="" onClick={askSanta}>{chrome.ask}</button>
             {share ? <div className="xm-share">{share}</div> : null}
           </div>
         </div>

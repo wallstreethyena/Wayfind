@@ -111,15 +111,21 @@ function ChristmasCreatorPosts({ posts: allPosts, covers = {} }) {
 // still work: ChristmasBrowse applies them in the browser after load.
 // The reads live in lib/christmasPageData.js (no network during next build; a
 // failed background refresh throws, so the last good page keeps serving).
-// Crawlable links to every Christmas overview page (owner, 2026-11-25), in the
-// server HTML near the top so Google reads the hub and its topics as one set.
-const TOPIC_NAV = { display: "flex", flexWrap: "wrap", gap: 8, margin: "0 0 18px", padding: 0, listStyle: "none" };
-const TOPIC_LINK = { display: "inline-block", padding: "8px 13px", border: "1px solid #3a2b2c", borderRadius: 999, background: "#1b1415", color: "#efd0a6", fontSize: 14, fontWeight: 700, textDecoration: "none" };
+// Crawlable links to every Christmas overview page (owner, 2026-11-25). They
+// stay in the server HTML, so Google still reads the hub and its topics as one
+// set, but since 2026-11-26 (owner, mobile clutter) they sit below the event
+// cards, beside the city guides, as one swipeable row instead of four stacked
+// pills pushing the first card off a phone screen.
+const TOPIC_WRAP = { margin: "0 0 24px" };
+const TOPIC_HEAD = { margin: "0 0 10px", color: "#efd0a6", fontSize: 16, fontWeight: 800 };
+const TOPIC_NAV = { display: "flex", flexWrap: "nowrap", overflowX: "auto", overscrollBehaviorX: "contain", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", gap: 8, margin: 0, padding: "0 0 4px", listStyle: "none" };
+const TOPIC_LINK = { display: "inline-block", whiteSpace: "nowrap", padding: "8px 13px", border: "1px solid #3a2b2c", borderRadius: 999, background: "#1b1415", color: "#efd0a6", fontSize: 14, fontWeight: 700, textDecoration: "none" };
 function ChristmasTopicNav({ today }) {
   const links = christmasTopicLinks(today);
   if (!links.length) return null;
-  return <nav aria-label="Christmas events in Florida by type" data-christmas-topic-nav>
-    <ul style={TOPIC_NAV}>{links.map((l) => <li key={l.href}><a href={l.href} style={TOPIC_LINK}>{l.label}</a></li>)}</ul>
+  return <nav aria-label="Christmas events in Florida by type" data-christmas-topic-nav style={TOPIC_WRAP}>
+    <h2 style={TOPIC_HEAD}>Christmas guides</h2>
+    <ul style={TOPIC_NAV}>{links.map((l) => <li key={l.href} style={{ flex: "0 0 auto" }}><a href={l.href} style={TOPIC_LINK}>{l.label}</a></li>)}</ul>
   </nav>;
 }
 
@@ -150,10 +156,10 @@ export default async function Page() {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
-      <ChristmasTopicNav today={today} />
       <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} weekend={weekend} />
       <HolidayPromoSlot surface="christmas-in-florida" today={today} />
       <ChristmasCreatorPosts posts={creatorPosts} covers={creatorCovers} />
+      <ChristmasTopicNav today={today} />
       <ChristmasCityGuides today={today} />
 
     </>} />

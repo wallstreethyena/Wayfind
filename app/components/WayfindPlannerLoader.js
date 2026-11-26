@@ -102,6 +102,9 @@ export default function WayfindPlannerLoader() {
   const [sheetMounted, setSheetMounted] = useState(false);
   const [proactiveOffer, setProactiveOffer] = useState(null);
   const [ctxTick, setCtxTick] = useState(0);
+  // An offer already on screen steps aside while the Ask Santa button or the
+  // picks row is visible again (owner 2026-11-26: never two Santa CTAs at once).
+  const [offerHeld, setOfferHeld] = useState(false);
 
   useEffect(() => {
     const onOpen = (e) => {
@@ -178,6 +181,24 @@ export default function WayfindPlannerLoader() {
     };
   }, [pathname, sheetMounted, ctxTick]);
 
+  useEffect(() => {
+    if (!proactiveOffer) { setOfferHeld(false); return undefined; }
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      try { setOfferHeld(proactiveWaitsForAdPicks(document, window.innerHeight)); } catch { setOfferHeld(false); }
+    };
+    const onMove = () => { if (!frame) frame = window.requestAnimationFrame(check); };
+    check();
+    document.addEventListener("scroll", onMove, { capture: true, passive: true });
+    window.addEventListener("resize", onMove, { passive: true });
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      document.removeEventListener("scroll", onMove, true);
+      window.removeEventListener("resize", onMove);
+    };
+  }, [proactiveOffer]);
+
   const dismissOffer = () => {
     if (!proactiveOffer) return;
     dismissProactiveOffers(safeSessionStorage(), proactiveOffer.kind);
@@ -204,7 +225,7 @@ export default function WayfindPlannerLoader() {
       pathname,
     });
   };
-  const santaOffer = Boolean(proactiveOffer && !sheetMounted && santaSeasonOn(pathname));
+  const santaOffer = Boolean(proactiveOffer && !sheetMounted && !offerHeld && santaSeasonOn(pathname));
 
   return (
     <>
@@ -216,7 +237,7 @@ export default function WayfindPlannerLoader() {
           onDismiss={dismissOffer}
         />
       )}
-      {proactiveOffer && !sheetMounted && !santaOffer && (
+      {proactiveOffer && !sheetMounted && !offerHeld && !santaOffer && (
         <>
           <style dangerouslySetInnerHTML={styleHtml(PROACTIVE_CSS)} />
           <aside
