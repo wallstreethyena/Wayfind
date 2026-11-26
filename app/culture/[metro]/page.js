@@ -228,7 +228,7 @@ export default async function CulturePage({ params }) {
         category="tours"
         cta={{
           label: `See tours & tickets in ${c.title}`,
-          href: experienceGoUrl("things to do", c.title, "culture"),
+          href: experienceGoUrl("things to do", c.title, "culture", null, { surface: "culture_hub", contentId: params.metro }),
           provider: "viator",
           offerId: "culture:" + params.metro,
           monetized: true,

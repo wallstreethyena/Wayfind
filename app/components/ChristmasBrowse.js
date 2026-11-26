@@ -18,6 +18,7 @@ import ChristmasWeekendRow from "./ChristmasWeekendRow.js";
 import ChristmasPlan from "./ChristmasPlan.js";
 import useChristmasLocation from "./useChristmasLocation.js";
 import { TicketCard } from "./ChristmasTicketCard.js";
+import { honestUrgency } from "../../lib/honestUrgency.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPitch, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
@@ -89,7 +90,7 @@ function browseRemind(card, ticket) {
 }
 
 // Map a browse card (event or place) into the ticket card's row shape.
-export function browseRowFor(card) {
+export function browseRowFor(card, today = "") {
   const isPlace = card.kind === "place";
   const name = christmasCopy(card.title || card.name || "");
   const ticket = !isPlace ? card.ticketRow || null : null;
@@ -105,6 +106,10 @@ export function browseRowFor(card) {
     chip: isPlace ? (PLACE_CHIP[card.christmasRail] || "Christmas") : ticket ? ticket.chip : sentenceCase(CHRISTMAS_CARD_LABELS[card.christmasRail]),
     temporalBadge: card.temporalBadge ? christmasCopy(card.temporalBadge) : "",
     temporalState: card.temporalState || "",
+    // Honest urgency from the card's own confirmed last date (lib/honestUrgency.js):
+    // "Last day", "Final weekend" or "Ends Tue, Dec 30". Never on a sold out
+    // card, a live calendar tour or a run with no announced closing date.
+    urgency: card.kind === "tour" || (price && price.soldOut) ? null : honestUrgency(card, today),
     city: christmasCopy(card.city || ""),
     when: isPlace ? christmasCopy(card.seasonalWhen || "") : ticket ? ticket.when : christmasCopy(card.when || season || ""),
     price,
@@ -123,7 +128,7 @@ export function browseRowFor(card) {
 }
 
 export function ChristmasBrowseCard({ card, rank = 0, today }) {
-  return <TicketCard row={browseRowFor(card)} chrome={CHROME} idPrefix="xb-" headingLevel={3} priority={false} />;
+  return <TicketCard row={browseRowFor(card, today)} chrome={CHROME} idPrefix="xb-" headingLevel={3} priority={false} />;
 }
 
 // The page is one cached copy for every visitor, so filters in a shared link

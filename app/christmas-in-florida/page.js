@@ -19,6 +19,7 @@ import CreatorVideoAction from "../components/CreatorVideoAction";
 import { isEmbeddable } from "../../lib/videoEmbed";
 import { seasonalCreatorVideos } from "../../lib/creatorVideos";
 import { christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
+import { christmasTopicLinks } from "../../lib/christmasTopicPages.js";
 
 // Christmas v4 (lead packet, 2026-10-13): #1714's seasonal hub (metadata,
 // sharing, nav, schema, guide sections) plus the full statewide browse,
@@ -34,9 +35,16 @@ const seasonal = seasonalSearchMetadata("christmas-in-florida");
 // 2026-11-19 (owner, SEO): the title leads with the query people type,
 // "christmas in florida", plus the year. No listing count in the title: the
 // count changes daily and a cached title would go stale.
-const title = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events | Wayfind";
-const description = "Plan Christmas in Florida 2026: light shows, theme park parties, boat parades, snow and holiday shows, with dates, hours and tickets across Orlando, Tampa Bay, Sarasota, St. Augustine and more.";
-const ogTitle = "Christmas in Florida 2026: Lights, Theme Parks, Parades and Events";
+// 2026-11-25 (owner, "do it all"): Search Console showed the page only for
+// "when is christmas in florida" (268 impressions, 0 clicks, Oct 27 to Nov 23)
+// while Google Ads proved the searches that buy: "christmas events florida",
+// "christmas in florida", "florida holiday events", "things to do christmas
+// florida". The title now carries those words and fits Google's width.
+// No " | Wayfind" suffix here: the searched words need the full width, and
+// Google shows the site name beside the result on its own.
+const title = "Christmas in Florida 2026: Events, Lights & Things to Do";
+const description = "Christmas events in Florida 2026: light shows, parades, Nutcracker ballets, zoo lights, theme park nights and holiday things to do, with dates, times and tickets.";
+const ogTitle = "Christmas in Florida 2026: Events, Lights & Things to Do";
 // Versioned first-party artwork keeps shared links in the page's festive theme.
 const christmasShareImage = {
   url: SITE_URL + "/christmas/share-christmas-v1.png",
@@ -103,6 +111,18 @@ function ChristmasCreatorPosts({ posts: allPosts, covers = {} }) {
 // still work: ChristmasBrowse applies them in the browser after load.
 // The reads live in lib/christmasPageData.js (no network during next build; a
 // failed background refresh throws, so the last good page keeps serving).
+// Crawlable links to every Christmas overview page (owner, 2026-11-25), in the
+// server HTML near the top so Google reads the hub and its topics as one set.
+const TOPIC_NAV = { display: "flex", flexWrap: "wrap", gap: 8, margin: "0 0 18px", padding: 0, listStyle: "none" };
+const TOPIC_LINK = { display: "inline-block", padding: "8px 13px", border: "1px solid #3a2b2c", borderRadius: 999, background: "#1b1415", color: "#efd0a6", fontSize: 14, fontWeight: 700, textDecoration: "none" };
+function ChristmasTopicNav({ today }) {
+  const links = christmasTopicLinks(today);
+  if (!links.length) return null;
+  return <nav aria-label="Christmas events in Florida by type" data-christmas-topic-nav>
+    <ul style={TOPIC_NAV}>{links.map((l) => <li key={l.href}><a href={l.href} style={TOPIC_LINK}>{l.label}</a></li>)}</ul>
+  </nav>;
+}
+
 export default async function Page() {
   const { today, listings, first, tickets, weekend } = await christmasPageData();
   const itemList = {
@@ -130,6 +150,7 @@ export default async function Page() {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
     <ChristmasTickets model={tickets} topPicks={topPicks} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
+      <ChristmasTopicNav today={today} />
       <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} weekend={weekend} />
       <HolidayPromoSlot surface="christmas-in-florida" today={today} />
       <ChristmasCreatorPosts posts={creatorPosts} covers={creatorCovers} />

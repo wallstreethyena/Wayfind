@@ -54,6 +54,7 @@ export const XM_CARD_CSS = `
 .xm-chip{align-self:flex-start;max-width:100%;padding:2px 8px;border-radius:999px;background:linear-gradient(180deg,#4A0610,#33040B);border:1px solid var(--xm-rose);color:#FFE9DC;font-size:11px;font-weight:700;line-height:1.4}
 .xm-temporal{padding:2px 8px;border-radius:999px;background:rgba(24,2,8,.55);border:1px solid rgba(232,180,138,.55);color:#FFD9AE;font-size:10.5px;font-weight:700;line-height:1.35}
 .xm-temporal[data-temporal-state="open_tonight_confirmed"]{background:rgba(31,107,52,.65);border-color:#7CE395;color:#EDFFF1}
+.xm-temporal[data-urgency]{background:#FFD24A;border-color:#FFE9A8;color:#3A0508;font-weight:800}
 .xm-card :is(h2,h3){margin:0;font-size:17px;line-height:1.25;min-height:1.25em;font-weight:700;color:var(--xm-cream);text-shadow:0 1px 3px rgba(40,0,6,.7);overflow-wrap:anywhere}
 .xm-credit{position:absolute;left:6px;right:8px;bottom:6px;z-index:2;margin:0;padding:0;border:0;background:transparent;color:rgba(255,255,255,.6);font-size:9.5px;font-weight:500;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65);pointer-events:auto}
 .xm-photo:has(.xm-dots) .xm-credit{bottom:16px}
@@ -267,7 +268,8 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
       <div className="xm-body" data-boo-clear="">
         <div className="xm-chip-row">
           <span className="xm-chip">{row.chip}</span>
-          {row.temporalBadge ? <span className="xm-temporal" data-temporal-state={row.temporalState || undefined}>{row.temporalBadge}</span> : null}
+          {row.urgency && row.urgency.label ? <span className="xm-temporal" data-urgency={row.urgency.kind}>{row.urgency.label}</span>
+            : row.temporalBadge ? <span className="xm-temporal" data-temporal-state={row.temporalState || undefined}>{row.temporalBadge}</span> : null}
         </div>
         <Heading>{row.eventHref ? <a className="xm-title" href={row.eventHref}>{row.name}</a> : row.name}</Heading>
         {row.when ? (
