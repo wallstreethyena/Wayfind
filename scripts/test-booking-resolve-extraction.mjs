@@ -89,7 +89,10 @@ function bookingTargetsExpected(detail, kind, topItem, locName) {
   // Founder P0 (2026-08-19): earning href is viatorProductGoUrl, never
   // viatorDirectUrl. Hotel Stay22/booking.com is fail-closed (no durable hop).
   const verifiedUrl = (topItem && topItem.url && Aff.isTicketyPlace(detail)) ? Aff.viatorProductGoUrl(topItem.url, bcity, kind, "detail") : null;
-  const goFallback = (!verifiedUrl && BEFORE_KINDS.includes(kind) && Aff.isTicketyPlace(detail)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id) : null;
+  // 2026-11-25 (partner deep-link audit): the search fallback now carries a
+  // surface so its redirect is attributable. A deliberate behaviour change,
+  // baked into the reference for the same reason as the 2026-09-23 gate.
+  const goFallback = (!verifiedUrl && BEFORE_KINDS.includes(kind) && Aff.isTicketyPlace(detail)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id, { surface: "booking_fallback" }) : null;
   const tk = verifiedUrl || goFallback;
   const tu = tk;
   return { verifiedUrl, goFallback, tk, tu };

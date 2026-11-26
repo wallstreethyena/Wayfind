@@ -438,7 +438,9 @@ export function useReserveEntry(place) {
   };
   const denseViator = {
     ...place("dense-viator"), locality: "Sarasota", city: "Sarasota", state: "FL",
-    _testCardProduct: { url: "https://viator.example/tour", title: "Clear Kayak Mangrove Tour", code: "12345P1" },
+    // A real product-path shape: the card renders Book only for a viator.com
+    // product URL with its own code (lib/placeProductHref.js, 2026-11-25).
+    _testCardProduct: { url: "https://www.viator.com/tours/Sarasota/Clear-Kayak-Mangrove-Tour/d22408-12345P1", title: "Clear Kayak Mangrove Tour", code: "12345P1" },
   };
   const denseRingling = {
     id: "ChIJ6y2dx9g_w4gRWoZIRhLk-JI", name: "The John and Mable Ringling Museum of Art",

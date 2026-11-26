@@ -38,6 +38,8 @@ function clickIdFor(mapRef, key) {
 import { bookingTargets, hasBookingCTA, hasVerifiedTours, placeEvidence } from "../../lib/bookingResolve";
 import { nearbyTourListAllowed, placePartnerPick } from "../../lib/placePartnerPicks";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
+import { usePlaceProduct } from "../../lib/placeProduct";
+import { placeProductHref } from "../../lib/placeProductHref";
 export { hasBookingCTA };
 
 // What `targets` is when there is no place yet. Every consumer below reads
@@ -65,6 +67,11 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   // because the snapshot is always a usable catalog there is no condition that
   // could make this call conditional.
   const pinQ = usePinQuarantine();
+  // The place's VERIFIED product (wf_place_products rn=1), the same source the
+  // place card's Book button reads. The tour list below prefers it over the
+  // "Search Viator" fallback (partner deep-link audit, 2026-11-25). Declared
+  // with the other hooks: nothing exits above a hook.
+  const verifiedPlaceProduct = usePlaceProduct(detail ? detail.id : null);
 
   // NOTHING EXITS ABOVE A HOOK. `detail` is null between sheet opens and
   // `variant` selects a different branch per call site; two hooks used to sit
@@ -81,7 +88,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   const topItem = rankedTourItems[0] || null;
   // One predicate drives both the primary earning CTA and its disclosure.
   const targets = detail
-    ? bookingTargets(detail, kind, topItem, locName, { placeEvidence: placeEvidence(viaTours, placeId) })
+    ? bookingTargets(detail, kind, topItem, locName, { placeEvidence: placeEvidence(viaTours, placeId), surface: "detail_primary" })
     : NO_TARGETS;
 
   // Instrument the demotions. This is the measurement the gate exists to produce:
@@ -264,8 +271,18 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // (Shell Key Ferry 237533P2 on the Preserve card) must not also paint.
     if (!nearbyTourListAllowed(detail, pinQ)) return null;
     const listPlaceId = placeIdProp || placeId || detailId || "unknown";
-    if (hasTours) {
-      const items = rankedTourItems;
+    // VERIFIED PLACE PRODUCT BEFORE SEARCH (partner deep-link audit,
+    // 2026-11-25). viaTours can come back empty for a place that
+    // wf_place_products already holds a verified product for (Tampa Bay History
+    // Center, Orlando Science Center), and the sheet then said "No verified
+    // product for this place" beside a card that sold one. The exact product
+    // wins and renders through the SAME row below (one renderer keeps the
+    // homepage bundle inside check-bundle's margin). placeProductHref fails
+    // closed to null on anything that is not a viator.com product page, which
+    // falls through to the honest search below.
+    const placeProductLink = hasTours ? null : placeProductHref(verifiedPlaceProduct, { city: listCity, kind, surface: "detail_place_product", contentId: listPlaceId });
+    if (hasTours || placeProductLink) {
+      const items = hasTours ? rankedTourItems : [{ href: placeProductLink, surface: "detail_place_product", title: String(verifiedPlaceProduct.title || "").trim() || `Tickets for ${detail.name}` }];
       return (
         <div ref={listRootRef} style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
@@ -274,7 +291,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
                 experiences", named an action instead of naming the inventory —
                 a visitor could not tell these were live Viator products for
                 THIS place. Say what they are and who they come from. */}
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Viator options nearby</span>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>{hasTours ? "🎟️ Viator options nearby" : "🎟️ Viator option for this place"}</span>
             <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
           </div>
           {items.map((t, i) => {
@@ -302,17 +319,19 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           // Founder P0: never viatorDirectUrl. A row without a product code
           // still leaves through /api/viator/go (exact product when we have a
           // URL, otherwise the honest tracked search).
-          const rowBase = offerId
+          const rowSurface = t.surface || "detail_tour_list";
+          const rowBase = t.href || (offerId
             ? commerceHref({ provider: "viator", offerId, surface: "detail_tour_list", contentId: listCity })
-            : (Aff.viatorProductGoUrl(t.url, listCity, kind, "detail_tour_list") || Aff.experienceGoUrl(t.title || detail.name, listCity, kind, listPlaceId));
+            : (Aff.viatorProductGoUrl(t.url, listCity, kind, "detail_tour_list") || Aff.experienceGoUrl(t.title || detail.name, listCity, kind, listPlaceId, { surface: "detail_tour_list" })));
           // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
           if (!rowBase) return null;
-          const rowClickId = clickIdFor(listClickIds, offerId || t.url || String(i));
+          const rowOffer = offerId || (t.href ? listPlaceId : "unknown");
+          const rowClickId = t.href ? fallbackClickId.current : clickIdFor(listClickIds, offerId || t.url || String(i));
           const href = hydrated ? withClickId(rowBase, rowClickId) : rowBase;
           return (
             <a
               key={offerId || i}
-              data-offer={offerId || "unknown"}
+              data-offer={rowOffer}
               data-rank={i + 1}
               href={href}
               rel="noreferrer sponsored"
@@ -320,9 +339,9 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
               onClick={() => {
                 try {
                   emitCommerce("commerce_cta_clicked", {
-                    surface: "detail_tour_list",
+                    surface: rowSurface,
                     provider: "viator",
-                    offer_id: offerId || "unknown",
+                    offer_id: rowOffer,
                     city_id: listCity || null,
                     canonical_place_id: detail.id || null,
                     category: kind || null,
@@ -354,7 +373,11 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // SEARCH page, never a guessed product. But ONLY for genuinely bookable
     // inventory: a beach/natural feature is gated out (the Coquina->Mumbai fix).
     if (!Aff.isTicketyPlace(detail)) return null;
-    const fallbackBase = Aff.experienceGoUrl(detail.name, listCity, kind, listPlaceId);
+    // Not while the per-place product fetch is still in flight: a quick tap
+    // would otherwise open a search a moment before the exact product arrives.
+    const vtEntry = viaTours && placeId ? viaTours[placeId] : null;
+    if (vtEntry && vtEntry.loading) return null;
+    const fallbackBase = Aff.experienceGoUrl(detail.name, listCity, kind, listPlaceId, { surface: "detail_tour_fallback" });
     const fallbackHref = hydrated ? withClickId(fallbackBase, fallbackClickId.current) : fallbackBase;
     return (
       <div ref={listRootRef}>
