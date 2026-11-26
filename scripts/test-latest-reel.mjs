@@ -60,6 +60,7 @@ ok(!/https?:\/\/(?!\/)(?:www\.)?(?:viator|ticketmaster|tiqets|klook|undercoverto
 ok(/robots:\s*\{\s*index:\s*false/.test(page), "/latest is noindex (bio link, not search content)");
 ok(LATEST_SURFACE === "bio_latest", "surface is bio_latest");
 ok(/loadEventDetailPhotos\(link\.href/.test(page) && /eventRailPhotoCredit\(first\)/.test(page), "card photo is the event page rail photo, with its credit");
+ok(/img: \{[^}]*height: "auto"[^}]*aspectRatio: "16 \/ 10"/.test(page), "card photo keeps a 16:10 box (height auto beats the height attribute) so the ticket button stays above the fold");
 ok(!/[–—]/.test(page.replace(/\/\/.*$/gm, "")), "no dashes in /latest copy");
 
 if (fail) { console.error(`test-latest-reel: ${fail} FAILED, ${pass} passed`); process.exit(1); }
