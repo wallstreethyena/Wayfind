@@ -435,6 +435,10 @@ delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: 120, bottom: 470, height: 350 }), 553) === true, "An ad visitor's picks row on screen holds the unsolicited planner offer");
     ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: -400, bottom: -50, height: 350 }), 553) === false, "Once the picks row is scrolled away the offer may show");
     ok(proactiveWaitsForAdPicks(fakeDoc(true, { top: 0, bottom: 0, height: 0 }), 553) === false, "A hidden picks row never holds the offer");
+    {
+      const askDoc = (rect) => ({ documentElement: {}, querySelector: (sel) => (sel === "[data-santa-ask]" ? { getBoundingClientRect: () => rect } : null) });
+      ok(proactiveWaitsForAdPicks(askDoc({ top: 400, bottom: 448, height: 48 }), 844) === true && proactiveWaitsForAdPicks(askDoc({ top: -200, bottom: -152, height: 48 }), 844) === false, "the hero Ask Santa button on screen holds the Santa offer; scrolled away, it may show (owner 2026-11-26)");
+    }
     ok(proactiveWaitsForAdPicks(fakeDoc(false, { top: 120, bottom: 470, height: 350 }), 553) === true && proactiveWaitsForAdPicks(fakeDoc(true, null), 553) === false && proactiveWaitsForAdPicks(null, 553) === false,
       "Any visible picks row (Google, organic, or Meta) holds the offer, while pages without the picks row keep the offer as before");
     const loaderSrc = readFileSync(path.join(REPO, "app/components/WayfindPlannerLoader.js"), "utf8");
