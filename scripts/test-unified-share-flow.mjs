@@ -37,6 +37,13 @@ const original = Object.fromEntries(["window", "document", "navigator"].map((k) 
 const set = (k, v) => Object.defineProperty(globalThis, k, { value: v, writable: true, configurable: true });
 const find = (label, root = document.body) => walk(root).find((n) => n.tagName === "BUTTON" && n.textContent.startsWith(label));
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
+// lib/shareFlow.js fetches the intent sheet on the tap (dynamic import), so the
+// menu appears a few ticks after openShareFlow returns. Wait for it, bounded,
+// and fail loudly if it never shows instead of testing an absent menu.
+const menuOpen = async () => {
+  for (let i = 0; i < 500 && !document.getElementById("wf-share-intent"); i++) await new Promise((r) => setTimeout(r, 0));
+  assert.ok(document.getElementById("wf-share-intent"), "the share intent menu must open after openShareFlow");
+};
 let assertions = 0;
 const check = (fn) => { fn(); assertions++; };
 try {
@@ -66,18 +73,22 @@ try {
   for (const disabled of ["0", "true", "2"]) {
     process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED = disabled;
     openShareFlow(payload);
+    await menuOpen();
     check(() => assert.equal(find("Group Vote"), undefined, "only the exact configured value 1 enables group planning"));
     doc.key("Escape");
   }
   delete process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED;
   check(() => assert.equal(openShareFlow(payload), "menu"));
+  await menuOpen();
   check(() => assert.equal(find("Group Vote"), undefined));
   doc.key("Escape");
   process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED = "1";
   openShareFlow({ ...payload, url: "/guides/uleles-guide" });
+  await menuOpen();
   check(() => assert.ok(find("Group Vote"), "Group Vote shows even without concrete place identity (pick-first flow)"));
   doc.key("Escape");
   openShareFlow(payload);
+  await menuOpen();
   const menu = document.getElementById("wf-share-intent");
   const buttons = walk(menu).filter((n) => n.tagName === "BUTTON");
   check(() => assert.deepEqual(buttons.slice(0, 3).map((b) => b.textContent.split(" ").slice(0, 3).join(" ")), ["Just share it", "I’m asking someone", "Group Vote Friends"]));
@@ -92,6 +103,7 @@ try {
   check(() => assert.equal(copied + nativeCalls, 0, "group navigation does not send or copy anything"));
 
   openShareFlow(payload);
+  await menuOpen();
   find("Just share it").click();
   check(() => assert.equal(document.getElementById("wf-share-intent"), null));
   const chooser = document.getElementById("wf-share-out-chooser");
