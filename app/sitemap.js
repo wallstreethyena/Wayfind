@@ -12,6 +12,7 @@ import { CULTURE } from "../lib/cultureCorpus";
 import { SITE_URL } from "../lib/site";
 import { CROWN_PATH, CROWN_PUBLISHED } from "../lib/crownCampaign.js";
 import { SEASONAL_SEARCH_HUBS } from "../lib/seasonalSearch";
+import { CHRISTMAS_TOPIC_SLUGS, christmasTopicPath } from "../lib/christmasTopicPages.js";
 import { LANDING_CITIES, landingPaths } from "../lib/landing";
 import { LANDING_CITIES as CITY_STATES } from "../lib/landingCities";
 import { trendingCitySlugs } from "../lib/trending";
@@ -127,8 +128,10 @@ export default async function sitemap() {
   // Spring break 2027 (lib/springBreak.js): the hub, plus areas with enough listings.
   let springBreak = [];
   try { springBreak = [{ url: SITE_URL + SPRING_BREAK_HUB_PATH }, ...springBreakRegionPageIds(springBreakModel(eventRows, siteTodayStr())).map((id) => ({ url: SITE_URL + springBreakRegionPath(id) }))]; } catch { springBreak = []; }
+  // Christmas overview pages (owner, 2026-11-25): parades, light shows, zoo lights, Nutcracker.
+  const christmasTopics = CHRISTMAS_TOPIC_SLUGS.map((slug) => ({ url: SITE_URL + christmasTopicPath(slug) }));
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
   // Tour hubs (lib/eventSeriesHubs.js): one page compares every Florida date of a tour.
   const seriesHubs = EVENT_SERIES_HUBS.map((h) => ({ url: `${SITE_URL}${h.href}` }));
-  return [...core, ...seasonal, ...nyeRegions, ...springBreak, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...places];
+  return [...core, ...seasonal, ...christmasTopics, ...nyeRegions, ...springBreak, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...places];
 }
