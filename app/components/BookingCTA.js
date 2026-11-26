@@ -271,8 +271,18 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // (Shell Key Ferry 237533P2 on the Preserve card) must not also paint.
     if (!nearbyTourListAllowed(detail, pinQ)) return null;
     const listPlaceId = placeIdProp || placeId || detailId || "unknown";
-    if (hasTours) {
-      const items = rankedTourItems;
+    // VERIFIED PLACE PRODUCT BEFORE SEARCH (partner deep-link audit,
+    // 2026-11-25). viaTours can come back empty for a place that
+    // wf_place_products already holds a verified product for (Tampa Bay History
+    // Center, Orlando Science Center), and the sheet then said "No verified
+    // product for this place" beside a card that sold one. The exact product
+    // wins and renders through the SAME row below (one renderer keeps the
+    // homepage bundle inside check-bundle's margin). placeProductHref fails
+    // closed to null on anything that is not a viator.com product page, which
+    // falls through to the honest search below.
+    const placeProductLink = hasTours ? null : placeProductHref(verifiedPlaceProduct, { city: listCity, kind, surface: "detail_place_product", contentId: listPlaceId });
+    if (hasTours || placeProductLink) {
+      const items = hasTours ? rankedTourItems : [{ href: placeProductLink, surface: "detail_place_product", title: String(verifiedPlaceProduct.title || "").trim() || `Tickets for ${detail.name}` }];
       return (
         <div ref={listRootRef} style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
@@ -281,7 +291,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
                 experiences", named an action instead of naming the inventory —
                 a visitor could not tell these were live Viator products for
                 THIS place. Say what they are and who they come from. */}
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Viator options nearby</span>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>{hasTours ? "🎟️ Viator options nearby" : "🎟️ Viator option for this place"}</span>
             <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
           </div>
           {items.map((t, i) => {
@@ -309,17 +319,19 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           // Founder P0: never viatorDirectUrl. A row without a product code
           // still leaves through /api/viator/go (exact product when we have a
           // URL, otherwise the honest tracked search).
-          const rowBase = offerId
+          const rowSurface = t.surface || "detail_tour_list";
+          const rowBase = t.href || (offerId
             ? commerceHref({ provider: "viator", offerId, surface: "detail_tour_list", contentId: listCity })
-            : (Aff.viatorProductGoUrl(t.url, listCity, kind, "detail_tour_list") || Aff.experienceGoUrl(t.title || detail.name, listCity, kind, listPlaceId, { surface: "detail_tour_list" }));
+            : (Aff.viatorProductGoUrl(t.url, listCity, kind, "detail_tour_list") || Aff.experienceGoUrl(t.title || detail.name, listCity, kind, listPlaceId, { surface: "detail_tour_list" })));
           // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
           if (!rowBase) return null;
-          const rowClickId = clickIdFor(listClickIds, offerId || t.url || String(i));
+          const rowOffer = offerId || (t.href ? listPlaceId : "unknown");
+          const rowClickId = t.href ? fallbackClickId.current : clickIdFor(listClickIds, offerId || t.url || String(i));
           const href = hydrated ? withClickId(rowBase, rowClickId) : rowBase;
           return (
             <a
               key={offerId || i}
-              data-offer={offerId || "unknown"}
+              data-offer={rowOffer}
               data-rank={i + 1}
               href={href}
               rel="noreferrer sponsored"
@@ -327,9 +339,9 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
               onClick={() => {
                 try {
                   emitCommerce("commerce_cta_clicked", {
-                    surface: "detail_tour_list",
+                    surface: rowSurface,
                     provider: "viator",
-                    offer_id: offerId || "unknown",
+                    offer_id: rowOffer,
                     city_id: listCity || null,
                     canonical_place_id: detail.id || null,
                     category: kind || null,
@@ -353,57 +365,6 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
             </a>
           );
           })}
-        </div>
-      );
-    }
-    // VERIFIED PLACE PRODUCT BEFORE SEARCH (partner deep-link audit,
-    // 2026-11-25). viaTours can come back empty for a place that
-    // wf_place_products already holds a verified product for (Tampa Bay History
-    // Center, Orlando Science Center), and the sheet then said "No verified
-    // product for this place" beside a card that sold one. The exact product
-    // wins; placeProductHref fails closed to null on anything that is not a
-    // viator.com product page, which falls through to the honest search below.
-    const placeProductLink = placeProductHref(verifiedPlaceProduct, { city: listCity, kind, surface: "detail_place_product", contentId: listPlaceId });
-    if (placeProductLink) {
-      const ppHref = hydrated ? withClickId(placeProductLink, fallbackClickId.current) : placeProductLink;
-      const ppTitle = String((verifiedPlaceProduct && verifiedPlaceProduct.title) || "").trim() || `Tickets for ${detail.name}`;
-      return (
-        <div ref={listRootRef} style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Viator option for this place</span>
-            <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
-          </div>
-          <a
-            data-offer={listPlaceId}
-            data-rank={1}
-            href={ppHref}
-            rel="noreferrer sponsored"
-            data-commerce-owner="BookingCTA"
-            onClick={() => {
-              const clickId = fallbackClickId.current;
-              try {
-                emitCommerce("commerce_cta_clicked", {
-                  surface: "detail_place_product",
-                  provider: "viator",
-                  offer_id: listPlaceId,
-                  city_id: listCity || null,
-                  canonical_place_id: detail.id || null,
-                  category: kind || null,
-                  rank_bucket: rankBucket(1),
-                  click_id: clickId,
-                });
-              } catch (er) {}
-              try { logEvent && logEvent("tour_card_out", detail, { click_id: clickId }); } catch (er) {}
-              try { addReservation && addReservation("tour", detail, "Viator", ppHref); } catch (er) {}
-            }}
-            style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0" }}
-          >
-            <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{ppTitle}</div>
-            </div>
-            <span style={{ color: C.light, fontSize: 15, fontWeight: 800 }}>↗</span>
-          </a>
         </div>
       );
     }

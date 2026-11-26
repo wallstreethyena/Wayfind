@@ -212,7 +212,10 @@ const loadTrips = () => import("../lib/trips");
 // Warm-up ORDER matters now that chunks are fetched one at a time
 // (lib/chunkWarmup.js): the place-detail sheet is the most common first tap
 // (any place card), so it goes first; then the bottom-nav screens.
-const SCREEN_LOADERS = [loadDetail, loadEventsScreen, loadMap, loadSaved, loadMenu, loadSurprise, loadItinerary, loadCoupons, loadHookDetail, loadThingsToDo, loadExperience, loadShared, loadTrips, loadAccount, loadAuth, loadIntro, loadSocialFind];
+// The share intent sheet is fetched on the tap (lib/shareFlow.js); warming it
+// second keeps a card's Share as instant as before without counting against
+// the homepage's first-load JS.
+const SCREEN_LOADERS = [loadDetail, loadShareIntentSheet, loadEventsScreen, loadMap, loadSaved, loadMenu, loadSurprise, loadItinerary, loadCoupons, loadHookDetail, loadThingsToDo, loadExperience, loadShared, loadTrips, loadAccount, loadAuth, loadIntro, loadSocialFind];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -359,7 +362,7 @@ import CreatorAvatar from "./components/CreatorAvatar";
 import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips, hasLearnedTaste, tasteNorm } from "../lib/taste";
 import { canonicalShareUrl } from "../lib/site";
 import { shareOut } from "../lib/shareOut.js";
-import { openShareFlow } from "../lib/shareFlow.js";
+import { openShareFlow, loadShareIntentSheet } from "../lib/shareFlow.js";
 import { inShareChoice, experienceGroupId } from "../lib/shareContext.js";
 // Keep the existing shell adapter callable from its legacy place callbacks.
 // The common entry helper also uses this same menu. Its subsequent native
