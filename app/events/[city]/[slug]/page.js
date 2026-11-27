@@ -5,6 +5,7 @@
 // shows real, current data; an id that no longer resolves 404s via
 // notFound() — never a silent redirect to the homepage. This implements
 // the /events/[city]/[event-slug] leg of the audit prompt's URL scheme.
+import EventSignIn from "../../../components/EventSignIn.js";
 import EventPlacePhoto from "../../../components/EventPlacePhoto.js";
 import { EventHeroPhotoProvider, EventHeroCredit } from "../../../components/EventHeroPhotoContext.js";
 import { eventImageIsVenue } from "../../../../lib/eventImageProvenance.js";
@@ -387,7 +388,10 @@ export default async function EventPage({ params }) {
       <div className="wf-event-wrap">
         <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 18 }}>
           <a href="/" aria-label="Wayfind home" style={{ display: "inline-flex", alignItems: "center" }}><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="132" height="38" style={{ width: 132, height: "auto", display: "block" }} /></a>
-          <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
+            <EventSignIn returnPath={`/events/${encodeURIComponent(params.city)}/${encodeURIComponent(params.slug)}`} />
+          </span>
         </nav>
         <EventSectionNav />
       <EventHeroPhotoProvider src={e.image || ""}>

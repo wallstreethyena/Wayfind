@@ -27,7 +27,8 @@ The restaurant photos show named menu items, with photography from other branche
 
 | File | Subject and source | Photographer | License |
 |---|---|---|---|
-| `editorial/wonderworks.webp` | [WonderWorks Orlando](https://commons.wikimedia.org/wiki/File:WonderWorks_%28Orlando%2C_Florida%29_001.jpg) | Leonard J. DeFrancisci | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+| `editorial/wonderworks.webp` | [WonderWorks Orlando, also used for The Outta Control Magic Dinner Show held inside it](https://commons.wikimedia.org/wiki/File:WonderWorks_%28Orlando%2C_Florida%29_001.jpg) | Leonard J. DeFrancisci | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+| `editorial/jc-newman-cigar.webp` | [J.C. Newman Cigar Co. building, Ybor City](https://commons.wikimedia.org/wiki/File:J.C._Newman_Cigar_Co._building.jpg) | OhanaUnited | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `editorial/basilica.webp` | [Basilica of Mary, Queen of the Universe](https://commons.wikimedia.org/wiki/File:Basilica_of_the_Nat%27l_Shrine_of_Mary%2C_Queen_of_the_Universe_%28Orlando%2C_FL%29_-_reflection_2.jpg) | Nheyob | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
 | `editorial/skyviews.webp` | [Skyviews Miami Observation Wheel](https://commons.wikimedia.org/wiki/File:Skyviews_Miami_Bayside_Marketplace_-_Ferris_Wheel_Cars%2C_2022.jpg) | Phillip Pessar | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |
 | `editorial/bunche.webp` | [Bunche Beach Preserve](https://commons.wikimedia.org/wiki/File:Shell_creek_at_bunche_beach%2C_view_towards_Sanibel_%2822550546317%29.jpg) | Russ | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |

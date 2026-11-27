@@ -34,6 +34,11 @@ export const config = {
     // a same-origin XHR (app/components/EventNearbyReanchor.js), no metered
     // upstream; same-origin + per-IP rate limit, exactly like /api/search.
     "/api/events/venue-nearby",
+    // Homepage "This week in Florida" fallback (2026-11-27): a same-origin GET
+    // from app/components/ThisWeekEvents.js when the cached HTML had no events.
+    // One cached Supabase read, no metered upstream; it can also mark "/" for
+    // regeneration, so same-origin + per-IP rate limit keeps that bounded.
+    "/api/events/this-week",
     // Opt-in nearby picks (2026-11-27): a same-origin POST of a rounded point,
     // free owned-inventory reads only (lib/nearbyPicksServe.js). Same-origin +
     // per-IP rate limit, like /api/events/venue-nearby.

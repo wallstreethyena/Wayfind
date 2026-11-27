@@ -49,6 +49,7 @@ import EventWhere from "../../components/EventWhere";
 import CrownOutbound from "../../components/CrownOutbound.js";
 import { CROWN_EVENT_SLUGS } from "../../../lib/crownCampaign.js";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
+import EventSignIn from "../../components/EventSignIn.js";
 import { pairingHref } from "../../../lib/eventPairings";
 import { seriesHubFor } from "../../../lib/eventSeriesHubs.js";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
@@ -174,9 +175,10 @@ const S = {
     display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px",
     borderRadius: 999, background: "#161B22", border: "1px solid #21262D",
     color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none",
-    marginBottom: 18,
   },
-  backRow: { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" },
+  // The bottom space lives on the row, not on each pill, so the header Sign in
+  // (EventSignIn) lines up with the two back links instead of sitting 9px low.
+  backRow: { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 18 },
   addr: { color: "#C9D1D9", fontSize: 14, marginTop: 2 },
   // v9.00 (owner, 2026-09-07: "not a premium Wayfind event page … directions
   // are duplicated"). Directions now lives in EXACTLY ONE place — the shared
@@ -418,6 +420,7 @@ export default async function CuratedEventPage({ params }) {
       <div className="wf-event-brand"><a href="/" aria-label="Wayfind home"><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="145" height="42" /></a><div style={S.backRow}>
         <ReturnToWayfind style={S.back} />
         <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
+        <EventSignIn returnPath={"/florida-events/" + e.slug} />
       </div>
 
       </div>

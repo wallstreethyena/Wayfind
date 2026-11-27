@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { openShareFlow } from "../../lib/shareFlow.js";
 import { removeSavedContent, useSavedContentIds } from "../../lib/contentCardActions.js";
 import { styleHtml } from "../../lib/styleHtml.js";
+import { rewardMoment } from "../../lib/heartRewards.js";
 
 const CSS = `
 .xp-plan{margin:22px 0 4px;padding:16px;border:1px solid #E8B48A55;border-radius:18px;background:linear-gradient(160deg,#3E0C19,#230710 80%);color:#FFF7ED}
@@ -101,6 +102,7 @@ export default function ChristmasPlan() {
   const toggleVote = (id) => {
     if (!votes) return;
     const on = !votes.mine.includes(id);
+    if (on) rewardMoment("vote");
     setVotes((v) => v && ({ counts: { ...v.counts, [id]: Math.max(0, (v.counts[id] || 0) + (on ? 1 : -1)) }, mine: on ? [...v.mine, id] : v.mine.filter((x) => x !== id) }));
     fetch("/api/christmas/plan-votes", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ plan: idsKey, item: id, voter, on }) })
       .then((r) => r.json()).then((json) => { if (!json || json.available !== true) setVotes(null); }).catch(() => setVotes(null));
