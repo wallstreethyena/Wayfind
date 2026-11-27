@@ -27,6 +27,7 @@ import { siteTodayStr } from "../lib/siteTime";
 import { movieSitemapRows } from "../lib/moviePages.js";
 import { nyeModel, nyeRegionPageIds, nyeRegionPath } from "../lib/newYearsEve.js";
 import { SPRING_BREAK_HUB_PATH, springBreakModel, springBreakRegionPageIds, springBreakRegionPath } from "../lib/springBreak.js";
+import { valentinesModel, valentinesRegionPageIds, valentinesRegionPath } from "../lib/valentines.js";
 
 // Hourly, so the curated events layer below is read at request time. During
 // `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
@@ -34,6 +35,7 @@ import { SPRING_BREAK_HUB_PATH, springBreakModel, springBreakRegionPageIds, spri
 import { tripLogEnv } from "../lib/tripLogServer";
 import { listPublishedGuides } from "../lib/communityGuides";
 import { listTemplates } from "../lib/itineraryTemplates";
+import { HOLIDAY_REPORT_PATH } from "../lib/holidayReport.js";
 
 export const revalidate = 3600;
 // Never prerendered at build: the build-phase events read is a deliberate
@@ -132,9 +134,14 @@ export default async function sitemap() {
   // Spring break 2027 (lib/springBreak.js): the hub, plus areas with enough listings.
   let springBreak = [];
   try { springBreak = [{ url: SITE_URL + SPRING_BREAK_HUB_PATH }, ...springBreakRegionPageIds(springBreakModel(eventRows, siteTodayStr())).map((id) => ({ url: SITE_URL + springBreakRegionPath(id) }))]; } catch { springBreak = []; }
+  // Valentine's Day 2027 area pages (lib/valentines.js); the hub is a seasonal row above.
+  let valentines = [];
+  try { valentines = valentinesRegionPageIds(valentinesModel(eventRows, siteTodayStr())).map((id) => ({ url: SITE_URL + valentinesRegionPath(id) })); } catch { valentines = []; }
   // Christmas overview pages (owner, 2026-11-25): parades, light shows, zoo lights, Nutcracker.
   const christmasTopics = CHRISTMAS_TOPIC_SLUGS.map((slug) => ({ url: SITE_URL + christmasTopicPath(slug) }));
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
+  // Data reports (2026-11-27): the Florida Holiday Events Report, Article + Dataset JSON-LD.
+  const reports = [{ url: SITE_URL + HOLIDAY_REPORT_PATH }];
   // Tour hubs (lib/eventSeriesHubs.js): one page compares every Florida date of a tour.
   const seriesHubs = EVENT_SERIES_HUBS.map((h) => ({ url: `${SITE_URL}${h.href}` }));
   // AI engine (2026-11-27): Wayfind itineraries and community guides members
@@ -145,5 +152,5 @@ export default async function sitemap() {
     const [tpl, cg] = await Promise.all([listTemplates(cfg).catch(() => []), listPublishedGuides(cfg, { limit: 48 }).catch(() => [])]);
     community = [...community, ...tpl.map((t) => ({ url: `${SITE_URL}/itineraries/${t.slug}`, lastModified: t.generated_at ? new Date(t.generated_at) : undefined })), ...cg.map((g) => ({ url: `${SITE_URL}/community/${g.slug}`, lastModified: g.updated_at ? new Date(g.updated_at) : undefined }))];
   } catch {}
-  return [...core, ...seasonal, ...christmasTopics, ...nyeRegions, ...springBreak, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...community, ...places];
+  return [...core, ...seasonal, ...reports, ...christmasTopics, ...nyeRegions, ...springBreak, ...valentines, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...community, ...places];
 }

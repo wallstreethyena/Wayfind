@@ -43,7 +43,7 @@ export function createFakeSupabase({ serviceKey, onBroadcast = () => {}, onCheck
     }
     if (u.pathname === "/realtime/v1/api/broadcast") {
       const b = JSON.parse(init.body);
-      for (const m of b.messages || []) emit({ topic: m.topic, event: m.event, payload: m.payload, private: m.private });
+      for (const m of b.messages || []) emit({ topic: m.topic, event: m.event, payload: m.payload, private: m.private, via: "http" });
       return json(202, {});
     }
     assert.equal(headers.apikey, serviceKey, "every PostgREST call uses the service role");
@@ -65,7 +65,7 @@ export function createFakeSupabase({ serviceKey, onBroadcast = () => {}, onCheck
       row.revision += 1;
       row.recent_op_ids = row.recent_op_ids.concat(b.p_op_ids).slice(-500);
       db.commits += 1;
-      emit({ topic: "live-trip:" + row.id, event: "ops", payload: { ...b.p_payload, revision: row.revision }, private: true });
+      emit({ topic: "live-trip:" + row.id, event: "ops", payload: { ...b.p_payload, revision: row.revision }, private: true, via: "db" });
       return json(200, { revision: row.revision });
     }
     const rows = table === "wf_live_trips" ? db.trips : table === "wf_live_trip_members" ? db.members : null;

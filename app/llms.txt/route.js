@@ -57,6 +57,12 @@ Wayfind takes affiliate commission on some bookings and deals. Placement is
 never sold: an affiliate relationship does not change a ranking. Links that
 earn commission are disclosed on the page that carries them.
 
+## Data reports
+
+- [Florida Holiday Events Report 2026](${SITE_URL}/reports/florida-holiday-events-2026):
+  counts of Florida holiday events by region, city, type, price status and
+  day, computed daily from Wayfind's own listings, with a CSV download.
+
 ## Guides
 
 ${guides.join("\n")}

@@ -14,6 +14,12 @@
 // (validated, lib/planMyDay.js validatePlanCopy). If OpenAI is off, over its
 // monthly lane cap, or fails, the plan still returns with Wayfind's own lines.
 //
+// Right now layer (owner, 2026-11-27: a differentiated experience Google and
+// Yelp don't give): today's real forecast for the city (lib/plannerWeather.js)
+// leans a rainy or very hot day indoors and says why, and every request that
+// Wayfind could not fully answer is logged as a privacy safe gap row
+// (lib/plannerGaps.js) for the end of day report. Neither ever blocks a plan.
+//
 // METERED OpenAI proxy: this path MUST stay in middleware.js's matcher
 // (same-origin + per-IP limit). A second, tighter per-IP limit lives here.
 export const runtime = "nodejs";
@@ -31,6 +37,9 @@ import {
 import { buildItinerary } from "../../../lib/itineraryBuilderServer.js";
 import { GET as siteSearch } from "../search/route.js";
 import { GET as christmasBrowseGet } from "../christmas/browse/route.js";
+import { waitUntil } from "@vercel/functions";
+import { fetchForecast, weatherLean, weatherNote, leanParsed } from "../../../lib/plannerWeather.js";
+import { gapRow, logGap } from "../../../lib/plannerGaps.js";
 
 const NO_STORE = { "cache-control": "no-store" };
 const RATE_WINDOW_MS = 60_000;
@@ -52,6 +61,37 @@ function limited(ip, now = Date.now()) {
 }
 
 const json = (body, status = 200) => Response.json(body, { status, headers: NO_STORE });
+
+/** Store a gap row after the response. Never delays or breaks the visitor. */
+function recordGap(row) {
+  if (!row) return;
+  const p = logGap(row).catch(() => false);
+  try { waitUntil(p); } catch { /* local: best effort */ }
+}
+
+/** Forecast for the plan's city and dates; never throws. */
+async function weatherFor(parsed, today) {
+  try {
+    const byDate = await fetchForecast(parsed && parsed.destination);
+    const w = weatherLean(byDate, parsed && parsed.dates && parsed.dates.days);
+    if (!w) return { w: null, parsed, view: null };
+    const note = weatherNote(w, parsed.destination && parsed.destination.name, today);
+    return { w, parsed: leanParsed(parsed, w), view: { date: w.date, rainPct: w.rainPct, feelsHighF: w.feelsHighF, lean: w.lean, note } };
+  } catch {
+    return { w: null, parsed, view: null };
+  }
+}
+
+function stopsIn(itinerary) {
+  return ((itinerary && itinerary.days) || []).reduce((n, d) => n + ((d.stops || []).length), 0);
+}
+
+/** Strip the private cache field before a cached answer goes out. */
+function fromCache(v) {
+  const { _gap, ...rest } = v;
+  recordGap(_gap || null);
+  return { ...rest, cached: true };
+}
 
 async function writeCopy(result, titleHint) {
   const stops = result.itinerary.days.flatMap((d) => d.stops);
@@ -94,31 +134,46 @@ export async function POST(req) {
     if (notes) {
       const key = notesCacheKey(notes, today);
       const hit = await cget(key).catch(() => null);
-      if (hit && hit.v && hit.v.ok) return json({ ...hit.v, cached: true });
+      if (hit && hit.v && hit.v.ok) return json(fromCache(hit.v));
       if (limited(clientIp(req))) return json({ ok: false, code: "RATE_LIMITED", message: "One moment, then try again." }, 429);
       const read = await openAiCopy("plan_day", { system: NOTES_SYSTEM, user: JSON.stringify({ today, notes }), json: true, temperature: 0 });
       const intent = validateNotesIntent(read.ok ? read.json : null, today);
       const parsedNotes = parsedFromNotes(notes, intent, today);
-      if (parsedNotes.clarify) return json({ ok: false, code: "NEED_CITY", message: parsedNotes.clarify }, 200);
-      const built = await buildItinerary(parsedNotes.parsed, { mustInclude: parsedNotes.mustInclude, deps });
-      if (!built.ok) return json({ ok: false, code: "NO_PLAN", message: "We could not find enough Wayfind picks for that yet. Try a nearby city or fewer limits." }, 200);
-      const out = { ok: true, ...(await writeCopy(built, parsedNotes.parsed.destination.name)) };
-      await cset(key, out, PLAN_DAY_CACHE_TTL_MS).catch(() => {});
+      if (parsedNotes.clarify) {
+        recordGap(gapRow({ mode: "notes", outcome: "NEED_CITY", requestedCity: read.ok && read.json ? read.json.city : null }));
+        return json({ ok: false, code: "NEED_CITY", message: parsedNotes.clarify }, 200);
+      }
+      const wx = await weatherFor(parsedNotes.parsed, today);
+      const built = await buildItinerary(wx.parsed, { mustInclude: parsedNotes.mustInclude, deps });
+      if (!built.ok) {
+        recordGap(gapRow({ mode: "notes", outcome: "NO_PLAN", parsed: wx.parsed, unmatched: parsedNotes.mustInclude, weatherLean: wx.w && wx.w.lean }));
+        return json({ ok: false, code: "NO_PLAN", message: "We could not find enough Wayfind picks for that yet. Try a nearby city or fewer limits." }, 200);
+      }
+      const out = { ok: true, ...(await writeCopy(built, parsedNotes.parsed.destination.name)), weather: wx.view };
+      const gap = gapRow({ mode: "notes", outcome: "OK", parsed: wx.parsed, stopCount: stopsIn(out.itinerary), dayCount: (out.itinerary.days || []).length, unmatched: built.unmatched, weatherLean: wx.w && wx.w.lean });
+      recordGap(gap);
+      await cset(key, { ...out, _gap: gap }, PLAN_DAY_CACHE_TTL_MS).catch(() => {});
       return json(out);
     }
 
     const picks = parsePlanRequest(body, today);
     if (!picks) return json({ ok: false, code: "INVALID_PICKS", message: "Pick a city, a day and a vibe." }, 400);
-    const key = planCacheKey(picks);
+    const parsed0 = plannerParsedFor(picks);
+    if (!parsed0) return json({ ok: false, code: "UNKNOWN_CITY" }, 400);
+    const wx = await weatherFor(parsed0, today);
+    const key = planCacheKey(picks) + (wx.w && wx.w.lean ? "|w:" + wx.w.lean : "");
     const hit = await cget(key).catch(() => null);
-    if (hit && hit.v && hit.v.ok) return json({ ...hit.v, cached: true });
+    if (hit && hit.v && hit.v.ok) return json(fromCache(hit.v));
     if (limited(clientIp(req))) return json({ ok: false, code: "RATE_LIMITED", message: "One moment, then try again." }, 429);
-    const parsed = plannerParsedFor(picks);
-    if (!parsed) return json({ ok: false, code: "UNKNOWN_CITY" }, 400);
-    const built = await buildItinerary(parsed, { deps });
-    if (!built.ok) return json({ ok: false, code: "NO_PLAN", message: "We could not find enough Wayfind picks for that yet. Try another vibe or a nearby city." }, 200);
-    const out = { ok: true, ...(await writeCopy(built, `${picks.area.name}, ${picks.vibe.label}`)) };
-    await cset(key, out, PLAN_DAY_CACHE_TTL_MS).catch(() => {});
+    const built = await buildItinerary(wx.parsed, { deps });
+    if (!built.ok) {
+      recordGap(gapRow({ mode: "picks", outcome: "NO_PLAN", parsed: wx.parsed, weatherLean: wx.w && wx.w.lean }));
+      return json({ ok: false, code: "NO_PLAN", message: "We could not find enough Wayfind picks for that yet. Try another vibe or a nearby city." }, 200);
+    }
+    const out = { ok: true, ...(await writeCopy(built, `${picks.area.name}, ${picks.vibe.label}`)), weather: wx.view };
+    const gap = gapRow({ mode: "picks", outcome: "OK", parsed: wx.parsed, stopCount: stopsIn(out.itinerary), dayCount: (out.itinerary.days || []).length, weatherLean: wx.w && wx.w.lean });
+    recordGap(gap);
+    await cset(key, { ...out, _gap: gap }, PLAN_DAY_CACHE_TTL_MS).catch(() => {});
     return json(out);
   } catch {
     return json({ ok: false, code: "UNAVAILABLE", message: "The planner is taking a break. Try again in a minute." }, 200);

@@ -60,6 +60,7 @@ export default async function Page() {
           <li><a href="/guides/florida-new-years-eve-2026" style={LINK}>Florida New Year&rsquo;s Eve 2026 guide: early countdowns for kids and the best fireworks</a></li>
           {model.regions.filter((r) => r.blog).map((r) => <li key={r.id}><a href={r.blog.href} style={LINK}>{r.blog.label}</a></li>)}
           <li><a href="/christmas-in-florida" style={LINK}>Christmas in Florida: light shows that run past New Year&rsquo;s</a></li>
+          <li><a href="/valentines-day-in-florida" style={LINK}>Valentine&rsquo;s Day 2027 in Florida: sunset cruises, date ideas and events</a></li>
           <li><a href="/spring-break-in-florida" style={LINK}>Spring break 2027 in Florida: festivals and events in March</a></li>
         </ul>
       </section>

@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { travelEstimate, legDirectionsUrl } from "../../lib/travelEstimate.js";
 
 const STORE_KEY = "wf_itinerary_v1";
+const PREFS_KEY = "wf_planner_prefs_v1"; // the visitor's last request in this browser only, so the next visit starts where they left off
 const MAX_STOPS = 6;
 const T = {
   card: "#161B22", card2: "#1C2230", border: "#2D3748", text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
@@ -34,6 +35,16 @@ function readStore() {
 }
 function writeStore(v) {
   try { if (v) window.localStorage.setItem(STORE_KEY, JSON.stringify(v)); else window.localStorage.removeItem(STORE_KEY); } catch { /* storage off */ }
+}
+
+function readPrefs() {
+  try {
+    const v = JSON.parse(window.localStorage.getItem(PREFS_KEY) || "null");
+    return v && typeof v === "object" ? v : null;
+  } catch { return null; }
+}
+function writePrefs(v) {
+  try { window.localStorage.setItem(PREFS_KEY, JSON.stringify(v)); } catch { /* storage off */ }
 }
 
 function retravel(stops) {
@@ -157,7 +168,7 @@ function Day({ day, dayIdx, pool, onChange, onAdd }) {
 }
 
 export default function ItineraryBuilder({ areas, whens, vibes }) {
-  const [mode, setMode] = useState("picks");
+  const [mode, setMode] = useState("notes");
   const [area, setArea] = useState("sarasota");
   const [when, setWhen] = useState("today");
   const [vibe, setVibe] = useState("easy");
@@ -168,16 +179,26 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
   const resultRef = useRef(null);
 
   useEffect(() => { const saved = readStore(); if (saved) setState(saved); }, []);
+  useEffect(() => {
+    const p = readPrefs();
+    if (!p) return;
+    if (p.mode === "picks" || p.mode === "notes") setMode(p.mode);
+    if (typeof p.area === "string" && areas.some((a) => a.slug === p.area)) setArea(p.area);
+    if (typeof p.when === "string" && whens.some((w) => w.id === p.when)) setWhen(p.when);
+    if (typeof p.vibe === "string" && vibes.some((v) => v.id === p.vibe)) setVibe(p.vibe);
+    if (typeof p.notes === "string") setNotes(p.notes.slice(0, 1200));
+  }, [areas, whens, vibes]);
   useEffect(() => { writeStore(state); }, [state]);
 
   const build = useCallback(async () => {
     setBusy(true); setError("");
     try {
       const payload = mode === "notes" ? { notes } : { area, when, vibe };
+      writePrefs({ mode, area, when, vibe, notes: notes.slice(0, 1200) });
       const r = await fetch("/api/plan-my-day", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
       const d = await r.json().catch(() => null);
       if (!d || !d.ok) { setError((d && d.message) || "Something went wrong. Try again."); return; }
-      setState({ itinerary: d.itinerary, pool: d.pool || [], unmatched: d.unmatched || [] });
+      setState({ itinerary: d.itinerary, pool: d.pool || [], unmatched: d.unmatched || [], weather: d.weather && typeof d.weather.note === "string" ? { note: d.weather.note } : null });
       setTimeout(() => { try { resultRef.current && resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch { /* ignore */ } }, 50);
     } catch {
       setError("You look offline. Check your connection and try again.");
@@ -204,8 +225,8 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
   return (
     <div>
       <div role="tablist" aria-label="How to start" style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <button type="button" role="tab" aria-selected={mode === "notes"} onClick={() => setMode("notes")} style={btn(mode === "notes")}>Just tell us</button>
         <button type="button" role="tab" aria-selected={mode === "picks"} onClick={() => setMode("picks")} style={btn(mode === "picks")}>Quick picks</button>
-        <button type="button" role="tab" aria-selected={mode === "notes"} onClick={() => setMode("notes")} style={btn(mode === "notes")}>Paste my notes</button>
       </div>
       <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, padding: 14 }}>
         {mode === "picks" ? (
@@ -227,11 +248,11 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
           </div>
         ) : (
           <label style={{ display: "grid", gap: 6, color: T.muted, fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: ".08em" }}>
-            Your notes
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 1200))} rows={5}
-              placeholder="Orlando Dec 12 to 14 with two kids. Want Christmas lights, a ballet, and good cheap dinners. No theme parks."
+            Who's going, where, budget and mood
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value.slice(0, 1200))} rows={4}
+              placeholder="Rainy Saturday with two kids near Tampa, under $100. Or: Orlando Dec 12 to 14, Christmas lights and cheap dinners, no theme parks."
               style={{ width: "100%", boxSizing: "border-box", borderRadius: 12, border: `1px solid ${T.border}`, background: T.card2, color: T.text, fontSize: 16, padding: 12, lineHeight: 1.45, resize: "vertical", fontFamily: "inherit", textTransform: "none", letterSpacing: "normal", fontWeight: 500 }} />
-            <span style={{ textTransform: "none", letterSpacing: "normal", fontWeight: 600, color: T.muted }}>{notes.length}/1200 · Up to 4 days. Name places you want and we add them when Wayfind has them.</span>
+            <span style={{ textTransform: "none", letterSpacing: "normal", fontWeight: 600, color: T.muted }}>{notes.length}/1200 · One day or up to 4. We check the forecast and lean indoors when it calls for rain or heat. Name places you want and we add them when Wayfind has them.</span>
           </label>
         )}
         <button type="button" onClick={build} disabled={busy || (mode === "notes" && notes.trim().length < 8)}
@@ -252,6 +273,9 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
               <button type="button" onClick={() => setState(null)} style={btn(false)}>Clear</button>
             </div>
           </div>
+          {state.weather && state.weather.note ? (
+            <p role="note" style={{ color: "#BAE6FD", background: "rgba(14,165,233,.10)", border: "1px solid rgba(56,189,248,.35)", borderRadius: 12, padding: "8px 12px", fontSize: 13.5, margin: "12px 0 0" }}>{state.weather.note}</p>
+          ) : null}
           {state.unmatched && state.unmatched.length ? (
             <p style={{ color: T.gold, fontSize: 13, margin: "10px 0 0" }}>Not on Wayfind yet, so not added: {state.unmatched.join(", ")}.</p>
           ) : null}
