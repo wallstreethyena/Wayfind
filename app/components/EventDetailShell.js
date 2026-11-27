@@ -4,7 +4,7 @@ import { styleHtml } from "../../lib/styleHtml.js";
 
 // Both event sources supply content to this shell. Reading order and action
 // spacing belong here, so a new event cannot invent another page layout.
-export default function EventDetailShell({ title, status, facts, story, actions, note, media, credit, soldOut = false }) {
+export default function EventDetailShell({ title, status, facts, quickAction, story, actions, note, media, credit, soldOut = false }) {
   return (
     <section className="wf-event-hero" id="event-overview" data-event-section="Overview" aria-label="Event overview" tabIndex={-1}>
       <div className="wf-event-media" aria-label="Event photos" style={soldOut ? { position: "relative" } : undefined}>
@@ -26,6 +26,10 @@ export default function EventDetailShell({ title, status, facts, story, actions,
             </div>
           ))}
         </dl>
+        {/* The page's ONE primary booking control, when it has one: right after
+            the facts so a phone shows it on the first screen (SEO audit
+            2026-11-27). Everything else stays in the actions block below. */}
+        {quickAction ? <div className="wf-event-quick" data-event-quick-action="">{quickAction}</div> : null}
         {story ? <div className="wf-event-reason">{story}</div> : null}
         <div className="wf-event-actions" id="event-tickets" data-event-section="Tickets & sharing" tabIndex={-1} aria-label="Plan this event">
           {actions}

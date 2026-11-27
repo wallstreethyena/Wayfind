@@ -18,6 +18,7 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import { listIndexedIds } from "../../../lib/placeIndex.js";
 import { selectEligiblePlaceLinks } from "../../../lib/hubPlaceLinks.js";
 import { styleHtml } from "../../../lib/styleHtml.js";
+import { townTopListLd } from "../../../lib/townHubSchema.js";
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -88,10 +89,10 @@ export default async function Page({ params }) {
   return (
     <main style={S.page} className="wf-page-canvas">
       <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Florida", item: SITE_URL + "/culture/sarasota" }, { "@type": "ListItem", position: 3, name: t.title, item: SITE_URL + "/florida/" + params.town }] }) }} />
-      {topTen.length >= 3 ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "ItemList", name: `Top things to do in ${t.title}, Florida`, itemListElement: topTen.map((p, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "LocalBusiness", name: p.name } })) }) }} /> : null}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Florida guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: t.title, item: SITE_URL + "/florida/" + params.town }] }) }} />
+      {topTen.length >= 3 ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(townTopListLd(t.title, topTen, placeNavIds)) }} /> : null}
       <div style={S.kicker}>Wayfind · Florida destinations</div>
-      <h1 style={S.h1}>{t.title}, Florida</h1>
+      <h1 style={S.h1}>Things to do in {t.title}, Florida</h1>
       <p style={S.tag}>{t.tag}</p>
       <div style={{ margin: "0 0 16px" }}>
         <ShareButton
