@@ -7,6 +7,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { eventIsoWithOffset, eventJsonLdDates, resolveEventZone } from "../lib/eventTime.js";
+import { providerEventJsonLd } from "../lib/providerEventJsonLd.js";
 import { eventJsonLd } from "../lib/curatedEvents.js";
 import { eventVisitStatus, eventLocalClock } from "../lib/eventVisitFacts.js";
 
@@ -82,11 +83,21 @@ ok("open-now/clock use the event's zone (Pensacola vs Miami at the same instant)
 });
 
 // Pages: JSX server components that fetch over the network cannot be invoked here.
-ok("/events page builders route startDate through eventJsonLdDates (role check, not invoked)", () => {
+// 2026-11-27: both /events builders (detail + window list items) now go through
+// lib/providerEventJsonLd.js, so the offset is asserted on the CALL (invoked
+// below) and the page is checked to use that builder, never a hand-built node.
+ok("/events page builders route startDate through providerEventJsonLd -> eventJsonLdDates", () => {
   const src = readFileSync(new URL("../app/events/[city]/[slug]/page.js", import.meta.url), "utf8").replace(/\/\/.*$/gm, "");
-  assert.equal((src.match(/startDate:\s*eventJsonLdDates\(e\)\.startDate/g) || []).length, 2);
-  assert.ok(/import\s*\{[^}]*\beventJsonLdDates\b[^}]*\}\s*from/.test(src));
+  assert.equal((src.match(/providerEventJsonLd\(e,\s*\{\s*pageUrl:/g) || []).length, 2, "detail + list item both call the shared builder");
+  assert.ok(/import\s*\{[^}]*\bproviderEventJsonLd\b[^}]*\}\s*from/.test(src));
   assert.ok(!/startDate:\s*e\.time\s*\?/.test(src), "bare wall-clock startDate must not return");
+  assert.ok(!/"@type":\s*"Event"/.test(src), "no hand-built Event node may return to the page");
+  const helper = readFileSync(new URL("../lib/providerEventJsonLd.js", import.meta.url), "utf8");
+  assert.ok(/eventJsonLdDates\(e\)/.test(helper), "the builder takes its dates from eventJsonLdDates");
+});
+ok("providerEventJsonLd emits the zone offset (invoked)", () => {
+  const node = providerEventJsonLd({ name: "Show", date: "2026-10-10", time: "19:00:00", venue: "Saenger", city: "Pensacola", lat: 30.42, lng: -87.21 }, { pageUrl: "https://www.gowayfind.com/events/x/y" });
+  assert.equal(node.startDate, "2026-10-10T19:00:00-05:00");
 });
 
 // Negative control: a naive builder with no offset must be caught by the same assertion.
