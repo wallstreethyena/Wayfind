@@ -887,17 +887,27 @@ export default async function GuidePage({ params }) {
   // v4.18: FAQ structured data — makes these guides eligible for expanded
   // FAQ rich results in search, which lifts click-through beyond position.
   const guideUrl = SITE_URL + "/guides/" + params.slug;
-  const itemListLd = shippingPicks.length >= 3 ? {
+  // One entry per destination: two picks at the same place (a guide naming a
+  // place twice) listed one /places/ URL twice (2026-11-27 audit).
+  const pickLinks = [];
+  const pickUrls = new Set();
+  shippingPicks.forEach(({ pick }, i) => {
+    const url = pick.placeId ? SITE_URL + "/places/" + encodeURIComponent(pick.placeId) : pick.eventSlug ? SITE_URL + "/florida-events/" + encodeURIComponent(pick.eventSlug) : guideUrl + "#pick-" + (i + 1);
+    if (pickUrls.has(url)) return;
+    pickUrls.add(url);
+    pickLinks.push({ name: pick.name, url });
+  });
+  const itemListLd = pickLinks.length >= 3 ? {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: g.title,
-    numberOfItems: shippingPicks.length,
+    numberOfItems: pickLinks.length,
     itemListOrder: "https://schema.org/ItemListOrderAscending",
-    itemListElement: shippingPicks.map(({ pick }, i) => ({
+    itemListElement: pickLinks.map(({ name, url }, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      name: pick.name,
-      url: pick.placeId ? SITE_URL + "/places/" + encodeURIComponent(pick.placeId) : pick.eventSlug ? SITE_URL + "/florida-events/" + encodeURIComponent(pick.eventSlug) : guideUrl + "#pick-" + (i + 1),
+      name,
+      url,
     })),
   } : null;
   const faqLd = g.faq && g.faq.length ? {

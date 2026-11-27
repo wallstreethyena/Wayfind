@@ -471,7 +471,8 @@ ok("an SSG skip is not a healthy empty — no empty copy, no ItemList:0", () => 
   ok("JSON-LD ItemList is omitted on an SSG skip — numberOfItems:0 cannot be baked from a skipped read", () => {
     const body = strip(hubFn[0]);
     assert.match(body, /const jsonLd = model\.skipped \? null/);
-    assert.match(body, /numberOfItems: model\.numberOfItems/);
+    // 2026-11-27: the count is what the list HOLDS (first 30), still derived from the model.
+    assert.match(body, /numberOfItems: Math\.min\(model\.eligible\.length, 30\)/);
     assert.match(body, /\{jsonLd \? <script type="application\/ld\+json"/);
   });
   ok("the hub ISR clock and buildRail's three-card floor are unchanged", () => {
