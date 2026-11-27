@@ -258,18 +258,25 @@ for (const f of OG_FILES) {
     // checked against the exact two allowed model fields.
     const imgTags = src.match(/<img\b[^>]*>/g) || [];
     ok(imgTags.length === imgs, `${rel}: <img> tag count disagrees with itself (${imgTags.length} vs ${imgs}) — an <img> spans a line break the capture missed`);
-    ok(imgTags.length === 2, `${rel} renders ${imgTags.length} <img> elements — exactly two are allowed: the rail poster and the hero photo`);
+    // 2026-11-27: a THIRD named exception, the owner's logo (brand vault
+    // derivative, bundled bytes, never a URL): <img src={LOGO_BYTES}.
+    ok(imgTags.length === 3, `${rel} renders ${imgTags.length} <img> elements — exactly three are allowed: the rail poster, the hero photo and the owner's logo`);
     ok(imgTags.some((t) => /^<img src=\{m\.poster\}/.test(t)),
        `${rel}: missing the rail poster <img src={m.poster}> — a pre-fetched, sniffed data URI from lib/railShareCard.js, never a URL Satori resolves itself`);
     ok(imgTags.some((t) => /^<img src=\{m\.hero\}/.test(t)),
        `${rel}: missing the hero photo <img src={m.hero}> — a pre-fetched, sniffed data URI from lib/heroSource.js, never a URL Satori resolves itself`);
-    ok(imgTags.every((t) => /^<img src=\{m\.(poster|hero)\}/.test(t)),
-       `${rel}: an <img> src is neither {m.poster} nor {m.hero} — those are the only two model fields allowed to back a share-card photo, found: ${imgTags.filter((t) => !/^<img src=\{m\.(poster|hero)\}/.test(t)).join(" | ")}`);
+    ok(imgTags.some((t) => /^<img src=\{LOGO_BYTES\}/.test(t)),
+       `${rel}: missing the owner's logo <img src={LOGO_BYTES}> — the mark is the vault file, never a drawing`);
+    ok(imgTags.every((t) => /^<img src=\{(m\.(poster|hero)|LOGO_BYTES)\}/.test(t)),
+       `${rel}: an <img> src is not {m.poster}, {m.hero} or {LOGO_BYTES}, found: ${imgTags.filter((t) => !/^<img src=\{(m\.(poster|hero)|LOGO_BYTES)\}/.test(t)).join(" | ")}`);
   } else {
     ok(imgs === 0, `${rel} renders an <img> — the chosen direction has no photography, and an image is also the only thing in a card that can fail a fetch mid-response`);
   }
   ok(!/data:image\//.test(src), `${rel} embeds a data: image — this is how the deleted sunset photo survived being deleted`);
-  ok(!/["'`][^"'`]*\.(png|jpe?g|webp|avif|gif)["'`]/.test(src), `${rel} references an image file`);
+  // The one image file a share route may name is the owner's logo derivative
+  // from the brand vault (bundled like the fonts, never fetched from the site).
+  const LOGO_FILE_REF = /["'`](?:\.\.\/\.\.\/\.\.\/)?public\/brand\/wayfind\/derived\/wayfind-logo-white-og\.png["'`]/g;
+  ok(!/["'`][^"'`]*\.(png|jpe?g|webp|avif|gif)["'`]/.test(src.replace(LOGO_FILE_REF, '""')), `${rel} references an image file`);
   ok(!/\+\s*null\b|\bnull\s*\+/.test(src), `${rel} concatenates null into a string — "SITE_URL + null" is how two routes ended up fetching https://www.gowayfind.comnull`);
 }
 for (const rel of ["lib/shareCards.js", "lib/shareCard.js", "lib/shareCardCopy.js", "lib/socialMeta.js"]) {
