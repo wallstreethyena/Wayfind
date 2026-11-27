@@ -69,6 +69,9 @@ const SHELL_MAP = {
   "app/components/EventStayCards.js": "app/components/EventStays.js",
   "app/components/GuidePlaceCard.js": "app/guides/[slug]/page.js",
   "app/components/IntentPageClient.js": "app/components/RankedExperiencePage.js",
+  // Opt-in nearby picks (2026-11-27): mounted only by IntentPageClient on /nearby,
+  // inside RankedExperiencePage, which injects the card CSS.
+  "app/components/NearbyAlerts.js": "app/components/RankedExperiencePage.js",
   "app/components/FamilyDayPage.js": "app/components/RankedExperiencePage.js",
   "app/components/DateNightIntentPage.js": "app/components/RankedExperiencePage.js",
   "app/components/TrendingNowClient.js": "app/components/RankedExperiencePage.js",

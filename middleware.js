@@ -34,6 +34,10 @@ export const config = {
     // a same-origin XHR (app/components/EventNearbyReanchor.js), no metered
     // upstream; same-origin + per-IP rate limit, exactly like /api/search.
     "/api/events/venue-nearby",
+    // Opt-in nearby picks (2026-11-27): a same-origin POST of a rounded point,
+    // free owned-inventory reads only (lib/nearbyPicksServe.js). Same-origin +
+    // per-IP rate limit, like /api/events/venue-nearby.
+    "/api/nearby-picks",
     // In-app feedback and recommendations write to the existing review inbox.
     "/api/feedback",
     // Log your visit / rewards read (2026-11-25): signed in members only, the
