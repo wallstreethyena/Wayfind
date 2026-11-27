@@ -173,9 +173,10 @@ const S = {
     display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px",
     borderRadius: 999, background: "#161B22", border: "1px solid #21262D",
     color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none",
-    marginBottom: 18,
   },
-  backRow: { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" },
+  // The bottom space lives on the row, not on each pill, so the header Sign in
+  // (EventSignIn) lines up with the two back links instead of sitting 9px low.
+  backRow: { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 18 },
   addr: { color: "#C9D1D9", fontSize: 14, marginTop: 2 },
   // v9.00 (owner, 2026-09-07: "not a premium Wayfind event page … directions
   // are duplicated"). Directions now lives in EXACTLY ONE place — the shared
