@@ -1,0 +1,30 @@
+.wrap { max-width: 1120px; margin: 0 auto; }
+.jump { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; margin: 8px 0 4px; scrollbar-width: none; }
+.jump::-webkit-scrollbar { display: none; }
+.jump a { flex: none; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #4a2a35; background: #1a1016; color: #ffe4e6; font-size: 13.5px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.jump a span { color: #c9a3ad; font-weight: 600; margin-left: 6px; }
+.region { margin-top: 34px; scroll-margin-top: 24px; }
+.regionHead { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.regionHead h2 { margin: 0; font: 400 28px/1.2 var(--wf-display), Georgia, serif; letter-spacing: -.02em; color: #fff; }
+.regionHead a { color: #fda4af; font-size: 14px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
+.sub { margin: 18px 0 10px; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #fda4af; }
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(246px, 78%); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; scrollbar-width: thin; }
+@media (min-width: 760px) { .rail { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); overflow: visible; } }
+.xcard { scroll-snap-align: start; display: flex; flex-direction: column; min-width: 0; border-radius: 16px; overflow: hidden; border: 1px solid #3a2530; background: linear-gradient(180deg, #1b1218, #120c11); }
+.photo { position: relative; aspect-ratio: 4 / 3; background: #241820; }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.noPhoto { display: flex; align-items: center; justify-content: center; height: 100%; color: #c9a3ad; font-size: 13px; font-weight: 700; }
+.xbody { display: flex; flex-direction: column; flex: 1; padding: 14px; gap: 6px; }
+.xname { margin: 0; font-size: 16.5px; line-height: 1.3; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
+.xmeta { margin: 0; color: #d8b9c1; font-size: 13px; line-height: 1.4; }
+.xpitch { margin: 2px 0 0; color: #ece2e5; font-size: 14px; line-height: 1.5; }
+.xfoot { margin-top: auto; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.xprice { color: #fff; font-size: 15px; font-weight: 800; }
+.buy { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border-radius: 12px; background: #fb7185; color: #2a0a12; font-size: 14.5px; font-weight: 800; text-decoration: none; }
+.dinner { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.dinner a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid #4a2a35; color: #ffe4e6; font-size: 14px; font-weight: 700; text-decoration: none; }
+.note { margin: 12px 0 0; color: #a6929a; font-size: 12.5px; line-height: 1.5; }
+.faq { max-width: 780px; }
+.faq h3 { margin: 22px 0 6px; font-size: 18px; line-height: 1.35; color: #fff; }
+.faq p { margin: 0; color: #e6dce0; font-size: 16px; line-height: 1.65; }
+.wrap a:focus-visible, .faq a:focus-visible { outline: 2px solid #fda4af; outline-offset: 3px; }

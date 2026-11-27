@@ -2825,6 +2825,10 @@ node scripts/check-partner-deep-links.mjs
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
+# OpenAI copy features (2026-11-27): itinerary builder, event why-go blurbs, review quick take; lanes, anti-invention, partner-only ticket links, labeled travel.
+node scripts/test-openai-copy-features.mjs
+# 2026-11-27 Valentine's Day 2027 pages: Feb 12 to 15 window, real Viator codes via /api/commerce/go, thin areas 404.
+node scripts/test-valentines.mjs
 
 # 2026-11-27 Live Trips (real-time group itineraries, offline-first): the one reducer +
 # HLC last-writer-wins + fractional order keys, 8 randomized 4-device convergence runs
@@ -2848,3 +2852,8 @@ node scripts/test-city-weekend-seo.mjs
 node scripts/test-nearby-picks.mjs
 node scripts/test-og-every-path.mjs
 node scripts/test-jsonld-check.mjs
+# SEO + conversion audit (2026-11-27): Florida homepage title, brand entity graph, town list items, schema.org hours; /events never prerendered empty; Florida hub footer; ticket button on the first phone screen.
+node scripts/test-seo-audit-entity.mjs
+node scripts/test-events-hub-not-prerendered.mjs
+node scripts/test-florida-hub-links.mjs
+node scripts/test-event-ticket-first-screen.mjs

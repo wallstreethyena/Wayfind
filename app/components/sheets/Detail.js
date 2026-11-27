@@ -78,6 +78,8 @@ export function offerLinkRel(offer, href) {
 // the homepage's eager detail bundle and request it only for plausible hotel
 // or flagship-attraction details; the server still verifies the exact ID.
 const TripConnections = dynamic(() => import("../TripConnections"), { ssr: false, loading: () => null });
+// Review quick take (2026-11-27): its own chunk, fetched only when the reviews panel opens.
+const ReviewSummary = dynamic(() => import("../ReviewSummary.js"), { ssr: false, loading: () => null });
 // Log your visit (2026-11-25). Lazy; the placeholder reserves the collapsed card's height so nothing below it moves when the chunk lands.
 const LogVisitCard = dynamic(() => import("../LogVisitCard"), { ssr: false, loading: () => <div aria-hidden="true" style={{ minHeight: 92, marginBottom: 14 }} /> });
 
@@ -1923,6 +1925,7 @@ export default function DetailSheet({ ctx }) {
                       those fields (they were unvalidated and redundant with
                       the "why" paragraph and what-to-order block above). Raw
                       Google reviews below are the real "what people say". */}
+                  {detailExtra && Array.isArray(detailExtra.reviews) && detailExtra.reviews.length >= 3 ? <ReviewSummary placeId={detail.id} name={detail.name} reviews={detailExtra.reviews} /> : null}
                   <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Reviews</div>
                   {detailExtra && detailExtra.reviews && detailExtra.reviews.length > 0 ? (
                     detailExtra.reviews.map((r, i) => (

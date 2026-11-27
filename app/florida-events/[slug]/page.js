@@ -3,6 +3,7 @@ import { creatorCoversFor, posterCoverForPosts } from "../../../lib/creatorCover
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
+import { readWhyGo } from "../../../lib/eventWhyGo.js";
 import { christmasTourListings, nearbyChristmasTourCards } from "../../../lib/christmasTours.js";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 // v7.45 — The individual event page. Google is explicit that Event structured
@@ -102,10 +103,13 @@ export async function generateMetadata({ params }) {
   // Search title leads with the date and "Free" when entry is free (SEO engine
   // 2026-11-20, lib/eventSeoTitle.js). Facts from the row only.
   const title = eventSeoTitle(e);
+  // 2026-11-27 (owner): an event with no card hook leads its search snippet with
+  // the stored why-go blurb (lib/eventWhyGo.js, cache read only, never a model call).
+  const aiWhyGo = e.card_hook ? null : await readWhyGo(e);
   // A watchlist twin (2026 not confirmed) never "runs" on any date.
   const desc = (e.christmas_watchlist
     ? `${e.event_name} in ${e.city}: ${e.when_label}. ${e.card_hook || ""} Wayfind checks the official page and updates this listing.`
-    : `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}.${eventIsFree(e) ? " Free entry." : ""} ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`).trim();
+    : `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}.${eventIsFree(e) ? " Free entry." : ""} ${e.card_hook || aiWhyGo || ""} Wayfind's verdict, timing, parking and what to pair it with.`).trim();
   // THE SHARE CARD (v9, owner 2026-09-23: "everything on wayfind that is
   // sharable looks premium"). An event that has owned, consent-cleared
   // photography (lib/eventPhotos.js) now previews through the HERO ROUTE
@@ -245,6 +249,8 @@ export default async function CuratedEventPage({ params }) {
   if (!e) await redirectRetiredChristmasEvent(params.slug);
   if (!e) { const ended = await endedEventPage(params.slug); if (ended) return ended; }
   if (!e) notFound();
+  // Stored why-go blurb for a listing with no hand-written why_go (cache read only).
+  const aiWhyGo = await readWhyGo(e);
 
   const shots = eventPhotos(e.event_id);
   // Same photos as the Halloween card for this event (cover first, event tag
@@ -435,9 +441,14 @@ export default async function CuratedEventPage({ params }) {
           {e.christmas_park_admission_note ? <p style={S.note}>{e.christmas_park_admission_note}</p> : null}
           {e.card_hook ? <p style={S.hook}>{e.card_hook}</p> : null}
           {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
-          {e.why_go ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></> : null}
+          {e.why_go ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></> : aiWhyGo ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p} data-ai-why-go="">{aiWhyGo}</p></> : null}
         </>}
-        actions={<>
+        quickAction={<>
+      {/* SEO audit 2026-11-27 (conversion): the ticket block sits right under
+          the facts, above the story, so it is on the first phone screen. It
+          used to come after the notes, hook, summary and "why it's worth
+          going", three or four paragraphs below the date. Moved, not copied:
+          still one ticket button and one decision line on the page. */}
       {ticket ? (
         <div style={S.ticketWrap}>
           {decisionLine ? <p style={S.decision} data-ticket-decision="">{decisionLine}</p> : null}
@@ -456,6 +467,8 @@ export default async function CuratedEventPage({ params }) {
           </p> : null}
         </div>
       ) : null}
+        </>}
+        actions={<>
       {Array.isArray(nearbyChristmasTours) && nearbyChristmasTours.length ? (
         <div style={S.box} data-nearby-holiday-tours="">
           <p style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: "#FF8A3D" }}>

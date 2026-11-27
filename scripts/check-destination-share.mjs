@@ -71,11 +71,15 @@ const STANDARD = {
   // 2026-11-25: Christmas overview pages (parades, light shows, zoo lights, Nutcracker), own ShareButton.
   "app/christmas-in-florida/[topic]/page.js": "app/christmas-in-florida/[topic]/page.js",
   "app/new-years-in-florida/page.js": "app/new-years-in-florida/page.js",
+  "app/plan-my-day/page.js": "app/plan-my-day/page.js",
   // 2026-11-25: New Year's Eve area pages, own ShareButton.
   "app/new-years-in-florida/[region]/page.js": "app/new-years-in-florida/[region]/page.js",
   // 2026-11-25: spring break 2027 hub and area pages, own ShareButton.
   "app/spring-break-in-florida/page.js": "app/spring-break-in-florida/page.js",
   "app/spring-break-in-florida/[region]/page.js": "app/spring-break-in-florida/[region]/page.js",
+  // 2026-11-27: Valentine's Day 2027 hub and area pages, own ShareButton.
+  "app/valentines-day-in-florida/page.js": "app/valentines-day-in-florida/page.js",
+  "app/valentines-day-in-florida/[region]/page.js": "app/valentines-day-in-florida/[region]/page.js",
   "app/florida-events/page.js": "app/florida-events/page.js",
   // 2026-11-12: tour hub (Cosmic Baseball Florida), own ShareButton.
   "app/cosmic-baseball-florida/page.js": "app/cosmic-baseball-florida/page.js",
