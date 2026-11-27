@@ -75,6 +75,20 @@ jobs:
           E2E_BASE_URL: https://www.gowayfind.com
         run: npx playwright test tests/e2e/shell-route-contract.spec.js
 
+  structured-data:
+    name: production structured data and share previews
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with: { sparse-checkout: "/*\n!/public/\n", sparse-checkout-cone-mode: false }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      # One URL per route type from the live sitemap; every JSON-LD block is
+      # validated by lib/jsonLdCheck.js and every page needs an og:image.
+      - name: JSON-LD and og:image contract against production
+        run: node scripts/check-live-jsonld.mjs
+
   inventory:
     name: production data integrity
     runs-on: ubuntu-latest

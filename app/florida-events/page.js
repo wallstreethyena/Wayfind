@@ -108,7 +108,8 @@ export default async function FloridaEventsHub() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: TITLE,
-    numberOfItems: model.numberOfItems,
+    // What this list holds (the first 30), not every eligible event.
+    numberOfItems: Math.min(model.eligible.length, 30),
     itemListElement: model.eligible.slice(0, 30).map((e, i) => ({
       "@type": "ListItem", position: i + 1, name: e.event_name,
       url: `${SITE_URL}/florida-events/${e.slug}`,

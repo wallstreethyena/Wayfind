@@ -153,9 +153,9 @@ const nextConfig = {
     // missing the three .ttf files and every request 500s despite a green
     // local build (scripts/test-og-bodies.mjs's hero cases are the guard
     // that actually fetches this route and would have caught it).
-    "/api/og/hero": ["./app/api/og/fonts/*.ttf"],
+    "/api/og/hero": ["./app/api/og/fonts/*.ttf", "./public/brand/wayfind/derived/wayfind-logo-white-og.png"],
     // /api/og/movie reads the Archivo fonts and the self-hosted movie posters with fs (Node runtime).
-    "/api/og/movie": ["./app/api/og/fonts/*.ttf", "./public/movies/*.webp"],
+    "/api/og/movie": ["./app/api/og/fonts/*.ttf", "./public/movies/*.webp", "./public/brand/wayfind/derived/wayfind-logo-white-og.png"],
     // Atlas paid lane priority list is read with fs at runtime (lib/atlasPaidLane.js).
     "/api/cron/atlas-build": ["./data/atlas/priority-place-ids.json"],
     // Wayfind Planner reads seasonal research & first-party Atlas cards on the server via fs.

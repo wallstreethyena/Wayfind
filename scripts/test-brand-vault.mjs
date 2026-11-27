@@ -35,7 +35,10 @@ ok(r.errors.length === 0 && r.checked === manifest.assets.length, `the committed
 const core = manifest.assets.filter((a) => a.core);
 ok(core.length >= 6 && core.some((a) => a.type === "mark") && core.some((a) => a.background === "light") && core.some((a) => a.background === "dark"),
   "core assets include the pin mark and logos for light and dark backgrounds");
-ok(manifest.assets.every((a) => a.original === true && a.sha256 && a.date_added && a.source && a.usage_notes && typeof a.approved_for_production === "boolean"
+// A derivative (original:false) is allowed by the manifest's own rules when it
+// names a master that is in the vault (2026-11-27: the share-card logo).
+const vaultIds = new Set(manifest.assets.map((a) => a.id));
+ok(manifest.assets.every((a) => (a.original === true || (a.original === false && vaultIds.has(a.derivative_of))) && a.sha256 && a.date_added && a.source && a.usage_notes && typeof a.approved_for_production === "boolean"
   && typeof a.transparent === "boolean" && a.width > 0 && a.height > 0), "every row records type, size, transparency, origin, source, date, notes, production approval and a checksum");
 for (const a of manifest.assets) {
   const info = imageInfo(disk.get(a.file));
