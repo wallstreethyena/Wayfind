@@ -71,6 +71,24 @@ ok(/utm_medium=weekly_email/.test(issue.html) && !/api\/commerce\/go\?[^"]*utm_/
 ok(NL.buildWeeklyIssue({ ...base, events: [], places: {} }) === null, "an empty week built an email");
 ok(NL.buildWeeklyIssue({ ...base, events: [], places: { eat: [{ name: "X", href: "/places/x", score: "9.0" }] } }) !== null, "a places-only week built nothing");
 
+// ── 2b. place picks: options, not three of a kind (execute the real picker) ─
+{
+  const { loadComponent } = await import(path.join(REPO, "scripts/lib/jsxLoad.mjs"));
+  const srv = await loadComponent(path.join(REPO, "lib/newsletterServer.js"), REPO);
+  const rows = () => [
+    { id: "a", name: "Walk-On's Sports Bistreaux - Tampa (Midtown)", rating: 4.8, reviews: 3000, primaryType: "restaurant", types: ["restaurant", "food"] },
+    { id: "b", name: "Walk-On's Sports Bistreaux - Brandon", rating: 4.8, reviews: 3000, primaryType: "restaurant", types: ["restaurant", "food"] },
+    { id: "c", name: "Escape A", rating: 4.9, reviews: 3000, primaryType: "escape_room", types: ["escape_room", "tourist_attraction"] },
+    { id: "d", name: "Escape B", rating: 4.9, reviews: 3000, primaryType: "escape_room", types: ["escape_room", "tourist_attraction"] },
+    { id: "e", name: "Lowry Park Zoo", rating: 4.7, reviews: 9000, primaryType: "zoo", types: ["zoo", "tourist_attraction"] },
+  ];
+  const picks = await srv.regionPlacePicks("tampa", { fetchInventory: async () => rows() });
+  const ids = (k) => (picks[k] || []).map((p) => p.href);
+  ok(ids("eat").includes("/places/a") && !ids("eat").includes("/places/b"), "chain branch not deduped: " + JSON.stringify(ids("eat")));
+  ok(ids("explore").includes("/places/c") && !ids("explore").includes("/places/d") && ids("explore").includes("/places/e"), "explore repeated a place type: " + JSON.stringify(ids("explore")));
+  ok((picks.eat || []).every((p) => !/\s[-\u2013\u2014]\s/.test(p.name)), "a place name kept a spaced dash");
+}
+
 // ── 1. the send gate (execute the route) ───────────────────────────────────
 {
   const realFetch = globalThis.fetch;
