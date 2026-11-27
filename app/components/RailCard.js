@@ -89,6 +89,7 @@ import { wayfindAwardFor } from "../../lib/wayfindAwards.js";
 import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./AwardCardParts";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
+import { placeCardPhotoPosition } from "../../lib/placeCardPhotoPosition.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import { useCardTapIntent } from "./useCardTapIntent.js";
 import { trendPulseClass, trendPulseLabel } from "../../lib/trendPulse.js";
@@ -552,6 +553,10 @@ export default function RailCard({
   const shownPhoto = photoSrcFilter(photo);
   const usingFallback = !!fallbackPhoto && fallbackPhoto.primary === shownPhoto;
   const displayedPhoto = usingFallback ? fallbackPhoto.src : shownPhoto;
+  // A caller that kept the default crop gets the reviewed focal point for this
+  // place's own photo, if one exists (lib/placeCardPhotoPosition.js).
+  const shownPhotoPosition = photoPosition === "50% 50%" && !usingFallback && place?.id
+    ? (placeCardPhotoPosition(place.id, displayedPhoto) || photoPosition) : photoPosition;
   if (visitFacts) {
     const photoEvent = usingFallback ? { ...visitFacts, image_is_venue: false, imageIsVenue: false, photoAttr: null, photoAttrHref: null } : visitFacts;
     if (usingFallback) { photoAttr = null; photoAttrHref = null; }
@@ -657,7 +662,7 @@ export default function RailCard({
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={handleImageError}
                 fallbackCategory={photoFallbackCategory}
-                style={{ objectFit: "cover", objectPosition: photoPosition }}
+                style={{ objectFit: "cover", objectPosition: shownPhotoPosition }}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
               : placeFallback || <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
