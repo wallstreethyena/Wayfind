@@ -126,7 +126,7 @@ for (const name of ["Sunny", "Jo", "Ana Maria", "O'Neil", "dot.name", "under_sco
   let dbOk = true;
   try { await as("service_role", "update public.wf_rewards_profile set public_name = $1 where user_id = $2", [lib.ok ? lib.name : name, carol]); } catch { dbOk = false; }
   if (lib.ok) ok(dbOk, `the database stores a name the lib accepts: ${name}`);
-  else if (!dbOk) ok(true, `both refuse: ${name}`);
+  else ok(!dbOk, `the database refuses a name the lib refuses for its shape: ${name}`);
   i += 1;
 }
 await as("service_role", "update public.wf_rewards_profile set public_name = null where user_id = $1", [carol]);

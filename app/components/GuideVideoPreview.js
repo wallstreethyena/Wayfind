@@ -12,9 +12,16 @@ const C = { bg: "#0D1117", card: "#1C2230", text: "#F1F5F9", muted: "#94A3B8", g
 const FONT = "Poppins, system-ui, -apple-system, 'Segoe UI', sans-serif";
 const MIME_CHOICES = ["video/mp4;codecs=avc1.42E01E", "video/mp4;codecs=avc1", "video/mp4", "video/webm;codecs=vp9", "video/webm"];
 
+// The browser's MediaRecorder, read off window so a server render or an old
+// browser without it gets undefined instead of a ReferenceError.
+function recorderClass() {
+  return typeof window !== "undefined" && typeof window.MediaRecorder === "function" ? window.MediaRecorder : undefined;
+}
+
 function pickMime() {
-  if (typeof MediaRecorder === "undefined" || typeof MediaRecorder.isTypeSupported !== "function") return null;
-  for (const m of MIME_CHOICES) { try { if (MediaRecorder.isTypeSupported(m)) return m; } catch (e) {} }
+  const Rec = recorderClass();
+  if (!Rec || typeof Rec.isTypeSupported !== "function") return null;
+  for (const m of MIME_CHOICES) { try { if (Rec.isTypeSupported(m)) return m; } catch (e) {} }
   return null;
 }
 
@@ -154,7 +161,7 @@ export default function GuideVideoPreview({ slug, title, city, days, stops, onEv
   // Load assets, draw the first frame, autoplay unless reduced motion.
   useEffect(() => {
     let dead = false;
-    const supported = typeof MediaRecorder !== "undefined" && !!(canvasRef.current && canvasRef.current.captureStream);
+    const supported = !!recorderClass() && !!(canvasRef.current && canvasRef.current.captureStream);
     setCanRecord(supported);
     blobRef.current = null;
     setReady(false);
@@ -197,7 +204,7 @@ export default function GuideVideoPreview({ slug, title, city, days, stops, onEv
       let stream;
       try { stream = canvas.captureStream(30); } catch (e) { reject(e); return; }
       let recorder;
-      try { recorder = mime ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6000000 }) : new MediaRecorder(stream); } catch (e) { reject(e); return; }
+      try { const Rec = recorderClass(); recorder = mime ? new Rec(stream, { mimeType: mime, videoBitsPerSecond: 6000000 }) : new Rec(stream); } catch (e) { reject(e); return; }
       const type = recorder.mimeType || mime || "video/webm";
       const chunks = [];
       recorder.ondataavailable = (ev) => { if (ev.data && ev.data.size) chunks.push(ev.data); };
