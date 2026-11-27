@@ -18,7 +18,7 @@ import path from "node:path";
 
 // Every exclusion needs a reason. Keep this list short and argued.
 const EXCLUDED = {
-  "check-live-jsonld.mjs": "Runs in .github/workflows/canary.yml against production (and against a preview with JSONLD_BASE): it reads live HTML, so a network outage must not block a repair deploy. test-jsonld-check.mjs runs the same validator, red/green controls and every callable builder in prebuild.",
+  "check-live-jsonld.mjs": "Runs in .github/workflows/canary.yml against production (and against a preview with --base=): it reads live HTML, so a network outage must not block a repair deploy. test-jsonld-check.mjs runs the same validator, red/green controls and every callable builder in prebuild.",
   "check-job-watch-delivery.mjs": "Runs in .github/workflows/canary.yml against production with required credentials. Provider/email outages must fail the operational canary without blocking repair deploys; test-job-watch-delivery.mjs exercises the same evaluator in prebuild.",
   "harvest-owned-hotel-identity.mjs": "Not a guard: it is the operator tool that WRITES verified identity markers into lib/ownedHotels.json (dry run by default, --write to apply), so wiring it into prebuild would mean every build mutates a data file. Its refusals are the load-bearing part and test-harvest-owned-hotel-identity.mjs (in guards.txt) drives the real script as a child process against a throwaway library on every build, while check-owned-hotel-identity.mjs independently re-proves the resulting invariants on the committed data.",
   "check-bundle.mjs": "runs in `npm run audit:regression` — needs a completed next build, too slow for every prebuild",

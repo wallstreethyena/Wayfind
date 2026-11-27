@@ -10,10 +10,14 @@
 // could not be read at all (a network failure is not a schema verdict).
 //
 //   node scripts/check-live-jsonld.mjs                      (production)
-//   JSONLD_BASE=https://<preview> node scripts/check-live-jsonld.mjs
+//   node scripts/check-live-jsonld.mjs --base=https://<preview>
 import { htmlJsonLdProblems } from "../lib/jsonLdCheck.js";
 
-const BASE = (process.env.JSONLD_BASE || "https://www.gowayfind.com").replace(/\/+$/, "");
+const PRODUCTION = "https://www.gowayfind.com";
+
+// The origin is an argument (--base=<url>), never an ambient env default.
+const baseArg = (process.argv.find((a) => a.startsWith("--base=")) || "").slice("--base=".length);
+const BASE = (baseArg || PRODUCTION).replace(/\/+$/, "");
 const UA = "WayfindBot/1.0 (https://gowayfind.com)";
 // Fixed pages, plus the first sitemap URL under each prefix below.
 const FIXED = ["/", "/events/tampa/this-weekend", "/things-to-do/tampa", "/restaurants/tampa", "/christmas-in-florida", "/florida-events", "/guides"];
