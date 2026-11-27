@@ -3,7 +3,7 @@
 //
 // Why and the rule: lib/localityFill.js. In short: the place-insert path writes
 // no city or county, so every new place arrived city-less (all 30 added
-// 2026-11-11 → 11-12). This reads up to DAILY_LIMIT city-less, county-less,
+// 2026-11-11 → 11-12). Twice a day this reads up to DAILY_LIMIT city-less, county-less,
 // unlocked Florida-box rows, newest first; asks the Census which city and
 // county contain each point; writes only Florida answers, only while both
 // fields are still empty. Held answers (not Florida, Bay Lake, no answer) are
@@ -15,7 +15,7 @@ import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { jobCannotRun } from "../../../../lib/jobFail";
 import {
-  candidatesQuery, censusUrl, parseCensusGeographies, planLocalityWrite, writeQuery, writeBody, DAILY_LIMIT,
+  candidatesQuery, censusUrl, parseCensusGeographies, planLocalityWrite, writeQuery, writeBody, DAILY_LIMIT, RUN_BUDGET_MS,
 } from "../../../../lib/localityFill";
 
 export const runtime = "nodejs";
@@ -51,11 +51,14 @@ export async function GET(req) {
   }
   const rows = await read.json();
 
-  const out = { candidates: rows.length, written: 0, with_city: 0, county_only: 0, held: 0, lookup_failed: 0, raced: 0, write_errors: 0, relabeled_st_pete: 0 };
+  const startedAt = Date.now();
+  const out = { candidates: rows.length, skipped_budget: 0, written: 0, with_city: 0, county_only: 0, held: 0, lookup_failed: 0, raced: 0, write_errors: 0, relabeled_st_pete: 0 };
   const holds = {};
   let i = 0;
   await Promise.all(Array.from({ length: 4 }, async () => {
     while (i < rows.length) {
+      // Stop starting lookups once the budget is spent; the rest wait for the next run.
+      if (Date.now() - startedAt > RUN_BUDGET_MS) { out.skipped_budget = rows.length - i; return; }
       const row = rows[i++];
       const geo = await lookup(row);
       if (!geo) out.lookup_failed++;
@@ -83,7 +86,8 @@ export async function GET(req) {
   const note = `wrote ${out.written} (city ${out.with_city}, county only ${out.county_only}); held ${out.held}`
     + (Object.keys(holds).length ? ` [${Object.entries(holds).map(([k, v]) => `${k}: ${v}`).join("; ")}]` : "")
     + (out.relabeled_st_pete ? `; tampa->st-pete ${out.relabeled_st_pete}` : "")
-    + (out.write_errors ? `; ${out.write_errors} write errors` : "");
+    + (out.write_errors ? `; ${out.write_errors} write errors` : "")
+    + (out.skipped_budget ? `; ${out.skipped_budget} left for next run` : "");
   await recordPulse("locality-fill", {
     attempted: rows.length,
     succeeded: out.written,
