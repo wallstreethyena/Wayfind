@@ -81,6 +81,11 @@ export const config = {
     // Event detail editorial upgrade: provider-resolved evidence enters a
     // metered Anthropic call. Full same-origin + per-IP protection applies.
     "/api/events/story",
+    // OpenAI copy features (2026-11-27, lib/openAiCopy.js): the itinerary
+    // builder and the review quick take are metered model proxies.
+    // Full same-origin + per-IP protection, like the other model routes.
+    "/api/plan-my-day",
+    "/api/reviews/summary",
     "/api/local/report",
     // Buzz hero (v6.56): metered Anthropic proxy for the trending why-line.
     "/api/buzz/why",

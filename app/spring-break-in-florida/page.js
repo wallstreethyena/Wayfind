@@ -58,6 +58,7 @@ export default async function Page() {
         <li><a href="/florida-events" style={LINK}>Every upcoming Florida event, checked against official sources</a></li>
         <li><a href="/best-beaches/tampa" style={LINK}>Best beaches around Tampa Bay</a></li>
         <li><a href="/best-beaches/manatee-sarasota" style={LINK}>Best beaches in Sarasota and Manatee</a></li>
+        <li><a href="/valentines-day-in-florida" style={LINK}>Valentine&rsquo;s Day 2027 in Florida</a></li>
         <li><a href="/guides" style={LINK}>Wayfind guides by city</a></li>
       </ul>
     </section>

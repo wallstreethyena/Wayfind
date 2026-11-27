@@ -125,7 +125,11 @@ function ChristmasTopicNav({ today }) {
   if (!links.length) return null;
   return <nav aria-label="Christmas events in Florida by type" data-christmas-topic-nav style={TOPIC_WRAP}>
     <h2 style={TOPIC_HEAD}>Christmas guides</h2>
-    <ul style={TOPIC_NAV}>{links.map((l) => <li key={l.href} style={{ flex: "0 0 auto" }}><a href={l.href} style={TOPIC_LINK}>{l.label}</a></li>)}</ul>
+    <ul style={TOPIC_NAV}>
+      {/* 2026-11-27 (owner): the itinerary builder's door from the Christmas hub, first in the row. */}
+      <li style={{ flex: "0 0 auto" }}><a href="/plan-my-day" data-plan-my-day-link="" style={TOPIC_LINK}>Plan my day</a></li>
+      {links.map((l) => <li key={l.href} style={{ flex: "0 0 auto" }}><a href={l.href} style={TOPIC_LINK}>{l.label}</a></li>)}
+    </ul>
   </nav>;
 }
 

@@ -356,4 +356,39 @@ for (const s of [1, 2, 3, 5, 8, 13, 21, 34]) {
   eq(srv.commits, commitsBefore, "no sync loop: nothing is re-sent once converged");
 }
 
+// ── a lost broadcast is caught while the socket still says "subscribed" ──
+{
+  const initial = L.stateFromTrip({ title: "T", items: [{ id: "a1", place: place("a1"), order: 0 }] });
+  const srv = makeServer(initial);
+  let wall = 1700000000000;
+  let snapshots = 0;
+  const timers = [];
+  const store = createMemoryStore();
+  await store.setMeta("clientId", "maria");
+  const sync = createLiveTripSync({
+    tripId: "t", store,
+    transport: {
+      async sendOps(b) { return JSON.parse(JSON.stringify(srv.apply(b, "00000000-0000-4000-8000-000000000001"))); },
+      async fetchSnapshot(since) { snapshots += 1; if (since === srv.revision) return { status: 304, body: null }; return { status: 200, body: { ok: true, state: JSON.parse(JSON.stringify(srv.state)), revision: srv.revision, role: "editor", members: [] } }; },
+      connect(h) { h.onSocket("subscribed"); }, // subscribed, but every broadcast is lost
+      disconnect() {},
+    },
+    now: () => wall,
+    setTimer: (fn) => { timers.push(fn); return fn; }, clearTimer: () => {},
+  });
+  await sync.start();
+  const tick = async () => { const due = timers.splice(0, timers.length); for (const fn of due) await fn(); };
+  // Someone else saves an edit; its broadcast never reaches this phone.
+  srv.apply({ ops: [{ id: "op-elsewhere-01", hlc: L.formatHlc(wall, 0, "joe"), type: "set", itemId: "a1", field: "note", value: "from joe" }] }, "00000000-0000-4000-8000-000000000002");
+  const before = snapshots;
+  wall += 8000; await tick();
+  ok(snapshots === before && sync.snapshot().state.items.a1.note !== "from joe", "negative control: no extra request before the live check is due");
+  wall += 13000; await tick(); await tick();
+  ok(snapshots > before, "after 20 s with nothing heard, the phone asks the server for news");
+  eq(sync.snapshot().state.items.a1.note, "from joe", "the edit whose broadcast was lost still arrives");
+  const after = snapshots;
+  wall += 21000; await tick(); await tick();
+  ok(snapshots === after + 1, "an unchanged trip costs one cheap check per 20 s (answered 304)");
+}
+
 console.log(`test-live-trip-sync: OK — ${count} assertions (8 randomized 4-device runs, ${totals.commits} commits, ${totals.offline} offline edits).`);

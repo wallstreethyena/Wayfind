@@ -32,7 +32,8 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
   const usedSrc = new Set();
   const hubTopic = slug === "new-years-in-florida" ? "fireworks"
     : slug === "christmas-in-florida" ? "holiday-lights"
-    : slug === "halloween-in-florida" ? "halloween" : "farm";
+    : slug === "halloween-in-florida" ? "halloween"
+    : slug === "valentines-day-in-florida" ? "dining" : "farm";
   const hero = guideContextPhoto(slug, { name: hub.title }, hub, { topic: hubTopic, usedSrc });
   const sectionTopics = {
     lights: "holiday-lights",
@@ -48,6 +49,10 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
     "after-dark": "cocktails",
     haunts: "haunts",
     food: slug === "halloween-in-florida" ? "halloween-food" : "dining",
+    dinner: "dining",
+    sunset: "beach",
+    "weekend-events": "culture",
+    getaway: "hotel",
   };
   // These statewide overviews can illustrate a format with a named Florida
   // setting; the photo alt still identifies that setting, never a 2026 edition.

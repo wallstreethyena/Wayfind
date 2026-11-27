@@ -1,4 +1,5 @@
 import ReturnToWayfind from "../components/ReturnToWayfind";
+import { aboutPageLd } from "../../lib/brandEntity.js";
 // v5.29 — E-E-A-T foundation (SEO audit July 2026): a real, named "who is
 // behind this" page. Every claim here must stay true; nothing aspirational.
 //
@@ -51,6 +52,7 @@ const DIFFERENTIATORS = [
 export default function Page() {
   return (
     <article style={S.page} className="wf-page-canvas">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutPageLd()) }} />
       <ReturnToWayfind style={S.back} />
       <div style={S.kicker}>About Wayfind</div>
       <h1 style={S.h1}>Built to answer one question honestly: what&apos;s actually worth your time, right now?</h1>
