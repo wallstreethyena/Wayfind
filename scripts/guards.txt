@@ -2865,3 +2865,4 @@ node scripts/test-seo-audit-entity.mjs
 node scripts/test-events-hub-not-prerendered.mjs
 node scripts/test-florida-hub-links.mjs
 node scripts/test-event-ticket-first-screen.mjs
+node scripts/test-guide-map-pin-reveal.mjs
