@@ -160,7 +160,7 @@ scripts/check-event-assessment-policy.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0
 scripts/check-event-date-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	d94bd5fd9f9a6283a0c426a8c60bbb98b452d0ee26c81db8e5bc70f012e2b3bf
 scripts/check-event-day-is-venue-local.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	9d38a5765d4097b7c08ebb09b1c5a7d8cb212b9eb3f75fb6ecf3600bf029fce9
 scripts/check-event-hero-and-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	456075b8b7decac063799f05e69db89f1b2a7353a5f6ac3538e264b5b4022cbf
-scripts/check-event-jsonld-offset.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	d9e9a9a68aadd18d94c2a6539a21d7a1a6649942e67ffbfe48efd28190e5e16c
+scripts/check-event-jsonld-offset.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0	1ebe6723acd038f7c22e0cef9d060533e56c52de42a3f441d407d85c42e3e5ff
 scripts/check-event-not-found-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	5386a52906e6e458ee0dcda6467cb4e139c8504905228ec1e791550edfb089f0
 scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	220	0	0	b95ee8457a9eb4afa0a03a9cc13dde0e85ddc83ee2408716814aeb17a17e9dbc
 scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	52dd1b51f0a54a5909927ba63b4b4b75da2f102461575638b20bab12f05b89a1
@@ -639,6 +639,7 @@ scripts/test-city-fetch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	964b0a9
 scripts/test-city-gate.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	20	1	0	912ef8bc336c6f85e2660ca914636023ed167c3386ca4e193e9b38393dcac6c0
 scripts/test-city-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	69348535de48f62f4383204c91a2351eaf6b32663a41738831c97e7cbd692afe
 scripts/test-city-viator.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	21	0	0	f105c1045be06bf1264334fe6c35d0abee175da894a43f3d094212d4e79940af
+scripts/test-city-weekend-seo.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0	c000b2644046833a8aff5df0141031ea11c26dbaa298bcb86bf63f638677d751
 scripts/test-classification.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	5f93defc3bc912bbb7cf1bc131d3aac44cf546bc9c8ce071bc0411d60e3adaa9
 scripts/test-classified-poster-json.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	32c1828de4708623e510517c07b31e6043520279a7184c0f25c9031a2d8dc3e1
 scripts/test-classifier-veto.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	7cb6ef5d6709c28f99635f8c41602719f770bc3e7ae60ec22142cc9616936660
@@ -916,7 +917,7 @@ scripts/test-job-pulse.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	b81158f224bb3b
 scripts/test-job-watch-delivery.mjs	0	CALL	blocks-ci-and-deploy	1	-	67	0	0	df76dd94b6770dcfae50db47072103f726eb1c89dd9312d5bd6d2086fd47ae3d
 scripts/test-job-watch-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	b7f5c6f7a43097623bfc6f10187dbec6d55d2e1492ae7fb363cf64732ffd85c6
 scripts/test-journey-telemetry.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	81a76c7c32e82594d3c38f602be34ae7a05752e0952103952faf97f800000cd6
-scripts/test-jsonld-check.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	0ddceebce2c2253aa6f98251ba9519a276a0456569d56df5d097e9c0fb63153d
+scripts/test-jsonld-check.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	824752b445263846082f65f7ae67bb2e6cdd143058759de3864eabd0861c611d
 scripts/test-klook-coupons.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	1	1	d7efb4345c9406c83eb6adc4a834da403059c6184833e56161aea1884a9dbb99
 scripts/test-known-city-geocode.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	4f1f09a84ce21fa499e78b6d603035e6f653597930a543720e24c6d0c8a23f06
 scripts/test-landing-card-cue.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	7f37b0f1ad366e367173e1e5185dd1e9038e7cf7a295677ed20110a344313236
