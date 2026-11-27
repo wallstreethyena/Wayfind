@@ -1,0 +1,25 @@
+# TEMPORARY post-deploy verification for PR #2810. Branch deleted right after.
+name: tmp-verify-nov27
+on:
+  push:
+    branches: [tmp/verify-nov27]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: homepage timing and cache headers
+        run: |
+          for ua in "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36"; do
+            for i in 1 2 3 4 5; do
+              curl -s -o /tmp/home.html -A "$ua" -H "accept-encoding: gzip, br" -D /tmp/h.txt -w "run $i ttfb=%{time_starttransfer} total=%{time_total} size=%{size_download} code=%{http_code}\n" https://www.gowayfind.com/
+              grep -iE "^(x-vercel-cache|age|cache-control):" /tmp/h.txt | tr '\r\n' '  '; echo
+              sleep 1
+            done
+          done
+          curl -s --compressed -A "Mozilla/5.0" https://www.gowayfind.com/ -o /tmp/full.html
+          grep -c "Wayfind: find the best things to do, right now" /tmp/full.html
+          grep -o 'This week in Florida' /tmp/full.html | head -1
+          grep -o '<title>[^<]*</title>' /tmp/full.html
