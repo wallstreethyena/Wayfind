@@ -13,7 +13,7 @@
 //    crawlable inventory. (/events graduated 2026-11-03: it now renders curated listings.)
 import { readFileSync, readdirSync, statSync, existsSync } from "fs";
 import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const fail = (m) => { console.error("check-seo: FAIL — " + m); process.exit(1); };
@@ -226,7 +226,14 @@ if (!sm.includes("BEACH_METROS") || !sm.includes("/best-beaches/")) fail("sitema
 const bbPage = readFileSync(join(root, "app", "best-beaches", "[metro]", "page.js"), "utf8");
 if (!bbPage.includes("application/ld+json") || !bbPage.includes('"@type": "ItemList"')) fail("/best-beaches lost its ItemList structured data");
 if (!bbPage.includes('"@type": "FAQPage"')) fail("/best-beaches lost its FAQ structured data");
-if (!lay.includes("SearchAction")) fail("layout WebSite JSON-LD lost its SearchAction (sitelinks searchbox)");
+// 2026-11-27: the site graph moved to lib/brandEntity.js (one Organization by
+// @id for the layout and /about). Call it, and require the layout to emit it.
+{
+  const { siteGraph } = await import(pathToFileURL(join(root, "lib", "brandEntity.js")).href);
+  const site = (siteGraph()["@graph"] || []).find((x) => x["@type"] === "WebSite");
+  if (!site || !site.potentialAction || site.potentialAction["@type"] !== "SearchAction") fail("layout WebSite JSON-LD lost its SearchAction (sitelinks searchbox)");
+  if (!/JSON\.stringify\(siteGraph\(\)\)/.test(lay)) fail("app/layout.js no longer emits siteGraph() as its JSON-LD");
+}
 
 // 11. /best-of and /p/{id} must self-canonical — they inherited "/" and
 //     told Google they were the homepage (live 2026-08-18). /events /coupons
@@ -259,12 +266,26 @@ for (const hub of hubPages) {
   if (!src.includes('canonical: SITE_URL + "/' + hub + '"')) fail("/" + hub + " lost its self-canonical");
 }
 
-const HOME_TITLE = "Wayfind | One place worth leaving home for";
+// SEO audit 2026-11-27: the brand line stays the site default title and the
+// share-card title (layout); "/" gets a search title that leads with what
+// people type and ENDS with the brand line (lib/homeSeo.js). The values are
+// imported and asserted, not grepped.
+const BRAND_TITLE = "Wayfind | One place worth leaving home for";
 const layNow = readFileSync(join(root, "app", "layout.js"), "utf8");
 const homeNow = readFileSync(join(root, "app", "home.js"), "utf8");
-if ((layNow.match(/Wayfind \| One place worth leaving home for/g) || []).length < 3) fail("homepage title must be on the document, Open Graph, and Twitter cards");
-if (!layNow.includes("Places are ranked on merit. Rankings are never for sale.")) fail("homepage description lost the on merit line");
+const homePageNow = readFileSync(join(root, "app", "page.js"), "utf8");
+const { HOME_TITLE, HOME_DESCRIPTION, HOME_H1 } = await import(pathToFileURL(join(root, "lib", "homeSeo.js")).href);
+if ((layNow.match(/Wayfind \| One place worth leaving home for/g) || []).length < 3) fail("the brand title must stay the default document title and the Open Graph and Twitter card title");
+if (!layNow.includes("Places are ranked on merit. Rankings are never for sale.")) fail("site description lost the on merit line");
+if (!/\bFlorida\b/.test(HOME_TITLE) || !/^Things to Do in /.test(HOME_TITLE)) fail("homepage title must lead with the search phrase and name Florida: " + HOME_TITLE);
+if (!HOME_TITLE.endsWith("One place worth leaving home for")) fail("homepage title lost the brand line");
+if (!HOME_DESCRIPTION.includes("Places are ranked on merit. Rankings are never for sale.")) fail("homepage description lost the on merit line");
+if (HOME_DESCRIPTION.length > 160) fail("homepage description is " + HOME_DESCRIPTION.length + " chars; keep it under 160");
+for (const [name, v] of [["title", HOME_TITLE], ["description", HOME_DESCRIPTION], ["H1", HOME_H1]]) if (/\bbest\b/i.test(v)) fail("homepage " + name + " says best: " + v);
 if (/Find the Best Things to Do/.test(layNow) || /Find the Best Things to Do/.test(homeNow)) fail("homepage still says Best");
-if (!homeNow.includes(HOME_TITLE)) fail("the home screen fallback title does not match the document title");
+if (!/export const metadata = \{ title: \{ absolute: HOME_TITLE \}, description: HOME_DESCRIPTION \}/.test(homePageNow)) fail("app/page.js must put HOME_TITLE and HOME_DESCRIPTION on /");
+if (!/\{HOME_H1\}\s*<\/h1>/.test(homePageNow)) fail("the homepage H1 must render HOME_H1");
+if (!homeNow.includes(JSON.stringify(HOME_TITLE))) fail("the home screen fallback title (app/home.js) does not match HOME_TITLE");
+if (homeNow.includes('"' + BRAND_TITLE + '"')) fail("app/home.js still restores the old brand-only title on the feed");
 
 console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean, four category hubs rank on merit without saying best");

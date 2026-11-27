@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache";
+import { unstable_cache, unstable_noStore as noStore } from "next/cache";
 import GoScreen from "../components/GoScreen";
 import CardPhoto from "../components/CardPhoto.js";
 import ShareButton from "../components/ShareButton";
@@ -162,6 +162,16 @@ function Card({ e }) {
 }
 
 export default async function Page() {
+  // SEO audit 2026-11-27: never a build-time artifact. fetchCuratedEvents
+  // returns [] during next build (isSsgBuild, so builds never wait on
+  // Supabase), and this page used to be prerendered from that [], so every
+  // deploy served "Nothing verified is coming up in the next 14 days" with an
+  // empty ItemList until the first revalidation (seen live 2026-11-27 18:57Z,
+  // x-vercel-cache PRERENDER, while wf_events held 200 events starting in the
+  // window). Same rule as /florida-events: render per request from the 15
+  // minute data cache below, which keeps Supabase reads at one per window.
+  // scripts/test-events-hub-not-prerendered.mjs keeps it that way.
+  noStore();
   const today = siteTodayStr();
   // Throws CuratedEventsUnavailableError on an outage: a failed read must not
   // render (or ISR-cache) an empty-success page.

@@ -37,6 +37,12 @@ import { readFloridaIntelligence } from "../lib/floridaIntelligenceServer";
 // of those calls is Supabase-cached for 30 days, so an hourly revalidate is a
 // cache read and not a bill. See lib/railsData.js for the cost note.
 import { railMenuData } from "../lib/railsData";
+import { HOME_TITLE, HOME_DESCRIPTION, HOME_H1 } from "../lib/homeSeo";
+
+// Homepage-only search title and description (lib/homeSeo.js). The share
+// cards (openGraph, twitter) and the default title for other routes stay on
+// the brand line in app/layout.js.
+export const metadata = { title: { absolute: HOME_TITLE }, description: HOME_DESCRIPTION };
 
 export const revalidate = 3600;
 // 2026-11-27 (Command Center "Slow responses from production", homepage
@@ -174,7 +180,7 @@ export default async function Page() {
           (the proof block below is conditional on cached data and stays an
           h2 under it). Visually hidden so the app design is untouched. */}
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
-        Wayfind: find the best things to do, right now
+        {HOME_H1}
       </h1>
       <SiteDaySeed day={siteTodayStr()} />
       <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} />

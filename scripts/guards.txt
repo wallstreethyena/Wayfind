@@ -2852,3 +2852,8 @@ node scripts/test-city-weekend-seo.mjs
 node scripts/test-nearby-picks.mjs
 node scripts/test-og-every-path.mjs
 node scripts/test-jsonld-check.mjs
+# SEO + conversion audit (2026-11-27): Florida homepage title, brand entity graph, town list items, schema.org hours; /events never prerendered empty; Florida hub footer; ticket button on the first phone screen.
+node scripts/test-seo-audit-entity.mjs
+node scripts/test-events-hub-not-prerendered.mjs
+node scripts/test-florida-hub-links.mjs
+node scripts/test-event-ticket-first-screen.mjs
