@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { C } from "./kit";
 import { CROWD, VIBE, BEST_TIME, WAIT, LABELS, MAX_BACKDATE_DAYS } from "../../lib/rewards.js";
 import { submitTripLog, devicePosition } from "../../lib/tripLogClient.js";
+import { rewardMoment } from "../../lib/heartRewards.js";
 import { siteTodayStr, utcCalendarDateKey } from "../../lib/siteTime";
 import { shareLink } from "../../lib/communityClient.js";
 import { DailyPicksOffer } from "./CommunitySettings.js";
@@ -93,6 +94,7 @@ export default function LogVisitCard({ refKind = "place", refId, placeName = "",
     });
     if (res && res.ok) {
       setStatus({ phase: "done", msg: "", result: res });
+      rewardMoment("trip_log", { points: res.pointsAwarded, tier: res.rewards && res.rewards.tier && res.rewards.tier.name });
       try { logEvent && logEvent("trip_log_saved", { ref_kind: refKind, verification: res.verification, points: res.pointsAwarded }); } catch {}
     } else {
       setStatus({ phase: "error", msg: (res && res.error) || "We could not save that visit. Please try again.", result: res || null, code: res && res.code });
