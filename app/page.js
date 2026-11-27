@@ -6,6 +6,7 @@
 // Data comes cache-first from the same ranked/gated engine as the landing
 // pages (lib/landing.js); if no data is cached the block simply doesn't
 // render and the page is byte-identical to the old client-only homepage.
+import NewsletterSignup from "./components/NewsletterSignup";
 import { Suspense } from "react";
 import Home from "./home";
 import SiteDaySeed from "./components/SiteDaySeed";
@@ -183,7 +184,12 @@ export default async function Page() {
         {HOME_H1}
       </h1>
       <SiteDaySeed day={siteTodayStr()} />
-      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} />
+      {/* newsletterSlot (owner 2026-11-27): the weekly email signup is a SERVER
+          form passed in as markup, so the home feed shows it under "This week"
+          without adding its code to the homepage bundle. Anything rendered
+          after <Home> would show as a loose footer under every app screen. */}
+      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu}
+        newsletterSlot={<NewsletterSignup source="home" back="/" style={{ padding: 0, margin: "4px 0 16px" }} />} />
       {/* Keep the optional proof independent of shell rendering. HomeProof
           resolves its data before emitting ProofVeil and its children together,
           avoiding a streamed placeholder inside an already-emitted client

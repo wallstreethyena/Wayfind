@@ -117,5 +117,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2552 follow-up: reserve notification kinds beyond confirmation texts",
     "reason": "NOT APPLIED. Additive only, and only after 20261116120000_wf_reserve_notifications.sql. Widens the kind check to request_received_sms, request_accepted_sms, request_declined_sms, opentable_handoff, cancellation_sms and failure_sms. Adds status recorded and channel none so a row we chose not to text is not left queued. Recipient may be null only when channel is none. No new table, no grant, RLS unchanged. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials."
+  },
+  {
+    "file": "supabase/migrations/20261127200000_wf_newsletter_subscribers.sql",
+    "sha256": "456e27e5f1c1fea0debd0cb5a53d926455af8b929d214e65a9b549136ec410af",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2829 (weekly email, owner order 2026-11-27 \"Yes, all four\")",
+    "reason": "Weekly things-to-do email: one new table, wf_newsletter_subscribers (address, chosen region, the exact consent words with where and when, a random unsubscribe token, last sent week). RLS on with no policies; anon and authenticated hold no grants, so only the service role (subscribe and unsubscribe routes, the weekly cron) can touch it. Additive. Applied through the canonical path right after merge under the owner's 2026-11-27 order; this entry moves to scripts/migration-apply-log.jsonl with the receipt. Reverse in the file header."
   }
 ]

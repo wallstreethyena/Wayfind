@@ -274,6 +274,10 @@ const KNOWN_UNPULSED = {
   // this one, product-mandated early return does not. See scripts/check-apns-sender.mjs
   // section 6 for the red-proof that the SAME gate, with the flag enabled,
   // does reach a real network call — proving this is a gate, not dead code.
+  // 2026-11-27: the weekly email follows the weekend-picks rule exactly. Its
+  // WEEKLY_EMAIL_ENABLED=disabled early return must cost zero DB/network calls
+  // (a recordPulse is a Supabase write); every other terminal path pulses.
+  "app/api/cron/weekly-email/route.js": "2026-11-27: the WEEKLY_EMAIL_ENABLED=disabled early return is intentionally unpulsed, a disabled mass-mail flag must cost zero DB/network calls and recordPulse() is itself a Supabase call. Every other terminal path (jobCannotRun/jobFailed/success) pulses; see the route's own header comment.",
   "app/api/cron/weekend-picks/route.js": "2026-09-23: the WEEKEND_PICKS_PUSH_ENABLED=disabled early return is intentionally unpulsed — a disabled mass-send flag must cost zero DB/network calls, and recordPulse() is itself a Supabase call. Every other terminal path in this route (jobCannotRun/jobFailed/success) pulses; see the route's own header comment and scripts/check-apns-sender.mjs.",
 };
 
