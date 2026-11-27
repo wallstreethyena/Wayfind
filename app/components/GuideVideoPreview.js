@@ -44,10 +44,13 @@ function drawCover(ctx, img, W, H, tf) {
   ctx.drawImage(img, (W - w) / 2 + tf.offsetX, (H - h) / 2 + tf.offsetY, w, h);
 }
 
+// Text alpha multiplies the scene's own crossfade alpha, and the previous alpha
+// is restored after, so a fading scene fades its words with it.
 function textBlock(ctx, lines, x, y, px, weight, color, alpha) {
-  ctx.globalAlpha = alpha; ctx.fillStyle = color; ctx.font = `${weight} ${px}px ${FONT}`;
+  const prev = ctx.globalAlpha;
+  ctx.globalAlpha = prev * alpha; ctx.fillStyle = color; ctx.font = `${weight} ${px}px ${FONT}`;
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * Math.round(px * 1.18)));
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = prev;
 }
 
 function drawScene(ctx, W, H, scene, tf, assets, alpha) {
@@ -122,6 +125,7 @@ export default function GuideVideoPreview({ slug, title, city, days, stops, onEv
   const [phase, setPhase] = useState("idle"); // idle | recording
   const [pct, setPct] = useState(0);
   const [note, setNote] = useState("");
+  const [ready, setReady] = useState(false); // a recorded file is cached and can be saved or shared at once
 
   const paint = useCallback((t) => {
     const c = canvasRef.current; if (!c) return;
@@ -153,6 +157,7 @@ export default function GuideVideoPreview({ slug, title, city, days, stops, onEv
     const supported = typeof MediaRecorder !== "undefined" && !!(canvasRef.current && canvasRef.current.captureStream);
     setCanRecord(supported);
     blobRef.current = null;
+    setReady(false);
     tRef.current = 0;
     (async () => {
       const photoScenes = timeline.scenes.filter((s) => s.type === "photo");
@@ -225,19 +230,28 @@ export default function GuideVideoPreview({ slug, title, city, days, stops, onEv
     } finally { busyRef.current = false; setPhase("idle"); setPct(0); paint(0); }
   };
 
-  const onDownload = async () => {
+  // Making the file takes one real time pass, which outlives the tap's user
+  // activation; iOS then refuses share sheets and downloads. So the flow is two
+  // taps: "Make video", then "Save video" or "Share video" on the cached file.
+  const onMake = async () => {
+    emit("guide_video_make", { slug });
+    const out = await makeVideo();
+    if (out) { setReady(true); setNote(out.ext === "webm" ? "Your video is ready. This browser saves it as WebM." : "Your video is ready."); }
+  };
+
+  const onDownload = () => {
+    const out = blobRef.current; if (!out) return;
     emit("guide_video_download", { slug });
-    const out = await makeVideo(); if (!out) return;
     const url = URL.createObjectURL(out.blob);
     const a = document.createElement("a"); a.href = url; a.download = `wayfind-${slug || "guide"}.${out.ext}`;
     document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   };
 
   const onShare = async () => {
+    const out = blobRef.current; if (!out) return;
     emit("guide_video_share", { slug });
     const text = `${title || "Trip guide"}${city ? `, ${city}` : ""} on Wayfind`;
-    const out = await makeVideo(); if (!out) return;
     try {
       const file = new File([out.blob], `wayfind-${slug || "guide"}.${out.ext}`, { type: out.mime });
       if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || "Wayfind guide", text }); return; }
@@ -262,10 +276,13 @@ export default function GuideVideoPreview({ slug, title, city, days, stops, onEv
         <button type="button" onClick={onPlayPause} disabled={recording} aria-label={playing ? "Pause preview" : "Play preview"} style={{ ...btn, background: C.gold, color: C.bg, border: "none" }}>
           {playing ? "Pause" : "Play"}
         </button>
-        {canRecord && (
+        {canRecord && !ready && (
+          <button type="button" onClick={onMake} disabled={recording} style={btn} data-guide-video-make="1">Make video</button>
+        )}
+        {canRecord && ready && (
           <>
-            <button type="button" onClick={onDownload} disabled={recording} style={btn}>Download video</button>
-            <button type="button" onClick={onShare} disabled={recording} style={btn}>Share video</button>
+            <button type="button" onClick={onDownload} style={btn}>Save video</button>
+            <button type="button" onClick={onShare} style={btn}>Share video</button>
           </>
         )}
       </div>

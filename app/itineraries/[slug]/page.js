@@ -4,6 +4,7 @@
 import { notFound } from "next/navigation";
 import CommunityTripPage from "../../components/CommunityTripPage";
 import { SITE_URL } from "../../../lib/site";
+import { socialMeta } from "../../../lib/socialMeta";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { tripLogEnv } from "../../../lib/tripLogServer";
 import { readTemplate, liveStops } from "../../../lib/itineraryTemplates";
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }) {
     title: `${t.title} | Wayfind itinerary`,
     description: t.intro || `A ${t.days > 1 ? t.days + " day" : "one day"} plan for ${t.city} from Wayfind.`,
     alternates: { canonical: `/itineraries/${t.slug}` },
-    openGraph: { title: t.title, description: t.intro || undefined, url: `${SITE_URL}/itineraries/${t.slug}`, type: "article" },
+    ...socialMeta({ title: t.title, description: t.intro || "A Florida trip on Wayfind.", url: `${SITE_URL}/itineraries/${t.slug}` }),
   };
 }
 

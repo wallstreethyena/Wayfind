@@ -6,11 +6,12 @@
 // template led to it. No account id, name or location is involved.
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
+import { captureOrQueue } from "../../lib/browserAnalytics";
 
 const GuideVideoPreview = dynamic(() => import("./GuideVideoPreview"), { ssr: false, loading: () => <div aria-hidden="true" style={{ width: "100%", maxWidth: 360, aspectRatio: "9 / 16", borderRadius: 16, background: "#1C2230" }} /> });
 
 function capture(event, props) {
-  try { if (window.posthog && typeof window.posthog.capture === "function") window.posthog.capture(event, props); } catch {}
+  try { captureOrQueue(window, event, props); } catch {}
 }
 
 export default function CommunityTripClient({ kind, slug, video }) {

@@ -13,6 +13,6 @@ const mk = (n) => Array.from({ length: n }, (_, i) => ({ name: `Stop ${i}`, cate
 for (const n of [0, 1, 8]) {
   const html = renderToStaticMarkup(createElement(Comp, { slug: "test", title: "Hidden springs", city: "Ocala", days: 2, stops: mk(n) }));
   assert.ok(html.includes("<canvas") && html.includes('width="1080"') && html.includes('role="img"'), `canvas for ${n}`);
-  assert.ok(html.includes("Play") && html.includes("Download video") && html.includes("Share video"), `buttons for ${n}`);
+  assert.ok(html.includes("Play") && html.includes("Make video"), `buttons for ${n}`);
 }
 console.log("PASS guide video render: 0, 1 and 8 stops render to static markup");

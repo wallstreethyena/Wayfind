@@ -57,6 +57,12 @@ const strip = (src) => src
 // STANDARD: page -> the file that renders its ShareButton, or file#Function when
 // a renderer module serves several pages (the button must be in THAT function).
 const STANDARD = {
+  // 2026-11-27: AI engine pages. Guide and itinerary detail share via the shared renderer; hubs carry their own.
+  "app/community/[slug]/page.js": "app/components/CommunityTripPage.js",
+  "app/itineraries/[slug]/page.js": "app/components/CommunityTripPage.js",
+  "app/community/page.js": "app/community/page.js",
+  "app/itineraries/page.js": "app/itineraries/page.js",
+  "app/leaderboard/page.js": "app/leaderboard/page.js",
   "app/guides/universal-orlando-christmas-2026/page.js": "app/guides/universal-orlando-christmas-2026/page.js",
   "app/fall-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/halloween-in-florida/page.js": "app/halloween-in-florida/page.js",

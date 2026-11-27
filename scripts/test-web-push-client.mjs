@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // scripts/test-web-push-client.mjs — plain-node test for lib/webPushClient.js pure helpers.
 import assert from 'node:assert/strict';
-process.env.NEXT_PUBLIC_WF_VAPID_PUBLIC_KEY = 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4';
+const TEST_KEY = 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4';
+// Set explicitly (hermetic): the client reads this public key at build time.
+process.env.NEXT_PUBLIC_WF_VAPID_PUBLIC_KEY = TEST_KEY;
 const c = await import('../lib/webPushClient.js');
 
 // base64url decode
 const u8 = c.base64UrlToUint8Array('AQL-_w');
 assert.deepEqual([...u8], [1, 2, 254, 255]);
-assert.equal(c.base64UrlToUint8Array(process.env.NEXT_PUBLIC_WF_VAPID_PUBLIC_KEY).length, 65);
+assert.equal(c.base64UrlToUint8Array(TEST_KEY).length, 65);
 
 // SSR (no window) and native shell are unsupported
 assert.equal(globalThis.window, undefined);

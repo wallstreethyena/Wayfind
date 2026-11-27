@@ -3,6 +3,8 @@
 import Link from "next/link";
 import CommunityTripList from "../components/CommunityTripList";
 import { SITE_URL } from "../../lib/site";
+import ShareButton from "../components/ShareButton";
+import { pageShareUrl } from "../../lib/pageShareUrl";
 import { tripLogEnv } from "../../lib/tripLogServer";
 import { listPublishedGuides } from "../../lib/communityGuides";
 
@@ -26,6 +28,7 @@ export default async function CommunityPage() {
     <main style={page}>
       <div style={wrap}>
         <h1 style={{ fontSize: "clamp(26px, 6vw, 36px)", fontWeight: 800, margin: "0 0 8px" }}>Community trip guides</h1>
+        <div style={{ margin: "0 0 12px" }}><ShareButton url={pageShareUrl("/community")} title="Wayfind" text="Found this on Wayfind" event="community_hub_share" /></div>
         <p style={{ fontSize: 16, color: "#CBD5E1", lineHeight: 1.55, margin: "0 0 16px", maxWidth: 640 }}>Florida trips Wayfind members planned and chose to share. Open one, save it to your itinerary, make it yours.</p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, margin: "0 0 22px" }}>
           <Link href="/leaderboard" style={pill}>This month's top explorers</Link>

@@ -5,6 +5,7 @@
 import { notFound } from "next/navigation";
 import CommunityTripPage from "../../components/CommunityTripPage";
 import { SITE_URL } from "../../../lib/site";
+import { socialMeta } from "../../../lib/socialMeta";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { tripLogEnv } from "../../../lib/tripLogServer";
 import { readPublishedGuide } from "../../../lib/communityGuides";
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }) {
     title: `${g.title} | Wayfind community guide`,
     description: g.intro || `${g.stops.length} stops in ${g.city}, shared by a Wayfind member.`,
     alternates: { canonical: `/community/${g.slug}` },
-    openGraph: { title: g.title, description: g.intro || undefined, url: `${SITE_URL}/community/${g.slug}`, type: "article" },
+    ...socialMeta({ title: g.title, description: g.intro || "A Florida trip on Wayfind.", url: `${SITE_URL}/community/${g.slug}` }),
   };
 }
 

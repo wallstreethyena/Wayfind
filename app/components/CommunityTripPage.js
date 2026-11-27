@@ -11,7 +11,7 @@
 import Link from "next/link";
 import CommerceClickBeacon from "./CommerceClickBeacon";
 import GuidePhoto from "./GuidePhoto";
-import ShareButton from "./ShareButton";
+import ShareButton from "../components/ShareButton";
 import CommunityTripClient from "./CommunityTripClient";
 import { SITE_URL } from "../../lib/site";
 import { categoryLabel } from "../../lib/communityGuides";
@@ -73,7 +73,7 @@ function tripFor(stops, title, city) {
  */
 export default function CommunityTripPage({ kind, doc, stops, tickets, path }) {
   const surface = kind === "guide" ? "community_guide" : "itinerary_template";
-  const url = SITE_URL + path;
+  const shareUrl = SITE_URL + path;
   const days = [...new Set(stops.map((s) => s.day || 1))].sort((a, b) => a - b);
   const share = measureItineraryShare(tripFor(stops, doc.title, doc.city), SITE_URL);
   const saveHref = share && share.ok ? share.queryUrl.replace(SITE_URL, "") : null;
@@ -83,7 +83,7 @@ export default function CommunityTripPage({ kind, doc, stops, tickets, path }) {
     "@type": "TouristTrip",
     name: doc.title,
     description: doc.intro || undefined,
-    url,
+    url: shareUrl,
     touristType: kind === "guide" ? "Community trip guide" : "Wayfind itinerary",
     itinerary: {
       "@type": "ItemList",
@@ -106,7 +106,7 @@ export default function CommunityTripPage({ kind, doc, stops, tickets, path }) {
         </p>
         <div style={S.actions}>
           {saveHref ? <a href={saveHref} style={S.save} data-save-trip="1">Save this trip</a> : null}
-          <ShareButton url={url} title={doc.title} text={`${doc.title} on Wayfind`} label="Share" event={kind === "guide" ? "community_guide_share" : "itinerary_template_share"} />
+          <ShareButton url={shareUrl} title={doc.title} text={`${doc.title} on Wayfind`} label="Share" event={kind === "guide" ? "community_guide_share" : "itinerary_template_share"} />
         </div>
         <CommunityTripClient kind={kind} slug={doc.slug} video={{ title: doc.title, city: doc.city, days: days.length, stops: videoStops }} />
         {days.map((d) => (

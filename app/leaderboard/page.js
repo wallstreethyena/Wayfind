@@ -3,6 +3,8 @@
 // verified trip logs and published guides, both capped (lib/leaderboard.js).
 import Link from "next/link";
 import { SITE_URL } from "../../lib/site";
+import ShareButton from "../components/ShareButton";
+import { pageShareUrl } from "../../lib/pageShareUrl";
 import { siteTodayStr } from "../../lib/siteTime";
 import { tripLogEnv } from "../../lib/tripLogServer";
 import { readLeaderboard } from "../../lib/leaderboard";
@@ -28,6 +30,7 @@ export default async function LeaderboardPage() {
     <main style={{ minHeight: "100vh", background: "#0D1117", color: "#F1F5F9", fontFamily: "var(--wf-sans, system-ui, -apple-system, sans-serif)" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "28px 16px 64px", boxSizing: "border-box" }}>
         <h1 style={{ fontSize: "clamp(26px, 6vw, 34px)", fontWeight: 800, margin: "0 0 8px" }}>Top explorers in {monthName}</h1>
+        <div style={{ margin: "0 0 12px" }}><ShareButton url={pageShareUrl("/leaderboard")} title="Wayfind" text="Found this on Wayfind" event="leaderboard_share" /></div>
         <p style={{ fontSize: 15, color: "#CBD5E1", lineHeight: 1.55, margin: "0 0 18px" }}>Points for visits logged on the spot, local tips and trips shared as guides. Join from Rewards and badges in your account.</p>
         {rows.length ? (
           <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }} data-leaderboard="1">

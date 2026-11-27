@@ -11,6 +11,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
+import { validatePublicName } from "../lib/leaderboard.js";
 
 let count = 0;
 const ok = (v, m) => { assert.ok(v, m); count += 1; };
@@ -115,6 +116,20 @@ await rejects(() => as("service_role", "update public.wf_rewards_profile set pub
 await rejects(() => as("service_role", "update public.wf_rewards_profile set public_name = '<b>x</b>' where user_id = $1", [carol]), /check/i, "public names allow safe characters only");
 await rejects(() => as("anon", "select * from public.wf_leaderboard($1, 25)", [month]), /permission denied/i, "anon cannot call the leaderboard function directly");
 eq((await as("service_role", "select count(*)::int as n from public.wf_leaderboard('bad', 25)")).rows[0].n, 0, "a malformed month returns nothing");
+
+// lib/leaderboard.js and the database agree on what a public name may be:
+// every name the lib accepts the database stores, and every shape the
+// database refuses the lib refuses too (the lib adds a reserved word list).
+let i = 0;
+for (const name of ["Sunny", "Jo", "Ana Maria", "O'Neil", "dot.name", "under_score", "x-y", "a", "x".repeat(25), "<b>", "trailing ", "-lead", "emoji 🌴"]) {
+  const lib = validatePublicName(name);
+  let dbOk = true;
+  try { await as("service_role", "update public.wf_rewards_profile set public_name = $1 where user_id = $2", [lib.ok ? lib.name : name, carol]); } catch { dbOk = false; }
+  if (lib.ok) ok(dbOk, `the database stores a name the lib accepts: ${name}`);
+  else if (!dbOk) ok(true, `both refuse: ${name}`);
+  i += 1;
+}
+await as("service_role", "update public.wf_rewards_profile set public_name = null where user_id = $1", [carol]);
 
 // ── the reward kind constraint still guards the ledger ───────────────────
 await rejects(() => as("service_role", "insert into public.wf_reward_events (user_id, kind, points, month) values ($1, 'free_points', 10, $2)", [alice, month]), /check/i, "unknown reward kinds are refused");
