@@ -14,8 +14,10 @@
 // offline (service worker + IndexedDB), and on reconnect sends each edit
 // exactly once; presence; no sideways scrolling at 390 px.
 //
-// Needs `next build` first (CI: after the build step). Skips when no build or
-// no Chromium is available, and says so.
+// Needs a production build made against the placeholder project first:
+//   NEXT_PUBLIC_SUPABASE_URL=https://e2eplaceholder.supabase.co \
+//   NEXT_PUBLIC_SUPABASE_ANON_KEY=e2e-placeholder-anon-key-not-real npx next build
+// Skips when no build or no Chromium is available, and says so.
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -205,9 +207,19 @@ try {
   const joe = await person("joe", { width: 390, height: 844 }, true);
 
   await owner.page.goto(origin + "/trips/" + id);
-  await until(() => owner.page.locator("text=Joe's Stone Crab").count(), "owner sees the trip");
+  try { await until(() => owner.page.locator("text=Joe's Stone Crab").count(), "owner sees the trip"); }
+  catch (e) { if (DEBUG) { console.error("BODY:", (await owner.page.evaluate(() => document.body.innerText)).slice(0, 1500)); console.error("SERVER:", serverLog.slice(-3000)); } throw e; }
   await until(() => owner.page.getByRole("button", { name: "Invite friends" }).count(), "the owner gets an Invite friends button");
-  ok(true, "the owner gets an Invite friends button");
+  ok(await owner.page.getByRole("button", { name: "Invite friends" }).isVisible(), "the owner gets an Invite friends button");
+  // Invite friends opens Wayfind's share chooser; its text message keeps the
+  // invite code (in the #j= fragment) and gets no share-tracking token.
+  await owner.page.getByRole("button", { name: "Invite friends" }).click();
+  const smsHref = await until(() => owner.page.evaluate(() => { const a = [...document.querySelectorAll("[role=dialog] a[href^='sms:']")][0]; return a ? a.getAttribute("href") : null; }), "the share chooser opens");
+  const smsBody = decodeURIComponent(smsHref.replace(/^sms:\?&body=/, ""));
+  ok(new RegExp("/trips/" + id + "#j=[A-Za-z0-9_-]{22}").test(smsBody), "the invite text carries the trip link with its invite code");
+  ok(!/[?&]wf_st=/.test(smsBody), "a private invite link gets no share-tracking token");
+  await owner.page.keyboard.press("Escape");
+  await until(async () => (await owner.page.locator("[role=dialog]").count()) === 0 || !(await owner.page.locator("[role=dialog]").first().isVisible()), "the share chooser closes");
 
   await maria.page.goto(invite);
   await until(() => maria.page.locator("text=Wynwood Walls").count(), "maria joined from the invite link");
@@ -218,7 +230,7 @@ try {
   await until(() => owner.page.evaluate(() => /Live/.test(document.querySelector("[role=status]") ? document.querySelector("[role=status]").textContent : "")), "owner socket live");
   await until(() => maria.page.evaluate(() => /Live/.test(document.querySelector(".lt-pill") ? document.querySelector(".lt-pill").textContent : "")), "maria socket live");
   await until(() => owner.page.evaluate(() => document.querySelectorAll(".lt-ava.here").length >= 3), "presence: owner sees all three here", 10000);
-  ok(true, "presence shows everyone who is here");
+  ok(await owner.page.evaluate(() => document.querySelectorAll(".lt-ava.here").length) === 3, "presence shows everyone who is here");
 
   // 1. An edit on one screen shows on the others.
   await owner.page.getByRole("button", { name: "+ Add a stop on Fri, Dec 11" }).click();

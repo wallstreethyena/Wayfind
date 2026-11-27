@@ -16,6 +16,9 @@ import { createLiveTripSync } from "../../../lib/liveTripSync.js";
 import { createLiveTripStore } from "../../../lib/liveTripStore.js";
 import { createLiveTripTransport, liveTripRequest } from "../../../lib/liveTripTransport.js";
 import { addCalendarDays, formatStopDate } from "../../../lib/tripDays.js";
+import { shareOut } from "../../../lib/shareOut.js";
+import SafeImg from "../../components/SafeImg";
+import { railPhotoSrc } from "../../../lib/cardPhotoRequest";
 
 const ID_RE = /^\/trips\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i;
 const JOIN_KEY = (id) => "wf_live_join:" + id;
@@ -169,7 +172,8 @@ function StopCard({ it, state, days, canEdit, members, editors, onDispatch, onEd
   const href = typeof p.detailHref === "string" && p.detailHref.startsWith("/") ? p.detailHref : (p.id && !String(p.id).startsWith("event") ? "/p/" + encodeURIComponent(p.id) : null);
   return (
     <li className={"lt-stop" + (it.visited ? " done" : "") + (pendingIds.has(it.id) ? " pending" : "")} data-stop={it.id}>
-      {p.photo ? <img className="lt-ph" src={p.photo} alt="" loading="lazy" width="64" height="64" /> : <span className="lt-ph none" aria-hidden="true">📍</span>}
+      {/* Same photo path as the itinerary screen: Google photos go through the credited lane, a broken photo falls back to a tile. */}
+      <SafeImg className="lt-ph" src={railPhotoSrc(p) || ""} alt="" compact category={p.type} loading="lazy" width="64" height="64" style={{ overflow: "hidden" }} />
       <div style={{ minWidth: 0 }}>
         <p className="lt-name">{href ? <a href={href}>{p.name || "Stop"}</a> : (p.name || "Stop")}</p>
         {p.address ? <p className="lt-addr">{p.address}</p> : null}
@@ -229,7 +233,7 @@ function AddStop({ day, state, onDispatch, onClose }) {
       {results && results.length ? (
         <ul className="lt-results">
           {results.map((p) => (
-            <li key={p.id}><button type="button" onClick={() => add(p)}>{p.photo ? <img src={p.photo} alt="" loading="lazy" /> : <span aria-hidden="true">📍</span>}<span><strong>{p.name}</strong><br /><span className="gp-note">{p.address}</span></span></button></li>
+            <li key={p.id}><button type="button" onClick={() => add(p)}><SafeImg className="lt-rph" src={railPhotoSrc(p) || ""} alt="" compact category={p.type} loading="lazy" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", flex: "none", overflow: "hidden" }} /><span><strong>{p.name}</strong><br /><span className="gp-note">{p.address}</span></span></button></li>
           ))}
         </ul>
       ) : null}
@@ -435,13 +439,16 @@ export default function LiveTripClient({ tripId: propId }) {
   if (!state) return <Frame><p className="gp-muted" role="status">Loading your trip…</p></Frame>;
 
   const members = snap.members || [];
-  const share = async () => {
+  // Same share chooser as Group Vote (text, email, or the phone's share sheet).
+  // The invite code rides in the #j= fragment; the chooser keeps it, and this
+  // path is a private group link, so no share token or third-party tag sees it.
+  const share = () => {
     if (!inviteUrl) return;
     const text = `Help me plan ${state.title} on Wayfind. Add places and we'll all see the plan update live.`;
-    try {
-      if (navigator.share) { await navigator.share({ title: state.title, text, url: inviteUrl }); return; }
-    } catch (e) { if (e && e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(inviteUrl); notify("Invite link copied"); } catch { window.prompt("Copy this invite link", inviteUrl); }
+    const result = shareOut({ title: state.title, text, url: inviteUrl }, () => notify("Invite link copied. Send it to your friends."));
+    // Only the chooser copies to the clipboard (site rule). If it could not
+    // open, hand the person the link to copy themselves.
+    if (result === "failed") window.prompt("Copy this invite link", inviteUrl);
   };
   const admin = async (body, okMsg) => {
     const r = await liveTripRequest("/api/trips/live/" + tripId, { method: "POST", token: tokenRef.current, body });

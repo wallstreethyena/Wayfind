@@ -126,7 +126,11 @@ try {
     rev = r.revision;
   }
   const capped = (await asRole("service_role", "select recent_op_ids from public.wf_live_trips where id = $1", [tripId])).rows[0].recent_op_ids;
-  ok(capped.length === 500 && capped[capped.length - 1] === "op-cap-000519" && !capped.includes(op.id), "idempotency ids keep the newest 500 in order");
+  // 521 ids were committed (the first op plus 520): the oldest 21 fall out.
+  eq(capped.length, 500, "idempotency window holds exactly 500 ids");
+  eq([capped[0], capped[capped.length - 1]], ["op-cap-000020", "op-cap-000519"], "the newest 500 are kept, in commit order");
+  ok(capped.includes("op-cap-000020"), "positive control: the oldest id still inside the window is kept");
+  ok(!capped.includes("op-cap-000019") && !capped.includes(op.id), "ids older than the window are dropped");
 
   // Ended trips refuse edits.
   await asRole("service_role", "update public.wf_live_trips set status = 'ended' where id = $1", [tripId]);

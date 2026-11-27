@@ -139,8 +139,9 @@ const place = (id, name = "Spot " + id) => ({ id, name, lat: 27.3, lng: -82.5 })
 
 // ── multi-replica convergence through a fake server ─────────────────────
 function makeServer(initial) {
-  const srv = { state: initial, revision: 0, recent: [], subs: new Set(), commits: 0, broadcasts: [] };
+  const srv = { state: initial, revision: 0, recent: [], subs: new Set(), commits: 0, broadcasts: [], received: new Set() };
   srv.apply = (body, by) => {
+    for (const o of body.ops) srv.received.add(o.id);
     const fresh = body.ops.filter((o) => !srv.recent.includes(o.id));
     const replayed = body.ops.filter((o) => srv.recent.includes(o.id)).map((o) => o.id);
     const cleaned = [];
@@ -294,7 +295,13 @@ async function runScenario(seedValue, replicas = 4, steps = 140) {
   const seen = new Map();
   for (const m of srv.broadcasts) for (const o of m.ops) seen.set(o.id, (seen.get(o.id) || 0) + 1);
   ok([...seen.values()].every((c) => c === 1), `seed ${seedValue}: no op was applied twice despite lost answers and retries`);
-  ok([...offlineEdits].every((id) => seen.has(id) || true), "offline edits were sent");
+  // Every edit made offline reached the server after reconnecting: it was
+  // either applied (and broadcast) or answered with a named rejection (for
+  // example an edit to a stop someone else deleted). None was dropped.
+  ok(offlineEdits.size > 0, `seed ${seedValue}: the run made at least one offline edit (positive control)`);
+  const neverSent = [...offlineEdits].filter((id) => !srv.received.has(id));
+  eq(neverSent, [], `seed ${seedValue}: every offline edit was sent to the server after reconnecting`);
+  ok([...offlineEdits].some((id) => seen.has(id)), `seed ${seedValue}: offline edits were applied, not only received`);
   return { commits: srv.commits, stops: ids().length, offline: offlineEdits.size };
 }
 
