@@ -107,7 +107,7 @@ export default async function CulturePage({ params }) {
           not-found branch (which crashed), so the REAL culture pages shipped
           with no structured data. Moved here, onto the actual page Google reads. */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "What " + c.title + " Is Known For", description: "What to eat in " + c.title + ", must-do experiences, and how locals talk.", author: { "@type": "Organization", name: "Wayfind" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/culture/" + params.metro }) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Cities", item: SITE_URL }, { "@type": "ListItem", position: 3, name: c.title, item: SITE_URL + "/culture/" + params.metro }] }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: c.title, item: SITE_URL + "/culture/" + params.metro }] }) }} />
       <PremiumIntentHero
         eyebrow="Know before you go"
         location={c.title}

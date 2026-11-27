@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import {
   parseCensusGeographies, planLocalityWrite, candidatesQuery, writeQuery, writeBody, censusUrl,
-  DAILY_LIMIT, FLORIDA_STATE_FIPS, ST_PETE_MAX_LAT,
+  DAILY_LIMIT, RUN_BUDGET_MS, CANDIDATE_WINDOW_DAYS, FLORIDA_STATE_FIPS, ST_PETE_MAX_LAT,
 } from "../lib/localityFill.js";
 import { placeIdentityIssues } from "../lib/placeIdentity.js";
 import { PROMOTE_METROS } from "../lib/promoteIndex.js";
@@ -57,7 +57,23 @@ ok(p.action === "write" && p.locality === null, "C8 two cities for one point →
 // D. The queries: add-only, newest first, bounded.
 const cq = candidatesQuery(DAILY_LIMIT);
 ok(cq.includes("locality=is.null") && cq.includes("county=is.null") && cq.includes("locked=not.is.true"), "D1 reads only empty, unlocked rows");
-ok(/order=seen_at\.desc/.test(cq) && new RegExp(`limit=${DAILY_LIMIT}$`).test(cq) && DAILY_LIMIT <= 60, "D2 newest first, bounded");
+ok(/order=seen_at\.desc/.test(cq) && new RegExp(`limit=${DAILY_LIMIT}$`).test(cq) && DAILY_LIMIT <= 200, "D2 newest first, bounded");
+// D2b. The run fits the route's 60 s: lookups stop starting at RUN_BUDGET_MS and
+// the slowest in-flight one (12 s timeout) still lands before maxDuration.
+{
+  const route = readFileSync(new URL("../app/api/cron/locality-fill/route.js", import.meta.url), "utf8");
+  const maxDur = Number((route.match(/export const maxDuration\s*=\s*(\d+)/) || [])[1]);
+  const lookupTimeout = Number((route.match(/AbortSignal\.timeout\((\d+)\)/) || [])[1]);
+  ok(Number.isFinite(maxDur) && Number.isFinite(lookupTimeout) && RUN_BUDGET_MS + lookupTimeout + 5000 <= maxDur * 1000, `D2b budget ${RUN_BUDGET_MS} ms + lookup ${lookupTimeout} ms fits maxDuration ${maxDur} s`);
+  ok(/Date\.now\(\)\s*-\s*startedAt\s*>\s*RUN_BUDGET_MS/.test(route.replace(/\/\/[^\n]*/g, "")), "D2c the route checks the budget before each lookup");
+}
+// D2d. Only recent rows are asked; long-held ones are not re-asked every run.
+{
+  const now = Date.parse("2026-11-27T12:00:00Z");
+  const q = candidatesQuery(DAILY_LIMIT, now);
+  const since = decodeURIComponent((q.match(/seen_at=gte\.([^&]+)/) || [])[1] || "");
+  ok(CANDIDATE_WINDOW_DAYS >= 14 && since === new Date(now - CANDIDATE_WINDOW_DAYS * 86_400_000).toISOString(), `D2d window ${CANDIDATE_WINDOW_DAYS} days (${since})`);
+}
 ok(/limit=200$/.test(candidatesQuery(10_000)), "D3 the limit is capped");
 const wq = writeQuery("ChIJ x&y");
 ok(wq.includes("place_id=eq.ChIJ%20x%26y") && wq.includes("&locality=is.null&county=is.null"), "D4 the write is compare-and-set on both fields, id encoded");
@@ -100,6 +116,6 @@ ok(/writeQuery\(row\.place_id,\s*plan\)/.test(route), "E5 the route passes the p
 ok((route.match(/recordPulse\("locality-fill"/g) || []).length >= 2, "E3 the route reports a pulse on success and on a failed read");
 const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
 const crons = (vercel.crons || []).filter((c) => c.path === "/api/cron/locality-fill");
-ok(crons.length === 1 && /^\d+ \d+ \* \* \*$/.test(crons[0].schedule), "E4 scheduled exactly once, daily");
+ok(crons.length === 1 && /^\d+ \d+(,\d+)? \* \* \*$/.test(crons[0].schedule), "E4 one cron entry, once or twice a day");
 
-console.log(`test-locality-fill: OK — ${n} assertions (Census answer parsed; city / CDP / county-only written; Bay Lake, non-Florida, county-line, failed lookup, locked and filled rows held; add-only compare-and-set queries; south-Pinellas tampa rows relabeled st-pete under the canary's own rule; route wired and scheduled daily)`);
+console.log(`test-locality-fill: OK — ${n} assertions (Census answer parsed; city / CDP / county-only written; Bay Lake, non-Florida, county-line, failed lookup, locked and filled rows held; add-only compare-and-set queries; south-Pinellas tampa rows relabeled st-pete under the canary's own rule; route wired, time-budgeted, scheduled twice a day)`);

@@ -129,6 +129,7 @@ node scripts/test-client-buffer-scan.mjs
 node scripts/test-sentry-meta-iab.mjs
 node scripts/test-nov18-alerts.mjs
 node scripts/test-sentry-webkit-bridge.mjs
+node scripts/test-sentry-mapkit-parse.mjs
 node scripts/test-sentry-mapkit-nan-weather.mjs
 node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
@@ -2519,6 +2520,14 @@ node scripts/test-search-free-modifier.mjs
 node scripts/check-search-understand.mjs
 node scripts/test-search-taxonomy.mjs
 
+# 2026-11-27 owner ask: Florida vibe search ("hidden springs", "family beaches").
+# A place gets a vibe only from our own data (its name and Google type for a
+# spring; the beach's own editorial words for family); no model request.
+node scripts/test-search-vibes.mjs
+# 2026-11-27: OpenAI gpt-4o-mini backs up the Gemini search filter only when
+# Gemini cannot answer (no key, cap, blocked, failed), on its own capped lane.
+node scripts/test-search-understand-backup.mjs
+
 # 2026-10-23 word search ("tacos") surfaces nearby places and ranks them above far ones.
 node scripts/test-search-nearby-first.mjs
 
@@ -2817,3 +2826,4 @@ node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
 node scripts/test-city-weekend-seo.mjs
+node scripts/test-jsonld-check.mjs
