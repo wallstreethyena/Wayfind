@@ -10707,12 +10707,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     };
     if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) {
       const rows = typeof selectPosterEvents === "function" ? selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket }) : {};
+      const posterPool = fp.usable.filter((event) => eventSignals.disliked[event.id] !== true);
       return {
         pending: false,
         failed: foryouEventsFailed,
         byRail: Object.fromEntries(Object.entries(rows).map(([id, events]) => [
           id, events.map((event, index) => renderEventCard(event, index + 1, posterSurface(mode, id))),
         ])),
+        // Trending's "Coming up nearby" lead renders as the SAME event card
+        // (photo, dates, ticket button) instead of a line of text (owner,
+        // 2026-11-27). Looked up by the curated slug; null when this feed
+        // does not hold the event, and the caller then links to its page.
+        leadCard: mode === "trending" ? (slug) => {
+          const event = slug ? posterPool.find((row) => row && row.curatedSlug === slug && row.dest) : null;
+          return event ? { id: event.id, node: renderEventCard(event, 1, posterSurface(mode, "lead")) } : null;
+        } : undefined,
       };
     }
     if (!shown.length) return null;

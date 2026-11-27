@@ -115,6 +115,16 @@ export default function TrendingRails({
   if (!active) return null;
   const eventSurface = eventsSlot ? eventsSlot("trending", selectPosterEvents) : null;
   const eventsByRail = eventSurface && eventSurface.byRail ? eventSurface.byRail : {};
+  // The lead is only shown as something a visitor can open (owner, 2026-11-27:
+  // "No placecard?"). An event lead is the real event card when the feed holds
+  // it, else a link to its published page; with neither it is not shown.
+  const leadCard = leadEvent && leadEvent.slug && eventSurface && typeof eventSurface.leadCard === "function"
+    ? eventSurface.leadCard(leadEvent.slug) : null;
+  const leadLink = leadEvent && !leadCard && leadEvent.href ? leadEvent.href : null;
+  const showLead = leadEvent
+    ? !eventSurface?.pending && !!(leadCard || leadLink)
+    : !!(leadPlace && onOpenPlace);
+  const withoutLead = (cards) => leadCard ? cards.filter((card) => card?.key !== leadCard.id) : cards;
   const total = TRENDING_RAIL_DEFS.reduce((n, rail) => n
     + (Array.isArray(eventsByRail[rail.id]) ? eventsByRail[rail.id].length : 0)
     + byPlaceRail[rail.id].length, 0);
@@ -124,25 +134,41 @@ export default function TrendingRails({
   // @gowayfind.app (lib/creatorVideos.js, lib/eventSocial.js); the
   // reconciliation monitor checks every such post is on its card.
   const pending = placesPending || eventSurface?.pending || (intelUrl && !currentIntelligence);
-  if (!lead && !total && pending) return <RailLoading label="Finding what's trending" />;
-  if (!lead && !total) {
+  if (!showLead && !total && pending) return <RailLoading label="Finding what's trending" />;
+  if (!showLead && !total) {
     const failed = eventSurface?.failed || (currentIntelligence && !available);
     return <p role="status" style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>{failed ? "Trending is temporarily unavailable. Check back soon." : "Nothing verified is trending near you yet. Check back soon."}</p>;
   }
 
   return <>
-    {lead ? (
-      <aside aria-label={leadEvent ? "Coming up nearby" : "Local standout"} style={{ margin: "16px 0 0", padding: "10px 14px", borderLeft: "2px solid #FB923C" }}>
-        <p style={{ margin: "0 0 4px", color: "#FDBA74", fontSize: 12, fontWeight: 700 }}>{leadEvent ? "Coming up nearby" : "Local standout"}</p>
-        <strong style={{ color: "#F8FAFC", fontWeight: 800 }}>{lead.name}</strong>
-        <p style={{ margin: "4px 0 0", color: "#AAB4C5", fontSize: 14, lineHeight: 1.5 }}>{lead.why}</p>
-      </aside>
+    {showLead && leadCard ? (
+      <section aria-label="Coming up nearby" style={{ marginTop: 16 }} data-trending-lead="event">
+        <RailHeading title="Coming up nearby" description={lead.why} />
+        <div className="wf-rail wf-rail-exploding" data-rail="trending-lead" role="region" aria-label="Coming up nearby">
+          {leadCard.node}
+        </div>
+      </section>
+    ) : showLead && leadLink ? (
+      <a href={leadLink} data-trending-lead="link" aria-label={`Open ${lead.name}, dates and tickets`}
+        style={{ display: "block", margin: "16px 0 0", padding: "14px 16px", borderRadius: 14, background: "#151B26", border: "1px solid #2D3748", textDecoration: "none" }}>
+        <span style={{ display: "block", margin: "0 0 4px", color: "#FDBA74", fontSize: 12, fontWeight: 700 }}>Coming up nearby</span>
+        <strong style={{ display: "block", color: "#F8FAFC", fontWeight: 800, fontSize: 17 }}>{lead.name}</strong>
+        <span style={{ display: "block", margin: "4px 0 8px", color: "#AAB4C5", fontSize: 14, lineHeight: 1.5 }}>{lead.why}</span>
+        <span style={{ color: "#FB923C", fontSize: 14, fontWeight: 800 }}>See dates and tickets →</span>
+      </a>
+    ) : showLead && leadPlace ? (
+      <button type="button" onClick={() => onOpenPlace(leadPlace)} data-trending-lead="place" aria-label={`Open ${lead.name}`}
+        style={{ display: "block", width: "100%", textAlign: "left", margin: "16px 0 0", padding: "12px 14px", borderRadius: 14, background: "#151B26", border: "1px solid #2D3748", cursor: "pointer", font: "inherit" }}>
+        <span style={{ display: "block", margin: "0 0 4px", color: "#FDBA74", fontSize: 12, fontWeight: 700 }}>Local standout</span>
+        <strong style={{ display: "block", color: "#F8FAFC", fontWeight: 800 }}>{lead.name}</strong>
+        <span style={{ display: "block", margin: "4px 0 0", color: "#AAB4C5", fontSize: 14, lineHeight: 1.5 }}>{lead.why}</span>
+      </button>
     ) : null}
     {!total && pending ? <RailLoading label="Finding what's trending" /> : null}
     {total > 0 && eventSurface && eventSurface.failed ? <p role="status" style={{ margin: "8px 0 0", fontSize: 13, color: C.muted }}>Wayfind could not reach this week&rsquo;s event inventory. Trending places are still shown.</p> : null}
     {TRENDING_RAIL_DEFS.map((rail) => (
       <TrendingShelf key={rail.id} rail={rail}
-        eventCards={Array.isArray(eventsByRail[rail.id]) ? eventsByRail[rail.id] : []}
+        eventCards={withoutLead(Array.isArray(eventsByRail[rail.id]) ? eventsByRail[rail.id] : [])}
         places={byPlaceRail[rail.id]} whyByPlaceId={whyByPlaceId} city={city} onOpenPlace={onOpenPlace}
         isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
         onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />

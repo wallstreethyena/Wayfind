@@ -98,6 +98,15 @@ for (const rejected of [{ ...packet, stale: true }, { ...packet, today: "2026-11
   const result = localTrendingIntelligence(rejected, options);
   ok(!result.available && !result.leadEvent && !result.whyByPlaceId.size, "an absent, failed, stale or previous-day packet cannot produce a lead or place note");
 }
+// 2026-11-27 (owner: "No placecard for medieval?"): the lead carries the
+// published curated slug so the shelf can render the real event card.
+const fair = { ...nearbyEvent, name: "Sarasota Medieval Fair", slug: "sarasota-medieval-fair-2026", href: "/florida-events/sarasota-medieval-fair-2026" };
+const fairLead = localTrendingIntelligence({ ...packet, trendingPicks: [fair] }, options).leadEvent;
+ok(fairLead?.slug === fair.slug && fairLead.href === fair.href, "a published curated event lead carries its slug and its own page link");
+ok(localTrendingIntelligence({ ...packet, trendingPicks: [{ ...fair, href: "https://evil.example/x" }] }, options).leadEvent?.href === null,
+  "an href that is not the slug's own /florida-events page is never carried");
+ok(localTrendingIntelligence({ ...packet, trendingPicks: [{ ...fair, slug: "../x", href: "/florida-events/../x" }] }, options).leadEvent?.slug === null,
+  "a malformed slug is dropped");
 ok(localTrendingIntelligence({ ...packet, trendingPicks: [] }, options).available,
   "a healthy feed with no candidates is distinct from a failed feed");
 ok(localTrendingIntelligence({ ...packet, trendingPicks: [nearbyEvent] }, options).leadEvent?.name === nearbyEvent.name,
@@ -122,4 +131,30 @@ ok(/intelUrl = active &&/.test(surface) && /fetchJsonWithDeadline\(intelUrl\)/.t
   "the bounded read runs only for the open poster with a valid center");
 ok(/if \(current\) setIntelligence/.test(surface) && /return \(\) => \{ current = false; \}/.test(surface) && /intelligence\?\.url === intelUrl/.test(surface),
   "a closed or superseded request cannot write and a previous center cannot display");
+const surfaceCode = surface.replace(/^\s*\/\/.*$/gm, "");
+ok(!/<aside[^>]*Coming up nearby/.test(surfaceCode) && !/leadEvent \? "Coming up nearby"/.test(surfaceCode),
+  "the event lead is never a plain-text aside again");
+ok(/eventSurface\.leadCard\(leadEvent\.slug\)/.test(surfaceCode) && /\{leadCard\.node\}/.test(surfaceCode),
+  "the lead renders the feed's real event card when the feed holds it");
+ok(/href=\{leadLink\}/.test(surfaceCode) && /!!\(leadCard \|\| leadLink\)/.test(surfaceCode),
+  "otherwise it links to the event page, and with neither it is not shown");
+ok(/withoutLead\(Array\.isArray\(eventsByRail\[rail\.id\]\)/.test(surfaceCode), "the lead card is not repeated on its shelf");
+ok(/leadCard: mode === "trending" \? \(slug\) =>/.test(home) && /row\.curatedSlug === slug && row\.dest/.test(home),
+  "home hands Trending a lead card lookup by curated slug");
+// 2026-11-27 (owner screenshot): Dry Dock's #1 Trending Food card showed only
+// sky because a centered crop of its wide cover photo fills a 96 x 268 column.
+{
+  const { placeCardPhotoPosition, PLACE_CARD_PHOTO_POSITION } = await import("../lib/placeCardPhotoPosition.js");
+  const DRY = "ChIJ38CBz8Vqw4gRg0oFYUGBU_s";
+  ok(placeCardPhotoPosition(DRY, `/api/photo?ref=places%2F${DRY}%2Fphotos%2Fwfplacediscovery&g=2&w=640`) === "80% 50%",
+    "Dry Dock's own Google photo aims at the dock and diners");
+  ok(placeCardPhotoPosition(DRY, `/api/photo?place=${DRY}&g=2&w=640`) === "80% 50%", "the same-place retry keeps the focal point");
+  ok(placeCardPhotoPosition(DRY, "/api/photo?ref=places%2FChIJother%2Fphotos%2Fx") === null && placeCardPhotoPosition(DRY, "https://cdn.example/x.jpg") === null,
+    "another photo (fallback, other venue) keeps the default crop");
+  ok(placeCardPhotoPosition("ChIJnotlisted", `/api/photo?place=ChIJnotlisted`) === null && placeCardPhotoPosition("__proto__", "x") === null, "unlisted places are untouched");
+  ok(Object.values(PLACE_CARD_PHOTO_POSITION).every((v) => /^\d{1,3}% \d{1,3}%$/.test(v)), "every entry is a plain percentage position");
+  const rc = readFileSync("app/components/RailCard.js", "utf8").replace(/^\s*\/\/.*$/gm, "");
+  ok(/placeCardPhotoPosition\(place\.id, displayedPhoto\)/.test(rc) && /objectPosition: shownPhotoPosition/.test(rc),
+    "RailCard applies the reviewed focal point to the photo it paints");
+}
 console.log(`test-trending-rails: OK — ${pass} assertions (shelf routing, evidence gate incl. marquee venues, window, place split, poster order) by CALL`);
