@@ -39,7 +39,7 @@ import WayfindPlannerLoader from "./components/WayfindPlannerLoader";
 import ChristmasSiteBackdrop from "./components/ChristmasSiteBackdrop";
 import { christmasBackdropActive, christmasBackdropBootScript } from "../lib/christmasBackdrop.js";
 import { siteGraph } from "../lib/brandEntity.js";
-import { FLORIDA_HUB_LINKS } from "../lib/floridaHubLinks.js";
+import { FLORIDA_HUB_LINKS, footerCultureKeys } from "../lib/floridaHubLinks.js";
 
 // Origin of the Supabase photo vault, for the preconnect hint below. Server-only
 // read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
@@ -408,7 +408,7 @@ export default function RootLayout({ children }) {
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Cities</div>
-                {Object.keys(CULTURE).map((m) => (
+                {footerCultureKeys(CULTURE).map((m) => (
                   <a key={m} href={"/culture/" + m} style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0", textTransform: "capitalize" }}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
                 ))}
               </div>

@@ -4,7 +4,8 @@
 // and the footer renders the list. Calls the data, not a grep of hrefs.
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { FLORIDA_HUB_LINKS } from "../lib/floridaHubLinks.js";
+import { FLORIDA_HUB_LINKS, NON_FLORIDA_CULTURE_KEYS, footerCultureKeys } from "../lib/floridaHubLinks.js";
+import { CULTURE } from "../lib/cultureCorpus.js";
 import { LANDING_CITIES } from "../lib/landingCities.js";
 import { TOWN_HUBS } from "../lib/cultureHubs.js";
 
@@ -25,7 +26,22 @@ for (const { href, label } of FLORIDA_HUB_LINKS) {
 }
 ok("the footer renders FLORIDA_HUB_LINKS", () => {
   const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
-  assert.match(lay, /import \{ FLORIDA_HUB_LINKS \} from "\.\.\/lib\/floridaHubLinks\.js"/);
+  assert.match(lay, /import \{ FLORIDA_HUB_LINKS, footerCultureKeys \} from "\.\.\/lib\/floridaHubLinks\.js"/);
   assert.match(lay, /\{FLORIDA_HUB_LINKS\.map\(\(l\) => \(/);
+});
+ok("footer Cities column drops Boston and Hawaii, keeps the Florida guides", () => {
+  const keys = footerCultureKeys(CULTURE);
+  for (const k of NON_FLORIDA_CULTURE_KEYS) assert.ok(!keys.includes(k), k + " still in the footer");
+  for (const k of ["orlando", "tampa", "miami", "keys", "sarasota"]) if (CULTURE[k]) assert.ok(keys.includes(k), k + " dropped from the footer");
+  assert.equal(keys.length, Object.keys(CULTURE).length - NON_FLORIDA_CULTURE_KEYS.filter((k) => CULTURE[k]).length);
+});
+ok("Boston and Hawaii pages stay live (still in CULTURE, route exists)", () => {
+  for (const k of NON_FLORIDA_CULTURE_KEYS) assert.ok(CULTURE[k], k + " culture guide was removed; Gabe asked to keep the page");
+  assert.ok(existsSync(new URL("../app/culture/[metro]/page.js", import.meta.url)), "culture route missing");
+});
+ok("the footer Cities column uses footerCultureKeys, not every CULTURE key", () => {
+  const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
+  assert.match(lay, /\{footerCultureKeys\(CULTURE\)\.map\(\(m\) => \(/);
+  assert.doesNotMatch(lay, /Object\.keys\(CULTURE\)\.map/);
 });
 console.log("test-florida-hub-links: OK - " + n + " checks; " + FLORIDA_HUB_LINKS.length + " footer links resolve to real Florida routes");
