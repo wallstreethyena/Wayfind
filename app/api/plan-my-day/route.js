@@ -39,7 +39,7 @@ import { GET as siteSearch } from "../search/route.js";
 import { GET as christmasBrowseGet } from "../christmas/browse/route.js";
 import { waitUntil } from "@vercel/functions";
 import { fetchForecast, weatherLean, weatherNote, leanParsed } from "../../../lib/plannerWeather.js";
-import { gapRow, logGap } from "../../../lib/plannerGaps.js";
+import { gapRow, logGap, uncoveredCityMessage } from "../../../lib/plannerGaps.js";
 
 const NO_STORE = { "cache-control": "no-store" };
 const RATE_WINDOW_MS = 60_000;
@@ -140,8 +140,9 @@ export async function POST(req) {
       const intent = validateNotesIntent(read.ok ? read.json : null, today);
       const parsedNotes = parsedFromNotes(notes, intent, today);
       if (parsedNotes.clarify) {
-        recordGap(gapRow({ mode: "notes", outcome: "NEED_CITY", requestedCity: read.ok && read.json ? read.json.city : null }));
-        return json({ ok: false, code: "NEED_CITY", message: parsedNotes.clarify }, 200);
+        const askedCity = read.ok && read.json ? read.json.city : null;
+        recordGap(gapRow({ mode: "notes", outcome: "NEED_CITY", requestedCity: askedCity }));
+        return json({ ok: false, code: "NEED_CITY", message: uncoveredCityMessage(askedCity) || parsedNotes.clarify }, 200);
       }
       const wx = await weatherFor(parsedNotes.parsed, today);
       const built = await buildItinerary(wx.parsed, { mustInclude: parsedNotes.mustInclude, deps });
