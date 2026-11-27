@@ -426,7 +426,7 @@ export default async function EventPage({ params }) {
           </>}
           note={e.ticketed ? "Confirm availability and booking terms with the ticket provider before paying." : "Confirm dates and availability on the official listing."}
           credit={e.image ? <EventHeroCredit eventName={e.name} isVenue={eventImageIsVenue(e, e.image)} style={{ fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" }} linkStyle={{ color: "#FF8A3D", textDecoration: "none", fontWeight: 700 }} /> : null}
-          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span><small>Photo unavailable</small></div>}
+          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span></div>}
         />
       </EventHeroPhotoProvider>
         {/* v8.99 — the shared WHERE block (address, official site, map with

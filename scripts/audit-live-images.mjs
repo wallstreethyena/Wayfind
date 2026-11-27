@@ -17,17 +17,21 @@
 // It never calls a paid provider itself: it only loads public pages the way a
 // visitor does. Run it against production (default) or a preview:
 //
-//   AUDIT_BASE_URL=https://www.gowayfind.com node scripts/audit-live-images.mjs
+//   AUDIT_BASE_URL=https://www.gowayfind.com AUDIT_OUT=live-image-audit.json node scripts/audit-live-images.mjs
 //
-// Output: a JSON report (AUDIT_OUT, default live-image-audit.json) and a
+// Output: a JSON report (AUDIT_OUT) and a
 // markdown summary on stdout (and in $GITHUB_STEP_SUMMARY when set).
 // Exit code 0 means the instrument ran; findings never fail the run unless
 // AUDIT_FAIL_ON_BROKEN=1.
 import { chromium } from "@playwright/test";
 import { writeFileSync, appendFileSync } from "node:fs";
 
-const BASE = (process.env.AUDIT_BASE_URL || "https://www.gowayfind.com").replace(/\/$/, "");
-const OUT = process.env.AUDIT_OUT || "live-image-audit.json";
+const BASE = (process.env.AUDIT_BASE_URL || "").replace(/\/$/, "");
+const OUT = process.env.AUDIT_OUT || "";
+if (!BASE || !OUT) {
+  console.error("audit-live-images: set AUDIT_BASE_URL (e.g. https://www.gowayfind.com) and AUDIT_OUT (report path)");
+  process.exit(1);
+}
 const MAX_PAGES = Number(process.env.AUDIT_MAX_PAGES || 70);
 const PER_PATTERN = Number(process.env.AUDIT_PER_PATTERN || 5);
 const UA = "WayfindBot/1.0 (https://gowayfind.com) live-image-audit";
