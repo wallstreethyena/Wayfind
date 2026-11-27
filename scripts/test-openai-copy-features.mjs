@@ -25,7 +25,7 @@ import {
   cleanNotes, validateNotesIntent, parsedFromNotes, nameMatches, PLAN_DAY_AREAS,
 } from "../lib/planMyDay.js";
 import { travelEstimate, legDirectionsUrl } from "../lib/travelEstimate.js";
-import { PARTNER_GO_RX, clientStop, withTravel } from "../lib/itineraryBuilderServer.js";
+import { PARTNER_GO_RX, clientStop, withTravel, stopTypeLabel } from "../lib/itineraryBuilderServer.js";
 import { whyGoQueue } from "../app/api/cron/ai-why-go/route.js";
 
 let failed = 0, passed = 0;
@@ -122,6 +122,8 @@ const cat = new Map([
 const sa = clientStop({ id: "a", slotLabel: "6:00 PM" }, cat), sb = clientStop({ id: "b" }, cat);
 ok(sa.ticket && sa.ticket.href === "/api/commerce/go?p=zoo" && sa.ticket.label === "Get Tickets" && sa.href === "/florida-events/zoo-lights-2026" && sa.fixedTime === "6:00 PM", "a partner ticket and a Wayfind page link are kept");
 ok(sb.ticket === null && sb.href === null, "a non partner ticket and an unsafe href are dropped");
+ok(stopTypeLabel("peruvian_restaurant") === "Peruvian restaurant" && stopTypeLabel("video_arcade") === "Video arcade" && stopTypeLabel("point_of_interest") === null && stopTypeLabel(null) === null, "raw place types read as plain words on the card");
+ok(clientStop({ id: "c" }, new Map([["c", { id: "c", name: "Arcade", type: "video_arcade" }]])).type === "Video arcade", "a stop card never shows a raw type token");
 
 // ── 4. Honest travel ────────────────────────────────────────────────────────
 const t1 = travelEstimate({ lat: 27.3364, lng: -82.5307 }, { lat: 27.3812, lng: -82.5604 });
