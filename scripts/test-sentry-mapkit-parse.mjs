@@ -23,6 +23,7 @@ const event = (type, value, files) => ({ exception: { values: [{ type, value, st
 ok([APP_FRAME, CDN_FRAME, CORE].every((f) => MAPKIT_LIBRARY_FRAME.test(f)), "MapKit library frame pattern matches the Sentry app:// form, the CDN lib form and mapkit.core.js");
 ok(![OUR_CHUNK, "app:///christmas-in-florida", "https://cdn.apple-mapkit.com/evil.js", "https://example.com/mk/6/mapkit.core.js"].some((f) => MAPKIT_LIBRARY_FRAME.test(f)), "the pattern refuses our chunks, page frames, other Apple paths and look-alike hosts");
 ok(MAPKIT_ORIGIN_FILE.test(CDN_FRAME) && MAPKIT_ORIGIN_FILE.test(CORE), "the loader's origin pattern matches Apple's /mk/ files (positive control)");
+ok(/^https:\/\/www\.gowayfind\.com\/_next\/static\//.test(OUR_CHUNK), "fixture check: OUR_CHUNK is a real Wayfind Next.js chunk URL");
 ok(!MAPKIT_ORIGIN_FILE.test(OUR_CHUNK), "the loader's origin pattern refuses our own chunks");
 
 // ── Sentry filter ──
