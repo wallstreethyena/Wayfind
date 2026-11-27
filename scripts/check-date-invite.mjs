@@ -931,9 +931,12 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const btn = ms2.slice(at, ms2.indexOf("</button>", at));
   ok(/M12 2\.6c-4\.1 0-7\.4 3\.3-7\.4 7\.4/.test(btn),
      "the recenter control is not wearing the Wayfind pin — it is the one button on the map that means 'me'");
+  // 2026-11-27: the share card no longer DRAWS this pin; it renders the
+  // owner's logo file from the brand vault (scripts/check-brand-assets.mjs
+  // locks it). The map button keeps the pin as its "you are here" icon.
   const card = readFileSync(path.join(REPO, "app/api/og/card.jsx"), "utf8");
-  ok(/M12 2\.6c-4\.1 0-7\.4 3\.3-7\.4 7\.4/.test(card),
-     "the share card's mark changed without the map's — one shape, two surfaces, or it is not a brand");
+  ok(/<img src=\{LOGO_BYTES\}/.test(card),
+     "the share card's mark is no longer the owner's logo file");
 }
 
 // ── 7i. THE MAP'S STORED GOWAYFIND IMAGERY (ZERO EXTERNAL API CALLS) ───────
