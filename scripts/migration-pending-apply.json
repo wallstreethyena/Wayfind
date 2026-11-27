@@ -117,5 +117,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2552 follow-up: reserve notification kinds beyond confirmation texts",
     "reason": "NOT APPLIED. Additive only, and only after 20261116120000_wf_reserve_notifications.sql. Widens the kind check to request_received_sms, request_accepted_sms, request_declined_sms, opentable_handoff, cancellation_sms and failure_sms. Adds status recorded and channel none so a row we chose not to text is not left queued. Recipient may be null only when channel is none. No new table, no grant, RLS unchanged. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials."
+  },
+  {
+    "file": "supabase/migrations/20261127150000_wf_ai_engine_community.sql",
+    "sha256": "88639cbe867f0d6d372460ab18dafa7a817ff4fe0c45909c78256ceb68a87ce1",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2814 (owner order 2026-11-27, OpenAI AI engine)",
+    "reason": "AI engine: community guides, itinerary templates, web push subscriptions, per member AI usage, leaderboard columns and functions, guide reward kind. Additive only, RLS on every new table, functions service role only. Applied with the exact merged bytes right after this PR merges; the receipt replaces this entry. Reverse in the file header."
   }
 ]

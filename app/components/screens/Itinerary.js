@@ -20,6 +20,8 @@ import { COVERED_CITIES } from "../../../lib/landingCities";
 import { cardComplete, searchEditorialCard } from "../../../lib/score";
 import { openShareFlow } from "../../../lib/shareFlow";
 import { placeKinds } from "../../../lib/dateInvite";
+import dynamic from "next/dynamic";
+const PublishGuideButton = dynamic(() => import("../PublishGuideButton"), { ssr: false, loading: () => null });
 const Trips = { ...TripCore, ...TripDays };
 
 function shortDayTabLabel(ymd) {
@@ -881,6 +883,7 @@ export default function ItineraryScreen({ ctx }) {
                 </div>
                 {items.length > 0 && shareList && <button onClick={() => { if (listNeedsConfirm) { setShareConfirmPending("list"); return; } try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
                 {itineraryFlags && itineraryFlags.share && items.length > 0 && <button aria-label={`Share an unlisted snapshot link for ${tripTitle}`} onClick={() => { if (!requireAuth("Sign up free to share an unlisted snapshot link to this trip.")) return; if (itinNeedsConfirm) { setShareConfirmPending("itinerary"); return; } if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
+                {items.length >= 3 && <PublishGuideButton trip={t} user={user} requireAuth={requireAuth} logEvent={logEvent} />}
                 {items.length > 0 && (
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                     <button

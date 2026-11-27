@@ -2825,6 +2825,12 @@ node scripts/check-partner-deep-links.mjs
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
+node scripts/test-ai-engine-community.mjs
+node scripts/test-ai-engine-rls.mjs
+node scripts/test-web-push.mjs
+node scripts/test-web-push-client.mjs
+node scripts/test-guide-video-timeline.mjs
+node scripts/test-guide-video-render.mjs
 node scripts/test-city-weekend-seo.mjs
 # Opt-in nearby picks + shared alert cap/quiet hours (2026-11-27): springs allowlist, rounded point, POST only, policy before nudge.
 node scripts/test-nearby-picks.mjs

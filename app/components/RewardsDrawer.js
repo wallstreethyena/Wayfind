@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { C } from "./kit";
 import { Shell, showInHost, quietBtn, mainBtn, errStyle } from "./reserveUi.js";
 import { fetchRewards } from "../../lib/tripLogClient.js";
+import { LeaderboardSettings, DailyPicksToggle } from "./CommunitySettings.js";
 
 function ProgressBar({ value }) {
   const pct = Math.round(Math.max(0, Math.min(1, Number(value) || 0)) * 100);
@@ -62,7 +63,7 @@ export function RewardsBody({ state, onRetry, onSignIn }) {
         {[...earned, ...locked].map((b) => (
           <li key={b.id} data-badge={b.id} data-earned={b.earned ? "1" : "0"} style={{ background: b.earned ? "rgba(251,191,36,.10)" : C.card, border: `1px solid ${b.earned ? "rgba(251,191,36,.45)" : C.border}`, borderRadius: 12, padding: "10px 12px", minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: b.earned ? C.gold : C.light, overflowWrap: "anywhere" }}>{b.earned ? "★ " : ""}{b.name}</div>
-            <div style={{ fontSize: 12, color: C.muted, marginTop: 2, overflowWrap: "anywhere" }}>{b.earned ? "Earned" : b.how}</div>
+            <div data-badge-level={b.level || ""} style={{ fontSize: 12, color: C.muted, marginTop: 2, overflowWrap: "anywhere" }}>{b.earned ? (b.levelName ? b.levelName : "Earned") + (b.next ? `. ${b.next.toGo} more for ${b.next.levelName}` : "") : b.how}</div>
           </li>
         ))}
       </ul>
@@ -71,6 +72,9 @@ export function RewardsBody({ state, onRetry, onSignIn }) {
           {r.recent.length === 1 ? "1 recent visit" : `${r.recent.length} recent visits`}, {r.recent.filter((x) => x.verified).length} logged on the spot.
         </div>
       ) : null}
+      <LeaderboardSettings />
+      <DailyPicksToggle />
+      <p style={{ fontSize: 13, color: C.muted, margin: "12px 0 0" }}><a href="/community" style={{ color: C.gold }}>Community guides</a> · <a href="/leaderboard" style={{ color: C.gold }}>Leaderboard</a></p>
     </div>
   );
 }
