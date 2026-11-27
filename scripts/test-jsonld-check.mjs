@@ -13,6 +13,7 @@ import { nyeItemListSchema, nyeModel } from "../lib/newYearsEve.js";
 import { allMovieRows, movieJsonLd } from "../lib/moviePages.js";
 import { halloweenHauntModel, halloweenHauntSchema } from "../lib/halloweenHauntVault.js";
 import { eventJsonLd } from "../lib/curatedEvents.js";
+import { providerEventJsonLd } from "../lib/providerEventJsonLd.js";
 
 let n = 0;
 const ok = (label, fn) => { try { fn(); n++; } catch (e) { console.error(`test-jsonld-check: FAIL - ${label}\n  ${e.message}`); process.exit(1); } };
@@ -77,6 +78,12 @@ ok("every movie page's Movie block is clean", () => {
 ok("Halloween haunt ItemList (real vault) is clean", () => clean("halloween", halloweenHauntSchema(halloweenHauntModel())));
 ok("curated event builder is clean on a complete row", () => {
   clean("curated", eventJsonLd({ event_id: "e1", slug: "e1", event_name: "Fest", event_status: "scheduled", start_date: "2026-12-05", end_date: "2026-12-06", start_time: "10:00", city: "Tampa", state: "FL", venue: "Park", address: "1 Main St", price_min: 10, official_ticket_url: "https://tickets.example.com/t", timezone: "America/New_York" }));
+});
+
+ok("provider event builder (/events pages) is clean, including a venue-less row", () => {
+  const tm = { name: "Big Show", date: "2026-12-12", time: "19:30:00", venue: "Amalie Arena", city: "Tampa", stateCode: "FL", address: "401 Channelside Dr", lat: 27.94, lng: -82.45, price: "$25 to $80", ticketed: true, url: "https://www.ticketmaster.com/e/1", status: "onsale", image: "/place-photos/a.jpg" };
+  clean("provider", providerEventJsonLd(tm, { pageUrl: S + "/events/tampa/big-show--tm_1" }));
+  clean("provider-novenue", providerEventJsonLd({ ...tm, venue: "", address: "" }, { pageUrl: S + "/events/tampa/big-show--tm_1" }));
 });
 
 console.log(`test-jsonld-check: OK - ${n} checks (validator red/green controls; NYE, ${allMovieRows().length} movies, Halloween and curated event builders clean)`);
