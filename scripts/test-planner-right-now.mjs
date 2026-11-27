@@ -10,7 +10,7 @@ import {
   forecastUrl, dailyByDate, weatherLean, weatherNote, leanParsed, fetchForecast, RAIN_LEAN_PCT, HEAT_LEAN_F,
 } from "../lib/plannerWeather.js";
 import {
-  gapRow, cleanGapName, cleanRequestedCity, uncoveredCityMessage, summarizeGaps, reportText, pickLeadUrl, readLeadAnswer, leadQuestion, logGap,
+  gapRow, cleanGapName, cleanRequestedCity, uncoveredCityMessage, reportEmail, sendReportEmail, summarizeGaps, reportText, pickLeadUrl, readLeadAnswer, leadQuestion, logGap,
 } from "../lib/plannerGaps.js";
 import { engineSearch, searchUnits, citedUrls, worstCaseCallUsd, SEARCH_CALL_USD, ENGINE_SKU, engineDailyCap } from "../lib/aiEngine.js";
 
@@ -141,6 +141,24 @@ eq(reqs.length, 1, "refused searches reached nothing");
 eq(citedUrls({ choices: [{ message: {} }] }), [], "a reply with no citations has no urls");
 
 // ── wiring: the planner and the report use these pieces ───────────────────
+// the nightly email
+eq(reportEmail("2026-11-27", { requests: 0, outcomes: {}, uncoveredCities: [], missingPlaces: [], thinSpots: [], weatherLeans: {} }, []), null, "a night with nothing sends no email");
+const mail = reportEmail("2026-11-27", sum, [{ name: "Bern's Steak House", answer: "yes", url: "https://bernssteakhouse.com/", official: true }]);
+ok(mail && /^Wayfind planner gaps for 2026-11-27: /.test(mail.subject), "the email subject names the night");
+ok(/missing place/.test(mail.subject) && /uncovered cit/.test(mail.subject), "the subject counts missing places and cities");
+ok(/Pensacola<\/b>, asked 2x/.test(mail.html), "the email lists uncovered cities with counts");
+ok(/Unverified lead:<\/span> <a href="https:\/\/bernssteakhouse\.com\/"/.test(mail.html), "a web lead is marked unverified");
+ok(/Leads are web pages to check, not facts/.test(mail.html) && mail.text === reportText("2026-11-27", sum, [{ name: "Bern's Steak House", answer: "yes", url: "https://bernssteakhouse.com/", official: true }]), "the email says leads are not facts and carries the plain text report");
+ok(!/[—–]/.test(mail.subject + mail.html), "the email has no dashes");
+const xss = reportEmail("d", { requests: 1, outcomes: { OK: 1 }, uncoveredCities: [], missingPlaces: [{ name: "<img src=x onerror=1>", metro: null, count: 1 }], thinSpots: [], weatherLeans: {} }, [{ name: "<img src=x onerror=1>", answer: "yes", url: "javascript:alert(1)" }]);
+ok(!/<img/.test(xss.html) && !/javascript:/.test(xss.html), "names are escaped and only https leads are linked");
+const posts = [];
+const mailed = await sendReportEmail(mail, { key: "re_x", from: "Wayfind Alerts <alerts@gowayfind.com>", to: "owner@example.com", fetchImpl: async (u, o) => { posts.push([u, JSON.parse(o.body)]); return { ok: true, json: async () => ({ id: "em_1" }) }; } });
+ok(mailed.sent && mailed.id === "em_1" && posts.length === 1 && posts[0][0] === "https://api.resend.com/emails", "the email goes through Resend once");
+ok(posts[0][1].to.length === 1 && posts[0][1].to[0] === "owner@example.com", "the email goes to the one owner address only");
+eq((await sendReportEmail(mail, { key: "", from: "a@b.co", to: "c@d.co" })).reason, "unconfigured", "no key sends nothing");
+eq((await sendReportEmail(null, { key: "k", from: "a@b.co", to: "c@d.co" })).reason, "nothing_to_send", "no mail sends nothing");
+eq((await sendReportEmail(mail, { key: "k", from: "a@b.co", to: "c@d.co", fetchImpl: async () => { throw new Error("down"); } })).sent, false, "a network failure never throws");
 const route = readFileSync(new URL("../app/api/plan-my-day/route.js", import.meta.url), "utf8");
 ok(/weatherFor\(parsedNotes\.parsed, today\)/.test(route) && /weatherFor\(parsed0, today\)/.test(route), "both planner paths read the forecast");
 ok((route.match(/recordGap\(gapRow\(/g) || []).length >= 3, "the planner logs gaps on its failure paths");
@@ -150,6 +168,7 @@ ok(/waitUntil\(p\)/.test(route), "gap logging runs after the response");
 const cron = readFileSync(new URL("../app/api/cron/planner-gap-report/route.js", import.meta.url), "utf8");
 ok(/MAX_LEADS = 8/.test(cron) && /engineSearch\(leadQuestion/.test(cron), "the report looks up at most 8 leads through the capped engine");
 ok(!/wf_inventory|wf_events|wf_place_photo/.test(cron), "the report never writes places, events or photos");
+ok(/resolveOverride\("DIGEST_EMAIL"\)/.test(cron) && /resolveOverride\("WF_ALERT_FROM"\)/.test(cron) && /reportEmail\(today, summary, leads\)/.test(cron), "the report emails the owner digest address from the shared sender");
 const vercel = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
 ok(vercel.crons.some((c) => c.path === "/api/cron/planner-gap-report"), "the report runs on a schedule");
 const ui = readFileSync(new URL("../app/plan-my-day/ItineraryBuilder.js", import.meta.url), "utf8");
