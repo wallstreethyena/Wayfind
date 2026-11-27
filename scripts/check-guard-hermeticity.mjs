@@ -48,6 +48,8 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
 // Every exemption names a file and argues for itself. An exemption that stops
 // being true is itself a failure below, so this list cannot quietly rot.
 const EXEMPT = {
+  "check-live-jsonld.mjs":
+    "Not a prebuild guard: the canary's production probe. JSONLD_BASE only chooses WHICH origin is read (production by default, a preview by hand); every assertion is the same pure lib/jsonLdCheck.js verdict on that origin's HTML.",
   "check-bundle.mjs":
     "Postbuild size gate, not a prebuild guard (2026-11-05). GITHUB_ACTIONS selects only the extra 1KB safety margin on the merge gate (guards.yml runs it after next build): Vercel's gzip measured up to ~0.6KB more than CI for the same tree, so on 2026-11-04 #2190 passed CI at 500.9KB and failed six production deploys at 501.1KB. The budget itself never depends on the environment; Vercel (which also sets CI) and local runs use the plain budget, so the margin can never block a production build whose own measurement is under budget. The margin was red-proven with a 488.5KB budget against a 488.0KB build.",
   "test-share-intent-fit.mjs":
