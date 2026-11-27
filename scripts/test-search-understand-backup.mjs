@@ -13,7 +13,7 @@ import { readFileSync } from "node:fs";
 import {
   understandSearch, SEARCH_OPENAI_SKU, SEARCH_OPENAI_MONTHLY_CAP, SEARCH_OPENAI_MODEL,
 } from "../lib/searchUnderstand.js";
-import { paidOpenAiRequest } from "../lib/paidOpenAi.js";
+import { execFileSync } from "node:child_process";
 
 let n = 0;
 const ok = (cond, msg) => { n++; assert.ok(cond, msg); };
@@ -86,17 +86,14 @@ const geminiOk = () => json({ candidates: [{ content: { parts: [{ text: GOOD }] 
   ok((await h.run()).reason === "flag_off" && h.calls.openai === 0, "6 flag off → no spend");
 }
 // 7. The real paidOpenAiRequest accepts the lane (not "invalid_lane") and still
-// fails closed without a ledger.
+// fails closed without a ledger. Run in a child with an explicit env, so the
+// verdict never depends on the shell (check-guard-hermeticity).
 {
-  const saved = { gate: process.env.WAYFIND_GATE, url: process.env.SUPABASE_URL, pub: process.env.NEXT_PUBLIC_SUPABASE_URL, key: process.env.SUPABASE_SERVICE_ROLE_KEY };
-  process.env.WAYFIND_GATE = "open";
-  delete process.env.SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_URL; delete process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const r = await paidOpenAiRequest({ model: SEARCH_OPENAI_MODEL, apiKey: "sk-test", body: { max_tokens: 120, messages: [{ role: "user", content: "x" }] } }, { sku: SEARCH_OPENAI_SKU, cap: SEARCH_OPENAI_MONTHLY_CAP, timeoutMs: 1500 });
-  const body = await r.json();
-  ok(!r.ok && body.reason === "monthly_request_cap_reached_or_ledger_unavailable", `7 lane accepted, fails closed without a ledger (${body.reason})`);
-  for (const [k, v] of Object.entries({ WAYFIND_GATE: saved.gate, SUPABASE_URL: saved.url, NEXT_PUBLIC_SUPABASE_URL: saved.pub, SUPABASE_SERVICE_ROLE_KEY: saved.key })) {
-    if (v === undefined) delete process.env[k]; else process.env[k] = v;
-  }
+  const child = `import { paidOpenAiRequest } from ${JSON.stringify(new URL("../lib/paidOpenAi.js", import.meta.url).href)};
+const r = await paidOpenAiRequest({ model: ${JSON.stringify(SEARCH_OPENAI_MODEL)}, apiKey: "sk-test", body: { max_tokens: 120, messages: [{ role: "user", content: "x" }] } }, { sku: ${JSON.stringify(SEARCH_OPENAI_SKU)}, cap: ${SEARCH_OPENAI_MONTHLY_CAP}, timeoutMs: 1500 });
+console.log(JSON.stringify({ ok: r.ok, body: await r.json() }));`;
+  const out = JSON.parse(execFileSync(process.execPath, ["--input-type=module", "-e", child], { env: { WAYFIND_GATE: "open" }, encoding: "utf8" }).trim().split("\n").pop());
+  ok(!out.ok && out.body.reason === "monthly_request_cap_reached_or_ledger_unavailable", `7 lane accepted, fails closed without a ledger (${out.body.reason})`);
 }
 // 8. Wiring: the backup spends only through paidOpenAiRequest, never api.openai.com directly.
 {
