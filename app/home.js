@@ -17,6 +17,7 @@ import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks"
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { spookyOverFall } from "../lib/spookySkin.js";
 import { siteTodayStr } from "../lib/siteTime";
+import { rewardForEvent } from "../lib/heartRewards.js";
 import { useSiteToday } from "../lib/siteDayClock.js";
 import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
@@ -6743,6 +6744,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   }, [screen, supabaseReady]);
   function logEvent(action, place, extra) {
     try { if (place && place.type) tasteBump(place); } catch (e) {}
+    // Heart rewards (lib/heartRewards.js): before the owner/bot analytics skip, so everyone sees them.
+    rewardForEvent(action, place, extra);
     if (skipOwnerOrBotAnalytics(user)) return;
     const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
     // Pre-ready queue, not raw window.posthog: a share-link landing logs

@@ -2816,6 +2816,8 @@ node scripts/test-ai-board.mjs
 # rules, server flow and renders of Log your visit and the rewards drawer.
 node scripts/test-trip-rewards-rls.mjs
 node scripts/test-trip-rewards.mjs
+# Heart rewards (owner request 2026-11-27): caps, tasteful copy, soft sound, lazy pop chunk.
+node scripts/test-heart-rewards.mjs
 node scripts/test-journey-telemetry.mjs
 
 # 2026-11-25 Competitor watch: private wf_competitor_intel / wf_competitor_promos (PGlite: service role only, dedupe),

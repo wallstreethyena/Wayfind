@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase.js";
 import { parseZonedDateTime, formatGroupTimeShort } from "../../lib/groupPlanTime.js";
 import { ORGANIZER_SMS_CONSENT_TEXT } from "../../lib/groupPlanShareText.js";
 import { signInUrlWithReturn } from "../../lib/authReturn.js";
+import { rewardMoment } from "../../lib/heartRewards.js";
 import { SantaSvg } from "../components/santaArt.js";
 import { GroupFrame, GroupVoteIntro } from "./GroupFrame.js";
 import { PlaceCard } from "./GroupPlaceOptions.js";
@@ -243,6 +244,7 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
       const fingerprint=JSON.stringify(payload);
       if(createKey.current?.fingerprint!==fingerprint) createKey.current={id:crypto.randomUUID(),fingerprint};
       const result=await request("/api/group-plans",{...payload,createKey:createKey.current.id},session);
+      rewardMoment("group");
       onCreated(result.plan);
     }catch(e){setError(e.message);}finally{inFlight.current=false;setBusy(false);}
   };
@@ -380,6 +382,7 @@ export default function GroupPlanClient({mode="view",planId,placeId,placeName=""
     try{
       const isGuest=!!(credentials?.token||credentials?.groupToken);
       const r=await groupRequest(`/api/group-plans/${planId}`,{action:"command",...credentials,command:{...cmd,id:pendingCommand.current.id}},isGuest?null:session);
+      if((cmd.type==="respond"||cmd.type==="join_respond")&&!cmd.declined)rewardMoment("vote");
       if(r.slotToken){
         try{window.sessionStorage?.setItem(`wf_gp_slot_${planId}`,r.slotToken);}catch{}
         const nextIdentity=`invite:${r.slotToken}`;
