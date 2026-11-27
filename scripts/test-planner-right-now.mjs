@@ -155,5 +155,6 @@ ok(vercel.crons.some((c) => c.path === "/api/cron/planner-gap-report"), "the rep
 const ui = readFileSync(new URL("../app/plan-my-day/ItineraryBuilder.js", import.meta.url), "utf8");
 ok(/wf_planner_prefs_v1/.test(ui) && /try \{ window\.localStorage\.setItem\(PREFS_KEY/.test(ui), "the last request is remembered in this browser only, safely");
 ok(/state\.weather && state\.weather\.note/.test(ui), "the weather note is shown when the plan leaned");
+ok((ui.match(/setMode\("(notes|picks)"\); setError\(""\)/g) || []).length === 2, "switching tabs clears an old error");
 
 console.log(`test-planner-right-now: ${count} assertions passed`);

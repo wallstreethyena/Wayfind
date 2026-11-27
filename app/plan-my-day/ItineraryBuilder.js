@@ -225,8 +225,8 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
   return (
     <div>
       <div role="tablist" aria-label="How to start" style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-        <button type="button" role="tab" aria-selected={mode === "notes"} onClick={() => setMode("notes")} style={btn(mode === "notes")}>Just tell us</button>
-        <button type="button" role="tab" aria-selected={mode === "picks"} onClick={() => setMode("picks")} style={btn(mode === "picks")}>Quick picks</button>
+        <button type="button" role="tab" aria-selected={mode === "notes"} onClick={() => { setMode("notes"); setError(""); }} style={btn(mode === "notes")}>Just tell us</button>
+        <button type="button" role="tab" aria-selected={mode === "picks"} onClick={() => { setMode("picks"); setError(""); }} style={btn(mode === "picks")}>Quick picks</button>
       </div>
       <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, padding: 14 }}>
         {mode === "picks" ? (
