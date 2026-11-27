@@ -2825,4 +2825,5 @@ node scripts/check-partner-deep-links.mjs
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
+node scripts/test-og-every-path.mjs
 node scripts/test-jsonld-check.mjs
