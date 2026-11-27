@@ -58,7 +58,7 @@ export default async function sitemap() {
   // /coupons /map /best-of /p/ stay out: thin noindex hubs, personal
   // query variants, or infinite share-state. Durable events live at
   // /events/{city}/{window}. Durable places live at /places/{id}.
-  const core = ["", "/guides", "/events", "/restaurants", "/things-to-do", "/nightlife", "/beaches", "/about", "/editorial-policy", "/how-wayfind-ranks", "/privacy", "/terms"].map((p) => ({ url: SITE_URL + p }));
+  const core = ["", "/guides", "/events", "/restaurants", "/things-to-do", "/nightlife", "/beaches", "/about", "/editorial-policy", "/how-wayfind-ranks", "/privacy", "/terms", "/plan-my-day"].map((p) => ({ url: SITE_URL + p }));
   const guides = Object.keys(currentGuides(GUIDES)).map((slug) => {
     const updated = GUIDES[slug] && GUIDES[slug].updated;
     const row = { url: `${SITE_URL}/guides/${slug}` };

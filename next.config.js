@@ -143,6 +143,10 @@ const nextConfig = {
     "/christmas-in-florida": ["./data/christmas-2026-research.json"],
     "/florida-events/[slug]": ["./data/christmas-2026-research.json"],
     "/sitemap.xml": ["./data/christmas-2026-research.json"],
+    // 2026-11-27: the why-go cron reads event pages through lib/christmasEventPage.js;
+    // the itinerary builder reaches the research through /api/christmas/browse (same as /api/planner).
+    "/api/cron/ai-why-go": ["./data/christmas-2026-research.json"],
+    "/api/plan-my-day": ["./data/christmas-2026-research.json"],
     // 2026-09-23 (v9) — app/api/og/card.jsx loads its Archivo fonts via
     // fs.readFileSync(path.join(process.cwd(), …)) when running on Node.js
     // (app/api/og/hero/route.js is the one Node caller; every other OG route
