@@ -7,6 +7,7 @@ import {
   buildTimeline, frameAt, wrapLines, estimateMaxChars,
   OVERSCAN, LOGO_SRC, isAllowedPhotoUrl,
 } from "../../lib/guideVideoTimeline";
+import { shareOut } from "../../lib/shareOut.js";
 
 const C = { bg: "#0D1117", card: "#1C2230", text: "#F1F5F9", muted: "#94A3B8", gold: "#FBBF24" };
 const FONT = "Poppins, system-ui, -apple-system, 'Segoe UI', sans-serif";
@@ -263,10 +264,9 @@ export default function GuideVideoPreview({ slug, title, city, days, stops, onEv
       const file = new File([out.blob], `wayfind-${slug || "guide"}.${out.ext}`, { type: out.mime });
       if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: title || "Wayfind guide", text }); return; }
     } catch (e) { if (e && e.name === "AbortError") return; }
-    try {
-      if (navigator.share) { await navigator.share({ url: location.href, title: title || "Wayfind guide", text }); return; }
-    } catch (e) { if (e && e.name === "AbortError") return; }
-    try { await navigator.clipboard.writeText(location.href); setNote("Link copied"); } catch (e) { setNote("Copy the page link to share"); }
+    // No file sharing on this device: offer the page link through Wayfind's
+    // one share sheet instead (text, email, copy, or the phone's own sheet).
+    if (shareOut({ url: location.href, title: title || "Wayfind guide", text }, () => setNote("Link copied")) === "failed") setNote("Save the video, then share it from your photos.");
   };
 
   const label = `Preview video of ${title || "a Wayfind guide"}${city ? ` in ${city}` : ""}, ${timeline.scenes.length - 2} stops. Silent.`;

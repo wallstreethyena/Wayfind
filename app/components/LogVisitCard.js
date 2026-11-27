@@ -118,12 +118,11 @@ export default function LogVisitCard({ refKind = "place", refId, placeName = "",
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
           <button type="button" onClick={openDrawer} style={{ minHeight: 44, padding: "0 14px", borderRadius: 12, border: `1px solid ${C.gold}`, background: "transparent", color: C.gold, fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>See your badges</button>
-          <button type="button" data-log-visit-share="1" onClick={async () => {
+          <button type="button" data-log-visit-share="1" onClick={() => {
             const path = refKind === "event" ? (typeof window !== "undefined" ? window.location.pathname : "/") : "/p/" + encodeURIComponent(refId);
             const url = (typeof window !== "undefined" ? window.location.origin : "https://www.gowayfind.com") + path;
-            const res = await shareLink({ url, title: placeName || "Wayfind", text: placeName ? `I just went to ${placeName}. Found it on Wayfind.` : "Found this on Wayfind." });
+            const res = shareLink({ url, title: placeName || "Wayfind", text: placeName ? `I just went to ${placeName}. Found it on Wayfind.` : "Found this on Wayfind." }, () => setShared("Link copied"));
             try { logEvent && logEvent("trip_log_share", { ref_kind: refKind, how: res.how }); } catch {}
-            if (res.how === "copy") setShared("Link copied");
           }} style={{ minHeight: 44, padding: "0 14px", borderRadius: 12, border: "none", background: C.gold, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>Share it</button>
         </div>
         {shared ? <p role="status" style={{ fontSize: 13, color: C.light, margin: "8px 0 0" }}>{shared}</p> : null}

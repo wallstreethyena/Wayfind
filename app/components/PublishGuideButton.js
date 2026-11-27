@@ -55,9 +55,8 @@ export default function PublishGuideButton({ trip, user, requireAuth, logEvent }
     if (r && r.ok) { setMine({ ...mine, status: "unpublished" }); setMsg({ text: "Your guide is no longer public.", bad: false }); }
     else setMsg({ text: (r && r.error) || "Please try again.", bad: true });
   };
-  const share = async () => {
-    const res = await shareLink({ url, title: trip.title || "My Wayfind trip", text: "My trip on Wayfind" });
-    if (res.how === "copy") setMsg({ text: "Link copied", bad: false });
+  const share = () => {
+    const res = shareLink({ url, title: trip.title || "My Wayfind trip", text: "My trip on Wayfind" }, () => setMsg({ text: "Link copied", bad: false }));
     try { logEvent && logEvent("community_guide_share", null, { how: res.how }); } catch {}
   };
 
