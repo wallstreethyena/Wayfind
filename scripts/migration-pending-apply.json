@@ -122,7 +122,7 @@
     "file": "supabase/migrations/20261127150000_wf_ai_engine_community.sql",
     "sha256": "88639cbe867f0d6d372460ab18dafa7a817ff4fe0c45909c78256ceb68a87ce1",
     "decision_owner": "wallstreethyena",
-    "tracking": "owner order 2026-11-27 (OpenAI AI engine)",
+    "tracking": "#2814 (owner order 2026-11-27, OpenAI AI engine)",
     "reason": "AI engine: community guides, itinerary templates, web push subscriptions, per member AI usage, leaderboard columns and functions, guide reward kind. Additive only, RLS on every new table, functions service role only. Applied with the exact merged bytes right after this PR merges; the receipt replaces this entry. Reverse in the file header."
   }
 ]
