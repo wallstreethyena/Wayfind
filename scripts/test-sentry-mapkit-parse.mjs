@@ -22,7 +22,8 @@ const event = (type, value, files) => ({ exception: { values: [{ type, value, st
 // ── the patterns ──
 ok([APP_FRAME, CDN_FRAME, CORE].every((f) => MAPKIT_LIBRARY_FRAME.test(f)), "MapKit library frame pattern matches the Sentry app:// form, the CDN lib form and mapkit.core.js");
 ok(![OUR_CHUNK, "app:///christmas-in-florida", "https://cdn.apple-mapkit.com/evil.js", "https://example.com/mk/6/mapkit.core.js"].some((f) => MAPKIT_LIBRARY_FRAME.test(f)), "the pattern refuses our chunks, page frames, other Apple paths and look-alike hosts");
-ok(MAPKIT_ORIGIN_FILE.test(CDN_FRAME) && !MAPKIT_ORIGIN_FILE.test(OUR_CHUNK), "the loader's origin pattern names Apple's /mk/ files only");
+ok(MAPKIT_ORIGIN_FILE.test(CDN_FRAME) && MAPKIT_ORIGIN_FILE.test(CORE), "the loader's origin pattern matches Apple's /mk/ files (positive control)");
+ok(!MAPKIT_ORIGIN_FILE.test(OUR_CHUNK), "the loader's origin pattern refuses our own chunks");
 
 // ── Sentry filter ──
 ok(shouldDropBrowserNoise(event("SyntaxError", "Unexpected token '{'", [APP_FRAME]), { originalException: syntax("Unexpected token '{'") }, true), "WAYFIND-1M's exact shape (SyntaxError, only frame Apple's MapKit lib) is dropped");
