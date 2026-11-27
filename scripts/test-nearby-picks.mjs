@@ -136,6 +136,7 @@ ok(/roundCoord\(pos\.coords\.latitude\)/.test(showBody) && /method: "POST"/.test
 const posBody = comp.slice(comp.indexOf("const onPosition"), comp.indexOf("useEffect("));
 ok(posBody.indexOf("canAlert(") > -1 && posBody.indexOf("canAlert(") < posBody.indexOf("setNudge("), "the shared policy is checked before any nudge");
 ok(!/fetch\(/.test(posBody), "the watch never sends location anywhere");
+ok(/err\.code === 1 \? "denied" : "nofix"/.test(showBody) && /state === "nofix"/.test(comp), "a phone that cannot get a fix says so, instead of blaming the picks");
 ok(/if \(!watching/.test(comp) && /visibilitychange/.test(comp) && /clearWatch/.test(comp), "the watch runs only while opted in and stops when the tab is hidden");
 ok(!/localStorage\.setItem/.test(comp), "the component writes nothing to storage except through the coordinate-free ledger");
 ok(!/viral/i.test(read("app/components/NearbyAlerts.js").replace(/\/\/.*$/gm, "")), "the reader copy never claims a place is viral");
