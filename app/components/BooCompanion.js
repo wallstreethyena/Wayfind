@@ -35,7 +35,9 @@ const HIDE_KEY = "wf_boo_hidden";
 // open those links to vote; nothing there should float over the ballot.
 // /partners: owner 2026-11-12, "Remove Santa from /partners. Keep the page
 // executive-grade, premium, clean and credible."
-const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans", "/partners"];
+// /trips: Live Trips (2026-11-27) are private group pages like /group-plans,
+// so the same "out of the group pages" rule applies.
+const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans", "/trips", "/partners"];
 const HAUNT_PATH = "/halloween-in-florida";
 
 // Oct 1 through Oct 31 inclusive, by the Eastern site date (Santa takes Nov 1).

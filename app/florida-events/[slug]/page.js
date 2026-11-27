@@ -445,7 +445,12 @@ export default async function CuratedEventPage({ params }) {
           {e.editorial_summary ? <p style={S.p}>{e.editorial_summary}</p> : null}
           {e.why_go ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p}>{e.why_go}</p></> : aiWhyGo ? <><h2 style={S.h2}>Why it&rsquo;s worth going</h2><p style={S.p} data-ai-why-go="">{aiWhyGo}</p></> : null}
         </>}
-        actions={<>
+        quickAction={<>
+      {/* SEO audit 2026-11-27 (conversion): the ticket block sits right under
+          the facts, above the story, so it is on the first phone screen. It
+          used to come after the notes, hook, summary and "why it's worth
+          going", three or four paragraphs below the date. Moved, not copied:
+          still one ticket button and one decision line on the page. */}
       {ticket ? (
         <div style={S.ticketWrap}>
           {decisionLine ? <p style={S.decision} data-ticket-decision="">{decisionLine}</p> : null}
@@ -464,6 +469,8 @@ export default async function CuratedEventPage({ params }) {
           </p> : null}
         </div>
       ) : null}
+        </>}
+        actions={<>
       {Array.isArray(nearbyChristmasTours) && nearbyChristmasTours.length ? (
         <div style={S.box} data-nearby-holiday-tours="">
           <p style={{ margin: "0 0 10px", fontSize: 13, fontWeight: 800, letterSpacing: ".04em", textTransform: "uppercase", color: "#FF8A3D" }}>

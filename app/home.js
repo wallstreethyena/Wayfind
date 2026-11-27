@@ -8503,7 +8503,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         coupons: "Local coupons & deals · Wayfind",
         map: "Map · Wayfind",
       };
-      document.title = titles[screen] || "Wayfind | One place worth leaving home for";
+      document.title = titles[screen] || "Things to Do in Florida Today | Wayfind: One place worth leaving home for";
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, eventDate, eventCat, mapSearch, locName, cat, sub, mapUrlLens, mapUrlPlaceId]);

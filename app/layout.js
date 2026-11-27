@@ -38,6 +38,8 @@ import { styleHtml } from "../lib/styleHtml.js";
 import WayfindPlannerLoader from "./components/WayfindPlannerLoader";
 import ChristmasSiteBackdrop from "./components/ChristmasSiteBackdrop";
 import { christmasBackdropActive, christmasBackdropBootScript } from "../lib/christmasBackdrop.js";
+import { siteGraph } from "../lib/brandEntity.js";
+import { FLORIDA_HUB_LINKS, footerCultureKeys } from "../lib/floridaHubLinks.js";
 
 // Origin of the Supabase photo vault, for the preconnect hint below. Server-only
 // read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
@@ -385,7 +387,7 @@ export default function RootLayout({ children }) {
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", name: "Wayfind", url: SITE_URL, description: "Wayfind decides what's actually worth your time. Places are ranked on merit. Rankings are never for sale.", potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: SITE_URL + "/?q={search_term_string}" }, "query-input": "required name=search_term_string" } }, { "@type": "Organization", name: "WAYFIND LLC", url: SITE_URL, email: "hello@gowayfind.com", logo: SITE_URL + "/icon-512.png", sameAs: ["https://www.instagram.com/gowayfind.app/"] }] }) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteGraph()) }} />
         {/* v6.44: on "/" this footer is the last thing standing between the app
             and a document that is exactly as tall as the screen. FooterVeil
             keeps every link in the rendered DOM for crawlers and removes it
@@ -406,8 +408,19 @@ export default function RootLayout({ children }) {
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Cities</div>
-                {Object.keys(CULTURE).map((m) => (
+                {footerCultureKeys(CULTURE).map((m) => (
                   <a key={m} href={"/culture/" + m} style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0", textTransform: "capitalize" }}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
+                ))}
+              </div>
+              {/* SEO audit 2026-11-27: the Florida hub chain (Gulf Coast first,
+                  then Tampa Bay, Orlando and Miami) linked from every page, so
+                  the ranked city pages and the statewide events calendar are
+                  never more than one hop from anywhere. FLORIDA_HUB_LINKS lives
+                  in lib/floridaHubLinks.js and every href is a real route. */}
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Things to do in Florida</div>
+                {FLORIDA_HUB_LINKS.map((l) => (
+                  <a key={l.href} href={l.href} style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>{l.label}</a>
                 ))}
               </div>
               <div>

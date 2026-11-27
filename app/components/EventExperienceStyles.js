@@ -48,6 +48,7 @@ export const EVENT_EXPERIENCE_CSS = `
 .wf-event-fact{display:grid;grid-template-columns:100px minmax(0,1fr);gap:14px;font-size:15px;line-height:1.5;min-width:0}
 .wf-event-fact dt{color:#9eaab7;font-weight:600}
 .wf-event-fact dd{margin:0;min-width:0;overflow-wrap:anywhere;color:#e6edf3}
+.wf-event-quick{margin-top:18px;min-width:0}.wf-event-quick>*{margin-bottom:0!important}
 .wf-event-reason{margin-top:24px;line-height:1.6;overflow-wrap:anywhere}
 .wf-event-reason h2{font-size:19px;font-weight:600;margin:18px 0 8px}
 .wf-event-reason p:last-child{margin-bottom:0!important}

@@ -403,17 +403,21 @@ export default async function EventPage({ params }) {
             { label: "Where", value: (where || streetLine) ? <>{where ? <div>{where}</div> : null}{streetLine && streetLine !== where ? <div>{streetLine}</div> : null}</> : null },
             { label: "Cost", value: e.price || "See the organiser for admission details" },
           ]}
+          quickAction={!cancelled && external ? (
+            <>
+              {/* SEO audit 2026-11-27 (conversion): the one ticket button sits
+                  under the facts, on the first phone screen, above the story. */}
+              <TicketButton
+                url={external}
+                label={e.ticketed ? "Get tickets ↗" : "Official site ↗"}
+                eventId={e.id}
+                provider={isTicketmasterFamily(e.url) ? "ticketmaster" : "event_official"}
+                lead={ticketDecisionLine(e, siteTodayStr())}
+              />
+            </>
+          ) : null}
           story={<EventStory eventId={e.id} initialStory={initialStory} />}
           actions={<>
-        {!cancelled && external && (
-          <TicketButton
-            url={external}
-            label={e.ticketed ? "Get tickets ↗" : "Official site ↗"}
-            eventId={e.id}
-            provider={isTicketmasterFamily(e.url) ? "ticketmaster" : "event_official"}
-            lead={ticketDecisionLine(e, siteTodayStr())}
-          />
-        )}
             <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
           </>}
           note={e.ticketed ? "Confirm availability and booking terms with the ticket provider before paying." : "Confirm dates and availability on the official listing."}
