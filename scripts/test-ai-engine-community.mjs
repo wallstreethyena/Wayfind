@@ -5,7 +5,7 @@
 // travel check. No network: every I/O path runs on an injected fake.
 import assert from "node:assert/strict";
 import {
-  engineRequestCap, worstCaseCallUsd, engineMonthlyUsd, findPersonalData, engineJson, cleanPublicText, ENGINE_SKU,
+  engineRequestCap, worstCaseCallUsd, engineMonthlyUsd, engineWeeklyUsd, engineDailyCap, engineDailySku, findPersonalData, engineJson, cleanPublicText, ENGINE_SKU,
 } from "../lib/aiEngine.js";
 import {
   stopsFromItinerary, hydrateStops, validateGuideReply, writeGuide, rulesWrite, publicGuideView, publishGuide,
@@ -45,8 +45,35 @@ eq(r.ok, false, "a prompt with a phone number never leaves");
 r = await engineJson({ system: "s", user: "user 3f1c2b9a-1234-4abc-8def-0123456789ab", schema }, { env: ENV, request: fakeRequest({ a: "x" }) });
 eq(r.reason, "personal_data_in_prompt:user_id", "a prompt with an account id never leaves");
 r = await engineJson({ system: "s", user: "ok", schema }, { env: { OPENAI_API_KEY: "k" }, request: fakeRequest({ a: "x" }) });
-eq(r.reason, "missing_or_invalid_OPENAI_ENGINE_MONTHLY_USD", "no budget, no call");
+eq(r.reason, "missing_or_invalid_OPENAI_ENGINE_BUDGET", "no budget, no call");
 eq(calls.length, 1, "refused prompts made no request");
+
+// ── weekly trial budget (owner 2026-11-27: "a trial test for 80 bucks a week") ──
+{
+  const W = { OPENAI_ENGINE_WEEKLY_USD: "80", OPENAI_API_KEY: "sk-test-key-0000000000" };
+  eq(engineWeeklyUsd(W), 80, "the weekly budget is read");
+  eq(engineWeeklyUsd({ OPENAI_ENGINE_WEEKLY_USD: "900" }), null, "a weekly budget over $500 is refused");
+  eq(engineWeeklyUsd({ OPENAI_ENGINE_WEEKLY_USD: "80 dollars" }), null, "a typo in the weekly budget is refused");
+  ok(engineDailyCap(W) * worstCaseCallUsd() * 7 <= 80, "seven full days of grants never pass $80");
+  ok(engineDailyCap(W) * worstCaseCallUsd() * 7 > 79.9, "the daily grants use nearly all of the $80");
+  ok(engineRequestCap(W) >= engineDailyCap(W) * 31, "the monthly lane never binds before the daily grants");
+  eq(engineDailyCap({ OPENAI_ENGINE_MONTHLY_USD: "10" }), null, "no weekly budget means no daily grant");
+  eq(engineRequestCap({ OPENAI_ENGINE_WEEKLY_USD: "80", OPENAI_ENGINE_MONTHLY_USD: "10" }), engineRequestCap(W), "a weekly budget wins over a monthly one");
+  eq(engineDailySku(Date.UTC(2026, 10, 30, 23, 59)), "openai_engine_d20261130", "the daily row is keyed by the UTC day");
+  eq(engineDailySku(Date.UTC(2026, 11, 1, 0, 1)), "openai_engine_d20261201", "a new UTC day is a new row");
+  const asked = [];
+  const n0 = calls.length;
+  let w = await engineJson({ system: "s", user: "write about Tampa", schema }, { env: W, request: fakeRequest({ a: "x" }), take: async (sku, cap) => { asked.push([sku, cap]); return true; } });
+  eq(w.ok, true, "a call inside the daily grant goes out");
+  eq(asked.length, 1, "each call takes exactly one daily grant");
+  eq(asked[0][1], engineDailyCap(W), "the daily grant carries one seventh of the weekly budget");
+  ok(/^openai_engine_d\d{8}$/.test(asked[0][0]), "the daily grant uses today's row");
+  w = await engineJson({ system: "s", user: "write about Tampa", schema }, { env: W, request: fakeRequest({ a: "x" }), take: async () => false });
+  eq([w.ok, w.reason], [false, "daily_cap_reached_or_ledger_unavailable"], "a spent day makes no call");
+  w = await engineJson({ system: "s", user: "write about Tampa", schema }, { env: W, request: fakeRequest({ a: "x" }) });
+  eq(w.ok, false, "no ledger means no daily grant and no call");
+  eq(calls.length, n0 + 1, "only the granted call reached OpenAI");
+}
 eq(findPersonalData("Café Ponte in Tampa, 4.7 stars"), null, "ordinary place facts pass");
 ok(!/https?:|@|—/.test(cleanPublicText("Great — see https://x.com or a@b.com")), "public text loses links, emails and dashes");
 
