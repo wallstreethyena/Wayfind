@@ -121,7 +121,7 @@ eq((await as("service_role", "select count(*)::int as n from public.wf_leaderboa
 // every name the lib accepts the database stores, and every shape the
 // database refuses the lib refuses too (the lib adds a reserved word list).
 let i = 0;
-for (const name of ["Sunny", "Jo", "Ana Maria", "O'Neil", "dot.name", "under_score", "x-y", "a", "x".repeat(25), "<b>", "trailing ", "-lead", "emoji 🌴"]) {
+for (const name of ["Marisol", "Jo", "Ana Maria", "O'Neil", "dot.name", "under_score", "x-y", "a", "x".repeat(25), "<b>", "trailing ", "-lead", "emoji 🌴"]) {
   const lib = validatePublicName(name);
   let dbOk = true;
   try { await as("service_role", "update public.wf_rewards_profile set public_name = $1 where user_id = $2", [lib.ok ? lib.name : name, carol]); } catch { dbOk = false; }
