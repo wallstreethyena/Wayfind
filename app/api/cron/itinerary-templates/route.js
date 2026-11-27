@@ -1,7 +1,7 @@
-// app/api/cron/itinerary-templates/route.js — weekly refresh of the itinerary
+// app/api/cron/itinerary-templates/route.js — twice daily refresh of the itinerary
 // templates OpenAI drafts from Wayfind's own places and events (owner order
 // 2026-11-27). Fixed set: lib/itineraryTemplates.js TEMPLATE_METROS x
-// TEMPLATE_THEMES (12 drafts a week), each one OpenAI call through the capped
+// TEMPLATE_THEMES (at most 12 drafts a run), each one OpenAI call through the capped
 // engine lane (lib/aiEngine.js). A metro whose candidate list did not change
 // since the last draft is skipped (no call). If OpenAI is unavailable the
 // rules planner fills the same template from the same candidates.

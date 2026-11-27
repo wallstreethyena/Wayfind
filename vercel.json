@@ -215,7 +215,7 @@
     },
     {
       "path": "/api/cron/itinerary-templates",
-      "schedule": "10 12 * * 1"
+      "schedule": "10 12,18 * * *"
     },
     {
       "path": "/api/cron/daily-picks",
