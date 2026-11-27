@@ -10,7 +10,7 @@ import {
   forecastUrl, dailyByDate, weatherLean, weatherNote, leanParsed, fetchForecast, RAIN_LEAN_PCT, HEAT_LEAN_F,
 } from "../lib/plannerWeather.js";
 import {
-  gapRow, cleanGapName, cleanRequestedCity, summarizeGaps, reportText, pickLeadUrl, readLeadAnswer, leadQuestion, logGap,
+  gapRow, cleanGapName, cleanRequestedCity, uncoveredCityMessage, summarizeGaps, reportText, pickLeadUrl, readLeadAnswer, leadQuestion, logGap,
 } from "../lib/plannerGaps.js";
 import { engineSearch, searchUnits, citedUrls, worstCaseCallUsd, SEARCH_CALL_USD, ENGINE_SKU, engineDailyCap } from "../lib/aiEngine.js";
 
@@ -59,6 +59,11 @@ eq(cleanRequestedCity("Pensacola"), "Pensacola", "an uncovered city is kept");
 eq(cleanRequestedCity("Port St. Lucie"), "Port St. Lucie", "a city with a dot is kept");
 eq(cleanRequestedCity("my house at 12 Main St"), null, "an address is never kept");
 eq(cleanRequestedCity("x".repeat(41)), null, "a long string is dropped");
+ok(/We couldn't find Gainesville among the Florida cities Wayfind plans for yet\./.test(uncoveredCityMessage("Gainesville")), "a named but uncovered city is told so, not asked for a city again");
+ok(/check the spelling/.test(uncoveredCityMessage("Gainesville")) && !/[—–]/.test(uncoveredCityMessage("Gainesville")), "the message allows for a misspelling and has no dashes");
+eq(uncoveredCityMessage(null), null, "no city name falls back to asking for one");
+eq(uncoveredCityMessage("Florida"), null, "the state alone is not a city");
+eq(uncoveredCityMessage("12 Main St"), null, "an address is never echoed back");
 const full = gapRow({ mode: "notes", outcome: "OK", parsed, stopCount: 5, dayCount: 1, unmatched: [] });
 eq(full, null, "a full plan with nothing missing is not logged");
 const named = gapRow({ mode: "notes", outcome: "OK", parsed, stopCount: 5, dayCount: 1, unmatched: ["Bern's Steak House", "call 813-555-0100"], weatherLean: "rain" });
@@ -139,6 +144,7 @@ eq(citedUrls({ choices: [{ message: {} }] }), [], "a reply with no citations has
 const route = readFileSync(new URL("../app/api/plan-my-day/route.js", import.meta.url), "utf8");
 ok(/weatherFor\(parsedNotes\.parsed, today\)/.test(route) && /weatherFor\(parsed0, today\)/.test(route), "both planner paths read the forecast");
 ok((route.match(/recordGap\(gapRow\(/g) || []).length >= 3, "the planner logs gaps on its failure paths");
+ok(/uncoveredCityMessage\(askedCity\) \|\| parsedNotes\.clarify/.test(route), "the planner says when a named city is not covered");
 ok(/const \{ _gap, \.\.\.rest \} = v/.test(route), "the private gap field never leaves in a cached answer");
 ok(/waitUntil\(p\)/.test(route), "gap logging runs after the response");
 const cron = readFileSync(new URL("../app/api/cron/planner-gap-report/route.js", import.meta.url), "utf8");
