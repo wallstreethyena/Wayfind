@@ -85,6 +85,8 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   // 2026-11-13: "is there a bottom nav / scroll area on this page" is an html.wf-has-* class kept by
   // lib/rootPresence.js, not html:has() (scripts/test-root-has-selectors.mjs has the measurements).
   ok(/html\.wf-has-bottom-nav \.wf-sd\{--wf-santa-lift:78px\}/.test(CSS) && /bottom:var\(--wf-santa-lift\)/.test(CSS), "where the app shows its own bottom navigation, the dock sits above it");
+  ok(/@media\(max-width:600px\)\{\s*html\.wf-santa-docked \[data-santa-ask\]\{display:none\}/.test(CSS), "phones keep the bottom entry point and hide the hero button only while the dock is mounted");
+  ok(/@media\(width > 600px\)\{\s*\.wf-sd\.is-yield\{visibility:hidden/.test(CSS), "a visible hero button never hides the phone dock during a scroll or resize");
   ok(/\.wf-sd-av\{[^}]*overflow:hidden/.test(CSS) && /\.wf-sd\{[^}]*contain:layout paint/.test(CSS), "his moving parts are clipped to his own spot; the dock contains its own layout");
   ok(DOCK_H >= 56 && DOCK_H <= 72, "the dock stays slim (" + DOCK_H + "px)");
   ok(/\.wf-sd-msg\{[^}]*-webkit-line-clamp:2/.test(CSS) && /\.wf-sd-msg\{-webkit-line-clamp:3/.test(phone), "messages are clamped to fit inside the dock");
