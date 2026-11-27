@@ -212,6 +212,14 @@
     {
       "path": "/api/cron/florida-intelligence",
       "schedule": "17 */6 * * *"
+    },
+    {
+      "path": "/api/cron/itinerary-templates",
+      "schedule": "10 12 * * 1"
+    },
+    {
+      "path": "/api/cron/daily-picks",
+      "schedule": "0 15 * * *"
     }
   ]
 }

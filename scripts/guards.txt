@@ -2825,3 +2825,9 @@ node scripts/check-partner-deep-links.mjs
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
+node scripts/test-ai-engine-community.mjs
+node scripts/test-ai-engine-rls.mjs
+node scripts/test-web-push.mjs
+node scripts/test-web-push-client.mjs
+node scripts/test-guide-video-timeline.mjs
+node scripts/test-guide-video-render.mjs

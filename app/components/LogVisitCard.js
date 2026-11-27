@@ -11,6 +11,8 @@ import { C } from "./kit";
 import { CROWD, VIBE, BEST_TIME, WAIT, LABELS, MAX_BACKDATE_DAYS } from "../../lib/rewards.js";
 import { submitTripLog, devicePosition } from "../../lib/tripLogClient.js";
 import { siteTodayStr, utcCalendarDateKey } from "../../lib/siteTime";
+import { shareLink } from "../../lib/communityClient.js";
+import { DailyPicksOffer } from "./CommunitySettings.js";
 
 export const LOG_VISIT_MIN_HEIGHT = 92;
 
@@ -48,6 +50,7 @@ export default function LogVisitCard({ refKind = "place", refId, placeName = "",
   const [hereNow, setHereNow] = useState(false);
   const [intel, setIntel] = useState({ crowd: null, vibe: null, best_time: null, wait: null });
   const [status, setStatus] = useState({ phase: "idle", msg: "", result: null });
+  const [shared, setShared] = useState("");
   const firstRef = useRef(null);
 
   // A new place resets the card.
@@ -113,7 +116,18 @@ export default function LogVisitCard({ refKind = "place", refId, placeName = "",
           {r.verification === "nearby" ? "Logged on the spot, so it counts as a verified visit. " : ""}
           {rw.tier ? `You are a ${rw.tier.name}${rw.next ? `, ${rw.next.pointsToGo} points from ${rw.next.name}.` : "."}` : ""}
         </div>
-        <button type="button" onClick={openDrawer} style={{ marginTop: 10, minHeight: 44, padding: "0 14px", borderRadius: 12, border: `1px solid ${C.gold}`, background: "transparent", color: C.gold, fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>See your badges</button>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+          <button type="button" onClick={openDrawer} style={{ minHeight: 44, padding: "0 14px", borderRadius: 12, border: `1px solid ${C.gold}`, background: "transparent", color: C.gold, fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>See your badges</button>
+          <button type="button" data-log-visit-share="1" onClick={async () => {
+            const path = refKind === "event" ? (typeof window !== "undefined" ? window.location.pathname : "/") : "/p/" + encodeURIComponent(refId);
+            const url = (typeof window !== "undefined" ? window.location.origin : "https://www.gowayfind.com") + path;
+            const res = await shareLink({ url, title: placeName || "Wayfind", text: placeName ? `I just went to ${placeName}. Found it on Wayfind.` : "Found this on Wayfind." });
+            try { logEvent && logEvent("trip_log_share", { ref_kind: refKind, how: res.how }); } catch {}
+            if (res.how === "copy") setShared("Link copied");
+          }} style={{ minHeight: 44, padding: "0 14px", borderRadius: 12, border: "none", background: C.gold, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" }}>Share it</button>
+        </div>
+        {shared ? <p role="status" style={{ fontSize: 13, color: C.light, margin: "8px 0 0" }}>{shared}</p> : null}
+        <DailyPicksOffer logEvent={logEvent} />
       </div>
     );
   }

@@ -31,6 +31,10 @@ import { SPRING_BREAK_HUB_PATH, springBreakModel, springBreakRegionPageIds, spri
 // Hourly, so the curated events layer below is read at request time. During
 // `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
 // so a build-time-only sitemap would list zero events forever.
+import { tripLogEnv } from "../lib/tripLogServer";
+import { listPublishedGuides } from "../lib/communityGuides";
+import { listTemplates } from "../lib/itineraryTemplates";
+
 export const revalidate = 3600;
 // Never prerendered at build: the build-phase events read is a deliberate
 // skip (returns []), so a prerendered sitemap would be missing the whole
@@ -133,5 +137,13 @@ export default async function sitemap() {
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
   // Tour hubs (lib/eventSeriesHubs.js): one page compares every Florida date of a tour.
   const seriesHubs = EVENT_SERIES_HUBS.map((h) => ({ url: `${SITE_URL}${h.href}` }));
-  return [...core, ...seasonal, ...christmasTopics, ...nyeRegions, ...springBreak, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...places];
+  // AI engine (2026-11-27): Wayfind itineraries and community guides members
+  // chose to publish, plus their hubs. A failed read drops the rows only.
+  let community = [{ url: `${SITE_URL}/itineraries` }, { url: `${SITE_URL}/community` }, { url: `${SITE_URL}/leaderboard` }];
+  try {
+    const cfg = tripLogEnv();
+    const [tpl, cg] = await Promise.all([listTemplates(cfg).catch(() => []), listPublishedGuides(cfg, { limit: 48 }).catch(() => [])]);
+    community = [...community, ...tpl.map((t) => ({ url: `${SITE_URL}/itineraries/${t.slug}`, lastModified: t.generated_at ? new Date(t.generated_at) : undefined })), ...cg.map((g) => ({ url: `${SITE_URL}/community/${g.slug}`, lastModified: g.updated_at ? new Date(g.updated_at) : undefined }))];
+  } catch {}
+  return [...core, ...community, ...seasonal, ...christmasTopics, ...nyeRegions, ...springBreak, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...places];
 }
