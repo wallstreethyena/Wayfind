@@ -1154,7 +1154,7 @@ scripts/test-search-nearby-first.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	0ab8
 scripts/test-search-sku-accounting.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	19b998eb08ec428ea56f3137cd0f00dedce5308bb7df386a17c1e42e54f258e5
 scripts/test-search-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	31c37188991c025604ca60799d88a4b9de9e5ed9f0b755e3c6737c37582761ac
 scripts/test-search-understand-backup.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	89c807f1a3e5fab7c9789dab727782d6992b6f8585b79ce91bfbe2eaa90a321a
-scripts/test-search-vibes.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	7166aa5ad4678192726950d0bb28290d2b47c7fce0d86eb2270d875165c6f6c4
+scripts/test-search-vibes.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	496f7f71aee992d3540adf1e9a397dd868c0c04396b346c5b553d0ec12dc9f19
 scripts/test-searched-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8c6625375e2336d081a5ad4cd2659a6886cca7cbd95f0b10401e0daa4b1d1313
 scripts/test-seasonal-add-safety.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	95e5888d7cdc8d6e38602c716712c11b532b8ea7add628cf8796d61b79aace85
 scripts/test-seasonal-brand.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a29f3b33c45ed640650540ea0257cf120bac42dc644f9079e2887940a7e158ec
