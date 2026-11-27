@@ -2817,3 +2817,5 @@ node scripts/check-partner-deep-links.mjs
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
+# Opt-in nearby picks + shared alert cap/quiet hours (2026-11-27): springs allowlist, rounded point, POST only, policy before nudge.
+node scripts/test-nearby-picks.mjs

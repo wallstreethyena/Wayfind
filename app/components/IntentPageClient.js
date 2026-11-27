@@ -51,6 +51,10 @@ import { askShareIntent } from "./shareIntentSheet";
 import { placeKinds } from "../../lib/dateInvite";
 import { resolveLocationContext, locationSurface } from "../../lib/locationHonesty";
 import { settleLoad } from "../../lib/loadState.js";
+import dynamic from "next/dynamic";
+// Opt-in springs and sweet spots near the reader (2026-11-27). Its own chunk,
+// mounted on /nearby only, and it asks for location only on a tap.
+const NearbyAlerts = dynamic(() => import("./NearbyAlerts"), { ssr: false, loading: () => null });
 // v8.57 — THIS SURFACE PAINTS A SKELETON, SO IT MUST REACH A DECISION.
 // A try/catch (or .catch) only ever sees the failure mode that THROWS. The one
 // that stranded production was the other one: a fetch that neither resolves nor
@@ -671,6 +675,7 @@ export default function IntentPageClient({ intent }) {
           boundary yet.
           Every block degrades to ABSENT, never to a placeholder. */}
       <div style={{ marginTop: 18 }}>
+        {intent === "nearby" ? <NearbyAlerts /> : null}
         <IntentPartnerPick
           city={loc.city} intent={intent} inventory={tours} accent={def.accent}
           lat={loc.lat} lng={loc.lng} couponIntent={INTENT_COUPON_BADGE[intent]}
