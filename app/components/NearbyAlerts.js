@@ -15,7 +15,7 @@
 //      it already has. No further location ever leaves the phone. It stops the
 //      moment the tab is hidden, the page closes or the reader turns it off.
 //   4. Every nudge passes lib/alertPolicy.js first: one alert a day across all
-//      Wayfind alerts (push included), quiet 9 PM to 9 AM, and a place never
+//      Wayfind alerts (push included), quiet 8 PM to 9 AM, and a place never
 //      nudges twice in 30 days.
 //
 // Analytics carry counts and kinds only, never a coordinate.

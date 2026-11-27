@@ -6,7 +6,7 @@
 // and never stored, one shared daily cap and quiet hours with push.
 //
 // What this proves, by calling the real modules (no network, no env):
-//   1. lib/alertPolicy.js: quiet hours 9 PM to 9 AM in the reader's own zone,
+//   1. lib/alertPolicy.js: quiet hours 8 PM to 9 AM in the reader's own zone,
 //      one alert a day across surfaces, 30 day per-place cooldown, junk ledgers
 //      normalise to empty and never hold a coordinate.
 //   2. lib/nearbyHotspots.js: springs are the curated allowlist only, sweets need
@@ -38,7 +38,9 @@ const serve = await import(path.join(ROOT, "lib/nearbyPicksServe.js"));
 const ET = "America/New_York";
 const at = (iso) => Date.parse(iso);
 const noonET = at("2026-11-27T17:00:00Z");   // 12:00 PM Eastern (EST, UTC-5)
-ok(policy.DAILY_ALERT_CAP === 1 && policy.QUIET_START_HOUR === 21 && policy.QUIET_END_HOUR === 9, "one alert a day, quiet 9 PM to 9 AM");
+ok(policy.DAILY_ALERT_CAP === 1 && policy.QUIET_START_HOUR === 20 && policy.QUIET_END_HOUR === 9, "one alert a day, quiet 8 PM to 9 AM (the web push window)");
+ok(policy.canAlert(null, { now: at("2026-11-28T01:30:00Z"), tz: ET }).reason === "quiet_hours", "8:30 PM Eastern is quiet");
+ok(policy.canAlert(null, { now: at("2026-11-28T00:59:00Z"), tz: ET }).ok === true, "7:59 PM Eastern is allowed");
 ok(policy.canAlert(null, { now: noonET, tz: ET }).ok === true, "an empty ledger may alert at noon");
 ok(policy.canAlert(null, { now: at("2026-11-28T02:30:00Z"), tz: ET }).reason === "quiet_hours", "9:30 PM Eastern is quiet");
 ok(policy.canAlert(null, { now: at("2026-11-27T13:59:00Z"), tz: ET }).reason === "quiet_hours", "8:59 AM Eastern is quiet");
