@@ -129,6 +129,7 @@ node scripts/test-client-buffer-scan.mjs
 node scripts/test-sentry-meta-iab.mjs
 node scripts/test-nov18-alerts.mjs
 node scripts/test-sentry-webkit-bridge.mjs
+node scripts/test-sentry-mapkit-parse.mjs
 node scripts/test-sentry-mapkit-nan-weather.mjs
 node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
