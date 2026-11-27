@@ -35,6 +35,7 @@ import { valentinesModel, valentinesRegionPageIds, valentinesRegionPath } from "
 import { tripLogEnv } from "../lib/tripLogServer";
 import { listPublishedGuides } from "../lib/communityGuides";
 import { listTemplates } from "../lib/itineraryTemplates";
+import { HOLIDAY_REPORT_PATH } from "../lib/holidayReport.js";
 
 export const revalidate = 3600;
 // Never prerendered at build: the build-phase events read is a deliberate
@@ -139,6 +140,8 @@ export default async function sitemap() {
   // Christmas overview pages (owner, 2026-11-25): parades, light shows, zoo lights, Nutcracker.
   const christmasTopics = CHRISTMAS_TOPIC_SLUGS.map((slug) => ({ url: SITE_URL + christmasTopicPath(slug) }));
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
+  // Data reports (2026-11-27): the Florida Holiday Events Report, Article + Dataset JSON-LD.
+  const reports = [{ url: SITE_URL + HOLIDAY_REPORT_PATH }];
   // Tour hubs (lib/eventSeriesHubs.js): one page compares every Florida date of a tour.
   const seriesHubs = EVENT_SERIES_HUBS.map((h) => ({ url: `${SITE_URL}${h.href}` }));
   // AI engine (2026-11-27): Wayfind itineraries and community guides members
@@ -149,5 +152,5 @@ export default async function sitemap() {
     const [tpl, cg] = await Promise.all([listTemplates(cfg).catch(() => []), listPublishedGuides(cfg, { limit: 48 }).catch(() => [])]);
     community = [...community, ...tpl.map((t) => ({ url: `${SITE_URL}/itineraries/${t.slug}`, lastModified: t.generated_at ? new Date(t.generated_at) : undefined })), ...cg.map((g) => ({ url: `${SITE_URL}/community/${g.slug}`, lastModified: g.updated_at ? new Date(g.updated_at) : undefined }))];
   } catch {}
-  return [...core, ...seasonal, ...christmasTopics, ...nyeRegions, ...springBreak, ...valentines, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...community, ...places];
+  return [...core, ...seasonal, ...reports, ...christmasTopics, ...nyeRegions, ...springBreak, ...valentines, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...community, ...places];
 }
