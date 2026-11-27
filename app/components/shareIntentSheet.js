@@ -3,6 +3,12 @@ import { encodeInvite, decodeInvite, invitePath, inviteShareText, activityForPla
 // v8.46 — the pairing law. wf_center is shared state; every reader validates.
 import { centerAgreesWithLabel } from "../../lib/locationHonesty";
 import { shareOut } from "../../lib/shareOut.js";
+// Re-exported so pages that need the share chooser only on tap (Live Trips'
+// Invite friends) can load it through this module's existing lazy chunk.
+// A separate import("lib/shareOut.js") from another route makes the bundler
+// regroup the shared share/attribution code and copy ~3KB into the homepage's
+// first-load bundle (measured 2026-11-27); this chunk is already async.
+export { shareOut };
 import { beginShareFlow } from "../../lib/shareAttribution.js";
 import { groupPlanHref, placeSharePreview, runShareChoice } from "../../lib/shareContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics";

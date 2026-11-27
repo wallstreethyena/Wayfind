@@ -265,7 +265,10 @@ ok(!secondaryTicketPrimaryMatches({ ...reviewedTmPrimary, href: reviewedTmPrimar
   ok(partnerIds.length >= 4, "the registry carries Christmas partner events (" + partnerIds.join(", ") + ")");
   const mk = (id, over = {}) => base({ id, ...over });
   const eventTicketHrefs = new Map();
-  const RAILS = ["lights", "theme-parks", "parades", "boat-parades", "parties", "shows-outings", "towns-markets", "popup-bars"];
+  // One rail per ticket bucket: parades and boat-parades share the "parades"
+  // bucket (cap CHRISTMAS_TICKETS_BUCKET_CAP), so rotating both put six
+  // fixtures in one bucket once the registry passed 19 Christmas mappings.
+  const RAILS = ["lights", "theme-parks", "parades", "parties", "shows-outings", "towns-markets", "popup-bars"];
   const partner = partnerIds.map((id, i) => mk(id, { christmasRail: RAILS[i % RAILS.length], browse_categories: [] }));
   const m = christmasTicketsModel(partner, "2026-11-01", { dealsById: allDeals });
   ok(m.rows.length === partner.length, "every registry Christmas event with live deals is a ticket card (" + m.rows.length + " of " + partner.length + ")");

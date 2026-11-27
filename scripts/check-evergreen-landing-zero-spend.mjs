@@ -436,7 +436,7 @@ const render = async (c, s, city) => {
   // (Google refused inside it), the fixture eligibility test, and the
   // covered-markets lock (reads the table to prove a covered-only market is
   // never published; 2026-10-01).
-  const ALLOWED = ["lib/landing.js", "lib/landingPage.js", "scripts/audit-evergreen-evidence.mjs", "scripts/check-evergreen-landing-zero-spend.mjs", "scripts/test-covered-markets.mjs", "scripts/test-evergreen-eligibility.mjs"];
+  const ALLOWED = ["lib/landing.js", "lib/landingPage.js", "scripts/audit-evergreen-evidence.mjs", "scripts/check-evergreen-landing-zero-spend.mjs", "scripts/test-city-weekend-seo.mjs", "scripts/test-covered-markets.mjs", "scripts/test-evergreen-eligibility.mjs"];
   ok(importers.includes("lib/landing.js"), "PROBE: the importer scan finds the known importer lib/landing.js");
   ok(JSON.stringify(importers) === JSON.stringify(ALLOWED), `only the landing layer imports lib/evergreenCities.js — a cron or rail that adopts it would start spending on these towns (importers: ${importers.join(", ")})`);
   console.log(`  scanned ${files.length} files for evergreenCities importers`);

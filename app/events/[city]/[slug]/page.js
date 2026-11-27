@@ -8,13 +8,11 @@
 import EventPlacePhoto from "../../../components/EventPlacePhoto.js";
 import { EventHeroPhotoProvider, EventHeroCredit } from "../../../components/EventHeroPhotoContext.js";
 import { eventImageIsVenue } from "../../../../lib/eventImageProvenance.js";
-import { isApiPhotoSrc } from "../../../../lib/cardPhotoRequest.js";
 import EventDetailShell from "../../../components/EventDetailShell.js";
 import EventSectionNav from "../../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
-import { unstable_cache } from "next/cache";
 import { resolveEventById, idFromSlug } from "../../../../lib/eventResolve.js";
 import { isTicketmasterFamily } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow, spreadAcrossDays } from "../../../../lib/eventsList.js";
@@ -35,25 +33,17 @@ import { WF_PLACE_CARD_CSS } from "../../../components/css.js";
 import ShareButton from "../../../components/ShareButton.js";
 import { pageShareUrl } from "../../../../lib/pageShareUrl.js";
 import { eventPlaceholder } from "../../../../lib/eventPlaceholder.js";
-import { eventJsonLdDates } from "../../../../lib/eventTime.js";
+import { providerEventJsonLd } from "../../../../lib/providerEventJsonLd.js";
 import { applyStoredStartCorrection } from "../../../../lib/eventStartRefresh.js";
 import { styleHtml } from "../../../../lib/styleHtml.js";
-import { fetchCuratedEvents } from "../../../../lib/curatedEvents.js";
 import { eventCostSummary, eventHoursOnDay } from "../../../../lib/eventVisitFacts.js";
-import { packForCache, unpackFromCache } from "../../../../lib/cachePack.js";
 import { eventInWeekendRegion, regionalWeekendPicks, weekendRegion } from "../../../../lib/regionalWeekend.js";
+import { readWeekendEvents } from "../../../../lib/weekendEventsRead.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const CANON = "https://www.gowayfind.com";
-const readWeekendEvents = unstable_cache(
-  async (start, end) => packForCache("regional-weekend", await fetchCuratedEvents({
-    fresh: true, upcomingFrom: start, startsThrough: end,
-  })),
-  ["regional-weekend-events-v1"],
-  { revalidate: 900, tags: ["curated-events"] },
-);
 
 // v5.62 (audit Phase 5): the [slug] segment is shared — a known time-window
 // slug (this-weekend/tonight/this-month) renders the server-side event LIST
@@ -117,7 +107,7 @@ export async function generateMetadata({ params }) {
     if (!city) return { title: "Events · Wayfind", robots: { index: false, follow: true } };
     const win = EVENT_WINDOWS[params.slug];
     const region = weekendRegion(params.city, params.slug);
-    const heading = region ? `Things to Do in ${region.name} This Weekend` : `Events ${win.title} in ${city.name}, ${city.state}`;
+    const heading = region ? `Things to Do in ${region.name} This Weekend` : params.slug === "this-weekend" ? `Things to Do in ${city.name}, ${city.state} This Weekend` : `Events ${win.title} in ${city.name}, ${city.state}`;
     const title = `${heading} | Wayfind`;
     const description = region
       ? `Plan this weekend in ${region.name}. Find local event picks, free options, family outings and dates, with times, admission and parking details where available.`
@@ -174,6 +164,14 @@ function fmtDay(dateStr) {
   try { return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); } catch { return dateStr; }
 }
 
+// A list item is a full Event when the row supports one, else a plain
+// url ListItem (valid on its own; never an Event missing its location).
+function listEventItem(e) {
+  const url = e.destKind === "internal" ? `${CANON}${e.dest}` : e.dest;
+  const item = providerEventJsonLd(e, { pageUrl: url });
+  return item ? { item } : { name: e.name, url };
+}
+
 async function EventListPage({ params }) {
   const win = EVENT_WINDOWS[params.slug];
   const region = weekendRegion(params.city, params.slug);
@@ -181,7 +179,7 @@ async function EventListPage({ params }) {
   const range = windowRange(params.slug, now);
   const [res, curated] = await Promise.all([
     fetchCityEvents(params.city),
-    region ? readWeekendEvents(range.start, range.end).then(unpackFromCache).catch((error) => {
+    region ? readWeekendEvents(range.start, range.end).catch((error) => {
       console.error("Regional weekend picks unavailable", params.city, error);
       return null;
     }) : null,
@@ -190,7 +188,7 @@ async function EventListPage({ params }) {
   const { city } = res;
   const picks = curated ? regionalWeekendPicks(curated, region, now) : [];
   const pickSlugs = new Set(picks.map(({ href }) => href));
-  const heading = region ? `Things to Do in ${region.name} This Weekend` : `Events ${win.title} in ${city.name}, ${city.state}`;
+  const heading = region ? `Things to Do in ${region.name} This Weekend` : params.slug === "this-weekend" ? `Things to Do in ${city.name}, ${city.state} This Weekend` : `Events ${win.title} in ${city.name}, ${city.state}`;
   const dateLabel = range.start === range.end ? fmtDay(range.start) : `${fmtDay(range.start)} to ${fmtDay(range.end)}`;
   // Every day in the window gets a slot before any day gets a second one
   // (a plain slice(0, 60) of the date-ordered feed made this-month == this-weekend).
@@ -207,20 +205,25 @@ async function EventListPage({ params }) {
       "@type": "ListItem", position: i + 1, name: event.event_name, url: `${CANON}${href}`,
     })), ...events.map((e, i) => ({
       "@type": "ListItem", position: picks.length + i + 1,
-      item: {
-        "@type": "Event", name: e.name,
-        startDate: eventJsonLdDates(e).startDate,
-        eventStatus: "https://schema.org/EventScheduled",
-        url: e.destKind === "internal" ? `${CANON}${e.dest}` : e.dest,
-        ...(e.venue ? { location: { "@type": "Place", name: e.venue, ...(e.city ? { address: e.city } : {}) } } : {}),
-        ...(e.image && !isApiPhotoSrc(e.image) ? { image: [e.image] } : {}),
-      },
+      ...listEventItem(e),
     }))],
+  };
+  // 2026-11-27: the trail Google shows above the result (Wayfind > Events >
+  // this list). /events/<city> itself redirects, so the list is level 3.
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Wayfind", item: CANON },
+      { "@type": "ListItem", position: 2, name: "Events", item: `${CANON}/events` },
+      { "@type": "ListItem", position: 3, name: heading, item: canonBase },
+    ],
   };
   return (
     <div className="wf-page-canvas" style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
       <style dangerouslySetInnerHTML={styleHtml(WF_PLACE_CARD_CSS)} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd).replace(/</g, "\\u003c") }} />
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 20px 48px" }}>
         <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
         <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, margin: "16px 0 4px" }}>{heading}</h1>
@@ -304,6 +307,9 @@ async function EventListPage({ params }) {
             <RailDots railId={`event-window-${params.city}-${params.slug}`} count={events.length} />
           </div>
         ) : null}
+        <p style={{ margin: "20px 0 0", fontSize: 14 }}>
+          <a href={`/things-to-do/${params.city}`} style={{ color: A, fontWeight: 700, display: "inline-flex", alignItems: "center", minHeight: 44 }}>Best things to do in {city.name}, any weekend</a>
+        </p>
         <div style={{ marginTop: 18, fontSize: 11.5, color: "#64748B" }}>Every listing is a real, validated event — no dead links, no past dates. Times can change; confirm before you go.</div>
       </div>
     </div>
@@ -367,20 +373,14 @@ export default async function EventPage({ params }) {
     : [];
   const storyEvent = eventStoryEvidence(e);
   const initialStory = eventStoryFallback(storyEvent);
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: e.name,
-    startDate: eventJsonLdDates(e).startDate,
-    eventStatus: cancelled ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
-    ...(e.venue ? { location: { "@type": "Place", name: e.venue, ...(e.city ? { address: e.city } : {}) } } : {}),
-    ...(e.image && !isApiPhotoSrc(e.image) ? { image: [e.image] } : {}),
-    ...(e.url ? { url: e.url } : {}),
-  };
+  // One builder for provider Event markup (lib/providerEventJsonLd.js): full
+  // PostalAddress, real end/price only, url = this page. null (no place or no
+  // start) publishes nothing rather than a broken Event.
+  const jsonLd = providerEventJsonLd(e, { pageUrl: `${CANON}/events/${params.city}/${params.slug}` });
   const A = "#F97316";
   return (
     <div className="wf-event-experience"><EventExperienceStyles />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {jsonLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} /> : null}
       <div className="wf-event-wrap">
         <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 18 }}>
           <a href="/" aria-label="Wayfind home" style={{ display: "inline-flex", alignItems: "center" }}><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="132" height="38" style={{ width: 132, height: "auto", display: "block" }} /></a>

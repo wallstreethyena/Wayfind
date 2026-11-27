@@ -9,6 +9,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { scrubGroupPlanTelemetry, isGroupPlanPath } from "../lib/groupPlanPrivacy.js";
+import { withShareToken, mintShareToken } from "../lib/shareAttribution.js";
 import { parseZonedDateTime } from "../lib/groupPlanTime.js";
 import { baseSentryOptions } from "../lib/sentryShared.js";
 import { createGroupPlan, applyGroupPlanCommand, organizerPlanView, participantPlanView, settleGroupPlan } from "../lib/groupPlan.js";
@@ -269,6 +270,14 @@ try {
    const forwarded=baseSentryOptions("fixture-dsn").beforeSend(event,{});absent(JSON.stringify(forwarded),new RegExp(capability.replaceAll(".","\\.")),"the actual Sentry beforeSend must wire the scrubber");
    const ordinary={message:"Ordinary public error",request:{url:"https://www.gowayfind.com/events"},extra:{publicCount:2}};eq(scrubGroupPlanTelemetry(ordinary),ordinary,"non-group useful diagnostics remain intact");
    for(const p of ["/group-plans","/group-plans/new","/api/group-plans/ui-plan"])eq(isGroupPlanPath(p),true);eq(isGroupPlanPath("/group-plans-public"),false);
+   // Live Trips are private group links too: the invite code rides in #j=, so no tag, share token or error report may carry it.
+   for(const p of ["/trips/0b6c4c1e-1111-4222-8333-444455556666","/api/trips/live","/api/trips/live/0b6c4c1e-1111-4222-8333-444455556666/ops"])eq(isGroupPlanPath(p),true,p+" is a private group link");
+   for(const p of ["/tripsfoo","/api/trips/other","/events"])eq(isGroupPlanPath(p),false,p+" is not a private group link");
+   {const code="Zq3xY7wP0aB2cD4eF6gH8i";const safe=scrubGroupPlanTelemetry({request:{url:"https://www.gowayfind.com/trips/0b6c4c1e-1111-4222-8333-444455556666#j="+code,headers:{cookie:"x"}},message:"failed at https://www.gowayfind.com/trips/0b6c4c1e-1111-4222-8333-444455556666#j="+code,breadcrumbs:[{data:{to:"/trips/x#j="+code}}],extra:{inviteUrl:"https://www.gowayfind.com/trips/y#j="+code}});
+    absent(JSON.stringify(safe),new RegExp(code),"a Live Trip invite code never survives an error report");
+    const tok=mintShareToken(globalThis);yes(typeof tok==="string"&&tok.length>0,"positive control: a share token can be minted");
+    yes(withShareToken("https://www.gowayfind.com/events",tok).includes("wf_st="),"positive control: a public link gets the share token");
+    eq(withShareToken("https://www.gowayfind.com/trips/0b6c4c1e-1111-4222-8333-444455556666#j="+code,tok),"https://www.gowayfind.com/trips/0b6c4c1e-1111-4222-8333-444455556666#j="+code,"a Live Trip invite link is shared exactly as is, with no share token");yes(!safe.request.headers);eq(safe.request.url,"https://www.gowayfind.com/trips/:private");eq(safe.breadcrumbs,[]);}
  });
 
  await test("unknown venue hours stay eligible but need their own acknowledgement",()=>{

@@ -41,7 +41,7 @@ const muted = { margin: "6px 0 0", fontSize: 13, lineHeight: 1.5, color: "#8B949
 function safeTrack(name, props) { try { track(name, props); } catch (e) {} }
 
 export default function NearbyAlerts() {
-  const [state, setState] = useState("idle"); // idle | locating | loading | ready | empty | denied | error
+  const [state, setState] = useState("idle"); // idle | locating | loading | ready | empty | denied | nofix | error
   const [picks, setPicks] = useState(null);
   const [watching, setWatching] = useState(false);
   const [nudge, setNudge] = useState(null);
@@ -55,7 +55,7 @@ export default function NearbyAlerts() {
   }, []);
 
   const showPicks = useCallback(() => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) { setState("error"); return; }
+    if (typeof navigator === "undefined" || !navigator.geolocation) { setState("nofix"); return; }
     setState("locating");
     safeTrack("nearby_picks_requested", {});
     navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -77,7 +77,9 @@ export default function NearbyAlerts() {
         setState("error");
       }
     }, (err) => {
-      setState(err && err.code === 1 ? "denied" : "error");
+      // 1 = the reader said no; 2/3 = the phone could not get a fix (indoors, GPS off, timeout).
+      // Neither reached the server, so neither may read as "we could not load picks".
+      setState(err && err.code === 1 ? "denied" : "nofix");
     }, { enableHighAccuracy: false, maximumAge: 300000, timeout: 15000 });
   }, []);
 
@@ -134,6 +136,9 @@ export default function NearbyAlerts() {
         </>
       ) : null}
       {state === "denied" ? <p style={muted} role="status">Location is off for Wayfind in this browser, so we can't find picks near you. Everything below still works.</p> : null}
+      {state === "nofix" ? (
+        <p style={muted} role="status">We couldn't get your location just now. Check that location is on, then <button type="button" onClick={showPicks} style={{ ...btn(false), minHeight: 32, padding: "4px 12px", marginLeft: 6 }}>Try again</button></p>
+      ) : null}
       {state === "error" ? (
         <p style={muted} role="status">We couldn't load picks near you just now. <button type="button" onClick={showPicks} style={{ ...btn(false), minHeight: 32, padding: "4px 12px", marginLeft: 6 }}>Try again</button></p>
       ) : null}
