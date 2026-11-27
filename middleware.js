@@ -47,6 +47,13 @@ export const config = {
     // session and membership itself; this adds same-origin + per-IP limits.
     "/api/trips/live",
     "/api/trips/live/:path*",
+    // AI engine (2026-11-27): publish/unpublish community guides (an OpenAI
+    // call per publish, capped per member), leaderboard name changes (OpenAI
+    // moderation) and web push subscribe. Each route verifies the session
+    // itself; this adds same-origin + per-IP limits.
+    "/api/community-guides",
+    "/api/leaderboard",
+    "/api/push/web",
     // Private group ballots use their own capability/owner authorization too.
     "/api/group-plans/:path*",
     // Friend votes on a shared Christmas plan (anonymous voter token, service role write): same-origin + per-IP rate limit.

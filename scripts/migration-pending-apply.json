@@ -124,5 +124,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2817 (Live Trips, owner order 2026-11-27)",
     "reason": "Live Trips: real-time group itineraries. Additive: two new tables (RLS on, service role only; members read only their own membership row), the service-role commit function (compare-and-swap + same-transaction realtime.send), and two policies on realtime.messages admitting only trip members to the private 'live-trip:<id>' channel. Applied through the canonical path right after merge under the owner's 2026-11-27 order; this entry moves to scripts/migration-apply-log.jsonl with the receipt. Reverse in the file header. Tested on PGlite by scripts/test-live-trip-db.mjs."
+    },
+    {
+    "file": "supabase/migrations/20261127150000_wf_ai_engine_community.sql",
+    "sha256": "88639cbe867f0d6d372460ab18dafa7a817ff4fe0c45909c78256ceb68a87ce1",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2814 (owner order 2026-11-27, OpenAI AI engine)",
+    "reason": "AI engine: community guides, itinerary templates, web push subscriptions, per member AI usage, leaderboard columns and functions, guide reward kind. Additive only, RLS on every new table, functions service role only. Applied with the exact merged bytes right after this PR merges; the receipt replaces this entry. Reverse in the file header."
   }
 ]

@@ -163,7 +163,14 @@ try {
   check(() => assert.equal((home.match(/navigator\.clipboard\.writeText\s*\(/g) || []).length, 1));
   check(() => assert.match(home, /function copyCouponCode\(code\)[\s\S]{0,160}navigator\.clipboard\.writeText\(code\)/));
   const shareCallers = files.filter((f) => /navigator\.share\s*\(/.test(strip(readFileSync(f, "utf8")))).map((f) => path.relative(ROOT, f)).sort();
-  check(() => assert.deepEqual(shareCallers, ["app/ask/AskClient.js", "lib/shareOut.js"]));
+  check(() => assert.deepEqual(shareCallers, ["app/ask/AskClient.js", "app/components/GuideVideoPreview.js", "lib/shareOut.js"]));
+  // The community guide video is the second file-export exception: it hands
+  // the member's own rendered MP4 to the phone's sheet. Links still go through
+  // shareOut, and it never writes the clipboard (asserted by the list above).
+  const guideVideo = strip(readFileSync(path.join(ROOT, "app/components/GuideVideoPreview.js"), "utf8"));
+  check(() => assert.equal((guideVideo.match(/navigator\.share\s*\(/g) || []).length, 1, "the guide video’s sole transport exception is its explicit video-file export"));
+  check(() => assert.match(guideVideo, /navigator\.share\(\{ files: \[file\]/));
+  check(() => assert.match(guideVideo, /shareOut\(\{ url: location\.href/, "the guide video’s link fallback goes through shareOut"));
   const ask = strip(readFileSync(path.join(ROOT, "app/ask/AskClient.js"), "utf8"));
   check(() => assert.equal((ask.match(/navigator\.share\s*\(/g) || []).length, 1, "Ask’s sole transport exception is its explicit image-file export"));
   check(() => assert.match(ask, /navigator\.share\(\{ files: \[file\] \}\)/));
