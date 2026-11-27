@@ -2825,3 +2825,15 @@ node scripts/check-partner-deep-links.mjs
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
+
+# 2026-11-27 Live Trips (real-time group itineraries, offline-first): the one reducer +
+# HLC last-writer-wins + fractional order keys, 8 randomized 4-device convergence runs
+# (dropped/reordered messages, lost replies, offline edits applied exactly once, no sync
+# loop); the migration on PGlite (no client access to trips, compare-and-swap commit,
+# broadcast only in the saving transaction, members-only private channel); the API
+# handlers (auth, invite capability, roles, limits, re-apply on a lost race); IndexedDB
+# store + offline engine in real Chromium, service worker schema parity.
+node scripts/test-live-trip-sync.mjs
+node scripts/test-live-trip-db.mjs
+node scripts/test-live-trip-route.mjs
+node scripts/test-live-trip-idb.mjs

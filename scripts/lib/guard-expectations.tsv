@@ -940,6 +940,11 @@ scripts/test-list-engine.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	15f0edb01344
 scripts/test-live-event-posters-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0	0f191afd45dd23ec4ab756c9ee94d739037b027c6f3f9ee7761f58a54af91e39
 scripts/test-live-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	340f34680f78e5459596756b98d49f3704e302b1fd754d3c196dd2adcab0fe15
 scripts/test-live-poster-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	c89fb0543a5074412568e712d86e1319a0af10ff465fa1b16fc2083aeea0fc57
+scripts/test-live-trip-db.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	1	1	1c0a879bcc06a99a36ef1ee83c5c8c291cf56051acea3b00a90afccd28e9e01c
+scripts/test-live-trip-e2e.mjs	0	CALL	unwired	0	-	16	0	0	fe5a84c2d293898d063fcda8d8469f498b92d5631f2d19eac7944c865ff99dbb
+scripts/test-live-trip-idb.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	cd04513126debbdd51f707164231960bc45b6c3fbccfe83f7cf6b56e9ccd21e5
+scripts/test-live-trip-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	feea6e8f68f99805d07b5ab0ac73e6c321d2fe1ddfac0efc243d20ce374463ce
+scripts/test-live-trip-sync.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0	3d370e3412e196cd0972f948ebbd6c009b9e4ad73ac883681e93d98c1e649d72
 scripts/test-local-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	1	1	47b7a9b8444c4d9b10c47e658e1f14e27cd352bb33908faec637cc82f381215f
 scripts/test-locality-backfill-evidence.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	bd0f92234926fde785f80b350bfdcbbf4418436bb71b47dc3a4545cd1aabc50f
 scripts/test-locality-fill.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	eb7f48019e611bccdd886db3dccbbef85339a08bc2dca1f9994a989b4e5e9ef2

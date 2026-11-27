@@ -98,6 +98,11 @@ export default function ItineraryScreen({ ctx }) {
   const [dateEditFor, setDateEditFor] = useState(null);
   const [dateDraft, setDateDraft] = useState("");
   const [shareConfirmPending, setShareConfirmPending] = useState(null);
+  // Live Trips (2026-11-27): plan one trip together with friends in real time.
+  const [liveBusy, setLiveBusy] = useState(false);
+  const [liveTrips, setLiveTrips] = useState(null);
+  const [liveError, setLiveError] = useState("");
+  const liveTripsOn = process.env.NEXT_PUBLIC_LIVE_TRIPS_OFF !== "1";
 
   // Manual trip creator state (Trip Index)
   const [manualCreateOpen, setManualCreateOpen] = useState(false);
@@ -210,6 +215,54 @@ export default function ItineraryScreen({ ctx }) {
     setActiveTrip(res.tripKey);
   };
 
+  const liveToken = async () => {
+    try {
+      const { getSupabase } = await import("../../../lib/lazySupabase.js");
+      const sb = await getSupabase();
+      const res = sb ? await sb.auth.getSession() : null;
+      return (res && res.data && res.data.session && res.data.session.access_token) || null;
+    } catch (e) { return null; }
+  };
+  const startLiveTrip = async (t, items) => {
+    if (!liveTripsOn || liveBusy) return;
+    if (!requireAuth("Sign up free to plan this trip together with friends.")) return;
+    setLiveBusy(true);
+    setLiveError("");
+    try {
+      const token = await liveToken();
+      const r = await fetch("/api/trips/live", {
+        method: "POST",
+        headers: { "content-type": "application/json", ...(token ? { authorization: "Bearer " + token } : {}) },
+        body: JSON.stringify({ trip: { key: t.key, city: t.city, state: t.state, title: t.title, startDate: t.startDate || null, endDate: t.endDate || null, items: (items || []).map((it, i) => ({ id: it.id, place: it.place, day: it.day || null, order: i, note: it.note || "", visited: !!it.visited, locked: !!it.locked })) } }),
+      });
+      const body = await r.json().catch(() => null);
+      if (r.ok && body && body.ok && body.id) {
+        try { logEvent("live_trip_start", null, { stops: (items || []).length }); } catch (e) {}
+        window.location.assign("/trips/" + body.id);
+        return;
+      }
+      setLiveError((body && body.message) || "We couldn't start live planning. Please try again.");
+    } catch (e) {
+      setLiveError("We couldn't start live planning. Check your connection and try again.");
+    }
+    setLiveBusy(false);
+  };
+
+  useEffect(() => {
+    if (!liveTripsOn || !user || activeTrip) return undefined;
+    let alive = true;
+    (async () => {
+      const token = await liveToken();
+      if (!token) return;
+      try {
+        const r = await fetch("/api/trips/live", { headers: { authorization: "Bearer " + token }, cache: "no-store" });
+        const body = await r.json().catch(() => null);
+        if (alive && body && body.ok && Array.isArray(body.trips)) setLiveTrips(body.trips);
+      } catch (e) {}
+    })();
+    return () => { alive = false; };
+  }, [user && user.id, activeTrip]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <>
         {!user && (
@@ -272,6 +325,20 @@ export default function ItineraryScreen({ ctx }) {
                 </div>
                 {user && itineraryFlags && itineraryFlags.sync ? <span style={{ fontSize: 12, color: C.light }}>Synced across devices</span> : null}
               </div>
+
+              {liveTrips && liveTrips.length > 0 && (
+                <div data-wf-live-trips="1" style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.light, marginBottom: 8 }}>Planning with friends</div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {liveTrips.map((lt) => (
+                      <a key={lt.id} href={"/trips/" + lt.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: "12px 14px", minHeight: 44, color: C.text, textDecoration: "none" }}>
+                        <span style={{ fontWeight: 800, fontSize: 14, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lt.title}</span>
+                        <span style={{ fontSize: 12, color: "#86EFAC", fontWeight: 800, whiteSpace: "nowrap" }}>● Live · {lt.stops} stop{lt.stops === 1 ? "" : "s"}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Primary Trip Index Actions: Build with Wayfind + Create manually */}
               <div
@@ -880,6 +947,7 @@ export default function ItineraryScreen({ ctx }) {
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
                 {items.length > 0 && shareList && <button onClick={() => { if (listNeedsConfirm) { setShareConfirmPending("list"); return; } try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
+                {liveTripsOn && items.length > 0 && <button type="button" data-wf-live-start="1" aria-label={`Plan ${tripTitle} together with friends, live`} disabled={liveBusy} onClick={() => startLiveTrip(t, items)} style={{ background: C.accent, border: "1px solid " + C.accent, color: "#040810", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: liveBusy ? "default" : "pointer", whiteSpace: "nowrap", opacity: liveBusy ? 0.7 : 1 }}>{liveBusy ? "Starting…" : "Plan together"}</button>}
                 {itineraryFlags && itineraryFlags.share && items.length > 0 && <button aria-label={`Share an unlisted snapshot link for ${tripTitle}`} onClick={() => { if (!requireAuth("Sign up free to share an unlisted snapshot link to this trip.")) return; if (itinNeedsConfirm) { setShareConfirmPending("itinerary"); return; } if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
                 {items.length > 0 && (
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
@@ -906,6 +974,7 @@ export default function ItineraryScreen({ ctx }) {
                   </div>
                 )}
               </div>
+              {liveError && <div role="alert" data-wf-live-error="1" style={{ fontSize: 12.5, color: "#FCA5A5", marginBottom: 12, lineHeight: 1.4 }}>{liveError}</div>}
               {preShareNotices.length > 0 && (
                 <div data-wf-share-limit-note="true" style={{ fontSize: 12, color: C.muted, marginBottom: 12, lineHeight: 1.4 }}>
                   {preShareNotices.join(" ")}

@@ -97,3 +97,5 @@ node scripts/check-experiences-link-health.mjs
 
 # Thanksgiving mounts the real sheet and measures shared cards in Chromium.
 node scripts/test-thanksgiving-client.mjs --browser
+# Launches Chromium and a localhost file server (IndexedDB in a real browser).
+node scripts/test-live-trip-idb.mjs
