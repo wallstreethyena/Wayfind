@@ -529,7 +529,7 @@ scripts/test-affiliate-chip.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	
 scripts/test-affiliate-tags.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	c6816c329a1a3cefe2cf8e2aec37cfee8e0d871fb8082575e5c9e85c27635ffd
 scripts/test-affiliates.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	50facb4684811511654df66a057b13563dcb91afed2961a4f266b5093d9d4343
 scripts/test-ai-board.mjs	0	CALL	blocks-ci-and-deploy	1	-	74	0	0	b864841cd7fd3d2a81a5b2e4f5b7b1f4b437998763ee77a0d2bb0273e84b52eb
-scripts/test-ai-engine-community.mjs	0	CALL	blocks-ci-and-deploy	1	-	115	0	0	c46248ec72a417f04baca9aedaf3a3fbaf57ace00f50945a3a0df912821b708f
+scripts/test-ai-engine-community.mjs	0	CALL	blocks-ci-and-deploy	1	-	116	0	0	3266f4d04417b537d15f32e7c77310786a4e3a4019c51b7c37b6ceecd420c1d2
 scripts/test-ai-engine-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	fb702054edf271a8067b05815e2341be352e2883f7390db2a7d453fe90d5785e
 scripts/test-ai-itinerary-planner.mjs	0	RENDER	blocks-ci-and-deploy	1	-	151	0	0	223794e4422656a046723b66679a70eb47b91e32f1f3163aab1a176632cf9c67
 scripts/test-analytics-attribution-meta.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	346c0a79c94fdb93509d27d97948b971c4fb400bb3fb05ccd9f2f8febdaa39d1
