@@ -9,8 +9,9 @@ import { GUIDES } from "../lib/guides.js";
 
 const root = process.cwd();
 const { default: Hub, seasonalSearchMetadata } = await loadComponent(path.join(root, "app/components/SeasonalSearchHub.js"), root);
-assert.equal(SEASONAL_SEARCH_HUBS.length, 4);
-assert.equal(new Set(SEASONAL_SEARCH_HUBS.map((h) => h.slug)).size, 4);
+// 2026-11-27: fifth hub, Valentine's Day in Florida (lib/valentines.js page).
+assert.equal(SEASONAL_SEARCH_HUBS.length, 5);
+assert.equal(new Set(SEASONAL_SEARCH_HUBS.map((h) => h.slug)).size, 5);
 assert.equal(seasonalSearchHub("missing"), null);
 assert.throws(() => seasonalSearchMetadata("missing"));
 assert.throws(() => seasonalSearchSections(SEASONAL_SEARCH_HUBS[0], ""));
@@ -61,4 +62,4 @@ const sitemap = readFileSync("app/sitemap.js", "utf8");
 assert.match(sitemap, /SEASONAL_SEARCH_HUBS\.map/);
 assert.match(sitemap, /return \[\.\.\.core, \.\.\.seasonal,/);
 for (const file of ["app/layout.js", "app/guides/page.js", "app/guides/[slug]/page.js"]) assert.match(readFileSync(file, "utf8"), /<SeasonalSearchNav[\s/>]/);
-console.log("PASS: four rendered seasonal hubs, real guide destinations, canonical/schema parity, expiration boundaries and discovery links");
+console.log("PASS: five rendered seasonal hubs, real guide destinations, canonical/schema parity, expiration boundaries and discovery links");

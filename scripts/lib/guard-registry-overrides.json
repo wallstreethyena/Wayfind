@@ -1287,5 +1287,13 @@
    "detail": "2026-11-25: the spring break hub and area pages carry event ticket buttons months ahead so they can rank. A wrong window shows last year's or off-season events under Wayfind's name, and a thin area page is a low-quality page offered to Google."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-valentines.mjs": {
+  "protects": "The Valentine's Day 2027 pages (lib/valentines.js): the stated dates (Sunday Feb 14, Presidents Day Feb 15), only curated rows running Feb 12 to 15, 2027 that pass the /florida-events trust gates, real Viator product codes booked through /api/commerce/go and dropped when the sweep proves them dead, no invented price, free or sold-out claim, no ordering by commission, and area pages (and sitemap rows) only with at least 3 real listings, retired after the weekend.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "2026-11-27: the Valentine's hub and area pages sell sunset cruises and event tickets months ahead so they can rank. A wrong date or window shows the wrong weekend under Wayfind's name, a dead product sends buyers to a 404, and a thin area page is a low-quality page offered to Google."
+  },
+  "owner": "Revenue QA"
  }
 }
