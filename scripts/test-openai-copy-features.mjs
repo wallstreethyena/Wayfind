@@ -25,7 +25,7 @@ import {
   cleanNotes, validateNotesIntent, parsedFromNotes, nameMatches, PLAN_DAY_AREAS,
 } from "../lib/planMyDay.js";
 import { travelEstimate, legDirectionsUrl } from "../lib/travelEstimate.js";
-import { PARTNER_GO_RX, clientStop, withTravel, stopTypeLabel, isAdultOnlyCandidate, wantsKidFriendly, withPartnerTicket, buildItinerary } from "../lib/itineraryBuilderServer.js";
+import { PARTNER_GO_RX, clientStop, withTravel, stopTypeLabel, isAdultOnlyCandidate, wantsKidFriendly, wantsChristmas, withPartnerTicket, buildItinerary } from "../lib/itineraryBuilderServer.js";
 import { normalizeGroundedCandidate } from "../lib/wayfindPlanner.js";
 import { whyGoQueue } from "../app/api/cron/ai-why-go/route.js";
 
@@ -160,6 +160,28 @@ ok(canned.why === "Small batch coffee by the bay.", "a planner slot filler line 
   const adultPlan = await buildItinerary(adultParsed, { deps });
   const adultIds = adultPlan.ok ? [...adultPlan.itinerary.days.flatMap((d) => d.stops), ...adultPlan.pool].map((x) => x.id) : [];
   ok(adultIds.includes("ChIJjoy00001") || adultIds.includes("ChIJclub0001"), "an adults trip still sees the holiday bars (positive control)");
+}
+{
+  // Live check 2026-11-27: a Tampa kids plan offered "Paddle Pub Tampa" (a tour) and had no Christmas event though the notes asked for lights.
+  const paddle = norm({ id: "ChIJpaddle01", kind: "place", name: "Paddle Pub Tampa (Kraken CycleBoats)", category: "tours", primaryType: "tour_agency", types: ["tour_agency"], lat: 27.94, lng: -82.46 });
+  const adultEvent = norm({ id: "strandhill-miracle-2026", kind: "event", title: "Miracle at Strandhill", name: "Miracle at Strandhill", category: "holiday", audience: "adults-only", lat: 27.96, lng: -82.46 });
+  const publix = norm({ id: "ChIJpublix01", kind: "place", name: "Publix Super Market", category: "shopping", primaryType: "supermarket", types: ["supermarket"], lat: 27.95, lng: -82.45 });
+  ok(isAdultOnlyCandidate(paddle) && isAdultOnlyCandidate(adultEvent) && !isAdultOnlyCandidate(publix) && !isAdultOnlyCandidate(zoo), "a pub named tour and an adults only Christmas event are kept off kid trips; Publix and the zoo are not");
+  const xmasCards = [
+    { id: "mosi-santa-space-2026", kind: "event", title: "Santa in Space", name: "Santa in Space at MOSI", venue: "MOSI", city: "Tampa", category: "holiday", start_date: "2026-12-12", end_date: "2026-12-12", lat: 28.0536, lng: -82.4053, ticketRow: { cta: { href: "/api/commerce/go?provider=tiqets&offer=1", label: "Get Tickets" } } },
+    { id: "glazer-gingerbread-2026", kind: "event", title: "Gingerbread Village", name: "Gingerbread Village", venue: "Glazer Children's Museum", city: "Tampa", category: "holiday", start_date: "2026-12-01", end_date: "2026-12-31", lat: 27.9497, lng: -82.4614 },
+  ];
+  const lots = Array.from({ length: 12 }, (_, i) => ({ id: "ChIJplace" + String(i).padStart(3, "0"), name: "Spot " + i, city: "Tampa", category: i % 3 ? "food" : "park", primaryType: i % 3 ? "restaurant" : "park", types: [i % 3 ? "restaurant" : "park"], lat: 27.95 + i * 0.002, lng: -82.46 + i * 0.002, rating: 4.8, reviews: 4000, wfScore: 97 }));
+  const xdeps = { curated: false, christmasBrowseGet: async () => new Response(JSON.stringify({ cards: xmasCards })), siteSearch: async () => new Response(JSON.stringify({ places: lots })) };
+  const xParsed = parsedFromNotes("Tampa Dec 12 to 13 with two kids. Want Christmas lights and good cheap dinners.", validateNotesIntent({}, "2026-11-27"), "2026-11-27").parsed;
+  ok(wantsChristmas(xParsed), "Christmas lights in the notes asks for a Christmas night");
+  const xPlan = await buildItinerary(xParsed, { deps: xdeps });
+  const xDays = xPlan.ok ? xPlan.itinerary.days : [];
+  ok(xDays.length >= 2 && xDays.every((d) => d.stops.some((s) => s.kind === "event" && (s.id === "mosi-santa-space-2026" || s.id === "glazer-gingerbread-2026"))), "every day of a Christmas trip carries a real Christmas event that runs that day");
+  const d1 = xDays.find((d) => d.date === "2026-12-12");
+  ok(d1 && d1.stops.some((s) => s.id === "mosi-santa-space-2026" && s.ticket && /^\/api\/commerce\/go\?/.test(s.ticket.href)), "a Christmas event with partner tickets is picked first, on the one day it runs");
+  const d2 = xDays.find((d) => d.date === "2026-12-13");
+  ok(d2 && !d2.stops.some((s) => s.id === "mosi-santa-space-2026") && d2.stops.length <= 5, "a one night event is never placed on a day it does not run, and no day goes past five stops");
 }
 
 // ── 4. Honest travel ────────────────────────────────────────────────────────
