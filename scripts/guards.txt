@@ -2831,5 +2831,7 @@ node scripts/test-web-push.mjs
 node scripts/test-web-push-client.mjs
 node scripts/test-guide-video-timeline.mjs
 node scripts/test-guide-video-render.mjs
+# Opt-in nearby picks + shared alert cap/quiet hours (2026-11-27): springs allowlist, rounded point, POST only, policy before nudge.
+node scripts/test-nearby-picks.mjs
 node scripts/test-og-every-path.mjs
 node scripts/test-jsonld-check.mjs

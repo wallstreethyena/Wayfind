@@ -114,4 +114,29 @@ ok(/detectSearchVibe\(intent\.text\)[\s\S]{0,80}skipped_vibe/.test(unified), "E5
 const vibes = readFileSync(new URL("../lib/searchVibes.js", import.meta.url), "utf8");
 ok(!/^\s*import\s/m.test(vibes) && !/fetch\(|paidOpenAi|paidGemini|paidAi/.test(strip(vibes)), "E6 searchVibes is pure: no imports, no network, no model");
 
+// F. End to end through searchResultCards with a stubbed Supabase read: the
+// served-row gate must keep the vibe rows (2026-11-27 live miss: the gate
+// returned place-shaped { id } objects and every row was dropped).
+{
+  const { searchResultCards } = await import("../lib/searchCards.js");
+  const env = { SUPABASE_URL: "https://wayfindtestproject.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "sb-hermetic-test-key" };
+  const asRow = (r) => ({ ...r, status: "OPERATIONAL", excluded: false, category: r.category || "attractions", google_types: r.google_types || [r.primary_type] });
+  const reads = [];
+  const fetchImpl = async (url) => {
+    const u = new URL(String(url));
+    reads.push(u);
+    if (u.pathname === "/rest/v1/wf_inventory" && /spring/.test(u.searchParams.get("or") || "")) return new Response(JSON.stringify(springRows.map(asRow)), { status: 200 });
+    if (u.pathname === "/rest/v1/wf_inventory" && /beach/.test(u.searchParams.get("or") || "")) return new Response(JSON.stringify(beachRows.map(asRow)), { status: 200 });
+    return new Response("[]", { status: 200 });
+  };
+  const out = await searchResultCards({ query: "hidden springs near orlando", env, fetchImpl, nowMs: Date.parse("2026-11-27T15:00:00Z") });
+  const names = (out.cards || []).map((c) => c.name);
+  ok(out.vibe === "springs" && names.length >= 3, `F1 a hidden springs search returns spring cards (${names.join(" | ")})`);
+  ok(!names.some((n) => /Sponge Docks|Teamboat/.test(n)), "F2 no non-springs in the cards");
+  ok(reads.some((u) => u.searchParams.get("excluded") === "not.is.true"), "F3 the read excludes excluded rows");
+  const fam = await searchResultCards({ query: "family beaches sarasota", env, fetchImpl, nowMs: Date.parse("2026-11-27T15:00:00Z") });
+  const famNames = (fam.cards || []).map((c) => c.name);
+  ok(fam.vibe === "family-beaches" && famNames[0] === "Siesta Beach" && !famNames.some((n) => /Harrah|Nude/.test(n)), `F4 family beach cards (${famNames.join(" | ")})`);
+}
+
 console.log(`test-search-vibes: OK — ${n} assertions (springs and family-beach asks detected; city names, brands, water parks, marinas and season words are not springs; family needs the beach's own words and no warning; casino and nude beach excluded; hidden = well-rated and fewer reviews; one row per spring; wired into search with no model request)`);
