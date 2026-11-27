@@ -735,6 +735,36 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(!failed.source.connected && failed.data === null, "sentry: a provider failure is unavailable, never a zero");
   const alert = computeAlerts({ sentryUnresolved: 500, sentryHasMore: true, sentryIssues: [row(1)] }).find((a) => a.id === "sentry_unresolved");
   ok(alert.current === "500+" && alert.detail.includes("At least 500") && alert.detail.includes("WF-1: TypeError"), "sentry: bounded counts and latest issue identity survive the shared alert used by email and dashboard");
+
+  // WAYFIND-1M: a parse error's title alone says nothing about where it came
+  // from. The latest event names the browser, page and script; keep only labels.
+  const { summarizeSentryEvent, describeLatestEvents } = await import("../lib/commandCenter/sources/sentry.js");
+  const fixtureEvent = {
+    dateCreated: "2026-11-26T16:59:10Z",
+    tags: [{ key: "browser", value: "Chrome 86.0.4240" }, { key: "os", value: "Android 9" }, { key: "url", value: "https://www.gowayfind.com/guides/things-to-do-sarasota?gclid=SECRET&email=private@example.com" }, { key: "early_source", value: "same" }],
+    context: { early_filename: "https://www.gowayfind.com/_next/static/chunks/4821-abc.js?dpl=SECRET", early_lineno: 1 },
+    entries: [{ type: "exception", data: { values: [{ type: "SyntaxError", value: "Unexpected token '{'", stacktrace: { frames: [{ abs_path: "https://www.gowayfind.com/_next/static/chunks/4821-abc.js", function: "?" }] } }] } }],
+    user: { email: "private@example.com", ip_address: "127.0.0.1" },
+  };
+  const sum = summarizeSentryEvent(fixtureEvent);
+  ok(sum && sum.browser === "Chrome 86.0.4240" && sum.os === "Android 9" && sum.page === "/guides/things-to-do-sarasota" && sum.early_file === "4821-abc.js" && sum.early_line === 1 && sum.early_source === "same", "sentry: latest event names browser, OS, page path and the script that failed to parse");
+  ok(!/SECRET|private@example|127\.0\.0\.1|gclid/.test(JSON.stringify(sum)), "sentry: latest-event summary keeps no query string, email, IP or click id");
+  ok(summarizeSentryEvent([1, 2]) === null && summarizeSentryEvent(null) === null && summarizeSentryEvent({}) === null, "sentry: an unreadable event adds nothing rather than inventing context");
+  const third = summarizeSentryEvent({ tags: [{ key: "url", value: "https://evil.example/x" }], context: { early_filename: "https://cdn.thirdparty.example/lib/widget.js" } });
+  ok(third.early_file === "cdn.thirdparty.example/widget.js", "sentry: a third-party script keeps its host so it is told apart from our own chunks");
+  const evCalls = [];
+  const described = await describeLatestEvents(c, [row(7), row(8), row(9), row(10)], { fetchImpl: async (url, init) => {
+    evCalls.push({ url: String(url), init });
+    if (String(url).includes("/issues/8/")) return new Response("denied", { status: 403 });
+    if (String(url).includes("/issues/9/")) throw new Error("network");
+    return new Response(JSON.stringify(fixtureEvent));
+  } });
+  ok(evCalls.length === 3 && evCalls[0].url === "https://sentry.io/api/0/organizations/fixture/issues/7/events/latest/" && evCalls.every(({ init }) => init.redirect === "error" && init.headers.Authorization === "Bearer fixture-only"), "sentry: at most three latest-event reads, our own URL only, fail-closed redirects");
+  ok(described.length === 3 && described[0].latest && described[0].latest.browser && !described[1].latest && !described[2].latest, "sentry: a failed latest-event read keeps the issue without context instead of failing the panel");
+  const enriched = await sentryIssues({ env: { SENTRY_AUTH_TOKEN: "fixture-only", SENTRY_ORG: "fixture" }, cacheImpl: noCache, log: () => {}, fetchImpl: async (url) => String(url).includes("/events/latest/") ? new Response(JSON.stringify(fixtureEvent)) : reply([row(1), row(2), row(3), row(4)]) });
+  ok(enriched.data.issues.length === 4 && enriched.data.issues[0].latest && enriched.data.issues[2].latest && !enriched.data.issues[3].latest && enriched.data.unresolved_24h === 4, "sentry: enrichment keeps every listed issue and the measured count");
+  const where = computeAlerts({ sentryUnresolved: 1, sentryIssues: [{ ...row(1), latest: sum }] }).find((a) => a.id === "sentry_unresolved");
+  ok(where.detail.includes("Chrome 86.0.4240 on /guides/things-to-do-sarasota in 4821-abc.js"), "sentry: the alert email and dashboard say which browser, page and script");
 }
 
 if (failures) { console.error(`test-command-center: ${failures} failure(s)`); process.exit(1); }

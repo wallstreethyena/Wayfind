@@ -1,0 +1,38 @@
+# TEMPORARY diagnostic for the Nov 27 Command Center warnings. Deleted before merge.
+name: tmp-diag-nov27
+on:
+  push:
+    branches: [lane/cc-warnings-nov27]
+permissions:
+  contents: read
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: homepage timing and cache headers
+        run: |
+          for i in 1 2 3 4 5 6; do
+            curl -s -o /tmp/home.html -A "WayfindBot/1.0 (https://gowayfind.com)" -D /tmp/h.txt -w "run $i ttfb=%{time_starttransfer} total=%{time_total} size=%{size_download} code=%{http_code}\n" https://www.gowayfind.com/
+            grep -iE "^(x-vercel-cache|age|cache-control|x-vercel-id|content-length|content-encoding):" /tmp/h.txt
+            sleep 2
+          done
+          for i in 1 2 3; do
+            curl -s -o /dev/null -H "accept-encoding: gzip, br" -A "WayfindBot/1.0 (https://gowayfind.com)" -w "gzip run $i ttfb=%{time_starttransfer} total=%{time_total} size=%{size_download}\n" https://www.gowayfind.com/
+          done
+          echo "--- largest inline scripts in homepage html"
+          python3 - <<'PY'
+          import re
+          h=open('/tmp/home.html',encoding='utf8',errors='replace').read()
+          print('html bytes',len(h.encode()))
+          sc=re.findall(r'<script([^>]*)>([\s\S]*?)</script>',h)
+          sizes=sorted(((len(b),a[:60],b[:80]) for a,b in sc),reverse=True)[:12]
+          for s in sizes: print(s)
+          print('total inline script bytes',sum(len(b) for a,b in sc))
+          print('next_f bytes',sum(len(b) for a,b in sc if '__next_f' in b))
+          PY
+      - name: guides and christmas timing
+        run: |
+          for p in /guides /christmas-in-florida /guides/things-to-do-sarasota; do
+            for i in 1 2; do curl -s -o /dev/null -A "WayfindBot/1.0 (https://gowayfind.com)" -D /tmp/h.txt -w "$p ttfb=%{time_starttransfer} total=%{time_total} size=%{size_download}\n" "https://www.gowayfind.com$p"; grep -iE "^x-vercel-cache:" /tmp/h.txt; done
+          done
