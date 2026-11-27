@@ -24,6 +24,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as S from "../lib/liveTripServer.js";
 import { checksum, orderedItems } from "../lib/liveTrip.js";
+
+// Fixed behaviour in every shell: extra browser logging only with an explicit --debug argument.
+const DEBUG = process.argv.includes("--debug");
 import { createFakeSupabase } from "./lib/liveTripFakeSupabase.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -165,7 +168,7 @@ async function person(who, viewport, isMobile) {
   });
   const page = await ctx.newPage();
   page.on("pageerror", (e) => { page.__errors = (page.__errors || []).concat(String(e)); });
-  if (process.env.LIVE_DEBUG) {
+  if (DEBUG) {
     page.on("console", (m) => console.error(who, "console", m.type(), m.text().slice(0, 300)));
     page.on("crash", () => console.error(who, "CRASH"));
     page.on("close", () => console.error(who, "CLOSE"));

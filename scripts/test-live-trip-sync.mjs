@@ -299,10 +299,13 @@ async function runScenario(seedValue, replicas = 4, steps = 140) {
 }
 
 let totals = { commits: 0, offline: 0 };
-for (const s of (process.env.LIVE_SEEDS ? process.env.LIVE_SEEDS.split(",").map(Number) : [1, 2, 3, 5, 8, 13, 21, 34])) {
+// Seeds and step count are fixed so the verdict never depends on the shell.
+// Pass --debug on the command line to print per-seed timings.
+const DEBUG = process.argv.includes("--debug");
+for (const s of [1, 2, 3, 5, 8, 13, 21, 34]) {
   const t0 = Date.now();
-  const r = await runScenario(s, 4, Number(process.env.LIVE_STEPS || 140));
-  if (process.env.LIVE_DEBUG) console.log('seed', s, Date.now() - t0, 'ms', r);
+  const r = await runScenario(s, 4, 140);
+  if (DEBUG) console.log("seed", s, Date.now() - t0, "ms", r);
   totals.commits += r.commits; totals.offline += r.offline;
 }
 
