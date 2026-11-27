@@ -124,5 +124,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2817 (Live Trips, owner order 2026-11-27)",
     "reason": "Live Trips: real-time group itineraries. Additive: two new tables (RLS on, service role only; members read only their own membership row), the service-role commit function (compare-and-swap + same-transaction realtime.send), and two policies on realtime.messages admitting only trip members to the private 'live-trip:<id>' channel. Applied through the canonical path right after merge under the owner's 2026-11-27 order; this entry moves to scripts/migration-apply-log.jsonl with the receipt. Reverse in the file header. Tested on PGlite by scripts/test-live-trip-db.mjs."
+  },
+  {
+    "file": "supabase/migrations/20261127183000_wf_itinerary_templates_metro_hyphen.sql",
+    "sha256": "a86ed2a209ed86f61051fd2d9fe661287aef5dd39be641b72f64047d496dc216",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2814",
+    "reason": "Fix for the itinerary templates shipped in #2814: the metro column check allowed no hyphens, so the first run's writes for st-pete, manatee-sarasota and miami-dade failed. Replaces only that one check with one that accepts hyphenated metro ids. No data change. Applied through the canonical path right after merge under the owner's 2026-11-27 order; this entry moves to scripts/migration-apply-log.jsonl with the receipt. Reverse in the file header."
   }
 ]

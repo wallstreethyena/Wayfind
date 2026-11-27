@@ -11,7 +11,8 @@ import {
   stopsFromItinerary, hydrateStops, validateGuideReply, writeGuide, rulesWrite, publicGuideView, publishGuide,
   openLicensePhoto, guidePrompt, sourceHash, newGuideSlug,
 } from "../lib/communityGuides.js";
-import { buildCandidates, validateTemplateReply, draftTemplate, liveStops, TEMPLATE_THEMES, templatePrompt } from "../lib/itineraryTemplates.js";
+import { buildCandidates, validateTemplateReply, draftTemplate, liveStops, TEMPLATE_THEMES, TEMPLATE_METROS, templatePrompt, withLicensedPhotos } from "../lib/itineraryTemplates.js";
+import { readFileSync, readdirSync } from "node:fs";
 import { validatePublicName } from "../lib/leaderboard.js";
 import { inSendWindow, tasteFrom, choosePick, pickMessage, runDailyPicks } from "../lib/dailyPicks.js";
 import { BADGES, badgeLevel, rewardsSummary, badgesFor, travelPlausible } from "../lib/rewards.js";
@@ -219,5 +220,56 @@ const now = Date.parse("2026-11-27T15:00:00Z");
 ok(travelPlausible({ lat: 27.95, lng: -82.46, created_at: "2026-11-27T14:30:00Z" }, { lat: 27.77, lng: -82.64 }, now), "Tampa to St. Pete in 30 minutes is plausible");
 ok(!travelPlausible({ lat: 27.95, lng: -82.46, created_at: "2026-11-27T14:30:00Z" }, { lat: 25.76, lng: -80.19 }, now), "Tampa to Miami in 30 minutes is not");
 ok(travelPlausible(null, { lat: 1, lng: 1 }, now), "no previous visit is fine");
+
+
+// ── template metros fit the live table check ──────────────────────────────
+// 2026-11-27: the first run's writes for st-pete, manatee-sarasota and
+// miami-dade failed because the column check allowed no hyphens. The newest
+// migration that sets wf_itinerary_templates_metro_check must accept every
+// metro the cron writes, and still refuse malformed ids.
+{
+  const files = readdirSync(new URL("../supabase/migrations/", import.meta.url)).filter((f) => f.endsWith(".sql")).sort();
+  let rx = null;
+  for (const f of files) {
+    const sql = readFileSync(new URL("../supabase/migrations/" + f, import.meta.url), "utf8");
+    const named = sql.match(/wf_itinerary_templates_metro_check\s+check\s*\([^;]*metro ~ '([^']+)'/i);
+    const inline = /create table if not exists public\.wf_itinerary_templates/i.test(sql) ? sql.match(/\n\s*metro\s+text[^\n]*metro ~ '([^']+)'/) : null;
+    const m = named || inline;
+    if (m) rx = new RegExp(m[1]);
+  }
+  ok(rx, "a migration defines the template metro check");
+  for (const m of TEMPLATE_METROS) ok(rx.test(m.metro) && m.metro.length >= 2 && m.metro.length <= 40, `template metro ${m.metro} passes the table check`);
+  for (const bad of ["St Pete", "-tampa", "tampa-", "miami--dade", "Tampa"]) ok(!rx.test(bad), `the table check refuses ${bad}`);
+}
+
+// ── licensed photo fill at read time ──────────────────────────────────────
+{
+  const store = {
+    p_owned: { url: "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/a.jpg", attributionText: "Wayfind", license: "Owned" },
+    p_google: { url: "https://lh3.googleusercontent.com/x", attributionText: "Someone", license: "Google" },
+    p_nocredit: { url: "https://upload.wikimedia.org/a.jpg", attributionText: "", license: "CC BY 4.0" },
+    p_relative: { url: "/api/photo?ref=places/x/photos/y", attributionText: "X", license: "CC BY 4.0" },
+  };
+  const finder = async ({ placeId }) => { if (placeId === "p_boom") throw new Error("down"); return store[placeId] || null; };
+  const kept = { url: "https://example.org/k.jpg", credit: "K (CC0)" };
+  const out = await withLicensedPhotos([
+    { kind: "place", ref_id: "p_owned", photo: null },
+    { kind: "place", ref_id: "p_google", photo: null },
+    { kind: "place", ref_id: "p_nocredit", photo: null },
+    { kind: "place", ref_id: "p_relative", photo: null },
+    { kind: "place", ref_id: "p_boom", photo: null },
+    { kind: "place", ref_id: "p_owned", photo: kept },
+    { kind: "event", ref_id: "p_owned", photo: null },
+  ], finder);
+  eq(out[0].photo && out[0].photo.url, store.p_owned.url, "a stop with no photo takes the owned licensed photo");
+  eq(out[0].photo.credit, "Wayfind (Owned)", "the photo carries its credit and licence");
+  eq(out[1].photo, null, "a Google photo is never used");
+  eq(out[2].photo, null, "a photo with no credit is never used");
+  eq(out[3].photo, null, "an /api/photo src counts as Google and is never used");
+  eq(out[4].photo, null, "a store failure leaves the stop as it was");
+  eq(out[5].photo, kept, "a stop that already has a photo keeps it");
+  eq(out[6].photo, null, "events are not filled from the place store");
+  eq((await withLicensedPhotos([{ kind: "place", ref_id: "p_owned", photo: null }], null))[0].photo, null, "no finder means no change");
+}
 
 console.log(`test-ai-engine-community: ${count} assertions passed`);
