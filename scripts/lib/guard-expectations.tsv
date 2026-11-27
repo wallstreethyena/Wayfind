@@ -1013,7 +1013,7 @@ scripts/test-official-event-covers.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	f5
 scripts/test-og-bodies.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	2114f3fa9f73d293aaf33c9cd9424f9a62979830d9198314afc20a472f7b24e8
 scripts/test-og-every-path.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	5ee8da6146bd4eb5588f12bc6f1535173fba64f0fe481e453069569352205ca7
 scripts/test-og-movie-function-size.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	a23941ed6ee7bc87f09399494f2a72775b649528b80060b0b504079c11129ca4
-scripts/test-openai-copy-features.mjs	0	CALL	blocks-ci-and-deploy	1	-	74	0	0	1541b8a63d66b1bfd8a92b135a4eb6666d28deb5d7d7e004d9f29678db9c1610
+scripts/test-openai-copy-features.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0	792e32036f674eb27d53438c43f9fc3ba2a8809ebcab0c4fcb1d4503e9594865
 scripts/test-openverse-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	fe51e5571a85782f938c5cc76ca5bb7198c61e0926f9330c9f472c5aeef76c18
 scripts/test-orlando-guide-tiqets.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	11	0	0	1dfcd99131f0130985ac4ba0433b54e5c13419722fb894fcbe572638b9b8f79c
 scripts/test-osm-regional.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	93024b25487db6666f7020cff100585ed829d68c4c33ee2970dc779d633bafc2
