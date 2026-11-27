@@ -2520,6 +2520,14 @@ node scripts/test-search-free-modifier.mjs
 node scripts/check-search-understand.mjs
 node scripts/test-search-taxonomy.mjs
 
+# 2026-11-27 owner ask: Florida vibe search ("hidden springs", "family beaches").
+# A place gets a vibe only from our own data (its name and Google type for a
+# spring; the beach's own editorial words for family); no model request.
+node scripts/test-search-vibes.mjs
+# 2026-11-27: OpenAI gpt-4o-mini backs up the Gemini search filter only when
+# Gemini cannot answer (no key, cap, blocked, failed), on its own capped lane.
+node scripts/test-search-understand-backup.mjs
+
 # 2026-10-23 word search ("tacos") surfaces nearby places and ranks them above far ones.
 node scripts/test-search-nearby-first.mjs
 
@@ -2819,3 +2827,4 @@ node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
 # Opt-in nearby picks + shared alert cap/quiet hours (2026-11-27): springs allowlist, rounded point, POST only, policy before nudge.
 node scripts/test-nearby-picks.mjs
+node scripts/test-jsonld-check.mjs

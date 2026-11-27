@@ -131,12 +131,15 @@ function ChristmasTopicNav({ today }) {
 
 export default async function Page() {
   const { today, listings, first, tickets, weekend } = await christmasPageData();
+  // numberOfItems counts what this list HOLDS (Google reads it that way); it
+  // used to state every listing on the site while holding the first 24.
+  const listItems = christmasBrowsePage(listings, parseChristmasBrowseQuery({}), today).cards.slice(0, 24).map((card, i) => ({
+    "@type": "ListItem", position: i + 1, name: card.title, url: card.detailHref ? SITE_URL + card.detailHref : (card.url || undefined),
+  }));
   const itemList = {
     "@context": "https://schema.org", "@type": "ItemList", name: "Christmas events in Florida, 2026 season",
-    numberOfItems: listings.length,
-    itemListElement: christmasBrowsePage(listings, parseChristmasBrowseQuery({}), today).cards.slice(0, 24).map((card, i) => ({
-      "@type": "ListItem", position: i + 1, name: card.title, url: card.detailHref ? SITE_URL + card.detailHref : (card.url || undefined),
-    })),
+    numberOfItems: listItems.length,
+    itemListElement: listItems,
   };
   const ticketsSchema = christmasTicketsSchema(tickets);
   // #2419 photo picks for Facebook and Instagram visitors: the cached copy is
