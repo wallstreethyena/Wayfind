@@ -47,14 +47,15 @@ function Bars({ items, labelOf, valueOf, max, label }) {
 
 function DayChart({ daily, busiest }) {
   const n = daily.length;
-  if (!n) return null;
+  if (!n || !busiest.length) return null;
   const max = Math.max(1, ...daily.map((d) => d.count));
   const cols = { gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` };
   const isSat = (day) => new Date(day + "T12:00:00Z").getUTCDay() === 6;
+  const tops = new Set(busiest.map((d) => d.day));
   return <figure style={{ margin: 0 }}>
-    <div className={styles.dayChart} style={cols} role="img" aria-label={`Holiday listings open each day from ${reportShortDay(daily[0].day)} to ${reportShortDay(daily[n - 1].day)}. The busiest day is ${reportDayLabel(busiest.day)} with ${busiest.count}.`}>
+    <div className={styles.dayChart} style={cols} role="img" aria-label={`Holiday listings open each day from ${reportShortDay(daily[0].day)} to ${reportShortDay(daily[n - 1].day)}. The busiest ${busiest.length > 1 ? "days are " + busiest.map((d) => reportDayLabel(d.day)).join(" and ") : "day is " + reportDayLabel(busiest[0].day)} with ${busiest[0].count}.`}>
       {daily.map((d) => <span key={d.day} title={`${reportDayLabel(d.day)}: ${d.count}`}
-        className={`${styles.dayCol} ${d.day === busiest.day ? styles.dayColTop : isSat(d.day) ? styles.dayColSat : ""}`}
+        className={`${styles.dayCol} ${tops.has(d.day) ? styles.dayColTop : isSat(d.day) ? styles.dayColSat : ""}`}
         style={{ height: `${Math.max(1, (d.count / max) * 100)}%` }} />)}
     </div>
     <div className={styles.dayTicks} style={cols} aria-hidden="true">
@@ -113,7 +114,7 @@ export default async function Page() {
         <li className={styles.stat}><span className={styles.statValue}>{m.total}</span><span className={styles.statLabel}>holiday events and experiences through {reportShortDay(m.seasonEnd)}</span></li>
         <li className={styles.stat}><span className={styles.statValue}>{m.cityCount}</span><span className={styles.statLabel}>Florida cities and towns with a listing</span></li>
         {m.freeShareOfPriced != null ? <li className={styles.stat}><span className={styles.statValue}>{m.freeShareOfPriced}%</span><span className={styles.statLabel}>of events with a published price are free</span></li> : null}
-        {m.busiestDay ? <li className={styles.stat}><span className={styles.statValue}>{reportShortDay(m.busiestDay.day)}</span><span className={styles.statLabel}>busiest day, {m.busiestDay.count} listings open</span></li> : null}
+        {m.busiestDays.length ? <li className={styles.stat}><span className={styles.statValue}>{reportShortDay(m.busiestDays[0].day)}</span><span className={styles.statLabel}>{m.busiestDays.length > 1 ? `busiest day, tied with ${m.busiestDays.slice(1).map((d) => reportShortDay(d.day)).join(" and ")}, ${m.busiestDays[0].count} listings open each` : `busiest day, ${m.busiestDays[0].count} listings open`}</span></li> : null}
       </ul>
 
       <section className={styles.section} id="findings" aria-labelledby="findings-h">
@@ -125,7 +126,7 @@ export default async function Page() {
       {m.busiestDay ? <section className={styles.section} id="busiest-days" aria-labelledby="days-h">
         <h2 id="days-h">The busiest days</h2>
         <p className={styles.sub}>Holiday listings open on each day through {reportShortDay(m.seasonEnd)}, counting only listings with a confirmed date for that day.</p>
-        <DayChart daily={m.daily} busiest={m.busiestDay} />
+        <DayChart daily={m.daily} busiest={m.busiestDays} />
         {m.saturdays.length ? <><h3 style={{ margin: "22px 0 8px", fontSize: 16 }}>Saturdays</h3><Bars items={m.saturdays} labelOf={(d) => reportDayLabel(d.day)} valueOf={(d) => d.count} label="Holiday listings open each Saturday" /></> : null}
         <NumbersTable caption="See every day" rows={m.daily.map((d) => [reportDayLabel(d.day), d.count])} />
       </section> : null}

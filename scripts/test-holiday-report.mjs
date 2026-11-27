@@ -52,6 +52,11 @@ ok(day("2026-12-05") === 4, "Dec 5: both light shows, the one day parade and the
 ok(day("2026-12-06") === 2, "Dec 6: the select night show is NOT open between its listed nights");
 ok(m.daily.every((d) => d.count <= 4), "an undated season never counts toward a day");
 ok(m.busiestDay.day === "2026-12-05" && m.busiestDay.count === 4, "busiest day is the computed max");
+ok(m.busiestDays.length === 1 && m.findings.find((f) => f.id === "busiest").text.startsWith("Saturday, Dec 5 is the busiest day"), "a single top day is named as the busiest");
+const tie = holidayReportModel([card("t1", { start_date: "2026-12-05", end_date: "2026-12-05" }), card("t2", { start_date: "2026-12-12", end_date: "2026-12-12" })], { today: TODAY });
+ok(tie.busiestDays.map((d) => d.day).join() === "2026-12-05,2026-12-12", "two days with the same top count are both kept");
+ok(/^Saturday, Dec 5 and Saturday, Dec 12 tie as the busiest days/.test(tie.findings.find((f) => f.id === "busiest").text), "a tie is reported as a tie, never as one winner");
+ok(!/is the busiest day/.test(tie.findings.find((f) => f.id === "busiest").text), "the tied finding does not crown one day");
 ok(m.saturdays.every((s) => new Date(s.day + "T12:00:00Z").getUTCDay() === 6), "Saturdays are Saturdays");
 ok(m.daily[0].day === TODAY && m.daily.at(-1).day === m.seasonEnd, "the day series runs from today through the season end");
 ok(dailyOpenCounts(fixtures, "2027-02-01").length === 0, "after the season there are no day counts");
@@ -62,6 +67,7 @@ ok(reportRegion("Palm Beaches") === "Treasure Coast & Palm Beaches" && reportReg
 ok(reportRegion("Atlantis") === null, "an unknown region is not invented");
 ok(m.regions.find((r) => r.name === "Treasure Coast & Palm Beaches").count === 1, "the folded region is counted once");
 ok(m.regions.length === 10 && m.unplaced === 0, "all ten regions are listed and every listing is placed");
+ok(holidayReportModel([card("kw1", { city: "Key West" }), card("kw2", { city: "Key West (Stock Island)" })], { today: TODAY }).cities[0].count === 2, "a trailing parenthetical folds into its town");
 const stp = m.cities.find((c) => c.city === "St. Petersburg");
 ok(stp && stp.count === 2, "Saint Petersburg and St Petersburg are one city");
 
@@ -107,6 +113,7 @@ assert.throws(() => holidayReportModel(fixtures, { today: "Dec 1" }), /Eastern c
 const real = christmasBrowseListings([], "2026-11-27");
 const rm = holidayReportModel(real, { today: "2026-11-27" });
 ok(rm.total === real.filter((c) => c.kind !== "tour").length && rm.total > 100, "the report total equals the Christmas collection minus tours (" + rm.total + ")");
+ok(rm.busiestDays.every((d) => d.count === rm.busiestDay.count) && rm.daily.filter((d) => d.count === rm.busiestDay.count).length === rm.busiestDays.length, "busiestDays holds exactly the days at the top count");
 ok(rm.busiestDay.count === filterChristmasBrowse(real, { date: rm.busiestDay.day }, "2026-11-27").length, "the busiest day equals the Christmas page's own one day filter");
 ok(rm.free + rm.paid + rm.unannounced === rm.total, "price buckets add up to the total");
 ok(rm.regions.reduce((s, r) => s + r.count, 0) + rm.unplaced === rm.total, "regions add up to the total");
