@@ -145,5 +145,5 @@ export default async function sitemap() {
     const [tpl, cg] = await Promise.all([listTemplates(cfg).catch(() => []), listPublishedGuides(cfg, { limit: 48 }).catch(() => [])]);
     community = [...community, ...tpl.map((t) => ({ url: `${SITE_URL}/itineraries/${t.slug}`, lastModified: t.generated_at ? new Date(t.generated_at) : undefined })), ...cg.map((g) => ({ url: `${SITE_URL}/community/${g.slug}`, lastModified: g.updated_at ? new Date(g.updated_at) : undefined }))];
   } catch {}
-  return [...core, ...community, ...seasonal, ...christmasTopics, ...nyeRegions, ...springBreak, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...places];
+  return [...core, ...seasonal, ...christmasTopics, ...nyeRegions, ...springBreak, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...seriesHubs, ...dedicatedGuides, ...movies, ...crown, ...community, ...places];
 }
