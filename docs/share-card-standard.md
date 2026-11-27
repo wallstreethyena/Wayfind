@@ -91,6 +91,16 @@ the user has to WANT to send it. These rules are build-enforced (check-share-ass
 
    scripts/check-hero-card.mjs asserts every clause above against the code and
    asserts this rule 9 text is present here; check-share-card.mjs permits
-   exactly two <img> elements in app/api/og/card.jsx, one whose src is
-   {m.poster} (rule 8) and one whose src is {m.hero} (this rule), and still
-   bans an <img> anywhere else in the OG surface.
+   exactly three <img> elements in app/api/og/card.jsx, one whose src is
+   {m.poster} (rule 8), one whose src is {m.hero} (this rule) and the owner's
+   logo {LOGO_BYTES} (rule 10), and still bans an <img> anywhere else in the
+   OG surface.
+
+10. THE LOGO IS THE OWNER'S FILE (2026-11-27). Owner rule (2026-11-12, brand
+   vault): never redraw, approximate, recolor or regenerate the Wayfind logo
+   when an approved asset exists. Every card's mark is the vault derivative
+   public/brand/wayfind/derived/wayfind-logo-white-og.png (registered in the
+   manifest as a derivative of wayfind-logo-white), bundled with the edge
+   function like the fonts and read from disk by the Node.js routes. With no
+   bytes the card renders without a mark, never a drawn imitation.
+   scripts/check-brand-assets.mjs locks it.

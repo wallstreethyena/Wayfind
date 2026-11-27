@@ -1,7 +1,7 @@
 {
   "$schema_version": 1,
   "name": "Wayfind Brand Asset Vault",
-  "updated": "2026-11-12",
+  "updated": "2026-11-27",
   "rules": [
     "Reuse these files; never redraw, approximate, recolor, stretch or regenerate the Wayfind logo when an asset here fits.",
     "Masters are stored exactly as supplied. Put any resized or optimized copy elsewhere and list it here with original=false and derivative_of set.",
@@ -115,6 +115,27 @@
       "core": true,
       "bytes": 367257,
       "sha256": "d630bc4a7a678fe0af64438fe232d011dba7e3903eb6cf6c67f6868164934aa9"
+    },
+    {
+      "id": "wayfind-logo-white-og",
+      "path": "/brand/wayfind/derived/wayfind-logo-white-og.png",
+      "file": "public/brand/wayfind/derived/wayfind-logo-white-og.png",
+      "type": "logo",
+      "format": "png",
+      "width": 546,
+      "height": 120,
+      "transparent": true,
+      "purpose": "Share-card copy of wayfind-logo-white: the same file trimmed to its visible edges and scaled to 120px tall, nothing redrawn or recolored.",
+      "original": false,
+      "derivative_of": "wayfind-logo-white",
+      "source": "Made 2026-11-27 from public/brand/wayfind/logo/wayfind-logo-white-orange-transparent-a.png (alpha-trimmed, Lanczos resize) for the OpenGraph share cards (app/api/og/card.jsx), which bundle it with the edge function.",
+      "date_added": "2026-11-27",
+      "background": "dark",
+      "usage_notes": "Dark surfaces only. Sized for 1200x630 share cards (shown about 43px tall).",
+      "approved_for_production": true,
+      "core": false,
+      "bytes": 44207,
+      "sha256": "6d526664e982e01c14e3e4d66cfcfa1682a84fcd8a15de840c75a0af5eab0dbf"
     },
     {
       "id": "wayfind-mark-gradient",

@@ -38,6 +38,7 @@ import sharp from "sharp";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { shareCardResponse, SHARE_CACHE } from "../card.jsx";
+import { loadNodeLogo } from "../nodeLogo.js";
 import { resolveHeroSource } from "../../../../lib/heroSource.js";
 import {
   heroCardModel, heroFallbackModel, isJpeg, bytesToDataUri, HERO_MAX_JPEG_BYTES, HERO_CARD_DESIGN_V,
@@ -161,16 +162,17 @@ export async function GET(req) {
     // BYTES, AWAITED, BEFORE ANY MODEL OR RESPONSE IS BUILT. Resolved ONLY
     // from server-side registries keyed by kind+id — there is no caller
     // source override any more (see lib/heroSource.js's resolveHeroSource).
-    const [source, fontBuffers] = await Promise.all([
+    const [source, fontBuffers, logoBuffer] = await Promise.all([
       resolveHeroSource({ origin: url.origin, kind, id }),
       loadNodeFontBuffers(),
+      loadNodeLogo(),
     ]);
     const heroDataUri = source ? await fetchHeroJpeg(source.url) : null;
 
     if (!heroDataUri) {
       const res = await shareCardResponse(
         heroFallbackModel({ kind, title, cat, loc, r, rev, n, sc, mi, hook: hk, tone,purpose:["group","group_final"].includes(url.searchParams.get("purpose"))?url.searchParams.get("purpose"):null }),
-        { cache, fontBuffers },
+        { cache, fontBuffers, logoBuffer },
       );
       return await toJpegResponse(res);
     }
@@ -181,7 +183,7 @@ export async function GET(req) {
       kind, title, cat, loc, n, r, rev, hero: heroDataUri,purpose:["group","group_final"].includes(url.searchParams.get("purpose"))?url.searchParams.get("purpose"):null,
       position: source.position, alt: source.alt || title,
     });
-    const res = await shareCardResponse(model, { cache, fontBuffers });
+    const res = await shareCardResponse(model, { cache, fontBuffers, logoBuffer });
     return await toJpegResponse(res);
   } catch (e) {
     // NEVER THROW PAST THIS POINT. An image route that throws after a 200 is
@@ -190,7 +192,7 @@ export async function GET(req) {
     try {
       const res = await shareCardResponse(
         heroFallbackModel({ kind, title }),
-        { cache: SHARE_CACHE.live, fontBuffers: await loadNodeFontBuffers() },
+        { cache: SHARE_CACHE.live, fontBuffers: await loadNodeFontBuffers(), logoBuffer: await loadNodeLogo() },
       );
       return await toJpegResponse(res);
     } catch {
