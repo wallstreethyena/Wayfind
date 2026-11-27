@@ -20,7 +20,7 @@ import MapCategoryPin from "./MapCategoryPin";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import styles from "./GuideMapExplorer.module.css";
 import { clampRailTarget, isAtRailTarget, followShouldRelease, revealScrollTop } from "../../lib/mapRailFollow.js";
-import { measureStickyInsets } from "../../lib/stickyInsets.js";
+import { measureStickyInsets, scrollParentOf } from "../../lib/stickyInsets.js";
 
 function prefersReducedMotion() {
   try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch { return false; }
@@ -218,11 +218,24 @@ export default function GuideMapExplorer({
   // without a second, jumpy scroll.
   const revealRail = (node, smooth) => {
     const zone = railZone.current;
-    if (zone && typeof window !== "undefined") {
-      const box = zone.getBoundingClientRect();
+    const scroller = zone && scrollParentOf(zone);
+    if (scroller && typeof scroller.scrollTo === "function") {
+      // The visible band is the viewport, clipped to the scroller's own box
+      // (the document, or the shell's scroll area) and minus the sticky bars.
+      const vh = window.innerHeight;
+      const isDocument = scroller === document.scrollingElement || scroller === document.documentElement;
+      const frame = isDocument ? { top: 0, bottom: vh } : scroller.getBoundingClientRect();
       const insets = measureStickyInsets(window);
-      const target = revealScrollTop({ top: box.top, bottom: box.bottom, scrollY: window.scrollY, viewportHeight: window.innerHeight, topInset: insets.top, bottomInset: insets.bottom });
-      if (target != null) window.scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
+      const box = zone.getBoundingClientRect();
+      const target = revealScrollTop({
+        top: box.top,
+        bottom: box.bottom,
+        scrollY: scroller.scrollTop,
+        viewportHeight: vh,
+        topInset: Math.max(insets.top, frame.top),
+        bottomInset: Math.max(insets.bottom, vh - frame.bottom),
+      });
+      if (target != null) scroller.scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
     }
     try { node.focus({ preventScroll: true }); } catch { /* old browsers: focus is a nicety */ }
   };

@@ -19,7 +19,7 @@ const ok = (cond, msg) => { if (cond) pass++; else fail.push(msg); };
 const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
 
 const { revealScrollTop, REVEAL_GAP_PX } = await import("../lib/mapRailFollow.js");
-const { measureStickyInsets, MAX_BAR_SHARE } = await import("../lib/stickyInsets.js");
+const { measureStickyInsets, scrollParentOf, MAX_BAR_SHARE } = await import("../lib/stickyInsets.js");
 
 // ── revealScrollTop ─────────────────────────────────────────────────────────
 {
@@ -69,6 +69,16 @@ const { measureStickyInsets, MAX_BAR_SHARE } = await import("../lib/stickyInsets
   ok(none.top === 0 && none.bottom === 0, "no bars means no insets");
   const withModal = measureStickyInsets(fakeWin((y) => (y < 100 ? [modal, headerText] : [modal, dockButton])));
   ok(withModal.top === 64 && withModal.bottom === 72, "a full-screen fixed layer (over " + MAX_BAR_SHARE * 100 + "% of the viewport) is not counted as a bar");
+  // scrollParentOf: the nearest ancestor that really scrolls, else the document.
+  const docScroller = { tag: "doc" };
+  const shell = { overflowY: "auto", scrollHeight: 5000, clientHeight: 800, parentElement: body };
+  const clipped = { overflowY: "hidden", scrollHeight: 900, clientHeight: 300, parentElement: shell };
+  const idle = { overflowY: "auto", scrollHeight: 300, clientHeight: 300, parentElement: clipped };
+  const zone = { parentElement: idle };
+  const spWin = () => ({ document: { body, documentElement: html, scrollingElement: docScroller }, getComputedStyle: (n) => ({ overflowY: n.overflowY || "visible" }) });
+  ok(scrollParentOf(zone, spWin()) === shell, "scrollParentOf skips a clipped box and a box with nothing to scroll, and finds the shell's scroll area");
+  ok(scrollParentOf({ parentElement: body }, spWin()) === docScroller, "with no scrolling ancestor the document scroller is used");
+  ok(scrollParentOf(zone, null) === null, "scrollParentOf on the server returns null");
   const server = measureStickyInsets(null);
   ok(server.top === 0 && server.bottom === 0, "on the server (no window) insets are zero, never a throw");
 }
@@ -78,8 +88,11 @@ const explorerSrc = strip(readFileSync(new URL("../app/components/GuideMapExplor
 {
   ok(/import\s*\{[^}]*\brevealScrollTop\b[^}]*\}\s*from\s*["']\.\.\/\.\.\/lib\/mapRailFollow\.js["']/.test(explorerSrc),
     "GuideMapExplorer.js no longer imports revealScrollTop from lib/mapRailFollow.js");
-  ok(/import\s*\{\s*measureStickyInsets\s*\}\s*from\s*["']\.\.\/\.\.\/lib\/stickyInsets\.js["']/.test(explorerSrc),
-    "GuideMapExplorer.js no longer imports measureStickyInsets (the reveal would land the card under the Santa dock)");
+  ok(/import\s*\{\s*measureStickyInsets,\s*scrollParentOf\s*\}\s*from\s*["']\.\.\/\.\.\/lib\/stickyInsets\.js["']/.test(explorerSrc),
+    "GuideMapExplorer.js no longer imports measureStickyInsets and scrollParentOf (the reveal would land the card under the Santa dock, or scroll the wrong box)");
+  ok(!/window\s*\.\s*scroll(To|By|Y)\b/.test(explorerSrc),
+    "GuideMapExplorer.js must scroll the rail's real scroll parent, never the window (window.scrollTo is a no-op inside the app shell)");
+  ok(/const scroller = zone && scrollParentOf\(zone\)/.test(explorerSrc), "revealRail must find the rail's real scroll parent");
   ok(/const selectFromPin\s*=\s*\(id\)\s*=>\s*selectFromMap\(id,\s*\{\s*reveal:\s*true\s*\}\)/.test(explorerSrc),
     "selectFromPin must call selectFromMap(id, { reveal: true })");
   ok(/renderMap\(\{[^}]*onSelect:\s*selectFromPin\s*\}\)/.test(explorerSrc),
@@ -90,9 +103,9 @@ const explorerSrc = strip(readFileSync(new URL("../app/components/GuideMapExplor
     "a tap on a CARD must keep calling selectFromMap without reveal (tapping a visible card must not scroll the page or steal focus)");
   ok(/if \(reveal\) \{\s*highlightPicked\(node\);\s*revealRail\(node, smooth\);\s*\}/.test(explorerSrc),
     "selectFromMap must highlight and reveal the card when reveal is set");
-  ok(/revealScrollTop\(\{[^}]*topInset:\s*insets\.top[^}]*bottomInset:\s*insets\.bottom[^}]*\}\)/.test(explorerSrc),
+  ok(/revealScrollTop\(\{[^}]*topInset:\s*Math\.max\(insets\.top, frame\.top\)[^}]*bottomInset:\s*Math\.max\(insets\.bottom, vh - frame\.bottom\)[^}]*\}\)/.test(explorerSrc),
     "revealRail must pass the measured sticky insets to revealScrollTop");
-  ok(/window\.scrollTo\(\{\s*top:\s*target,\s*behavior:\s*smooth \? "smooth" : "auto"\s*\}\)/.test(explorerSrc),
+  ok(/scroller\.scrollTo\(\{\s*top:\s*target,\s*behavior:\s*smooth \? "smooth" : "auto"\s*\}\)/.test(explorerSrc),
     "the page scroll must honour reduced motion (smooth only when allowed)");
   ok(/rail\.scrollTo\(\{\s*left:\s*target,\s*behavior:\s*smooth \? "smooth" : "auto"\s*\}\)/.test(explorerSrc),
     "the rail scroll must honour reduced motion too");
