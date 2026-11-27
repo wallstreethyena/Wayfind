@@ -25,7 +25,8 @@ import {
   cleanNotes, validateNotesIntent, parsedFromNotes, nameMatches, PLAN_DAY_AREAS,
 } from "../lib/planMyDay.js";
 import { travelEstimate, legDirectionsUrl } from "../lib/travelEstimate.js";
-import { PARTNER_GO_RX, clientStop, withTravel, stopTypeLabel } from "../lib/itineraryBuilderServer.js";
+import { PARTNER_GO_RX, clientStop, withTravel, stopTypeLabel, isAdultOnlyCandidate, wantsKidFriendly, withPartnerTicket, buildItinerary } from "../lib/itineraryBuilderServer.js";
+import { normalizeGroundedCandidate } from "../lib/wayfindPlanner.js";
 import { whyGoQueue } from "../app/api/cron/ai-why-go/route.js";
 
 let failed = 0, passed = 0;
@@ -124,6 +125,42 @@ ok(sa.ticket && sa.ticket.href === "/api/commerce/go?p=zoo" && sa.ticket.label =
 ok(sb.ticket === null && sb.href === null, "a non partner ticket and an unsafe href are dropped");
 ok(stopTypeLabel("peruvian_restaurant") === "Peruvian restaurant" && stopTypeLabel("video_arcade") === "Video arcade" && stopTypeLabel("point_of_interest") === null && stopTypeLabel(null) === null, "raw place types read as plain words on the card");
 ok(clientStop({ id: "c" }, new Map([["c", { id: "c", name: "Arcade", type: "video_arcade" }]])).type === "Video arcade", "a stop card never shows a raw type token");
+// Trips with kids: never a bar, club or adults night (live check 2026-11-27 gave a family a goth club and two bars).
+const norm = (card) => normalizeGroundedCandidate(withPartnerTicket(card), "christmas");
+const club = norm({ id: "ChIJclub0001", kind: "place", name: "The Castle", category: "nightlife", primaryType: "night_club", types: ["night_club", "bar"], christmasRail: "parties", lat: 27.96, lng: -82.44 });
+const pub = norm({ id: "ChIJpub00001", kind: "place", name: "Strandhill Public", category: "nightlife", primaryType: "irish_pub", types: ["irish_pub", "restaurant", "bar"], christmasRail: "popup-bars", lat: 27.96, lng: -82.46 });
+const zoo = norm({ id: "zootampa-christmas-wild-2026", kind: "event", title: "Christmas in the Wild", name: "Christmas in the Wild at ZooTampa", venue: "ZooTampa at Lowry Park", category: "holiday", audience: "family", lat: 28.01, lng: -82.47, ticketRow: { cta: { href: "/api/commerce/go?provider=viator&offer=1", label: "Get Tickets" } } });
+const diner = norm({ id: "ChIJdiner001", kind: "place", name: "Family Diner", category: "food", primaryType: "diner", types: ["diner", "restaurant"], lat: 27.95, lng: -82.45 });
+ok(isAdultOnlyCandidate(club) && isAdultOnlyCandidate(pub) && !isAdultOnlyCandidate(zoo) && !isAdultOnlyCandidate(diner), "bars, clubs and adult Christmas parties are adult only; a zoo lights night and a diner are not");
+ok(wantsKidFriendly({ preferences: { partyType: "family" } }) && wantsKidFriendly({ preferences: { kids: 2 } }) && !wantsKidFriendly({ preferences: { partyType: "couple" } }), "kids in the notes turn on the family filter");
+ok(zoo.ticketUrl === "/api/commerce/go?provider=viator&offer=1" && zoo.itemType === "event", "a Christmas card keeps its partner ticket through the planner");
+const venueOnly = norm({ id: "enchant-2026", kind: "event", title: "Enchant Christmas St. Petersburg", name: "Tropicana Field", venue: "Tropicana Field", lat: 27.77, lng: -82.65 });
+ok(venueOnly.name === "Enchant Christmas St. Petersburg", "an event card named only by its venue shows the event's own title");
+const canned = clientStop({ id: "d", why: "Grouped nearby so you are not driving across town for dinner." }, new Map([["d", { id: "d", name: "Coffee", take: "Small batch coffee by the bay." }]]));
+ok(canned.why === "Small batch coffee by the bay.", "a planner slot filler line is replaced by the stop's own Wayfind line");
+{
+  // End to end with fake routes: a family plan built from a pool full of bars keeps none of them.
+  const bars = [
+    { id: "ChIJclub0001", kind: "place", name: "The Castle", city: "Tampa", category: "nightlife", primaryType: "night_club", types: ["night_club"], christmasRail: "parties", lat: 27.96, lng: -82.44, rating: 4.2, reviews: 973, wfScore: 90 },
+    { id: "ChIJjoy00001", kind: "place", name: "Joy Bar", city: "Tampa", category: "nightlife", primaryType: "bar", types: ["bar"], christmasRail: "popup-bars", lat: 28.011, lng: -82.484, rating: 4.5, reviews: 111, wfScore: 90 },
+  ];
+  const fam = [
+    { id: "zootampa-christmas-wild-2026", kind: "event", title: "Christmas in the Wild", name: "Christmas in the Wild at ZooTampa", venue: "ZooTampa at Lowry Park", city: "Tampa", category: "holiday", start_date: "2026-11-27", end_date: "2026-12-30", lat: 28.013, lng: -82.4696, detailHref: "/florida-events/zootampa-christmas-in-the-wild-2026", ticketRow: { cta: { href: "/api/commerce/go?provider=viator&offer=28841P3", label: "Get Tickets" } } },
+  ];
+  const places = [
+    { id: "ChIJdiner001", name: "Family Diner", city: "Tampa", category: "food", primaryType: "diner", types: ["diner", "restaurant"], lat: 27.95, lng: -82.45, rating: 4.6, reviews: 800 },
+    { id: "ChIJpark0001", name: "Curtis Hixon Park", city: "Tampa", category: "park", primaryType: "park", types: ["park"], lat: 27.949, lng: -82.461, rating: 4.7, reviews: 5000 },
+  ];
+  const deps = { curated: false, christmasBrowseGet: async () => new Response(JSON.stringify({ cards: [...bars, ...fam] })), siteSearch: async () => new Response(JSON.stringify({ places })) };
+  const famParsed = parsedFromNotes("Tampa Dec 12 to 13 with two kids, christmas lights", validateNotesIntent({}, "2026-11-27"), "2026-11-27").parsed;
+  const famPlan = await buildItinerary(famParsed, { deps });
+  const famIds = famPlan.ok ? [...famPlan.itinerary.days.flatMap((d) => d.stops), ...famPlan.pool].map((x) => x.id) : [];
+  ok(famPlan.ok && famIds.includes("zootampa-christmas-wild-2026") && !famIds.includes("ChIJclub0001") && !famIds.includes("ChIJjoy00001"), "a family plan never offers a bar or club, as a stop or in Add a stop");
+  const adultParsed = parsedFromNotes("Tampa Dec 12 date night, christmas lights", validateNotesIntent({}, "2026-11-27"), "2026-11-27").parsed;
+  const adultPlan = await buildItinerary(adultParsed, { deps });
+  const adultIds = adultPlan.ok ? [...adultPlan.itinerary.days.flatMap((d) => d.stops), ...adultPlan.pool].map((x) => x.id) : [];
+  ok(adultIds.includes("ChIJjoy00001") || adultIds.includes("ChIJclub0001"), "an adults trip still sees the holiday bars (positive control)");
+}
 
 // ── 4. Honest travel ────────────────────────────────────────────────────────
 const t1 = travelEstimate({ lat: 27.3364, lng: -82.5307 }, { lat: 27.3812, lng: -82.5604 });
