@@ -18,7 +18,7 @@
 //      scheduled and CRON_SECRET gated, the page reads blurbs from cache only.
 import { readFileSync } from "node:fs";
 import { laneCap, OPENAI_COPY_LANES, openAiCopy, hasBannedCopy, numbersGrounded, namesGrounded, parseJsonObject } from "../lib/openAiCopy.js";
-import { whyGoEvidence, validateWhyGo, whyGoCacheKey } from "../lib/eventWhyGo.js";
+import { whyGoEvidence, validateWhyGo, whyGoCacheKey, readWhyGo, WHY_GO_READ_REVALIDATE_S } from "../lib/eventWhyGo.js";
 import { reviewEvidence, validateReviewSummary, reviewSummaryKey, validPlaceId } from "../lib/reviewSummary.js";
 import {
   parsePlanRequest, resolvePlanDate, vibesFor, christmasSeason, validatePlanCopy, plannerParsedFor,
@@ -183,6 +183,25 @@ ok(/CRON_SECRET/.test(cronSrc) && /status: 401/.test(cronSrc) && (cronSrc.match(
 const page = rd("app/florida-events/[slug]/page.js");
 ok(/readWhyGo\(e\)/.test(page) && !/generateWhyGo/.test(page) && /data-ai-why-go/.test(page), "the event page reads stored blurbs only and renders them");
 ok(/e\.why_go \? .*: aiWhyGo \?/.test(page), "a hand-written why_go always wins over the stored blurb");
+{
+  // INCIDENT 2026-11-27: a no-store read inside the ISR event page 500ed every re-rendered event page.
+  process.env.SUPABASE_URL = "https://example.supabase.co";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "test-key";
+  const ev = { slug: "zoo-lights-2026", event_name: "Zoo Lights", city: "Tampa", category: "holiday", card_hook: "The zoo lit up after dark." };
+  const good = "A good pick for families who want to see the zoo lit up after dark on a holiday evening in Tampa.";
+  const seen = [];
+  const fakeFetch = async (url, opts) => { seen.push({ url, opts }); return { ok: true, json: async () => [{ v: good, exp: new Date(Date.now() + 86400000).toISOString() }] }; };
+  const got = await readWhyGo(ev, fakeFetch);
+  const o = seen[0] && seen[0].opts;
+  ok(got === good && o && o.cache !== "no-store" && o.next && o.next.revalidate === WHY_GO_READ_REVALIDATE_S && WHY_GO_READ_REVALIDATE_S > 0, "the event page's blurb read is ISR safe (next.revalidate, never no-store)");
+  const pageRevalidate = Number((page.match(/export const revalidate = (\d+)/) || [])[1]);
+  ok(pageRevalidate > 0 && WHY_GO_READ_REVALIDATE_S <= pageRevalidate, "the blurb read never revalidates slower than the event page itself");
+  const fnSrc = rd("lib/eventWhyGo.js").split("export async function readWhyGo")[1] || "";
+  ok(fnSrc && !/\bcget\(/.test(fnSrc.split("\n}\n")[0]) && !/no-store/.test(fnSrc.split("\n}\n")[0]), "readWhyGo never goes through the no-store cache reader");
+  ok((await readWhyGo(ev, async () => { throw new Error("down"); })) === null, "a failed blurb read renders the page without a blurb");
+  process.env.SUPABASE_URL = "";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "";
+}
 ok(/<ReviewSummary[\s/>]/.test(rd("app/components/sheets/Detail.js")) && /dynamic\(\(\) => import\("\.\.\/ReviewSummary\.js"\)/.test(rd("app/components/sheets/Detail.js")), "the review quick take loads on demand in the detail sheet");
 ok(/"\/plan-my-day"/.test(rd("app/sitemap.js")) && /href="\/plan-my-day"/.test(rd("app/christmas-in-florida/page.js")), "the builder has a door: sitemap and the Christmas hub");
 const q = whyGoQueue([
