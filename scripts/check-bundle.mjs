@@ -154,6 +154,17 @@ if (!assets.length) fail('route "/" ("/page") missing from app-build-manifest.js
 const layoutAssets = (manifest.pages && manifest.pages["/layout"]) || [];
 if (!layoutAssets.length) fail('root layout ("/layout") missing from app-build-manifest.json');
 
+// The homepage must stay an hourly ISR page (scripts/lib/homeIsr.mjs). A
+// Dynamic "/" re-renders on every visit and blew the 3s homepage budget.
+{
+  const { homeIsrStatus } = await import("./lib/homeIsr.mjs");
+  let prerender = null;
+  try { prerender = JSON.parse(readFileSync(new URL("../.next/prerender-manifest.json", import.meta.url), "utf8")); } catch {}
+  const home = homeIsrStatus(prerender);
+  if (!home.ok) fail(home.reason);
+  console.log(`check-bundle: homepage is ISR, revalidate ${home.revalidate}s`);
+}
+
 let total = 0, routeChunk = 0, routeChunkName = null;
 for (const f of assets) {
   if (!f.endsWith(".js")) continue;
