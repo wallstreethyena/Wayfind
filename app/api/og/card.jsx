@@ -84,6 +84,20 @@ arch600.catch(() => {});
 arch700.catch(() => {});
 arch900.catch(() => {});
 
+// THE OFFICIAL LOGO, NOT A DRAWING (2026-11-27). Owner rule (2026-11-12, brand
+// vault): never redraw, approximate or regenerate the Wayfind logo when an
+// approved asset exists. The share cards used to draw a look-alike (a teardrop
+// pin and Archivo "wayfind"), which is not the owner's mark. This is the vault
+// derivative of wayfind-logo-white (public/brand/wayfind/manifest.json:
+// wayfind-logo-white-og), bundled with the edge function exactly like the
+// fonts above, so it is still not a network fetch of the site. The Node.js
+// caller hands in its own fs-read bytes (opts.logoBuffer). The bytes never
+// change, so the first successful load is kept for the life of the instance.
+const logoPng = safeArchivo(() => fetch(new URL("../../../public/brand/wayfind/derived/wayfind-logo-white-og.png", import.meta.url)).then((r) => r.arrayBuffer()));
+logoPng.catch(() => {});
+export const LOGO_ASPECT = 546 / 120; // the derivative's own pixel size
+let LOGO_BYTES = null;
+
 export const INK = "#06080D";
 export const ORANGE = "#F97316";
 export const ORANGE_TEXT = "#FF9448";
@@ -96,22 +110,14 @@ export const SHARE_CACHE = {
   immutable: "public, immutable, no-transform, s-maxage=31536000, max-age=31536000",
 };
 
-// The mark is DRAWN: an outlined orange pin and the lowercase wordmark. It used
-// to be composited from /brand/wayfind-official-white.png, which meant every
-// share card depended on a self-referential asset fetch from the edge. Drawing
-// it removes the only remaining network dependency in the render path.
+// The mark is the owner's logo file (see LOGO_BYTES above). `size` keeps the
+// old call sites' scale: the wordmark's cap height reads like the old 33px
+// drawing. With no bytes (an unreadable bundle) the card renders without a
+// mark rather than a redrawn imitation.
 function Mark({ size }) {
-  const s = size || 33;
-  return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <svg width={s} height={s} viewBox="0 0 24 24">
-        <path d="M12 2.6c-4.1 0-7.4 3.3-7.4 7.4 0 5 6.4 10.7 6.9 11.1a.8.8 0 0 0 1 0c.5-.4 6.9-6.1 6.9-11.1 0-4.1-3.3-7.4-7.4-7.4Z"
-              fill="none" stroke={ORANGE} strokeWidth="2.1" />
-        <circle cx="12" cy="9.8" r="2.6" fill={ORANGE} />
-      </svg>
-      <div style={{ display: "flex", fontSize: s, fontWeight: 700, color: WHITE, letterSpacing: -0.6, marginLeft: 11 }}>wayfind</div>
-    </div>
-  );
+  const h = Math.round((size || 33) * 1.3);
+  if (!LOGO_BYTES) return <div style={{ display: "flex", height: h }} />;
+  return <img src={LOGO_BYTES} width={Math.round(h * LOGO_ASPECT)} height={h} alt="Wayfind" style={{ display: "flex" }} />;
 }
 
 // A small drawn star (v9.1, place hero cards) — never a text glyph. Archivo's
@@ -408,6 +414,7 @@ export async function shareCardResponse(model, opts) {
   // fs-loaded buffers, because the edge fetch form cannot run there at all —
   // see the comment on arch600 above for why that has to be the seam.
   const [f6, f7, f9] = o.fontBuffers || await Promise.all([arch600, arch700, arch900]);
+  if (!LOGO_BYTES) LOGO_BYTES = o.logoBuffer || await logoPng.catch(() => null);
   // STILL EXACTLY ONE ImageResponse. The rail and hero variants are further
   // PLATES, not a second renderer: same fonts, same 1200x630, same rebuilt
   // Cache-Control. A route that constructed its own is how six surfaces

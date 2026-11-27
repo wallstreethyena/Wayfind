@@ -8,6 +8,7 @@ import sharp from "sharp";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { shareCardResponse, SHARE_CACHE } from "../card.jsx";
+import { loadNodeLogo } from "../nodeLogo.js";
 import { movieById } from "../../../../lib/moviePages.js";
 import { movieCardModel } from "../../../../lib/movieShareCard.js";
 import { defaultModel } from "../../../../lib/shareCardCopy.js";
@@ -69,10 +70,10 @@ export async function GET(req) {
     fontBuffers = await loadFonts();
     const id = new URL(req.url).searchParams.get("id") || "";
     const hit = movieById(id, siteTodayStr());
-    if (!hit) return await toJpegResponse(await shareCardResponse(defaultModel(), { cache: SHARE_CACHE.live, fontBuffers }));
+    if (!hit) return await toJpegResponse(await shareCardResponse(defaultModel(), { cache: SHARE_CACHE.live, fontBuffers, logoBuffer: await loadNodeLogo() }));
     const poster = await posterDataUri(hit.movie);
-    return await toJpegResponse(await shareCardResponse(movieCardModel(hit.movie, hit.collection, poster), { cache: SHARE_CACHE.live, fontBuffers }));
+    return await toJpegResponse(await shareCardResponse(movieCardModel(hit.movie, hit.collection, poster), { cache: SHARE_CACHE.live, fontBuffers, logoBuffer: await loadNodeLogo() }));
   } catch (e) {
-    return await toJpegResponse(await shareCardResponse(defaultModel(), { cache: SHARE_CACHE.live, fontBuffers: fontBuffers || undefined }));
+    return await toJpegResponse(await shareCardResponse(defaultModel(), { cache: SHARE_CACHE.live, fontBuffers: fontBuffers || undefined, logoBuffer: await loadNodeLogo() }));
   }
 }
