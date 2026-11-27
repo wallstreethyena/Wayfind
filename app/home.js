@@ -3171,7 +3171,8 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   ].filter(Boolean).slice(0, 2);
   const shareEvent = () => {
     try { onLog("share", null, { id: event.id, kind: "event_card" }); } catch (e) {}
-    shareLink(event.name + " — Wayfind", href, onCopied, event.name + " at " + venue + ". Found on Wayfind.");
+    // The venue's place id (when the event has one) lets Group Vote start on it.
+    shareLink(event.name + " — Wayfind", href, onCopied, event.name + " at " + venue + ". Found on Wayfind.", null, { placeId: event.place_id || event.placeId || "" });
   };
   return (
     <RailCard

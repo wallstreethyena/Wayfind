@@ -38,7 +38,8 @@ ok(laneCap("plan_day", {}) === 4000 && laneCap("why_go", {}) === 1500 && laneCap
 ok(laneCap("why_go", { OPENAI_WHY_GO_MONTHLY_CAP: "200" }) === 200, "a positive integer env override applies");
 ok(laneCap("why_go", { OPENAI_WHY_GO_MONTHLY_CAP: "-5" }) === 1500 && laneCap("why_go", { OPENAI_WHY_GO_MONTHLY_CAP: "lots" }) === 1500, "a bad env override falls back to the default, never unlimited");
 ok(laneCap("nope", {}) === null, "an unknown lane has no cap");
-ok(new Set(Object.values(OPENAI_COPY_LANES).map((l) => l.sku)).size === 3, "each feature has its own ledger sku");
+ok(new Set(Object.values(OPENAI_COPY_LANES).map((l) => l.sku)).size === Object.keys(OPENAI_COPY_LANES).length && Object.keys(OPENAI_COPY_LANES).length === 4, "each feature (plan_day, why_go, review_summary, group_search) has its own ledger sku");
+ok(laneCap("group_search", {}) === 2000, "group vote search lane defaults to 2000 a month");
 {
   // Hermetic: force the key empty for this process (never read from the shell).
   process.env.OPENAI_API_KEY = "";

@@ -333,7 +333,11 @@ export function askShareIntent(o) {
 
   // groupId is a Group Vote-only subject (a tour's "vx_" key). It never feeds
   // the invite or preview above, which only understand inventory place ids.
-  const groupHref = groupPlanHref(opt.groupId || opt.id, name);
+  // A card that is one place (it has place kinds, or says so) but sent no id
+  // still opens the vote searching that name, never a blank picker. Events
+  // without a venue id keep the plain picker: their title is not a place.
+  const singleSubject = Boolean(opt.kind || opt.groupSearch);
+  const groupHref = groupPlanHref(opt.groupId || opt.id, name, undefined, singleSubject ? name : "");
   if (groupHref) card.appendChild(button(false, "Group Vote",
     "Friends vote on the spot and day", () => { window.location.href = groupHref; }));
 
