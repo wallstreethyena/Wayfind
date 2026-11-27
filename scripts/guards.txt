@@ -2825,6 +2825,7 @@ node scripts/check-partner-deep-links.mjs
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
+node scripts/test-holiday-report.mjs
 
 # 2026-11-27 Live Trips (real-time group itineraries, offline-first): the one reducer +
 # HLC last-writer-wins + fractional order keys, 8 randomized 4-device convergence runs

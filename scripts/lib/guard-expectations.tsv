@@ -878,6 +878,7 @@ scripts/test-hero-impression-rendered.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0
 scripts/test-hero-people-free.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	d6e815af9682ea0248e2f02d05a9803fb9a75532ecd24a5260ea265b8f5fa369
 scripts/test-holiday-discovery-2026-11-06.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	103040486a96ba0a4bf1d343690a30dd168d1d20e01d412fbebeb4cc08988124
 scripts/test-holiday-promos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0	4774a0a184042e9f01483bea98325b971b027baace907c2a2c9499f44bd8dc42
+scripts/test-holiday-report.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	7a6d18f0980e9ba20b0cb37738003943c99862605310a82c94d62a624beb1e07
 scripts/test-home-bookable.mjs	1	RENDER	blocks-ci-and-deploy	1	Qwen (Engineering)	31	0	0	55ce115234c190d0fb5307d5a7a46c81449b5cb95f3cc645aef6f0d105caf422
 scripts/test-home-feed-rerender.mjs	0	RENDER	blocks-ci-and-deploy	1	-	68	0	0	98c135c00f6a65d16449b644708f96d0a32896ad79c2cbc3a0c506e6f2283423
 scripts/test-home-first-paint.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	ac729079e425d0f65bf2f08eb554df083015873d2d42a167c2f69b30d79f429a
