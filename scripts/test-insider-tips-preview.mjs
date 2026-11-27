@@ -9,7 +9,7 @@
 //   5. The page is noindex and the route is behind the middleware guard.
 import { readFileSync } from "node:fs";
 import {
-  lineStaysTrue, metroForQuery, chooseGeminiModel, answerInsiderQuestion, plainAnswerFrom,
+  lineStaysTrue, metroForQuery, chooseGeminiModel, answerInsiderQuestion, plainAnswerFrom, geminiModelChoices, thinkingFor,
   __resetInsiderPreviewMemo, INSIDER_PREVIEW_SKU, INSIDER_PREVIEW_MONTHLY_CAP,
 } from "../lib/insiderTipsPreview.js";
 
@@ -31,12 +31,24 @@ ok(metroForQuery("Siesta Key beach") === "manatee-sarasota", "Siesta maps to Sar
 ok(metroForQuery("key west") === "key-west", "longest match wins (key west over keys)");
 ok(metroForQuery("pizza") === null, "no town -> no metro");
 
-// 3 — model choice: newest flash, never lite/image.
+// 3 — model choice: owner pick > "neon" > newest pro > newest flash; never lite/image.
+const listing = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-3-flash-preview", "gemini-3.1-flash-lite-preview", "gemini-3.1-flash-image-preview", "text-embedding-004"];
 __resetInsiderPreviewMemo();
-const m = await chooseGeminiModel({ apiKey: "k", env: {}, listImpl: async () => ["gemini-2.5-flash", "gemini-3-pro-preview", "gemini-3-flash-preview", "gemini-3.1-flash-lite-preview", "gemini-3.1-flash-image-preview"] });
-ok(m === "gemini-3-flash-preview", "picks the newest plain flash, got " + m);
+let m = await chooseGeminiModel({ apiKey: "k", env: {}, listImpl: async () => listing });
+ok(m === "gemini-3-pro-preview", "picks the newest pro (most capable), got " + m);
+ok(!geminiModelChoices().some((n) => /image|embedding/.test(n)), "model choices list text models only");
+__resetInsiderPreviewMemo();
+m = await chooseGeminiModel({ apiKey: "k", env: {}, listImpl: async () => [...listing, "gemini-3-neon-preview"] });
+ok(m === "gemini-3-neon-preview", "a model named neon wins, got " + m);
+__resetInsiderPreviewMemo();
+m = await chooseGeminiModel({ apiKey: "k", env: { INSIDER_GEMINI_MODEL: "gemini-2.5-pro" }, listImpl: async () => [...listing, "gemini-3-neon-preview"] });
+ok(m === "gemini-2.5-pro", "the owner's explicit pick wins when reachable, got " + m);
+__resetInsiderPreviewMemo();
+m = await chooseGeminiModel({ apiKey: "k", env: { INSIDER_GEMINI_MODEL: "gemini-9-pro" }, listImpl: async () => listing });
+ok(m === "gemini-3-pro-preview", "an unreachable owner pick is ignored, got " + m);
 __resetInsiderPreviewMemo();
 ok((await chooseGeminiModel({ apiKey: "k", env: {}, listImpl: async () => [] })) === "gemini-2.5-flash", "empty listing falls back to the default model");
+ok(thinkingFor("gemini-3-pro-preview", "high").config.thinkingLevel === "high" && thinkingFor("gemini-2.5-pro", "low").config.thinkingBudget === 512 && thinkingFor("gemini-2.0-flash", "high") === null, "thinking settings by model family");
 
 // 4 — answers. Fake data via the memo: load once through a fake Supabase.
 const rows = [
@@ -78,12 +90,27 @@ try {
     listImpl: async () => ["gemini-2.5-flash"],
     geminiRequestImpl: async (req, l) => { lane = l; return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(reply) }] } }] }), { status: 200 }); },
   });
-  ok(lane && lane.sku === INSIDER_PREVIEW_SKU && lane.cap === INSIDER_PREVIEW_MONTHLY_CAP, "Gemini runs on the capped preview lane");
+  ok(lane && lane.sku === INSIDER_PREVIEW_SKU && lane.cap === INSIDER_PREVIEW_MONTHLY_CAP && INSIDER_PREVIEW_MONTHLY_CAP <= 300, "Gemini runs on the capped preview lane");
   ok(ai.ai === true && ai.model === "gemini-2.5-flash", "AI answer names the model");
   const a1 = ai.cards.find((c) => c.id === "A1"); const b2 = ai.cards.find((c) => c.id === "B2");
   ok(a1 && a1.ai === true && /mangroves/.test(a1.line), "faithful rewrite is used");
   ok(b2 && b2.ai === false && b2.line === rows[1].tip, "rewrite with an invented time falls back to the verified tip");
   ok(!ai.cards.some((c) => c.id === "ZZZ") && ai.cards.length === 2, "an id that is not a real candidate never becomes a card");
+
+  // Thinking ladder: deep first; a 400 gets ONE lighter retry; never a third call.
+  __resetInsiderPreviewMemo();
+  const sent = [];
+  const okBody = new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify({ intro: "Hi.", picks: [{ id: "A1", line: rows[0].tip }] }) }] } }] }), { status: 200 });
+  const lad = await answerInsiderQuestion("", { env, listImpl: async () => ["gemini-3-pro-preview"], geminiRequestImpl: async (req) => {
+    sent.push(req.body.generationConfig.thinkingConfig);
+    return sent.length === 1 ? new Response(JSON.stringify({ error: { status: "INVALID_ARGUMENT" } }), { status: 400 }) : okBody;
+  } });
+  ok(sent.length === 2 && sent[0].thinkingLevel === "high" && sent[1].thinkingLevel === "low", "deep thinking first, one light retry after a 400");
+  ok(lad.ai === true && lad.thinking === "low" && lad.model === "gemini-3-pro-preview", "answer reports the model and thinking level used");
+  __resetInsiderPreviewMemo();
+  let capCalls = 0;
+  const capped = await answerInsiderQuestion("", { env, listImpl: async () => ["gemini-3-pro-preview"], geminiRequestImpl: async () => { capCalls++; return new Response(JSON.stringify({ error: "gemini_request_blocked", reason: "monthly_request_cap_reached_or_ledger_unavailable" }), { status: 503 }); } });
+  ok(capCalls === 1 && capped.reason.startsWith("monthly") && capped.cards.every((c) => !c.ai), "a reached cap is final: one call, verified tips shown");
 
   // Bad JSON -> plain.
   __resetInsiderPreviewMemo();
