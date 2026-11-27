@@ -42,7 +42,7 @@ scripts/check-book-cta-needs-a-seller.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue 
 scripts/check-booking-agent.mjs	1	RENDER	blocks-ci-and-deploy	1	owner (Gabriel)	16	0	0	76f7341bad1eff500728b9d75886c5d3a25bdf4b7aaca67d46448aa2db0423fc
 scripts/check-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	02a459236ddc495476ff62024a08d845b2c6c7c20fe112d146705af9f89769d4
 scripts/check-boundary-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	817f3e3029152801511a7bb84821beabe5fd27e6ac6e9cfee39ba352a943509d
-scripts/check-brand-assets.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	1	0	5fb2e8af967b4c4f3ef6dd8c6feb0d88fd3256193a065aa5c17c6bc4add0fb71
+scripts/check-brand-assets.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	1	0	06a7386a06b09ca2219df346ed3fee97d8b496e33485cfe88504cadefea7d899
 scripts/check-brand-derivatives.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	19	1	0	4a888e34f30e6b71ec357cc8734e749046ee0b0e87beae82762caf2146e7b1f1
 scripts/check-brand-pin.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	17	1	0	b9c2c942b429ad59509e8f5d4a29abd24110c3fb979cced181b6f3d0ce2d8c14
 scripts/check-brand-vault.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	b11b51e77ef0993a28008a4a91caea1d47564103011f5392b6e805781b4493f2
@@ -457,7 +457,7 @@ scripts/check-seasonal-movies.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	
 scripts/check-seasonal-rail-depth.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	a7af84063d56e22ef5103369c1381458b88e4111bdef296e7e2dcbb01456d2cd
 scripts/check-seasonal-surfaces.mjs	0	RENDER	blocks-ci-and-deploy	1	-	117	0	0	17b1da4531ff76e3bc0ba01f57c75fde4fc19176634f9d72ce2c348ba7b36a91
 scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	72	1	0	f9b82dcb822219e3b91b43ed4afe6378e52ded862e3f4c0562fb92438ab1d628
-scripts/check-share-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0	9236820711658a41523c578ca14987d68d3219ccb18ae185b6e36df01153974c
+scripts/check-share-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	92	0	0	1b37d967793c2c0c2df89ce41ad98db8f483c0d13bef768ece40c035fc1aa689
 scripts/check-shell-decomposition.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	bf98fac42ecfff2c7d1f1adce7f523d961372ca9c39876cf526b9592e55590e0
 scripts/check-shell-routes.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	31c5df471508cd83960219c4624c3c2fd73821aded46a620b403026a0fde048d
 scripts/check-shell-scroll.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	a3a04aeda8da7cee009eb5ca746d197a5eae337429a366032cd28484f1d91247
@@ -991,6 +991,7 @@ scripts/test-now-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	112	0	0	7420951e91d
 scripts/test-npm-audit-allowlist.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	14841c36312a4ca0c0673de867e1a4fc655a82f3fdd3dbade18f30f1f8275af2
 scripts/test-official-event-covers.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	f530f2af6b70d81cfb950e2a2fe04fb588993f00ca66d4a627dff548f6092676
 scripts/test-og-bodies.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	2114f3fa9f73d293aaf33c9cd9424f9a62979830d9198314afc20a472f7b24e8
+scripts/test-og-every-path.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	5ee8da6146bd4eb5588f12bc6f1535173fba64f0fe481e453069569352205ca7
 scripts/test-og-movie-function-size.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	a23941ed6ee7bc87f09399494f2a72775b649528b80060b0b504079c11129ca4
 scripts/test-openverse-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	fe51e5571a85782f938c5cc76ca5bb7198c61e0926f9330c9f472c5aeef76c18
 scripts/test-orlando-guide-tiqets.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	11	0	0	1dfcd99131f0130985ac4ba0433b54e5c13419722fb894fcbe572638b9b8f79c

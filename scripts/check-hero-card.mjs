@@ -607,8 +607,8 @@ for (const { f, src } of ogPages) {
   const std = readFileSync(stdPath, "utf8");
   const rule9 = (std.split(/\n9\. THE HERO PHOTO/)[1] || "");
   ok(rule9.length > 0, "docs/share-card-standard.md carries rule 9, THE HERO PHOTO (the shipped photo-led guide/place/event card)");
-  ok(/\{m\.poster\}/.test(rule9) && /\{m\.hero\}/.test(rule9) && /exactly two <img>/.test(rule9),
-     "rule 9 names the same two allowed <img> sources check-share-card.mjs enforces ({m.poster}, {m.hero})");
+  ok(/\{m\.poster\}/.test(rule9) && /\{m\.hero\}/.test(rule9) && /\{LOGO_BYTES\}/.test(rule9) && /exactly three <img>/.test(rule9),
+     "rule 9 names the same three allowed <img> sources check-share-card.mjs enforces ({m.poster}, {m.hero}, {LOGO_BYTES})");
   ok(/no \?src=/.test(rule9) && /no \?pos=/.test(rule9), "rule 9 states the route reads no photo source from the query string");
   ok(/HERO_CARD_DESIGN_V/.test(rule9) && /immutable cache ONLY/.test(rule9), "rule 9 states the design-version cache rule");
   ok(/Google reviews/.test(rule9), "rule 9 states ratings name Google as their source");
@@ -616,8 +616,8 @@ for (const { f, src } of ogPages) {
   const heroCardSrc = readFileSync(path.join(ROOT_DIR, "lib/heroCard.js"), "utf8");
   ok(/export const HERO_CARD_DESIGN_V = "[a-z0-9]+"/.test(heroCardSrc), "lib/heroCard.js exports the HERO_CARD_DESIGN_V rule 9 names");
   const shareGuard = readFileSync(path.join(ROOT_DIR, "scripts/check-share-card.mjs"), "utf8");
-  ok(/imgTags\.length === 2/.test(shareGuard) && /m\\\.\(poster\|hero\)/.test(shareGuard),
-     "check-share-card.mjs still allows exactly the two sources rule 9 documents");
+  ok(/imgTags\.length === 3/.test(shareGuard) && /m\\\.\(poster\|hero\)\|LOGO_BYTES/.test(shareGuard),
+     "check-share-card.mjs still allows exactly the three sources rule 9 documents (poster, hero photo, owner logo)");
   ok(!existsSync(path.join(ROOT_DIR, "docs/proposals/claude-sonnet-hero-photo-standard.md")),
      "the retired rule 9 proposal is gone, so there is one source of truth");
 }
