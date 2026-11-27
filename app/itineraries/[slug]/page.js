@@ -1,13 +1,15 @@
 // /itineraries/<slug> — a multi stop plan Wayfind drafts weekly from its own
 // places and events (lib/itineraryTemplates.js). Events that already ended are
-// dropped at read time; times show only where the event row has one.
+// dropped at read time; times show only where the event row has one. A stop
+// with no photo takes Wayfind's own licensed photo of that place, if any.
 import { notFound } from "next/navigation";
 import CommunityTripPage from "../../components/CommunityTripPage";
 import { SITE_URL } from "../../../lib/site";
 import { socialMeta } from "../../../lib/socialMeta";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { tripLogEnv } from "../../../lib/tripLogServer";
-import { readTemplate, liveStops } from "../../../lib/itineraryTemplates";
+import { readTemplate, liveStops, withLicensedPhotos } from "../../../lib/itineraryTemplates";
+import { findFreePhoto } from "../../../lib/freePhoto";
 import { fetchCuratedEventBySlug, eventDetailTicketAction } from "../../../lib/curatedEvents";
 
 export const revalidate = 600;
@@ -34,8 +36,9 @@ export default async function ItineraryTemplatePage({ params }) {
   const t = await load(slug);
   if (!t) notFound();
   const today = siteTodayStr();
-  const stops = liveStops(t, today);
-  if (stops.length < 3) notFound();
+  const live = liveStops(t, today);
+  if (live.length < 3) notFound();
+  const stops = await withLicensedPhotos(live, findFreePhoto);
   const tickets = new Map();
   for (const s of stops.filter((x) => x.kind === "event" && x.slug)) {
     try {
