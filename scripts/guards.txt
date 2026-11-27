@@ -2850,3 +2850,4 @@ node scripts/test-city-weekend-seo.mjs
 node scripts/test-nearby-picks.mjs
 node scripts/test-og-every-path.mjs
 node scripts/test-jsonld-check.mjs
+node scripts/test-newsletter.mjs

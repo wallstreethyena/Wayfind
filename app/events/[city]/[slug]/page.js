@@ -39,6 +39,8 @@ import { styleHtml } from "../../../../lib/styleHtml.js";
 import { eventCostSummary, eventHoursOnDay } from "../../../../lib/eventVisitFacts.js";
 import { eventInWeekendRegion, regionalWeekendPicks, weekendRegion } from "../../../../lib/regionalWeekend.js";
 import { readWeekendEvents } from "../../../../lib/weekendEventsRead.js";
+import NewsletterSignup from "../../../components/NewsletterSignup";
+import { regionForCity } from "../../../../lib/newsletter.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -310,6 +312,7 @@ async function EventListPage({ params }) {
         <p style={{ margin: "20px 0 0", fontSize: 14 }}>
           <a href={`/things-to-do/${params.city}`} style={{ color: A, fontWeight: 700, display: "inline-flex", alignItems: "center", minHeight: 44 }}>Best things to do in {city.name}, any weekend</a>
         </p>
+        <NewsletterSignup source="events_list" region={regionForCity(params.city)} back={`/events/${params.city}/${params.slug}`} style={{ padding: 0 }} />
         <div style={{ marginTop: 18, fontSize: 11.5, color: "#64748B" }}>Every listing is a real, validated event — no dead links, no past dates. Times can change; confirm before you go.</div>
       </div>
     </div>
@@ -443,6 +446,7 @@ export default async function EventPage({ params }) {
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
           Listing from {e.source}. Times and availability can change — confirm on the {e.ticketed ? "ticket page" : "official site"} before you go.
         </div>
+        <NewsletterSignup source="event" region={regionForCity(params.city)} back={`/events/${params.city}/${params.slug}`} heading="Get next weekend's picks too" style={{ padding: 0 }} />
         <a href="/events" style={{ display: "inline-block", marginTop: 20, color: A, fontWeight: 800, fontSize: 13.5, textDecoration: "none" }}>‹ Back to all events</a>
       </div>
     </div>

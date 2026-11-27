@@ -18,6 +18,8 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import { listIndexedIds } from "../../../lib/placeIndex.js";
 import { selectEligiblePlaceLinks } from "../../../lib/hubPlaceLinks.js";
 import { styleHtml } from "../../../lib/styleHtml.js";
+import NewsletterSignup from "../../components/NewsletterSignup";
+import { regionForCity } from "../../../lib/newsletter.js";
 
 export const revalidate = 86400;
 export const dynamicParams = false;
@@ -162,6 +164,7 @@ export default async function Page({ params }) {
         {nearby.map(([k, slug], i) => (<span key={slug}><a style={S.a} href={`/florida/${slug}`}>{TOWN_PROFILES[k].title}</a>{i < nearby.length - 1 ? " · " : ""}</span>))}
         {" "}· <a style={S.a} href="/culture/sarasota">Sarasota &amp; the Cultural Coast</a>
       </p>
+      <NewsletterSignup source="town" region={regionForCity(params.town)} back={`/florida/${params.town}`} style={{ padding: 0 }} />
       <div style={S.disclosure}>Researched from local sources, official venue information, and verified visitor data. Listings rank on merit — see <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a> and our <a style={S.a} href="/editorial-policy">editorial policy</a>.</div>
     </main>
   );

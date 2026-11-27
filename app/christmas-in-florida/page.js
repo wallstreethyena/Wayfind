@@ -1,3 +1,4 @@
+import NewsletterSignup from "../components/NewsletterSignup";
 import { SITE_URL } from "../../lib/site";
 import { christmasCreatorPoster } from "../../lib/christmasCreatorPosters.js";
 import { creatorCoversFor } from "../../lib/creatorCovers.js";
@@ -168,6 +169,7 @@ export default async function Page() {
       <ChristmasCreatorPosts posts={creatorPosts} covers={creatorCovers} />
       <ChristmasTopicNav today={today} />
       <ChristmasCityGuides today={today} />
+      <NewsletterSignup source="christmas" back="/christmas-in-florida" heading="Never miss a Christmas weekend" style={{ padding: 0, margin: "0 0 24px" }} />
 
     </>} />
     <SeasonalSearchHub slug="christmas-in-florida" today={today} seoOnly />
