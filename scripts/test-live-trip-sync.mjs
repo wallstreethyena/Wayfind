@@ -125,6 +125,18 @@ const place = (id, name = "Spot " + id) => ({ id, name, lat: 27.3, lng: -82.5 })
   ok(L.checksum(JSON.parse(JSON.stringify(s0))) === L.checksum(s0), "checksum survives a JSON round trip (jsonb reorders keys)");
 }
 
+// ── the AI itinerary builder's plan goes live as the same model ─────────
+{
+  const plan = { v: 1, title: "Orlando day", city: "Orlando", state: "FL", startDate: "2026-12-05", endDate: "2026-12-05", days: [{ date: "2026-12-05", label: "Sat", stops: [
+    { id: "ChIJ1", name: "Lake Eola", kind: "place", lat: 28.54, lng: -81.37, why: "Swan boats at 9", fixedTime: "09:00", ticket: null, href: "/p/ChIJ1" },
+    { id: "evt:2", name: "Light show", kind: "event", ticket: { href: "https://tickets.example.com/x", label: "Tickets" } },
+  ] }] };
+  const st = L.stateFromTrip(plan, null);
+  ok(L.isValidState(st) && L.orderedItems(st).map((x) => x.id).join(",") === "ChIJ1,evt:2", "a builder plan becomes a live trip with its stops in order");
+  ok(st.items.ChIJ1.day === "2026-12-05" && st.items.ChIJ1.note === "Swan boats at 9" && st.items.ChIJ1.time === "09:00", "day, why and fixed time carry over");
+  ok(st.items["evt:2"].place.ticketUrl === "https://tickets.example.com/x" && st.items.ChIJ1.place.detailHref === "/p/ChIJ1", "ticket and detail links carry over");
+}
+
 // ── multi-replica convergence through a fake server ─────────────────────
 function makeServer(initial) {
   const srv = { state: initial, revision: 0, recent: [], subs: new Set(), commits: 0, broadcasts: [] };
