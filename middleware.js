@@ -43,6 +43,10 @@ export const config = {
     // Log your visit / rewards read (2026-11-25): signed in members only, the
     // route verifies the session itself; this adds same-origin + per-IP limits.
     "/api/trip-log",
+    // Live Trips (2026-11-27): signed-in members only, each route verifies the
+    // session and membership itself; this adds same-origin + per-IP limits.
+    "/api/trips/live",
+    "/api/trips/live/:path*",
     // AI engine (2026-11-27): publish/unpublish community guides (an OpenAI
     // call per publish, capped per member), leaderboard name changes (OpenAI
     // moderation) and web push subscribe. Each route verifies the session

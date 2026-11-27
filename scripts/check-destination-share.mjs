@@ -142,6 +142,7 @@ const EQUIVALENT = {
 // on every card and sheet).
 const EXEMPT = {
   "app/group-plans/page.js": { kind: "internal", why: "private signed-in organizer dashboard; individual invite/final-plan capabilities are shared from inside the plan" },
+  "app/trips/[id]/page.js": { kind: "internal", why: "private signed-in Live Trip; the address alone opens nothing for a stranger, and its Invite friends button shares the private invite link (code in the fragment) through shareOut" },
   "app/group-plans/new/page.js": { kind: "internal", why: "private plan-creation form; no recipient link exists until a plan is created" },
   "app/reserve/manage/[token]/page.js": { kind: "internal", why: "private restaurant dashboard opened from a bearer link; the link is a secret for one restaurant and must never be shared, so it carries no share button" },
   "app/reserve/test/page.js": { kind: "internal", why: "preview only test page for the Reserve a table flow; it is a 404 in production and never indexed, so it carries no share button" },

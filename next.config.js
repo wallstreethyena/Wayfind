@@ -191,6 +191,15 @@ const nextConfig = {
   experimental: { scrollRestoration: true },
   async headers() {
     return [
+      // Live Trips service worker (2026-11-27): always revalidate so a fix to
+      // the worker reaches phones on their next visit. Scope is /trips/ only.
+      {
+        source: "/trips-sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, max-age=0, must-revalidate" },
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+        ],
+      },
       {
         source: "/:path*",
         headers: [
