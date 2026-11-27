@@ -11,7 +11,8 @@ import {
   stopsFromItinerary, hydrateStops, validateGuideReply, writeGuide, rulesWrite, publicGuideView, publishGuide,
   openLicensePhoto, guidePrompt, sourceHash, newGuideSlug,
 } from "../lib/communityGuides.js";
-import { buildCandidates, validateTemplateReply, draftTemplate, liveStops, TEMPLATE_THEMES, templatePrompt } from "../lib/itineraryTemplates.js";
+import { buildCandidates, validateTemplateReply, draftTemplate, liveStops, TEMPLATE_THEMES, TEMPLATE_METROS, templatePrompt } from "../lib/itineraryTemplates.js";
+import { readFileSync, readdirSync } from "node:fs";
 import { validatePublicName } from "../lib/leaderboard.js";
 import { inSendWindow, tasteFrom, choosePick, pickMessage, runDailyPicks } from "../lib/dailyPicks.js";
 import { BADGES, badgeLevel, rewardsSummary, badgesFor, travelPlausible } from "../lib/rewards.js";
@@ -219,5 +220,26 @@ const now = Date.parse("2026-11-27T15:00:00Z");
 ok(travelPlausible({ lat: 27.95, lng: -82.46, created_at: "2026-11-27T14:30:00Z" }, { lat: 27.77, lng: -82.64 }, now), "Tampa to St. Pete in 30 minutes is plausible");
 ok(!travelPlausible({ lat: 27.95, lng: -82.46, created_at: "2026-11-27T14:30:00Z" }, { lat: 25.76, lng: -80.19 }, now), "Tampa to Miami in 30 minutes is not");
 ok(travelPlausible(null, { lat: 1, lng: 1 }, now), "no previous visit is fine");
+
+
+// ── template metros fit the live table check ──────────────────────────────
+// 2026-11-27: the first run's writes for st-pete, manatee-sarasota and
+// miami-dade failed because the column check allowed no hyphens. The newest
+// migration that sets wf_itinerary_templates_metro_check must accept every
+// metro the cron writes, and still refuse malformed ids.
+{
+  const files = readdirSync(new URL("../supabase/migrations/", import.meta.url)).filter((f) => f.endsWith(".sql")).sort();
+  let rx = null;
+  for (const f of files) {
+    const sql = readFileSync(new URL("../supabase/migrations/" + f, import.meta.url), "utf8");
+    const named = sql.match(/wf_itinerary_templates_metro_check\s+check\s*\([^;]*metro ~ '([^']+)'/i);
+    const inline = /create table if not exists public\.wf_itinerary_templates/i.test(sql) ? sql.match(/\n\s*metro\s+text[^\n]*metro ~ '([^']+)'/) : null;
+    const m = named || inline;
+    if (m) rx = new RegExp(m[1]);
+  }
+  ok(rx, "a migration defines the template metro check");
+  for (const m of TEMPLATE_METROS) ok(rx.test(m.metro) && m.metro.length >= 2 && m.metro.length <= 40, `template metro ${m.metro} passes the table check`);
+  for (const bad of ["St Pete", "-tampa", "tampa-", "miami--dade", "Tampa"]) ok(!rx.test(bad), `the table check refuses ${bad}`);
+}
 
 console.log(`test-ai-engine-community: ${count} assertions passed`);
