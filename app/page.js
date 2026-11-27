@@ -39,6 +39,20 @@ import { readFloridaIntelligence } from "../lib/floridaIntelligenceServer";
 import { railMenuData } from "../lib/railsData";
 
 export const revalidate = 3600;
+// 2026-11-27 (Command Center "Slow responses from production", homepage
+// 3576ms): production served "/" as Dynamic (build table "ƒ /", response
+// "private, no-store", x-vercel-cache MISS on every request), so every visit
+// re-ran railMenuData, thisWeekEventsForHome, readFloridaIntelligence and the
+// proof block. The cause is not here: the Supabase cache reads behind them
+// (lib/serverCache.cget, lib/floridaIntelligenceServer) use fetch cache
+// "no-store", and Next 15 turns any no-store fetch during prerender into
+// dynamic rendering, silently overriding `revalidate` above. "force-static"
+// keeps the hourly ISR this file always intended: those reads still run fresh
+// (never stored in the data cache) but only at regeneration. Nothing in this
+// route reads headers(), cookies() or searchParams on the server; the
+// visitor's city is resolved in the browser. scripts/check-bundle.mjs (via
+// scripts/lib/homeIsr.mjs) fails the build if "/" stops being prerendered.
+export const dynamic = "force-static";
 
 // v6.43 LCP: the "Happening near you" hero image is the largest thing on the
 // mobile first screen (68,178px^2). It used to be fetched entirely client-side,
