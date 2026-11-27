@@ -86,9 +86,15 @@ ok(r.status === 200 && r.body.revision === 1 && r.body.applied[0] === opNote.id,
 const bc = db.broadcasts.filter((b) => b.event === "ops").pop();
 ok(bc.payload.ops[0].by === FRIEND, "server stamps the verified member id (a forged `by` is replaced)");
 ok(bc.payload.checksum === r.body.checksum && bc.payload.revision === 1, "broadcast carries revision + checksum");
+// Delivery does not depend on realtime.messages partitions: the saved ops also
+// go out through the Realtime HTTP broadcast API, on the private topic.
+const httpOps = db.broadcasts.filter((b) => b.event === "ops" && b.via === "http");
+ok(httpOps.length === 1 && httpOps[0].topic === "live-trip:" + id && httpOps[0].private === true && httpOps[0].payload.revision === 1 && httpOps[0].payload.checksum === r.body.checksum, "a saved batch is also sent through the HTTP broadcast API with its revision and checksum");
+ok(db.broadcasts.some((b) => b.event === "ops" && b.via === "db" && b.payload.revision === 1), "positive control: the in-transaction broadcast still fires too");
 const commitsBefore = db.commits;
 r = await S.handleOps({ ...base, token: T.friend, id, body: { baseRevision: 0, ops: [opNote] } });
 ok(r.body.applied.includes(opNote.id) && db.commits === commitsBefore, "a retried op is acknowledged without a second commit");
+ok(db.broadcasts.filter((b) => b.event === "ops" && b.via === "http").length === 1, "a retried op that commits nothing sends no second broadcast");
 eq((await S.handleOps({ ...base, token: T.viewer, id, body: { ops: [{ ...opNote, id: "op-viewer-0001" }] } })).status, 403, "viewers cannot edit");
 eq((await S.handleOps({ ...base, token: T.friend, id, body: { ops: [] } })).status, 400, "empty batch refused");
 eq((await S.handleOps({ ...base, token: T.friend, id, body: { ops: Array.from({ length: 51 }, (_, i) => ({ ...opNote, id: "op-many-" + String(i).padStart(6, "0") })) } })).status, 400, "more than 50 ops refused");
