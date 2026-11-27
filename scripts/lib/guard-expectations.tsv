@@ -249,7 +249,7 @@ scripts/check-home-default-poster.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	8
 scripts/check-home-diet.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	3e0d81473cb8993cade7ae88541dc1e031aee2177d2e9b1343f9030d92242515
 scripts/check-home-eager-supabase.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	b3420d79334073cbb905346f3a42fc54ce38154f9e3611d14770ba83e0839408
 scripts/check-home-location.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	1	0	c92ebcced3b792e8e4f1c1a5958937017f29579f565afd3c37db815c00fd9d74
-scripts/check-homepage-events-deadline.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	c73af886169a87014c7709cd9942ed94a6f1edf99881daf566c01a01a0d7a6ea
+scripts/check-homepage-events-deadline.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	3b6197e1e248a58ba24f46177b53e2138f8e0694e649fe483edf57ee3c2cba79
 scripts/check-hook-order.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	5	1	0	2d3761e38896fdbf893120d5a19e2b095057ce9dea82ac9bc661da39b6e13b3d
 scripts/check-hospitality-sign-photo-holds.mjs	0	CALL	blocks-ci-and-deploy	1	-	3	0	0	c4a538fca892d5ebf0a206a1cd96888468de7424d38c2cf3eed62054721825d7
 scripts/check-hotel-booking-verified.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	31	0	0	67ca7e8ca6c4ec83c028e2187a77710776069b0ea99c2443ca26f81e92a3d13c
@@ -487,6 +487,7 @@ scripts/check-tampa-bay-region.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	ffae47
 scripts/check-temp-closed-recheck.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	0	0	4f2736dad1893f43603ea91461aa8878993082c2aa941899a077d2c4e1973489
 scripts/check-theme-park-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	a69c3f13cf347bec80068f4a71ddd8d6acbeeb1bc88aba0a154c9a09af7536d7
 scripts/check-this-week-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	169	0	0	d6f7e810881d442693e468e3bae3e4e92f50c73fe80459a27b68836df0259fc4
+scripts/check-this-week-fallback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	32	0	0	34ade5093ac7e4b36d8a3158a90329ba8548102f9126be58d34ff8b6596709fc
 scripts/check-top-rated-badge.mjs	0	RENDER	blocks-ci-and-deploy	1	-	62	0	0	5cf35d66a67fa3154b41363de2fcd6036e9c509da6420509bd3cfc6d858241f4
 scripts/check-top40-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	6da7946578d22d1499da707e2f933f1a466c5ec2fbe57018d0fe85546e12cb20
 scripts/check-tour-strip-redirect.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	ad1d90c40f2fcae1202af9302612c49ef28db9b5325bbd611054609bee0da14f
@@ -758,6 +759,7 @@ scripts/test-event-reminder.mjs	0	CALL	blocks-ci-and-deploy	1	-	135	0	0	535413d8
 scripts/test-event-safety.mjs	0	CALL	blocks-ci-and-deploy	1	-	132	0	0	47bed8821ca75d07dd77ad05eac0d33606069c04f9ae1d08ed140a54f0b11a73
 scripts/test-event-section-nav.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	6b4c731db2fbb850bfcd970312809bb6bf13f64f1a81dba40a64222add7aeebb
 scripts/test-event-seo-title.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	4578177fc186803ed7b73f2298b23ad2bccfa03432a535d687f10c1d50d4ba88
+scripts/test-event-signin.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	a5ba472f6fb6dc715602878ad82c1b9197a16412968889e1917ae9cb828e46e9
 scripts/test-event-source-corrections-20261021.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	597a8f03a8df6c3dc232e817f134664b3354b3e6dfa658647c55d241bde74ac5
 scripts/test-event-stays.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	fb81dd5fe3a9013daba42feef5d7e71abcbbf1b320dd72d744c031bcaac7e6fc
 scripts/test-event-ticket-first-screen.mjs	0	RENDER	blocks-ci-and-deploy	1	-	19	0	0	091087d0a5637a4e58998984790e4088d7f65ba3e92252985aab2b08e923316e

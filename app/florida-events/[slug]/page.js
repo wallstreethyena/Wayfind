@@ -49,6 +49,7 @@ import EventWhere from "../../components/EventWhere";
 import CrownOutbound from "../../components/CrownOutbound.js";
 import { CROWN_EVENT_SLUGS } from "../../../lib/crownCampaign.js";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
+import EventSignIn from "../../components/EventSignIn.js";
 import { pairingHref } from "../../../lib/eventPairings";
 import { seriesHubFor } from "../../../lib/eventSeriesHubs.js";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
@@ -416,6 +417,7 @@ export default async function CuratedEventPage({ params }) {
       <div className="wf-event-brand"><a href="/" aria-label="Wayfind home"><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="145" height="42" /></a><div style={S.backRow}>
         <ReturnToWayfind style={S.back} />
         <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
+        <EventSignIn returnPath={"/florida-events/" + e.slug} />
       </div>
 
       </div>

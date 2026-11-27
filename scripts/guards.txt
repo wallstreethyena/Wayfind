@@ -2616,6 +2616,10 @@ node scripts/test-refresh-reserve.mjs
 # Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
 node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
+# 2026-11-27: the This week in Florida strip is never blank after a deploy (placeholder + /api/events/this-week fallback + self-heal).
+node scripts/check-this-week-fallback.mjs
+# 2026-11-27: both event routes carry a header Sign in that returns the reader to the event.
+node scripts/test-event-signin.mjs
 # 2026-11-23: This week in Florida rail cards must have a self hosted photo.
 node scripts/test-this-week-rail-photos.mjs
 # 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
