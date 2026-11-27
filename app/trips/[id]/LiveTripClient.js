@@ -6,7 +6,10 @@
 // lib/liveTrip.js. Offline storage: lib/liveTripStore.js. Service worker:
 // public/trips-sw.js. Design: https://claude.ai/artifact/EoyYytVrKH5BwTsvgZB9ib
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "../../../lib/supabase.js";
+// The Supabase client loads on demand (lib/lazySupabase.js), the same way the
+// rest of the site does, so @supabase/supabase-js never joins the homepage's
+// first-load bundle through this route.
+import { getSupabase } from "../../../lib/lazySupabase.js";
 import { signInUrlWithReturn } from "../../../lib/authReturn.js";
 import { GROUP_PLAN_CSS } from "../../group-plans/GroupFrame.js";
 import { activeSeasonalMark, NORMAL_MARK } from "../../../lib/seasonalBrand.js";
@@ -16,7 +19,6 @@ import { createLiveTripSync } from "../../../lib/liveTripSync.js";
 import { createLiveTripStore } from "../../../lib/liveTripStore.js";
 import { createLiveTripTransport, liveTripRequest } from "../../../lib/liveTripTransport.js";
 import { addCalendarDays, formatStopDate } from "../../../lib/tripDays.js";
-import { shareOut } from "../../../lib/shareOut.js";
 import SafeImg from "../../components/SafeImg";
 import { railPhotoSrc } from "../../../lib/cardPhotoRequest";
 
@@ -86,11 +88,16 @@ function useSession() {
   const [session, setSession] = useState(undefined);
   useEffect(() => {
     let alive = true;
-    if (!supabase) { setSession(null); return undefined; }
+    let sub = null;
     const timeout = setTimeout(() => { if (alive) setSession((s) => (s === undefined ? null : s)); }, 8000);
-    supabase.auth.getSession().then(({ data }) => { clearTimeout(timeout); if (alive) setSession(data && data.session ? data.session : null); }).catch(() => { if (alive) setSession(null); });
-    const { data } = supabase.auth.onAuthStateChange((_e, value) => { if (alive) setSession(value || null); });
-    return () => { alive = false; clearTimeout(timeout); try { data && data.subscription && data.subscription.unsubscribe(); } catch {} };
+    getSupabase().then((supabase) => {
+      if (!alive) return;
+      if (!supabase) { clearTimeout(timeout); setSession(null); return; }
+      supabase.auth.getSession().then(({ data }) => { clearTimeout(timeout); if (alive) setSession(data && data.session ? data.session : null); }).catch(() => { if (alive) setSession(null); });
+      const { data } = supabase.auth.onAuthStateChange((_e, value) => { if (alive) setSession(value || null); });
+      sub = data && data.subscription;
+    }, () => { clearTimeout(timeout); if (alive) setSession(null); });
+    return () => { alive = false; clearTimeout(timeout); try { sub && sub.unsubscribe(); } catch {} };
   }, []);
   return session;
 }
@@ -351,6 +358,8 @@ export default function LiveTripClient({ tripId: propId }) {
         await store.saveTrip(tripId, { state: first.state, revision: first.revision, checksum: first.checksum, role: first.role, me: first.me, members: first.members, status: first.status }).catch(() => {});
         if (first.inviteUrl) setInviteUrl(first.inviteUrl);
       }
+      const supabase = await getSupabase().catch(() => null);
+      if (!alive) return;
       const transport = createLiveTripTransport({ supabase, tripId, getToken: async () => tokenRef.current, onPresence: (list) => setPresence(list) });
       transport.setPresence({ memberId: me, name: myMember ? myMember.name : "Me", color: myMember ? myMember.color : "#F97316", editing: null });
       transportRef.current = transport;
@@ -442,10 +451,16 @@ export default function LiveTripClient({ tripId: propId }) {
   // Same share chooser as Group Vote (text, email, or the phone's share sheet).
   // The invite code rides in the #j= fragment; the chooser keeps it, and this
   // path is a private group link, so no share token or third-party tag sees it.
-  const share = () => {
+  // Loaded on tap through shareIntentSheet's existing lazy chunk (see the note
+  // there): importing lib/shareOut.js from this route, statically or lazily,
+  // copies ~3KB of shared share code into the homepage's first-load bundle.
+  // Opening the chooser needs no user activation (the share sheet is a fresh
+  // tap inside it), so awaiting the import is safe.
+  const share = async () => {
     if (!inviteUrl) return;
     const text = `Help me plan ${state.title} on Wayfind. Add places and we'll all see the plan update live.`;
-    const result = shareOut({ title: state.title, text, url: inviteUrl }, () => notify("Invite link copied. Send it to your friends."));
+    let result = "failed";
+    try { const { shareOut } = await import("../../components/shareIntentSheet"); result = shareOut({ title: state.title, text, url: inviteUrl }, () => notify("Invite link copied. Send it to your friends.")); } catch {}
     // Only the chooser copies to the clipboard (site rule). If it could not
     // open, hand the person the link to copy themselves.
     if (result === "failed") window.prompt("Copy this invite link", inviteUrl);

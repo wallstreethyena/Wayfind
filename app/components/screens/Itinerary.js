@@ -217,51 +217,29 @@ export default function ItineraryScreen({ ctx }) {
     setActiveTrip(res.tripKey);
   };
 
-  const liveToken = async () => {
-    try {
-      const { getSupabase } = await import("../../../lib/lazySupabase.js");
-      const sb = await getSupabase();
-      const res = sb ? await sb.auth.getSession() : null;
-      return (res && res.data && res.data.session && res.data.session.access_token) || null;
-    } catch (e) { return null; }
-  };
+  // Live Trips logic lives in lib/liveTripEntry.js, loaded only on use, so it
+  // stays out of the homepage's first-load bundle.
   const startLiveTrip = async (t, items) => {
     if (!liveTripsOn || liveBusy) return;
     if (!requireAuth("Sign up free to plan this trip together with friends.")) return;
     setLiveBusy(true);
     setLiveError("");
-    try {
-      const token = await liveToken();
-      const r = await fetch("/api/trips/live", {
-        method: "POST",
-        headers: { "content-type": "application/json", ...(token ? { authorization: "Bearer " + token } : {}) },
-        body: JSON.stringify({ trip: { key: t.key, city: t.city, state: t.state, title: t.title, startDate: t.startDate || null, endDate: t.endDate || null, items: (items || []).map((it, i) => ({ id: it.id, place: it.place, day: it.day || null, order: i, note: it.note || "", visited: !!it.visited, locked: !!it.locked })) } }),
-      });
-      const body = await r.json().catch(() => null);
-      if (r.ok && body && body.ok && body.id) {
-        try { logEvent("live_trip_start", null, { stops: (items || []).length }); } catch (e) {}
-        window.location.assign("/trips/" + body.id);
-        return;
-      }
-      setLiveError((body && body.message) || "We couldn't start live planning. Please try again.");
-    } catch (e) {
-      setLiveError("We couldn't start live planning. Check your connection and try again.");
+    let r;
+    try { r = await (await import("../../../lib/liveTripEntry.js")).startLiveTrip(t, items); }
+    catch (e) { r = { message: "We couldn't start live planning. Check your connection and try again." }; }
+    if (r && r.id) {
+      try { logEvent("live_trip_start", null, { stops: (items || []).length }); } catch (e) {}
+      window.location.assign("/trips/" + r.id);
+      return;
     }
+    setLiveError(r.message);
     setLiveBusy(false);
   };
 
   useEffect(() => {
     if (!liveTripsOn || !user || activeTrip) return undefined;
     let alive = true;
-    (async () => {
-      const token = await liveToken();
-      if (!token) return;
-      try {
-        const r = await fetch("/api/trips/live", { headers: { authorization: "Bearer " + token }, cache: "no-store" });
-        const body = await r.json().catch(() => null);
-        if (alive && body && body.ok && Array.isArray(body.trips)) setLiveTrips(body.trips);
-      } catch (e) {}
-    })();
+    import("../../../lib/liveTripEntry.js").then((m) => m.listLiveTrips()).then((trips) => { if (alive && trips) setLiveTrips(trips); }, () => {});
     return () => { alive = false; };
   }, [user && user.id, activeTrip]); // eslint-disable-line react-hooks/exhaustive-deps
 
