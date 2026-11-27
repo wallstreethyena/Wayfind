@@ -2825,3 +2825,5 @@ node scripts/check-partner-deep-links.mjs
 node scripts/test-latest-reel.mjs
 node scripts/test-new-years-eve.mjs
 node scripts/test-spring-break.mjs
+# OpenAI copy features (2026-11-27): itinerary builder, event why-go blurbs, review quick take; lanes, anti-invention, partner-only ticket links, labeled travel.
+node scripts/test-openai-copy-features.mjs
