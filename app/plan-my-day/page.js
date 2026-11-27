@@ -13,7 +13,7 @@ import { PLAN_DAY_AREAS, PLAN_DAY_WHEN, vibesFor } from "../../lib/planMyDay.js"
 export const revalidate = 3600;
 
 const title = "Plan My Day in Florida: Free Itinerary Builder";
-const description = "Build a Florida day trip or weekend plan in seconds. Paste your notes or pick a city and vibe, then reorder stops, see travel times and get tickets.";
+const description = "Build a Florida day trip or weekend plan in seconds. Tell us who's going, where, budget and mood, or pick a city and vibe. Plans check today's forecast, then you reorder stops, see travel times and get tickets.";
 
 export const metadata = {
   title: title + " | Wayfind",
@@ -49,7 +49,7 @@ export default function Page() {
         <h1 style={S.h1}>Plan my day</h1>
         <div style={{ marginTop: 8 }}><ShareButton url={pageShareUrl("/plan-my-day")} title={title} text={description} tone="dark" label="Share" /></div>
       </div>
-      <p style={S.lede}>Paste your trip notes or pick a city, a day and a vibe. You get a plan built from real Wayfind places and events, with travel times between stops and ticket links. Then make it yours: add, remove or reorder anything.</p>
+      <p style={S.lede}>Tell us who's going, where, your budget and the mood, or pick a city, a day and a vibe. You get a plan built from real Wayfind places and events, checked against the forecast, with travel times between stops and ticket links. Then make it yours: add, remove or reorder anything.</p>
       <ItineraryBuilder areas={PLAN_DAY_AREAS} whens={PLAN_DAY_WHEN} vibes={vibesFor(today).map(({ id, label }) => ({ id, label }))} />
     </main>
   );

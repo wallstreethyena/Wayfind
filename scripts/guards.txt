@@ -2843,6 +2843,7 @@ node scripts/test-live-trip-db.mjs
 node scripts/test-live-trip-route.mjs
 node scripts/test-live-trip-idb.mjs
 node scripts/test-ai-engine-community.mjs
+node scripts/test-planner-right-now.mjs
 node scripts/test-ai-engine-rls.mjs
 node scripts/test-web-push.mjs
 node scripts/test-web-push-client.mjs
