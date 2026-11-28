@@ -81,7 +81,7 @@ export default function ExperienceCatalog() {
         <div aria-live="polite" aria-atomic="true" className={styles.catalogStatus}>{!city ? '' : loading && !data ? `Finding the top 5 ${selectedCategory.toLowerCase()} in ${city}…` : error ? 'The experience catalog is temporarily unavailable.' : `${loaded} of ${data?.total || 0} ${selectedCategory.toLowerCase()} shown in ${city}${loading ? ' · Loading 5 more…' : ''}`}</div>
         {error ? <button className={styles.catalogButton} onClick={()=>setRetry(v=>v+1)}>Try again</button> : null}
         {data?.items?.length ? <div className={styles.grid}>{data.items.map(item=><article key={item.code} className={styles.offerCard}>
-          <div className={styles.media}><GuidePhoto src={item.image} alt={item.title} width={640} height={400} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText="Photo unavailable"/></div>
+          <div className={styles.media}><GuidePhoto src={item.image} alt={item.title} width={640} height={400} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText={item.title}/></div>
           <div className={styles.cardBody}><p className={styles.meta}>{item.city}{item.duration ? ' · '+item.duration : ''}</p><h3>{item.title}</h3>
           <div className={styles.catalogRating}>{toDisplayScore(experienceWayfindScore(item)) != null ? <WayfindScoreBadge score={toDisplayScore(experienceWayfindScore(item))} staticRoot /> : <span aria-label="Wayfind Score pending">Score pending</span>}{item.reviews>0 ? <span>{item.reviews.toLocaleString()} Viator reviews</span> : null}</div>
           <div className={styles.catalogTags}>{(item.chips||[]).map(c=><span key={c.key}>{c.label}</span>)}</div>

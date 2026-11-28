@@ -179,7 +179,7 @@
     },
     {
       "path": "/api/cron/place-photos?source=all&limit=25",
-      "schedule": "50 4 * * *"
+      "schedule": "50 * * * *"
     },
     {
       "path": "/api/cron/place-photos-openverse?limit=8",

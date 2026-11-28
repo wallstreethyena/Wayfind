@@ -115,7 +115,7 @@ try {
     assert.equal(h.detail()._liveDone, true, reason + " is terminal");
     assert.equal(h.nodes().filter(n => n.type === "fixture-image").length, 0);
     assert.equal(media(h), undefined, "genuine no-photo removes the reserved media frame");
-    assert.ok(h.nodes().some(n => n.children.includes("Photo unavailable")));
+    assert.ok(!h.nodes().some(n => n.children.includes("Photo unavailable")), "a genuine miss is a clean headline, no \"Photo unavailable\" text (owner 2026-11-27)");
     assert.equal(timers.size, 0); h.unmount();
   }
   for (const reason of ["no-photo", "photo-removed"]) {
