@@ -673,7 +673,10 @@ const WF_PENDING = "wf_rc_pending=1; Path=/; Max-Age=900; Secure; SameSite=Lax";
   ]) {
     reset();
     r = await confirmRoute.POST(CF(cookie));
-    ok(r.status === 200 && (await r.text()) === '{"ok":true}' && calls.length === 0 && r.headers.getSetCookie().length === 0, `${label}: confirm made a database call or answered differently`);
+    const sc = r.headers.getSetCookie();
+    ok(r.status === 200 && (await r.text()) === '{"ok":true}' && calls.length === 0, `${label}: confirm made a database call or answered differently`);
+    // A marker with no usable token must be cleared, or every page load re-POSTs for 15 minutes.
+    ok(sc.length === 2 && sc[0].startsWith("wf_rc=;") && sc[0].includes("Max-Age=0") && sc[1].startsWith("wf_rc_pending=;") && sc[1].includes("Max-Age=0"), `${label}: a token-less confirm did not clear both cookies: ` + JSON.stringify(sc));
   }
   reset({ contact: { id: 7, status: "unsubscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON, confirmed_at: null } });
   r = await confirmRoute.POST(CF(`wf_rc=${TOKEN}`));

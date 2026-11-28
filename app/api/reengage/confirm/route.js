@@ -26,6 +26,10 @@ export async function POST(req) {
     const r = await confirmContactByToken(token);
     // A database failure keeps the cookie so the next page load can try again (it expires on its own in 15 minutes).
     if (r.ok) for (const c of confirmClearCookies()) headers.append("set-cookie", c);
+  } else {
+    // Marker without a usable token (expired, cleared, tampered): clear both, or every
+    // page load would POST here for 15 minutes and spend the visitor's rate limit.
+    for (const c of confirmClearCookies()) headers.append("set-cookie", c);
   }
   return Response.json({ ok: true }, { status: 200, headers });
 }
