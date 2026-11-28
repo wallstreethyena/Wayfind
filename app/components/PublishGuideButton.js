@@ -12,7 +12,9 @@ import { rewardMoment } from "../../lib/heartRewards.js";
 const pill = { background: "transparent", border: "1px solid rgba(251,191,36,.55)", color: C.gold, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" };
 const btn = (primary) => ({ minHeight: 46, padding: "0 16px", borderRadius: 12, border: primary ? "none" : `1px solid ${C.border}`, background: primary ? C.gold : "transparent", color: primary ? "#0D1117" : C.light, fontSize: 14.5, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" });
 
-export default function PublishGuideButton({ trip, user, requireAuth, logEvent }) {
+// triggerClassName/triggerIcon/triggerHint: the itinerary shows this as a row
+// in its trip menu (owner, 2026-11-28) instead of a standalone gold pill.
+export default function PublishGuideButton({ trip, user, requireAuth, logEvent, triggerClassName, triggerIcon, triggerHint }) {
   const key = trip && trip.key;
   const [open, setOpen] = useState(false);
   const [mine, setMine] = useState(null);
@@ -64,7 +66,17 @@ export default function PublishGuideButton({ trip, user, requireAuth, logEvent }
 
   return (
     <>
-      <button type="button" data-publish-guide={live ? "live" : "off"} onClick={live ? () => setOpen(true) : start} style={pill}>{live ? "Your guide ✓" : "Publish as a guide"}</button>
+      {triggerClassName ? (
+        <button type="button" data-publish-guide={live ? "live" : "off"} onClick={live ? () => setOpen(true) : start} className={triggerClassName}>
+          {triggerIcon ? <span className="wf-itin-sheet-ico" aria-hidden="true">{triggerIcon}</span> : null}
+          <span className="wf-itin-sheet-text">
+            <span className="wf-itin-sheet-label">{live ? "Your guide ✓" : "Publish as a guide"}</span>
+            {triggerHint ? <span className="wf-itin-sheet-hint">{triggerHint}</span> : null}
+          </span>
+        </button>
+      ) : (
+        <button type="button" data-publish-guide={live ? "live" : "off"} onClick={live ? () => setOpen(true) : start} style={pill}>{live ? "Your guide ✓" : "Publish as a guide"}</button>
+      )}
       {open ? (
         <div role="dialog" aria-modal="true" aria-labelledby="wf-pg-title" style={{ position: "fixed", inset: 0, zIndex: 950, background: "rgba(0,0,0,.7)", display: "flex", alignItems: "flex-end", justifyContent: "center" }} onClick={(e) => { if (e.target === e.currentTarget && !busy) setOpen(false); }}>
           <div style={{ width: "100%", maxWidth: 520, background: C.panel, borderRadius: "18px 18px 0 0", padding: "18px 16px calc(18px + env(safe-area-inset-bottom))", boxSizing: "border-box", maxHeight: "88vh", overflowY: "auto" }}>

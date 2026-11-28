@@ -3,7 +3,7 @@
 // two original sibling branches (trip list, open trip) keep their conditions.
 // Upgraded into the Wayfind Trip-Planning Workspace while preserving every
 // manual itinerary capability, date picker contract, share flow, and auth gate.
-import { useEffect, useRef, useState } from "react";
+import { Component, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
 import * as TripCore from "../../../lib/trips";
@@ -20,6 +20,8 @@ import { COVERED_CITIES } from "../../../lib/landingCities";
 import { cardComplete, searchEditorialCard } from "../../../lib/score";
 import { openShareFlow } from "../../../lib/shareFlow";
 import { placeKinds } from "../../../lib/dateInvite";
+import { styleHtml } from "../../../lib/styleHtml.js";
+import { captureOrQueue } from "../../../lib/browserAnalytics.js";
 import dynamic from "next/dynamic";
 const PublishGuideButton = dynamic(() => import("../PublishGuideButton"), { ssr: false, loading: () => null });
 const Trips = { ...TripCore, ...TripDays };
@@ -121,6 +123,63 @@ export default function ItineraryScreen({ ctx }) {
   const [askFeedback, setAskFeedback] = useState(null); // { text, warnings, isError }
   const [inlineUndoSnapshot, setInlineUndoSnapshot] = useState(null);
   const askInputRef = useRef(null);
+  // Simple itinerary (owner, 2026-11-28): one trip menu, one menu per stop,
+  // and a slide when a stop moves (FLIP: measure, reorder, animate the gap).
+  const [tripMenuOpen, setTripMenuOpen] = useState(false);
+  const [stopMenuFor, setStopMenuFor] = useState(null);
+  const [askOpen, setAskOpen] = useState(false);
+  const [showMoreChips, setShowMoreChips] = useState(false);
+  const stopListRef = useRef(null);
+  const flipRef = useRef(null);
+  const captureStopPositions = (movedKey) => {
+    const root = stopListRef.current;
+    if (!root || typeof root.querySelectorAll !== "function") return;
+    const tops = new Map();
+    root.querySelectorAll("[data-wf-stop-id]").forEach((el) => { tops.set(el.getAttribute("data-wf-stop-id"), el.getBoundingClientRect().top); });
+    flipRef.current = { tops, movedKey };
+  };
+  useIsoLayoutEffect(() => {
+    const flip = flipRef.current;
+    if (!flip) return;
+    flipRef.current = null;
+    const root = stopListRef.current;
+    if (!root) return;
+    const reduce = prefersReducedMotion();
+    let movedEl = null;
+    root.querySelectorAll("[data-wf-stop-id]").forEach((el) => {
+      const key = el.getAttribute("data-wf-stop-id");
+      if (key === flip.movedKey) {
+        movedEl = el;
+        el.classList.remove("wf-itin-moved");
+        void el.offsetWidth; // restart the highlight
+        el.classList.add("wf-itin-moved");
+      }
+      const before = flip.tops.get(key);
+      if (before == null || reduce) return;
+      const dy = before - el.getBoundingClientRect().top;
+      if (Math.abs(dy) < 1) return;
+      el.style.transition = "none";
+      el.style.transform = "translateY(" + dy + "px)";
+      el.style.zIndex = key === flip.movedKey ? "3" : "1";
+      el.getBoundingClientRect();
+      requestAnimationFrame(() => {
+        el.style.transition = "transform 420ms cubic-bezier(.22,.61,.36,1)";
+        el.style.transform = "";
+      });
+      const done = () => { el.style.transition = ""; el.style.zIndex = ""; el.removeEventListener("transitionend", done); };
+      el.addEventListener("transitionend", done);
+      setTimeout(done, 600);
+    });
+    if (movedEl) {
+      setTimeout(() => {
+        try {
+          const r = movedEl.getBoundingClientRect();
+          const vh = window.innerHeight || 0;
+          if (r.top < 80 || r.top > vh - 160) movedEl.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+        } catch {}
+      }, reduce ? 0 : 440);
+    }
+  });
   const trackedPlanOpenRef = useRef(new Set());
 
   useEffect(() => {
@@ -131,6 +190,10 @@ export default function ItineraryScreen({ ctx }) {
     setAskInput("");
     setAskFeedback(null);
     setInlineUndoSnapshot(null);
+    setTripMenuOpen(false);
+    setStopMenuFor(null);
+    setAskOpen(false);
+    setShowMoreChips(false);
   }, [activeTrip]);
 
   useEffect(() => {
@@ -932,46 +995,145 @@ export default function ItineraryScreen({ ctx }) {
           }
           const listNeedsConfirm = Boolean(listShareMeasure && (listShareMeasure.requiresConfirm || (itinShareMeasure && itinShareMeasure.notesCount > 0)));
           const itinNeedsConfirm = Boolean(itinShareMeasure && itinShareMeasure.requiresConfirm);
+          const runAuthed = (reason, fn) => { if (!hasLocalTrip && !requireAuth(reason)) return; fn(); };
+          const openAskPanel = (prefill) => {
+            setTripMenuOpen(false);
+            setAskOpen(true);
+            if (typeof prefill === "string") setAskInput(prefill);
+            if (typeof window !== "undefined") {
+              setTimeout(() => {
+                try {
+                  if (askInputRef.current) {
+                    askInputRef.current.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
+                    askInputRef.current.focus();
+                  }
+                } catch {}
+              }, 60);
+            }
+          };
+          const askPanelVisible = items.length === 0 || askOpen || askBusy || Boolean(askFeedback) || Boolean(inlineUndoSnapshot);
+          const primaryChips = workspaceSuggestions.filter((c) => c.openSheet).concat(workspaceSuggestions.filter((c) => !c.openSheet)).slice(0, 3);
+          const extraChips = workspaceSuggestions.filter((c) => !primaryChips.includes(c));
+          const chipButton = (chip) => (
+            <button
+              key={chip.label}
+              type="button"
+              className="wf-itin-chip"
+              data-wf-ask-chip={chip.label}
+              disabled={askBusy}
+              onClick={() => {
+                if (chip.openSheet) {
+                  openWayfindPlanner({
+                    activeTripKey: t.key,
+                    city: t.city || "",
+                    prompt: chip.prompt,
+                    surface: "itinerary_organize_saves",
+                  });
+                  return;
+                }
+                if (chip.immediate) {
+                  runInlineAskWayfind(chip.prompt);
+                } else {
+                  setAskInput(chip.prompt);
+                  if (askInputRef.current && typeof askInputRef.current.focus === "function") {
+                    askInputRef.current.focus();
+                  }
+                }
+              }}
+            >
+              {chip.label}
+            </button>
+          );
+          const menuStop = stopMenuFor ? items.find((it) => (it.id || (it.place && it.place.id)) === stopMenuFor) : null;
+          const menuPlace = menuStop ? menuStop.place : null;
+          const menuStopDay = menuStop ? Trips.itemDayOf(menuStop) : null;
+          const moveStop = (it, p, group, i, dir) => {
+            const stopKey = it.id || p.id;
+            runAuthed("Sign up free to plan your trip and pick up right where you left off, anywhere.", () => {
+              try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + dir, dir }); } catch (e) {}
+              captureStopPositions(stopKey);
+              setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, dir, todayOpt));
+            });
+          };
           return (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
-                <button type="button" aria-label="Back to all trips" onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); setShareConfirmPending(null); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, minWidth: 44, minHeight: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>‹</button>
-                <div style={{ flex: "1 1 190px", minWidth: 190 }}>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tripTitle}</div>
-                  <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
+            <div className="wf-itin" data-wf-itin-layout="simple">
+              <style dangerouslySetInnerHTML={styleHtml(ITIN_CSS)} />
+              <div className="wf-itin-head">
+                <button type="button" className="wf-itin-icon" aria-label="Back to all trips" onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); setShareConfirmPending(null); setTripMenuOpen(false); setStopMenuFor(null); }}>
+                  <span aria-hidden="true">‹</span>
+                </button>
+                <div className="wf-itin-title-wrap">
+                  <h2 className="wf-itin-title">{tripTitle}</h2>
+                  <div className="wf-itin-sub">{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
-                {items.length > 0 && shareList && <button onClick={() => { if (listNeedsConfirm) { setShareConfirmPending("list"); return; } try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
-                {liveTripsOn && items.length > 0 && <button type="button" data-wf-live-start="1" aria-label={`Plan ${tripTitle} together with friends, live`} disabled={liveBusy} onClick={() => startLiveTrip(t, items)} style={{ background: C.accent, border: "1px solid " + C.accent, color: "#040810", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: liveBusy ? "default" : "pointer", whiteSpace: "nowrap", opacity: liveBusy ? 0.7 : 1 }}>{liveBusy ? "Starting…" : "Plan together"}</button>}
-                {itineraryFlags && itineraryFlags.share && items.length > 0 && <button aria-label={`Share an unlisted snapshot link for ${tripTitle}`} onClick={() => { if (!requireAuth("Sign up free to share an unlisted snapshot link to this trip.")) return; if (itinNeedsConfirm) { setShareConfirmPending("itinerary"); return; } if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
-                {items.length >= 3 && <PublishGuideButton trip={t} user={user} requireAuth={requireAuth} logEvent={logEvent} />}
+                {items.length > 0 && shareList && <button type="button" className="wf-itin-pill wf-itin-share" aria-label={`Share ${tripTitle}`} onClick={() => { if (listNeedsConfirm) { setShareConfirmPending("list"); return; } try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }}><ShareGlyph /><span className="wf-itin-share-label">Share ↗</span></button>}
+                <button
+                  type="button"
+                  className="wf-itin-icon"
+                  data-wf-trip-more="1"
+                  aria-label={`More for ${tripTitle}`}
+                  aria-haspopup="dialog"
+                  aria-expanded={tripMenuOpen}
+                  onClick={() => { setTripMenuOpen(true); setStopMenuFor(null); }}
+                >
+                  <MoreDots />
+                </button>
+              </div>
+
+              <ItinSheet open={tripMenuOpen} onClose={() => setTripMenuOpen(false)} title={tripTitle} subtitle="Trip options" id="wf-itin-trip-menu">
                 {items.length > 0 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                    <button
-                      type="button"
-                      aria-label={fullTripLegs.length > 1 ? `Route ${tripTitle} stops 1 to ${fullTripLegs[0].endStop} in Google Maps` : `Route ${tripTitle} in Google Maps`}
-                      onClick={() => doRoute(fullTripLegs[0] && fullTripLegs[0].url)}
-                      style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
-                    >
-                      Route it ↗
-                    </button>
-                    {fullTripLegs.slice(1).map((leg, li) => (
-                      <button
-                        key={li}
-                        type="button"
-                        data-wf-trip-route-leg={li + 2}
-                        aria-label={`Route ${tripTitle} stops ${leg.startStop} to ${leg.endStop} in Google Maps`}
-                        onClick={() => doRoute(leg.url)}
-                        style={{ background: C.card, border: "1px solid " + C.border, color: C.light, fontSize: 12, fontWeight: 700, padding: "8px 12px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
-                      >
-                        Stops {leg.startStop}–{leg.endStop} ↗
-                      </button>
-                    ))}
+                  <SheetRow
+                    icon="🧭"
+                    label={fullTripLegs.length > 1 ? `Route stops 1–${fullTripLegs[0].endStop} ↗` : "Route it ↗"}
+                    hint={fullTripLegs.length > 1 ? "Google Maps takes a few stops at a time" : "Opens the whole trip in Google Maps"}
+                    aria-label={fullTripLegs.length > 1 ? `Route ${tripTitle} stops 1 to ${fullTripLegs[0].endStop} in Google Maps` : `Route ${tripTitle} in Google Maps`}
+                    onClick={() => { setTripMenuOpen(false); doRoute(fullTripLegs[0] && fullTripLegs[0].url); }}
+                  />
+                )}
+                {items.length > 0 && fullTripLegs.slice(1).map((leg, li) => (
+                  <SheetRow
+                    key={"leg" + li}
+                    icon="🧭"
+                    data-wf-trip-route-leg={li + 2}
+                    label={`Route stops ${leg.startStop}–${leg.endStop} ↗`}
+                    hint="Google Maps takes a few stops at a time"
+                    aria-label={`Route ${tripTitle} stops ${leg.startStop} to ${leg.endStop} in Google Maps`}
+                    onClick={() => { setTripMenuOpen(false); doRoute(leg.url); }}
+                  />
+                ))}
+                {entitlement.allowed && (
+                  <SheetRow icon="✨" label="Ask Wayfind" hint="Add dinner, cut driving, fill a gap" data-wf-ask-open="1" onClick={() => openAskPanel()} />
+                )}
+                {liveTripsOn && items.length > 0 && (
+                  <SheetRow
+                    icon="👥"
+                    label={liveBusy ? "Starting…" : "Plan together"}
+                    hint="Edit this trip live with friends"
+                    data-wf-live-start="1"
+                    aria-label={`Plan ${tripTitle} together with friends, live`}
+                    disabled={liveBusy}
+                    onClick={() => startLiveTrip(t, items)}
+                  />
+                )}
+                {itineraryFlags && itineraryFlags.share && items.length > 0 && (
+                  <SheetRow
+                    icon="🔗"
+                    label="Share privately"
+                    hint="An unlisted link with your notes"
+                    aria-label={`Share an unlisted snapshot link for ${tripTitle}`}
+                    onClick={() => { setTripMenuOpen(false); if (!requireAuth("Sign up free to share an unlisted snapshot link to this trip.")) return; if (itinNeedsConfirm) { setShareConfirmPending("itinerary"); return; } if (shareTrip) shareTrip(t); }}
+                  />
+                )}
+                {items.length >= 3 && (
+                  <div className="wf-itin-sheet-row-wrap">
+                    <PublishGuideButton trip={t} user={user} requireAuth={requireAuth} logEvent={logEvent} triggerClassName="wf-itin-sheet-row" triggerIcon="📖" triggerHint="Let other travelers use your plan" />
                   </div>
                 )}
-              </div>
-              {liveError && <div role="alert" data-wf-live-error="1" style={{ fontSize: 12.5, color: "#FCA5A5", marginBottom: 12, lineHeight: 1.4 }}>{liveError}</div>}
+              </ItinSheet>
+
+              {liveError && <div role="alert" data-wf-live-error="1" className="wf-itin-alert">{liveError}</div>}
               {preShareNotices.length > 0 && (
-                <div data-wf-share-limit-note="true" style={{ fontSize: 12, color: C.muted, marginBottom: 12, lineHeight: 1.4 }}>
+                <div data-wf-share-limit-note="true" className="wf-itin-note-muted">
                   {preShareNotices.join(" ")}
                 </div>
               )}
@@ -979,9 +1141,9 @@ export default function ItineraryScreen({ ctx }) {
                 <div
                   role="alert"
                   data-wf-share-confirm-prompt={shareConfirmPending}
-                  style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: "12px 14px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}
+                  className="wf-itin-panel wf-itin-confirm"
                 >
-                  <div style={{ flex: 1, minWidth: 200, fontSize: 12.5, color: C.text, lineHeight: 1.45 }}>
+                  <div style={{ flex: 1, minWidth: 200, fontSize: 13, color: C.text, lineHeight: 1.45 }}>
                     {shareConfirmPending === "list"
                       ? `${listShareMeasure && listShareMeasure.warning ? listShareMeasure.warning + " " : ""}${itinShareMeasure && itinShareMeasure.notesCount > 0 ? `Share ↗ shares a place list without your ${itinShareMeasure.notesCount} stop note${itinShareMeasure.notesCount === 1 ? "" : "s"} (use Share privately to include notes). ` : ""}Your original saved trip stays unchanged.`
                       : `${(itinShareMeasure && itinShareMeasure.warning) || "This share link uses compaction to fit URL limits."} Your original saved trip stays unchanged.`}
@@ -990,6 +1152,7 @@ export default function ItineraryScreen({ ctx }) {
                     {((shareConfirmPending === "list" && listShareMeasure && listShareMeasure.ok) || (shareConfirmPending === "itinerary" && itinShareMeasure && itinShareMeasure.ok)) && (
                       <button
                         type="button"
+                        className="wf-itin-pill wf-itin-pill-primary"
                         data-wf-confirm-share={shareConfirmPending}
                         onClick={() => {
                           const mode = shareConfirmPending;
@@ -1000,41 +1163,40 @@ export default function ItineraryScreen({ ctx }) {
                             shareTrip(t);
                           }
                         }}
-                        style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
                       >
                         Share copy anyway
                       </button>
                     )}
-                    <button
-                      type="button"
-                      data-wf-cancel-share={shareConfirmPending}
-                      onClick={() => setShareConfirmPending(null)}
-                      style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 12.5, fontWeight: 700, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
-                    >
+                    <button type="button" className="wf-itin-pill" data-wf-cancel-share={shareConfirmPending} onClick={() => setShareConfirmPending(null)}>
                       Cancel
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Integrated Ask Wayfind Trip Workspace Bar */}
+              {/* Ask Wayfind: one tidy panel, opened from the trip menu, a day's "Add a stop", or shown on an empty trip. */}
               {entitlement.allowed && (
                 <div
                   data-wf-ask-wayfind-bar="1"
-                  style={{
-                    background: C.card,
-                    border: "1px solid " + C.border,
-                    borderRadius: 14,
-                    padding: "11px 12px",
-                    marginBottom: 14,
-                  }}
+                  data-wf-ask-open-state={askPanelVisible ? "open" : "closed"}
+                  className="wf-itin-panel wf-itin-ask"
+                  hidden={!askPanelVisible}
+                  style={askPanelVisible ? undefined : { display: "none" }}
                 >
+                  <div className="wf-itin-ask-head">
+                    <span className="wf-itin-ask-title">✨ Ask Wayfind</span>
+                    {items.length > 0 && (
+                      <button type="button" className="wf-itin-icon wf-itin-icon-sm" aria-label="Close Ask Wayfind" onClick={() => { setAskOpen(false); setAskFeedback(null); setShowMoreChips(false); }}>
+                        <span aria-hidden="true">✕</span>
+                      </button>
+                    )}
+                  </div>
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
                       runInlineAskWayfind(askInput);
                     }}
-                    style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}
+                    className="wf-itin-ask-form"
                   >
                     <input
                       ref={askInputRef}
@@ -1046,125 +1208,44 @@ export default function ItineraryScreen({ ctx }) {
                       onChange={(e) => setAskInput(e.target.value)}
                       placeholder={
                         items.length === 0
-                          ? `Describe your ${t.city || "Florida"} trip (dates, interests, pace)…`
-                          : "Ask Wayfind (e.g. Move a stop, Make Saturday cheaper, Add dinner nearby)…"
+                          ? `Describe your ${t.city || "Florida"} trip…`
+                          : "What should change?"
                       }
-                      style={{
-                        flex: "1 1 220px",
-                        minWidth: 0,
-                        minHeight: 44,
-                        borderRadius: 11,
-                        border: "1px solid " + C.border,
-                        background: C.bg,
-                        color: C.text,
-                        padding: "8px 12px",
-                        fontSize: 14,
-                        boxSizing: "border-box",
-                        outline: "none",
-                      }}
+                      className="wf-itin-input"
                     />
                     <button
                       type="submit"
                       data-wf-ask-wayfind-submit="1"
+                      aria-label="✨ Ask Wayfind"
                       disabled={askBusy || !askInput.trim()}
-                      style={{
-                        background: C.accent,
-                        border: "none",
-                        color: "#0D1117",
-                        fontSize: 12.5,
-                        fontWeight: 800,
-                        padding: "8px 14px",
-                        minHeight: 44,
-                        borderRadius: 20,
-                        cursor: askBusy || !askInput.trim() ? "default" : "pointer",
-                        opacity: askBusy || !askInput.trim() ? 0.55 : 1,
-                        whiteSpace: "nowrap",
-                      }}
+                      className="wf-itin-pill wf-itin-pill-primary"
                     >
-                      {askBusy ? "Updating…" : "✨ Ask Wayfind"}
+                      {askBusy ? "Updating…" : "Ask"}
                     </button>
                   </form>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 9 }}>
-                    {workspaceSuggestions.map((chip) => (
-                      <button
-                        key={chip.label}
-                        type="button"
-                        data-wf-ask-chip={chip.label}
-                        disabled={askBusy}
-                        onClick={() => {
-                          if (chip.openSheet) {
-                            openWayfindPlanner({
-                              activeTripKey: t.key,
-                              city: t.city || "",
-                              prompt: chip.prompt,
-                              surface: "itinerary_organize_saves",
-                            });
-                            return;
-                          }
-                          if (chip.immediate) {
-                            runInlineAskWayfind(chip.prompt);
-                          } else {
-                            setAskInput(chip.prompt);
-                            if (askInputRef.current && typeof askInputRef.current.focus === "function") {
-                              askInputRef.current.focus();
-                            }
-                          }
-                        }}
-                        style={{
-                          background: "rgba(255,255,255,0.03)",
-                          border: "1px solid " + C.border,
-                          color: C.light,
-                          fontSize: 11.5,
-                          fontWeight: 700,
-                          padding: "6px 11px",
-                          minHeight: 34,
-                          borderRadius: 999,
-                          cursor: askBusy ? "default" : "pointer",
-                        }}
-                      >
-                        {chip.label}
+                  <div className="wf-itin-chips">
+                    {primaryChips.map(chipButton)}
+                    {showMoreChips && extraChips.map(chipButton)}
+                    {extraChips.length > 0 && (
+                      <button type="button" className="wf-itin-chip wf-itin-chip-quiet" aria-expanded={showMoreChips} onClick={() => setShowMoreChips((v) => !v)}>
+                        {showMoreChips ? "Fewer ideas" : "More ideas"}
                       </button>
-                    ))}
+                    )}
                   </div>
                   {(askFeedback || inlineUndoSnapshot) && (
-                    <div
-                      role="status"
-                      data-wf-inline-planner-feedback="1"
-                      style={{
-                        marginTop: 10,
-                        paddingTop: 9,
-                        borderTop: "1px solid " + C.border,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: 10,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <div style={{ flex: 1, minWidth: 180, fontSize: 12.5, color: askFeedback && askFeedback.isError ? C.red : C.text, lineHeight: 1.4 }}>
-                        {askFeedback ? askFeedback.text : "Trip updated."}
-                        {askFeedback && Array.isArray(askFeedback.warnings) && askFeedback.warnings.length > 0 ? (
-                          <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>{askFeedback.warnings.join(" ")}</div>
-                        ) : null}
+                    <div role="status" data-wf-inline-planner-feedback="1" className="wf-itin-ask-feedback">
+                      <div style={{ flex: "1 1 200px", minWidth: 0 }}>
+                        {askFeedback && askFeedback.text && (
+                          <div style={{ fontSize: 13, color: askFeedback.isError ? "#FCA5A5" : C.text, lineHeight: 1.45 }}>{askFeedback.text}</div>
+                        )}
+                        {askFeedback && Array.isArray(askFeedback.warnings) && askFeedback.warnings.length > 0 && (
+                          <ul style={{ margin: "6px 0 0", paddingLeft: 18, fontSize: 12, color: "#FCD34D", lineHeight: 1.4 }}>
+                            {askFeedback.warnings.map((w, wi) => <li key={wi}>{w}</li>)}
+                          </ul>
+                        )}
                       </div>
                       {inlineUndoSnapshot && (
-                        <button
-                          type="button"
-                          data-wf-inline-planner-undo="1"
-                          onClick={handleInlineUndo}
-                          style={{
-                            background: "transparent",
-                            border: "1px solid " + C.accent,
-                            color: C.light,
-                            fontSize: 12,
-                            fontWeight: 800,
-                            padding: "6px 13px",
-                            minHeight: 38,
-                            borderRadius: 18,
-                            cursor: "pointer",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
+                        <button type="button" data-wf-inline-undo="1" onClick={handleInlineUndo} className="wf-itin-pill">
                           Undo
                         </button>
                       )}
@@ -1173,41 +1254,18 @@ export default function ItineraryScreen({ ctx }) {
                 </div>
               )}
 
-              {/* Day Navigation Tabs (rendered only when trip has dated stops) */}
+              {/* Day tabs (only when the trip has dated stops) */}
               {grouped.hasDates && (
-                <div
-                  role="tablist"
-                  aria-label="Trip day filter"
-                  data-wf-day-tabs="1"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    overflowX: "auto", overscrollBehaviorX: "contain",
-                    paddingBottom: 6,
-                    marginBottom: 12,
-                  }}
-                >
+                <div role="tablist" aria-label="Trip day filter" data-wf-day-tabs="1" className="wf-itin-tabs">
                   <button
                     type="button"
                     role="tab"
                     data-wf-day-tab="overview"
                     aria-selected={effectiveDayFilter === "overview"}
                     onClick={() => setSelectedDayFilter("overview")}
-                    style={{
-                      background: effectiveDayFilter === "overview" ? C.accent : C.card,
-                      border: "1px solid " + (effectiveDayFilter === "overview" ? C.accent : C.border),
-                      color: effectiveDayFilter === "overview" ? "#0D1117" : C.text,
-                      fontSize: 12.5,
-                      fontWeight: 800,
-                      padding: "7px 13px",
-                      minHeight: 40,
-                      borderRadius: 999,
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                    }}
+                    className={"wf-itin-tab" + (effectiveDayFilter === "overview" ? " is-on" : "")}
                   >
-                    Overview ({items.length})
+                    All days
                   </button>
                   {grouped.groups.map((g) => {
                     const tabKey = g.day || "unscheduled";
@@ -1221,20 +1279,9 @@ export default function ItineraryScreen({ ctx }) {
                         data-wf-day-tab={tabKey}
                         aria-selected={selected}
                         onClick={() => setSelectedDayFilter(tabKey)}
-                        style={{
-                          background: selected ? C.accent : C.card,
-                          border: "1px solid " + (selected ? C.accent : C.border),
-                          color: selected ? "#0D1117" : (g.isPast ? C.muted : C.text),
-                          fontSize: 12.5,
-                          fontWeight: 800,
-                          padding: "7px 13px",
-                          minHeight: 40,
-                          borderRadius: 999,
-                          cursor: "pointer",
-                          whiteSpace: "nowrap",
-                        }}
+                        className={"wf-itin-tab" + (selected ? " is-on" : "") + (g.isPast && !selected ? " is-past" : "")}
                       >
-                        {tabLabel} ({g.items.length})
+                        {tabLabel}
                       </button>
                     );
                   })}
@@ -1243,505 +1290,686 @@ export default function ItineraryScreen({ ctx }) {
 
               {RouteMap ? <RouteMap items={items} deviceLoc={!ctx.locApprox ? (ctx.deviceLoc || null) : null} /> : null}
               {items.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "36px 20px", background: C.card, border: "1px solid " + C.border, borderRadius: 14, color: C.muted }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, marginBottom: 6 }}>This trip has no stops yet.</div>
-                  <div style={{ fontSize: 13, marginBottom: 14 }}>Use Ask Wayfind above to generate a grounded day-by-day plan, or browse places to add stops manually.</div>
-                  <button
-                    type="button"
-                    onClick={() => openBrowse(null)}
-                    style={{
-                      background: "transparent",
-                      border: "1px solid " + C.border,
-                      color: C.light,
-                      fontSize: 12.5,
-                      fontWeight: 800,
-                      padding: "8px 14px",
-                      minHeight: 44,
-                      borderRadius: 20,
-                      cursor: "pointer",
-                    }}
-                  >
+                <div className="wf-itin-panel wf-itin-empty">
+                  <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 6 }}>This trip has no stops yet.</div>
+                  <div style={{ fontSize: 13.5, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>Ask Wayfind above for a day by day plan, or browse places to add stops.</div>
+                  <button type="button" className="wf-itin-pill" onClick={() => openBrowse(null)}>
                     Browse places
                   </button>
                 </div>
-              ) : visibleGroups.map((group, gi) => {
-                const routeLegs = group.day ? Trips.dayRouteLegs(t, group.day, routeOpts) : [];
-                return (
-                  <div key={group.key} data-wf-day-group={grouped.hasDates ? (group.day || "unscheduled") : "plain"} style={{ marginBottom: grouped.hasDates ? 18 : 0 }}>
-                    {grouped.hasDates && (
-                      <div
-                        data-wf-day-heading={group.day || "unscheduled"}
-                        data-wf-day-past={group.isPast ? "true" : "false"}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          flexWrap: "wrap",
-                          gap: 10,
-                          padding: "10px 0 8px",
-                          marginTop: gi === 0 ? 0 : 8,
-                          marginBottom: 10,
-                          borderBottom: "1px solid " + C.border,
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flexWrap: "wrap" }}>
-                          {group.day ? <Icon name="calendar" size={16} color={group.isPast ? C.muted : C.light} /> : null}
-                          <span style={{ fontSize: 15, fontWeight: 700, color: group.day && !group.isPast ? C.text : C.muted }}>
-                            {group.label}
-                          </span>
-                          <span style={{ fontSize: 12.5, color: C.muted }}>
-                            · {group.items.length} stop{group.items.length !== 1 ? "s" : ""}
-                          </span>
-                        </div>
-                        {group.day && routeLegs.length > 0 && (
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                            <button
-                              type="button"
-                              aria-label={routeLegs.length > 1 ? `Route ${group.label} stops 1 to ${routeLegs[0].endStop} in Google Maps` : `Route ${group.label} in Google Maps`}
-                              onClick={() => doRouteDay(group, routeLegs[0].url)}
-                              style={{
-                                background: C.card,
-                                border: "1px solid " + C.border,
-                                color: C.text,
-                                fontSize: 12.5,
-                                fontWeight: 700,
-                                padding: "8px 14px",
-                                minHeight: 44,
-                                borderRadius: 22,
-                                cursor: "pointer",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              Route day ↗
-                            </button>
-                            {routeLegs.slice(1).map((leg, li) => (
-                              <button
-                                key={li}
-                                type="button"
-                                data-wf-route-leg={li + 2}
-                                aria-label={`Route ${group.label} stops ${leg.startStop} to ${leg.endStop} in Google Maps`}
-                                onClick={() => doRouteDay(group, leg.url)}
-                                style={{
-                                  background: C.card,
-                                  border: "1px solid " + C.border,
-                                  color: C.light,
-                                  fontSize: 12,
-                                  fontWeight: 700,
-                                  padding: "8px 12px",
-                                  minHeight: 44,
-                                  borderRadius: 22,
-                                  cursor: "pointer",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                Stops {leg.startStop}–{leg.endStop} ↗
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {group.items.map((it, i) => {
-                      const p = it.place;
-                      const stopKey = it.id || p.id;
-                      const stopDay = Trips.itemDayOf(it);
-                      const stopIsPast = stopDay ? Trips.isPastStopDate(stopDay, ctx.__today || undefined) : false;
-                      const stopDateLabel = stopDay
-                        ? (stopIsPast ? `Past · ${Trips.formatStopDate(stopDay)}` : Trips.formatStopDate(stopDay))
-                        : "Set date";
-                      const editing = tripNoteEdit === stopKey;
-                      const moving = tripMoveFor === stopKey;
-                      const dating = dateEditFor === stopKey;
-                      const slotLabel = it.slotLabel || (p && p.slotLabel) || "";
-                      const confidence = (p && p.confidence) || "";
-                      const confidenceNote = (p && p.confidenceNote) || "";
-                      const nextStopInDay =
-                        grouped.hasDates && group.day && i < group.items.length - 1
-                          ? group.items[i + 1]
-                          : null;
-                      const travelRel = nextStopInDay ? stopTravelRelationship(it, nextStopInDay) : null;
-
-                      return (
-                        <div key={stopKey} data-wf-stop-id={stopKey} style={{ marginBottom: 12 }}>
-                          {(slotLabel || confidence) && (
-                            <div
-                              data-wf-stop-plan-meta={stopKey}
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                gap: 8,
-                                flexWrap: "wrap",
-                                marginBottom: 6,
-                              }}
-                            >
-                              {slotLabel ? (
-                                <span style={{ fontSize: 11.5, fontWeight: 800, color: C.light, letterSpacing: "0.02em" }}>
-                                  {slotLabel}
-                                </span>
-                              ) : <span />}
-                              {confidence ? (
-                                <span
-                                  data-wf-stop-confidence={confidence}
-                                  title={confidenceNote || undefined}
-                                  style={{
-                                    fontSize: 10.5,
-                                    fontWeight: 800,
-                                    padding: "2px 8px",
-                                    borderRadius: 999,
-                                    background: confidence === "confirmed" ? "rgba(16, 185, 129, 0.14)" : "rgba(245, 158, 11, 0.14)",
-                                    color: confidence === "confirmed" ? "#6EE7B7" : "#FCD34D",
-                                  }}
-                                >
-                                  {confidence === "confirmed" ? "✓ Confirmed" : "Check hours"}
-                                </span>
-                              ) : null}
+              ) : (
+                <div ref={stopListRef} data-wf-itin-stops="1">
+                  {visibleGroups.map((group, gi) => {
+                    const routeLegs = group.day ? Trips.dayRouteLegs(t, group.day, routeOpts) : [];
+                    return (
+                      <section key={group.key} data-wf-day-group={grouped.hasDates ? (group.day || "unscheduled") : "plain"} className="wf-itin-day">
+                        {grouped.hasDates && (
+                          <div
+                            data-wf-day-heading={group.day || "unscheduled"}
+                            data-wf-day-past={group.isPast ? "true" : "false"}
+                            className="wf-itin-day-head"
+                          >
+                            <div style={{ minWidth: 0 }}>
+                              <div className={"wf-itin-day-title" + (group.day && !group.isPast ? "" : " is-muted")}>{group.label}</div>
+                              <div className="wf-itin-day-sub">{group.items.length} stop{group.items.length !== 1 ? "s" : ""}</div>
                             </div>
-                          )}
-                          <div style={{ position: "relative", opacity: it.visited ? 0.62 : 1 }}>
-                            <PlaceCard
-                              p={p}
-                              saved={isSaved(p.id)}
-                              liked={!!liked[p.id]}
-                              disliked={!!disliked[p.id]}
-                              onDetail={() => {
-                                if (isPlannedStopItem(it)) {
-                                  trackPlannerEvent(
-                                    PLANNER_EVENTS.HIGH_INTENT_FROM_PLANNED_STOP,
-                                    { action_kind: "detail_open", city: t.city || "", saved_stop_count: items.length },
-                                    { logEvent }
-                                  );
-                                }
-                                openDetail(p);
-                              }}
-                              onSave={() => quickSaveFavorite(p)}
-                              onLike={(e) => toggleLike(e, p)}
-                              onDislike={(e) => toggleDislike(e, p)}
-                              onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }}
-                              line={blurbs[p.id]}
-                              onBadge={openExperience}
-                              onCuisineTap={openCuisine}
-                            />
-                            {typeof window !== "undefined" && !cardComplete(p) && !searchEditorialCard(p) && (
-                              <div
-                                data-wf-unscored-stop-card={p.id}
-                                onClick={() => {
-                                  if (isPlannedStopItem(it)) {
-                                    trackPlannerEvent(
-                                      PLANNER_EVENTS.HIGH_INTENT_FROM_PLANNED_STOP,
-                                      { action_kind: "detail_open", city: t.city || "", saved_stop_count: items.length },
-                                      { logEvent }
-                                    );
-                                  }
-                                  openDetail(p);
-                                }}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter" || e.key === " ") {
-                                    e.preventDefault();
-                                    openDetail(p);
-                                  }
-                                }}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 12,
-                                  padding: "12px 14px",
-                                  borderRadius: 14,
-                                  background: C.card,
-                                  border: `1px solid ${C.border}`,
-                                  cursor: "pointer",
-                                }}
-                              >
-                                <div style={{ width: 64, height: 64, borderRadius: 10, overflow: "hidden", flexShrink: 0 }}>
-                                  <SafeImg
-                                    src={railPhotoSrc(p) || ""}
-                                    alt=""
-                                    compact
-                                    category={p.type}
-                                    style={{ width: 64, height: 64, borderRadius: 10, objectFit: "cover", display: "block" }}
-                                  />
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.3 }}>
-                                    {p.name || "Saved stop"}
-                                  </div>
-                                  <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>
-                                    {[p.type, p.price, p.address || p.city].filter(Boolean).join(" · ")}
-                                  </div>
-                                </div>
-                                <span style={{ color: C.accent, fontSize: 16, fontWeight: 800, flexShrink: 0 }} aria-hidden="true">›</span>
+                            {group.day && routeLegs.length > 0 && (
+                              <div className="wf-itin-day-routes">
+                                <button
+                                  type="button"
+                                  className="wf-itin-link"
+                                  aria-label={routeLegs.length > 1 ? `Route ${group.label} stops 1 to ${routeLegs[0].endStop} in Google Maps` : `Route ${group.label} in Google Maps`}
+                                  onClick={() => doRouteDay(group, routeLegs[0].url)}
+                                >
+                                  Route day ↗
+                                </button>
+                                {routeLegs.slice(1).map((leg, li) => (
+                                  <button
+                                    key={li}
+                                    type="button"
+                                    className="wf-itin-link"
+                                    data-wf-route-leg={li + 2}
+                                    aria-label={`Route ${group.label} stops ${leg.startStop} to ${leg.endStop} in Google Maps`}
+                                    onClick={() => doRouteDay(group, leg.url)}
+                                  >
+                                    Stops {leg.startStop}–{leg.endStop} ↗
+                                  </button>
+                                ))}
                               </div>
                             )}
-                            {it.visited && <div style={{ position: "absolute", top: 8, left: 8, background: C.accent, color: "#0D1117", fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20, zIndex: 2 }}>✓ Visited</div>}
                           </div>
-                          {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
-                          {editing && (
-                            <div style={{ marginTop: 6 }}>
-                              <textarea autoFocus defaultValue={it.note} id={"note_" + stopKey} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 16, resize: "vertical" }} />
-                              <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                                <button onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to jot trip notes that travel with you.")) return; const el = document.getElementById("note_" + stopKey); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, stopKey, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Save note</button>
-                                <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Cancel</button>
-                              </div>
-                            </div>
-                          )}
-                          {moving && (
-                            <div style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 8 }}>
-                              <div style={{ fontSize: 12, color: C.muted, marginBottom: 6, padding: "0 2px" }}>Move to…</div>
-                              {others.length === 0 ? (
-                                <div style={{ fontSize: 12.5, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
-                              ) : others.map((o) => (
-                                <div key={o.key} onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_move_trip", p, { from_key: t.key, to_key: o.key, to_city: o.city, to_state: o.state }); } catch (e) {} setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, stopKey)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", minHeight: 44, borderRadius: 8, cursor: "pointer" }}>
-                                  <StateBadge code={o.state} size={28} />
-                                  <span style={{ fontSize: 13.5, color: C.text }}>{o.city}{o.state ? ", " + o.state : ""}</span>
+                        )}
+                        <ol className="wf-itin-timeline" aria-label={grouped.hasDates ? `${group.label} stops` : "Trip stops"}>
+                          {group.items.map((it, i) => {
+                            const p = it.place;
+                            const stopKey = it.id || p.id;
+                            const stopDay = Trips.itemDayOf(it);
+                            const stopIsPast = stopDay ? Trips.isPastStopDate(stopDay, ctx.__today || undefined) : false;
+                            const stopDateLabel = stopDay
+                              ? (stopIsPast ? `Past · ${Trips.formatStopDate(stopDay)}` : Trips.formatStopDate(stopDay))
+                              : "Set date";
+                            const editing = tripNoteEdit === stopKey;
+                            const moving = tripMoveFor === stopKey;
+                            const dating = dateEditFor === stopKey;
+                            const slotLabel = it.slotLabel || (p && p.slotLabel) || "";
+                            const confidence = (p && p.confidence) || "";
+                            const confidenceNote = (p && p.confidenceNote) || "";
+                            const isLast = i === group.items.length - 1;
+                            const nextStopInDay =
+                              grouped.hasDates && group.day && !isLast
+                                ? group.items[i + 1]
+                                : null;
+                            const travelRel = nextStopInDay ? stopTravelRelationship(it, nextStopInDay) : null;
+                            const stopNumber = i + 1;
+                            const stopName = p.name || "stop";
+
+                            return (
+                              <li key={stopKey} data-wf-stop-id={stopKey} className={"wf-itin-stop" + (it.visited ? " is-visited" : "")}>
+                                <div className="wf-itin-rail" aria-hidden="true">
+                                  <span className="wf-itin-num" data-wf-stop-number={stopNumber}>{it.visited ? "✓" : stopNumber}</span>
+                                  {!isLast && <span className="wf-itin-line" />}
                                 </div>
-                              ))}
-                              <button onClick={() => setTripMoveFor(null)} style={{ marginTop: 4, background: "transparent", border: "none", color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "8px 6px", minHeight: 44, cursor: "pointer" }}>Cancel</button>
-                            </div>
-                          )}
-                          {!editing && !moving && (
-                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                              <button
-                                id={"wf-date-btn-" + stopKey}
-                                type="button"
-                                aria-expanded={dating}
-                                aria-controls={"wf-date-picker-" + stopKey}
-                                aria-label={stopDay ? `Change date for ${p.name || "stop"} (${stopIsPast ? "Past, " : ""}${Trips.formatStopDate(stopDay, { heading: true })})` : `Set date for ${p.name || "stop"}`}
-                                onClick={() => {
-                                  if (dating) {
-                                    closeDatePicker(stopKey);
-                                  } else {
-                                    openDatePicker(stopKey, stopDay);
-                                  }
-                                }}
-                                style={{
-                                  ...tripChip,
-                                  ...(stopDay
-                                    ? (stopIsPast
-                                      ? { background: C.card, borderColor: C.border, color: C.muted }
-                                      : { background: C.adim, borderColor: C.accent, color: C.light })
-                                    : {}),
-                                }}
-                              >
-                                <Icon name="calendar" size={13} color={stopDay && !stopIsPast ? C.light : C.muted} />
-                                <span>{stopDateLabel}</span>
-                              </button>
-                              <button type="button" aria-label={`Move ${p.name || "stop"} earlier`} onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i - 1, dir: -1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, -1, todayOpt)); }} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
-                              <button type="button" aria-label={`Move ${p.name || "stop"} later`} onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + 1, dir: 1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, 1, todayOpt)); }} disabled={i === group.items.length - 1} style={{ ...tripCtl, opacity: i === group.items.length - 1 ? 0.35 : 1 }}>↓</button>
-                              <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, stopKey)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
-                              <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(stopKey); setTripMoveFor(null); setDateEditFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
-                              <button
-                                type="button"
-                                data-wf-ask-someone="itinerary"
-                                aria-label={`Ask someone to ${p.name || "this stop"}`}
-                                onClick={() => {
-                                  openShareFlow({
-                                    title: p.name || "Trip stop",
-                                    name: p.name || "",
-                                    city: t.city || "",
-                                    placeId: p.id || "",
-                                    kind: placeKinds(p),
-                                    when: stopDay || "",
-                                    eventDate: p.itemType === "event" ? (stopDay || p.date || "") : "",
-                                    surface: "itinerary",
-                                    geo: p.lat != null && p.lng != null ? `${p.lat},${p.lng}` : "",
-                                    directInvite: true,
-                                  });
-                                }}
-                                style={{ ...tripChip, borderColor: "rgba(249,115,22,.45)", color: C.light }}
-                              >
-                                ♡ Ask someone
-                              </button>
-                              <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(stopKey); setTripNoteEdit(null); setDateEditFor(null); }} style={tripChip}>Move</button>
-                              <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, stopKey)); } }} style={{ ...tripChip, color: C.red }}>Remove</button>
-                            </div>
-                          )}
-                          {dating && (
-                            <div
-                              id={"wf-date-picker-" + stopKey}
-                              data-wf-date-picker={stopKey}
-                              role="region"
-                              aria-labelledby={"wf-date-picker-label-" + stopKey}
-                              onKeyDown={(e) => {
-                                if (e.key === "Escape") {
-                                  e.stopPropagation();
-                                  closeDatePicker(stopKey);
-                                }
-                              }}
-                              style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 10 }}
-                            >
-                              <div id={"wf-date-picker-label-" + stopKey} style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>
-                                Pick a day for {p.name || "this stop"}
-                              </div>
-                              {quickChoices.length > 0 && (
-                                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
-                                  {quickChoices.map((ch) => {
-                                    const active = stopDay === ch.day;
-                                    return (
-                                      <button
-                                        key={ch.day}
-                                        type="button"
-                                        data-wf-quick-date={ch.day}
-                                        aria-pressed={active}
-                                        aria-label={`Set date for ${p.name || "stop"} to ${ch.label}`}
-                                        onClick={() => applyStopDate(p, ch.day, stopKey)}
-                                        style={{
-                                          ...tripChip,
-                                          ...(active ? { background: C.adim, borderColor: C.accent, color: C.light } : { color: C.text }),
-                                        }}
+                                <div className="wf-itin-body">
+                                  <div className="wf-itin-meta" data-wf-stop-plan-meta={stopKey}>
+                                    <span className="wf-itin-time">
+                                      <span className="wf-sr">Stop {stopNumber}{slotLabel ? ", " : ""}</span>
+                                      {slotLabel || (it.visited ? "Visited" : "")}
+                                    </span>
+                                    {confidence ? (
+                                      <span
+                                        data-wf-stop-confidence={confidence}
+                                        title={confidenceNote || undefined}
+                                        className={"wf-itin-badge" + (confidence === "confirmed" ? " is-ok" : " is-warn")}
                                       >
-                                        {ch.label}
+                                        {confidence === "confirmed" ? "✓ Confirmed" : "Check hours"}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                  <div className="wf-itin-card">
+                                    <StopBoundary name={p.name}>
+                                      <PlaceCard
+                                        p={p}
+                                        saved={isSaved(p.id)}
+                                        liked={!!liked[p.id]}
+                                        disliked={!!disliked[p.id]}
+                                        onDetail={() => {
+                                          if (isPlannedStopItem(it)) {
+                                            trackPlannerEvent(
+                                              PLANNER_EVENTS.HIGH_INTENT_FROM_PLANNED_STOP,
+                                              { action_kind: "detail_open", city: t.city || "", saved_stop_count: items.length },
+                                              { logEvent }
+                                            );
+                                          }
+                                          openDetail(p);
+                                        }}
+                                        onSave={() => quickSaveFavorite(p)}
+                                        onLike={(e) => toggleLike(e, p)}
+                                        onDislike={(e) => toggleDislike(e, p)}
+                                        onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }}
+                                        line={blurbs[p.id]}
+                                        onBadge={openExperience}
+                                        onCuisineTap={openCuisine}
+                                      />
+                                      {typeof window !== "undefined" && !cardComplete(p) && !searchEditorialCard(p) && (
+                                        <div
+                                          data-wf-unscored-stop-card={p.id}
+                                          className="wf-itin-mini"
+                                          onClick={() => {
+                                            if (isPlannedStopItem(it)) {
+                                              trackPlannerEvent(
+                                                PLANNER_EVENTS.HIGH_INTENT_FROM_PLANNED_STOP,
+                                                { action_kind: "detail_open", city: t.city || "", saved_stop_count: items.length },
+                                                { logEvent }
+                                              );
+                                            }
+                                            openDetail(p);
+                                          }}
+                                          role="button"
+                                          tabIndex={0}
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                              e.preventDefault();
+                                              openDetail(p);
+                                            }
+                                          }}
+                                        >
+                                          <div className="wf-itin-mini-photo">
+                                            <SafeImg
+                                              src={railPhotoSrc(p) || ""}
+                                              alt=""
+                                              compact
+                                              category={p.type}
+                                              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                                            />
+                                          </div>
+                                          <div style={{ padding: "12px 14px 14px" }}>
+                                            <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, lineHeight: 1.3 }}>
+                                              {p.name || "Saved stop"}
+                                            </div>
+                                            <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>
+                                              {[p.type, p.price, p.address || p.city].filter(Boolean).join(" · ")}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </StopBoundary>
+                                  </div>
+                                  {it.note && !editing && <div className="wf-itin-note">{it.note}</div>}
+                                  {editing && (
+                                    <div className="wf-itin-panel wf-itin-inline">
+                                      <textarea autoFocus defaultValue={it.note} id={"note_" + stopKey} aria-label={`Note for ${stopName}`} placeholder="Reservation time, what to order, who to ask for…" className="wf-itin-input wf-itin-textarea" />
+                                      <div className="wf-itin-inline-actions">
+                                        <button type="button" className="wf-itin-pill wf-itin-pill-primary" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to jot trip notes that travel with you.")) return; const el = document.getElementById("note_" + stopKey); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, stopKey, (v || "").trim())); setTripNoteEdit(null); }}>Save note</button>
+                                        <button type="button" className="wf-itin-pill" onClick={() => setTripNoteEdit(null)}>Cancel</button>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {moving && (
+                                    <div className="wf-itin-panel wf-itin-inline">
+                                      <div className="wf-itin-inline-label">Move {stopName} to another trip</div>
+                                      {others.length === 0 ? (
+                                        <div style={{ fontSize: 13, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
+                                      ) : others.map((o) => (
+                                        <button type="button" key={o.key} className="wf-itin-trip-pick" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_move_trip", p, { from_key: t.key, to_key: o.key, to_city: o.city, to_state: o.state }); } catch (e) {} setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, stopKey)); setTripMoveFor(null); }}>
+                                          <StateBadge code={o.state} size={28} />
+                                          <span>{o.city}{o.state ? ", " + o.state : ""}</span>
+                                        </button>
+                                      ))}
+                                      <div className="wf-itin-inline-actions">
+                                        <button type="button" className="wf-itin-pill" onClick={() => setTripMoveFor(null)}>Cancel</button>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {!editing && !moving && (
+                                    <div className="wf-itin-actions">
+                                      <button
+                                        id={"wf-date-btn-" + stopKey}
+                                        type="button"
+                                        aria-expanded={dating}
+                                        aria-controls={"wf-date-picker-" + stopKey}
+                                        aria-label={stopDay ? `Change date for ${p.name || "stop"} (${stopIsPast ? "Past, " : ""}${Trips.formatStopDate(stopDay, { heading: true })})` : `Set date for ${p.name || "stop"}`}
+                                        onClick={() => {
+                                          if (dating) {
+                                            closeDatePicker(stopKey);
+                                          } else {
+                                            openDatePicker(stopKey, stopDay);
+                                          }
+                                        }}
+                                        className={"wf-itin-date" + (stopDay ? (stopIsPast ? " is-past" : " is-set") : "")}
+                                      >
+                                        <Icon name="calendar" size={14} color={stopDay && !stopIsPast ? C.light : C.muted} />
+                                        <span>{stopDateLabel}</span>
                                       </button>
-                                    );
-                                  })}
+                                      <div className="wf-itin-reorder" role="group" aria-label={`Reorder ${stopName}`}>
+                                        <button type="button" className="wf-itin-icon" aria-label={`Move ${p.name || "stop"} earlier`} onClick={() => moveStop(it, p, group, i, -1)} disabled={i === 0}>
+                                          <Chevron dir="up" />
+                                        </button>
+                                        <button type="button" className="wf-itin-icon" aria-label={`Move ${p.name || "stop"} later`} onClick={() => moveStop(it, p, group, i, 1)} disabled={isLast}>
+                                          <Chevron dir="down" />
+                                        </button>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        className="wf-itin-icon"
+                                        data-wf-stop-more={stopKey}
+                                        aria-label={`More for ${stopName}`}
+                                        aria-haspopup="dialog"
+                                        aria-expanded={stopMenuFor === stopKey}
+                                        onClick={() => { setStopMenuFor(stopKey); setTripMenuOpen(false); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); }}
+                                      >
+                                        <MoreDots />
+                                      </button>
+                                    </div>
+                                  )}
+                                  {dating && (
+                                    <div
+                                      id={"wf-date-picker-" + stopKey}
+                                      data-wf-date-picker={stopKey}
+                                      role="region"
+                                      aria-labelledby={"wf-date-picker-label-" + stopKey}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Escape") {
+                                          e.stopPropagation();
+                                          closeDatePicker(stopKey);
+                                        }
+                                      }}
+                                      className="wf-itin-panel wf-itin-inline"
+                                    >
+                                      <div id={"wf-date-picker-label-" + stopKey} className="wf-itin-inline-label">
+                                        Pick a day for {p.name || "this stop"}
+                                      </div>
+                                      {quickChoices.length > 0 && (
+                                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                                          {quickChoices.map((ch) => {
+                                            const active = stopDay === ch.day;
+                                            return (
+                                              <button
+                                                key={ch.day}
+                                                type="button"
+                                                data-wf-quick-date={ch.day}
+                                                aria-pressed={active}
+                                                aria-label={`Set date for ${p.name || "stop"} to ${ch.label}`}
+                                                onClick={() => applyStopDate(p, ch.day, stopKey)}
+                                                className={"wf-itin-chip" + (active ? " is-on" : "")}
+                                                style={{ minHeight: 44 }}
+                                              >
+                                                {ch.label}
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                        <input
+                                          id={"wf-date-input-" + stopKey}
+                                          type="date"
+                                          aria-label={`Choose date for ${p.name || "stop"}`}
+                                          value={dateDraft}
+                                          onChange={(e) => setDateDraft(e.target.value)}
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                              const clean = Trips.normalizeStopDate(dateDraft);
+                                              if (clean) {
+                                                e.preventDefault();
+                                                applyStopDate(p, clean, stopKey);
+                                              }
+                                            }
+                                          }}
+                                          className="wf-itin-input"
+                                          style={{ flex: "0 1 auto", width: "auto", minHeight: 44, colorScheme: "dark" }}
+                                        />
+                                        <button
+                                          type="button"
+                                          aria-label={`Save date for ${p.name || "stop"}`}
+                                          onClick={() => { const clean = Trips.normalizeStopDate(dateDraft); if (clean) applyStopDate(p, clean, stopKey); }}
+                                          disabled={!Trips.normalizeStopDate(dateDraft)}
+                                          className="wf-itin-pill wf-itin-pill-primary"
+                                          style={{ minHeight: 44 }}
+                                        >
+                                          Save date
+                                        </button>
+                                        {stopDay && (
+                                          <button
+                                            type="button"
+                                            aria-label={`Clear date for ${p.name || "stop"}`}
+                                            onClick={() => applyStopDate(p, null, stopKey)}
+                                            className="wf-itin-pill"
+                                            style={{ minHeight: 44 }}
+                                          >
+                                            Clear date
+                                          </button>
+                                        )}
+                                        <button
+                                          type="button"
+                                          aria-label={`Cancel date selection for ${p.name || "stop"}`}
+                                          onClick={() => closeDatePicker(stopKey)}
+                                          className="wf-itin-pill"
+                                          style={{ minHeight: 44 }}
+                                        >
+                                          Cancel
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {travelRel && travelRel.label && (
+                                    <div data-wf-travel-connector="1" className="wf-itin-travel">
+                                      {travelRel.label}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                                <input
-                                  id={"wf-date-input-" + stopKey}
-                                  type="date"
-                                  aria-label={`Choose date for ${p.name || "stop"}`}
-                                  value={dateDraft}
-                                  onChange={(e) => setDateDraft(e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      const clean = Trips.normalizeStopDate(dateDraft);
-                                      if (clean) {
-                                        e.preventDefault();
-                                        applyStopDate(p, clean, stopKey);
-                                      }
-                                    }
-                                  }}
-                                  style={{
-                                    background: C.bg,
-                                    border: "1px solid " + C.border,
-                                    borderRadius: 10,
-                                    padding: "8px 10px",
-                                    minHeight: 44,
-                                    boxSizing: "border-box",
-                                    color: C.text,
-                                    fontSize: 14,
-                                    colorScheme: "dark",
-                                    outline: "none",
-                                  }}
-                                />
-                                <button
-                                  type="button"
-                                  aria-label={`Save date for ${p.name || "stop"}`}
-                                  onClick={() => { const clean = Trips.normalizeStopDate(dateDraft); if (clean) applyStopDate(p, clean, stopKey); }}
-                                  disabled={!Trips.normalizeStopDate(dateDraft)}
-                                  style={{
-                                    background: C.accent,
-                                    border: "none",
-                                    color: "#0D1117",
-                                    fontSize: 12.5,
-                                    fontWeight: 800,
-                                    padding: "8px 14px",
-                                    minHeight: 44,
-                                    borderRadius: 22,
-                                    cursor: Trips.normalizeStopDate(dateDraft) ? "pointer" : "default",
-                                    opacity: Trips.normalizeStopDate(dateDraft) ? 1 : 0.45,
-                                  }}
-                                >
-                                  Save date
-                                </button>
-                                {stopDay && (
-                                  <button
-                                    type="button"
-                                    aria-label={`Clear date for ${p.name || "stop"}`}
-                                    onClick={() => applyStopDate(p, null, stopKey)}
-                                    style={{
-                                      background: "transparent",
-                                      border: "1px solid " + C.border,
-                                      color: C.light,
-                                      fontSize: 12.5,
-                                      fontWeight: 700,
-                                      padding: "8px 12px",
-                                      minHeight: 44,
-                                      borderRadius: 22,
-                                      cursor: "pointer",
-                                    }}
-                                  >
-                                    Clear date
-                                  </button>
-                                )}
-                                <button
-                                  type="button"
-                                  aria-label={`Cancel date selection for ${p.name || "stop"}`}
-                                  onClick={() => closeDatePicker(stopKey)}
-                                  style={{
-                                    background: "transparent",
-                                    border: "1px solid " + C.border,
-                                    color: C.muted,
-                                    fontSize: 12.5,
-                                    fontWeight: 700,
-                                    padding: "8px 12px",
-                                    minHeight: 44,
-                                    borderRadius: 22,
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          )}
-                          {travelRel && travelRel.label && (
-                            <div
-                              data-wf-travel-connector="1"
-                              style={{
-                                marginTop: 10,
-                                paddingLeft: 12,
-                                borderLeft: "2px dashed " + C.border,
-                                fontSize: 11.5,
-                                color: C.muted,
-                                lineHeight: 1.4,
-                              }}
-                            >
-                              ↓ {travelRel.label}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                    {grouped.hasDates && group.day && !group.isPast && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
-                        <button
-                          type="button"
-                          data-wf-day-add={group.day}
-                          onClick={() => {
-                            const promptPrefix = `Add a stop on ${Trips.formatStopDate(group.day)}: `;
-                            setAskInput(promptPrefix);
-                            if (askInputRef.current) {
-                              try {
-                                askInputRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
-                                askInputRef.current.focus();
-                              } catch {}
-                            }
-                          }}
-                          style={{
-                            background: "transparent",
-                            border: "1px dashed " + C.border,
-                            color: C.light,
-                            fontSize: 12,
-                            fontWeight: 700,
-                            padding: "8px 14px",
-                            minHeight: 40,
-                            borderRadius: 20,
-                            cursor: "pointer",
-                          }}
-                        >
-                          ＋ Add something to {shortDayTabLabel(group.day)}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                              </li>
+                            );
+                          })}
+                        </ol>
+                        {grouped.hasDates && group.day && !group.isPast && entitlement.allowed && (
+                          <button
+                            type="button"
+                            data-wf-day-add={group.day}
+                            className="wf-itin-add"
+                            onClick={() => openAskPanel(`Add a stop on ${Trips.formatStopDate(group.day)}: `)}
+                          >
+                            <span aria-hidden="true">＋</span> Add a stop to {shortDayTabLabel(group.day)}
+                          </button>
+                        )}
+                      </section>
+                    );
+                  })}
+                </div>
+              )}
+
+              <ItinSheet
+                open={Boolean(menuStop)}
+                onClose={() => setStopMenuFor(null)}
+                title={menuPlace ? (menuPlace.name || "This stop") : ""}
+                subtitle={menuStop ? [menuStop.slotLabel || (menuPlace && menuPlace.slotLabel) || "", menuStopDay ? Trips.formatStopDate(menuStopDay) : ""].filter(Boolean).join(" · ") : ""}
+                id="wf-itin-stop-menu"
+              >
+                {menuStop && menuPlace && (() => {
+                  const it = menuStop;
+                  const p = menuPlace;
+                  const stopKey = it.id || p.id;
+                  const close = () => setStopMenuFor(null);
+                  return (
+                    <>
+                      <SheetRow
+                        icon={it.visited ? "↺" : "✓"}
+                        label={it.visited ? "Mark as not visited" : "Mark visited"}
+                        onClick={() => { close(); if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, stopKey)); }}
+                      />
+                      <SheetRow
+                        icon="✎"
+                        label={it.note ? "Edit note" : "Add note"}
+                        onClick={() => { close(); if (!hasLocalTrip && !requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(stopKey); setTripMoveFor(null); setDateEditFor(null); }}
+                      />
+                      <SheetRow
+                        icon="📅"
+                        label={menuStopDay ? "Change day" : "Set a day"}
+                        onClick={() => { close(); openDatePicker(stopKey, menuStopDay); }}
+                      />
+                      <SheetRow
+                        icon="♡"
+                        label="Ask someone to come"
+                        hint="Send a quick invite"
+                        data-wf-ask-someone="itinerary"
+                        aria-label={`Ask someone to ${p.name || "this stop"}`}
+                        onClick={() => {
+                          close();
+                          openShareFlow({
+                            title: p.name || "Trip stop",
+                            name: p.name || "",
+                            city: t.city || "",
+                            placeId: p.id || "",
+                            kind: placeKinds(p),
+                            when: menuStopDay || "",
+                            eventDate: p.itemType === "event" ? (menuStopDay || p.date || "") : "",
+                            surface: "itinerary",
+                            geo: p.lat != null && p.lng != null ? `${p.lat},${p.lng}` : "",
+                            directInvite: true,
+                          });
+                        }}
+                      />
+                      <SheetRow
+                        icon={isSaved(p.id) ? "♥" : "♡"}
+                        label={isSaved(p.id) ? "Saved to Favorites" : "Save to Favorites"}
+                        onClick={() => { close(); quickSaveFavorite(p); }}
+                      />
+                      <SheetRow
+                        icon={liked[p.id] ? "👍" : "👍"}
+                        label={liked[p.id] ? "Liked" : "Like"}
+                        onClick={(e) => { close(); toggleLike(e, p); }}
+                      />
+                      {shareList && (
+                        <SheetRow
+                          icon="↗"
+                          label="Share this place"
+                          onClick={() => { close(); try { addShared(p); giveawayMark(p.id); } catch (e) {} try { shareList([p], p.name || "A Wayfind pick"); } catch (e) {} }}
+                        />
+                      )}
+                      <SheetRow
+                        icon="⇄"
+                        label="Move to another trip"
+                        onClick={() => { close(); if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(stopKey); setTripNoteEdit(null); setDateEditFor(null); }}
+                      />
+                      <SheetRow
+                        icon="🗑"
+                        danger
+                        label="Remove from trip"
+                        hint="It stays in your Favorites"
+                        onClick={() => { close(); if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, stopKey)); } }}
+                      />
+                    </>
+                  );
+                })()}
+              </ItinSheet>
             </div>
           );
         })()}
     </>
   );
 }
+
+// ── Itinerary building blocks (owner, 2026-11-28: "too many buttons", "it
+// needs to look premium"). Each stop shows its number, time, the place card
+// and three quiet controls (day, reorder, •••). Everything else lives in one
+// bottom sheet per stop and one per trip. Colors come from kit's C tokens.
+
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+export function prefersReducedMotion() {
+  try {
+    return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+}
+
+function MoreDots() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="5" cy="12" r="2" fill="currentColor" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" />
+      <circle cx="19" cy="12" r="2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function ShareGlyph() {
+  return (
+    <svg className="wf-itin-share-ico" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 3v12M7.5 7.5L12 3l4.5 4.5M5 12.5V19a2 2 0 002 2h10a2 2 0 002-2v-6.5" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function Chevron({ dir }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false" style={{ transform: dir === "down" ? "rotate(180deg)" : "none" }}>
+      <path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// One bottom sheet. Rendered (hidden) even when closed, so the trip's actions
+// stay in the server HTML and reachable from one tap.
+function ItinSheet({ open, onClose, title, subtitle, id, children }) {
+  const panelRef = useRef(null);
+  useEffect(() => {
+    if (!open || typeof document === "undefined") return undefined;
+    const prevFocus = document.activeElement;
+    const onKey = (e) => { if (e.key === "Escape") { e.stopPropagation(); onClose(); } };
+    document.addEventListener("keydown", onKey);
+    const timer = setTimeout(() => {
+      try {
+        const first = panelRef.current && panelRef.current.querySelector("button:not([disabled]), a[href]");
+        if (first) first.focus({ preventScroll: true });
+      } catch {}
+    }, 30);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("keydown", onKey);
+      try { if (prevFocus && typeof prevFocus.focus === "function") prevFocus.focus({ preventScroll: true }); } catch {}
+    };
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div
+      className={"wf-itin-sheet" + (open ? " is-open" : "")}
+      hidden={!open}
+      style={open ? undefined : { display: "none" }}
+      data-wf-itin-sheet={id}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div ref={panelRef} className="wf-itin-sheet-panel" role="dialog" aria-modal="true" aria-labelledby={id + "-title"} id={id}>
+        <div className="wf-itin-sheet-grip" aria-hidden="true" />
+        <div className="wf-itin-sheet-head">
+          <div style={{ minWidth: 0 }}>
+            <div id={id + "-title"} className="wf-itin-sheet-title">{title}</div>
+            {subtitle ? <div className="wf-itin-sheet-sub">{subtitle}</div> : null}
+          </div>
+          <button type="button" className="wf-itin-icon wf-itin-icon-sm" aria-label="Close" onClick={onClose}>
+            <span aria-hidden="true">✕</span>
+          </button>
+        </div>
+        <div className="wf-itin-sheet-list">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function SheetRow({ icon, label, hint, danger, onClick, disabled, ...rest }) {
+  return (
+    <button type="button" className={"wf-itin-sheet-row" + (danger ? " is-danger" : "")} onClick={onClick} disabled={disabled} {...rest}>
+      <span className="wf-itin-sheet-ico" aria-hidden="true">{icon}</span>
+      <span className="wf-itin-sheet-text">
+        <span className="wf-itin-sheet-label">{label}</span>
+        {hint ? <span className="wf-itin-sheet-hint">{hint}</span> : null}
+      </span>
+    </button>
+  );
+}
+
+// One stop that fails to render shows a small note instead of taking the whole
+// itinerary (and the app around it) down with it.
+class StopBoundary extends Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch(error) {
+    try {
+      if (typeof window !== "undefined") captureOrQueue(window, "itinerary_stop_error", { message: String((error && error.message) || "").slice(0, 200) });
+    } catch {}
+  }
+  render() {
+    if (this.state.failed) {
+      return (
+        <div className="wf-itin-panel" data-wf-stop-fallback="1" style={{ padding: "14px 16px" }}>
+          <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{this.props.name || "This stop"}</div>
+          <div style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>The details for this stop could not load. Your plan is safe.</div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const ITIN_CSS = `
+.wf-itin{max-width:780px;--it-card:${C.card};--it-panel:${C.panel};--it-line:${C.border};--it-text:${C.text};--it-soft:${C.light};--it-faint:${C.muted};--it-accent:${C.accent};padding-bottom:28px}
+.wf-itin .wf-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wf-itin button{font-family:inherit;-webkit-tap-highlight-color:transparent}
+.wf-itin button:focus-visible,.wf-itin-sheet button:focus-visible{outline:2px solid var(--it-accent);outline-offset:2px}
+.wf-itin-head{display:flex;align-items:center;gap:8px;padding:6px 0 18px}
+.wf-itin-share-ico{display:none;width:19px!important;height:19px!important;flex:none}
+@media (max-width:520px){.wf-itin-share{width:44px;padding:0}.wf-itin-share-label{display:none}.wf-itin-share-ico{display:block}}
+.wf-itin-title-wrap{flex:1 1 auto;min-width:0}
+.wf-itin-title{margin:0;font-size:22px;line-height:1.2;font-weight:800;letter-spacing:-.01em;color:var(--it-text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.wf-itin-sub{margin-top:3px;font-size:13.5px;color:var(--it-faint)}
+.wf-itin-icon{flex:none;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;min-height:44px;border-radius:999px;border:1px solid var(--it-line);background:rgba(255,255,255,.03);color:var(--it-text);font-size:20px;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,transform .15s,opacity .15s}
+.wf-itin-icon:hover{border-color:rgba(203,213,225,.45);background:rgba(255,255,255,.06)}
+.wf-itin-icon:active{transform:scale(.94)}
+.wf-itin-icon:disabled{opacity:.28;cursor:default;transform:none}
+.wf-itin-icon-sm{width:36px;height:36px;min-width:36px;min-height:36px;font-size:15px}
+.wf-itin-pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--it-line);background:rgba(255,255,255,.03);color:var(--it-text);font-size:14px;font-weight:800;white-space:nowrap;cursor:pointer;transition:background .15s,border-color .15s,transform .15s,opacity .15s}
+.wf-itin-pill:hover{border-color:rgba(203,213,225,.45)}
+.wf-itin-pill:active{transform:scale(.97)}
+.wf-itin-pill:disabled{opacity:.5;cursor:default}
+.wf-itin-pill-primary{background:var(--it-accent);border-color:var(--it-accent);color:#0D1117}
+.wf-itin-pill-primary:hover{border-color:var(--it-accent);filter:brightness(1.06)}
+.wf-itin-panel{background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 40%),var(--it-card);border:1px solid rgba(159,177,203,.18);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.22)}
+.wf-itin-alert{font-size:13px;color:#FCA5A5;margin:0 0 12px;line-height:1.4}
+.wf-itin-note-muted{font-size:12.5px;color:var(--it-faint);margin:0 0 10px;line-height:1.45}
+.wf-itin-confirm{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px;margin-bottom:16px}
+.wf-itin-ask{padding:14px 14px 12px;margin-bottom:18px;animation:wfItinIn .22s ease both}
+.wf-itin-ask-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.wf-itin-ask-title{font-size:15px;font-weight:800;color:var(--it-text)}
+.wf-itin-ask-form{display:flex;align-items:center;gap:8px}
+.wf-itin-input{flex:1 1 auto;min-width:0;width:100%;min-height:46px;box-sizing:border-box;border-radius:14px;border:1px solid var(--it-line);background:${C.bg};color:var(--it-text);padding:10px 14px;font-size:16px;font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
+.wf-itin-input:focus{border-color:var(--it-accent);box-shadow:0 0 0 3px rgba(249,115,22,.16)}
+.wf-itin-textarea{min-height:84px;resize:vertical;line-height:1.45}
+.wf-itin-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.wf-itin-chip{min-height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--it-line);background:rgba(255,255,255,.02);color:var(--it-soft);font-size:13px;font-weight:700;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.wf-itin-chip:hover{color:var(--it-text);border-color:rgba(203,213,225,.45)}
+.wf-itin-chip.is-on{background:rgba(249,115,22,.14);border-color:var(--it-accent);color:var(--it-text)}
+.wf-itin-chip-quiet{border-style:dashed;color:var(--it-faint)}
+.wf-itin-ask-feedback{margin-top:12px;padding-top:12px;border-top:1px solid var(--it-line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.wf-itin-tabs{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;margin:0 -2px 6px;padding:2px 2px 10px}
+.wf-itin-tabs::-webkit-scrollbar{display:none}
+.wf-itin-tab{flex:none;min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--it-line);background:transparent;color:var(--it-soft);font-size:14px;font-weight:800;white-space:nowrap;cursor:pointer;transition:background .18s,color .18s,border-color .18s}
+.wf-itin-tab.is-on{background:var(--it-text);border-color:var(--it-text);color:#0D1117}
+.wf-itin-tab.is-past{color:var(--it-faint)}
+.wf-itin-empty{text-align:center;padding:34px 20px}
+.wf-itin-day{margin:14px 0 8px}
+.wf-itin-day-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.wf-itin-day-title{font-size:20px;font-weight:800;letter-spacing:-.01em;color:var(--it-text);line-height:1.2}
+.wf-itin-day-title.is-muted{color:var(--it-faint)}
+.wf-itin-day-sub{margin-top:2px;font-size:13px;color:var(--it-faint)}
+.wf-itin-day-routes{display:flex;gap:4px;flex-wrap:wrap}
+.wf-itin-link{min-height:44px;padding:0 6px;border:0;background:transparent;color:var(--it-soft);font-size:13.5px;font-weight:800;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(203,213,225,.35);text-underline-offset:4px}
+.wf-itin-link:hover{color:var(--it-text)}
+.wf-itin-timeline{list-style:none;margin:0;padding:0}
+.wf-itin-stop{position:relative;display:flex;gap:12px;will-change:auto}
+.wf-itin-rail{flex:none;width:32px;display:flex;flex-direction:column;align-items:center}
+.wf-itin-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:999px;background:var(--it-accent);color:#0D1117;font-size:15px;font-weight:900;font-variant-numeric:tabular-nums;box-shadow:0 0 0 4px rgba(249,115,22,.14),0 6px 16px rgba(249,115,22,.25);transition:transform .25s}
+.wf-itin-stop.is-visited .wf-itin-num{background:${C.green};box-shadow:0 0 0 4px rgba(34,197,94,.14)}
+.wf-itin-line{flex:1 1 auto;width:2px;margin:8px 0 2px;border-radius:2px;background:linear-gradient(180deg,rgba(249,115,22,.55),rgba(159,177,203,.18))}
+.wf-itin-body{flex:1 1 auto;min-width:0;padding-bottom:26px}
+.wf-itin-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px;margin-bottom:8px}
+.wf-itin-time{font-size:15px;font-weight:800;color:var(--it-text);letter-spacing:.01em}
+.wf-itin-badge{flex:none;font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:999px}
+.wf-itin-badge.is-ok{background:rgba(16,185,129,.14);color:#6EE7B7}
+.wf-itin-badge.is-warn{background:rgba(245,158,11,.14);color:#FCD34D}
+.wf-itin-stop.is-visited .wf-itin-card{opacity:.6}
+.wf-itin-card .wf-place-card{height:auto!important;width:100%!important;max-width:none!important;flex:none!important;margin:0!important;border-radius:20px!important}
+.wf-itin-card .wf-place-card-layout{display:flex!important;flex-direction:column!important;height:auto!important;grid-template-columns:none!important}
+.wf-itin-card .wf-place-card-media{width:100%!important;height:184px!important;min-height:0!important;flex:none!important;border-radius:0!important}
+.wf-itin-card .wf-place-card-content{height:auto!important;min-height:0!important;padding:14px 16px 16px!important;gap:6px}
+.wf-itin-card .wf-place-card-name{font-size:18px!important;line-height:1.25!important;-webkit-line-clamp:2}
+.wf-itin-card .wf-place-card-title-row{min-height:0!important;height:auto!important}
+.wf-itin-card .wf-place-card-heading{padding-right:0!important;min-height:0!important;height:auto!important}
+.wf-itin-card .wf-place-card-category{margin:0 0 6px!important}
+.wf-itin-card .wf-place-card-name,.wf-itin-card .wf-place-card-heading .wf-place-card-name{margin-top:2px!important}
+.wf-itin-card .wf-place-card-take{-webkit-line-clamp:2}
+.wf-itin-card .wf-place-card-save,.wf-itin-card .wf-place-card-like,.wf-itin-card .wf-place-card-dislike,.wf-itin-card .wf-place-card-share{display:none!important}
+.wf-itin-card .wf-place-card-actions{display:flex!important;grid-template-columns:none!important;padding-top:10px!important}
+.wf-itin-card .wf-place-card-actions:not(:has(.wf-place-card-book)){display:none!important}
+.wf-itin-card .wf-place-card-book{flex:1 1 auto;justify-content:center;min-height:44px}
+.wf-itin-mini{overflow:hidden;border-radius:20px;background:var(--it-card);border:1px solid rgba(159,177,203,.25);cursor:pointer;box-shadow:0 14px 36px rgba(0,0,0,.27)}
+.wf-itin-mini-photo{width:100%;height:184px;overflow:hidden;background:#111824}
+.wf-itin-note{margin-top:10px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(159,177,203,.14);font-size:14px;line-height:1.5;color:var(--it-soft)}
+.wf-itin-actions{display:flex;align-items:center;gap:8px;margin-top:12px}
+.wf-itin-date{flex:1 1 auto;min-width:0;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--it-line);background:rgba(255,255,255,.02);color:var(--it-faint);font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wf-itin-date span{overflow:hidden;text-overflow:ellipsis}
+.wf-itin-date.is-set{color:var(--it-text)}
+.wf-itin-date.is-past{color:var(--it-faint)}
+.wf-itin-reorder{display:inline-flex;gap:6px}
+.wf-itin-inline{margin-top:10px;padding:14px;animation:wfItinIn .2s ease both}
+.wf-itin-inline-label{font-size:13px;color:var(--it-faint);margin-bottom:10px}
+.wf-itin-inline-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.wf-itin-trip-pick{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 8px;border:0;border-radius:12px;background:transparent;color:var(--it-text);font-size:15px;text-align:left;cursor:pointer}
+.wf-itin-trip-pick:hover{background:rgba(255,255,255,.04)}
+.wf-itin-travel{margin-top:14px;font-size:12.5px;color:var(--it-faint);display:flex;align-items:center;gap:6px}
+.wf-itin-travel::before{content:"";width:6px;height:6px;border-radius:50%;background:rgba(159,177,203,.45)}
+.wf-itin-add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin:0 0 10px;border-radius:16px;border:1px dashed rgba(159,177,203,.32);background:transparent;color:var(--it-soft);font-size:14px;font-weight:800;cursor:pointer;transition:border-color .15s,color .15s}
+.wf-itin-add:hover{color:var(--it-text);border-color:rgba(203,213,225,.5)}
+.wf-itin-stop.wf-itin-moved .wf-itin-card{animation:wfItinGlow 1s ease}
+.wf-itin-stop.wf-itin-moved .wf-itin-num{animation:wfItinPop .45s ease}
+.wf-itin-sheet{position:fixed;inset:0;z-index:945;display:flex;align-items:flex-end;justify-content:center;background:rgba(2,6,14,.62);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:wfItinFade .18s ease both}
+.wf-itin-sheet-panel{width:100%;max-width:520px;max-height:86vh;overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box;padding:8px 14px calc(16px + env(safe-area-inset-bottom));border-radius:24px 24px 0 0;background:${C.panel};border:1px solid rgba(159,177,203,.16);border-bottom:0;box-shadow:0 -18px 50px rgba(0,0,0,.45);animation:wfItinUp .26s cubic-bezier(.2,.8,.2,1) both}
+.wf-itin-sheet-grip{width:40px;height:5px;border-radius:5px;background:rgba(203,213,225,.28);margin:4px auto 10px}
+.wf-itin-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:2px 4px 10px}
+.wf-itin-sheet-title{font-size:18px;font-weight:800;color:${C.text};line-height:1.25}
+.wf-itin-sheet-sub{margin-top:3px;font-size:13px;color:${C.muted}}
+.wf-itin-sheet-list{display:flex;flex-direction:column;gap:2px}
+.wf-itin-sheet-row,.wf-itin-sheet-row-wrap>button{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:8px 10px;border:0;border-radius:14px;background:transparent;color:${C.text};font-family:inherit;font-size:16px;font-weight:700;text-align:left;cursor:pointer;transition:background .14s}
+.wf-itin-sheet-row:hover,.wf-itin-sheet-row:focus-visible{background:rgba(255,255,255,.05)}
+.wf-itin-sheet-row:disabled{opacity:.55;cursor:default}
+.wf-itin-sheet-row.is-danger{color:#FCA5A5}
+.wf-itin-sheet-ico{flex:none;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.05);font-size:17px}
+.wf-itin-sheet-text{display:flex;flex-direction:column;min-width:0}
+.wf-itin-sheet-label{line-height:1.25}
+.wf-itin-sheet-hint{margin-top:2px;font-size:12.5px;font-weight:600;color:${C.muted}}
+@keyframes wfItinIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@keyframes wfItinFade{from{opacity:0}to{opacity:1}}
+@keyframes wfItinUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@keyframes wfItinGlow{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}25%{box-shadow:0 0 0 3px rgba(249,115,22,.55),0 18px 40px rgba(249,115,22,.18)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
+@keyframes wfItinPop{0%{transform:scale(1)}45%{transform:scale(1.18)}100%{transform:scale(1)}}
+@media (min-width:768px){.wf-itin-title{font-size:26px}.wf-itin-card .wf-place-card-media,.wf-itin-mini-photo{height:240px!important}.wf-itin-sheet{align-items:center}.wf-itin-sheet-panel{border-radius:24px;border-bottom:1px solid rgba(159,177,203,.16)}}
+@media (prefers-reduced-motion:reduce){.wf-itin *,.wf-itin-sheet,.wf-itin-sheet *{animation:none!important;transition:none!important}}
+`;
