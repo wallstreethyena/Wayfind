@@ -28,7 +28,7 @@ const hubSource = fs.readFileSync(path.resolve('app/guides/page.js'), 'utf8');
 const tracked = new Set(execFileSync('git', ['ls-files', 'public'], { encoding: 'utf8' }).trim().split('\n'));
 ok(tracked.size > 0, 'tracked image inventory is nonempty');
 ok(slugs.length > 0, 'the guide registry is nonempty before measuring coverage');
-ok(slugs.length === 93, `the reviewed publication set includes 93 guides (got ${slugs.length})`);
+ok(slugs.length === 101, `the reviewed publication set includes 101 guides (got ${slugs.length})`);
 ok(pageSource.includes('<div style={S.page} className="wf-guide-editorial">') && !pageSource.includes('<main style={S.page}'), 'guide route uses a div inside the application main landmark');
 ok(hubSource.includes('<div className={styles.page}>') && !hubSource.includes('<main className={styles.page}>'), 'guide index uses a div inside the application main landmark');
 ok(!pageSource.includes('Seasonal menus can change'), 'the general source register has no blanket seasonal-menu label');
@@ -202,6 +202,10 @@ for (const slug of slugs) {
   const guide = GUIDES[slug];
   const nav = renderToStaticMarkup(React.createElement(navModule.exports.GuideReadingNav, { guide }));
   ok((nav.match(/href="#pick-/g) || []).length === guide.picks.length, `${slug}: every stop has a navigation link`);
+  if (guide.fieldArticle) {
+    ok(!nav && guide.picks.length === 0, `${slug}: field articles own their named section navigation`);
+    continue;
+  }
   ok(nav.includes('<details') && nav.includes('<summary'), `${slug}: long contents are keyboard-operable and collapsible`);
 }
 console.log(`check-guide-editorial: OK — ${checks} assertions; ${slugs.length} image records and rendered headers; ${guideRegions(GUIDES).length} hub regions. Browser visual review is separate.`);

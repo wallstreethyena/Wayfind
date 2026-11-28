@@ -111,7 +111,7 @@ export default function GuidesHub() {
               </div>
             </a>
               {imageCaption || art?.credit || art?.license ? <div className={styles.imageNote}>
-                {imageCaption ? <p className={styles.cardCaption}>{imageCaption}{art.modificationNotice ? " Resized; display crop. Source license retained." : ""}</p> : null}
+                {imageCaption ? <p className={styles.cardCaption}>{imageCaption}{art.fullFrame ? " Full frame. Source license retained." : art.modificationNotice ? " Resized; display crop. Source license retained." : ""}</p> : null}
                 {art?.credit || art?.license ? <p className={styles.credit}>
                   {art.credit ? <PhotoCreditLink href={art.source}>Image: {art.credit}</PhotoCreditLink> : null}
                   {art.credit && art.license ? " · " : ""}

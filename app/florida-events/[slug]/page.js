@@ -63,6 +63,8 @@ import { isEmbeddable } from "../../../lib/videoEmbed";
 import { loadEventDetailPhotos } from "../../../lib/placeDetailGallery.js";
 import { eventRailPhotoCredit } from "../../../lib/christmasPlacePhotos.js";
 import PhotoCreditLink from "../../components/PhotoCreditLink.js";
+import { EventFieldArticle } from "../../components/FloridaFieldArticle";
+import { STRAWBERRY_FESTIVAL_ARTICLE } from "../../../lib/floridaFieldArticles.js";
 import SnowcatTicketExplainer from "../../components/SnowcatTicketExplainer.js";
 import { isSnowcatTicketPage, SNOWCAT_PLACE_ID } from "../../../lib/snowcatTickets.js";
 import NewsletterSignup from "../../components/NewsletterSignup";
@@ -105,12 +107,13 @@ export async function generateMetadata({ params }) {
   }
   // Search title leads with the date and "Free" when entry is free (SEO engine
   // 2026-11-20, lib/eventSeoTitle.js). Facts from the row only.
-  const title = eventSeoTitle(e);
+  const article = e.slug === STRAWBERRY_FESTIVAL_ARTICLE.slug ? STRAWBERRY_FESTIVAL_ARTICLE : null;
+  const title = article?.seoTitle || eventSeoTitle(e);
   // 2026-11-27 (owner): an event with no card hook leads its search snippet with
   // the stored why-go blurb (lib/eventWhyGo.js, cache read only, never a model call).
   const aiWhyGo = e.card_hook ? null : await readWhyGo(e);
   // A watchlist twin (2026 not confirmed) never "runs" on any date.
-  const desc = (e.christmas_watchlist
+  const desc = article?.description || (e.christmas_watchlist
     ? `${e.event_name} in ${e.city}: ${e.when_label}. ${e.card_hook || ""} Wayfind checks the official page and updates this listing.`
     : `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}.${eventIsFree(e) ? " Free entry." : ""} ${e.card_hook || aiWhyGo || ""} Wayfind's verdict, timing, parking and what to pair it with.`).trim();
   // THE SHARE CARD (v9, owner 2026-09-23: "everything on wayfind that is
@@ -609,6 +612,7 @@ export default async function CuratedEventPage({ params }) {
         />}
       />
       </EventHeroPhotoProvider>
+      {e.slug === STRAWBERRY_FESTIVAL_ARTICLE.slug ? <EventFieldArticle article={STRAWBERRY_FESTIVAL_ARTICLE} /> : null}
 
       {/* A Fall card that names a creator must pay that promise off before the
           map and nearby recommendations. The map can be more than a viewport

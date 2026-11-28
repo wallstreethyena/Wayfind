@@ -436,6 +436,7 @@ import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES, evergreenLinksForTown } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
+import { FieldGuideArticle } from "../../components/FloridaFieldArticle";
 import { ssrPartnerInventory } from "../../../lib/landingRails";
 import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
 // Event guides reuse the ONE event "where" block (map, route, numbered nearby
@@ -483,16 +484,16 @@ export async function generateMetadata({ params }) {
   // route's own cache-selection comment in app/api/og/hero/route.js.
   const heroV = art && art.kind !== "unavailable" && art.reviewedAt
     ? "&v=" + encodeURIComponent(art.reviewedAt + "." + HERO_CARD_DESIGN_V) : "";
-  const heroUrl = `${SITE_URL}/api/og/hero?kind=guide&id=${encodeURIComponent(params.slug)}&t=${encodeURIComponent(g.title)}&cat=Guide&loc=${encodeURIComponent(g.region || "")}${heroV}`;
+  const heroUrl = `${SITE_URL}/api/og/hero?kind=guide&id=${encodeURIComponent(params.slug)}&t=${encodeURIComponent(g.shareTitle || g.title)}&cat=Guide&loc=${encodeURIComponent(g.region || "")}${heroV}`;
   const indexable = !isGuidePast(g) && !guideAwaitingPhotos(params.slug, g);
   return {
-    title: `${g.title} | Wayfind`,
+    title: `${g.seoTitle || g.title} | Wayfind`,
     description: g.description,
     keywords: g.relatedKeywords || (g.keyword ? [g.keyword] : undefined),
     alternates: { canonical: url },
     robots: { index: indexable, follow: true, googleBot: { index: indexable, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
-    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: heroUrl, width: 1200, height: 630, type: "image/jpeg", alt: `${g.title} on Wayfind` }] },
-    twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [heroUrl] },
+    openGraph: { title: g.seoTitle || g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: heroUrl, width: 1200, height: 630, type: "image/jpeg", alt: `${g.title} on Wayfind` }] },
+    twitter: { card: "summary_large_image", title: g.seoTitle || g.title, description: g.description, images: [heroUrl] },
   };
 }
 
@@ -537,6 +538,7 @@ export default async function GuidePage({ params }) {
   // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
   if (!g) notFound();
+  if (g.fieldArticle) return <FieldGuideArticle slug={params.slug} guide={g} />;
   // Picks with no registered photo stay in the record and off the page
   // (owner, 2026-11-23). They must not render "Photo unavailable".
   const shippingPicks = (Array.isArray(g.picks) ? g.picks : [])
