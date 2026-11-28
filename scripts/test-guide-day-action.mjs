@@ -60,10 +60,10 @@ ok(scopedGuideBodyCta(badFooter, input(armands).shippingPicks, armands)?.href.in
 ok(scopedGuideBodyCta(badFooter, input(cuban).shippingPicks, cuban)?.href.includes("ChIJz8e7TVLEwogRBeybvscHnD4"), "Tampa article directions retain the exact Tampa Columbia branch");
 ok(!scopedGuideBodyCta(badFooter, input("best-restaurants-disney-springs").shippingPicks, "best-restaurants-disney-springs"), "an unrelated restaurant footer destination fails closed");
 
-const generic = src("app/guides/[slug]/page.js"), standard = src("app/components/GuideStandardShell.js"), hero = src("app/components/GuideArticleHero.js");
+const generic = src("app/guides/[slug]/page.js"), standard = src("app/components/GuideStandardShell.js"), hero = src("app/components/EventDetailShell.js"), frame = src("app/components/EditorialStandard.js");
 const index = src("app/guides/page.js"), sitemap = src("app/sitemap.js");
 ok(generic.includes("primaryAction={dayAction ? <GuideDayAction") && standard.includes("primaryAction={action ? <GuideDayAction") &&
-  hero.indexOf("{primaryAction}") > hero.indexOf("<h1") && hero.indexOf("{primaryAction}") < hero.indexOf("{introduction ?"), "mounted before the longer intro in both production frames");
+  frame.includes("quickAction={(primaryAction || quickChoices) ? <>{primaryAction}{quickChoices}</> : null}") && hero.indexOf("{quickAction ?") > hero.indexOf("<h1") && hero.indexOf("{quickAction ?") < hero.indexOf("{story ?"), "mounted before the longer intro in both production frames");
 ok(generic.includes("past || guideEventOfferEnded(params.slug, g.eventTicket) || unavailableFor(g.eventTicket)"), "the body cannot revive the expired holiday ticket either");
 ok(generic.includes('id="guide-plan-options"') && generic.includes("primaryPromoted={dayAction?.promoted"), "real anchor required and same money anchor not repeated at the footer");
 ok(index.includes('href="https://blog.gowayfind.com/">Read the Wayfind Blog'), "main guide index has one crawlable editorial path to the blog");
