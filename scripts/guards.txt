@@ -2798,6 +2798,8 @@ node scripts/test-primary-cta-gap.mjs
 node scripts/test-indexnow.mjs
 # 2026-11-23 SEO engine: Sarasota guide and Christmas hub headlines carry the searched words, real picks only.
 node scripts/test-seo-money-headlines.mjs
+# 2026-11-28 SEO engine: the Florida boat parade hub links every live Wayfind boat parade page, read from wf_events, failing closed.
+node scripts/test-guide-event-links.mjs
 # 2026-11-23 Group Vote overhaul: site-wide share prefill, Wayfind IP suggestions + experiences (1-5), optional Santa AI, 1-tap group link + compliant first-party Twilio SMS, Wayfind native theme (no purple), and vote history deletion.
 node scripts/test-group-vote-overhaul.mjs
 # 2026-11-23 Card photo delivery: wf_inventory signals.photo_gallery serves exact-place photos with license/venue credit and zero Google spend.
