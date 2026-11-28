@@ -1091,13 +1091,13 @@ ok(html.includes("data-christmas-filter") && html.includes(">Filters<") && html.
     const failed = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async () => { throw new Error("down"); }, readGoogle: async () => { throw new Error("down"); }, readVault: async () => { throw new Error("down"); } });
     ok(failed.cards.length === 2 && renderToStaticMarkup(createElement(Card, { card: failed.cards[0], rank: 1, today: TODAY })).includes('class="xm-card"'), "a failed photo read still renders the card with its own photo");
   }
-  // theme, snow and lights source rules. The field, doodles and garland
+  // theme, snow and lights source rules. The field, doodles, snow and garland
   // moved to lib/christmasBackdrop.js and app/components/ChristmasDecor.js so
   // the rest of the site paints the same art. The assertions follow that code.
   const shell = strip(read("app/components/ChristmasTickets.js"));
   const decor = strip(read("lib/christmasBackdrop.js") + "\n" + read("app/components/ChristmasDecor.js"));
   const theme = shell + "\n" + decor;
-  ok(/w < 720 \? 36 : 70/.test(shell) && /visibilitychange/.test(shell) && /prefers-reduced-motion: reduce/.test(shell) && /aria-hidden="true" data-xm-snow/.test(shell), "snow: 36 flakes on a phone, 70 on desktop, pauses on a hidden tab, still frame for reduced motion, aria-hidden");
+  ok(/w < 720 \? 36 : 70/.test(decor) && /visibilitychange/.test(decor) && /prefers-reduced-motion: reduce/.test(decor) && /aria-hidden="true" data-xm-snow/.test(decor) && /<ChristmasSnow \/>/.test(shell), "snow: 36 flakes on a phone, 70 on desktop, pauses on a hidden tab, still frame for reduced motion, aria-hidden");
   ok(/#FF4458/.test(decor) && /#3DDC84/.test(decor) && /#FFC94A/.test(decor) && /#4DA3FF/.test(decor) && /#FF7AC8/.test(decor) && /xm-chase/.test(decor) && /xm-alt/.test(decor) && /xm-twinkle/.test(decor), "lights: red, green, gold, blue and pink bulbs with chase, alternate and twinkle sequences");
   ok(/#FF8A3D/.test(decor) && !/#B98CFF/i.test(theme) && !/#6A3FC2/i.test(theme), "the seventh bulb is amber; a purple bulb is not on the strand");
   const kf = [...decor.matchAll(/@keyframes (xm-(?:twinkle|chase|alt|bloom|sparkle))\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
