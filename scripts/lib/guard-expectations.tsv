@@ -471,7 +471,7 @@ scripts/check-social-provider-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	
 scripts/check-social-qualification.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	934766bf5b6476c28a535634d851b6a2bd4d91e2b1176f2c6b956327cc947113
 scripts/check-soft-404.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	4ff2f18137ee39e902f6829384ca91eb8000b8af655f952d72e1a0d665a13536
 scripts/check-spend-effective-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	11	1	3	f7bf12fa0f2929101500ba8c301fa1545884da68536b3466ad76f90840b0a56b
-scripts/check-spend-guard.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	22	1	0	6a3535b43ffd946ccf5d9d843483d35e9526fc9390d139e365c2b47327440f39
+scripts/check-spend-guard.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	24	1	0	8cecf2e570c44677b9d21588e89a063e8ae5d110ff82b05f3df071a88bd0258f
 scripts/check-sponsored-places.mjs	0	RENDER	blocks-ci-and-deploy	1	-	242	0	0	98353beb367a78461a6fc1e0129dfbd4d01d6bb28ec38f5efc11299bbd023d1a
 scripts/check-spooky-skin.mjs	0	RENDER	blocks-ci-and-deploy	1	-	121	0	0	cb1bd6008a2eb80752f2fa3e6dfa9e65549d86ddc24bcc8da72a91c55507c8ae
 scripts/check-state-affordance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	128c6c78e702d511f4ebbead87ce144bcbd949dbaf15ed4a486a23a3aa7664a5
@@ -822,7 +822,7 @@ scripts/test-frontier-moment-decisions.mjs	0	RENDER	blocks-ci-and-deploy	1	-	120
 scripts/test-function-size-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	c83c9bc6522c0e4af594dea24e79007427e29eafd104838a06dc33f153f52280
 scripts/test-game-plan-and-entity-resolution.mjs	0	RENDER	blocks-ci-and-deploy	1	-	48	0	0	0d04317a18105a1ea8ff1b56cbb23ee984c14b4eccb419d60e2c0fde36556d7d
 scripts/test-game-plan.mjs	0	RENDER	blocks-ci-and-deploy	1	-	82	0	0	73bf832e9760e0a1e0336d5213903d43d32770f50fc65a0fdf41e4df8f4c2e39
-scripts/test-gemini-florida-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	71	0	0	6523d07bb52ddaed869425eeef676edc79204218d532ac308b4a7887ee0ee5e3
+scripts/test-gemini-florida-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	83	0	0	0f2b9f948da17bd8a9ecaaa7f6a39c51ffeb023e57187d9e90119691404d1c68
 scripts/test-geocode-owned-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	38f6ae5c295717398225347a4156cc75ad1bb38b4f166bf64176b0bb04179b0b
 scripts/test-global-share-entrypoints.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	60375cbb4391fae7b6aedb73012b864f74f38e4218db4128cb88037f20842270
 scripts/test-google-daily-quota-breaker.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	c5629486e614473b98f257a68333170ca063de597c8fe4a09290145753235780
@@ -1177,9 +1177,9 @@ scripts/test-search-experience.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	0d6d5e
 scripts/test-search-food-synonyms.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	964a78f80fa21292939cd45a6dfa6a59076eed623e7b55bbe42b599bce8e5ffc
 scripts/test-search-free-modifier.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	585dd976468b1a1f7c0c3e99ccfbb0f74254c68c67d7dea67c9cea43b9c8d2dc
 scripts/test-search-moment-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	269bde11722cf2563f4ab39c13ab47110a81f9db43052f0ff185587dd95ba5c4
-scripts/test-search-nearby-first.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	0ab81c88235eef4b6e8bb480f45e5a8ce3ef24e686762dc07fc8ea68f55d610e
+scripts/test-search-nearby-first.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	93cb20c5652a94f749c91a7b97721066bf8deee80caa26c70f0a25074823e736
 scripts/test-search-sku-accounting.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	19b998eb08ec428ea56f3137cd0f00dedce5308bb7df386a17c1e42e54f258e5
-scripts/test-search-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	ed61c752776b709409dce65a5ff471f85b067142c494dec7f56380c85ac5c787
+scripts/test-search-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	b8723d3a87306955abc0f28f1b33dae807ea1939384f957edcee05bfcb8dd7f9
 scripts/test-search-understand-backup.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	89c807f1a3e5fab7c9789dab727782d6992b6f8585b79ce91bfbe2eaa90a321a
 scripts/test-search-vibes.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	496f7f71aee992d3540adf1e9a397dd868c0c04396b346c5b553d0ec12dc9f19
 scripts/test-searched-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8c6625375e2336d081a5ad4cd2659a6886cca7cbd95f0b10401e0daa4b1d1313

@@ -301,15 +301,23 @@ const paidGeminiProbe = (env) => {
       throw new Error("unexpected network target: " + target);
     };
     const { paidGeminiRequest } = await import("./lib/paidGemini.js");
+    const { CARBON_EDITORIAL_LANE, CARBON_EDITORIAL_MODEL } = await import("./lib/geminiEditorialPolicy.js");
     const kind = process.env.PROBE_KIND;
+    const carbon = kind?.startsWith("carbon_");
     const body = kind === "bad_shape"
       ? { contents: [], generationConfig: { maxOutputTokens: 100 } }
       : { contents: [{ role: "user", parts: [{ text: kind === "oversize" ? "x".repeat(65_537) : "test" }] }], generationConfig: { maxOutputTokens: kind === "bad_max" ? 4097 : 100 } };
+    if (kind === "carbon_bytes") body.contents[0].parts[0].text = "x".repeat(12_288);
+    if (kind === "carbon_tokens") body.generationConfig.maxOutputTokens = 3201;
+    if (kind === "carbon_candidates") body.generationConfig.candidateCount = 2;
+    if (kind === "carbon_tools") body.tools = [{ googleSearch: {} }];
+    const lane = carbon && kind !== "carbon_default" ? { ...CARBON_EDITORIAL_LANE } : undefined;
+    if (kind === "carbon_cap") lane.cap++;
     const response = await paidGeminiRequest({
-      model: kind === "bad_model" ? "gpt-4o" : "gemini-2.5-flash",
+      model: carbon ? CARBON_EDITORIAL_MODEL : kind === "bad_model" ? "gpt-4o" : "gemini-2.5-flash",
       apiKey: "AIzaTestKeyValue0000000000000000000000",
       body,
-    });
+    }, lane);
     console.log(JSON.stringify({ status: response.status, calls }));
   `;
   const result = spawnSync(process.execPath, ["--input-type=module", "-e", code], {
@@ -320,6 +328,12 @@ const paidGeminiProbe = (env) => {
   return JSON.parse(result.stdout.trim());
 };
 const gemEnv = { SUPABASE_URL: "https://ledger.test", SUPABASE_SERVICE_ROLE_KEY: "test-service-key", GEMINI_MONTHLY_REQUEST_CAP: "120" };
+for (const kind of ["carbon_default", "carbon_cap", "carbon_bytes", "carbon_tokens", "carbon_candidates", "carbon_tools"]) {
+  const blockedCarbon = paidGeminiProbe({ ...gemEnv, PROBE_KIND: kind, WAYFIND_GATE: "open", LEDGER: "true" });
+  ok(blockedCarbon.status === 400 && blockedCarbon.calls.length === 0, `paid Gemini: ${kind} never reaches ledger or provider`);
+}
+const carbonOk = paidGeminiProbe({ ...gemEnv, PROBE_KIND: "carbon_ok", WAYFIND_GATE: "open", LEDGER: "true" });
+ok(carbonOk.status === 200 && carbonOk.calls.length === 2 && carbonOk.calls[1].target.endsWith("/gemini-4-carbon:generateContent"), "paid Gemini: valid bounded editorial Carbon reaches the provider");
 ok(paidGeminiProbe({ ...gemEnv, PROBE_KIND: "bad_shape", LEDGER: "true" }).status === 400, "paid Gemini: malformed contents blocks before ledger");
 ok(paidGeminiProbe({ ...gemEnv, PROBE_KIND: "bad_model", LEDGER: "true" }).status === 400, "paid Gemini: non-gemini model blocks before ledger");
 ok(paidGeminiProbe({ ...gemEnv, PROBE_KIND: "bad_max", LEDGER: "true" }).status === 400, "paid Gemini: maxOutputTokens above ceiling blocks before ledger");
