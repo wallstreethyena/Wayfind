@@ -30,6 +30,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { eventPairings, pairingHref } from "../lib/eventPairings.js";
+import { classifyEvent, fillOutingSlots, outingCacheKey } from "../lib/eventOuting.js";
+import { parkOutingPolicy, parkOutingPosition } from "../lib/eventParkAccess.js";
 import {
   createCachedEventPairings,
   EVENT_PAIRINGS_CACHE_KEY,
@@ -57,6 +59,48 @@ const mkRow = (i, { dLat = 0.002, primaryType = "restaurant", types } = {}) => (
 // Only the "food" ring is fed, so a stub is enough; the other cats return [].
 const stub = (rows) => async (url) => ({ ok: true, json: async () => (String(url).includes("category=eq.food") ? rows : []) });
 const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
+
+const EPCOT_EVENT = { event_id: "epcot-festival-holidays-2026", place_id: "ChIJGzFs3q9_3YgRvZd1y2NSJOo", lat: 28.3747, lng: -81.5494, audience: ["families"] };
+const MICKEY_EVENT = { event_id: "mnsshp-2026", place_id: "ChIJgUulalN-3YgRGoTaWM2LawY", lat: 28.4177, lng: -81.5812, audience: ["families"], start_time: "19:00" };
+{
+  // Coordinates from identified owned venues; deliberately neutral fixture
+  // names and IDs ensure neither the position nor the label depends on a name.
+  const epcot = parkOutingPolicy(EPCOT_EVENT.event_id);
+  const magic = parkOutingPolicy(MICKEY_EVENT.event_id);
+  const point = (lat, lng) => ({ id: "fixture", name: "Ordinary place", lat, lng });
+  for (const [lat, lng] of [[28.3735297, -81.5467623], [28.3715732, -81.547478], [28.3718849, -81.5472193], [28.3704824, -81.5518782], [28.374021, -81.5525481]]) {
+    ok(parkOutingPosition(epcot, point(lat, lng)) === "inside", "Space 220 and the reported EPCOT pavilions and rides have inside positions");
+  }
+  for (const [lat, lng] of [[28.4193576, -81.5811934], [28.4194726, -81.5846579], [28.41799, -81.58336], [28.4183892, -81.5796832]]) {
+    ok(parkOutingPosition(magic, point(lat, lng)) === "inside", "the identified castle, lands and theater have inside positions at Magic Kingdom");
+  }
+  ok(parkOutingPosition(epcot, point(28.378397, -81.548224)) === "outside" && parkOutingPosition(epcot, point(28.371274, -81.5571201)) === "outside", "the EPCOT visitor lot and Beaches & Cream are outside even though the old 900 metre circle encloses both");
+  ok(parkOutingPosition(epcot, point(28.368861, -81.5544334)) === null && parkOutingPosition(epcot, point(NaN, -81.55)) === null, "an edge pin or missing coordinate cannot establish access");
+  ok(parkOutingPosition(epcot, point(28.3575, -81.5583)) === null && parkOutingPosition(epcot, point(28.3656, -81.529)) === null, "stops inside another theme or water park cannot be promoted as outside alternatives");
+
+  for (const [event, inside, outside, expectedSlots, admission] of [
+    [EPCOT_EVENT, point(28.3735297, -81.5467623), point(28.371274, -81.5571201), ["lunch_before", "breakfast_before", "ice_cream_after", "park_time_after"], "Park admission required"],
+    [MICKEY_EVENT, point(28.4193576, -81.5811934), point(28.405792, -81.58436), ["dinner_before", "ice_cream_after", "dessert_cafe_after"], "Separate party ticket required during the event"],
+  ]) {
+    const ctx = classifyEvent(event);
+    const types = ["restaurant", "bakery", "ice_cream_shop", "park", "coffee_shop", "tourist_attraction"];
+    const candidates = types.flatMap((primaryType, i) => [inside, outside].map((p, j) => ({
+      ...p, id: `fixture-${i}-${j}`, primaryType, types: [primaryType], governed_score: j ? 78 : 97, distMi: j ? 1.45 : 0.15,
+    })));
+    candidates.push({ ...candidates[0], id: event.place_id }, { ...candidates[0], id: "edge", lat: 28.368861, lng: -81.5544334 });
+    const picks = fillOutingSlots(ctx, candidates, { max: 12, photoWorthy: false });
+    const outdoor = new Set(picks.filter((p) => p.outing.parkPosition === "outside").map((p) => p.outing.slotKey));
+    ok(expectedSlots.every((key) => outdoor.has(key)), "each eligible core slot keeps its own outside choice, including in the bounded wider ring: " + event.event_id);
+    const retained = picks.filter((p) => p.outing.parkPosition === "inside");
+    ok(retained.length > 0 && retained.every((p) => p.rankingNote.includes(admission) && p.outing.slotLabel.includes(admission)), "kept inside cards and map pins state this event's actual ticket rule");
+    ok(picks.every((p) => p.id !== event.place_id && p.id !== "edge" && !/\b(before|after|open|included)\b/i.test(p.outing.slotLabel) && p.outing.timing === "visit"), "a park pick cannot repeat the venue or promise opening before or after the event");
+    const namedElsewhere = classifyEvent({ ...event, place_id: "unrelated-hall" });
+    const otherAtVenue = classifyEvent({ ...event, event_id: "unrelated-show" });
+    ok(!namedElsewhere.parkEvent && !otherAtVenue.parkEvent && outingCacheKey(ctx) !== outingCacheKey(otherAtVenue), "both stored identities are necessary and admission-specific outcomes have a distinct cache identity");
+    const controls = fillOutingSlots(otherAtVenue, candidates, { max: 12, photoWorthy: false });
+    ok(controls.every((p) => !p.outing.parkPosition) && controls.some((p) => p.outing.timing === "after"), "the same pool at an ordinary event preserves its existing timing and copy");
+  }
+}
 
 // 1. A healthy set builds cards, excludes the event's own venue, scores each
 //    place with THE Wayfind Score, and is stamped with the outing engine's
@@ -219,7 +263,7 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
   await cached({ ...base, segment: "Music" });
   await cached({ ...base, category: "food", subcategory: "food-festival" });
 
-  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v11", "event pairings use a fresh versioned Data Cache namespace");
+  ok(configs.length === 1 && configs[0].keyParts[0] === EVENT_PAIRINGS_CACHE_KEY && EVENT_PAIRINGS_CACHE_KEY === "event-pairings-v12", "event pairings use a fresh versioned Data Cache namespace");
   ok(configs[0].options.revalidate === EVENT_PAIRINGS_REVALIDATE_SECONDS && EVENT_PAIRINGS_REVALIDATE_SECONDS === 3600, "the pairing cache and parent ISR page share a one-hour lifetime");
   ok(!escapedBoundary, "every exhaustive pairing load executes inside the Data Cache boundary");
   ok(loads.length === 7, `identical inputs (and fields classifyEvent does not read) coalesce, while lat, lng, city, venue identity, AND classification each split the cache (got ${loads.length} loads)`);
@@ -229,6 +273,12 @@ ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfi
   const atVenue = loads.filter(({ event }) => event.lat === base.lat && event.lng === base.lng && event.city === base.city && event.place_id === base.place_id);
   const archetypesAtVenue = new Set(atVenue.map(({ event }) => event.outing && event.outing.archetype));
   ok(atVenue.length === 3 && archetypesAtVenue.size === 3, `a concert and a food festival at the SAME venue coordinates each earn their own cache entry (got archetypes: ${[...archetypesAtVenue].join(", ")})`);
+  const beforePark = loads.length;
+  await cached(EPCOT_EVENT);
+  await cached({ ...EPCOT_EVENT, event_id: "ordinary-event-at-same-venue" });
+  await cached(EPCOT_EVENT);
+  ok(loads.length === beforePark + 2 && loads[beforePark].event.outing.parkEvent === EPCOT_EVENT.event_id && !loads[beforePark + 1].event.outing.parkEvent,
+    "identical park requests coalesce while a different event at the same coordinates and with the same archetype cannot inherit its admission policy");
 }
 
 // A rejected load must stay outside the cache while the page remains fail-soft;

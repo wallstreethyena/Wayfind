@@ -103,6 +103,17 @@ assert.match(outingRailHtml, /Nightcap/, "a second row keeps its own slot's rank
 
 assert.doesNotMatch(outingRailHtml, /[0-9.]+ mi from the venue/, "place cards never display venue-origin miles as the user distance");
 
+const parkCopy = { railTitle: "Places in and around EPCOT", railNote: "Check each venue’s entry requirements and schedule for your visit." };
+const parkHtml = renderToStaticMarkup(createElement(EventNearbyCards, { places: [
+  outingPlace("ChIJParkFixture0001", "First fixture", 1, { ...parkCopy, parkPosition: "inside" }, "Inside EPCOT · Park admission required"),
+  outingPlace("ChIJParkFixture0002", "Second fixture", 2, { ...parkCopy, parkPosition: "outside" }, "Dessert · Outside EPCOT"),
+] }));
+assert.match(parkHtml, /Inside EPCOT · Park admission required/, "inside admission copy survives the shared place card and distance formatter");
+assert.match(parkHtml, /Dessert · Outside EPCOT/, "the outside alternative keeps its purpose and gate context on the actual card");
+assert.match(parkHtml, /href="https:\/\/www.openstreetmap.org\/copyright"[^>]*>Map data © OpenStreetMap contributors/, "park geography credits the reusable source next to the results");
+assert.match(parkHtml, /href="\/data\/event-park-footprints.json"/, "the derived geographic dataset is available in the same publicly credited rail");
+assert.doesNotMatch(outingRailHtml, /Park boundaries|OpenStreetMap contributors/, "the control outing keeps its original presentation");
+
 // One ordered admission result feeds both map and rail. Reject every row that
 // would create a false pin, an unscored card, a dead card, or a fake distance.
 const invalid = [
@@ -174,7 +185,7 @@ assert.match(railHtml, /Nearby picks by Wayfind Score/, "compact copy retains th
 assert.doesNotMatch(whereHtml, /Worth a stop near|Separate places, not part/, "verbose duplicate heading does not return");
 assert.equal(renderToStaticMarkup(createElement(EventPlaceRail, { title: "Empty", count: 0 })), "", "empty rails are hidden");
 
-console.log("test-event-nearby-cards: OK — 44 assertions across the real EventWhere, EventNearbyCards, and IconicPlaceCard render chain; positive rail/actions, outing-engine rail copy, and negative pin-card admission verified");
+console.log("test-event-nearby-cards: OK — 49 assertions across the real EventWhere, EventNearbyCards, and IconicPlaceCard render chain, including park admission and map-data attribution");
 
 Module._extensions[".js"] = defaultJsLoader;
 Module._load = defaultModuleLoad;

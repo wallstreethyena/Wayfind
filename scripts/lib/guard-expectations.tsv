@@ -163,7 +163,7 @@ scripts/check-event-hero-and-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0
 scripts/check-event-jsonld-offset.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0	1ebe6723acd038f7c22e0cef9d060533e56c52de42a3f441d407d85c42e3e5ff
 scripts/check-event-not-found-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	5386a52906e6e458ee0dcda6467cb4e139c8504905228ec1e791550edfb089f0
 scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	229	0	0	32e739e5a6a3a7b786766ccefe928655f34e56b128484ec98e19852cd67eb113
-scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	52dd1b51f0a54a5909927ba63b4b4b75da2f102461575638b20bab12f05b89a1
+scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	85	0	0	e513e692294b3fff8e7d18dddd229bbfcee40df4271edcb77088043185ef49dc
 scripts/check-event-photo-honesty.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	d4b22cdc881a106bdbd88e0f0a03678073c6f2d44ec4025f1537f6647a830d30
 scripts/check-event-photo-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	30b2133b0aaa364cfc7012c1b67b11dad94f5feee8e7b9f30857f1db4c239632
 scripts/check-event-price-fact.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	a07df857eada06cf050c0d2ce8fd85f563e4e637caef7b0a195dad6ff877c384
@@ -745,7 +745,7 @@ scripts/test-event-experience.mjs	0	RENDER	blocks-ci-and-deploy	1	-	64	0	0	5022d
 scripts/test-event-hero-credited-photo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	92	0	0	89b59c241804efcf3eeb831aa8aa0fd62955b838fd53894e8e9407a662853349
 scripts/test-event-hero-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	b331c0bbdb5e0259a55e8f2ed6a693d0dd4fafb5fea59aaf53b69d2a24c39289
 scripts/test-event-mobile-repair.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	f135c76c61c0bef452e306a6b37e5318bc387478fc36b5d476b3932dab1f5808
-scripts/test-event-nearby-cards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	4ad4928c8d0332bcdf8a64a9591dc12061995530f76ad8dc8b2fd8be5d07fa30
+scripts/test-event-nearby-cards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	c9ebe2c85c82d95a1a27e87193d9d36deeb4bb7d0f5fd88adbc3e293dabcf316
 scripts/test-event-page-static-reads.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	7e6304f197580b046b1f6a2dfd12190ad0cb9de44b586828bc39701e68035aa9
 scripts/test-event-popularity.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	70b657c3f0d36745ac252836d0e6ee95b77c1c9579ed5b0e9225360a4bfed0a6
 scripts/test-event-poster.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	a9d0ea03a5d986319eb2af394e2ce036bed223be362e3142bfbfcd6cf998dda4
