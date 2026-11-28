@@ -12,6 +12,7 @@
 //      and strict independence from `wayfindScore`.
 
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -53,6 +54,27 @@ import { cardToEditorial } from "../lib/atlasCards.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
+const photoBackfillMode = process.argv[2];
+if (!photoBackfillMode) {
+  for (const mode of ["off", "on"]) {
+    const run = spawnSync(process.execPath, [process.argv[1], mode], {
+      stdio: "inherit",
+      env: {
+        NODE_ENV: "production",
+        VERCEL_ENV: "production",
+        WAYFIND_GATE: "shut",
+        WAYFIND_PHOTOS_BACKFILL: mode === "on" ? "1" : "0",
+        GOOGLE_PHOTOS_BACKFILL_CAP: "1",
+        GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
+        GOOGLE_PHOTOS_BACKFILL_PER_HOUR: "1",
+      },
+    });
+    if (run.error) throw run.error;
+    if (run.status !== 0) process.exit(run.status ?? 1);
+  }
+  process.exit(0);
+}
+assert.ok(["off", "on"].includes(photoBackfillMode), "backfill fixture mode must be off or on");
 
 let assertions = 0;
 function ok(cond, msg) {
@@ -447,34 +469,17 @@ function eq(a, b, msg) {
       findFree: async () => null,
     },
   };
-  const enabled = {
-    WAYFIND_PHOTOS_BACKFILL: "1",
-    GOOGLE_PHOTOS_BACKFILL_CAP: "1",
-    GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
-    VERCEL_ENV: "production",
-  };
-  const saved = Object.entries(enabled).map(([key]) => [key, process.env[key]]);
   mock.timers.enable({ apis: ["Date"], now: new Date("2026-11-28T02:00:00Z") });
   try {
-    process.env.WAYFIND_PHOTOS_BACKFILL = "0";
     const dropped = await dropUnservableCardPhotos(legacy, deps);
-    eq(dropped.image, null, "Unservable wfplacediscovery card image is dropped before render");
-    ok(dropped.placeholder && dropped.placeholder.label, "Card receives designed placeholder tile instead of emitting a 404 image request");
-    eq((await dropUnservableCardPhotos(cover, deps)).image, null, "Switching off backfill also drops the unservable place-based cover");
-
-    Object.assign(process.env, enabled);
-    const stillDropped = await dropUnservableCardPhotos(legacy, deps);
-    eq(stillDropped.image, null, "Backfill never retains a legacy pseudo-ref that the photo endpoint cannot backfill");
-    ok(stillDropped.placeholder?.label, "The pseudo-ref falls back to the designed tile while backfill is enabled");
-    const kept = await dropUnservableCardPhotos(cover, deps);
-    eq(kept.image, cover.image, "The eligible place-based cover is retained while backfill is enabled");
-    eq(kept.placeholder, cover.placeholder, "The retained cover keeps its designed fallback tile");
+    eq(dropped.image, null, `The unservable legacy pseudo-ref is dropped with backfill ${photoBackfillMode}`);
+    ok(dropped.placeholder?.label, "The legacy pseudo-ref falls back to the designed tile");
+    const result = await dropUnservableCardPhotos(cover, deps);
+    eq(result.image, photoBackfillMode === "on" ? cover.image : null,
+      `The eligible place-based cover respects backfill ${photoBackfillMode}`);
+    eq(result.placeholder, cover.placeholder, "The eligible cover keeps its designed fallback tile");
   } finally {
     mock.timers.reset();
-    for (const [key, value] of saved) {
-      if (value === undefined) delete process.env[key];
-      else process.env[key] = value;
-    }
   }
 }
 
@@ -715,4 +720,4 @@ function eq(a, b, msg) {
   eq(parseMonthBoundedSchedule("Summer Hours: 9 a.m. - 6 p.m., Thursdays: 9 a.m. - 8 p.m."), null, "Unbounded Summer Hours string does not fabricate month bounds");
 }
 
-console.log(`test-owned-place-truth-frontier: ${assertions} assertions OK`);
+console.log(`test-owned-place-truth-frontier: ${assertions} assertions OK, cover backfill ${photoBackfillMode}`);
