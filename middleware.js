@@ -131,6 +131,9 @@ export const config = {
     // Santa's Christmas ticket chat: same gate as Bo (shared Anthropic gate in
     // lib/paidAi.js), full same-origin + per-IP guard.
     "/api/santa-chat",
+    // Insider-tips homepage mockup (2026-11-27, noindex preview): one capped Gemini
+    // lane per question; same-origin + per-IP limit like the other AI routes.
+    "/api/preview/insider-tips",
     // Reserve a table chat: same shared Anthropic gate as Santa (lib/paidAi.js),
     // full same-origin + per-IP guard. Signed in users only (the route verifies).
     "/api/reserve-chat",

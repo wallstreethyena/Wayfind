@@ -2872,4 +2872,6 @@ node scripts/test-seo-audit-entity.mjs
 node scripts/test-events-hub-not-prerendered.mjs
 node scripts/test-florida-hub-links.mjs
 node scripts/test-event-ticket-first-screen.mjs
+# Insider-tips homepage mockup (2026-11-27, noindex preview): AI rewrites never add facts; capped Gemini lane; fallbacks; guard wiring.
+node scripts/test-insider-tips-preview.mjs
 node scripts/test-guide-map-pin-reveal.mjs
