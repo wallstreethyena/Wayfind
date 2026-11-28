@@ -839,7 +839,7 @@ scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	139	0	0	d6ba7e8060ff
 scripts/test-group-vote-ballot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	168	0	0	e8c0165a04d6ff818e3d10f6c4e89c23c0967acec8a1db8fd4328194bf54477a
 scripts/test-group-vote-frame.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	6656a6b7662600b0037bd5cc4bb8b1a34ba7b70aecf2620e495ac48051a84367
 scripts/test-group-vote-keep-place.mjs	0	RENDER	blocks-ci-and-deploy	1	-	76	0	0	596ccac21fb88e3275cc802b6a74b34969b6a9c286957a8a29a1dd8fdfdd7de4
-scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	194	0	0	8385835f396ec7061fe2c3a38766c00fed76e8fd55a1e01b160abcfbfedabb7c
+scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	226	0	0	02510181c0629d85e1baedceff368021739692f69d07ca97de8870f5ca44b5af
 scripts/test-group-vote-overhaul.mjs	0	RENDER	blocks-ci-and-deploy	1	-	67	0	0	2bc09ebf34e63e152610198c821724b9bc1c774262520e068c0fe7c5f88b6ea2
 scripts/test-group-vote-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	-	57	0	0	5106470cfbf6c6f3231d6823ade1ef54396405b3df0d77e481ebd612468b98a1
 scripts/test-guard-shards.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	3a4ae5e50aa2dd75c86f1f8a55d5d4b6be34d45a9da2dcb2947e7daefd50e6ed
