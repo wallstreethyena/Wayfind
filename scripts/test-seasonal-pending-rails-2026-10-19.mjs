@@ -4,6 +4,8 @@
 // must not become a card.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mock } from "node:test";
 import { SEASONAL_LIVE_AREA_PENDING_2026_10_19 } from "../lib/seasonalLiveAreaPending20261019.js";
 import {
   droppedSeasonalPending,
@@ -19,6 +21,29 @@ import { isFallEvent } from "../lib/fallPool.js";
 import { CHRISTMAS_INTENT_IMAGE_HOLDS, fallEventCardImageSrc, mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { fallIntentsEpoch } from "./lib/fallCacheEpoch.mjs";
+
+// Exercise both documented cover-photo settings in isolated local processes. No
+// inherited deployment switches, credentials or network calls influence this test.
+const coverFixture = process.argv[2];
+if (!coverFixture) {
+  for (const mode of ["off", "on"]) {
+    const run = spawnSync(process.execPath, [process.argv[1], mode], {
+      stdio: "inherit",
+      env: {
+        NODE_ENV: "production",
+        WAYFIND_GATE: "shut",
+        WAYFIND_PHOTOS_BACKFILL: mode === "on" ? "1" : "0",
+        GOOGLE_PHOTOS_BACKFILL_CAP: "1",
+        GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
+        GOOGLE_PHOTOS_BACKFILL_PER_HOUR: "1",
+      },
+    });
+    if (run.error) throw run.error;
+    if (run.status !== 0) process.exit(run.status ?? 1);
+  }
+  process.exit(0);
+}
+if (!["off", "on"].includes(coverFixture)) throw new Error(`Unknown cover fixture: ${coverFixture}`);
 
 let n = 0;
 function ok(cond, msg) {
@@ -140,17 +165,24 @@ for (const event of ready.fall) {
     ok(idsOn(halloween, HALLOWEEN[src.row_id]).includes(event.event_id), `${src.row_id} is on the Halloween ${HALLOWEEN[src.row_id]} rail`);
   }
 }
+// November 23 allowed a same-venue cover for one held row in this catalog,
+// Seminole Heights (K126). The designed tile remains its image-error fallback.
+mock.timers.enable({ apis: ["Date"], now: new Date("2026-11-23T18:00:00Z") });
 for (const event of ready.christmas) {
   const src = CATALOG.find((row) => row.event_id === event.event_id);
   ok(isTrusted(event) && christmasEventRail(event) === src.christmas_rail && inChristmasWindow(event), `${src.row_id} is a trusted Christmas card on ${src.christmas_rail}`);
   const place = places.find((row) => row.place_id === event.place_id);
   const card = christmasEventCard(event, { today: TODAY, inventory: place, pageSlugs: new Set(), byDealId: new Map() });
   if (CHRISTMAS_INTENT_IMAGE_HOLDS.has(event.event_id)) {
-    ok(!card.image && !!card.placeholder, `${src.row_id} Christmas card uses the designed tile instead of a year-round venue photo`);
+    const useVenueCover = coverFixture === "on" && src.row_id === "K126";
+    const expected = useVenueCover ? `/api/photo?place=${event.place_id}&g=2&w=640` : null;
+    ok(card.image === expected && card.imageIsVenue === useVenueCover && !!card.placeholder,
+      `${src.row_id} holds its designed tile and uses only the eligible venue cover with backfill ${coverFixture}`);
   } else {
     ok(card.image && card.image.startsWith("/api/photo?ref=") && card.image.includes(event.place_id) && !card.placeholder, `${src.row_id} Christmas card uses the stored photo and no placeholder`);
   }
 }
+mock.timers.reset();
 
 const largo = photoPlace(byId.get("K037"), { name: "Heritage Village", lat: 27.909, lng: -82.787, place_id: "ChIJC8LjwjH6wogRKE2kKOD0BkI" });
 const largoOnly = resolveSeasonalLiveArea([largo], { today: TODAY });
@@ -259,5 +291,5 @@ for (const row of CATALOG) {
   if (row.season === "christmas") christmasCounts[row.christmas_rail] = (christmasCounts[row.christmas_rail] || 0) + 1;
   else fallCounts[row.fall_rail] = (fallCounts[row.fall_rail] || 0) + 1;
 }
-console.log(`test-seasonal-pending-rails-2026-10-19: OK ${n} assertions`);
+console.log(`test-seasonal-pending-rails-2026-10-19: OK ${n} assertions, cover backfill ${coverFixture}`);
 console.log(`fall rails ${JSON.stringify(fallCounts)} christmas rails ${JSON.stringify(christmasCounts)}`);
