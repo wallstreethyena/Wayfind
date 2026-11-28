@@ -20,6 +20,7 @@ import {
   CHRISTMAS_BG_GRADIENT,
   CHRISTMAS_BG_MAX_STALE_MS,
   CHRISTMAS_DOODLE_SVG,
+  CHRISTMAS_SITE_CSS,
   christmasBackdropActive,
   christmasBackdropBootScript,
   installChristmasBackdropClock,
@@ -110,7 +111,16 @@ ok(!html.includes(".wf-site-footer"), "the seasonal stylesheet leaves the footer
 // Owner 2026-11-28: the site is red "with the snow like the christmas in
 // florida page". The same snow canvas sits inside the gated field, so it is
 // hidden (and stopped) wherever the field is hidden.
-ok(/class="wf-xmas-bg"[^>]*>[\s\S]*class="xm-snow"[^>]*data-xm-snow=""/.test(html), "the snow canvas renders inside the red field");
+// It loads lazily (next/dynamic, ssr:false) so it never counts against the
+// homepage first load JS budget (check-bundle failed at 569.1KB > 569KB with
+// the snow inside the layout's eager chunk).
+{
+  const src = read("app/components/ChristmasSiteBackdrop.js");
+  const inField = (src.match(/<div className="wf-xmas-bg"[^>]*>([\s\S]*?)<\/div>\s*<div className="wf-xmas-lights"/) || [])[1] || "";
+  ok(/<ChristmasSnow \/>/.test(inField), "the snow canvas sits inside the red field");
+  ok(/const ChristmasSnow = dynamic\(\(\) => import\("\.\/ChristmasSnow\.js"\)[^;]*\{ ssr: false \}\)/.test(src) && !/from "\.\/ChristmasSnow\.js"/.test(src), "the site snow is a lazy chunk, not part of first load JS");
+  ok(!/ChristmasSnow/.test(read("app/components/ChristmasDecor.js")), "the eager garland module carries no snow code");
+}
 ok(html.includes(".wf-xmas-bg .xm-snow{position:fixed;inset:0;"), "the site snow covers the screen behind the content");
 
 // 2026-11-24 (owner: "the light bulbs look off"): each bulb hangs from the
@@ -135,6 +145,18 @@ ok(html.includes(".wf-xmas-bg .xm-snow{position:fixed;inset:0;"), "the site snow
     ok(low === expected, cls + ": the rendered wire matches its documented low point (" + low + ")");
     ok(low >= capFrom && low <= capTo, cls + ": the wire's lowest point (" + low + "px) lands on the bulb cap (" + capFrom + " to " + capTo + "px), not through the glass");
   }
+}
+
+// 2026-11-28 (owner: the bulbs looked "cut off at the bottom"): the fixed
+// band must never clip vertically, or each bulb and glow is sliced flat at
+// its 36px edge. Sideways clipping stays so nothing scrolls the page.
+{
+  const rule = (CHRISTMAS_SITE_CSS.match(/\.wf-xmas-lights\{display:block;position:fixed;([^}]*)\}/) || [])[1] || "";
+  ok(rule && !/overflow:hidden|overflow:clip|overflow-y:(hidden|clip|auto|scroll)/.test(rule) && /overflow-x:clip/.test(rule) && /overflow-y:visible/.test(rule), "the lights band clips sideways only, so bulbs and glow hang below its edge uncut");
+  const swayTop = Number((CHRISTMAS_LIGHTS_CSS.match(/\.xm-sway\{position:absolute;top:(\d+)px/) || [])[1]);
+  const bulbTop = Number((CHRISTMAS_LIGHTS_CSS.match(/\.xm-bulb\{\s*position:absolute;left:-8px;top:(\d+)px/) || [])[1]);
+  const phoneH = Number((CHRISTMAS_LIGHTS_CSS.match(/@media\(max-width:600px\)\{\.xm-bulb\{left:-9px;width:\d+px;height:(\d+)px/) || [])[1]);
+  ok(swayTop + bulbTop + phoneH * 1.06 > 36, "guard premise: a twinkling phone bulb does reach past the 36px band (" + (swayTop + bulbTop + phoneH * 1.06).toFixed(1) + "px), so the band must not clip it");
 }
 
 console.log("test-christmas-site-backdrop: " + checks + " checks ok");
