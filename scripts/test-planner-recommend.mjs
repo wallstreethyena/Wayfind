@@ -59,6 +59,16 @@ eq(openStatusAt(nightBar, Date.parse("2026-11-29T00:30:00Z")), "open", "and open
 eq(openStatusAt(noHours, NOW), "unknown", "no hours is unknown, never open");
 eq(openStatusAt({ ...lunch, hoursVerifiedAt: null }, NOW), "unknown", "unverified hours are unknown");
 eq(openStatusAt({ ...lunch, businessStatus: "CLOSED_PERMANENTLY" }, NOW), "closed", "a closed business is closed");
+// Wayfind's own verified hours with a "holiday hours may differ" note: an ordinary Saturday is still answered, a
+// holiday eve stays unknown, a listed holiday closure is closed (live 2026-11-28: every pick read "Hours not listed").
+const day7 = (d) => ({ open: { day: d, hour: 7, minute: 0 }, close: { day: d, hour: 14, minute: 30 } });
+const owned = { schema: 1, periods: [0, 1, 2, 3, 4, 5, 6].map(day7), timezone: "America/New_York", source: "wayfind_editorial_hours", verifiedAt: "2026-11-13T15:00:00.000Z", expiresAt: null, specialHours: [{ date: "2026-11-26", closed: true }, { date: "2026-12-25", closed: true }], specialHoursUncertainty: "holiday_hours_may_differ" };
+const breakfast = { id: "b1", name: "Breakfast Spot", itemType: "place", businessStatus: "OPERATIONAL", ownedHours: owned };
+eq(openStatusAt(breakfast, Date.parse("2026-11-28T14:00:00Z")), "open", "owned hours with a holiday note: open Saturday 9 AM");
+eq(openStatusAt(breakfast, Date.parse("2026-11-28T20:06:00Z")), "closed", "and closed Saturday 3:06 PM, after 2:30");
+eq(openStatusAt(breakfast, Date.parse("2026-11-26T15:00:00Z")), "closed", "closed on the listed Thanksgiving closure");
+eq(openStatusAt(breakfast, Date.parse("2026-12-24T15:00:00Z")), "unknown", "a holiday eve with no listed hours stays unknown");
+eq(openStatusAt({ ...breakfast, ownedHours: { ...owned, verifiedAt: null } }, Date.parse("2026-11-28T14:00:00Z")), "unknown", "owned hours with no verified date are unknown");
 
 // ---- 4. exactly the count, never closed now, weather and time aware ---------------------------------------
 const origin = { lat: 27.4, lng: -82.45 };
@@ -120,6 +130,7 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$
 const route = strip(readFileSync(new URL("../app/api/planner/route.js", import.meta.url), "utf8"));
 ok(route.indexOf("recommendPicks({") > 0 && route.indexOf("recommendPicks({") < route.indexOf('routed.kind === "reserve" || routed.kind === "find_food"'), "the server answers a pick request before any plan or reserve path");
 ok(/mode: "recommend"/.test(route) && /planPrompt:/.test(route), "picks come back as picks with an optional plan prompt, never a proposed plan");
+ok(/\.map\(\(c\) => withVerifiedHours\(c, nowMs\)\)/.test(route) && /resolveOwnedHoursSnapshot\(candidate\.id/.test(route), "every pick candidate gets Wayfind's verified hours when its search result had none");
 ok(/fetchCurrentWeather\(area\)/.test(route) && /siteHourFloat\(now\)/.test(route) && /siteDayOfWeek\(now\)/.test(route), "the server reads weather, local time and weekday on every pick request");
 ok(/body\?\.homeCity/.test(route) && /\|\| homeCity;/.test(route), "the picked city is the fallback for every request, plans included");
 const sheet = strip(readFileSync(new URL("../app/components/WayfindPlannerSheet.js", import.meta.url), "utf8"));
