@@ -9,6 +9,8 @@ import { currentGuides } from "../lib/guideLifecycle.js";
 import { cardRankScore } from "../lib/searchRank.js";
 import { searchResultCards } from "../lib/searchCards.js";
 import { NAV_CATEGORY_IDS, NAV_SUBCATEGORY_IDS, classifyPlace, classifyEvent, classifyGuide, coverageOf } from "../lib/searchTaxonomy.js";
+import { ownedPlacePhotoSrc } from "../lib/placePhoto.js";
+import { cardPhotoRequest, fetchCardPhoto } from "../lib/cardPhotoRequest.js";
 
 const PARRISH = { lat: 27.5859, lng: -82.4254 };
 const SARASOTA = { lat: 27.3364, lng: -82.5307 };
@@ -128,14 +130,16 @@ function names(cards) {
 }
 
 {
+  const bistroId = "ChIJSearchPhotoBistro01";
+  const barId = "ChIJSearchPhotoWineBar02";
   const result = await searchResultCards({
     query: "date night",
     ...SARASOTA,
     guides: [],
     events: [],
     places: [
-      place({ id: "bistro", name: "Sarasota Bistro", lat: 27.34, lng: -82.53, category: "food", primaryType: "restaurant", tags: ["dinner"], rating: 4.5, reviews: 700 }),
-      place({ id: "bar", name: "Gulf Date Bar", lat: 27.33, lng: -82.54, category: "nightlife", primaryType: "wine_bar", tags: ["bars"], rating: 4.6, reviews: 500 }),
+      place({ id: bistroId, name: "Sarasota Bistro", lat: 27.34, lng: -82.53, category: "food", primaryType: "restaurant", tags: ["dinner"], rating: 4.5, reviews: 700 }),
+      place({ id: barId, name: "Gulf Date Bar", lat: 27.33, lng: -82.54, category: "nightlife", primaryType: "wine_bar", tags: ["bars"], rating: 4.6, reviews: 500 }),
       place({ id: "sports", name: "Kickoff Sports Pub", lat: 27.33, lng: -82.53, category: "nightlife", primaryType: "sports_bar", tags: ["bars", "sports"], rating: 4.7, reviews: 3000 }),
       place({ id: "cafe", name: "Morning Coffee", lat: 27.34, lng: -82.53, category: "food", primaryType: "cafe", tags: ["cafes"], rating: 5, reviews: 4000 }),
       place({ id: "mall", name: "Sarasota Mall", lat: 27.34, lng: -82.52, category: "shopping", primaryType: "shopping_mall", rating: 4.4, reviews: 2000 }),
@@ -147,6 +151,23 @@ function names(cards) {
   assert.ok(!got.includes("Kickoff Sports Pub"), "date night does not return a sports bar");
   assert.ok(!got.includes("Morning Coffee"), "date night does not return a cafe");
   assert.ok(!got.includes("Sarasota Mall"), "date night does not return shopping");
+
+  // Search rows reach the credited photo reader with their own IDs even when
+  // the search payload carries no photos. A missing neighbor cannot take the
+  // found venue's image or attribution.
+  const photo = { src: "/places/example-bistro.webp", source: "licensed", credit: { name: "Bistro photographer", uri: "https://example.com/bistro", license: "CC BY 4.0" } };
+  const photoRequests = [];
+  const readPhoto = async (url) => {
+    const query = new URL(url, "https://www.gowayfind.com").searchParams;
+    const id = query.get("place");
+    photoRequests.push({ id, surface: query.get("s"), noSpend: query.get("nospend") });
+    return id === bistroId ? Response.json(photo) : Response.json({ src: null, source: "none" }, { headers: { "x-wayfind-photo-result": "no-photo" } });
+  };
+  const answers = await Promise.all(result.cards.map(async (card) => [
+    card.id, await fetchCardPhoto(cardPhotoRequest(ownedPlacePhotoSrc(card.id, 640, true)), readPhoto),
+  ]));
+  assert.deepEqual(new Map(answers), new Map([[barId, null], [bistroId, { ...photo, placeId: bistroId }]]));
+  assert.deepEqual(photoRequests, [barId, bistroId].map((id) => ({ id, surface: "card", noSpend: "1" })));
 }
 
 {

@@ -198,7 +198,7 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
         <div className="wf-place-card-media">
           {r.image_url && imgFailed !== r.image_url
             ? <img src={r.image_url} alt="" loading="lazy" onError={() => setImgFailed(r.image_url)} style={{ objectFit: "cover" }} />
-            : <PlaceCardPhotoFallback place={r} name={r.title} />}
+            : <PlaceCardPhotoFallback name={r.title} />}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>
