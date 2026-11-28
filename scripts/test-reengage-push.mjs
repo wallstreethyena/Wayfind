@@ -16,6 +16,7 @@
 // test depend on the hour it runs.
 import { createHash, createHmac, randomBytes } from "node:crypto";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { JSDOM } from "jsdom";
@@ -28,6 +29,17 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 process.setMaxListeners(60); // each loadComponent adds one exit listener
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
+
+// Vercel runs prebuild with NODE_ENV=production, where React disables act().
+// Run the SAME assertions in React's supported test environment on every
+// invocation and forward the child's status, as test-browse-interaction-reuse
+// does. The caller's environment never decides the verdict.
+if (!process.argv.includes("--react-test-child")) {
+  const child = spawnSync(process.execPath, [...process.execArgv, fileURLToPath(import.meta.url), ...process.argv.slice(2), "--react-test-child"],
+    { env: { ...process.env, NODE_ENV: "test" }, stdio: "inherit" });
+  if (child.error) throw child.error;
+  process.exit(child.status ?? 1);
+}
 let passed = 0;
 const fail = (m) => { process.stderr.write("test-reengage-push: FAIL, " + m + "\n"); process.exit(1); }; // stderr directly: the route section captures console.*
 const ok = (c, m) => { if (!c) fail(m); passed++; };
