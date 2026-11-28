@@ -2881,3 +2881,7 @@ node scripts/test-guide-map-pin-reveal.mjs
 node scripts/test-reengage-server.mjs
 node scripts/test-reengage-client.mjs
 node scripts/check-reengage-schema.mjs
+
+# 2026-11-28 re-engagement PR 2 (sender): dispatcher, conversion suppression seam, signal route, Resend webhook; sealed push kernel; UTM and no go links on every message.
+node scripts/test-reengage-dispatch.mjs
+node scripts/test-reengage-edges.mjs
