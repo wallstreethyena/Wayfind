@@ -52,6 +52,7 @@ delete process.env.NEXT_PUBLIC_SITE_URL;
 delete process.env.NEWSLETTER_POSTAL;
 delete process.env.WF_REENGAGE_FROM;
 delete process.env.WF_REENGAGE_DISPATCH;
+process.env.TZ = "UTC"; // the production process zone (Vercel): a stored zone that falls back to the PROCESS zone must be visible
 const SB = { url: SUPABASE_URL, key: SERVICE_KEY };
 // What the library receives as `env`: a plain object, so no assertion reads the shell (check-guard-hermeticity).
 const ENV = { ...process.env };
@@ -501,6 +502,11 @@ async function gate(label, setup, expect) {
     ok(r.row.status === "pending" && r.r.deferred === 1, `tz: a stored zone ${JSON.stringify(bad).slice(0, 14)} fell back to the process zone (UTC, where 11:00 is allowed) instead of New York (06:00, quiet): ${state(r.row)}`);
   }
   ok(D.safeTz("Europe/London") === "Europe/London" && D.safeTz("Not/AZone") === "America/New_York" && D.safeTz(undefined) === "America/New_York", "tz: safeTz does not keep a valid zone or default a bad one to New York");
+  // the push-per-local-day cap also uses the fallback zone, not the process zone: 19:30 New York is already the next UTC day
+  const T0030 = Date.parse("2026-12-02T00:30:00Z");
+  world({ pushSubs: [sub({ row: { tz: "Not/AZone" } })], queue: [qrow({ channel: "push", status: "sent", sent_at: "2026-12-01T20:00:00.000Z", dedupe_key: "earlier" }), pushRow({ scheduled_for: iso(T0030 - 60e3) })] });
+  await run({ now: T0030 });
+  ok(state(S.queue[1]) === "skipped_cap/daily", "tz: with a bad stored zone the per-day push cap used the process zone (UTC day) instead of New York: " + state(S.queue[1]));
   const london = await at("Europe/London", T11);
   ok(london.row.status === "sent", "tz: positive control: a London subscription at 11:00 local was not sent: " + state(london.row));
 }
