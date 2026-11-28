@@ -1,0 +1,124 @@
+"use client";
+// The soft ask for re-engagement push, and the iPhone helper that replaces it in a
+// Safari tab. LAZY ONLY: reengageBoot.js imports it with import() after
+// lib/reengagePushClient.offerFor said yes, and ReengageMount renders it with no
+// props, so what it needs (kind, trigger) comes from window[PROMPT_CTX_KEY], set
+// by the boot just before. Nothing here is in first load JS.
+//
+// Rules this file keeps:
+//   * The browser's permission dialog opens ONLY from the Yes button (a real click).
+//     "Not now" and the close button never reach it. The iPhone helper makes no
+//     network call and never asks for permission.
+//   * Showing either form counts as an alert (shared daily cap, lib/alertPolicy.js)
+//     and as the one ask in 21 days, so a visitor is not asked twice.
+//   * Two equal buttons. 44px tap targets, safe area inset, z-index 890 (under the
+//     app's sheets, same as the return banner).
+//   * It sits ABOVE any bottom dock (the Santa dock on holiday pages, the planner
+//     offer bar): those are z-index 930 and up and would cover the buttons, so the
+//     card is lifted by the dock's height (measured at 390 wide: 65px).
+// Copy rules: plain words, no dashes, no pressure, no countdowns, no claim of new.
+import { useEffect, useRef, useState } from "react";
+import { markPushAsked, reengageEvent } from "../../lib/reengageClient.js";
+import { PROMPT_CTX_KEY, enableReengagePush, noteAskShown, pushMode } from "../../lib/reengagePushClient.js";
+
+const T = { card: "#161B22", border: "#2D3748", text: "#F1F5F9", muted: "#94A3B8", accent: "#F97316" };
+const DOCKS = ["[data-santa-dock]", ".wfp-so"];
+const BAR = {
+  position: "fixed", left: 12, right: 12, margin: "0 auto", maxWidth: 520, boxSizing: "border-box", zIndex: 890,
+  background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, padding: "12px 52px 12px 14px",
+  color: T.text, boxShadow: "0 10px 30px rgba(0,0,0,.45)", fontFamily: "var(--wf-sans, system-ui, sans-serif)",
+};
+const TITLE = { margin: 0, fontSize: 15, fontWeight: 800, lineHeight: "20px" };
+const BODY = { margin: "2px 0 0", fontSize: 13, lineHeight: "18px", color: T.muted };
+const ROW = { display: "flex", gap: 8, marginTop: 10 };
+const BTN = { flex: 1, minHeight: 44, padding: "0 14px", borderRadius: 999, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxSizing: "border-box", whiteSpace: "nowrap", font: "inherit", fontSize: 14, fontWeight: 800 };
+const PRIMARY = { ...BTN, background: T.accent, color: "#111827", border: `1px solid ${T.accent}` };
+const SECONDARY = { ...BTN, background: "transparent", color: T.text, border: `1px solid ${T.border}` };
+const CLOSE = { position: "absolute", top: 0, right: 0, width: 44, height: 44, background: "transparent", border: "none", color: T.muted, fontSize: 22, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" };
+
+// How much of the bottom edge a fixed dock already covers, in px.
+function dockLift(win) {
+  try {
+    let lift = 0;
+    for (const sel of DOCKS) {
+      const el = win.document.querySelector(sel);
+      const r = el && el.getBoundingClientRect();
+      if (r && r.height > 0) lift = Math.max(lift, Math.ceil(win.innerHeight - r.top));
+    }
+    return Math.max(0, Math.min(200, lift));
+  } catch (e) { return 0; }
+}
+
+export default function PushPrompt() {
+  const [m, setM] = useState(null); // { mode, kind, trigger }
+  const [phase, setPhase] = useState("ask"); // ask | busy | done | blocked | failed | gone
+  const [lift, setLift] = useState(0);
+  const shown = useRef(false);
+
+  useEffect(() => {
+    if (shown.current) return;
+    const h = window[PROMPT_CTX_KEY];
+    const mode = pushMode(window);
+    if (!h || !mode || (h.kind !== "itinerary" && h.kind !== "hub")) return;
+    shown.current = true;
+    noteAskShown(window);
+    if (mode === "a2hs") reengageEvent(window, "reengage_a2hs_shown", { kind: h.kind, surface: "a2hs" });
+    else reengageEvent(window, "reengage_push_ask_shown", { kind: h.kind, surface: "push" });
+    setM({ mode, kind: h.kind, trigger: h.trigger || {} });
+  }, []);
+
+  // A dock can mount after this card, so measure again shortly, and on resize.
+  useEffect(() => {
+    if (!m) return undefined;
+    const measure = () => setLift(dockLift(window));
+    measure();
+    const timers = [setTimeout(measure, 700), setTimeout(measure, 2500)];
+    window.addEventListener("resize", measure);
+    return () => { timers.forEach(clearTimeout); window.removeEventListener("resize", measure); };
+  }, [m]);
+
+  if (!m || phase === "gone") return null;
+  const { mode, kind, trigger } = m;
+
+  const no = () => {
+    markPushAsked(window);
+    if (mode === "push") reengageEvent(window, "reengage_push_ask_no", { kind, surface: "push" });
+    setPhase("gone");
+  };
+  const yes = async () => {
+    reengageEvent(window, "reengage_push_ask_yes", { kind, surface: "push" });
+    setPhase("busy");
+    const r = await enableReengagePush(window, { kind, trigger });
+    setPhase(r.ok ? "done" : (r.code === "denied" || r.code === "dismissed") ? "blocked" : "failed");
+  };
+
+  let title; let body; let buttons;
+  if (phase === "done" || phase === "blocked" || phase === "failed") {
+    title = phase === "done" ? "Done. We will send one short note."
+      : phase === "blocked" ? "No problem. You can change this in your browser settings."
+        : "That did not work. Please try again later.";
+    buttons = <div style={ROW}><button type="button" style={PRIMARY} onClick={() => setPhase("gone")}>OK</button></div>;
+  } else if (mode === "a2hs") {
+    title = "Reminders need one step on iPhone";
+    body = "Tap Share, then Add to Home Screen.";
+    buttons = <div style={ROW}><button type="button" style={PRIMARY} onClick={no}>Got it</button></div>;
+  } else {
+    title = kind === "itinerary" ? "Want a reminder about this plan?" : "Want a reminder about this page?";
+    body = "One short note, not at night. You can turn it off in your browser settings.";
+    buttons = (
+      <div style={ROW}>
+        <button type="button" style={PRIMARY} disabled={phase === "busy"} onClick={yes}>Yes, remind me</button>
+        <button type="button" style={SECONDARY} disabled={phase === "busy"} onClick={no}>Not now</button>
+      </div>
+    );
+  }
+
+  return (
+    <div role="region" aria-label="Reminders" aria-live="polite" data-reengage-push={mode} data-dock-lift={lift} style={{ ...BAR, bottom: `calc(12px + ${lift}px + env(safe-area-inset-bottom, 0px))` }}>
+      <p style={TITLE}>{title}</p>
+      {body ? <p style={BODY}>{body}</p> : null}
+      {buttons}
+      <button type="button" aria-label="Close" style={CLOSE} onClick={phase === "ask" ? no : () => setPhase("gone")}><span aria-hidden="true">×</span></button>
+    </div>
+  );
+}

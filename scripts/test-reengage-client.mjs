@@ -204,7 +204,7 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
   eq(s.recent[1].name, "Lido Beach", "the place name was kept");
   eq(s.recent[0].name, "", "a name that is an email address was dropped");
   eq(s.city, { slug: "tampa", name: "" }, "coverage_city_jump fed the city");
-  eq(Object.keys(s).sort(), ["city", "dismissedAt", "draft", "lastVisitAt", "prevVisitAt", "recent", "v", "visits"], "state holds only the contract keys");
+  eq(Object.keys(s).sort(), ["city", "dismissedAt", "draft", "hubViews", "lastVisitAt", "prevVisitAt", "pushAskedAt", "recent", "v", "visits"], "state holds only the contract keys");
   rc.noteDraft("0123456789abcdef0123456789abcdef", "sarasota", "Sarasota", w, NOW);
   rc.setFlag("hasSavedEmail", true, w);
   rc.markDismissed(w, NOW);
@@ -213,6 +213,59 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
   const reread = JSON.stringify([...w.__store.values()]) + w.document.cookie;
   ok(!/example\.com/.test(reread), "the email-looking domain is absent from every stored value too");
   ok(w.__store.size === 2 && w.__store.has(rc.STATE_KEY) && w.__store.has(rc.FLAGS_KEY), "exactly two storage keys exist: wf_reengage and wf_reengage_flags");
+}
+
+// ---- PR 2 additions: hub views, the push ask stamp, and the itinerary hook callback ----
+{
+  const fresh = rc.readState(makeWin());
+  eq([fresh.hubViews, fresh.pushAskedAt], [0, null], "a new visitor has no hub views and no push ask");
+  const w = makeWin();
+  rc.ensureAnonId(w);
+  ok(rc.noteHubView("/christmas-in-florida", w).hubViews === 1 && rc.noteHubView("/guides/best-beaches", w).hubViews === 2, "noteHubView counts each valid hub page load");
+  for (const bad of ["christmas", "https://evil.example/x", "//evil.example", "/a b", "/x@y.co", "/" + "a".repeat(130), null, 5]) {
+    ok(rc.noteHubView(bad, w) === null, "noteHubView accepted a bad path: " + JSON.stringify(bad));
+  }
+  ok(rc.readState(w).hubViews === 2, "bad hub paths did not change the count");
+  ok(rc.markPushAsked(w, NOW).pushAskedAt === NOW && rc.readState(w).pushAskedAt === NOW, "markPushAsked stores the day stamp");
+  ok(!containsAt(w), "hub views and the ask stamp store no '@'");
+  // normalization of stored junk
+  const junk = makeWin();
+  junk.localStorage.setItem(rc.STATE_KEY, JSON.stringify({ v: 1, hubViews: "5", pushAskedAt: "x" }));
+  eq([rc.readState(junk).hubViews, rc.readState(junk).pushAskedAt], [0, null], "a string hubViews and a string pushAskedAt are ignored");
+  junk.localStorage.setItem(rc.STATE_KEY, JSON.stringify({ v: 1, hubViews: -3 }));
+  ok(rc.readState(junk).hubViews === 0, "a negative hubViews becomes 0");
+  junk.localStorage.setItem(rc.STATE_KEY, JSON.stringify({ v: 1, hubViews: 2.7, pushAskedAt: NOW }));
+  eq([rc.readState(junk).hubViews, rc.readState(junk).pushAskedAt], [2, NOW], "a fractional hubViews is floored and a finite pushAskedAt kept");
+  junk.localStorage.setItem(rc.STATE_KEY, JSON.stringify({ v: 1, hubViews: 1e9 }));
+  ok(rc.readState(junk).hubViews === rc.HUB_VIEWS_MAX, "hubViews is capped");
+  // opted out: neither writer stores anything
+  for (const [label, opts] of [["GPC", { gpc: true }], ["analytics suppressed", { suppressed: true }]]) {
+    const o = makeWin(opts);
+    ok(rc.noteHubView("/christmas-in-florida", o) === null && rc.markPushAsked(o, NOW) === null, `${label}: noteHubView and markPushAsked returned state`);
+    ok(o.__storageWrites.length === 0 && o.__cookieWrites.length === 0, `${label}: hub view and ask stamp wrote storage or a cookie`);
+  }
+  // the itinerary_generated hook: the callback runs on the NEXT tick, once per event, and nothing else reaches it
+  const h = makeWin();
+  rc.ensureAnonId(h);
+  rc.installReengageHook(h);
+  h.__WF_REENGAGE_HOOK("itinerary_generated", {});
+  let cbCalls = 0;
+  h[rc.HOOK_ITINERARY_CALLBACK] = () => { cbCalls += 1; };
+  h.__WF_REENGAGE_HOOK("itinerary_generated", { area: "sarasota", email: "joe@example.com" });
+  ok(cbCalls === 0, "the itinerary callback ran synchronously, before noteDraft could run");
+  await new Promise((r) => setTimeout(r, 5));
+  ok(cbCalls === 1, "the itinerary callback did not run exactly once on the next tick: " + cbCalls);
+  h.__WF_REENGAGE_HOOK("detail_open", { place_id: "abc", place_name: "Pier" });
+  h.__WF_REENGAGE_HOOK("search", {});
+  await new Promise((r) => setTimeout(r, 5));
+  ok(cbCalls === 1, "another event reached the itinerary callback");
+  h[rc.HOOK_ITINERARY_CALLBACK] = () => { throw new Error("boom"); };
+  let threw = false;
+  try { h.__WF_REENGAGE_HOOK("itinerary_generated", {}); await new Promise((r) => setTimeout(r, 5)); } catch (e) { threw = true; }
+  ok(!threw, "a throwing itinerary callback broke the analytics hook");
+  const g = makeWin({ gpc: true });
+  g[rc.HOOK_ITINERARY_CALLBACK] = () => { cbCalls += 100; };
+  ok(rc.installReengageHook(g) === false && g.__WF_REENGAGE_HOOK === undefined, "an opted out window got the hook");
 }
 
 // ---- shouldShowBanner truth table ----

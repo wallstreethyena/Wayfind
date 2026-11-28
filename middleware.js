@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { guardPaidRoute, isOperatorDiagnostic, APPLE_BUDGET_RL, PLAN_VOTES_RL, NEWSLETTER_RL, REENGAGE_EMAIL_RL } from "./lib/apiGuard";
+import { guardPaidRoute, isOperatorDiagnostic, APPLE_BUDGET_RL, PLAN_VOTES_RL, NEWSLETTER_RL, REENGAGE_EMAIL_RL, REENGAGE_PUSH_RL, REENGAGE_SIGNAL_RL } from "./lib/apiGuard";
 
 // Cost-leak fix (the $735 Google Places incident): these routes are public,
 // unauthenticated proxies to METERED third-party APIs — Google Places
@@ -77,6 +77,11 @@ export const config = {
     // The page's own same-origin POST that confirms a contact after that click:
     // full same-origin guard plus the per-IP limit.
     "/api/reengage/confirm",
+    // Re-engagement push (PR 2): the page's own same-origin POSTs, one saving a push
+    // subscription and one reporting a fact (a plan built, a hub page seen, a return
+    // visit). Full same-origin guard plus a per-route per-IP limit each.
+    "/api/reengage/push",
+    "/api/reengage/signal",
     "/api/places/search",
     // Free Apple Maps pins: same-origin POST that reserves units against the
     // one daily Apple service-call ceiling (lib/applePlaceIds.js). Not a cost
@@ -314,6 +319,8 @@ export function middleware(req) {
   const routeLimit = path === "/api/maps/apple-budget" ? APPLE_BUDGET_RL
     : path === "/api/christmas/plan-votes" ? PLAN_VOTES_RL
     : path === "/api/newsletter/subscribe" ? NEWSLETTER_RL
-    : path === "/api/reengage/email" ? REENGAGE_EMAIL_RL : undefined;
+    : path === "/api/reengage/email" ? REENGAGE_EMAIL_RL
+    : path === "/api/reengage/push" ? REENGAGE_PUSH_RL
+    : path === "/api/reengage/signal" ? REENGAGE_SIGNAL_RL : undefined;
   return guardPaidRoute(req, { rateLimitOnly, routeLimit }) || NextResponse.next();
 }
