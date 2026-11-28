@@ -3,14 +3,14 @@
   "verifiedAt": "2026-11-23",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, public domain, CC BY and CC BY-SA (2.0, 2.5, 3.0, 4.0), or a venue website photo owner-authorized on 23 November 2026 for restaurant guide picks; NC and ND never pass.",
   "summary": {
-    "files": 426,
-    "usages": 456,
-    "verified": 440,
+    "files": 439,
+    "usages": 469,
+    "verified": 439,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
       "CC BY-SA 4.0": 98,
-      "CC BY-SA 3.0": 84,
+      "CC BY-SA 3.0": 83,
       "CC BY 4.0": 22,
       "CC BY 3.0": 22,
       "CC BY 2.0": 104,
@@ -32,26 +32,26 @@
   },
   "files": [
     {
-      "src": "/guides/picks/anna-maria-island-day-trip/anna-maria-city-pier.webp",
+      "src": "/guides/picks/anna-maria-island-day-trip/anna-maria-island-historical-museum.webp",
       "usedBy": [
         {
           "slug": "anna-maria-island-day-trip",
           "role": "pick",
-          "pick": "Pine Avenue and the City Pier"
+          "pick": "Pine Avenue and the island museum"
         }
       ],
       "source": {
         "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:AMI_City_Pier.jpg",
-        "title": "AMI City Pier",
-        "author": "RayRR",
-        "dateTaken": "2022-01-10",
+        "url": "https://commons.wikimedia.org/wiki/File:FL_Anna_Maria_Island_Hist_Society_museum02.jpg",
+        "title": "FL Anna Maria Island Hist Society museum02",
+        "author": "Ebyabe",
+        "dateTaken": "2018-10-13 18:09:54",
         "licence": "CC BY-SA 4.0",
         "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
       },
       "wayfind": {
-        "credit": "RayRR",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:AMI_City_Pier.jpg",
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:FL_Anna_Maria_Island_Hist_Society_museum02.jpg",
         "license": "CC BY-SA 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
@@ -59,7 +59,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-23"
+      "verifiedAt": "2026-11-27"
     },
     {
       "src": "/guides/picks/anna-maria-island-day-trip/the-free-trolley-your-parking-cheat-code.webp",
@@ -6044,36 +6044,6 @@
         "license": "CC0 1.0 Universal",
         "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-23"
-    },
-    {
-      "src": "/guides/picks/st-armands-circle-restaurants/shore.webp",
-      "usedBy": [
-        {
-          "slug": "st-armands-circle-restaurants",
-          "role": "pick",
-          "pick": "Shore"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg",
-        "title": "Sarasota FL Harding Circle HD St Armands Circle03",
-        "author": "Ebyabe",
-        "dateTaken": "2011-06-19 13:38:59",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      "wayfind": {
-        "credit": "Ebyabe",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -13372,7 +13342,7 @@
         {
           "slug": "winter-park-scenic-boat-tour",
           "role": "pick",
-          "pick": "Tickets, timing, and the cash catch"
+          "pick": "Tickets and first-come departures"
         }
       ],
       "source": {

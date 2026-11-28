@@ -429,26 +429,36 @@ function eq(a, b, msg) {
   const robertsPseudoRefUrl = `/api/photo?ref=places%2F${robertsId}%2Fphotos%2Fwfplacediscovery&w=800`;
   eq(uncreditedPlacePhotoId(robertsPseudoRefUrl), robertsId, "uncreditedPlacePhotoId extracts placeId from wfplacediscovery pseudo-ref URL");
 
-  const dropped = await dropUnservableCardPhotos(
-    {
-      kind: "event",
-      id: "roberts-christmas-wonderland-2026",
-      name: "Robert's Christmas Wonderland",
-      title: "Robert's Christmas Wonderland",
-      christmasRail: "markets",
-      image: robertsPseudoRefUrl,
-      imageIsVenue: true,
+  const card = {
+    kind: "event",
+    id: "roberts-christmas-wonderland-2026",
+    name: "Robert's Christmas Wonderland",
+    title: "Robert's Christmas Wonderland",
+    christmasRail: "markets",
+    image: robertsPseudoRefUrl,
+    imageIsVenue: true,
+  };
+  const deps = {
+    servable: {
+      noMemo: true,
+      resolve: async () => ({ type: "miss", location: null }),
+      findFree: async () => null,
     },
-    {
-      servable: {
-        noMemo: true,
-        resolve: async () => ({ type: "miss", location: null }),
-        findFree: async () => null,
-      },
-    }
-  );
+    backfillEnv: {
+      WAYFIND_PHOTOS_BACKFILL: "1",
+      GOOGLE_PHOTOS_BACKFILL_CAP: "1",
+      GOOGLE_PHOTOS_BACKFILL_MONTH: new Date().toISOString().slice(0, 7),
+    },
+  };
+  const dropped = await dropUnservableCardPhotos(card, deps);
   eq(dropped.image, null, "Unservable wfplacediscovery card image is dropped before render");
   ok(dropped.placeholder && dropped.placeholder.label, "Card receives designed placeholder tile instead of emitting a 404 image request");
+
+  const cover = { ...card, image: `/api/photo?place=${robertsId}&g=2&w=800` };
+  eq((await dropUnservableCardPhotos(cover, deps)).image, cover.image, "Active backfill retains the same venue's eligible place-ID cover at its requested width");
+  const noSpendCover = { ...cover, image: cover.image + "&nospend=1" };
+  eq((await dropUnservableCardPhotos(noSpendCover, deps)).image, null, "A no-spend cover cannot use backfill and still needs a free photo");
+  eq((await dropUnservableCardPhotos(cover, { ...deps, backfillEnv: {} })).image, null, "A place-ID cover is dropped when backfill is off and there is no free photo");
 }
 
 // ── 8. Verified Coverage vs Fallback Readiness & Ranking Separation ────────
