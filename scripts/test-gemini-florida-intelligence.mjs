@@ -28,6 +28,7 @@ import {
 } from "../lib/holidayIntelligence.js";
 import {
   auditTrendingGuideFreshness,
+  buildCarbonEditorialPrompt,
   buildFloridaIntelligencePacket,
   buildGeminiMonitorPrompt,
   validateGeminiIntelligenceOutput,
@@ -129,6 +130,15 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
   ok(!Object.hasOwn(JSON.parse(prompt.contents[0].parts[0].text), "research_topics"), "Gemini prompt leaves private research in Wayfind");
   const researchPrompt = buildGeminiMonitorPrompt(packet, { includeResearch: true });
   ok(Object.hasOwn(JSON.parse(researchPrompt.contents[0].parts[0].text), "research_topics"), "the OpenAI prompt can still include internal research");
+  const carbon = buildCarbonEditorialPrompt(packet);
+  const carbonText = carbon.contents[0].parts[0].text;
+  ok(carbon.generationConfig.maxOutputTokens === 3200 && carbon.generationConfig.thinkingConfig.thinkingLevel === "MEDIUM" &&
+    carbon.generationConfig.responseMimeType === "application/json" && !Object.hasOwn(carbon, "tools"),
+  "Carbon uses medium thinking and bounded JSON generation without any paid tools");
+  ok(!Object.hasOwn(JSON.parse(carbonText), "research_topics") && carbonText.includes("ev:utc-holidays-2026"),
+    "Carbon retains verified evidence while excluding private research");
+  const oversized = { ...packet, trendingPicks: [{ ...packet.trendingPicks[0], name: "🌴".repeat(3072) }] };
+  ok(buildCarbonEditorialPrompt(oversized) === null, "Carbon rejects a full request that exceeds its UTF-8 byte envelope");
 
   const validated = validateGeminiIntelligenceOutput(JSON.stringify({
     floridaBrief: "Thanksgiving week brings nightly Sarasota light shows, bayfront kickoffs, and open coastal walks across Florida.",
@@ -176,10 +186,11 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
   };
   let cachedWritten = null;
   const cacheSet = async (_k, v) => { cachedWritten = v; };
+  const runMonitor = (options) => runFloridaIntelligenceMonitor({ editorialModel: "", ...options });
 
   // 3a. Unconfigured key -> zero Gemini call, deterministic snapshot still written
   let called = 0;
-  const unconf = await runFloridaIntelligenceMonitor({
+  const unconf = await runMonitor({
     now: new Date("2026-11-23T19:00:00Z"),
     apiKeyOverride: "",
     inputsOverride: fixedInputs,
@@ -193,7 +204,7 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
   // WHY (status + scrubbed message), not "key is not set", and trip the breaker.
   {
     const tripped = [];
-    const refused = await runFloridaIntelligenceMonitor({
+    const refused = await runMonitor({
       now: new Date("2026-11-23T19:00:00Z"),
       apiKeyOverride: "",
       openaiApiKeyOverride: "sk-test-fixture",
@@ -207,7 +218,7 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
     ok(refused.ok && refused.aiStatus === "provider_error" && /^openai 429: .*quota/.test(refused.aiReason || ""), "an OpenAI refusal is reported as provider_error with its status and reason, not as a missing key");
     ok(tripped.includes("openai:quota"), "an OpenAI quota refusal trips the openai breaker");
 
-    const badKey = await runFloridaIntelligenceMonitor({
+    const badKey = await runMonitor({
       now: new Date("2026-11-23T19:00:00Z"),
       apiKeyOverride: "",
       openaiApiKeyOverride: "sk-test-fixture",
@@ -220,7 +231,7 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
     });
     ok(badKey.aiStatus === "provider_error" && /^openai 401: /.test(badKey.aiReason || "") && !/sk-/.test(badKey.aiReason || ""), "an OpenAI 401 is reported with any key-shaped text scrubbed");
 
-    const noKeys = await runFloridaIntelligenceMonitor({
+    const noKeys = await runMonitor({
       now: new Date("2026-11-23T19:00:00Z"),
       apiKeyOverride: "",
       openaiApiKeyOverride: "",
@@ -234,7 +245,7 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
   }
 
   // 3b. OpenAI credit refusal -> valid Gemini fallback still counts as AI output.
-  const activeRes = await runFloridaIntelligenceMonitor({
+  const activeRes = await runMonitor({
     now: new Date("2026-11-23T19:00:00Z"),
     apiKeyOverride: "AIzaValidFixtureKey00000000000000000000",
     openaiApiKeyOverride: "sk-test-fixture",
@@ -259,7 +270,7 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
   // 3c. Gemini 429 RESOURCE_EXHAUSTED -> trips gemini circuit breaker
   let tripped = null;
   const geminiEcho = "fixture-Gemini-credential-echo";
-  const quotaRes = await runFloridaIntelligenceMonitor({
+  const quotaRes = await runMonitor({
     now: new Date("2026-11-23T19:00:00Z"),
     apiKeyOverride: "AIzaValidFixtureKey00000000000000000000",
     inputsOverride: fixedInputs,
@@ -275,7 +286,7 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
 
   // 3d. Open breaker -> short-circuits before calling Gemini
   let calledWhenOpen = 0;
-  const openRes = await runFloridaIntelligenceMonitor({
+  const openRes = await runMonitor({
     now: new Date("2026-11-23T19:00:00Z"),
     apiKeyOverride: "AIzaValidFixtureKey00000000000000000000",
     inputsOverride: fixedInputs,
@@ -300,10 +311,18 @@ async function scheduledRouteFixture() {
   const pulses = [];
   const snapshots = [];
   const unexpectedRequests = [];
+  const geminiAttempts = [];
+  const grants = [];
   const providerEcho = "fixture-OpenAI-credential-echo";
   let providerCalls = 0;
   let providerStatus = 429;
+  let carbonStatus = 200;
+  let carbonFinish = "STOP";
+  let carbonText = '{"floridaBrief":"Verified waterfront walks and fall outings across Florida."}';
+  let carbonHangs = false;
+  let carbonAborted = false;
   let grant = true;
+  let carbonGrant = true;
   let ledger = [{ used: 10, cap: 10 }];
   globalThis.fetch = async (input, init = {}) => {
     const url = new URL(input);
@@ -314,8 +333,29 @@ async function scheduledRouteFixture() {
         : { error: { message: "You have no credits remaining. Credential: " + providerEcho } };
       return Response.json(data, { status: providerStatus });
     }
+    if (url.hostname === "generativelanguage.googleapis.com") {
+      const isCarbon = url.pathname.endsWith("/gemini-4-carbon:generateContent");
+      geminiAttempts.push({ isCarbon, bytes: new TextEncoder().encode(init.body).byteLength, body: JSON.parse(init.body) });
+      if (isCarbon && carbonHangs) {
+        return new Promise((_, reject) => init.signal.addEventListener("abort", () => {
+          carbonAborted = true;
+          reject(new Error("fixture request aborted"));
+        }, { once: true }));
+      }
+      if (isCarbon && carbonStatus !== 200) {
+        return Response.json({ error: { status: "RESOURCE_EXHAUSTED", message: "Fixture quota exhausted" } }, { status: carbonStatus });
+      }
+      return Response.json({ candidates: [{ finishReason: isCarbon ? carbonFinish : "STOP", content: { parts: [
+        { thought: true, text: "Internal reasoning." },
+        { text: isCarbon ? carbonText : '{"floridaBrief":"Open parks and waterfront walks throughout Florida."}' },
+      ] } }] });
+    }
     if (url.hostname === "florida-monitor.test") {
-      if (url.pathname.endsWith("/wf_spend_take")) return Response.json(grant);
+      if (url.pathname.endsWith("/wf_spend_take")) {
+        const request = JSON.parse(init.body);
+        grants.push(request);
+        return Response.json(request.p_sku === "gemini_editorial_carbon" ? carbonGrant : grant);
+      }
       if (url.pathname.endsWith("/wf_spend_ledger")) return Response.json(ledger);
       if (url.pathname.endsWith("/wf_job_pulse")) {
         pulses.push(JSON.parse(init.body));
@@ -377,6 +417,73 @@ async function scheduledRouteFixture() {
     "an unconfirmed ledger refusal surfaces as a failure, since no budget decision was established");
   ok(providerCalls === callsAfterRecovery && snapshots.length === 5 && pulses.length === 5 &&
     unexpectedRequests.length === 0, "all five fixture runs publish snapshots and pulses without uncontrolled network calls");
+
+  process.env["GEMINI_API_KEY"] = "AQ.fixture_" + "0".repeat(40);
+  process.env["GEMINI_MONTHLY_REQUEST_CAP"] = "23";
+  process.env["GEMINI_MODEL"] = "gemini-3.1-flash-lite";
+  grant = true;
+  providerStatus = 200;
+  const off = await (await callCron()).json();
+  ok(off.aiStatus === "active" && off.model === "gpt-4o-mini" && geminiAttempts.length === 0 &&
+    !grants.some((request) => request.p_sku === "gemini_editorial_carbon"),
+  "with editorial configuration absent, OpenAI retains priority and no Carbon grant is requested");
+
+  process.env["GEMINI_EDITORIAL_MODEL"] = "gemini-4-hydrogen";
+  const unsupported = await (await callCron()).json();
+  ok(unsupported.model === "gpt-4o-mini" && geminiAttempts.length === 0,
+    "an unsupported editorial model cannot activate the paid Carbon lane");
+
+  process.env["GEMINI_EDITORIAL_MODEL"] = "gemini-4-carbon";
+  const callsBeforeCarbon = providerCalls;
+  const carbon = await (await callCron()).json();
+  const carbonGrantRequest = grants.at(-1);
+  const submitted = geminiAttempts.at(-1);
+  ok(carbon.aiStatus === "active" && carbon.model === "gemini-4-carbon" && providerCalls === callsBeforeCarbon &&
+    snapshots.at(-1)?.monitor.model === carbon.model && snapshots.at(-1)?.monitor.provider === "gemini" &&
+    /ai=active\(gemini-4-carbon\)/.test(pulses.at(-1)?.note || ""),
+  "valid Carbon output gets first priority and is attributed in the API, cache, and cron pulse");
+  ok(carbonGrantRequest.p_sku === "gemini_editorial_carbon" && carbonGrantRequest.p_cap === 124 &&
+    submitted.isCarbon && submitted.bytes <= 12 * 1024 && submitted.body.generationConfig.maxOutputTokens === 3200,
+  `the real Gemini gateway takes a separate 124-request grant and submits bounded Carbon JSON (${submitted.bytes} bytes in this fixture)`);
+
+  carbonGrant = false;
+  const beforeRefusedGrant = geminiAttempts.length;
+  const refusedGrant = await (await callCron()).json();
+  ok(refusedGrant.aiStatus === "active" && refusedGrant.model === "gpt-4o-mini" && geminiAttempts.length === beforeRefusedGrant,
+    "a refused Carbon grant falls through to OpenAI before Carbon reaches the network");
+
+  carbonGrant = true;
+  carbonStatus = 429;
+  providerStatus = 429;
+  const providerRefusal = await (await callCron()).json();
+  ok(providerRefusal.aiStatus === "active" && providerRefusal.model === "gemini-3.1-flash-lite" &&
+    geminiAttempts.at(-2)?.isCarbon === true && geminiAttempts.at(-1)?.isCarbon === false,
+  "a Carbon quota refusal still allows the standard Gemini fallback after OpenAI fails");
+
+  carbonStatus = 200;
+  carbonFinish = "MAX_TOKENS";
+  await resetBreaker("openai");
+  providerStatus = 200;
+  const incomplete = await (await callCron()).json();
+  ok(incomplete.aiStatus === "active" && incomplete.model === "gpt-4o-mini" && unexpectedRequests.length === 0,
+    "a token-limited Carbon reply is rejected even when its text parses, and OpenAI still publishes");
+
+  carbonFinish = "STOP";
+  carbonText = "malformed JSON";
+  const invalid = await (await callCron()).json();
+  ok(invalid.aiStatus === "active" && invalid.model === "gpt-4o-mini",
+    "Carbon output that fails the grounding validator falls through to OpenAI");
+
+  carbonHangs = true;
+  const realSetTimeout = globalThis.setTimeout;
+  globalThis.setTimeout = (callback, delay, ...args) => realSetTimeout(callback, delay === 17_000 ? 1 : delay, ...args);
+  try {
+    const timedOut = await (await callCron()).json();
+    ok(carbonAborted && timedOut.aiStatus === "active" && timedOut.model === "gpt-4o-mini",
+      "a stalled Carbon request is aborted at the deadline and OpenAI still publishes");
+  } finally {
+    globalThis.setTimeout = realSetTimeout;
+  }
   return checks;
 }
 
@@ -397,7 +504,7 @@ async function scheduledRouteFixture() {
   });
   if (child.status !== 0) throw new Error("scheduled route fixture failed: " + String(child.stderr || child.error || child.status).slice(0, 500));
   const checks = JSON.parse(child.stdout.trim().split("\n").at(-1));
-  ok(checks.length === 10, "the scheduled route harness ran every expected assertion");
+  ok(checks.length === 19, "the scheduled route harness ran every expected assertion");
   for (const [passed, message] of checks) ok(passed, message);
 }
 

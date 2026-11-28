@@ -203,6 +203,24 @@ function names(cards) {
 }
 
 {
+  // Both nearby venues appeared in the live Parrish breakfast rail. Uncle
+  // Joe's is a diner even though its provider only identifies a restaurant.
+  const dinerId = "ChIJBQOIF27ZwogR2YGfv3VSBoI";
+  const result = await searchResultCards({
+    query: "brunch",
+    ...PARRISH,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: dinerId, name: "Uncle Joe's New York Diner", lat: 27.7270548, lng: -82.4341706, category: "food", primaryType: "restaurant", types: ["restaurant", "point_of_interest", "food", "establishment"], rating: 4.2, reviews: 2408 }),
+      place({ id: "ChIJA-QkamE7w4gRfdzcxEHyPls", name: "ATRIA Cafe", lat: 27.4648662, lng: -82.4325881, category: "food", primaryType: "cafe", types: ["cafe", "coffee_shop", "breakfast_restaurant", "bakery"], rating: 4.5, reviews: 600 }),
+      place({ id: "far-diner", name: "Miami Diner", lat: 25.78, lng: -80.21, category: "food", primaryType: "restaurant", types: ["restaurant"], rating: 4.9, reviews: 2400 }),
+    ],
+  });
+  assert.deepEqual(result.cards.map((card) => card.id), [dinerId], "brunch uses the nearby diner's name without admitting a cafe or a distant diner");
+}
+
+{
   const result = await searchResultCards({
     query: "date night",
     ...SARASOTA,

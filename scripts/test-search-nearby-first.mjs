@@ -11,6 +11,9 @@ import { searchScore, singularQuery } from "../lib/searchRank.js";
 const ENV = { SUPABASE_URL: "https://owned.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "service-test-key" };
 const STPETE = { lat: 27.7731, lng: -82.64 };
 const SARASOTA = { lat: 27.3364, lng: -82.5307 };
+const PROJECT_COFFEE = "ChIJy6vf9_dBw4gRGg1sXR5UTGU";
+const COFFEE = { primary_type: "coffee_shop", google_types: ["coffee_shop", "cafe", "food"], cuisines: ["coffee"] };
+const PAPERBACK_QUERY = "somewhere I can order coffee and flip through a paperback in Sarasota";
 
 function row(id, name, lat, lng, extra = {}) {
   return {
@@ -31,6 +34,12 @@ const INVENTORY = [
   row("pz-near", "Sarasota Pizza Co", 27.34, -82.53, { primary_type: "pizza_restaurant" }),
   row("pz-cuisine", "Marina Kitchen", 27.33, -82.55, { cuisines: ["pizza"] }),
   row("pz-far", "Tampa Pizza Far", 27.95, -82.46, { primary_type: "pizza_restaurant" }),
+  row(PROJECT_COFFEE, "Project Coffee", 27.332, -82.539, COFFEE),
+  row("second-coffee", "Another Coffee Shop", 27.35, -82.52, COFFEE),
+  row("closed-coffee", "Closed Coffee", 27.33, -82.54, { ...COFFEE, status: "CLOSED_PERMANENTLY" }),
+  row("unrated-coffee", "Unrated Coffee", 27.33, -82.52, { ...COFFEE, signals: {} }),
+  row("outside-coffee-radius", "Far Coffee", 27.66, -82.88, COFFEE),
+  row("orlando-coffee", "Orlando Coffee", 28.542, -81.379, COFFEE),
 ];
 
 function fakeFetch(calls) {
@@ -97,4 +106,55 @@ const farOwned = INVENTORY.filter((r) => r.place_id.startsWith("far-")).map((r) 
   assert.ok(searchScore({ title: "Taco Bell", keywords: [] }, "tacos", null) >= 520, "the singular title matches a plural query");
 }
 
-console.log("test-search-nearby-first: OK - tacos from St. Pete lead with nearby places; pizza from Sarasota, city and place-name searches unchanged");
+{
+  const run = (query, opts = {}, calls = []) => searchResultCards({
+    query, ...SARASOTA, ownedPlaces: [], guides: [], events: [], env: ENV, fetchImpl: fakeFetch(calls), ...opts,
+  });
+  const nearbyCoffee = [PROJECT_COFFEE, "second-coffee"].sort();
+  const simple = await run("coffee");
+  assert.deepEqual(simple.cards.map((card) => card.id).sort(), nearbyCoffee, "the owned inventory fixture serves the local coffee results");
+
+  for (const opts of [{}, { filters: { category: "food", keywords: ["coffee"] } }]) {
+    // Sarasota is explicit, even with the visitor's location set to Orlando.
+    const out = await run(PAPERBACK_QUERY, { lat: 28.542, lng: -81.379, ...opts });
+    assert.equal(out.city.slug, "sarasota");
+    assert.deepEqual(out.cards.map((card) => card.id).sort(), nearbyCoffee,
+      "conversational coffee searches include only eligible Sarasota cafés, with or without AI filters");
+  }
+
+  const cortado = await run("looking for a cortado and somewhere to sit with a paperback in Sarasota");
+  assert.deepEqual(cortado.cards.map((card) => card.id).sort(), nearbyCoffee,
+    "an explicit coffee subtype can find nearby coffee places without a provider");
+
+  const cafeOnly = await run(PAPERBACK_QUERY, { places: [
+    INVENTORY.find((place) => place.place_id === PROJECT_COFFEE),
+    row("wholesale", "South Coast Coffee Wholesale", 27.332, -82.53, { primary_type: "grocery_store" }),
+    row("kava", "Coffee & Kava Room", 27.332, -82.53, COFFEE),
+    row("dessert", "Coffee + Ice Cream", 27.332, -82.53, { primary_type: "ice_cream_shop" }),
+  ] });
+  assert.deepEqual(cafeOnly.cards.map((card) => card.id), [PROJECT_COFFEE], "coffee in the name alone does not make a business a café");
+
+  for (const query of [
+    "no coffee",
+    "coffee open after 9",
+    "somewhere I can sit without coffee in Sarasota",
+    "somewhere I can order coffee after 9 in Sarasota",
+    "somewhere I can get coffee or sushi in Sarasota",
+    "somewhere to get coffee in Seattle",
+    "looking for Ghost Rose Coffee in Sarasota",
+    "somewhere to get coffee within walking distance in Sarasota",
+    "somewhere to get decaf coffee in Sarasota",
+    "somewhere to get coffee and a place to charge my laptop in Sarasota",
+  ]) {
+    const out = await run(query);
+    assert.deepEqual(out.cards, [], `uncertain or excluded coffee should not become an unrestricted coffee search: ${query}`);
+  }
+
+  const calls = [];
+  const exact = await run("Project Coffee in Sarasota", {}, calls);
+  assert.equal(exact.cards[0]?.id, PROJECT_COFFEE, "an exact venue still leads alongside other coffee inventory");
+  assert.ok(!calls.some((url) => url.pathname.endsWith("/wf_inventory") && url.searchParams.get("or")?.includes("name.ilike.*coffee*")),
+    "a successful exact venue search needs no broad coffee inventory read");
+}
+
+console.log("test-search-nearby-first: OK - local word searches, conversational coffee and cortado, explicit location, exclusions, and exact venue precedence");
