@@ -63,7 +63,7 @@ export function universalSpots(stops = UNIVERSAL_STOPS, stopPhotos = {}) {
       photoAttr: photo?.credit,
       photoAttrHref: photo?.source,
       photoPosition: photo?.position,
-      preservePhotoFraming: photo?.preserveFraming,
+      editorialPhoto: photo?.preserveFraming,
       photoFallbackCategory: "christmas",
       placeholder: { ...(FAMILY_TILE[stop.family] || FAMILY_TILE.food), label },
     };

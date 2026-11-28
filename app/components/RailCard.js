@@ -401,6 +401,8 @@ export function RailDots({ railId, count, layoutKey = 0 }) {
  *   own Google Places photos).
  * @param {string}   p.photoAttrHref link for that credit (the license / source
  *   page); the badge is a plain label instead of a link when omitted
+ * @param {boolean}  p.editorialPhoto keep the original photo framing and save
+ *   the entry without reusing an editorial-only image on other surfaces
  * @param {string}   p.title       place / event name (clamped to 2 lines by CSS)
  * @param {string}   p.eyebrow     the small category line ("Sports", "Fine dining")
  * @param {func}     p.onEyebrow   makes the eyebrow a real control; omit for a plain label
@@ -421,7 +423,7 @@ export function RailDots({ railId, count, layoutKey = 0 }) {
  *   pending or failed photo (e.g. "christmas"); art only, never the image.
  */
 export default function RailCard({
-  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", preservePhotoFraming = false, visitFacts = null, spooky = false, placeholder = null, photoFallbackCategory, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", editorialPhoto = false, visitFacts = null, spooky = false, placeholder = null, photoFallbackCategory, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -508,7 +510,7 @@ export default function RailCard({
     placeId: (actionItem && (actionItem.placeId || actionItem.place_id)) || "",
     type: (actionItem && actionItem.type) || "experience",
     title: (actionItem && (actionItem.title || actionItem.name)) || title,
-    image: (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
+    image: editorialPhoto ? null : (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
     url: (actionItem && actionItem.url) || cardHref || "",
     provider: actionItem && actionItem.provider,
   } : null;
@@ -557,6 +559,8 @@ export default function RailCard({
   // place's own photo, if one exists (lib/placeCardPhotoPosition.js).
   const shownPhotoPosition = photoPosition === "50% 50%" && !usingFallback && place?.id
     ? (placeCardPhotoPosition(place.id, displayedPhoto) || photoPosition) : photoPosition;
+  const photoStyle = { objectFit: "cover", objectPosition: shownPhotoPosition };
+  if (editorialPhoto) photoStyle.objectFit = "contain";
   if (visitFacts) {
     const photoEvent = usingFallback ? { ...visitFacts, image_is_venue: false, imageIsVenue: false, photoAttr: null, photoAttrHref: null } : visitFacts;
     if (usingFallback) { photoAttr = null; photoAttrHref = null; }
@@ -662,11 +666,7 @@ export default function RailCard({
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={handleImageError}
                 fallbackCategory={photoFallbackCategory}
-                style={{
-                  objectFit: "cover",
-                  objectPosition: shownPhotoPosition,
-                  ...(preservePhotoFraming ? { objectFit: "contain" } : {}),
-                }}
+                style={photoStyle}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
               : placeFallback || <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}

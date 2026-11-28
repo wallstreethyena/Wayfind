@@ -371,7 +371,7 @@ export default function GuideMapExplorer({
                   photoAttrHref={spot.photoAttrHref || null}
                   photoFallbackCategory={spot.photoFallbackCategory || undefined}
                   photoPosition={spot.photoPosition || undefined}
-                  preservePhotoFraming={spot.preservePhotoFraming}
+                  editorialPhoto={spot.editorialPhoto}
                   placeholder={photo ? null : spot.placeholder || null}
                   place={place}
                   title={spot.name}
@@ -392,7 +392,7 @@ export default function GuideMapExplorer({
                     placeId: spot.placeId || spot.place_id || "",
                     type: "event",
                     title: spot.name,
-                    image: spot.preservePhotoFraming ? null : photo,
+                    image: photo,
                     url: String(spot.href || "").startsWith("#") ? pagePath + spot.href : (spot.href || pagePath),
                   } : null}
                   eagerMedia={index < 2}
