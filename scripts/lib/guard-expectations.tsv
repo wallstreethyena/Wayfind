@@ -838,7 +838,7 @@ scripts/test-group-plan-notifications.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0
 scripts/test-group-plan-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	105	0	0	7bb7c952b106870ee40ed001cc1bd3ebf70f295c837e4561f1abf4407addcc1c
 scripts/test-group-plan-service.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	7177e168ebf2792e08828f7869c671e9ebeb214c5fb5e02e72fe738a6b59d625
 scripts/test-group-plan-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	b6937b9293bd382fc23966a12012e9dc39bedb27b585cc5e25ab5ba57c068b38
-scripts/test-group-plan-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	229	0	0	8b47e4a222d2bedb42404ae13124e99f6ea2ca312733610308b63d6f3e1909aa
+scripts/test-group-plan-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	232	0	0	400f630f059f2061dac365838d28cc475a0ca65fa3d81831f49fbb02d18190fd
 scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	139	0	0	d6ba7e8060ff80f85dc6aa9e62ba08c1f9c312284e2838777ff66e12c7b621e3
 scripts/test-group-vote-ballot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	168	0	0	e8c0165a04d6ff818e3d10f6c4e89c23c0967acec8a1db8fd4328194bf54477a
 scripts/test-group-vote-frame.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	6656a6b7662600b0037bd5cc4bb8b1a34ba7b70aecf2620e495ac48051a84367
