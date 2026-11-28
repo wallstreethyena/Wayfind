@@ -48,6 +48,8 @@ import {
 } from "../../lib/plannerAnalytics.js";
 import { extractCityFromPath } from "../../lib/plannerProactive.js";
 import { classifySantaMessage, TRIP_WORDS } from "../../lib/santaIntent.js";
+import { readAsk } from "../../lib/plannerRecommend.js";
+import PlannerRecs from "./PlannerRecs.js";
 import { resolveSearchArea } from "../../lib/santaArea.js";
 import { parsePlannerCity } from "../../lib/plannerParse.js";
 import { resolveOrganizeTrip, organizePreview } from "../../lib/organizeTrips.js";
@@ -593,7 +595,9 @@ export default function WayfindPlannerSheet() {
       reserveActive: reserveActiveRef.current,
       hasActiveTrip: Boolean(activeTripKeyRef.current),
     });
-    if (routed.kind === "reserve" || routed.kind === "find_food") {
+    // A request for restaurant picks ("one place for dinner", "best brunch?") gets exactly the picks asked for,
+    // from the server, which knows the city, the time, the weather and who is open now. Booking stays one tap away.
+    if (routed.kind === "reserve" || (routed.kind === "find_food" && readAsk(routed.text || text).kind !== "picks")) {
       setDraft("");
       routeToReserve(text, routed, { showUser: true });
       return;
@@ -682,6 +686,7 @@ export default function WayfindPlannerSheet() {
           message: text,
           voice: effVoice,
           contextCity: effCity,
+          homeCity: (readStoredCenter() || {}).loc || null,
           point: readStoredPoint(),
           activeTrip: currentActiveTrip,
           seedPlace: effSeed,
@@ -716,6 +721,11 @@ export default function WayfindPlannerSheet() {
 
       const organizing = data.mode === "edit_trip" && Array.isArray(data.actions) && data.actions.some((a) => a && a.type === "OPTIMIZE_DAY" && a.organizeIntoDays);
       if (!organizing) setMessages((prev) => [...prev, { role: "assistant", text: data.reply || "Here is what I found." }]);
+
+      if (data.mode === "recommend" && Array.isArray(data.picks) && data.picks.length) {
+        setMessages((prev) => [...prev, { role: "recs", k: Date.now(), picks: data.picks, planPrompt: data.planPrompt || null }]);
+        trackPlannerEvent(PLANNER_EVENTS.REQUEST, { surface: "recommend", voice: effVoice, has_active_trip: false });
+      }
 
       if (data.mode === "propose_trip" && data.proposedPlan) {
         savingRef.current = false;
@@ -1139,6 +1149,9 @@ export default function WayfindPlannerSheet() {
       const it = reserveItem(m.rid);
       const i = rsnap.items.indexOf(it);
       return it && rsnap.renderCard ? <div data-wf-thread-reserve="1">{rsnap.renderCard(it, i)}</div> : null;
+    }
+    if (m.role === "recs") {
+      return <PlannerRecs picks={m.picks} planPrompt={m.planPrompt} disabled={busyNow} onBook={pickRestaurant} onPlan={(prompt) => submitPlannerPrompt(prompt)} />;
     }
     if (m.role === "picks") {
       return (
