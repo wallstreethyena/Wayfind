@@ -127,7 +127,7 @@
   },
   {
     "file": "supabase/migrations/20261128021500_wf_photo_business_free_candidate.sql",
-    "sha256": "661ba625cf31d8a4099b1dbc341ef9870012d5c61206063e820bbadb68240357",
+    "sha256": "b7341c9ebc999e3694b315d8dbda8dc0b32178a245620eadab4f0b36b412b35d",
     "decision_owner": "wallstreethyena",
     "tracking": "#2878",
     "reason": "Deploy the reviewed general-photo worker and confirm its existing-worklist fallback before applying this service-only candidate view."

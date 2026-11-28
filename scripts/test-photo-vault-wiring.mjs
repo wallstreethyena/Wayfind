@@ -1625,11 +1625,60 @@ const PHOTO = (id) => ({
     requests.length = 0;
     for (const source of ["repair", "at-risk", undefined]) await runBackfill({ ...opts, source, dryRun: true });
     ok(!requests.some(x => x.table === "wf_photo_business_free_candidate"), "businesses: no other source or implicit CLI lane reads new businesses");
-    const migration = readFileSync(new URL("../supabase/migrations/20261128021500_wf_photo_business_free_candidate.sql", import.meta.url), "utf8");
-    ok(/security_invoker\s*=\s*true/.test(migration) && /revoke all[\s\S]+from public, anon, authenticated/.test(migration) && /grant select[\s\S]+service_role/.test(migration), "businesses: candidate view retains caller RLS and is service-role-only");
-    ok(/i\.excluded is not true/.test(migration) && /wf_place_photo p where p\.place_id = i\.place_id/.test(migration) && /q\.status in \('open', 'budget_blocked'\)/.test(migration), "businesses: SQL excludes nonpublic inventory, any existing photo decision, and active repair cases before selection");
-    ok(/join storage\.objects/.test(migration) && /g\.state = 'ready'/.test(migration) && /photo_gallery/.test(migration) && /attribution_url/.test(migration) && /wf-photo-fallback/.test(migration), "businesses: a retained Google object, eligible inventory cover and credited general gallery are distinguished from unretained refs and fallback art");
   } finally { globalThis.fetch = originalFetch; }
+}
+
+// Execute the committed view with the same mixed-case inventory and cover
+// shapes the deployed worklist must handle. This database lives only in memory.
+{
+  const { PGlite } = await import("@electric-sql/pglite");
+  const db = new PGlite();
+  try {
+    await db.exec(`
+      CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
+      CREATE SCHEMA storage;
+      CREATE TABLE storage.objects(bucket_id text, name text);
+      CREATE TABLE wf_inventory(place_id text PRIMARY KEY, name text DEFAULT 'Venue',
+        lat numeric DEFAULT 27, lng numeric DEFAULT -82, category text, tags text[],
+        status text DEFAULT 'OPERATIONAL', excluded boolean DEFAULT false,
+        postal_city text, locality text DEFAULT 'Tampa', signals jsonb DEFAULT '{}');
+      CREATE TABLE wf_place_photo(place_id text);
+      CREATE TABLE wf_photo_repair_queue(place_id text, status text);
+      CREATE TABLE wf_google_photo_store(place_id text, state text, storage_path text);
+      INSERT INTO wf_inventory(place_id,category) VALUES
+        ('food-1','food'), ('food-2',' Food '), ('hotel','HOTELS'), ('shop','Shopping'),
+        ('night','nIGhtLife'), ('other','Food service'), ('repair','Food'), ('photo','Hotels'),
+        ('stored','Food'), ('unstored','Shopping'), ('direct','Food'), ('gallery','food'),
+        ('excluded','Shopping'), ('closed','food');
+      UPDATE wf_inventory SET excluded=true WHERE place_id='excluded';
+      UPDATE wf_inventory SET status='CLOSED' WHERE place_id='closed';
+      UPDATE wf_inventory SET signals='{"photo_url":"/place-photos/venue.webp"}' WHERE place_id='direct';
+      UPDATE wf_inventory SET signals='{"photo_gallery":[{"url":"/place-photos/venue.webp","license":"CC BY","credit":"Author","source_ref":"https://example.org/photo"}]}' WHERE place_id='gallery';
+      INSERT INTO wf_photo_repair_queue VALUES ('repair','open');
+      INSERT INTO wf_place_photo VALUES ('photo');
+      INSERT INTO wf_google_photo_store VALUES ('stored','ready','present.jpg'), ('unstored','ready','absent.jpg');
+      INSERT INTO storage.objects VALUES ('google-place-photos','present.jpg');
+    `);
+    const migration = readFileSync(new URL("../supabase/migrations/20261128021500_wf_photo_business_free_candidate.sql", import.meta.url), "utf8");
+    await db.exec(migration);
+    const view = "public.wf_photo_business_free_candidate";
+    const { rows } = await db.query(`SELECT place_id, category, category_position FROM ${view} ORDER BY place_id`);
+    eq(rows.map(row => row.place_id + "=" + row.category).join(","),
+      "food-1=food,food-2=food,hotel=hotels,night=nightlife,shop=shopping,unstored=shopping",
+      "businesses: actual SQL normalizes exactly four categories and excludes existing decisions, repairs and usable covers, while retaining an unbacked Google reference");
+    eq(Number(rows.find(row => row.place_id === "food-2")?.category_position), 2,
+      "businesses: mixed-case food shares one category ranking with lowercase food");
+    await db.exec("UPDATE wf_photo_repair_queue SET status='resolved' WHERE place_id='repair'");
+    eq((await db.query(`SELECT category FROM ${view} WHERE place_id='repair'`)).rows[0]?.category, "food",
+      "businesses: Food becomes eligible under its canonical category after an existing repair clears");
+    const permissions = (await db.query(`SELECT reloptions, has_table_privilege('anon',oid,'SELECT') AS anon,
+      has_table_privilege('authenticated',oid,'SELECT') AS auth, has_table_privilege('service_role',oid,'SELECT') AS service
+      FROM pg_class WHERE oid='${view}'::regclass`)).rows[0];
+    ok(permissions.reloptions.includes("security_invoker=true") && !permissions.anon && !permissions.auth && permissions.service,
+      "businesses: actual invoker view requires service-role access and retains caller RLS");
+  } finally {
+    await db.close();
+  }
 }
 
 // Scheduled-size scans must reach undecided rows after a fully decided prefix.

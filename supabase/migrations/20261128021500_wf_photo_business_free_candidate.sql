@@ -4,10 +4,10 @@
 create or replace view public.wf_photo_business_free_candidate
 with (security_invoker = true) as
 with uncovered as (
-  select i.place_id, i.name, i.lat, i.lng, i.category, i.tags,
+  select i.place_id, i.name, i.lat, i.lng, lower(btrim(i.category)) as category, i.tags,
     coalesce(nullif(btrim(i.postal_city), ''), nullif(btrim(i.locality), '')) as city
   from public.wf_inventory i
-  where i.category in ('food', 'nightlife', 'shopping', 'hotels')
+  where lower(btrim(i.category)) in ('food', 'nightlife', 'shopping', 'hotels')
     and i.status = 'OPERATIONAL' and i.excluded is not true
     and nullif(btrim(i.name), '') is not null
     and i.lat between -90 and 90 and i.lng between -180 and 180
