@@ -110,8 +110,14 @@ for (const [slug, guide] of Object.entries(GUIDES)) {
 // rendered anchor (an <a> to "/"), never a bare substring.
 {
   const hub = readFileSync(new URL("../app/guides/page.js", import.meta.url), "utf8");
+  const frame = readFileSync(new URL("../app/components/EditorialStandard.js", import.meta.url), "utf8");
   if (!/<ReturnToWayfind\s/.test(hub)) fail("guides hub: missing the rendered back-to-home anchor");
-  if (!/<ReturnToWayfind\s/.test(g)) fail("guide detail: missing the rendered back-to-home anchor");
+  // The article frame owns the door home (docs/GUIDE_BLOG_STANDARD.md). The
+  // guide page has it when it renders that frame, which is what actually paints
+  // the anchor. A page that skips the frame fails here.
+  if (!/<ReturnToWayfind\s/.test(g) && !(/<EditorialStandard[\s>]/.test(g) && /<ReturnToWayfind\s/.test(frame))) {
+    fail("guide detail: missing the rendered back-to-home anchor");
+  }
   // v8.23 — EITHER FORM COUNTS. The up-link used to be a literal anchor in this
   // file AND a backHref on the hero, which rendered "All guides" twice on every
   // guide page, stacked (owner: "lets get rid of these buttons that dont serve a

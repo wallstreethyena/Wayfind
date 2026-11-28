@@ -51,7 +51,7 @@ const fetchSrc = page.slice(page.indexOf("async function inventoryPlacesByExactI
 ok(guide, "the lovebug guide is registered on current main");
 ok(guide.editorialMode !== true && isEditorialGuide(guide) === false, "the lovebug guide is a normal discovery page, not editorialMode");
 ok(guideCommerceChrome(guide) === GUIDE_COMMERCE_CHROME, "discovery-guide chrome stays on; editorialMode never gates this page");
-ok(/<GuideArticleHero[\s\n]/.test(page), "the page mounts GuideArticleHero, the same discovery-guide chrome");
+ok(/<EditorialStandard[\s\n]/.test(page), "the page mounts EditorialStandard, the shared guide frame");
 ok(!/editorialMode\s*:\s*true/.test(readFileSync(new URL("../lib/guidesFloridaLovebug.js", import.meta.url), "utf8")),
   "the lovebug module never sets editorialMode");
 ok(!/2026/.test(SLUG), "the canonical slug stays evergreen");

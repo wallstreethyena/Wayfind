@@ -45,13 +45,15 @@ ok(/onAuthStateChange/.test(src) && /href="\/favorites"[^>]*>[\s\S]*Your saves/.
 
 // ---- both event routes mount it in the header ------------------------------
 const curated = strip(read("app/florida-events/[slug]/page.js"));
-const brand = curated.slice(curated.indexOf('className="wf-event-brand"'), curated.indexOf("<EventSectionNav"));
-ok(brand.length > 50 && /<EventSignIn returnPath=\{"\/florida-events\/" \+ e\.slug\} \/>/.test(brand), "/florida-events/[slug] renders EventSignIn in its brand header");
+const editorial = strip(read("app/components/EditorialStandard.js"));
+const brand = editorial.slice(editorial.indexOf('className="wf-event-brand"'), editorial.indexOf("<EventSectionNav"));
+const signIn = 'headerAction={<EventSignIn returnPath={"/florida-events/" + e.slug} />}';
+ok(curated.includes(signIn) && brand.includes("{headerAction}"), "/florida-events/[slug] renders EventSignIn in the shared brand header");
 // alignment: a pill-level bottom margin on the back links pushed the Sign in
 // pill off center in the wrapped row; the space must live on the row itself.
 const backStyle = curated.slice(curated.indexOf("  back: {"), curated.indexOf("},", curated.indexOf("  back: {")));
 const rowStyle = (curated.match(/backRow: \{[^}]*\}/) || [""])[0];
-ok(backStyle.length > 40 && !/margin/i.test(backStyle) && /marginBottom: 18/.test(rowStyle), "the back pills carry no margin of their own, so Sign in lines up with them (space sits on backRow)");
+ok(curated.includes("headerRowStyle={S.backRow}") && brand.includes("headerRowStyle") && backStyle.length > 40 && !/margin/i.test(backStyle) && /marginBottom: 18/.test(rowStyle), "the back pills carry no margin of their own, so Sign in lines up with them (space sits on backRow)");
 const provider = strip(read("app/events/[city]/[slug]/page.js"));
 const nav = provider.slice(provider.indexOf('<a href="/" aria-label="Wayfind home"'), provider.indexOf("</nav>"));
 ok(nav.length > 50 && /<EventSignIn returnPath=\{`\/events\/\$\{encodeURIComponent\(params\.city\)\}\/\$\{encodeURIComponent\(params\.slug\)\}`\} \/>/.test(nav), "/events/[city]/[slug] renders EventSignIn in its header nav");
