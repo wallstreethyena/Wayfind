@@ -1088,6 +1088,7 @@ scripts/test-place-detail-photo-surfaces.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9
 scripts/test-place-details-budget-refusal.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	1bf5bf0d8c58855d98db8d1981f751966a22983a2a538f9b6be7e8371b22c3f2
 scripts/test-place-hero-preload.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	815a6291bcb7e7fd64d967b2d1c5d377e6530ef5eedefed817557b3975cadefc
 scripts/test-place-link-name.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	e2448f97d0e8ea6ae8beab78c39809570493f3efbe99c34b0f88198ea05f1ac3
+scripts/test-place-name-ingest.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	e8e52ca3ce5bea761b4b9312ecc8832654654e314efc33c426c9176d14032661
 scripts/test-place-page-book-click-id.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	42	0	0	33f86756cc5c143473bcf3ea844f117e21581b383a0fb1187c69a260dc897c04
 scripts/test-place-photo-replay.mjs	0	CALL	blocks-ci-and-deploy	1	-	130	0	0	cf698ed6c177ba9d6b4bd2a1a45797c4aba919957abb51e051c9500b4152ba30
 scripts/test-place-products.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	a0c96375ec9be4febbae0c59c6d2c77123985e51469c53f4879a4ad4dc261dea

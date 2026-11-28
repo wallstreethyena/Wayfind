@@ -2885,3 +2885,4 @@ node scripts/test-guide-map-pin-reveal.mjs
 node scripts/test-reengage-server.mjs
 node scripts/test-reengage-client.mjs
 node scripts/check-reengage-schema.mjs
+node scripts/test-place-name-ingest.mjs
