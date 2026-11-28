@@ -68,11 +68,12 @@ ok(stickyTopViolations(".a{position:sticky;bottom:0}").length === 0, "scanner ig
 const lightsRule = (CHRISTMAS_SITE_CSS.match(/\.wf-xmas-lights\{display:block;position:fixed;([^}]*)\}/) || [])[1] || "";
 const garlandH = Number((lightsRule.match(/height:(\d+)px/) || [])[1]);
 const garlandZ = Number((lightsRule.match(/z-index:(\d+)/) || [])[1]);
-const fixedTop = Number((CHRISTMAS_SITE_CSS.match(/\{--wf-fixed-top:(\d+)px\}/) || [])[1]);
+const fixedTop = Number((CHRISTMAS_SITE_CSS.match(/\{--wf-fixed-top:(\d+)px[;}]/) || [])[1]);
 ok(garlandH > 0 && garlandZ > 0, "the fixed garland rule is found (height and z-index)");
 ok(fixedTop === garlandH, `--wf-fixed-top (${fixedTop}px) equals the garland height (${garlandH}px)`);
 const gate = (CHRISTMAS_SITE_CSS.match(/\n(html\[data-wf-xmas="on"\][^\n{]*) \.wf-xmas-lights\{display:block/) || [])[1];
-ok(gate && CHRISTMAS_SITE_CSS.includes(`${gate}{--wf-fixed-top:${garlandH}px}`), "--wf-fixed-top is set on exactly the gate that shows the garland");
+ok(gate && CHRISTMAS_SITE_CSS.includes(`${gate}{--wf-fixed-top:${garlandH}px;`), "--wf-fixed-top is set on exactly the gate that shows the garland");
+ok(/backdrop-filter:blur\(\d+px\)/.test(lightsRule) && /background:linear-gradient/.test(lightsRule), "the band behind the bulbs is frosted, so text scrolling under the lights never shows through sharp");
 
 // ---- 2. every top-pinned sticky rule in app/ uses the offset ---------------
 const files = [];
@@ -99,7 +100,7 @@ ok(stickySeen >= 5, `the scan actually found the site's sticky rules (${stickySe
 // ---- 3. the event section rail ---------------------------------------------
 const navRule = (EVENT_EXPERIENCE_CSS.match(/\.wf-event-section-nav\{(--wf-nav-bg[^}]*)\}/) || [])[1] || "";
 const navZ = Number((navRule.match(/z-index:(\d+)/) || [])[1]);
-ok(/position:sticky/.test(navRule) && /top:calc\(var\(--wf-fixed-top,0px\) \+ \d+px\)/.test(navRule), "the event rail sticks below the garland offset");
+ok(/position:sticky/.test(navRule) && /top:calc\(var\(--wf-fixed-top,0px\) \+ var\(--wf-nav-gap,\d+px\)\)/.test(navRule), "the event rail sticks below the garland offset");
 ok(navZ > 0 && navZ < garlandZ, `the event rail stacks under the garland (z ${navZ} < ${garlandZ}) and never covers the lights`);
 ok(!/background:#080b10/.test(navRule) && /background:var\(--wf-nav-bg\)/.test(navRule), "the rail color comes from theme variables, not a hard black bar");
 ok(new RegExp(`${gate.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\.wf-event-section-nav\\{--wf-nav-bg:`).test(CHRISTMAS_SITE_CSS), "the Christmas season gives the rail its own on-theme colors");

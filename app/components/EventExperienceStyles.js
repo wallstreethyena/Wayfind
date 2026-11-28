@@ -66,7 +66,7 @@ export const EVENT_EXPERIENCE_CSS = `
    theme variables below (the Christmas season overrides them), highlights the
    section being read, and fades the edge with an arrow when more tabs hide off
    screen. Guarded by scripts/check-sticky-under-garland.mjs. */
-.wf-event-section-nav{--wf-nav-bg:rgba(15,20,28,.92);--wf-nav-solid:#0f141c;--wf-nav-line:rgba(255,255,255,.10);--wf-nav-tab:rgba(255,255,255,.05);--wf-nav-tab-line:rgba(255,255,255,.13);--wf-nav-text:#f4ece4;position:sticky;top:calc(var(--wf-fixed-top,0px) + 8px);z-index:34;margin:0 0 18px;border:1px solid var(--wf-nav-line);border-radius:22px;background:var(--wf-nav-bg);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);box-shadow:0 10px 26px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
+.wf-event-section-nav{--wf-nav-bg:rgba(15,20,28,.92);--wf-nav-solid:#0f141c;--wf-nav-line:rgba(255,255,255,.10);--wf-nav-tab:rgba(255,255,255,.05);--wf-nav-tab-line:rgba(255,255,255,.13);--wf-nav-text:#f4ece4;position:sticky;top:calc(var(--wf-fixed-top,0px) + var(--wf-nav-gap,8px));z-index:34;max-width:980px;margin:0 auto 18px;border:1px solid var(--wf-nav-line);border-radius:22px;background:var(--wf-nav-bg);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);box-shadow:0 10px 26px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
 .wf-event-section-nav[hidden]{display:none}
 .wf-event-section-rail{position:relative;display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px;scroll-padding-inline:48px}
 .wf-event-section-rail::-webkit-scrollbar{display:none}
