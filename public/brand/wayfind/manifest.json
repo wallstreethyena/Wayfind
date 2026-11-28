@@ -181,27 +181,6 @@
       "checksum_note": "The social-media channel listed sha256 74d620796968f86543dc7f6f5d8e6b5327f6e0d8d1a6a01c76e2fa3049133944 for this file (same byte size, 1272693). The bytes received for the vault hash differently; the image decodes cleanly. Recorded here is the vault copy's own hash."
     },
     {
-      "id": "wayfind-logo-tagline-black-email",
-      "path": "/brand/wayfind/derived/wayfind-logo-tagline-black-email.png",
-      "file": "public/brand/wayfind/derived/wayfind-logo-tagline-black-email.png",
-      "type": "logo",
-      "format": "png",
-      "width": 360,
-      "height": 114,
-      "transparent": true,
-      "purpose": "Email copy of wayfind-logo-tagline-black: the same file trimmed to its visible edges and scaled to 360px wide (shown 180px wide at 2x), nothing redrawn or recolored.",
-      "original": false,
-      "derivative_of": "wayfind-logo-tagline-black",
-      "source": "Made 2026-11-27 from public/brand/wayfind/logo/wayfind-logo-tagline-black-transparent.png (alpha-trimmed, Lanczos resize) for the weekly things-to-do email header (lib/newsletter.js), so mail clients load a small file.",
-      "date_added": "2026-11-27",
-      "background": "light",
-      "usage_notes": "White or light surfaces only. Sized for email headers.",
-      "approved_for_production": true,
-      "core": false,
-      "bytes": 19606,
-      "sha256": "b2b9b178f4d2b5f39df94da6bd09f50e3985572f5fcc69694966a393a5cf3a26"
-    },
-    {
       "id": "wayfind-mark-email-icon",
       "path": "/brand/wayfind/derived/wayfind-mark-email-icon.png",
       "file": "public/brand/wayfind/derived/wayfind-mark-email-icon.png",

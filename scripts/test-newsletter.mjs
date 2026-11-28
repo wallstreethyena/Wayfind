@@ -68,6 +68,43 @@ for (const [k, body] of [["html", issue.html], ["text", issue.text]]) {
 ok(issue.html.includes("/api/commerce/go?provider=x"), "our redirect ticket link missing");
 ok(!issue.html.includes("partner.example.com") && !issue.text.includes("partner.example.com"), "a raw partner URL reached the email");
 ok(/utm_medium=weekly_email/.test(issue.html) && !/api\/commerce\/go\?[^"]*utm_/.test(issue.html), "UTM rules wrong (our pages tagged, redirects untouched)");
+// Owner 2026-11-28: "that is not my logo". The header carries his white logo
+// (brand vault id wayfind-logo-white), byte for byte, on a dark background,
+// and a weekend in the Christmas window wears the site's Christmas colors.
+{
+  const fs = await import("node:fs");
+  const man = JSON.parse(fs.readFileSync(new URL("../public/brand/wayfind/manifest.json", import.meta.url), "utf8"));
+  const logo = man.assets.find((a) => a.id === "wayfind-logo-white");
+  ok(logo && logo.original === true && logo.path === NL.NEWSLETTER_LOGO.path, "email logo is not the owner's original white logo from the vault");
+  ok(Math.abs(NL.NEWSLETTER_LOGO.width / NL.NEWSLETTER_LOGO.height - logo.width / logo.height) < 0.05, "email logo shown at the wrong shape");
+  ok(issue.html.includes(`${NL.NEWSLETTER_LOGO.path}" width="${NL.NEWSLETTER_LOGO.width}" height="${NL.NEWSLETTER_LOGO.height}" alt="Wayfind"`), "logo tag lost its size or alt");
+  ok(!/wayfind-logo-tagline-black|derived\/wayfind-logo/.test(issue.html), "the old black logo is back in the email");
+  ok(/<body bgcolor="#[0-9A-F]{6}"/.test(issue.html) && !/<body[^>]*background:#fff/i.test(issue.html), "email body is not dark (the white logo would vanish)");
+  ok(NL.issueTheme("2026-11-27").key === "christmas" && NL.issueTheme("2026-12-31").key === "christmas", "Christmas weeks lost the Christmas look");
+  ok(NL.issueTheme("2027-01-02").key === "wayfind" && NL.issueTheme("2026-11-07").key === "wayfind", "the Christmas look leaks outside the season");
+  ok(issue.subject.startsWith("🎄 ") && /Your Christmas weekend in Tampa Bay/.test(issue.html), "a Christmas week issue is not festive");
+  const off = NL.buildWeeklyIssue({ ...base, window: { start: "2027-01-08", end: "2027-01-10" }, events: [], places: { eat: [{ name: "X", href: "/places/x", score: "9.0" }] } });
+  ok(off && !off.subject.includes("🎄") && !/Christmas/.test(off.html), "a January issue still says Christmas");
+}
+// Owner 2026-11-28: "The email has not pictures does not look premium". A
+// hero photo, section photos and event photos, but only photos Wayfind may
+// send: every <img> has alt, width and height; Unsplash photos credit the
+// photographer; an event photo appears only with a licence or when owned.
+{
+  const imgs = issue.html.match(/<img\b[^>]*>/g) || [];
+  ok(imgs.length >= 3, "the email has almost no pictures");
+  ok(imgs.every((t) => /\balt="[^"]+"/.test(t) && /\bwidth="\d+"/.test(t) && /\bheight="\d+"/.test(t)), "an email image lacks alt, width or height");
+  ok(imgs.every((t) => /src="https:\/\/(www\.gowayfind\.com|images\.unsplash\.com)\//.test(t)), "an email image is not on our domain or Unsplash's host");
+  ok(!/\/api\/photo/.test(issue.html), "a Google photo reached the email");
+  const hero = NL.EMAIL_PHOTOS.hero.christmas;
+  ok(issue.html.includes(hero.src.replace(/&/g, "&amp;")) && issue.html.includes("Photo: " + hero.credit), "Christmas hero photo or its credit missing");
+  const { loadComponent: lc } = await import(path.join(REPO, "scripts/lib/jsxLoad.mjs"));
+  const ES = await lc(path.join(REPO, "lib/newsletterServer.js"), REPO);
+  ok(ES.eventEmailPhoto({ event_id: "x", event_name: "X", hero_image: "/api/photo?ref=places%2Fabc", hero_image_kind: "venue" }) === null, "a Google event photo was allowed in email");
+  ok(ES.eventEmailPhoto({ event_id: "selby-lights-in-bloom-2026", event_name: "Lights in Bloom" })?.src === "/events/christmas/selby-lights-in-bloom-2026.jpg", "a licensed event photo was not used");
+  const withPhoto = NL.buildWeeklyIssue({ ...base, events: [{ name: "Lights", day: "2026-11-28", detailsHref: "/florida-events/l", photo: { src: "/events/christmas/selby-lights-in-bloom-2026.jpg", alt: "Lights at Selby", credit: "Kimberli · CC BY-SA 4.0" } }], places: {} });
+  ok(withPhoto.html.includes('src="https://www.gowayfind.com/events/christmas/selby-lights-in-bloom-2026.jpg"') && withPhoto.html.includes("Photo: Kimberli"), "event photo or its licence credit missing");
+}
 ok(NL.buildWeeklyIssue({ ...base, events: [], places: {} }) === null, "an empty week built an email");
 ok(NL.buildWeeklyIssue({ ...base, events: [], places: { eat: [{ name: "X", href: "/places/x", score: "9.0" }] } }) !== null, "a places-only week built nothing");
 
