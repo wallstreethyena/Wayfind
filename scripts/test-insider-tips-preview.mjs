@@ -12,6 +12,7 @@ import {
   lineStaysTrue, metroForQuery, chooseGeminiModel, answerInsiderQuestion, plainAnswerFrom, geminiModelChoices, thinkingFor,
   __resetInsiderPreviewMemo, INSIDER_PREVIEW_SKU, INSIDER_PREVIEW_MONTHLY_CAP,
 } from "../lib/insiderTipsPreview.js";
+import { sellModel, sellTile, loadSellModel, __resetSellMemo } from "../lib/insiderSellPreview.js";
 
 let n = 0;
 const ok = (cond, msg) => { if (!cond) { console.error("test-insider-tips-preview: FAIL — " + msg); process.exit(1); } n++; };
@@ -121,6 +122,33 @@ try {
   delete process.env.GEMINI_API_KEY;
 }
 
+// 4b — the selling strip (owner 2026-11-28 "not very converting"): only real
+// photos, only a real ticket way in, never sold out, Top rated by the shared rule.
+const viator = { kind: "affiliate", label: "Viator", provider: "viator", href: "/api/viator/go?offer=abc&surface=christmas_tickets", via: "on Viator" };
+const wk = (id, extra = {}) => ({ id, slug: id, kind: "event", title: "Event " + id, city: "Tampa", image: "https://x.supabase.co/storage/v1/object/public/p/" + id + ".jpg", rating: 4.8, reviews: 2400, detailHref: "/florida-events/" + id, ticketRow: { when: "Sat Nov 28", price: { kind: "from", text: "$29" }, cta: viator }, ...extra });
+const data = {
+  today: "2026-11-28",
+  weekend: { window: ["2026-11-28", "2026-11-29"], groups: [
+    { id: "lights", cards: [wk("a1"), wk("a2", { image: "", ticketRow: { price: { kind: "from", text: "$9" }, cta: viator } }), wk("a3", { ticketRow: { price: { kind: "from", text: "$9", soldOut: true }, cta: viator } })] },
+    { id: "shows", cards: [wk("b1", { rating: 3.9, reviews: 40 }), wk("b2", { ticketRow: { price: { kind: "from", text: "$15" }, cta: null } })] },
+  ] },
+  tickets: { chrome: { eventPage: "Full event page" }, rows: [
+    { id: "a1", cta: viator, photos: [{ src: "https://x/p.jpg" }], price: { kind: "from", text: "$29" } },
+    { id: "c1", cta: viator, photos: [{ src: "https://x/c.jpg" }], price: { kind: "from", text: "$40" } },
+    { id: "c2", cta: viator, photos: [], price: { kind: "from", text: "$40" } },
+    { id: "c3", cta: null, photos: [{ src: "https://x/c3.jpg" }] },
+  ] },
+};
+const sm = sellModel(data);
+ok(sm.weekend.map((t) => t.id).join(",") === "a1,b1", "weekend strip keeps only tiles with a real photo, a ticket way in and not sold out; got " + sm.weekend.map((t) => t.id).join(","));
+const a1 = sm.weekend[0];
+ok(a1.topRated === true && sm.weekend[1].topRated === false && a1.price === "From $29" && a1.cta.href.includes("/api/viator/go?") && a1.cta.href.includes("surface=christmas_weekend"), "Top rated only by the shared score rule; price and our own tracked /go link carried");
+ok(sm.christmas.map((r) => r.id).join(",") === "c1", "Christmas grid skips weekend duplicates, photo-less rows and rows without tickets");
+ok(sellTile(wk("z", { kind: "place" })) === null && sellModel(null).weekend.length === 0, "places and a failed read give no tiles");
+__resetSellMemo();
+const failed = await loadSellModel({ read: async () => { throw new Error("down"); } });
+ok(failed.weekend.length === 0 && failed.christmas.length === 0, "a failed Christmas read never breaks the page");
+
 // 5 — wiring.
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 const page = strip(readFileSync(new URL("../app/preview/insider-tips/page.js", import.meta.url), "utf8"));
@@ -131,6 +159,7 @@ const route = strip(readFileSync(new URL("../app/api/preview/insider-tips/route.
 const plainAt = route.indexOf('searchParams.get("plain") === "1"'), aiAt = route.indexOf("answerInsiderQuestion(q)");
 ok(plainAt > 0 && aiAt > plainAt && /plainAnswerFrom\(await loadInsiderTips\(\)/.test(route.slice(plainAt, aiAt)) && !/answerInsiderQuestion/.test(route.slice(plainAt, aiAt)), "plain=1 answers from the verified tips with no Gemini call, before the AI path");
 const client = strip(readFileSync(new URL("../app/preview/insider-tips/InsiderTipsClient.js", import.meta.url), "utf8"));
+ok(/<SellTile /.test(client) && /Get tickets/.test(client) && client.indexOf("data-sell-weekend") < client.indexOf("Where are you headed?</h2>"), "bookable weekend picks come before the insider tips search");
 ok(/&plain=1/.test(client) && /Said simply by \{modelName\(answer\.model\)\}/.test(client) && !/color:transparent/.test(client), "a new town shows its verified tips first (readable, never hidden), and the AI line names the model");
 const lib = strip(readFileSync(new URL("../lib/insiderTipsPreview.js", import.meta.url), "utf8"));
 ok(!/generativelanguage\.googleapis\.com/.test(lib), "no direct Gemini endpoint outside lib/paidGemini.js");

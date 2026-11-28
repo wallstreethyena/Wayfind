@@ -913,7 +913,7 @@ scripts/test-image-publication-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	f
 scripts/test-image-score.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	24	1	0	54b58d2f15300f2d6902703a73cefc646485fe29d92e1ef86b89907e234066b3
 scripts/test-independent-coords-pass.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	ee79b7d51c623f291c5c9f661a2ab3a43d0a1b908321c17e5a6b7222755e709d
 scripts/test-indexnow.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	8aee2457d2d7d2d76bf9e3eae7f4a5230d8da7b02b8e4369d657305551829dc2
-scripts/test-insider-tips-preview.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	6b303a2ac292c84e89fdd4659c05bdb89a1df7c4d7a33edf7dd420e2ca7223c5
+scripts/test-insider-tips-preview.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	4c894622de999a89797ac927fe8bdeb7d181637104d51cc6ada5bbe313f17966
 scripts/test-instagram-plays-in-wayfind.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	2accedcfbe3db41db3968abbd0b86489c4765916899d177b1b33ff04c58a188e
 scripts/test-intent-composition.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	d7625b1da6451ca20ece21e7b512b8f6c334a078836fe7f935545f3249bae999
 scripts/test-intent-header-clarity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	57	0	0	733eb9df463b7e7dc682fdd685426d17bb2179e2f059507dea43d1d83a52bcfc
