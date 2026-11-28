@@ -70,7 +70,7 @@ const NAP = ev.EVERGREEN_CITIES.naples;
 const isNotFound = (e) => !!e && (/NEXT_HTTP_ERROR_FALLBACK;404|NEXT_NOT_FOUND/.test(String(e.digest || "")) || /NEXT_NOT_FOUND/.test(String(e.message || "")));
 async function renderPair(cat, slug, inventoryRows) {
   try {
-    const el = await page.LandingPage({ catSlug: cat, citySlug: slug, rankOpts: { inventoryRows } });
+    const el = await page.LandingPage({ catSlug: cat, citySlug: slug, rankOpts: { inventoryRows, photoReadyIds: async (ids) => new Set(ids) } });
     return { html: renderToStaticMarkup(el), notFound: false, error: null };
   } catch (e) { return { html: "", notFound: isNotFound(e), error: e }; }
 }
@@ -164,7 +164,7 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
 {
   const withheld = Object.entries(ev.EVERGREEN_WITHHELD).flatMap(([s, cs]) => cs.map((c) => `/${c}/${s}`));
   const published = Object.keys(landing.LANDING_CATS).flatMap((c) => ev.evergreenSlugsFor(c).map((s) => `/${c}/${s}`));
-  ok(withheld.includes("/things-to-do/st-augustine") && published.length === 16 && published.includes("/things-to-do/clearwater") && published.includes("/things-to-do/crystal-river"), `fixture sanity: 16 published, including Clearwater and Crystal River things-to-do, withheld includes things-to-do/st-augustine (${withheld.length})`);
+  ok(withheld.includes("/things-to-do/st-augustine") && published.length === 17 && published.includes("/things-to-do/clearwater") && published.includes("/things-to-do/crystal-river") && published.includes("/things-to-do/gainesville"), `fixture sanity: 17 published, including Clearwater, Crystal River and Gainesville things-to-do, withheld includes things-to-do/st-augustine (${withheld.length})`);
   const pages = [...published.map((p) => p.slice(1).split("/")), ["restaurants", "sarasota"], ["things-to-do", "orlando"], ["nightlife", "tampa"], ["beaches", "sarasota"]];
   for (const [c, s] of pages) {
     const city = landing.landingPair(c, s).city;

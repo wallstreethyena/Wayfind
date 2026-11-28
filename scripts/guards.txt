@@ -2221,6 +2221,7 @@ node scripts/check-evergreen-landing-zero-spend.mjs
 # rendered places, 17 mi straight-line, "in and near" on every surface, 404 below
 # the floor but THROW on a read error, never link a withheld pair.
 node scripts/test-evergreen-eligibility.mjs
+node scripts/test-evergreen-photo-only.mjs
 node scripts/test-beach-never-booking.mjs
 
 # 2026-10-01: the Clipp owner-audit fuses used to fail every Vercel build when they lapsed

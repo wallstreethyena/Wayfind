@@ -56,11 +56,12 @@ const EXPECTED = [
   "things-to-do/jacksonville", "restaurants/jacksonville", "nightlife/jacksonville",
   "restaurants/st-augustine", "nightlife/st-augustine",
   "things-to-do/clearwater", "things-to-do/crystal-river",
+  "things-to-do/gainesville",
 ];
-const WITHHELD = ["beaches/naples", "beaches/fort-myers", "nightlife/fort-myers", "beaches/jacksonville", "things-to-do/st-augustine", "beaches/st-augustine"];
+const WITHHELD = ["beaches/naples", "beaches/fort-myers", "nightlife/fort-myers", "beaches/jacksonville", "things-to-do/st-augustine", "beaches/st-augustine", "restaurants/gainesville", "nightlife/gainesville", "beaches/gainesville"];
 const CATS = ["things-to-do", "restaurants", "beaches", "nightlife"];
-const TOWNS = ["st-petersburg", "naples", "fort-myers", "jacksonville", "st-augustine", "clearwater", "crystal-river"];
-ok(EXPECTED.length === 16 && WITHHELD.length === 6, "fixture sanity: 16 expected + 6 withheld pairs");
+const TOWNS = ["st-petersburg", "naples", "fort-myers", "jacksonville", "st-augustine", "clearwater", "crystal-river", "gainesville"];
+ok(EXPECTED.length === 17 && WITHHELD.length === 9, "fixture sanity: 17 expected + 9 withheld pairs");
 
 // ── Hermetic rig: one fetch recorder for everything below ────────────────────
 const SB = "https://sb.evergreen-guard.invalid";
@@ -107,10 +108,10 @@ const { LANDING_CITIES } = await import("../lib/landingCities.js");
 // ── A. MEMBERSHIP ────────────────────────────────────────────────────────────
 {
   const pairs = ev.evergreenPairs().map(([c, s]) => `${c}/${s}`);
-  ok(pairs.length === 16, `evergreenPairs() has exactly 16 rows (got ${pairs.length})`);
-  ok(JSON.stringify([...pairs].sort()) === JSON.stringify([...EXPECTED].sort()), `evergreenPairs() is exactly the 16 qualifying pairs (got ${pairs.join(", ")})`);
+  ok(pairs.length === 17, `evergreenPairs() has exactly 17 rows (got ${pairs.length})`);
+  ok(JSON.stringify([...pairs].sort()) === JSON.stringify([...EXPECTED].sort()), `evergreenPairs() is exactly the 17 qualifying pairs (got ${pairs.join(", ")})`);
   const withheld = Object.entries(ev.EVERGREEN_WITHHELD).flatMap(([s, cs]) => cs.map((c) => `${c}/${s}`));
-  ok(JSON.stringify(withheld.sort()) === JSON.stringify([...WITHHELD].sort()), "EVERGREEN_WITHHELD names exactly the 6 weak pairs");
+  ok(JSON.stringify(withheld.sort()) === JSON.stringify([...WITHHELD].sort()), "EVERGREEN_WITHHELD names exactly the 9 weak pairs");
   ok(TOWNS.every((t) => !Object.prototype.hasOwnProperty.call(LANDING_CITIES, t)), "no evergreen town is in LANDING_CITIES (that table feeds rails and photo-warm)");
   for (const k of EXPECTED) { const [c, s] = k.split("/"); const p = landing.landingPair(c, s); ok(p && p.evergreen === true && p.city && p.city.name, `landingPair(${k}) resolves as evergreen`); }
   for (const k of WITHHELD) { const [c, s] = k.split("/"); ok(landing.landingPair(c, s) === null, `landingPair(${k}) is null (withheld)`); }
@@ -129,8 +130,8 @@ const { LANDING_CITIES } = await import("../lib/landingCities.js");
     ok(lc.length === Object.keys(LANDING_CITIES).length, `CONTROL: app/${cat}/[city] still lists every LANDING_CITIES slug (${lc.length}/${Object.keys(LANDING_CITIES).length})`);
     ok(params.length === lc.length + evRows.length && new Set(params).size === params.length, `app/${cat}/[city] params are LANDING_CITIES + evergreen, no strays or duplicates`);
   }
-  ok(routeRows.length === 16 && JSON.stringify([...routeRows].sort()) === JSON.stringify([...EXPECTED].sort()),
-    `generateStaticParams across the 4 routes yields exactly the 16 evergreen pairs (got ${routeRows.length}: ${routeRows.join(", ")})`);
+  ok(routeRows.length === 17 && JSON.stringify([...routeRows].sort()) === JSON.stringify([...EXPECTED].sort()),
+    `generateStaticParams across the 4 routes yields exactly the 17 evergreen pairs (got ${routeRows.length}: ${routeRows.join(", ")})`);
   ok(WITHHELD.every((k) => !routeRows.includes(k)), "no withheld pair is prerendered");
 
   // The real sitemap, called.
@@ -138,9 +139,9 @@ const { LANDING_CITIES } = await import("../lib/landingCities.js");
   const urls = (await sm.default()).map((r) => r.url);
   const pathOf = (u) => u.replace(/^https?:\/\/[^/]+/, "");
   const evLanding = urls.map(pathOf).filter((p) => { const m = p.match(/^\/([a-z-]+)\/([a-z-]+)$/); return m && CATS.includes(m[1]) && TOWNS.includes(m[2]); });
-  ok(evLanding.length === 16 && JSON.stringify(evLanding.map((p) => p.slice(1)).sort()) === JSON.stringify([...EXPECTED].sort()),
-    `sitemap lists exactly the 16 evergreen landing URLs (got ${evLanding.length})`);
-  ok(WITHHELD.every((k) => !urls.map(pathOf).includes("/" + k)), "sitemap lists none of the 6 withheld pairs");
+  ok(evLanding.length === 17 && JSON.stringify(evLanding.map((p) => p.slice(1)).sort()) === JSON.stringify([...EXPECTED].sort()),
+    `sitemap lists exactly the 17 evergreen landing URLs (got ${evLanding.length})`);
+  ok(WITHHELD.every((k) => !urls.map(pathOf).includes("/" + k)), "sitemap lists none of the 9 withheld pairs");
   const evEvents = urls.map(pathOf).filter((p) => TOWNS.some((t) => p.startsWith(`/events/${t}/`)));
   ok(evEvents.length === 0, `no evergreen /events window in the sitemap (got ${evEvents.length})`);
   const sarasotaLanding = urls.map(pathOf).filter((p) => CATS.some((c) => p === `/${c}/sarasota`));
@@ -193,9 +194,12 @@ const fixture = (c, city, s) => Array.from({ length: 10 }, (_, i) => {
     ...TYPES[c],
   };
 });
+// photoOnly towns (lib/landingPhotoReady.js) rank only photo-ready places; the
+// fixtures stand in for places that hold a stored or licensed photo.
+const allReady = async (ids) => new Set(ids);
 const photoUrls = (html) => [...html.matchAll(/\/api\/photo\?[^"'\s>]*/g)].map((m) => m[0].replace(/&amp;/g, "&"));
 const render = async (c, s, city) => {
-  const el = await landingPage.LandingPage({ catSlug: c, citySlug: s, rankOpts: { inventoryRows: fixture(c, city, s) } });
+  const el = await landingPage.LandingPage({ catSlug: c, citySlug: s, rankOpts: { inventoryRows: fixture(c, city, s), photoReadyIds: allReady } });
   return renderToStaticMarkup(el);
 };
 {
@@ -219,7 +223,7 @@ const render = async (c, s, city) => {
     for (const w of WITHHELD) ok(!html.includes(`href="/${w}"`), `${k}: page links nowhere withheld (/${w})`);
     ok(!TOWNS.some((t) => html.includes(`href="/events/${t}`)), `${k}: page links to no evergreen /events window`);
   }
-  ok(totalCards >= 16 * 8 && totalPhotoUrls >= totalCards, `sanity: ${totalCards} cards / ${totalPhotoUrls} photo URLs rendered across 16 pages`);
+  ok(totalCards >= 17 * 8 && totalPhotoUrls >= totalCards, `sanity: ${totalCards} cards / ${totalPhotoUrls} photo URLs rendered across 17 pages`);
   // CONTROL: same fixture, a LANDING_CITIES town — its cards are spend-capable.
   calls = [];
   const ctlHtml = await render("restaurants", "sarasota", LANDING_CITIES.sarasota);
@@ -405,7 +409,7 @@ const render = async (c, s, city) => {
   for (const k of EXPECTED) {
     const [c, s] = k.split("/");
     const city = landing.landingPair(c, s).city;
-    const list = await landing.landingRanked(c, s, { inventoryRows: withFar(c, city, s) });
+    const list = await landing.landingRanked(c, s, { inventoryRows: withFar(c, city, s), photoReadyIds: allReady });
     ok(Array.isArray(list) && list.length >= 8, `${k}: clamp keeps the in-city fixture (${list && list.length} ranked)`);
     ok(!list.some((p) => p.name === "Far Metro Venue"), `${k}: a 4.9-star, 9000-review venue 18.5 mi away is NOT ranked`);
     ok(list.every((p) => p.distMi == null || p.distMi <= 17.01), `${k}: every ranked place is within 17 mi (max ${Math.max(...list.map((p) => p.distMi || 0)).toFixed(1)})`);
@@ -436,7 +440,7 @@ const render = async (c, s, city) => {
   // (Google refused inside it), the fixture eligibility test, and the
   // covered-markets lock (reads the table to prove a covered-only market is
   // never published; 2026-10-01).
-  const ALLOWED = ["lib/landing.js", "lib/landingPage.js", "scripts/audit-evergreen-evidence.mjs", "scripts/check-evergreen-landing-zero-spend.mjs", "scripts/test-city-weekend-seo.mjs", "scripts/test-covered-markets.mjs", "scripts/test-evergreen-eligibility.mjs"];
+  const ALLOWED = ["lib/landing.js", "lib/landingPage.js", "scripts/audit-evergreen-evidence.mjs", "scripts/check-evergreen-landing-zero-spend.mjs", "scripts/test-city-weekend-seo.mjs", "scripts/test-covered-markets.mjs", "scripts/test-evergreen-eligibility.mjs", "scripts/test-evergreen-photo-only.mjs"];
   ok(importers.includes("lib/landing.js"), "PROBE: the importer scan finds the known importer lib/landing.js");
   ok(JSON.stringify(importers) === JSON.stringify(ALLOWED), `only the landing layer imports lib/evergreenCities.js — a cron or rail that adopts it would start spending on these towns (importers: ${importers.join(", ")})`);
   console.log(`  scanned ${files.length} files for evergreenCities importers`);
@@ -458,5 +462,5 @@ if (failures) {
   console.error(`check-evergreen-landing-zero-spend: FAIL (${failures}/${asserts})`);
   process.exit(1);
 }
-console.log(`check-evergreen-landing-zero-spend: OK (${asserts} assertions — 16 pairs published, 6 withheld, 0 googleapis/ledger calls across 16 ranked + 16 rendered pages, positive controls reached)`);
+console.log(`check-evergreen-landing-zero-spend: OK (${asserts} assertions — 17 pairs published, 9 withheld, 0 googleapis/ledger calls across 17 ranked + 17 rendered pages, positive controls reached)`);
 process.exit(0);
