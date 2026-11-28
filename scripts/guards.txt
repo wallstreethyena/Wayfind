@@ -2861,6 +2861,9 @@ node scripts/test-planner-right-now.mjs
 node scripts/test-ai-engine-rls.mjs
 node scripts/test-web-push.mjs
 node scripts/test-web-push-client.mjs
+# 2026-11-28 re-engagement PR 2 (Lane A): value gated push prompt, iPhone Add to Home Screen helper, POST /api/reengage/push. The kernel vector, the
+# offer truth table and the Yes path order are asserted on CALLS against a real DOM; opt out gets nothing; the endpoint is sealed, never logged or returned.
+node scripts/test-reengage-push.mjs
 node scripts/test-guide-video-timeline.mjs
 node scripts/test-guide-video-render.mjs
 node scripts/test-city-weekend-seo.mjs

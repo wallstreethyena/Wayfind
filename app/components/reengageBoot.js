@@ -18,15 +18,76 @@ export function confirmPendingEmail(win) {
   } catch (e) { return false; }
 }
 
+// The push half (PR 2): everything below runs only when this build was ALSO cut
+// with NEXT_PUBLIC_WF_REENGAGE_PUSH=1, after the opt out check, and loads
+// lib/reengagePushClient.js lazily. With that flag unset the sequence is exactly
+// the one above and no new request is ever made.
+//   * a visit 30+ minutes after the last one sends return_visit;
+//   * a hub page (Christmas in Florida, a guide) is counted, and from the second
+//     view sends hub_view;
+//   * every itinerary_generated event posts the plan reference to the server,
+//     whether or not a prompt shows (a visitor who already opted in gets a push
+//     only that way);
+//   * when lib/reengagePushClient.offerFor says yes, the soft ask loads and
+//     goes to onBanner.
+const PUSH_AWAY_MS = 30 * 60 * 1000;
+
 // boot(win, onBanner): schedules the idle run and returns a cancel function.
-// onBanner(Component) is called at most once, only when the banner should show.
-// `deps` lets the test inject the client module and banner loader.
+// onBanner(Component) is called when the banner or the push prompt should show.
+// `deps` lets the test inject the client module, push client and the loaders.
 export function boot(win, onBanner, deps) {
   let cancelled = false;
   let idleHandle = null;
   let timer = null;
   const loadClient = (deps && deps.loadClient) || (() => import("../../lib/reengageClient.js"));
   const loadBanner = (deps && deps.loadBanner) || (() => import("./ReturnBanner"));
+  const loadPush = (deps && deps.loadPush) || (() => import("../../lib/reengagePushClient.js"));
+  const loadPrompt = (deps && deps.loadPrompt) || (() => import("./PushPrompt"));
+  // The visit's one interruption (lib/interruptionBudget.js): the banner is one too, so it asks first.
+  const loadBudget = (deps && deps.loadBudget) || (() => import("../../lib/interruptionBudget.js"));
+
+  // Push half. Returns a promise, or undefined when the push flag is off.
+  const pushStep = (rc, bannerShown) => {
+    if (process.env.NEXT_PUBLIC_WF_REENGAGE_PUSH !== "1") return undefined;
+    return loadPush().then((pc) => {
+      if (cancelled) return;
+      try {
+        const state = rc.readState(win);
+        const path = win.location.pathname;
+        const now = Date.now();
+        if (typeof state.prevVisitAt === "number" && now - state.prevVisitAt >= PUSH_AWAY_MS) pc.sendSignal(win, "return_visit");
+        const hub = pc.HUB_PATH_RX.test(path);
+        if (hub) {
+          rc.noteHubView(path, win);
+          if (rc.readState(win).hubViews >= 2) pc.sendSignal(win, "hub_view", { path });
+        }
+        let offered = false;
+        const offer = (extra) => {
+          if (offered || cancelled) return undefined;
+          const o = pc.offerFor(win, rc.readState(win), rc.readFlags(win), { bannerShown, ...extra });
+          if (!o) return undefined;
+          offered = true;
+          win[pc.PROMPT_CTX_KEY] = { kind: o.kind, mode: o.mode, trigger: o.trigger };
+          return loadPrompt().then((m) => { if (!cancelled) onBanner(m.default); }, () => {});
+        };
+        // Every plan built on this page: tell the server (once per plan reference), then maybe ask.
+        const sentRefs = new Set();
+        // A draft is THIS plan's only if it is newer than the newest draft seen so far (the one stored when
+        // the page loaded, or the last plan's). A plan the server gave no reference (noteDraft was never
+        // called) must not borrow the previous plan's reference.
+        let seenAt = state.draft ? state.draft.at : 0;
+        win[rc.HOOK_ITINERARY_CALLBACK] = () => {
+          if (cancelled) return;
+          const d = rc.readState(win).draft;
+          const ref = d && d.at > seenAt ? d.planRef : null;
+          if (d && d.at > seenAt) seenAt = d.at;
+          if (ref && !sentRefs.has(ref)) { sentRefs.add(ref); pc.sendSignal(win, "itinerary_generated", { planRef: ref }); }
+          return ref ? offer({ itinerarySeen: true }) : undefined;
+        };
+        return offer({});
+      } catch (e) { /* best effort, never break the page */ }
+    }, () => {});
+  };
 
   const run = () => {
     if (cancelled) return;
@@ -38,8 +99,17 @@ export function boot(win, onBanner, deps) {
         rc.ensureAnonId(win);
         rc.noteVisit(win);
         rc.installReengageHook(win);
-        if (!rc.shouldShowBanner(rc.readState(win), rc.readFlags(win), Date.now(), win.location.pathname)) return;
-        return loadBanner().then((m) => { if (!cancelled) onBanner(m.default); }, () => {});
+        const show = rc.shouldShowBanner(rc.readState(win), rc.readFlags(win), Date.now(), win.location.pathname);
+        const push = pushStep(rc, show);
+        if (!show) return push;
+        // Budget already spent this visit (the push prompt or the planner got there first): no banner.
+        // A budget module that will not load fails closed, like an unusable sessionStorage does.
+        return loadBudget().then((ib) => {
+          let store = null;
+          try { store = win.sessionStorage; } catch (e) { store = null; }
+          if (cancelled || !ib.canInterrupt(store)) return undefined;
+          return loadBanner().then((m) => { if (!cancelled) onBanner(m.default); }, () => {});
+        }, () => {});
       } catch (e) { /* best effort, never break the page */ }
     }, () => {});
   };
