@@ -39,7 +39,7 @@ const LINK = { color: "#fda4af", display: "inline-flex", alignItems: "center", m
 export default async function Page() {
   const model = await valentinesPageModel();
   const hub = seasonalSearchHub("valentines-day-in-florida");
-  const hero = guideContextPhoto("valentines-day-in-florida", { name: title }, { title, region: "Florida" }, { topic: "dining" });
+  const hero = guideContextPhoto("valentines-day-in-florida", { name: title }, { title, region: "Florida" }, { topic: "valentines" });
   const areas = model.regions.filter((r) => r.count > 0).length;
   const free = model.events.filter((c) => c.price === "Free").length;
   const faq = valentinesFaq(model);

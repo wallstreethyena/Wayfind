@@ -50,7 +50,7 @@ export default async function Page({ params }) {
   const view = model.regions.find((r) => r.id === region.id);
   if (!view || !view.hasPage) notFound();
   const shareUrl = SITE_URL + view.path;
-  const hero = guideContextPhoto("spring-break-in-florida", { name: region.title }, { title: region.title, region: region.label, contextLocations: [region.label] }, { topic: "beach" });
+  const hero = guideContextPhoto("spring-break-in-florida", { name: region.title }, { title: region.title, region: region.label, contextLocations: [region.label] }, { topic: "springbreak" });
   const itemList = seasonItemListSchema(view.cards, { siteUrl: SITE_URL, name: region.title, url: shareUrl });
   const breadcrumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL },

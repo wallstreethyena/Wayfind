@@ -36,7 +36,7 @@ const sbSeeAll = (r) => "See " + r.label + " spring break →";
 
 export default async function Page() {
   const model = await springBreakPageModel();
-  const hero = guideContextPhoto("spring-break-in-florida", { name: title }, { title, region: "Florida" }, { topic: "beach" });
+  const hero = guideContextPhoto("spring-break-in-florida", { name: title }, { title, region: "Florida" }, { topic: "springbreak" });
   const areas = model.regions.filter((r) => r.count > 0).length + (model.elsewhere.length ? 1 : 0);
   const free = model.all.filter((c) => c.price === "Free").length;
   const itemList = seasonItemListSchema(model.all, { siteUrl: SITE_URL, name: "Spring break 2027 events in Florida", url: URL_ });

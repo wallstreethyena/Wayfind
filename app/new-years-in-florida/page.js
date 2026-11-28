@@ -39,7 +39,7 @@ const LINK = { color: "#fde68a", display: "inline-flex", alignItems: "center", m
 export default async function Page() {
   const model = await nyePageModel();
   const hub = seasonalSearchHub("new-years-in-florida");
-  const hero = guideContextPhoto("new-years-in-florida", { name: title }, hub, { topic: "fireworks" });
+  const hero = guideContextPhoto("new-years-in-florida", { name: title }, hub, { topic: "newyear" });
   const free = model.all.filter((c) => c.price === "Free").length;
   const areas = model.regions.filter((r) => r.count > 0).length + (model.elsewhere.length ? 1 : 0);
   const itemList = nyeItemListSchema(model.all, { siteUrl: SITE_URL, name: "New Year's Eve 2026 events in Florida", url: URL_ });

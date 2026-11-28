@@ -57,7 +57,7 @@ export default async function Page({ params }) {
   const shareUrl = SITE_URL + view.path;
   const url = shareUrl;
   const hub = seasonalSearchHub("new-years-in-florida");
-  const hero = guideContextPhoto("new-years-in-florida", { name: region.title }, { ...hub, contextLocations: [region.label] }, { topic: "fireworks" });
+  const hero = guideContextPhoto("new-years-in-florida", { name: region.title }, { ...hub, contextLocations: [region.label] }, { topic: "newyear" });
   const itemList = nyeItemListSchema(view.cards, { siteUrl: SITE_URL, name: region.title, url });
   const breadcrumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL },
