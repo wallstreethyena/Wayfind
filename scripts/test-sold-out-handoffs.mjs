@@ -6,7 +6,7 @@
 // Drives: the shared rule (lib/ticketAvailability.js), its cached live read
 // with an injected fetch, the REAL /api/commerce/go handler, Santa's catalog,
 // the sold out page's alternatives, and the map's schedule rule.
-import { ticketsUnavailable, noSaleKind, noSaleEvents, noSaleEvent, unavailableDestination, resetNoSaleEventsMemo } from "../lib/ticketAvailability.js";
+import { EVENT_UNAVAILABLE_HEADER, ticketsUnavailable, noSaleKind, noSaleEvents, noSaleEvent, unavailableDestination, resetNoSaleEventsMemo } from "../lib/ticketAvailability.js";
 import { ticketsUnavailable as curatedTicketsUnavailable } from "../lib/curatedEvents.js";
 import { availableAlternatives, alternativeLabel, unavailableNote } from "../lib/eventAlternatives.js";
 import { santaModelFromListings } from "../lib/santaChat.js";
@@ -67,9 +67,11 @@ const res = await GET(new Request("https://www.gowayfind.com/api/commerce/go?pro
 const loc = res.headers.get("location") || "";
 ok(res.status === 302 && /\/florida-events\/mickeys-very-merry-christmas-party-2026$/.test(loc), "a click for the sold out party lands on its Wayfind page (got " + res.status + " " + loc + ")");
 ok(!/viator\.com/i.test(loc) && partnerLookups === 0, "and no partner URL is even looked up");
+ok(res.headers.get(EVENT_UNAVAILABLE_HEADER) === "1", "the proven no-sale detour identifies itself to the watchdog");
 ok(/no-store/i.test(res.headers.get("cache-control") || ""), "the detour is never cached for the next visitor");
 const ctl = await GET(new Request("https://www.gowayfind.com/api/commerce/go?provider=viator&offer=3805P5&surface=holiday_guide_pick&content=fine-2026", { headers: human }));
 ok(partnerLookups > 0 && !/\/florida-events\//.test(ctl.headers.get("location") || ""), "control: an available event with a content id still goes on to the partner lookup");
+ok(!ctl.headers.has(EVENT_UNAVAILABLE_HEADER), "an unsuccessful offer lookup carries no event-unavailable signal");
 globalThis.fetch = realFetch;
 delete process.env.NEXT_PUBLIC_SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 ok((await noSaleEvent("fine-2026")) === null && (await noSaleEvent("")) === null, "available and empty ids pass through");

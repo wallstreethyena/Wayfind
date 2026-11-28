@@ -49,7 +49,7 @@ import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayout
 import { attributedViatorDestination } from "../../../../lib/viatorAttribution.js";
 import { classifySyntheticTraffic } from "../../../../lib/productionWriteFirewall.js";
 import { ensureDurableClippEvidenceHydrated } from "../../../../lib/clippDurableStore.js";
-import { noSaleEvent, unavailableDestination } from "../../../../lib/ticketAvailability.js";
+import { EVENT_UNAVAILABLE_HEADER, noSaleEvent, unavailableDestination } from "../../../../lib/ticketAvailability.js";
 
 const ATTRIBUTED_TP = new Set(["tiqets", "klook", "gocity"]);
 
@@ -166,6 +166,7 @@ export async function GET(req) {
       try { emit("provider_redirect_refused", { refusal_class: "unavailable", refusal_reason: "event_" + unavailable.kind }); } catch {}
       return new Response(null, { status: 302, headers: {
         Location: new URL(dest, req.url).toString(),
+        [EVENT_UNAVAILABLE_HEADER]: "1",
         ...noStoreHeaders(),
         "Referrer-Policy": "no-referrer",
       } });
