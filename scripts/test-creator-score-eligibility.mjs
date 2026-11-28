@@ -25,7 +25,11 @@ const CASES = [
   ["venue own account", place("ChIJj7u1zf1654gRlOTNe7y12Jo", "Mathers Social Gathering", "Orlando"), false],
   ["hosted creator", place("ChIJl0CYCGZ_3YgRL05pG5wZSsE", "Gaylord Palms Resort & Convention Center", "Kissimmee"), false],
   ["unattributed share", place("ChIJmzf1RPUB2YgRaEhyuQFGVt4", "Mai-Kai", "Fort Lauderdale"), false],
-  ["independent + hosted", place("ChIJCRCYGrx654gR3G9qoVbWlpY", "Harry P Leu Gardens", "Orlando"), true],
+  // Leu Gardens served this case until 2026-11-28, when a second independent
+  // creator (@neverboredinorlando) made it a corroborated, trending place, so
+  // its lawful score now carries the trending term too. Raglan Road keeps the
+  // exact shape: one independent creator, one hosted, plus the venue's own.
+  ["independent + hosted", place("ChIJOcKapod_3YgR90H_S_UKiMA", "Raglan Road Irish Pub", "Lake Buena Vista"), true],
 ];
 for (const [label, p, counts] of CASES) {
   ok(hasCreatorVideoAt(p, p.city), `${label}: the video still DISPLAYS (${p.name})`);

@@ -34,7 +34,10 @@
 //   export const PLATFORMS = [...];   // distinct platform strings, first-seen
 //   export const LEAN_CURATED = [...]; // one positional tuple per curated entry
 //
-//   entry tuple:  [ placeId || 0, matchName || 0, matchCity || 0, videos ]
+//   entry tuple:  [ placeKey || 0, matchName || 0, matchCity || 0, videos ]
+//   placeKey (2026-11-28) is creatorPlaceKey(placeId) from lib/creatorPlaceKey.js,
+//   a 64-bit key instead of the 27-character id: the ids were ~10KB of the
+//   homepage's gzipped first load and no eager reader ever displays one.
 //   video tuple:  [ creator || 0, platformIndex, reach == null ? 0 : reach, playable? ]
 // A fourth slot of 1 records in-app video eligibility. Omit it for credit-only
 // posts and photo posts so the eager bundle never needs the URL or embed rules.
@@ -84,6 +87,7 @@
 // scripts/check-creator-signal-equivalence.mjs (wired into guards.txt) proves
 // this encoding produces IDENTICAL ranking/card behaviour to the original
 // full-registry resolver, entry by entry, across the whole curated corpus.
+import { creatorPlaceKey } from "../lib/creatorPlaceKey.js";
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { isCreatorVideoPost } from "../lib/videoEmbed.js";
@@ -128,7 +132,7 @@ export async function buildLeanCurated(curatedOverride) {
       return tuple;
     });
     return [
-      e.placeId || 0,
+      e.placeId ? creatorPlaceKey(e.placeId) : 0,
       (e.match && e.match.name) || 0,
       (e.match && e.match.city) || 0,
       videos,
@@ -146,8 +150,9 @@ export function renderModule(lean) {
 // scripts/check-creator-signals-fresh.mjs fails the guard suite if this file
 // drifts from that source. See scripts/gen-creator-signals.mjs for the full
 // encoding: PLATFORMS is an interning table, LEAN_CURATED holds one
-// positional tuple per curated entry — [placeId||0, matchName||0,
+// positional tuple per curated entry — [placeKey||0, matchName||0,
 // matchCity||0, videos], videos: [creator||0, platformIndex, reach||0, playable?].
+// placeKey is creatorPlaceKey(placeId) (lib/creatorPlaceKey.js), not the id itself.
 // 0 is the absent sentinel, and playable is 1 when present. lib/creatorSignals.js decodes
 // this back into the same {placeId, match:{name,city}, videos:[{creator,
 // platform,reach,playable}]} shape the resolver works with. Read instead

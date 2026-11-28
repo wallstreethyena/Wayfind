@@ -707,6 +707,7 @@ node scripts/check-home-bundle-splits.mjs
 # against the REAL lib/creatorSignals.js, across the whole curated corpus,
 # and red-proves five ways the comparison could otherwise be vacuous.
 node scripts/check-creator-signal-equivalence.mjs
+node scripts/check-creator-place-key.mjs
 node scripts/check-chef-picks.mjs
 node scripts/check-creator-events.mjs
 node scripts/check-guard-integrity.mjs
