@@ -46,24 +46,45 @@ const FAMILY_LABEL = { food: "Holiday food", treats: "Holiday treat", shows: "Ho
 // same card the Disney guide and the template guides use (owner 2026-11-20:
 // no beige box around the map, zoom inside the map, places in the standard
 // card rail). Pins keep the guide's own stop numbers; a card opens its entry.
-export function universalSpots() {
-  return UNIVERSAL_STOPS.map((stop) => ({ id: stop.target, name: stop.title, rank: stop.n, eyebrow: FAMILY_LABEL[stop.family] || "Guide stop", city: VIEWS.find((v) => v.id === stop.park).title, href: "#" + stop.target, groups: [stop.park], photoFallbackCategory: "christmas", placeholder: { ...(FAMILY_TILE[stop.family] || FAMILY_TILE.food), label: FAMILY_LABEL[stop.family] || "Guide stop" } }));
+export function universalSpots(stops = UNIVERSAL_STOPS, stopPhotos = {}) {
+  return stops.map((stop) => {
+    const photo = stopPhotos[stop.target];
+    const label = FAMILY_LABEL[stop.family] || "Guide stop";
+    return {
+      id: stop.target,
+      name: stop.title,
+      rank: stop.n,
+      eyebrow: label,
+      city: stop.venue || VIEWS.find((view) => view.id === stop.park).title,
+      href: "#" + stop.target,
+      groups: [stop.park],
+      detail: photo?.caption || stop.detail,
+      image: photo?.src,
+      photoAttr: photo?.credit,
+      photoAttrHref: photo?.source,
+      photoPosition: photo?.position,
+      preservePhotoFraming: photo?.preserveFraming,
+      photoFallbackCategory: "christmas",
+      placeholder: { ...(FAMILY_TILE[stop.family] || FAMILY_TILE.food), label },
+    };
+  });
 }
 
-export default function UniversalHolidayMap() {
-  const byTarget = Object.fromEntries(UNIVERSAL_STOPS.map((stop) => [stop.target, stop]));
+export default function UniversalHolidayMap({ additionalStops = [], stopPhotos = {}, foodParks = {} }) {
+  const stops = [...UNIVERSAL_STOPS, ...additionalStops.map((stop, i) => ({ ...stop, n: UNIVERSAL_STOPS.length + i + 1 }))];
+  const byTarget = Object.fromEntries(stops.map((stop) => [stop.target, stop]));
   return <div id="explore-the-park" tabIndex={-1} data-universal-map>
     <GuideMapExplorer
-      spots={universalSpots()}
+      spots={universalSpots(stops, stopPhotos)}
       filters={VIEWS.map((view) => ({ id: view.id, label: view.title, family: "culture" }))}
       kicker="Your park, your next stop"
       heading="Explore Universal"
       description="Choose a park, then swipe the cards or tap a numbered pin. Open a card to jump to its guide entry."
-      proof={[UNIVERSAL_STOPS.length + " stops", "Four park maps", "Numbers match the guide"]}
+      proof={[stops.length + " stops", "Four maps"]}
       pagePath="/guides/universal-orlando-christmas-2026"
       note="Illustrated guide, approximate layout. Use the official resort maps for walking directions."
       railIdPrefix="universal-map"
-      filterForHash={(hash) => byTarget[hash]?.park || null}
+      filterForHash={(hash) => byTarget[hash]?.park || foodParks[hash] || null}
       renderMap={({ active, visible, selectedId, onSelect }) => <IllustratedParkMap
         key={active}
         image={parkMapImage(UNIVERSAL_VIEW_MAPS[active])}
