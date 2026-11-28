@@ -32,7 +32,7 @@ ok(/optional/.test(html), "the organizer's name is optional");
 const client = read("app/group-plans/GroupPlanClient.js");
 ok(/mode==="new"\?<GroupQuickCreate /.test(client), "the new-vote page uses the quick form");
 ok(/openGroup:true,autoStart:true,invitees:\[\]/.test(client), "one open group link, started at once, no stored friends");
-ok(/navigator\.share\(\{title:"Group Vote on Wayfind"/.test(client), "creating goes straight to the phone's share sheet where allowed");
+ok(/canShareNatively\(\)\)\{\s*\/\/[\s\S]{0,300}shareNatively\(\{title:"Group Vote on Wayfind"/.test(client) && !/navigator\.share\(/.test(client), "creating goes straight to the phone's share sheet through the one shared share path");
 ok(/<GroupTextInvite key=\{created\.id\} body=\{body\} single=\{false\} onNotice=\{setNotice\} remember\/>/.test(client), "ready screen offers Messages and the contact picker");
 const css = read("app/group-plans/GroupFrame.js");
 ok(/\.gq-rail\{[^}]*scroll-snap-type:x mandatory/.test(css) && /\.gq-slot\{flex:0 0 72%/.test(css), "snap scrolling with a peek of the next card");

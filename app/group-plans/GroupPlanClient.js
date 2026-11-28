@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { parseZonedDateTime, formatGroupTimeShort } from "../../lib/groupPlanTime.js";
 import { ORGANIZER_SMS_CONSENT_TEXT, groupShareMessage } from "../../lib/groupPlanShareText.js";
-import { shareOut } from "../../lib/shareOut.js";
+import { shareOut, shareNatively, canShareNatively } from "../../lib/shareOut.js";
 import { SITE_URL } from "../../lib/site.js";
 import { GroupTextInvite } from "./GroupTextInvite.js";
 import { signInUrlWithReturn } from "../../lib/authReturn.js";
@@ -442,10 +442,11 @@ export function GroupQuickCreate({placeId,placeName="",session,request=groupRequ
       const result=await request("/api/group-plans",{...payload,createKey:createKey.current.id},session);
       rewardMoment("group");setCreated(result.plan);
       const url=quickGroupUrl(result.plan);
-      if(url&&typeof navigator!=="undefined"&&typeof navigator.share==="function"){
-        // Straight to the phone's share sheet. Some phones only allow it on a
-        // fresh tap; then the buttons below do the same in one more tap.
-        try{await navigator.share({title:"Group Vote on Wayfind",text:quickGroupText(result.plan,url),url});setNotice("Sent. Track who voted on your vote page.");}catch{/* buttons below */}
+      if(url&&canShareNatively()){
+        // Straight to the phone's share sheet (through the site's one share
+        // path). Where a phone wants a fresh tap, it falls back to Wayfind's
+        // share choices, and the buttons below do the same in one more tap.
+        shareNatively({title:"Group Vote on Wayfind",text:quickGroupText(result.plan,url).replace(url,"").trim(),url},()=>setNotice("Link copied. Paste it into your group chat."),{onShared:()=>setNotice("Sent. Track who voted on your vote page.")});
       }
     }catch(e){setError(e?.message||"We couldn’t create your vote. Please try again.");}
     finally{inFlight.current=false;setBusy(false);}
