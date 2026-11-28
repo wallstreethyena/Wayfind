@@ -85,7 +85,9 @@ ok(/utm_medium=weekly_email/.test(issue.html) && !/api\/commerce\/go\?[^"]*utm_/
   ok(/<body bgcolor="#[0-9A-F]{6}"/.test(issue.html) && !/<body[^>]*background:#fff/i.test(issue.html), "email body is not dark (the white logo would vanish)");
   ok(NL.issueTheme("2026-11-27").key === "christmas" && NL.issueTheme("2026-12-31").key === "christmas", "Christmas weeks lost the Christmas look");
   ok(NL.issueTheme("2027-01-02").key === "wayfind" && NL.issueTheme("2026-11-07").key === "wayfind", "the Christmas look leaks outside the season");
-  ok(issue.subject.startsWith("🎄 ") && /Your Christmas weekend in Tampa Bay/.test(issue.html), "a Christmas week issue is not festive");
+  // Festive through photos, gold and a red and gold ribbon; no emoji in the
+  // subject line (owner 2026-11-28: it must never read like a scam email).
+  ok(!/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u.test(issue.subject) && /Your Christmas weekend in Tampa Bay/.test(issue.html) && /bgcolor="#B3121F"/.test(issue.html), "a Christmas week issue is not festive, or its subject carries an emoji");
   const off = NL.buildWeeklyIssue({ ...base, window: { start: "2027-01-08", end: "2027-01-10" }, events: [], places: { eat: [{ name: "X", href: "/places/x", score: "9.0" }] } });
   ok(off && !off.subject.includes("🎄") && !/Christmas/.test(off.html), "a January issue still says Christmas");
 }
@@ -113,7 +115,21 @@ ok(/utm_medium=weekly_email/.test(issue.html) && !/api\/commerce\/go\?[^"]*utm_/
   ok(await pp({ url: vault, license: "Owner permission on record (2026-10-28)", attributionText: "Owner", attributionUrl: "https://x" }) === null, "a site only owner permission reached the email");
   ok(await pp({ url: "https://upload.wikimedia.org/a.jpg", license: "cc0", attributionText: "J", attributionUrl: "https://x" }) === null, "an uncroppable non vault photo reached the email");
   const withPlace = NL.buildWeeklyIssue({ ...base, events: [], places: { eat: [{ name: "Cafe", where: "Tampa", score: "9.1", href: "/places/a", photo: { ...okPhoto, alt: "Cafe, Tampa" } }, { name: "Diner", where: "Tampa", score: "8.9", href: "/places/b" }] } });
-  ok(withPlace.html.includes('width="76" height="76" alt="Cafe, Tampa"') && withPlace.html.includes("Photo: Jane Doe") && /8\.9<div[^>]*>WAYFIND/.test(withPlace.html), "place photo tile or score tile missing");
+  // Owner 2026-11-28 ("there is no image and it look fake"): a place with its
+  // own licensed photo is a big photo card; one without is a plain numbered
+  // line. No score tile standing in for a photo.
+  ok(okPhoto && /width=1120&height=560&resize=cover/.test(okPhoto.wide), "a licensed vault place photo has no wide card crop");
+  ok(withPlace.html.includes(okPhoto.wide.replace(/&/g, "&amp;")) && withPlace.html.includes('alt="Cafe, Tampa"') && withPlace.html.includes("Photo: Jane Doe"), "place photo card or its credit missing");
+  ok(/>Diner<\/a>/.test(withPlace.html) && /Wayfind 8\.9/.test(withPlace.html) && !/>WAYFIND</.test(withPlace.html), "photo-less place is not a plain list line, or a score tile came back");
+  // An event with no licensed photo of its own shows its real venue's
+  // licensed photo, found from the venue photo ref, never the Google photo.
+  ok(ES.eventVenuePlaceId({ hero_image: "/api/photo?ref=places%2FChIJhRo4DU_GwogRUgjhMAj-pag%2Fphotos%2Fwfplacediscovery&w=800" }) === "ChIJhRo4DU_GwogRUgjhMAj-pag", "venue place id not read from the venue photo ref");
+  ok(ES.eventVenuePlaceId({ place_id: "ChIJOxaHOSX9wogRT6_58s6LWOY", hero_image: "/api/photo?ref=places%2FChIJzzzzzzzzzzzz%2F" }) === "ChIJOxaHOSX9wogRT6_58s6LWOY", "the event's own place id did not win");
+  const vp = await ES.eventVenueEmailPhoto({ short_title: "Christmas Town", venue: "Busch Gardens Tampa Bay", hero_image: "/api/photo?ref=places%2FChIJhRo4DU_GwogRUgjhMAj-pag%2Fphotos%2Fx" }, { findPhoto: async ({ placeId }) => placeId === "ChIJhRo4DU_GwogRUgjhMAj-pag" ? { url: vault, license: "cc-by-sa-4.0", attributionText: "Adog", attributionUrl: "https://x" } : null, lookupVenue: async () => null });
+  ok(vp && /width=1120&height=560/.test(vp.src) && /Busch Gardens Tampa Bay/.test(vp.alt) && /Adog/.test(vp.credit) && !/api\/photo/.test(vp.src), "venue photo not used, cropped or credited for an event");
+  ok(await ES.eventVenueEmailPhoto({ short_title: "X", venue: "Somewhere" }, { findPhoto: async () => null, lookupVenue: async () => null }) === null, "an event with no licensed venue photo got one");
+  const noPhotoEvent = NL.buildWeeklyIssue({ ...base, events: [{ label: "Free admission", name: "Parade", day: "2026-11-29", where: "Downtown", cost: "Free admission", detailsHref: "/florida-events/parade", ticket: { href: "/api/commerce/go?provider=x&offer=2&surface=weekly_email", label: "Get tickets" } }], places: {} });
+  ok(/>Parade<\/a>/.test(noPhotoEvent.html) && noPhotoEvent.html.includes("/api/commerce/go?provider=x&amp;offer=2") && !/border-radius:18px 18px 0 0/.test(noPhotoEvent.html), "a photo-less event became a card, or lost its ticket link");
   const withPhoto = NL.buildWeeklyIssue({ ...base, events: [{ name: "Lights", day: "2026-11-28", detailsHref: "/florida-events/l", photo: { src: "/events/christmas/selby-lights-in-bloom-2026.jpg", alt: "Lights at Selby", credit: "Kimberli · CC BY-SA 4.0" } }], places: {} });
   ok(withPhoto.html.includes('src="https://www.gowayfind.com/events/christmas/selby-lights-in-bloom-2026.jpg"') && withPhoto.html.includes("Photo: Kimberli"), "event photo or its licence credit missing");
 }
