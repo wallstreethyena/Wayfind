@@ -339,35 +339,72 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
   {
     const statics = [...mount.matchAll(/^\s*import\s[^;]*?from\s*["']([^"']+)["']/gm)].map((m) => m[1]);
     ok(statics.length >= 1 && statics.every((x) => x === "react"), "SOURCE-LEVEL: ReengageMount (root layout, first load JS budget) statically imports only react, got " + JSON.stringify(statics));
-    ok(/import\(\s*["']\.\.\/\.\.\/lib\/reengageClient\.js["']\s*\)/.test(mount), "SOURCE-LEVEL: ReengageMount loads lib/reengageClient.js lazily");
+    ok(/import\(\s*["']\.\/reengageBoot["']\s*\)/.test(mount) && !/reengageClient|ReturnBanner|requestIdleCallback|confirm/.test(mount), "SOURCE-LEVEL: ReengageMount holds only the load listener and lazily imports ./reengageBoot");
+    const effM = mount.slice(mount.indexOf("useEffect(() =>"));
+    ok(effM.indexOf('process.env.NEXT_PUBLIC_WF_REENGAGE !== "1"') > -1 && effM.indexOf('process.env.NEXT_PUBLIC_WF_REENGAGE !== "1"') < effM.indexOf('import("./reengageBoot")') && /addEventListener\("load", go/.test(effM), "SOURCE-LEVEL: the build flag gates the boot import, which waits for load");
+    const bootSrc = readFileSync(path.join(ROOT, "app/components/reengageBoot.js"), "utf8").replace(/\/\/[^\n]*/g, "");
+    ok(![...bootSrc.matchAll(/^\s*import\s/gm)].length && /import\(\s*["']\.\.\/\.\.\/lib\/reengageClient\.js["']\s*\)/.test(bootSrc), "SOURCE-LEVEL: reengageBoot has no static imports and loads lib/reengageClient.js lazily");
   }
   {
-    // CALL-BASED: the exported helper the idle run() calls, against a fake window and a recording fetch.
-    const mountMod = await loadComponent(path.join(ROOT, "app/components/ReengageMount.js"), ROOT);
+    // CALL-BASED: the lazy boot module, against a fake window, a recording fetch and an injected client.
+    const bootMod = await loadComponent(path.join(ROOT, "app/components/reengageBoot.js"), ROOT);
     const fakeWin = (cookie, fetchLog) => ({ document: { cookie }, fetch: (u, init) => { fetchLog.push({ u, init }); return Promise.resolve(new Response("{}")); } });
-    ok(typeof mountMod.confirmPendingEmail === "function", "ReengageMount does not export confirmPendingEmail");
+    ok(typeof bootMod.confirmPendingEmail === "function" && typeof bootMod.boot === "function", "reengageBoot does not export confirmPendingEmail and boot");
     const log1 = [];
-    const posted = mountMod.confirmPendingEmail(fakeWin("a=1; wf_rc_pending=1; b=2", log1));
-    ok(posted === true && log1.length === 1 && log1[0].u === "/api/reengage/confirm" && log1[0].init.method === "POST" && log1[0].init.credentials === "same-origin", "with the wf_rc_pending=1 marker the mount did not POST /api/reengage/confirm same-origin: " + JSON.stringify(log1));
+    const posted = bootMod.confirmPendingEmail(fakeWin("a=1; wf_rc_pending=1; b=2", log1));
+    ok(posted === true && log1.length === 1 && log1[0].u === "/api/reengage/confirm" && log1[0].init.method === "POST" && log1[0].init.credentials === "same-origin", "with the wf_rc_pending=1 marker the boot did not POST /api/reengage/confirm same-origin: " + JSON.stringify(log1));
     const log2 = [];
-    for (const cookie of ["", "a=1; b=2", "xwf_rc_pending=1", "wf_rc_pending=0", "wf_rc_pending=10", "wf_rc=" + "a".repeat(64)]) mountMod.confirmPendingEmail(fakeWin(cookie, log2));
-    ok(log2.length === 0, "the mount POSTed without the marker cookie: " + JSON.stringify(log2));
-    ok(mountMod.confirmPendingEmail(null) === false && mountMod.confirmPendingEmail({}) === false && mountMod.confirmPendingEmail({ document: { cookie: "wf_rc_pending=1" }, fetch() { throw new Error("blocked"); } }) === false, "confirmPendingEmail threw or reported success on a broken window");
-    // an opted out visitor (Global Privacy Control): the POST is the person's own click, not tracking, so it still goes
-    const log3 = [];
-    const gpcWin = { ...fakeWin("wf_rc_pending=1", log3), navigator: { globalPrivacyControl: true } };
-    mountMod.confirmPendingEmail(gpcWin);
-    ok(rc.optedOut(gpcWin) === true && log3.length === 1, "positive control: the opted out window was not opted out, or the confirm was skipped for it");
-    // SOURCE-LEVEL: where the effect calls it (the effect needs a React renderer this test does not have)
-    const eff = mount.slice(mount.indexOf("useEffect(() =>"));
-    const iFlag = eff.indexOf('process.env.NEXT_PUBLIC_WF_REENGAGE !== "1"');
-    const iConfirm = eff.indexOf("confirmPendingEmail(window)");
-    const iOpt = eff.indexOf("rc.optedOut(window)");
-    ok(iFlag > -1 && iConfirm > iFlag && iOpt > iConfirm && /const run = \(\) => \{\s*if \(cancelled\) return;\s*confirmPendingEmail\(window\);/.test(eff), "SOURCE-LEVEL: run() does not call confirmPendingEmail after the build flag gate and before the opt out check");
+    for (const cookie of ["", "a=1; b=2", "xwf_rc_pending=1", "wf_rc_pending=0", "wf_rc_pending=10", "wf_rc=" + "a".repeat(64)]) bootMod.confirmPendingEmail(fakeWin(cookie, log2));
+    ok(log2.length === 0, "the boot POSTed without the marker cookie: " + JSON.stringify(log2));
+    ok(bootMod.confirmPendingEmail(null) === false && bootMod.confirmPendingEmail({}) === false && bootMod.confirmPendingEmail({ document: { cookie: "wf_rc_pending=1" }, fetch() { throw new Error("blocked"); } }) === false, "confirmPendingEmail threw or reported success on a broken window");
+    // boot(): idle scheduling, confirm before the opt out check, opted out visitors get nothing
+    const runBoot = async (win, rcFake) => {
+      const order = [];
+      let idleCb = null;
+      win.requestIdleCallback = (cb) => { idleCb = cb; return 7; };
+      win.location = { pathname: "/" };
+      const shown = [];
+      const cancel = bootMod.boot(win, (C) => shown.push(C), { loadClient: async () => rcFake(order), loadBanner: async () => ({ default: "BANNER" }) });
+      const scheduled = typeof idleCb === "function";
+      const p = scheduled ? idleCb() : null;
+      await p;
+      return { order, shown, scheduled, cancel };
+    };
+    const rcFake = (opted, show) => (order) => ({
+      optedOut: () => { order.push("optedOut"); return opted; },
+      ensureAnonId: () => order.push("anon"), noteVisit: () => order.push("visit"), installReengageHook: () => order.push("hook"),
+      readState: () => ({}), readFlags: () => ({}), shouldShowBanner: () => { order.push("should"); return show; },
+    });
+    const logA = [];
+    const a = await runBoot(fakeWin("wf_rc_pending=1", logA), rcFake(false, true));
+    ok(a.scheduled && logA.length === 1 && a.order.join(",") === "optedOut,anon,visit,hook,should" && a.shown.length === 1 && a.shown[0] === "BANNER", "boot() for a returning visitor: " + JSON.stringify({ a, logA }));
+    // an opted out visitor (Global Privacy Control): the confirm POST is the person's own click, so it still goes; nothing else runs
+    const logB = [];
+    const b = await runBoot(fakeWin("wf_rc_pending=1", logB), rcFake(true, true));
+    ok(logB.length === 1 && b.order.join(",") === "optedOut" && b.shown.length === 0, "boot() for an opted out visitor ran more than the confirm: " + JSON.stringify({ b, logB }));
+    const c = await runBoot(fakeWin("", []), rcFake(false, false));
+    ok(c.order.includes("should") && c.shown.length === 0, "boot() showed the banner when shouldShowBanner was false");
+    // positive control: the real client calls the GPC window opted out
+    ok(rc.optedOut({ ...fakeWin("", []), navigator: { globalPrivacyControl: true } }) === true, "positive control: the GPC window was not opted out");
+    // cancel before idle fires: nothing runs
+    {
+      const win = fakeWin("wf_rc_pending=1", []); let cb = null; let cancelledId = null;
+      win.requestIdleCallback = (f) => { cb = f; return 9; }; win.cancelIdleCallback = (id) => { cancelledId = id; };
+      const order = [];
+      const cancel = bootMod.boot(win, () => order.push("shown"), { loadClient: async () => rcFake(false, true)(order), loadBanner: async () => ({ default: "B" }) });
+      cancel(); await (cb && cb());
+      ok(cancelledId === 9 && order.length === 0, "cancel() did not stop the idle run: " + JSON.stringify({ cancelledId, order }));
+    }
+    // no requestIdleCallback: falls back to a timer instead of running synchronously
+    {
+      const win = fakeWin("", []); win.location = { pathname: "/" }; const order = [];
+      const cancel = bootMod.boot(win, () => {}, { loadClient: async () => rcFake(false, false)(order), loadBanner: async () => ({}) });
+      ok(order.length === 0, "boot() ran synchronously without requestIdleCallback");
+      cancel();
+    }
   }
   ok(/<ReengageMount \/>/.test(layout) && (layout.match(/<ReengageMount \/>/g) || []).length === 1, "SOURCE-LEVEL: layout renders <ReengageMount /> exactly once");
   ok(!/\.css"/.test(banner + drawer + mount), "SOURCE-LEVEL: no CSS file is imported eagerly");
-  ok(/addEventListener\("load"/.test(mount) && /requestIdleCallback/.test(mount) && /setTimeout\(run, 1500\)/.test(mount), "SOURCE-LEVEL: the mount waits for load and idle");
   ok(/track\("itinerary_generated", \{ area: areaSlug, mode, days: days\.length, stops:/.test(builder) && /noteDraft\(planRef, areaSlug, areaName\)/.test(builder), "SOURCE-LEVEL: ItineraryBuilder fires itinerary_generated and notes the draft");
   ok(/import\("\.\.\/components\/EmailItineraryDrawer"\)/.test(builder), "SOURCE-LEVEL: the drawer is lazily imported by the builder");
 }
