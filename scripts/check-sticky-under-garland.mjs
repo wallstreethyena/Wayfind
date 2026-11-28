@@ -113,6 +113,15 @@ const nav = read("app/components/EventSectionNav.js");
 ok(/aria-current=\{active === section\.id \? "true" : undefined\}/.test(nav), "the nav marks the current section");
 ok(/data-more-right=\{more\.right \? "" : undefined\}/.test(nav) && /data-more-left=\{more\.left \? "" : undefined\}/.test(nav), "the nav reports hidden tabs on either edge");
 ok(!/scrollIntoView/.test(nav), "keeping the active tab in view moves the rail only, never the page");
+{
+  // A tapped tab lands its section at scroll-margin-top (garland + N px); the
+  // "being read" line must sit below that spot or the tab above stays lit.
+  const margin = Number((EVENT_EXPERIENCE_CSS.match(/scroll-margin-top:calc\(var\(--wf-fixed-top,0px\) \+ (\d+)px\)/) || [])[1]);
+  const gap = Number((CHRISTMAS_SITE_CSS.match(/--wf-nav-gap:(\d+)px/) || [])[1]);
+  const lineOffset = Number((nav.match(/getBoundingClientRect\(\)\.bottom \+ (\d+);/) || [])[1]);
+  const railHeight = 8 + 40 + 8 + 2; // padding + tab min-height + padding + border
+  ok(margin > 0 && lineOffset > 0 && gap >= 0 && gap + railHeight + lineOffset > margin, `a tapped tab becomes the highlighted one (line at +${gap + railHeight + lineOffset}px is below the landing spot at +${margin}px)`);
+}
 
 if (fail.length) {
   console.error(`check-sticky-under-garland: ${fail.length} FAILED`);

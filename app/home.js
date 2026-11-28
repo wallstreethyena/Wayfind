@@ -2,6 +2,7 @@
 import PlaceDistance, { usePlaceDistance } from "./components/PlaceDistance.js";
 import { Component, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useEdgeFade } from "./components/EdgeFade";
+import { startLandingLocation } from "../lib/deviceLocationStore.js";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
@@ -7708,8 +7709,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // Give GPS a head start; if it hasn't answered in 2.5s, use IP so the page
     // isn't stuck empty. GPS, if it later resolves, still wins via the handler.
     const ipTimer = setTimeout(ipFallback, 2500);
+    let cancelLocation;
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      cancelLocation = startLandingLocation(navigator, initialPlaceId, () => navigator.geolocation.getCurrentPosition(
         async (pos) => {
           gotGPS = true;
           clearTimeout(ipTimer);
@@ -7771,11 +7773,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         // recenterToMe() runs. The 8s timeout and IP fallback are unchanged,
         // so a denied prompt or slow GPS still resolves the page.
         { enableHighAccuracy: true, timeout: 8000 }
-      );
+      ));
     } else {
       ipFallback();
     }
-    return () => clearTimeout(ipTimer);
+    return () => { cancelLocation?.(); clearTimeout(ipTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -10962,6 +10964,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     />
   );
 
+  const activitiesParkRail = browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") &&
+    <ThemeParkRail mode={resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />;
+
   return (
     <div className="wf-xmas-canvas" style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }} data-wf-own-theme={screen === "map" ? "map" : undefined}>
@@ -11829,7 +11834,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ThemeParkRail mode="family" familyContext={{ lat: center?.lat, lng: center?.lng, radiusMi: sliderMi, ready: !!center }} onOpenPlace={(place) => openDetail(place, "theme_park_family")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
-                  {browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") && <ThemeParkRail mode={resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
+                  {sub === "themeparks" && activitiesParkRail}
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="family" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="attractions" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="hotels" sub={sub} categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -11862,6 +11867,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                       scope='national', so geoFilterDeals keeps them for every user and
                       orderDealsByScope holds them below the local inventory. */}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} city={cityNow} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const offer = r.product_code || r.code; const path = offer ? commerceHref({ provider: "viator", offerId: offer, surface: "ttd_share", contentId: cityNow }) : Aff.experienceGoUrl(r.title, cityNow, "attractions", r.id, { surface: "ttd_share", contentId: cityNow }); const u = r.kind === "experience" && path ? originUrl(path) : originUrl("/p/" + encodeURIComponent(r.id)); const subject = r.kind === "experience" ? { groupId: experienceGroupId(String(offer || r.id || "")) } : { placeId: r.place_id || r.id }; shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied"), null, null, subject); } catch (e) {} }} />}
+                  {(!sub || sub === "all") && activitiesParkRail}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}
