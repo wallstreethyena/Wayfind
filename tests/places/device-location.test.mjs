@@ -7,6 +7,7 @@ import { createRoot } from "react-dom/client";
 import { JSDOM } from "jsdom";
 import { loadComponent } from "../../scripts/lib/jsxLoad.mjs";
 import { createAppleMapController } from "../../lib/appleMapsRuntime.js";
+import { createDeviceLocationStore, startLandingLocation } from "../../lib/deviceLocationStore.js";
 
 const project = fileURLToPath(new URL("../../", import.meta.url));
 const { default: Controls } = await loadComponent(path.join(project, "app/components/PlaceMapLocationControls.js"), project);
@@ -78,5 +79,49 @@ test("place map refresh and recenter use one fresh device fix and preserve venue
     controller.destroy();
     dom.window.close();
     for (const [key, previous] of old) { if (previous) Object.defineProperty(globalThis, key, previous); else delete globalThis[key]; }
+  }
+});
+
+test("shared venue arrivals wait for a grant or a tap", async () => {
+  let reads = 0;
+  const read = () => { reads++; };
+  const turn = () => new Promise(resolve => setImmediate(resolve));
+  const browser = state => ({ permissions: { query: async () => ({ state }) } });
+  startLandingLocation(browser("prompt"), "venue", read);
+  startLandingLocation(browser("denied"), "venue", read);
+  startLandingLocation({}, "venue", read);
+  startLandingLocation(browser("granted"), "venue", read)();
+  await turn();
+  assert.equal(reads, 0);
+  startLandingLocation(browser("granted"), "venue", read);
+  await turn();
+  assert.equal(reads, 1, "returning visitors with permission can get their fix");
+  startLandingLocation(browser("prompt"), null, read);
+  assert.equal(reads, 2, "ordinary home landing keeps its configured location behavior");
+
+  for (const pathname of ["/p/venue", "/places/venue"]) {
+    let watches = 0;
+    let clearWatch = 0;
+    let onPermission;
+    const permission = { state: "prompt",
+      addEventListener: (_, callback) => { onPermission = callback; },
+      removeEventListener() {},
+    };
+    const store = createDeviceLocationStore({
+      navigator: { permissions: { query: async () => permission },
+        geolocation: { watchPosition: () => ++watches, clearWatch: () => { clearWatch++; } } },
+      document: { location: { pathname }, visibilityState: "visible", addEventListener() {}, removeEventListener() {} },
+      now: Date.now, setTimeout, clearTimeout,
+    });
+    const unsubscribe = store.subscribe(() => {});
+    await turn();
+    assert.equal(watches, 0, pathname + " distance labels wait for consent");
+    permission.state = "granted";
+    onPermission();
+    assert.equal(watches, 1, "a user's grant enables live distance");
+    permission.state = "prompt";
+    onPermission();
+    assert.equal(clearWatch, 1, "reverting a grant stops the active watch");
+    unsubscribe();
   }
 });
