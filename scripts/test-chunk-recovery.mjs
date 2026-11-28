@@ -47,7 +47,7 @@ function run({ getThrows = false, setThrows = false, now = 1_790_000_000_000 } =
   const listeners = {};
   const w = {
     reloads: 0,
-    location: { reload() { w.reloads++; } },
+    location: { origin: "https://www.gowayfind.com", reload() { w.reloads++; } },
     sessionStorage: {
       getItem(k) { if (getThrows) throw new Error("denied"); return store.has(k) ? store.get(k) : null; },
       setItem(k, v) { if (setThrows) throw new Error("quota"); store.set(k, String(v)); },
@@ -65,7 +65,7 @@ function run({ getThrows = false, setThrows = false, now = 1_790_000_000_000 } =
     querySelector: (sel) => (sel === "[data-wf-recovery]" && w.__recoveryShown ? {} : null),
     addEventListener() {},
   };
-  vm.runInContext(chunkRecoveryScript(), vm.createContext({ window: w, document, Date: FakeDate, Number, String, RegExp, isFinite }));
+  vm.runInContext(chunkRecoveryScript(), vm.createContext({ window: w, document, Date: FakeDate, URL, Number, String, RegExp, isFinite }));
   const fire = (type, ev) => { for (const l of listeners[type] || []) l.fn(ev); };
   w.__listeners = listeners;
   return { w, store, clock, listeners, fire, appended };
@@ -106,6 +106,23 @@ const OWN_CHUNK = "https://www.gowayfind.com/_next/static/chunks/4968-2dcc614085
   ok(w.reloads === 0, "2: an unrelated rejection does not reload");
   fire("unhandledrejection", { reason: Object.assign(new Error("x"), { name: "ChunkLoadError" }) });
   ok(w.reloads === 1, "2: an unhandled ChunkLoadError reloads once");
+}
+// A corrupt first-party JavaScript response can load successfully and then fail to parse.
+{
+  const { w, fire, appended } = run();
+  const parseError = { target: w, error: new SyntaxError("Unexpected token '<'"), filename: OWN_CHUNK };
+  for (const other of [
+    { filename: OWN_CHUNK.replace("www.gowayfind.com", "outside.example") },
+    { filename: "https://www.gowayfind.com/page?next=/_next/static/chunks/test.js" },
+    { filename: OWN_CHUNK.replace(".js", ".css") },
+    { filename: "" },
+    { error: new TypeError("normal application failure") },
+  ]) fire("error", { ...parseError, ...other });
+  ok(w.reloads === 0 && !appended.length, "ordinary runtime and unrelated script failures leave the page alone");
+  fire("error", parseError);
+  ok(w.reloads === 1 && !appended.length, "corrupt first-party JavaScript reloads once");
+  fire("error", parseError);
+  ok(w.reloads === 1 && appended.length === 1, "persistent parse failure paints the existing recovery bar");
 }
 // The script and the plain-JS oracle must agree on every case.
 [...POSITIVES, ...NEGATIVES].forEach((e, i) => {
