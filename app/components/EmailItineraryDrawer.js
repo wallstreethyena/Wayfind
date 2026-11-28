@@ -81,7 +81,7 @@ export default function EmailItineraryDrawer({ planRef, areaName, surface, onClo
       const res = await fetch("/api/reengage/email", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: trimmed, consent: true, planRef, anonId: ensureAnonId(window), page: window.location.pathname }),
+        body: JSON.stringify({ email: trimmed, consent: true, planRef, anonId: ensureAnonId(window) || undefined, page: window.location.pathname }),
       });
       const body = await res.json().catch(() => null);
       if (res.ok && body && body.ok) outcome = "ok";

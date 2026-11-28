@@ -9,7 +9,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { travelEstimate, legDirectionsUrl } from "../../lib/travelEstimate.js";
 import { track } from "../../lib/track.js";
-import { reengageEnabled, optedOut, noteDraft, PLAN_REF_RX } from "../../lib/reengageClient.js";
+import { reengageEnabled, noteDraft, PLAN_REF_RX } from "../../lib/reengageClient.js";
 
 const STORE_KEY = "wf_itinerary_v1";
 const PREFS_KEY = "wf_planner_prefs_v1"; // the visitor's last request in this browser only, so the next visit starts where they left off
@@ -295,7 +295,7 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
             <Day key={(d.date || "") + i} day={d} dayIdx={i} pool={state.pool}
               onChange={(nd, removed, takenId) => changeDay(i, nd, removed, takenId)} onAdd={addStop} />
           ))}
-          {reengageEnabled() && state.planRef && !optedOut(window) ? (
+          {reengageEnabled() && state.planRef ? (
             <button type="button" data-plan-email="" onClick={() => import("../components/EmailItineraryDrawer").then((m) => { setEmailDrawer(() => m.default); setEmailOpen(true); }, () => {})}
               style={{ ...btn(false), minHeight: 44, marginTop: 18, width: "100%" }}>Email me this itinerary</button>
           ) : null}

@@ -2,9 +2,11 @@
 //
 //   POST ?t=<token>  RFC 8058 one click. The mail app POSTs "List-Unsubscribe=One-Click"
 //                    to the URL in the List-Unsubscribe header. Answers JSON.
-//   GET  ?t=<token>  The visible link in the email. Flips the contact to unsubscribed,
-//                    records a suppression, cancels the contact's pending messages,
-//                    then 303s to /unsubscribe?list=trip&done=1.
+//   GET  ?t=<token>  The visible link in the email. Changes NOTHING: mail scanners
+//                    pre-open links, so a mutating GET would opt real readers out.
+//                    303s to the confirm page /unsubscribe?list=trip&t=<token>, whose
+//                    one button form-POSTs back here with via=page.
+//   POST (via=page)  The confirm button. Unsubscribes, then 303s to done=1.
 //   HEAD             Answers 200 and changes NOTHING, so a link prefetcher that sends
 //                    HEAD can never opt anyone out (Next would otherwise route HEAD to GET).
 //
@@ -32,15 +34,17 @@ function tokenOf(req) {
 export async function POST(req) {
   const t = tokenOf(req);
   if (!t) return Response.json({ ok: false }, { status: 400, headers: NO_STORE });
+  let viaPage = false;
+  try { const f = await req.formData(); viaPage = f.get("via") === "page"; } catch { viaPage = false; }
   const r = await unsubscribeContactByToken(t);
+  if (viaPage) return backTo(req, r.ok ? (r.found ? "1" : "invalid") : "error");
   return Response.json({ ok: r.ok }, { status: r.ok ? 200 : 503, headers: NO_STORE });
 }
 
 export async function GET(req) {
   const t = tokenOf(req);
   if (!t) return backTo(req, "invalid");
-  const r = await unsubscribeContactByToken(t);
-  return backTo(req, r.ok ? (r.found ? "1" : "invalid") : "error");
+  return new Response(null, { status: 303, headers: { Location: new URL(`/unsubscribe?list=trip&t=${t}`, req.url).toString(), ...NO_STORE } });
 }
 
 export async function HEAD() {

@@ -35,6 +35,18 @@ export default function Unsubscribe({ searchParams }) {
       </div></main>
     );
   }
+  if (sp.list === "trip" && !done && typeof sp.t === "string" && /^[a-f0-9]{64}$/.test(sp.t)) {
+    return (
+      <main style={S.page} className="wf-page-canvas"><div style={S.card}>
+        <h1 style={S.h1}>Stop trip emails?</h1>
+        <p style={S.p}>You will stop getting follow ups about the plans you asked us to send.</p>
+        <form method="post" action={`/api/reengage/unsubscribe?t=${sp.t}`}>
+          <input type="hidden" name="via" value="page" />
+          <button type="submit" style={S.btn}>Unsubscribe</button>
+        </form>
+      </div></main>
+    );
+  }
   if (done === "1") {
     return (
       <main style={S.page} className="wf-page-canvas"><div style={S.card}>

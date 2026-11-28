@@ -291,6 +291,8 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
   ok(x.r.status === 400 && x.json.code === "invalid", "a bad plan reference was not rejected");
   x = await run({ ...GOOD, anonId: "'; drop table" });
   ok(x.r.status === 400 && x.json.code === "invalid", "a bad anonymous id was not rejected");
+  x = await run({ ...GOOD, email: "nope", anonId: undefined });
+  ok(x.r.status === 400 && x.json.code === "invalid", "an absent anon id bypassed email validation");
   x = await run("not json");
   ok(x.r.status === 400 && x.json.code === "invalid", "a body that is not JSON was not rejected");
   ok(calls.length === 0, "validation failures touched the network");
@@ -367,6 +369,8 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
 
 // ── 9. the unsubscribe route ────────────────────────────────────────────────
 const U = (m, t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe" + (t === undefined ? "" : "?t=" + t), { method: m, ...(m === "POST" ? { body: "List-Unsubscribe=One-Click", headers: { "content-type": "application/x-www-form-urlencoded" } } : {}) });
+// The confirm page's button: a plain form post carrying via=page.
+const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe?t=" + t, { method: "POST", body: "via=page", headers: { "content-type": "application/x-www-form-urlencoded" } });
 {
   reset();
   let r = await unsubRoute.GET(U("GET", "not-a-token"));
@@ -378,9 +382,14 @@ const U = (m, t) => new Request("https://www.gowayfind.com/api/reengage/unsubscr
   r = await unsubRoute.POST(U("POST", "short"));
   ok(r.status === 400 && calls.length === 0, "POST with a bad token made a database call");
 
+  // GET is the visible link: mail scanners pre-open it, so it must change NOTHING.
   reset();
   r = await unsubRoute.GET(U("GET", TOKEN));
-  ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/unsubscribe?list=trip&done=1", "GET with a real token did not redirect to done=1: " + r.headers.get("location"));
+  ok(r.status === 303 && r.headers.get("location") === `https://www.gowayfind.com/unsubscribe?list=trip&t=${TOKEN}` && calls.length === 0, "GET with a real token mutated or read the database, or did not go to the confirm page: " + r.headers.get("location") + " calls=" + calls.length);
+
+  reset();
+  r = await unsubRoute.POST(P(TOKEN));
+  ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/unsubscribe?list=trip&done=1", "the confirm button did not redirect to done=1: " + r.headers.get("location"));
   const patch = calls.find((c) => c.method === "PATCH" && c.u.includes(`unsubscribe_token=eq.${TOKEN}`));
   ok(patch && patch.body.status === "unsubscribed" && typeof patch.body.unsubscribed_at === "string", "the contact was not flipped to unsubscribed");
   const cancel = calls.find((c) => c.method === "PATCH" && c.u.includes("wf_reengage_queue"));
@@ -393,14 +402,14 @@ const U = (m, t) => new Request("https://www.gowayfind.com/api/reengage/unsubscr
 
   // idempotent: a second click is the same answer
   reset();
-  r = await unsubRoute.GET(U("GET", TOKEN));
+  r = await unsubRoute.POST(P(TOKEN));
   ok(r.status === 303 && r.headers.get("location").endsWith("done=1"), "a repeat click did not give the same answer");
 
   reset({ unsubRows: [] });
-  r = await unsubRoute.GET(U("GET", "c".repeat(64)));
+  r = await unsubRoute.POST(P("c".repeat(64)));
   ok(r.headers.get("location").endsWith("done=invalid") && only((c) => c.u.includes("wf_reengage_queue") || c.u.includes("wf_reengage_suppressions")).length === 0, "an unknown token cancelled queue rows or wrote a suppression");
   reset({ dbDown: true });
-  r = await unsubRoute.GET(U("GET", TOKEN));
+  r = await unsubRoute.POST(P(TOKEN));
   ok(r.headers.get("location").endsWith("done=error"), "a database failure did not redirect to done=error");
 
   reset();

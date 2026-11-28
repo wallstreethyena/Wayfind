@@ -16,6 +16,7 @@
 // list, still gets { ok: true } and no email: the answer must not reveal who is
 // on a list. Drip rows (+2h, +24h, +72h) are queued only after the first email
 // went out, and queueing twice adds nothing.
+import { randomUUID } from "node:crypto";
 import { cget } from "../../../../lib/serverCache.js";
 import { isSyntheticRequest } from "../../../../lib/productionWriteFirewall.js";
 import {
@@ -43,8 +44,14 @@ export async function POST(req) {
 
   const email = normalizeEmail(body.email);
   const planRef = typeof body.planRef === "string" ? body.planRef : "";
-  const anonId = typeof body.anonId === "string" ? body.anonId : "";
-  if (!isValidEmail(email) || !PLAN_REF_RX.test(planRef) || !ANON_ID_RX.test(anonId)) return json({ ok: false, code: "invalid" }, 400);
+  // A visitor with Global Privacy Control (or analytics opt out) has no wf_anon_id
+  // cookie, but asking for their own plan by email is their explicit choice, not
+  // tracking. Absent id -> a fresh server UUID that only keys this request's rows
+  // (it is never returned or linked to any browser). A present but malformed id is rejected.
+  const rawAnon = typeof body.anonId === "string" ? body.anonId : "";
+  if (rawAnon && !ANON_ID_RX.test(rawAnon)) return json({ ok: false, code: "invalid" }, 400);
+  const anonId = rawAnon || randomUUID();
+  if (!isValidEmail(email) || !PLAN_REF_RX.test(planRef)) return json({ ok: false, code: "invalid" }, 400);
   if (body.consent !== true) return json({ ok: false, code: "consent" }, 400);
 
   const hit = await cget(planSnapshotKey(planRef)).catch(() => null);

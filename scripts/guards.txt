@@ -2875,3 +2875,8 @@ node scripts/test-event-ticket-first-screen.mjs
 # Insider-tips homepage mockup (2026-11-27, noindex preview): AI rewrites never add facts; capped Gemini lane; fallbacks; guard wiring.
 node scripts/test-insider-tips-preview.mjs
 node scripts/test-guide-map-pin-reveal.mjs
+# 2026-11-27 re-engagement PR 1: anon id + return banner + email-this-itinerary. Email lives
+# server-side only (booleans on the client); unsubscribe GET never mutates; RLS service-only.
+node scripts/test-reengage-server.mjs
+node scripts/test-reengage-client.mjs
+node scripts/check-reengage-schema.mjs
