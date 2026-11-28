@@ -1,9 +1,8 @@
 "use client";
 
-// Boo, the Halloween ghost guide, as a site wide floating companion (through
-// Nov 1). On /christmas-in-florida the same companion is Santa instead (Oct 1
-// through Jan 1, chat at /api/santa-chat); Boo never renders there and Santa
-// never renders anywhere else (companionCharacter.js picks from the path). He drifts, drops one liners, and opens a small chat sheet backed by
+// Boo, the Halloween ghost guide, floats across the site in October. Santa's
+// holiday dock is available on discovery and Christmas pages. Boo drifts,
+// drops one liners, and opens a small chat sheet backed by
 // POST /api/bo-haunt. One element, transform only, rAF loop stops whenever he
 // is not drifting (sheet open, bubble up, tab hidden, reduced motion).
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
@@ -14,7 +13,7 @@ import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { SantaSvg, santaPose } from "./santaArt.js";
 import SantaDock from "./SantaDock.js";
-import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY, santaOffPath } from "./companionCharacter.js";
+import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY, santaOffPath, santaDockOnPath } from "./companionCharacter.js";
 import { SANTA, SANTA_CHIPS, SANTA_FINDER_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SANTA_REACT_LINES, santaTimeLines, santaRouteLine, santaOpenerFor } from "./santaCopy.js";
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
@@ -46,8 +45,8 @@ function inSeason() {
   const md = d.slice(5);
   return md >= "10-01" && md <= "10-31";
 }
-// Preview: ?companion=santa on any URL shows Santa for the tab session, so the
-// owner can check him before Nov 1. Only "santa" is accepted.
+// Preview: ?companion=santa selects Santa for the tab session so the owner
+// can check the dock on eligible routes before Nov 1. Only "santa" is accepted.
 const PREVIEW_KEY = "wf_companion_preview";
 function previewSanta() {
   try {
@@ -489,16 +488,13 @@ html.wf-has-map .boo-c,html.wf-has-map .boo-ring{display:none !important}
 
 export default function BooCompanion() {
   const pathname = usePathname() || "/";
-  // Boo everywhere except the Christmas page, where it is Santa. Chosen from
-  // the path alone, so Boo can never render on /christmas-in-florida.
+  // Explicit chat actions still use the season's character.
   const character = charFor(pathname);
   const santa = character === "santa";
   ACTIVE = character;
-  // Eligibility is remembered WITH the character it was worked out for, so the
-  // frame after a client side navigation can never show the previous page's
-  // character (Boo out of season on the Christmas page, Santa anywhere else).
-  const [elig, setElig] = useState({ ok: false, ch: "" });
-  const eligible = elig.ok && elig.ch === character;
+  // The previous route's companion must disappear as soon as navigation starts.
+  const [elig, setElig] = useState({ ok: false, ch: "", path: "" });
+  const eligible = elig.ok && elig.ch === character && elig.path === pathname && (!santa || santaDockOnPath(pathname));
   // ROAM: the floating companion (roaming, gags, reactions, bubbles, the tap
   // target that follows him). Boo only. Santa lives in SantaDock (one owner for
   // his presence, owner 2026-11-03), so none of the roaming machinery runs for
@@ -654,7 +650,7 @@ export default function BooCompanion() {
       // Each character has its own hide key: hiding Boo never hides Santa.
       if (ok) ok = (santa ? sessionStorage.getItem(SANTA_HIDE_KEY) : sessionStorage.getItem(HIDE_KEY)) !== "1";
     } catch { ok = seasonFor(character) && !reservedPath(pathname) && !(character === "santa" && santaOffPath(pathname)); }
-    setElig({ ok, ch: character });
+    setElig({ ok, ch: character, path: pathname });
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // A different character on the next page: forget the other one's chat.
@@ -1750,7 +1746,7 @@ export default function BooCompanion() {
       try { ok = seasonFor(ch) && !reservedPath(pathRef.current) && !(ch === "santa" && santaOffPath(pathRef.current)); } catch { /* ignore */ }
       if (!ok) return;
       try { if (ch === "santa") sessionStorage.removeItem(SANTA_HIDE_KEY); else sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
-      setElig({ ok: true, ch });
+      setElig({ ok: true, ch, path: pathRef.current });
       eligibleRef.current = true;
       const prompt = e && e.detail && typeof e.detail.prompt === "string" ? e.detail.prompt : "";
       if (ch === "santa") { openSheet("event", prompt); return; }
@@ -1822,7 +1818,7 @@ export default function BooCompanion() {
     track("boo_companion_hidden", { path: pathRef.current });
     holdRef.current = null;
     setOpen(false);
-    setElig({ ok: false, ch: character });
+    setElig({ ok: false, ch: character, path: pathname });
   };
 
   if (!eligible) return null;

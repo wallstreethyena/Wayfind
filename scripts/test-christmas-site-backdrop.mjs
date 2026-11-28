@@ -113,6 +113,7 @@ ok(!/class="xm-bulb"|class="xm-bow|class="xm-sway"|class="xm-doodles"|class="xm-
 ok(html.includes('class="xm-garland-wire"') && html.includes('stop-color="#F1D592"'), "the wire is a gold gradient line");
 ok(html.includes('class="wf-xmas-bg"') && html.includes('class="wf-xmas-lights"'), "the navy field and the garland both render");
 ok(html.includes(CHRISTMAS_SITE_BG_GRADIENT) && !html.includes(CHRISTMAS_BG_GRADIENT), "the rendered stylesheet uses the navy field, not the Christmas page red");
+ok(!html.includes(".wf-site-footer"), "the seasonal stylesheet leaves the footer's contrast and background alone");
 ok(CHRISTMAS_GARLAND_H === 22 && html.includes("padding-top:calc(22px + max(6px, env(safe-area-inset-top)))"), "the garland is 22px and the header pads by that, not the old 36px");
 ok(!/#FF4458|#3DDC84|#4DA3FF|#FF7AC8/.test(html), "no multicolor bulb colors reach the site header");
 

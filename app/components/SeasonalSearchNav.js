@@ -6,7 +6,7 @@ import { siteTodayStr } from "../../lib/siteTime";
 export default function SeasonalSearchNav({ hubs = SEASONAL_SEARCH_HUBS }) {
   const active = activeSeasonalHubs(hubs, siteTodayStr());
   if (!active.length) return null;
-  return <nav aria-label="Florida seasonal guides" style={{ display: "flex", flexWrap: "wrap", gap: "4px 20px", margin: "16px 0" }}>
-    {active.map((hub) => <a key={hub.slug} href={"/" + hub.slug} style={{ display: "inline-flex", alignItems: "center", minHeight: 44, color: hub.accent, textUnderlineOffset: 5 }}>{hub.label}</a>)}
+  return <nav className="wf-seasonal-search-nav" aria-label="Florida seasonal guides" style={{ display: "flex", flexWrap: "wrap", gap: "var(--wf-seasonal-gap, 4px 20px)", margin: "var(--wf-seasonal-margin, 16px 0)" }}>
+    {active.map((hub) => <a key={hub.slug} href={"/" + hub.slug} style={{ display: "inline-flex", alignItems: "center", minHeight: 44, color: `var(--wf-seasonal-color, ${hub.accent})`, textUnderlineOffset: 5 }}>{hub.label}</a>)}
   </nav>;
 }
