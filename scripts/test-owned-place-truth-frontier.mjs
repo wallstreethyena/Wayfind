@@ -12,10 +12,10 @@
 //      and strict independence from `wayfindScore`.
 
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { mock } from "node:test";
 
 import {
   parseEditorialHours,
@@ -47,6 +47,7 @@ import {
 import { resolveDetailCta } from "../lib/detailCta.js";
 import { firstPartyActionsForPlace, sanitizeServableSlot } from "../lib/firstPartyActionStore.js";
 import { uncreditedPlacePhotoId } from "../lib/placePhotoServable.js";
+import { dropUnservableCardPhotos } from "../lib/christmasTickets.js";
 import { wayfindScore } from "../lib/wayfindScore.js";
 import { cardToEditorial } from "../lib/atlasCards.js";
 
@@ -439,49 +440,43 @@ function eq(a, b, msg) {
     imageIsVenue: true,
   };
   const cover = { ...legacy, image: `/api/photo?place=${robertsId}&g=2&w=640`, placeholder: { label: "Christmas market" } };
-  // Isolate the fixed clock and backfill switch from the build environment.
-  async function photoFixture(legacy, cover) {
-    const { mock } = await import("node:test");
-    const { dropUnservableCardPhotos } = await import("./lib/christmasTickets.js");
-    const deps = {
-      servable: {
-        noMemo: true,
-        resolve: async () => ({ type: "miss", location: null }),
-        findFree: async () => null,
-      },
-    };
-    mock.timers.enable({ apis: ["Date"], now: new Date("2026-11-28T02:00:00Z") });
-    const dropped = await dropUnservableCardPhotos(legacy, deps);
-    const coverOff = await dropUnservableCardPhotos(cover, deps);
-    process.env.WAYFIND_PHOTOS_BACKFILL = "1";
-    const stillDropped = await dropUnservableCardPhotos(legacy, deps);
-    const kept = await dropUnservableCardPhotos(cover, deps);
-    return { dropped, coverOff, stillDropped, kept };
-  }
-  const child = spawnSync(process.execPath, ["--input-type=module", "-e",
-    `console.log(JSON.stringify(await (${photoFixture})(${JSON.stringify(legacy)}, ${JSON.stringify(cover)})));`
-  ], {
-    cwd: ROOT,
-    env: {
-      NODE_ENV: "production",
-      VERCEL_ENV: "production",
-      WAYFIND_GATE: "shut",
-      WAYFIND_PHOTOS_BACKFILL: "0",
-      GOOGLE_PHOTOS_BACKFILL_CAP: "1",
-      GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
-      GOOGLE_PHOTOS_BACKFILL_PER_HOUR: "1",
+  const deps = {
+    servable: {
+      noMemo: true,
+      resolve: async () => ({ type: "miss", location: null }),
+      findFree: async () => null,
     },
-    encoding: "utf8",
-  });
-  if (child.status !== 0) throw new Error("Photo resilience fixture failed: " + String(child.stderr || child.error || child.status).slice(0, 500));
-  const { dropped, coverOff, stillDropped, kept } = JSON.parse(child.stdout.trim().split("\n").at(-1));
-  eq(dropped.image, null, "Unservable wfplacediscovery card image is dropped before render");
-  ok(dropped.placeholder && dropped.placeholder.label, "Card receives designed placeholder tile instead of emitting a 404 image request");
-  eq(coverOff.image, null, "Switching off backfill also drops the unservable place-based cover");
-  eq(stillDropped.image, null, "Backfill never retains a legacy pseudo-ref that the photo endpoint cannot backfill");
-  ok(stillDropped.placeholder?.label, "The pseudo-ref falls back to the designed tile while backfill is enabled");
-  eq(kept.image, cover.image, "The eligible place-based cover is retained while backfill is enabled");
-  eq(kept.placeholder, cover.placeholder, "The retained cover keeps its designed fallback tile");
+  };
+  const enabled = {
+    WAYFIND_PHOTOS_BACKFILL: "1",
+    GOOGLE_PHOTOS_BACKFILL_CAP: "1",
+    GOOGLE_PHOTOS_BACKFILL_PER_HOUR: "1",
+    GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
+    VERCEL_ENV: "production",
+  };
+  const saved = { ...process.env };
+  mock.timers.enable({ apis: ["Date"], now: new Date("2026-11-28T02:00:00Z") });
+  try {
+    process.env.WAYFIND_PHOTOS_BACKFILL = "0";
+    const dropped = await dropUnservableCardPhotos(legacy, deps);
+    eq(dropped.image, null, "Unservable wfplacediscovery card image is dropped before render");
+    ok(dropped.placeholder && dropped.placeholder.label, "Card receives designed placeholder tile instead of emitting a 404 image request");
+    eq((await dropUnservableCardPhotos(cover, deps)).image, null, "Switching off backfill also drops the unservable place-based cover");
+
+    for (const [key, value] of Object.entries(enabled)) process.env[key] = value;
+    const stillDropped = await dropUnservableCardPhotos(legacy, deps);
+    eq(stillDropped.image, null, "Backfill never retains a legacy pseudo-ref that the photo endpoint cannot backfill");
+    ok(stillDropped.placeholder?.label, "The pseudo-ref falls back to the designed tile while backfill is enabled");
+    const kept = await dropUnservableCardPhotos(cover, deps);
+    eq(kept.image, cover.image, "The eligible place-based cover is retained while backfill is enabled");
+    eq(kept.placeholder, cover.placeholder, "The retained cover keeps its designed fallback tile");
+  } finally {
+    mock.timers.reset();
+    for (const key of Object.keys(enabled)) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  }
 }
 
 // ── 8. Verified Coverage vs Fallback Readiness & Ranking Separation ────────
