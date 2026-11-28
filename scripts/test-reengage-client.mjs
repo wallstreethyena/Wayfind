@@ -336,6 +336,11 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
   ok(/If that address can get email, your plan is on its way\./.test(drawer) && !/Check your inbox/.test(drawer) && /This plan expired\. Build it again and we'll send the new one\./.test(drawer) && /One moment, then try again\./.test(drawer) && /Email is not available right now\./.test(drawer), "SOURCE-LEVEL: the success and error copy matches the brief");
   ok(/role="region"/.test(banner) && /aria-label="Dismiss this reminder"/.test(banner) && /zIndex: 890/.test(banner), "SOURCE-LEVEL: banner is a labelled region with a labelled dismiss, z-index under the sheets");
   ok(/rel=\{outbound \? "sponsored nofollow" : undefined\}/.test(banner), "SOURCE-LEVEL: an /api/ offer link is rel=sponsored nofollow");
+  {
+    const statics = [...mount.matchAll(/^\s*import\s[^;]*?from\s*["']([^"']+)["']/gm)].map((m) => m[1]);
+    ok(statics.length >= 1 && statics.every((x) => x === "react"), "SOURCE-LEVEL: ReengageMount (root layout, first load JS budget) statically imports only react, got " + JSON.stringify(statics));
+    ok(/import\(\s*["']\.\.\/\.\.\/lib\/reengageClient\.js["']\s*\)/.test(mount), "SOURCE-LEVEL: ReengageMount loads lib/reengageClient.js lazily");
+  }
   ok(/<ReengageMount \/>/.test(layout) && (layout.match(/<ReengageMount \/>/g) || []).length === 1, "SOURCE-LEVEL: layout renders <ReengageMount /> exactly once");
   ok(!/\.css"/.test(banner + drawer + mount), "SOURCE-LEVEL: no CSS file is imported eagerly");
   ok(/addEventListener\("load"/.test(mount) && /requestIdleCallback/.test(mount) && /setTimeout\(run, 1500\)/.test(mount), "SOURCE-LEVEL: the mount waits for load and idle");

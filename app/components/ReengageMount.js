@@ -4,32 +4,35 @@
 // can never touch first paint or LCP. Off entirely unless this build was cut with
 // NEXT_PUBLIC_WF_REENGAGE=1. Opted out visitors (Global Privacy Control, owner,
 // bots) get no cookie, no stored state and no banner.
+//
+// First load JS budget (scripts/check-bundle.mjs): this file is in the root
+// layout, so it imports NOTHING but React. lib/reengageClient.js and the banner
+// are fetched only after load + idle, and only when the build flag is on (the
+// literal env compare lets the bundler drop the whole effect when it is off).
 import { useEffect, useState } from "react";
-import {
-  reengageEnabled, optedOut, ensureAnonId, noteVisit, installReengageHook,
-  readState, readFlags, shouldShowBanner,
-} from "../../lib/reengageClient.js";
 
 export default function ReengageMount() {
   const [Banner, setBanner] = useState(null);
 
   useEffect(() => {
-    if (!reengageEnabled()) return undefined;
+    if (process.env.NEXT_PUBLIC_WF_REENGAGE !== "1") return undefined;
     let cancelled = false;
     let idleHandle = null;
     let timer = null;
 
     const run = () => {
       if (cancelled) return;
-      try {
-        if (optedOut(window)) return;
-        ensureAnonId(window);
-        noteVisit(window);
-        installReengageHook(window);
-        const now = Date.now();
-        if (!shouldShowBanner(readState(window), readFlags(window), now, window.location.pathname)) return;
-        import("./ReturnBanner").then((m) => { if (!cancelled) setBanner(() => m.default); }, () => {});
-      } catch (e) { /* best effort, never break the page */ }
+      import("../../lib/reengageClient.js").then((rc) => {
+        if (cancelled) return;
+        try {
+          if (rc.optedOut(window)) return;
+          rc.ensureAnonId(window);
+          rc.noteVisit(window);
+          rc.installReengageHook(window);
+          if (!rc.shouldShowBanner(rc.readState(window), rc.readFlags(window), Date.now(), window.location.pathname)) return;
+          import("./ReturnBanner").then((m) => { if (!cancelled) setBanner(() => m.default); }, () => {});
+        } catch (e) { /* best effort, never break the page */ }
+      }, () => {});
     };
     const whenIdle = () => {
       if (typeof window.requestIdleCallback === "function") idleHandle = window.requestIdleCallback(run, { timeout: 4000 });
