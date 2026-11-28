@@ -150,6 +150,17 @@ export default function ItineraryScreen({ ctx }) {
     }
   }, [activeTrip, trips, logEvent]);
 
+  // Owner, 2026-11-28 ("it just took me right back to the top and told me to
+  // rebuild the itinerary"): the open trip lived only in memory, so anything
+  // that remounted the app (a reload, iPhone Safari restoring a background
+  // tab, a tap on the Itinerary tab) dropped him on the trip list's "Build a
+  // trip" screen and his edits looked gone. Remember the open trip for this
+  // tab and reopen it; the ‹ back button is the only way to clear it.
+  useEffect(() => {
+    if (!activeTrip) return;
+    writeOpenTrip(activeTrip);
+  }, [activeTrip]);
+
   useEffect(() => {
     if (activeTrip || !trips || typeof window === "undefined") return;
     try {
@@ -159,6 +170,13 @@ export default function ItineraryScreen({ ctx }) {
       if (wantTrip && trips[wantTrip]) {
         setActiveTrip(wantTrip);
         return;
+      }
+      if (!wantTrip && !wantCity) {
+        const remembered = readOpenTrip();
+        if (remembered && trips[remembered] && Array.isArray(trips[remembered].items) && trips[remembered].items.length > 0) {
+          setActiveTrip(remembered);
+          return;
+        }
       }
       if (wantCity) {
         const flKey = Trips.tripKeyOf(wantCity, "FL");
@@ -935,7 +953,7 @@ export default function ItineraryScreen({ ctx }) {
           return (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
-                <button type="button" aria-label="Back to all trips" onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); setShareConfirmPending(null); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, minWidth: 44, minHeight: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>‹</button>
+                <button type="button" aria-label="Back to all trips" onClick={() => { clearOpenTrip(); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); setShareConfirmPending(null); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, minWidth: 44, minHeight: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>‹</button>
                 <div style={{ flex: "1 1 190px", minWidth: 190 }}>
                   <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tripTitle}</div>
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
@@ -1744,4 +1762,27 @@ export default function ItineraryScreen({ ctx }) {
         })()}
     </>
   );
+}
+
+// The trip this tab had open (sessionStorage: per tab, gone when the tab
+// closes). Twelve hours is a day's planning; older than that, start fresh.
+const OPEN_TRIP_KEY = "wf_itinerary_open_trip";
+const OPEN_TRIP_TTL_MS = 12 * 60 * 60 * 1000;
+export function writeOpenTrip(key, now = Date.now()) {
+  try { if (typeof window !== "undefined" && key) window.sessionStorage.setItem(OPEN_TRIP_KEY, JSON.stringify({ key: String(key), ts: now })); } catch {}
+}
+export function readOpenTrip(now = Date.now()) {
+  try {
+    if (typeof window === "undefined") return null;
+    const raw = window.sessionStorage.getItem(OPEN_TRIP_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw);
+    if (!v || typeof v.key !== "string" || !v.key || !Number.isFinite(v.ts) || now - v.ts > OPEN_TRIP_TTL_MS || v.ts > now + 60000) return null;
+    return v.key;
+  } catch {
+    return null;
+  }
+}
+export function clearOpenTrip() {
+  try { if (typeof window !== "undefined") window.sessionStorage.removeItem(OPEN_TRIP_KEY); } catch {}
 }
