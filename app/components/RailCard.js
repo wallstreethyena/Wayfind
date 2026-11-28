@@ -457,6 +457,8 @@ export default function RailCard({
   // `<RailCard ref={…}>`, so a prop avoids forwardRef's wrapper cost for the
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
+  // Map cards receive focus from pins and expose their primary action inside the article.
+  separateActions = false,
   // Paid rail buttons only. Visible commission line, inside the card, and a
   // commerce click when `cta.commerce` names the surface, rail and offer.
   disclose = false,
@@ -612,13 +614,13 @@ export default function RailCard({
       data-guide-id={variant === "guide" && guideId ? guideId : undefined}
       data-guide-matched-id={variant === "guide" && guideId && guideMatchedId ? guideMatchedId : undefined}
       className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteDay)}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${ReserveSlot ? " has-cta" : ""}${className ? " " + className : ""}`}
-      role="button"
-      tabIndex={0}
+      role={separateActions ? undefined : "button"}
+      tabIndex={separateActions ? -1 : 0}
       onPointerDown={tapIntent.onPointerDown}
       onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp}
       onPointerCancel={tapIntent.onPointerCancel}
-      onKeyDown={KB_CLICK}
+      onKeyDown={separateActions ? (e) => { if (e.target === e.currentTarget) KB_CLICK(e); } : KB_CLICK}
       onClick={(e) => {
         const t = e && e.target;
         // Same nested-interactive contract as IconicPlaceCard: a tap that
@@ -696,7 +698,14 @@ export default function RailCard({
                 ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEyebrow(e); }}>{shownEyebrow} ›</button>
                 : <span className="wf-place-card-category">{shownEyebrow}</span>) : null; })()}
               <AwardListRank award={shownAward} rank={rank} />
-              <div className="wf-place-card-name">{title}</div>
+              <div className="wf-place-card-name">
+                {separateActions && onOpen ? (
+                  <button type="button" aria-label={ariaLabel || title}
+                    style={{ background: "none", border: 0, padding: 0, color: "inherit", font: "inherit", textAlign: "inherit", cursor: "pointer" }}
+                    onClick={(e) => { if (e.detail === 0 || tapIntent.shouldOpen()) onOpen(e); }}
+                  >{title}</button>
+                ) : title}
+              </div>
               {place ? (() => { const where = storedPlaceHeader(place); return where ? <div className="wf-place-card-where">{where}</div> : null; })() : null}
             </div>
           </div>

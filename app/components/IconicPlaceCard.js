@@ -575,7 +575,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
-      {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div> : null}
+      {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} staticRoot /></div> : null}
       <div className="wf-place-card-layout">
         <div className="wf-place-card-media">
         {/* v8.70 — LAZY IS OPT-OUT, because in one container it never
