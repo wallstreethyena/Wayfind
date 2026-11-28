@@ -436,7 +436,7 @@ scripts/check-rails-geo-grid.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	85057011
 scripts/check-rails-wire.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	028bd913bfb95c98515c6ef00f32c23e099cebb5bb1c95ec08bd443ef45585f8
 scripts/check-ranking-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	9cc975a5a53db1e749eecc7a53f0bd5a71d5a47f1e5c8c8e01cb77e4ee46d982
 scripts/check-redirect-host-classification.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	3cbc3295d6609ec3c431fc1bd43265a7f5ae29d413b1d27bcfce07211dec3e59
-scripts/check-redirect-suspect-gate.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	107	0	0	d89a8956a0043f8d6fe3511c8582cdae778eb3a7bf0a763342ed8cace7693415
+scripts/check-redirect-suspect-gate.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	110	0	0	6319eb7afb567d39963b23f9c5dc5deca7cd8358e98f8c78ada5bb007298f59a
 scripts/check-redirect-traffic-class.mjs	0	CALL	blocks-ci-and-deploy	1	-	69	0	0	46aefdea49373e6beff72362559440e5a13b0963d2f854d6a07392e7a702d4f3
 scripts/check-release-contamination.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	e1de05ca3d31afc66d316641720f42ab41ad784a47881a66e2aa62d86823778d
 scripts/check-reserve-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	277	0	0	ad734bfb263baa637a74529f1b9970faf03aa8eff812343de182e14522688f2f
@@ -1217,7 +1217,7 @@ scripts/test-site-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	e25164f0
 scripts/test-site-fixes-20261019.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	50	0	0	aacd0520f12a518b38e1967e259a560c292abb8e3ea0effaa85d44dcab6b05f6
 scripts/test-site-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	1	0e3112c1683fd967704d6bbda5a029df3e5b952533e319b0c8cc6090da62bdec
 scripts/test-snowcat-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	d140470f7bf14995d892c522c0c63ca2653124614e32b78c8b4f61b2cf1d3409
-scripts/test-sold-out-handoffs.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	0b25eb5de3f54a4fcf645a3c3627d8a073758e52dafde1b86324869dc29fd249
+scripts/test-sold-out-handoffs.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	820b49a65f8319c2ffb8ae307a8bb1060087b2014f891b3289a743e46c85e5b2
 scripts/test-sort-modes.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	0016368f6700aa5f04378532f0dddbbd17c00d4fbfee345eae5e4bbbbf26876f
 scripts/test-sparse-category.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	0f7c4d415efec36680b9357ee540ab5d0f6333736087ee9107aa1963779fc10f
 scripts/test-spend-bypass-regression.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	59	0	0	fb0b9d3ab8902a3336ed26382e9e65ce8b9bf5a4c420d971c7b95fc032f555ab
