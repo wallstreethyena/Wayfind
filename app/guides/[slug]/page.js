@@ -1235,6 +1235,7 @@ export default async function GuidePage({ params }) {
       ) : null}
       {dayAction?.href === "#guide-plan-options" ? <div id="guide-plan-options" style={{ scrollMarginTop: 16 }} /> : null}
       {shippingPicks.map(({ pick, index: i }, visibleIndex) => {
+        const arrival = visitPlan?.stops.find((stop) => stop.officialEntrance && stop.name === pick.name);
         const resolved = pickPlaces[i];
         const noSale = unavailableFor(pick.eventSlug);
         const ticket = noSale ? null : guidePickTicket(pick.ticket);
@@ -1248,7 +1249,7 @@ export default async function GuidePage({ params }) {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
-              <GuidePickWhere where={guidePickWhere(pick, params.slug)} />
+              <GuidePickWhere where={arrival ? { address: arrival.address, mapsUrl: arrival.source } : guidePickWhere(pick, params.slug)} />
               {neutralPickFigures[i] ? <GuideNeutralFigure name={pick.name} className="wf-guide-pick-figure" /> : null}
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />

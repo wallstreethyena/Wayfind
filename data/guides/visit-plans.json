@@ -944,9 +944,10 @@
         "name": "Kennedy Space Center Visitor Complex",
         "address": "Space Commerce Way, Merritt Island, FL 32953",
         "why": "A full-day spaceflight outing and the place to look for official mission viewing options.",
-        "tip": "Use the Visitor Complex route and plan for a full visit if a launch slips.",
-        "source": "https://www.kennedyspacecenter.com/info/plan-your-visit/travel-information-and-parking/",
-        "officialEntrance": true
+        "tip": "Allow a full day for Atlantis and the Apollo/Saturn V Center even if a launch slips. The November 27 advisory sends the standard bus tour directly to the Apollo/Saturn V Center.",
+        "source": "https://www.kennedyspacecenter.com/info/kennedy-space-center-visitor-complex-updates/",
+        "officialEntrance": true,
+        "arrival": "The operator’s November 27 advisory closed the Space Commerce Way entrance because of high water. While it’s in effect, stay on SR 405/NASA Parkway past Space Commerce Way and turn right at the next traffic light. Follow the parking signs and check the operator’s latest directions before leaving."
       }
     ],
     "nearby": [

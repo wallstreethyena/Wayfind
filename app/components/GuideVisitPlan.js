@@ -1,4 +1,4 @@
-import { guideAreaMapUrl, guideMapsUrl } from "../../lib/guidePlaceAddress.js";
+import { guideMapsUrl } from "../../lib/guidePlaceAddress.js";
 import plans from "../../data/guides/visit-plans.json";
 import styles from "./GuideVisitPlan.module.css";
 
@@ -10,17 +10,18 @@ function PlanStops({ stops, heading: Heading }) {
   return (
     <ul className={styles.stops}>
       {stops.map((stop) => {
-        const href = stop.officialEntrance ? guideAreaMapUrl(`${stop.name}, ${stop.address}`) : guideMapsUrl(stop);
+        const href = stop.officialEntrance ? stop.source : guideMapsUrl(stop);
         return (
           <li key={stop.name}>
             <Heading>{stop.name}</Heading>
+            {stop.arrival ? <p>{stop.arrival}</p> : null}
             <p className={styles.address}>
               <span>{stop.address}</span>
-              <a href={href} aria-label={`Directions to ${stop.name}`}>Directions</a>
+              <a href={href} data-visit-directions="" aria-label={`Directions to ${stop.name}`}>{stop.officialEntrance ? "Current directions" : "Directions"}</a>
             </p>
             <p>{stop.why}</p>
-            {stop.tip ? <p><strong>Tip:</strong> {stop.tip}</p> : null}
-            <p className={styles.reference}><a href={stop.source} aria-label={`Visitor information for ${stop.name}`}>Visitor information</a></p>
+            {stop.tip ? <p><strong>Tip</strong> · {stop.tip}</p> : null}
+            {stop.officialEntrance ? null : <p className={styles.reference}><a href={stop.source} aria-label={`Visitor information for ${stop.name}`}>Visitor information</a></p>}
           </li>
         );
       })}
