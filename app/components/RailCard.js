@@ -421,7 +421,7 @@ export function RailDots({ railId, count, layoutKey = 0 }) {
  *   pending or failed photo (e.g. "christmas"); art only, never the image.
  */
 export default function RailCard({
-  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, placeholder = null, photoFallbackCategory, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  fullFramePhoto = false, photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, placeholder = null, photoFallbackCategory, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -557,6 +557,9 @@ export default function RailCard({
   // place's own photo, if one exists (lib/placeCardPhotoPosition.js).
   const shownPhotoPosition = photoPosition === "50% 50%" && !usingFallback && place?.id
     ? (placeCardPhotoPosition(place.id, displayedPhoto) || photoPosition) : photoPosition;
+  const shownPhotoStyle = fullFramePhoto
+    ? { objectFit: "contain", objectPosition: "center" }
+    : { objectFit: "cover", objectPosition: shownPhotoPosition };
   if (visitFacts) {
     const photoEvent = usingFallback ? { ...visitFacts, image_is_venue: false, imageIsVenue: false, photoAttr: null, photoAttrHref: null } : visitFacts;
     if (usingFallback) { photoAttr = null; photoAttrHref = null; }
@@ -662,7 +665,7 @@ export default function RailCard({
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={handleImageError}
                 fallbackCategory={photoFallbackCategory}
-                style={{ objectFit: "cover", objectPosition: shownPhotoPosition }}
+                style={shownPhotoStyle}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
               : placeFallback || <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}

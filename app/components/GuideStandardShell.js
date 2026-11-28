@@ -88,10 +88,10 @@ export function GuideSection({ index, id, eyebrow, title, children, className = 
 export default function GuideStandardShell({
   slug, title, description, image, region, category = "Local guide",
   published = null, updated, actions = null, jumpHref = "#guide", jumpLabel = "Explore the guide",
-  quick = null, intro = null, contents = [], lead = null, extraLd = [], css = "", children,
+  dayAction = null, quick = null, intro = null, contents = [], lead = null, extraLd = [], css = "", children,
 }) {
   if (!slug || !title || !updated) throw new Error("GuideStandardShell needs slug, title and updated");
-  const action = dedicatedGuideAction(slug, siteTodayStr());
+  const action = dayAction || dedicatedGuideAction(slug, siteTodayStr());
   return (
     <div style={PAGE} className="wf-guide-editorial" data-guide-standard={slug}>
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>

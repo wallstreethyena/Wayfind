@@ -218,7 +218,7 @@ scripts/check-guide-cta-honesty.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	40	
 scripts/check-guide-cta-single-capture.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	3a758a72d232afb43eff578618db23c8ec36835e8834af8c2785f89cf2750d7f
 scripts/check-guide-deal-cards.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	05909dfad33e342c367c601bdd4975837e445d2cb5e6e752a2c3b0c7244d3dbc
 scripts/check-guide-dedicated-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	5c90164b5b286ae09f7b1594f7d76a80d5c636b824175e7d82fec57842553b85
-scripts/check-guide-editorial.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	10bafd234698135469a5705a203c1dc342466f7a7d60e6dd113cd59b4bb69f5a
+scripts/check-guide-editorial.mjs	0	RENDER	blocks-ci-and-deploy	1	-	67	0	0	18497e921c84f24e5464568ae588abbb5dfd3d5da3284df7d4fc9bf0e7542069
 scripts/check-guide-in-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	91696b60122c8301e8a7a19a89c054d41be5cda46702f40a6a7b3851c64f7fbd
 scripts/check-guide-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	88416cfd553ce289ddb39078b1fb2306b198582e7ec3c132db7df36999563cde
 scripts/check-guide-neutral-fallback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0	40e61e73a2b916e22f79e0a5c26fd454dc7e1c67c8927d253b905127f3790305
@@ -809,6 +809,7 @@ scripts/test-fetch-socket-retry.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	b6cc4
 scripts/test-first-party-action-resolver.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	54	0	0	fe180867688e1fba182bfbd22f0ef2f09421fe15efc3163a03ccebc743850f59
 scripts/test-first-screen.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	502018e993e95e537f88dcd67851a875f7b9adf9bb4e4951113779e0e1bc0018
 scripts/test-florida-catalog-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	6bb29c934f7ce5d96324eb0bd9e0f3af318105bd35be674a4f95ddbcc0571cb8
+scripts/test-florida-field-articles.mjs	0	RENDER	blocks-ci-and-deploy	1	-	54	0	0	f3d38573d81e10250fcd4943f420e4947ef47af3962108d3f6fd7320dcb69b51
 scripts/test-florida-hub-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	9587f125bf4899be08662be04f20a1fc97e93e2a432ebbbd90c6350892138f97
 scripts/test-florida-venue-rule.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	1b8f5817064acf8436ac62cca837a38c543014752b913de7a1d2decd852b5de8
 scripts/test-font-fallback-metrics.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0	ab3c6388b7011c4aae7aa80845880774146f6c4d79514404892a19483520d612

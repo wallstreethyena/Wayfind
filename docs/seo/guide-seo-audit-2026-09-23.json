@@ -7142,6 +7142,735 @@
       }
     },
     {
+      "slug": "angell-phelps-chocolate-daytona-beach",
+      "url": "https://www.gowayfind.com/guides/angell-phelps-chocolate-daytona-beach",
+      "primary_query": "Angell & Phelps chocolate factory viewing times",
+      "geography": "Daytona Beach",
+      "decision": "Visit the candy kitchen on Beach Street during its weekday viewing windows, then follow a short route to the Halifax River. Find hours, parking and the weekend alternative.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/angell-phelps-chocolate-daytona-beach.jpg; 800x533; Rob Bixby; CC BY 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Reviewed source image is 800x533; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "la-segunda-bakery-ybor-seminole-heights",
+      "url": "https://www.gowayfind.com/guides/la-segunda-bakery-ybor-seminole-heights",
+      "primary_query": "La Segunda Ybor vs Seminole Heights",
+      "geography": "Tampa",
+      "decision": "Choose La Segunda’s Ybor bakery for a Cuban sandwich or its Seminole Heights shop for bread and pastries. Get the two addresses, opening hours and pickup option.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/la-segunda-bakery-ybor-seminole-heights.jpg; 1280x960; LittleT889; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x960 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "2 hand-reviewed related guide link(s): best-cuban-sandwich-tampa, ybor-city-tampa-guide."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "black-point-wildlife-drive-merritt-island",
+      "url": "https://www.gowayfind.com/guides/black-point-wildlife-drive-merritt-island",
+      "primary_query": "Is Black Point Wildlife Drive open",
+      "geography": "Titusville",
+      "decision": "Check the Merritt Island refuge’s current road alert before committing to the seven-mile wildlife drive. Find the correct entry, pass options and visitor center hours.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/black-point-wildlife-drive-merritt-island.jpg; 1200x900; Peterwchen; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1200x900 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "1 hand-reviewed related guide link(s): bioluminescence-kayak-tour-space-coast."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "ding-darling-wildlife-drive-sanibel",
+      "url": "https://www.gowayfind.com/guides/ding-darling-wildlife-drive-sanibel",
+      "primary_query": "Ding Darling Wildlife Drive Sanibel low tide, hours and entrance fees",
+      "geography": "Sanibel",
+      "decision": "Choose the four-mile drive or a free stop at Sanibel’s refuge visitor center. Plan around low tide, Friday closures and the return route for cyclists.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/ding-darling-wildlife-drive-sanibel.jpg; 1280x853; Russ (Russ Whitehurst); CC BY 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "john-gorrie-museum-apalachicola",
+      "url": "https://www.gowayfind.com/guides/john-gorrie-museum-apalachicola",
+      "primary_query": "John Gorrie Museum Apalachicola hours and things to see",
+      "geography": "Apalachicola",
+      "decision": "See the replica of John Gorrie’s ice machine and find his monument across Sixth Street. Plan a short museum stop or add a second downtown history visit.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/john-gorrie-museum-apalachicola.jpg; 1280x960; The Bushranger; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x960 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "gainesville-hawthorne-state-trail-boulware-springs",
+      "url": "https://www.gowayfind.com/guides/gainesville-hawthorne-state-trail-boulware-springs",
+      "primary_query": "Short Gainesville Hawthorne State Trail walk from Boulware Springs",
+      "geography": "Gainesville",
+      "decision": "Start at Boulware Springs for a free walk or bike ride. Compare the Sweetwater and Alachua Lake turnoffs, with mapped mile markers and a return to the same car.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/gainesville-hawthorne-state-trail-boulware-springs.jpg; 1280x960; Ebyabe; CC BY-SA 3.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x960 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "renningers-mount-dora-antique-flea-market",
+      "url": "https://www.gowayfind.com/guides/renningers-mount-dora-antique-flea-market",
+      "primary_query": "Renninger’s Mount Dora antique market hours Friday",
+      "geography": "Mount Dora",
+      "decision": "Pick the antiques building, flea market or a ticketed Extravaganza at Renninger’s Mount Dora. Updated weekend hours, January prices and a two-hour shopping plan.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/renningers-mount-dora-antique-flea-market.jpg; 1280x820; Tugtardis; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x820 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "kermits-key-lime-pie-key-west",
+      "url": "https://www.gowayfind.com/guides/kermits-key-lime-pie-key-west",
+      "primary_query": "Kermit’s Key lime pie Key West Elizabeth vs Duval Street",
+      "geography": "Key West",
+      "decision": "Choose the Elizabeth Street garden or one Duval Street stop for Kermit’s pie. Plan a short Historic Seaport walk and check Old Town garage costs before you drive.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/kermits-key-lime-pie-key-west.jpg; 1280x688; Sharon Hahn Darlin; CC BY 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x688 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
+      "slug": "st-augustine-lighthouse-with-kids",
+      "url": "https://www.gowayfind.com/guides/st-augustine-lighthouse-with-kids",
+      "primary_query": "St Augustine Lighthouse with kids under 44 inches",
+      "geography": "St. Augustine",
+      "decision": "Check the 44-inch rule and 219-step climb, then plan a visit that includes the ground-level shipwreck exhibits, hands-on center and tower-view video.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/st-augustine-lighthouse-with-kids.jpg; 1280x1700; Maryamarce; CC BY-SA 4.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x1700 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+        },
+        "contextual_guide_links": {
+          "status": "pass",
+          "evidence": "1 hand-reviewed related guide link(s): st-augustine-christmas-coffee-snow-walk-2026."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
       "slug": "snowcat-ridge-vs-wunder-glow-2026",
       "url": "https://www.gowayfind.com/guides/snowcat-ridge-vs-wunder-glow-2026",
       "primary_query": "snowcat ridge vs wunder glow",
