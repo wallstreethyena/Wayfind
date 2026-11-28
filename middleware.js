@@ -66,6 +66,12 @@ export const config = {
     // Weekly email signup (2026-11-27): a plain same-origin form post that
     // stores one address (sends nothing). Same-origin + a tight per-IP limit.
     "/api/newsletter/subscribe",
+    // Re-engagement (PR 1): "email me this plan" sends one email through Resend,
+    // so it gets the full same-origin guard plus the tight per-IP limit below.
+    // The unsubscribe route is rate limit ONLY (RATE_LIMIT_ONLY_ROUTES): a mail
+    // app's one click POST is cross-site by design and must not be blocked.
+    "/api/reengage/email",
+    "/api/reengage/unsubscribe",
     "/api/places/search",
     // Free Apple Maps pins: same-origin POST that reserves units against the
     // one daily Apple service-call ceiling (lib/applePlaceIds.js). Not a cost
@@ -285,7 +291,7 @@ const IMAGE_ROUTES = new Set(["/api/photo", "/api/creator-avatar"]);
 // Unmetered routes for Reserve a table (book, cancel, proposal, manage, slots): per-IP rate limit, no middleware
 // same-origin block (the routes check the exact Origin themselves; a restaurant
 // opening an emailed link may arrive with stripped browser headers).
-const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/slots", "/api/reserve/book", "/api/reserve/cancel", "/api/reserve/proposal", "/api/reserve/manage", "/api/reserve/path", "/api/reserve/find", "/api/reserve/profile", "/api/reserve/history", "/api/reserve/go", "/api/reserve/agent/start", "/api/reserve/agent/status", "/api/reserve/agent/cancel", "/api/reserve/agent/code", "/api/reserve/phone", "/api/reserve/browser"]);
+const RATE_LIMIT_ONLY_ROUTES = new Set(["/api/reserve/slots", "/api/reserve/book", "/api/reserve/cancel", "/api/reserve/proposal", "/api/reserve/manage", "/api/reserve/path", "/api/reserve/find", "/api/reserve/profile", "/api/reserve/history", "/api/reserve/go", "/api/reserve/agent/start", "/api/reserve/agent/status", "/api/reserve/agent/cancel", "/api/reserve/agent/code", "/api/reserve/phone", "/api/reserve/browser", "/api/reengage/unsubscribe"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;
@@ -302,6 +308,6 @@ export function middleware(req) {
   // Apple pin budget: its own 10/min per-IP window (lib/apiGuard.APPLE_BUDGET_RL).
   const routeLimit = path === "/api/maps/apple-budget" ? APPLE_BUDGET_RL
     : path === "/api/christmas/plan-votes" ? PLAN_VOTES_RL
-    : path === "/api/newsletter/subscribe" ? NEWSLETTER_RL : undefined;
+    : path === "/api/newsletter/subscribe" || path === "/api/reengage/email" ? NEWSLETTER_RL : undefined;
   return guardPaidRoute(req, { rateLimitOnly, routeLimit }) || NextResponse.next();
 }

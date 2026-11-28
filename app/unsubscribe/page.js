@@ -25,6 +25,16 @@ const S = {
 export default function Unsubscribe({ searchParams }) {
   const sp = searchParams || {};
   const done = sp.done;
+  // Trip emails (re-engagement): /api/reengage/unsubscribe redirects here.
+  if (sp.list === "trip" && done === "1") {
+    return (
+      <main style={S.page} className="wf-page-canvas"><div style={S.card}>
+        <h1 style={S.h1}>You are unsubscribed from trip emails.</h1>
+        <p style={S.p}>We will not send you more emails about your trips.</p>
+        <a href="/" style={S.btn}>Back to Wayfind</a>
+      </div></main>
+    );
+  }
   if (done === "1") {
     return (
       <main style={S.page} className="wf-page-canvas"><div style={S.card}>
