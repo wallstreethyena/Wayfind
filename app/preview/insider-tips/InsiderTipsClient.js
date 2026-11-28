@@ -6,6 +6,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { styleHtml } from "../../../lib/styleHtml.js";
 import { safeLocalStorage } from "../../../lib/safeStorage.js";
+import { emitCommerce, mintClickId } from "../../../lib/commerce.js";
+import { planRowOrganizerClick } from "../../../lib/partnerClick.js";
+import { CHRISTMAS_WEEKEND_SURFACE } from "../../../lib/christmasWeekendTile.js";
+import { TicketCard, XM_CARD_CSS } from "../../components/ChristmasTicketCard.js";
 
 const SAVE_KEY = "wf_preview_insider_saves";
 const NUDGE_KEY = "wf_preview_insider_nudge_dismissed";
@@ -36,11 +40,11 @@ const CSS = `
   min-height:100dvh;font-family:var(--wf-sans);padding:0 16px 150px;box-sizing:border-box;overflow-x:clip;-webkit-font-smoothing:antialiased}
 .it-page *{box-sizing:border-box}
 .it-wrap{max-width:1120px;margin:0 auto}
-.it-hero{padding:64px 0 8px;text-align:center}
+.it-hero{padding:44px 0 0;text-align:center}
 .it-eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--it-soft);margin:0 0 18px;padding:7px 14px;border:1px solid var(--it-line);border-radius:999px;background:rgba(255,255,255,.02)}
 .it-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#FFC23D,var(--it-warm),var(--it-pink),#8A3CFF);box-shadow:0 0 12px rgba(255,138,61,.6)}
-.it-h1{font-family:var(--wf-display),Georgia,serif;font-weight:600;font-size:clamp(40px,7.4vw,72px);line-height:1;letter-spacing:-.025em;margin:0 0 14px}
-.it-sub{margin:0 auto 28px;max-width:520px;color:var(--it-soft);font-size:clamp(15px,2vw,17px);line-height:1.5}
+.it-h1{font-family:var(--wf-display),Georgia,serif;font-weight:600;font-size:clamp(34px,6vw,62px);line-height:1.02;letter-spacing:-.025em;margin:0 0 10px}
+.it-sub{margin:0 auto 22px;max-width:520px;color:var(--it-soft);font-size:clamp(15px,2vw,17px);line-height:1.5}
 .it-form{position:relative;max-width:660px;margin:0 auto}
 .it-form svg.it-pin{position:absolute;left:22px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--it-warm);pointer-events:none}
 .it-input{width:100%;height:64px;border-radius:999px;border:1px solid var(--it-line2);background:linear-gradient(180deg,#0F1729,#0B1322);color:var(--it-text);font:500 17px/1 var(--wf-sans);padding:0 140px 0 54px;outline:none;transition:border-color .2s,box-shadow .2s;box-shadow:0 10px 40px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.04);-webkit-appearance:none;appearance:none}
@@ -67,7 +71,7 @@ const CSS = `
 .it-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;transition:opacity .25s}
 .it-grid.dim{opacity:.5}
 @media (max-width:980px){.it-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:640px){.it-hero{padding:40px 0 4px}.it-grid{grid-template-columns:1fr;gap:16px}.it-input{height:58px;font-size:16px;padding-right:118px;padding-left:48px}.it-form svg.it-pin{left:18px}.it-go{height:46px;top:6px;right:6px;padding:0 18px;font-size:15px}.it-head{margin-top:40px}}
+@media (max-width:640px){.it-hero{padding:26px 0 0}.it-eyebrow{margin-bottom:12px}.it-grid{grid-template-columns:1fr;gap:16px}.it-input{height:58px;font-size:16px;padding-right:118px;padding-left:48px}.it-form svg.it-pin{left:18px}.it-go{height:46px;top:6px;right:6px;padding:0 18px;font-size:15px}.it-head{margin-top:40px}}
 .it-card{position:relative;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--it-card2),var(--it-card));border:1px solid var(--it-line);border-radius:20px;overflow:hidden;transition:transform .25s,border-color .25s,box-shadow .25s;box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 14px 40px rgba(0,0,0,.28)}
 .it-card:hover{transform:translateY(-3px);border-color:var(--it-line2);box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 22px 50px rgba(0,0,0,.4)}
 .it-card a{color:inherit;text-decoration:none;display:flex;flex-direction:column;flex:1}
@@ -102,6 +106,45 @@ const CSS = `
 .it-heart[aria-pressed="true"] svg{animation:it-pop .35s ease}
 @keyframes it-pop{40%{transform:scale(1.25)}}
 @media (prefers-reduced-motion:reduce){.it-ai.working svg,.it-heart[aria-pressed="true"] svg{animation:none}.it-card,.it-card:hover,.it-photo,.it-card:hover .it-photo{transition:none;transform:none}}
+.it-sell{margin:6px 0 0}
+.it-sellhead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 14px;margin:0 0 12px}
+.it-sellhead h2{margin:0;font-family:var(--wf-display),Georgia,serif;font-weight:600;font-size:clamp(22px,3vw,28px);line-height:1.15;letter-spacing:-.01em}
+.it-sellhead p{margin:0;color:var(--it-soft);font-size:13.5px}
+.it-tiles{display:flex;gap:14px;margin:0 -16px;padding:4px 16px 14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;list-style:none;scrollbar-width:none}
+.it-tiles::-webkit-scrollbar{display:none}
+.it-tile{flex:0 0 min(76vw,284px);scroll-snap-align:start;display:flex;min-width:0}
+.it-tcard{position:relative;display:flex;flex-direction:column;width:100%;min-width:0;border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--it-card2),var(--it-card));border:1px solid var(--it-line2);box-shadow:0 14px 34px rgba(0,0,0,.32)}
+.it-topen{display:flex;flex-direction:column;flex:1;color:inherit;text-decoration:none}
+.it-topen:focus-visible,.it-tbuy:focus-visible{outline:3px solid #FFC23D;outline-offset:-3px}
+.it-tmedia{position:relative;background:#111A2B}
+.it-tphoto{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover}
+.it-tbadge{position:absolute;left:10px;top:10px;z-index:1;display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:linear-gradient(180deg,#FFE7A3,#F5C451);color:#3A2200;font-size:11.5px;font-weight:800;letter-spacing:.01em;box-shadow:0 4px 12px rgba(0,0,0,.35)}
+.it-tbadge svg{width:12px;height:12px}
+.it-turgent{position:absolute;left:10px;bottom:10px;z-index:1;padding:4px 9px;border-radius:999px;background:#E8343F;color:#fff;font-size:11.5px;font-weight:800}
+.it-tbody{display:flex;flex-direction:column;gap:5px;padding:12px 14px 10px}
+.it-ttitle{margin:0;font-size:16.5px;font-weight:750;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.it-tmeta{margin:0;color:var(--it-soft);font-size:13px;line-height:1.35}
+.it-trate{display:flex;align-items:center;gap:5px;margin:0;font-size:13px;color:var(--it-text);font-weight:700}
+.it-trate span{color:var(--it-faint);font-weight:500}
+.it-trate svg{width:14px;height:14px;color:#F5B83D}
+.it-tfoot{margin-top:auto;display:grid;gap:7px;padding:2px 14px 14px}
+.it-tbuy{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:12px;background:linear-gradient(180deg,var(--it-warm2),var(--it-warm));color:#1A0E05;font:800 15.5px/1 var(--wf-sans);text-decoration:none;box-shadow:0 8px 20px rgba(255,138,61,.3)}
+.it-tbuy svg{width:16px;height:16px}
+.it-tprice{margin:0;text-align:center;color:var(--it-soft);font-size:13px}
+.it-tprice b{color:var(--it-text)}
+.it-tcard .it-heart{width:40px;height:40px;top:10px;right:10px}
+.it-trustbar{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 18px;margin:16px 0 26px;color:var(--it-soft);font-size:13px}
+.it-trustbar span{display:inline-flex;align-items:center;gap:6px}
+.it-trustbar svg{width:15px;height:15px;color:#3CCB7F}
+.it-signup{margin:26px 0 0}
+.it-signup > section{margin:0 auto !important;max-width:none !important;padding:0 !important}
+.it-find{margin:54px 0 0;padding:34px 0 0;border-top:1px solid var(--it-line);text-align:center}
+.it-find .it-h2{font-family:var(--wf-display),Georgia,serif;font-weight:600;font-size:clamp(30px,5vw,48px);line-height:1.05;letter-spacing:-.02em;margin:0 0 10px}
+.it-xmas{margin:56px 0 0}
+.it-xmas .it-sellhead{margin-bottom:14px}
+.it-xgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;list-style:none;margin:0;padding:0}
+@media (max-width:980px){.it-xgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.it-xgrid{grid-template-columns:1fr}.it-find{margin-top:40px;padding-top:28px}}
 .it-skel{border-radius:20px;border:1px solid var(--it-line);background:var(--it-card);overflow:hidden}
 .it-skel div{background:linear-gradient(90deg,#111A2B 0%,#1A2540 50%,#111A2B 100%);background-size:200% 100%;animation:it-shim 1.2s infinite}
 .it-join{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:36px 0 0;padding:22px 24px;border-radius:20px;border:1px solid var(--it-line);background:linear-gradient(120deg,rgba(255,138,61,.10),rgba(138,60,255,.08))}
@@ -127,6 +170,9 @@ const Icon = {
   check: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>,
   spark: <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9L12 2zm7 12 .9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9L19 14z" /></svg>,
   bulb: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V17h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z" /></svg>,
+  star: <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z" /></svg>,
+  award: <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 14.4l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8z" opacity=".9" /><path d="M8 17.5L6.5 22l3-1.2L12 23l-1-4.6zM16 17.5l1.5 4.5-3-1.2L12 23l1-4.6z" /></svg>,
+  ticket: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z" /><path d="M13 6v12" strokeDasharray="2 2.5" /></svg>,
   arrow: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>,
 };
 
@@ -166,7 +212,66 @@ function TipCard({ c, saved, onSave, onBroken }) {
   );
 }
 
-export default function InsiderTipsClient({ initial, quickPicks = [], tipCount = 0 }) {
+// A tap on an organizer's own ticket page leaves our site, so it is recorded
+// here, the same way the Christmas weekend row records it. Partner /go links
+// are recorded by the server route itself.
+function organizerTap(tile) {
+  try {
+    const plan = planRowOrganizerClick(
+      { id: tile.slug || tile.id, slug: tile.slug || null, cta: { href: tile.cta.href } },
+      CHRISTMAS_WEEKEND_SURFACE,
+      { locationHost: typeof location !== "undefined" ? location.host : undefined, mint: mintClickId },
+    );
+    if (plan) emitCommerce("commerce_cta_clicked", plan.ctx);
+  } catch { /* ignore */ }
+}
+
+function SellTile({ t, saved, onSave, onBroken }) {
+  const partner = t.cta.partner === "Official Tickets" ? "the official site" : t.cta.partner;
+  const affiliate = t.cta.kind === "affiliate";
+  const head = (
+    <>
+      <div className="it-tmedia">
+        <img className="it-tphoto" src={t.photo} alt={t.title} loading="lazy" decoding="async" width="640" height="400" onError={() => onBroken(t.id)} />
+        {t.topRated ? <span className="it-tbadge">{Icon.award}Top rated on Wayfind</span> : null}
+        {t.urgency ? <span className="it-turgent">{t.urgency}</span> : null}
+      </div>
+      <div className="it-tbody">
+        <h3 className="it-ttitle">{t.title}</h3>
+        <p className="it-tmeta">{[t.city, t.when].filter(Boolean).join(" · ")}</p>
+        {t.rating ? <p className="it-trate">{Icon.star}{t.rating.stars.toFixed(1)}{t.rating.reviews ? <span>({t.rating.reviews.toLocaleString("en-US")} reviews)</span> : null}</p> : null}
+      </div>
+    </>
+  );
+  return (
+    <li className="it-tile" data-sell-tile={t.id}>
+      <article className="it-tcard">
+        <button type="button" className="it-heart" aria-pressed={saved ? "true" : "false"} aria-label={(saved ? "Remove " : "Save ") + t.title} onClick={() => onSave(t.id)}>
+          <Heart on={saved} />
+        </button>
+        {t.href ? <a className="it-topen" href={t.href}>{head}</a> : <div className="it-topen">{head}</div>}
+        <div className="it-tfoot">
+          <a className="it-tbuy" href={t.cta.href} target="_blank"
+            rel={affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
+            data-commerce-owner={affiliate ? undefined : "InsiderTipsPreview"}
+            onClick={affiliate ? undefined : () => organizerTap(t)}
+            aria-label={"Get tickets for " + t.title + " on " + partner + ", opens in a new tab"}>{Icon.ticket}Get tickets</a>
+          <p className="it-tprice">{t.price ? <><b>{t.price}</b>{" · "}</> : null}on {partner}</p>
+        </div>
+      </article>
+    </li>
+  );
+}
+
+function weekendText(win) {
+  if (!Array.isArray(win) || win.length !== 2) return "";
+  const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const D = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const one = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || "")); if (!m) return ""; return D[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] + " " + M[+m[2] - 1] + " " + +m[3]; };
+  return win[0] === win[1] ? one(win[0]) : [one(win[0]), one(win[1])].filter(Boolean).join(" to ");
+}
+
+export default function InsiderTipsClient({ initial, quickPicks = [], tipCount = 0, sell = null, signup = null }) {
   const [answer, setAnswer] = useState(initial);
   const [q, setQ] = useState("");
   const [asked, setAsked] = useState("");
@@ -240,16 +345,43 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
   const switching = phase === "plain";
   const polishing = phase === "ai";
   const loading = phase !== "done";
+  const weekendTiles = (sell && Array.isArray(sell.weekend) ? sell.weekend : []).filter((t) => t && t.photo && !broken.has(t.id));
+  const christmasRows = sell && Array.isArray(sell.christmas) ? sell.christmas : [];
   const area = answer && answer.metroLabel && answer.metroLabel !== "Florida" ? answer.metroLabel : "Florida";
 
   return (
     <main className="it-page" data-insider-preview="1" data-ai={answer && answer.ai ? "on" : "off"} data-model={(answer && answer.model) || ""}>
-      <style dangerouslySetInnerHTML={styleHtml(CSS)} />
+      <style dangerouslySetInnerHTML={styleHtml(XM_CARD_CSS + CSS)} />
       <div className="it-wrap">
         <header className="it-hero">
-          <p className="it-eyebrow"><span className="it-dot" aria-hidden="true" />Insider tips from Florida locals</p>
-          <h1 className="it-h1">Where are you headed?</h1>
-          <p className="it-sub">Tell us the town. We&apos;ll hand you the tips locals actually use, with real photos of every spot.</p>
+          <p className="it-eyebrow"><span className="it-dot" aria-hidden="true" />Picked by Florida locals</p>
+          <h1 className="it-h1">Your Florida weekend, sorted.</h1>
+          <p className="it-sub">Top rated things to do this weekend, with real prices and tickets in one tap.</p>
+        </header>
+
+        {weekendTiles.length ? (
+          <section className="it-sell" aria-labelledby="it-sell-h" data-sell-weekend="">
+            <div className="it-sellhead">
+              <h2 id="it-sell-h">Book for this weekend</h2>
+              {weekendText(sell && sell.window) ? <p>{weekendText(sell.window)}</p> : null}
+            </div>
+            <ul className="it-tiles">
+              {weekendTiles.map((t) => <SellTile key={t.id} t={t} saved={saves.has(t.id)} onSave={onSave} onBroken={onBroken} />)}
+            </ul>
+          </section>
+        ) : null}
+
+        <div className="it-trustbar">
+          <span>{Icon.check}Tickets from official sellers</span>
+          <span>{Icon.check}Real photos of the actual place</span>
+          <span>{Icon.check}Ranked on merit, never paid placement</span>
+        </div>
+
+        {signup ? <div className="it-signup">{signup}</div> : null}
+
+        <div className="it-find">
+          <h2 className="it-h2">Where are you headed?</h2>
+          <p className="it-sub">Tell us the town. We&apos;ll hand you the tips locals actually use.</p>
           <form className="it-form" role="search" onSubmit={submit}>
             <label htmlFor="it-q" className="it-sr">Where are you headed?</label>
             {Icon.pin}
@@ -262,12 +394,8 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
               <button key={p} type="button" className="it-chip" aria-pressed={asked === p ? "true" : "false"} onClick={() => { setQ(p); ask(p); }}>{p}</button>
             ))}
           </div>
-          <div className="it-trust">
-            {tipCount ? <span>{Icon.check}{tipCount} tips checked by Wayfind</span> : null}
-            <span>{Icon.check}Real photos of the actual place</span>
-            <span>{Icon.check}Picked on merit</span>
-          </div>
-        </header>
+          {tipCount ? <div className="it-trust"><span>{Icon.check}{tipCount} insider tips checked by Wayfind</span></div> : null}
+        </div>
 
         <section aria-live="polite" aria-busy={loading ? "true" : "false"}>
           <div className="it-head">
@@ -285,15 +413,27 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
           )}
         </section>
 
+        {christmasRows.length ? (
+          <section className="it-xmas" aria-labelledby="it-xmas-h" data-sell-christmas="">
+            <div className="it-sellhead">
+              <h2 id="it-xmas-h">Christmas events worth the ticket</h2>
+              <a className="it-more" href="/christmas-in-florida">See all Christmas events{Icon.arrow}</a>
+            </div>
+            <ul className="it-xgrid">
+              {christmasRows.map((row, i) => <li key={row.id}><TicketCard row={row} chrome={(sell && sell.chrome) || { eventPage: "Full event page" }} idPrefix="it-x-" headingLevel={3} priority={i < 2} /></li>)}
+            </ul>
+          </section>
+        ) : null}
+
         <aside className="it-join" aria-label="Free account">
           <div>
             <h3>Keep the good ones.</h3>
-            <p>Tap the heart on any tip. A free account keeps your saves on every device.</p>
+            <p>Tap the heart on anything you like. A free account keeps your saves on every device.</p>
           </div>
           <button type="button" onClick={openSignIn}>Create free account</button>
         </aside>
 
-        <p className="it-note">Every place, tip and photo here is a real Wayfind pick. The friendly wording is written by AI from our checked tip, never from scratch.</p>
+        <p className="it-note">Every place, event, tip and photo here is a real Wayfind pick. Prices come from the ticket seller. The friendly tip wording is written by AI from our checked tip, never from scratch.</p>
       </div>
 
       {nudge ? (
