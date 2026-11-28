@@ -15,6 +15,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { captureOrQueue } from "../lib/browserAnalytics.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { CHUNK_MESSAGE_RX_SOURCES, RELOAD_STAMP_KEY, RELOAD_WINDOW_MS, chunkRecoveryScript, isChunkLoadError } from "../lib/chunkRecovery.js";
 
@@ -50,6 +51,7 @@ function run({ getThrows = false, setThrows = false, now = 1_790_000_000_000 } =
     location: { origin: "https://www.gowayfind.com", reload() { w.reloads++; } },
     sessionStorage: {
       getItem(k) { if (getThrows) throw new Error("denied"); return store.has(k) ? store.get(k) : null; },
+      removeItem(k) { store.delete(k); },
       setItem(k, v) { if (setThrows) throw new Error("quota"); store.set(k, String(v)); },
     },
     addEventListener(type, fn, capture) { (listeners[type] = listeners[type] || []).push({ fn, capture }); },
@@ -123,6 +125,55 @@ const OWN_CHUNK = "https://www.gowayfind.com/_next/static/chunks/4968-2dcc614085
   ok(w.reloads === 1 && !appended.length, "corrupt first-party JavaScript reloads once");
   fire("error", parseError);
   ok(w.reloads === 1 && appended.length === 1, "persistent parse failure paints the existing recovery bar");
+}
+// The next successful analytics boot consumes only one sanitized report for an episode.
+{
+  const { w, store, fire, clock } = run();
+  const incidentKey = "wf_chunk_incident_v1";
+  const secretTail = "?secret=sensitive#private";
+  fire("error", SCRIPT(OWN_CHUNK + secretTail));
+  const pending = JSON.parse(store.get(incidentKey) || "null");
+  ok(pending?.[0] === "reload" && pending[1] === new URL(OWN_CHUNK).pathname && pending[2] === clock.now,
+    "a first-party failure persists its decision, bare asset path and timestamp");
+  fire("error", SCRIPT(OWN_CHUNK + secretTail));
+  const report = w.__wfTakeChunkIncident?.();
+  ok(report?.action === "bar" && report.asset_path === new URL(OWN_CHUNK).pathname && report.failed_at === clock.now,
+    "persistent failure updates the original episode to the visible bar");
+  ok(!store.has(incidentKey) && !w.__wfTakeChunkIncident?.(), "reading the pending report consumes it exactly once");
+  store.set(incidentKey, JSON.stringify(["reload", "https://outside.test/private?q=sensitive", clock.now]));
+  ok(w.__wfTakeChunkIncident?.()?.asset_path === "", "untrusted storage cannot emit a third-party URL");
+  store.set(incidentKey, "broken");
+  ok(!w.__wfTakeChunkIncident?.() && !store.has(incidentKey), "invalid stored data is discarded");
+  const privateTab = run();
+  privateTab.w.location.pathname = "/group-plans/shared";
+  privateTab.fire("error", SCRIPT(OWN_CHUNK));
+  ok(privateTab.w.reloads === 1 && !privateTab.store.has(incidentKey), "a private group link still recovers without recording an incident");
+  const muted = run();
+  muted.w.__WF_ANALYTICS_SUPPRESSED = "internal";
+  muted.fire("error", SCRIPT(OWN_CHUNK));
+  ok(!muted.store.has(incidentKey), "a suppressed browser never persists an incident");
+  w._phInit = "ready";
+  fire("unhandledrejection", { reason: { name: "ChunkLoadError", request: OWN_CHUNK } });
+  ok(!store.has(incidentKey), "post-hydration failures stay with the existing boundary reporting");
+}
+// Execute the provider's real analytics-ready statements twice with an intercepted client.
+{
+  const provider = readFileSync(new URL("../app/components/PostHogProvider.js", import.meta.url), "utf8");
+  const ready = provider.indexOf('window._phInit = "ready";');
+  const end = provider.indexOf("while (pendingEvents.length)", ready);
+  ok(ready >= 0 && end > ready, "the analytics-ready boot phase is present");
+  const phase = provider.slice(ready, end);
+  for (const muted of [false, true]) {
+    const { w, fire } = run();
+    const events = [];
+    fire("error", SCRIPT(OWN_CHUNK + "?token=private"));
+    w.navigator = { userAgent: "Mozilla/5.0 Chrome/141 Safari/537.36" };
+    w.posthog = { capture: (name, props) => events.push([name, props]) };
+    w.__WF_ANALYTICS_SUPPRESSED = muted;
+    for (let repeat = 0; repeat < 2; repeat++) vm.runInNewContext(phase, { window: w, captureOrQueue });
+    ok(muted ? events.length === 0 : events.length === 1 && events[0][0] === "chunk_recovery" && events[0][1].asset_path === new URL(OWN_CHUNK).pathname,
+      muted ? "analytics suppression discards the recovered episode" : "the successful provider boot emits exactly one sanitized event");
+  }
 }
 // The script and the plain-JS oracle must agree on every case.
 [...POSITIVES, ...NEGATIVES].forEach((e, i) => {
