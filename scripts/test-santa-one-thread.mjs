@@ -84,12 +84,19 @@ const c = (m, extra = {}) => classifySantaMessage(m, { today, ...extra });
   const route = await loadComponent(path.join(REPO, "app/api/planner/route.js"), REPO);
   let ip = 0;
   const post = async (body) => { ip += 1; const res = await route.POST(new Request("https://www.gowayfind.com/api/planner", { method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": `198.51.100.${ip}` }, body: JSON.stringify(body) })); return res.json(); };
-  for (const m of ["Can u book me a redtaurant?", "book me a table for 4 tonight at 7", "book Ulele Friday at 7 for 4", "find a redtaurant near me"]) {
+  for (const m of ["Can u book me a redtaurant?", "book me a table for 4 tonight at 7", "book Ulele Friday at 7 for 4"]) {
     modelCalls = 0;
     const j = await post({ message: m, voice: "santa" });
     ok(j.ok && j.mode === "reserve" && modelCalls === 0, `/api/planner routes "${m}" to Reserve with zero model calls (got ${j.mode}, ${modelCalls} calls)`);
     ok(!/can'?t book|cannot book/i.test(String(j.reply || "")), `the reply never says it can't book ("${j.reply}")`);
   }
+  // Discovery is not a booking (owner 2026-11-28: answer exactly what was asked): "find a restaurant near me" is one
+  // restaurant pick from the server, with no model call, and asks for a city only when none is known at all.
+  modelCalls = 0;
+  const find = await post({ message: "find a redtaurant near me", voice: "santa" });
+  ok(find.ok && find.mode === "clarify" && modelCalls === 0, `"find a redtaurant near me" with no known location asks for the city, no model call (got ${find.mode}, ${modelCalls})`);
+  const findHere = await post({ message: "find a redtaurant near me", voice: "santa", point: { lat: 27.95, lng: -82.46 }, homeCity: "Tampa, FL" });
+  ok(findHere.ok && findHere.mode === "recommend" && findHere.ask && findHere.ask.count === 1 && modelCalls === 0, `with the picked city it answers with one restaurant pick, no model call (got ${findHere.mode}, ${JSON.stringify(findHere.ask)})`);
   modelCalls = 0;
   const neg = await post({ message: "I read a book about Tampa", voice: "santa" });
   ok(neg.mode !== "reserve", "a negative control is not routed to Reserve");
@@ -115,8 +122,8 @@ const c = (m, extra = {}) => classifySantaMessage(m, { today, ...extra });
 // ── 4. Wiring of the one thread ─────────────────────────────────────────────
 {
   const sheet = strip(read("app/components/WayfindPlannerSheet.js"));
-  ok(/const routed = classifySantaMessage\(text,/.test(sheet) && /routed\.kind === "reserve" \|\| routed\.kind === "find_food"[\s\S]{0,80}routeToReserve\(text, routed, \{ showUser: true \}\)/.test(sheet),
-    "every typed turn goes through the one reader, and tables go to Reserve before the planner");
+  ok(/const routed = classifySantaMessage\(text,/.test(sheet) && /routed\.kind === "reserve" \|\| \(routed\.kind === "find_food" && readAsk\(routed\.text \|\| text\)\.kind !== "picks"\)[\s\S]{0,80}routeToReserve\(text, routed, \{ showUser: true \}\)/.test(sheet),
+    "every typed turn goes through the one reader; tables go to Reserve before the planner, and a request for restaurant picks gets exactly the picks asked for (owner 2026-11-28)");
   ok(/data\.mode === "reserve"[\s\S]{0,200}routeToReserve\(/.test(sheet), "a server-side \"reserve\" answer joins the same booking");
   ok(/<ReserveConcierge[\s\S]{0,120}\bthread\b[\s\S]{0,120}controlRef=\{conciergeRef\}[\s\S]{0,80}onSnapshot=\{onReserveSnapshot\}/.test(sheet), "the existing concierge is mounted in thread mode, once");
   ok(sheet.indexOf("{reserveSeed && (") > -1 && sheet.indexOf("{reserveSeed && (") < sheet.indexOf("{open && ("), "the booking state stays mounted while the sheet is closed (sign in, back)");
