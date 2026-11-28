@@ -34,7 +34,7 @@
 
 .header {
   position: sticky;
-  top: 0;
+  top: var(--wf-fixed-top, 0px);
   z-index: 40;
   margin: 0 -22px;
   padding: 10px 22px 0;
@@ -502,7 +502,7 @@
 
 .workingWell li::before {
   position: absolute;
-  top: 0;
+  top: var(--wf-fixed-top, 0px);
   left: 0;
   color: #38b65b;
   content: "✓";
