@@ -451,6 +451,7 @@ function eq(a, b, msg) {
   const enabled = {
     WAYFIND_PHOTOS_BACKFILL: "1",
     GOOGLE_PHOTOS_BACKFILL_CAP: "1",
+    GOOGLE_PHOTOS_BACKFILL_PER_HOUR: "1",
     GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
     VERCEL_ENV: "production",
   };
