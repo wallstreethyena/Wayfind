@@ -8,6 +8,8 @@
 // href the server returned, so attribution is the same as on the cards.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { travelEstimate, legDirectionsUrl } from "../../lib/travelEstimate.js";
+import { track } from "../../lib/track.js";
+import { reengageEnabled, optedOut, noteDraft, PLAN_REF_RX } from "../../lib/reengageClient.js";
 
 const STORE_KEY = "wf_itinerary_v1";
 const PREFS_KEY = "wf_planner_prefs_v1"; // the visitor's last request in this browser only, so the next visit starts where they left off
@@ -177,6 +179,8 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const resultRef = useRef(null);
+  const [EmailDrawer, setEmailDrawer] = useState(null); // lazy: EmailItineraryDrawer, loaded on first tap
+  const [emailOpen, setEmailOpen] = useState(false);
 
   useEffect(() => { const saved = readStore(); if (saved) setState(saved); }, []);
   useEffect(() => {
@@ -198,12 +202,20 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
       const r = await fetch("/api/plan-my-day", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
       const d = await r.json().catch(() => null);
       if (!d || !d.ok) { setError((d && d.message) || "Something went wrong. Try again."); return; }
-      setState({ itinerary: d.itinerary, pool: d.pool || [], unmatched: d.unmatched || [], weather: d.weather && typeof d.weather.note === "string" ? { note: d.weather.note } : null });
+      const planRef = typeof d.planRef === "string" && PLAN_REF_RX.test(d.planRef) ? d.planRef : null;
+      const areaSlug = mode === "picks" ? area : "";
+      const areaName = (mode === "picks" && (areas.find((a) => a.slug === area) || {}).name) || (d.itinerary && d.itinerary.city) || "";
+      setState({ itinerary: d.itinerary, pool: d.pool || [], unmatched: d.unmatched || [], weather: d.weather && typeof d.weather.note === "string" ? { note: d.weather.note } : null, planRef, areaName });
+      try {
+        const days = d.itinerary && Array.isArray(d.itinerary.days) ? d.itinerary.days : [];
+        track("itinerary_generated", { area: areaSlug, mode, days: days.length, stops: days.reduce((n, x) => n + (Array.isArray(x.stops) ? x.stops.length : 0), 0) });
+        if (planRef) noteDraft(planRef, areaSlug, areaName);
+      } catch { /* analytics and the return banner never break a build */ }
       setTimeout(() => { try { resultRef.current && resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" }); } catch { /* ignore */ } }, 50);
     } catch {
       setError("You look offline. Check your connection and try again.");
     } finally { setBusy(false); }
-  }, [mode, notes, area, when, vibe]);
+  }, [mode, notes, area, when, vibe, areas]);
 
   const changeDay = (dayIdx, nextDay, removed, takenFromPoolId) => {
     setState((cur) => {
@@ -283,6 +295,11 @@ export default function ItineraryBuilder({ areas, whens, vibes }) {
             <Day key={(d.date || "") + i} day={d} dayIdx={i} pool={state.pool}
               onChange={(nd, removed, takenId) => changeDay(i, nd, removed, takenId)} onAdd={addStop} />
           ))}
+          {reengageEnabled() && state.planRef && !optedOut(window) ? (
+            <button type="button" data-plan-email="" onClick={() => import("../components/EmailItineraryDrawer").then((m) => { setEmailDrawer(() => m.default); setEmailOpen(true); }, () => {})}
+              style={{ ...btn(false), minHeight: 44, marginTop: 18, width: "100%" }}>Email me this itinerary</button>
+          ) : null}
+          {emailOpen && EmailDrawer ? <EmailDrawer planRef={state.planRef} areaName={state.areaName || ""} surface="itinerary" onClose={() => setEmailOpen(false)} /> : null}
           <p style={{ color: T.muted, fontSize: 12, marginTop: 18 }}>Travel times are estimates from distance; tap Route for live directions. Times and hours can change, so check each stop before you go. Ticket links may earn Wayfind a commission at no cost to you.</p>
         </div>
       ) : null}
