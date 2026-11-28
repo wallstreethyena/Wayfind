@@ -1062,7 +1062,13 @@ const PHOTO = (id) => ({
     describeCalls.length = 0;
     result.atRiskScanned = 0;
     result.atRiskTaken = 0;
-    await hit("?source=all");
+    Object.assign(result, { partial: true, deadlineStopped: 7, businessAttempted: 1, businessTaken: 4, businessScanned: 40 });
+    const generalReport = await (await hit("?source=all")).json();
+    const persistedNote = String(pulses[0].stats.note).slice(0, 200);
+    ok(persistedNote.includes("business 1/4 attempted") && persistedNote.includes("PARTIAL")
+      && generalReport.businessAttempted === 1 && generalReport.businessScanned === 40,
+      "businesses: even a partial run retains started/selected counts in the actual 200-character pulse and exposes its source scan in JSON");
+    result.partial = false;
     eq(describeCalls[0] && describeCalls[0].source, "all", "H5: the route passes the REQUEST's source= into the note, not the worker's echo of it");
     ok(String((pulses[0].stats || {}).note || "").includes("skipped (source=all)"), "H5: a general-only run's pulse says the worklist was skipped on purpose");
 
@@ -1610,6 +1616,10 @@ const PHOTO = (id) => ({
     const used = requests.filter(x => ["wf_photo_general_free_candidate","wf_photo_business_free_candidate"].includes(x.table)).reduce((n,x) => n + Number(x.params.get("limit")), 0);
     eq(used, 1000, "businesses: both fresh candidate reads share the original 1000-row scan cap");
     ok(raced && stored.get(raceId).source === "owner" && !writes.some(x => x.place_id === raceId) && first.details.some(x => x.reason === "concurrent-photo-decision"), "businesses: an owner decision appearing during resolution wins and uses no vault write");
+    eq(first.businessAttempted, 4, "businesses: only work that actually reached resolution counts as attempted");
+    const throttled = await runBackfill({ ...opts, dryRun: true, wikimedia: { canRequest: () => false } });
+    ok(throttled.businessTaken === 4 && throttled.businessAttempted === 0 && throttled.attempted === 0,
+      "businesses: an upstream backoff keeps four assigned slots observable while counting zero attempts");
     const prior = new Set(resolved.map(x => x.place_id)); resolved.length = 0;
     const second = await runBackfill(opts);
     ok(second.businessTaken === 4 && resolved.filter(x => categories.includes(x.category)).every(x => !prior.has(x.place_id)), "businesses: the next run advances past every previous terminal decision");

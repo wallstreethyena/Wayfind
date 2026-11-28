@@ -1070,7 +1070,7 @@ scripts/test-photo-serving-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	f0f8
 scripts/test-photo-spend-efficiency.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	94	0	0	265a5ce1881a0abf593703a9d344454624ad510a5c5ba90424f67b14eaf40f00
 scripts/test-photo-upstream-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	88	0	0	e28e18836121f1a4309fb2661d4db1ed0b07a5b7437ae2cb094e80c69f989d67
 scripts/test-photo-vault-rendition.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0	b85be19a076b8f414e32de91a235f64f0f5883c381c54060d8bc04fc073692a4
-scripts/test-photo-vault-wiring.mjs	0	CALL	blocks-ci-and-deploy	1	-	244	0	0	b36e435e759732af8afc5522e0506b73cae65f6f11ce195b6e9ff56ab685d69d
+scripts/test-photo-vault-wiring.mjs	0	CALL	blocks-ci-and-deploy	1	-	247	0	0	edc3ddb166d449ca1b91686ccc9fc205afedad8deecfdbef06824bcaa17f9c92
 scripts/test-photo-vault.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	a72e6211f8b00d721b4c9f6074c7d517be8354873d186d58e3d3bbafe7ffa117
 scripts/test-photo-visitor-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	f0eebee9e77494c8469749f2847932ad1e214a9fd59359095d49475a4715bfb6
 scripts/test-photo-warm.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	bb1286d92bd65920ded5a28c7893f8e2ed4d540025ef2e9769caf39b433da739
