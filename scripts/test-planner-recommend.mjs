@@ -148,7 +148,7 @@ ok(!/from "\.\/kit"/.test(recs), "the picks card stays out of the homepage card 
 for (const t of ["give me one restaurant", "best brunch?", "3 bars in St Pete", "one place for dinner", "somewhere fun right now"]) {
   ok(!asksToEditPlan(t), `"${t}" asks for places, so an open plan stays as it is`);
 }
-for (const t of ["add a restaurant for dinner", "swap the park for a beach", "put a coffee stop before the park", "add one more bar to my plan", "a lunch spot instead of the bakery"]) {
+for (const t of ["add a restaurant for dinner", "swap the park for a beach", "put a coffee stop before the park", "add one more bar to my plan", "a lunch spot instead of the bakery", "Update draft with fake spot", "edit it with a better dinner spot"]) {
   ok(asksToEditPlan(t), `"${t}" changes the open plan`);
 }
 const routeSrc = strip(readFileSync(new URL("../app/api/planner/route.js", import.meta.url), "utf8"));
