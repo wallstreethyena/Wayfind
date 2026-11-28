@@ -10,7 +10,7 @@ import { createReserveHandlers } from "../../../../lib/reserveApi.js";
 import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof, fetchSiteLabel } from "../../../../lib/redirectTrafficClass.js";
 import { captureServerInBackground, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 
 export const runtime = "nodejs";
@@ -32,7 +32,7 @@ export async function GET(req) {
   const base = { provider: "opentable", merchant: "OpenTable", category: "restaurants", offer_id: placeId || "unknown", surface, content_id: placeId || null, click_id: clickId };
   const emit = (event, extra) => {
     try {
-      const properties = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), ...(extra || {}) });
+      const properties = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), fetch_site: fetchSiteLabel(req.headers), ...(extra || {}) });
       captureServerInBackground(event, { distinctId, properties, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };

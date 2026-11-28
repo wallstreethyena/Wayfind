@@ -23,7 +23,7 @@ import { captureServerInBackground, distinctIdFromCookies } from "../../../../li
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isTicketmasterFamily, ticketOutUrl } from "../../../../lib/affiliates.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof, fetchSiteLabel } from "../../../../lib/redirectTrafficClass.js";
 import { ticketHandoffVerdict } from "../../../../lib/ticketHandoffVerdict.js";
 import { supabase, supabaseLive } from "../../../../lib/supabase.js";
 
@@ -57,7 +57,7 @@ export async function GET(req) {
   let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     try {
-      const props = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), ...(extra || {}) });
+      const props = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), fetch_site: fetchSiteLabel(req.headers), ...(extra || {}) });
       captureServerInBackground(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
