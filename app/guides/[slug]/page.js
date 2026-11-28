@@ -1244,10 +1244,10 @@ export default async function GuidePage({ params }) {
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}
-              <p style={S.p}>
-                {pick.blurb}
-                {relatedGuide?.label && liveGuides[relatedGuide.slug] ? <> <a href={"/guides/" + encodeURIComponent(relatedGuide.slug)} style={S.footerLink}>{relatedGuide.label}</a></> : null}
-              </p>
+              <p style={S.p}>{pick.blurb}</p>
+              {relatedGuide?.label && liveGuides[relatedGuide.slug] ? (
+                <p style={S.p}><a href={"/guides/" + encodeURIComponent(relatedGuide.slug)} style={S.footerLink}>{relatedGuide.label}</a></p>
+              ) : null}
               {(() => {
                 const facts = guidePickFacts(pick, g);
                 return facts.length ? (
