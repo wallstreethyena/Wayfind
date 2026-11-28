@@ -55,11 +55,12 @@ console.log('check-universal-holiday-guide: OK — 17 pins resolve to real guide
 
 dom.window.close();
 const interactive = new JSDOM('<!doctype html><div id="root"></div>', { url: 'https://www.gowayfind.com/guides/universal-orlando-christmas-2026', pretendToBeVisual: true });
-const original = { window: globalThis.window, document: globalThis.document, requestAnimationFrame: globalThis.requestAnimationFrame, cancelAnimationFrame: globalThis.cancelAnimationFrame, CustomEvent: globalThis.CustomEvent };
+const original = { window: globalThis.window, document: globalThis.document, requestAnimationFrame: globalThis.requestAnimationFrame, cancelAnimationFrame: globalThis.cancelAnimationFrame, CustomEvent: globalThis.CustomEvent, MutationObserver: globalThis.MutationObserver };
 globalThis.window = interactive.window; globalThis.document = interactive.window.document;
 globalThis.requestAnimationFrame = callback => setTimeout(callback, 0);
 globalThis.cancelAnimationFrame = id => clearTimeout(id);
 globalThis.CustomEvent = interactive.window.CustomEvent;
+globalThis.MutationObserver = interactive.window.MutationObserver;
 interactive.window.matchMedia = () => ({ matches: false });
 interactive.window.HTMLElement.prototype.scrollTo = function(options) { this.scrollLeft = options.left || 0; this.scrollTop = options.top || 0; };
 const { createRoot } = await import('react-dom/client');
@@ -97,5 +98,5 @@ assert.equal(document.querySelectorAll('[data-map-pin]').length, 6, 'Epic map sh
 flushSync(() => { root.unmount(); });
 interactive.window.close();
 globalThis.window = original.window; globalThis.document = original.document;
-globalThis.requestAnimationFrame = original.requestAnimationFrame; globalThis.cancelAnimationFrame = original.cancelAnimationFrame; globalThis.CustomEvent = original.CustomEvent;
+globalThis.requestAnimationFrame = original.requestAnimationFrame; globalThis.cancelAnimationFrame = original.cancelAnimationFrame; globalThis.CustomEvent = original.CustomEvent; globalThis.MutationObserver = original.MutationObserver;
 console.log('check-universal-holiday-guide: interaction OK — all 17 pins select their stop with the guide numbers and every card opens its entry, filtered rows reveal, park views change; missing-map negative control fails as required.');
