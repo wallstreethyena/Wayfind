@@ -658,7 +658,7 @@ scripts/test-closed-policy.mjs	0	CALL	blocks-ci-and-deploy	1	-	64	1	1	e5dd012c54
 scripts/test-command-center-briefing.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	3f74bd85db6a4bb6cc53bee365cfc674f00eb676d135c952f22622722409598d
 scripts/test-command-center-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	21	0	0	a757b30202cee20344275a01f359a14fc6c9bcc6bc76a4b18c46bd4c2e302b43
 scripts/test-command-center-requests.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	f828bdcba147a17902083e74daf18b48d6f872d25fa2d89b9c6e8fed1fc0038a
-scripts/test-command-center.mjs	0	CALL	blocks-ci-and-deploy	1	-	254	0	0	dad02175265d6229824c42e9de2e1b804d9c35efb16fe93eda6974f9fc7bcf62
+scripts/test-command-center.mjs	0	CALL	blocks-ci-and-deploy	1	-	262	0	0	2451b2056af9a21fe0ce296bfe6f78eb6dd53e54b3090473afe63af1da6725f1
 scripts/test-comment-photos.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	28	1	0	357e69886baf8d30ff2091da4f32c21e9a3ea4c107512375fea5c7e9c2251dfc
 scripts/test-commerce-emit-queue.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	6bec57721f827cc36ff608a3099317bf5e1f3938bb9332762da3850727f8a5a8
 scripts/test-commons-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	3cd60f01ee0cebb991c285d05245f5a0fabbdaa2112446b01001ab68ff1f3543
@@ -1201,7 +1201,7 @@ scripts/test-secret-output-guard.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	da19
 scripts/test-seed.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	2aba20e1c5dc6ac4b71a63c544adea5d3f7dd507c2bdd453ed782da8eb8399ec
 scripts/test-self-healing-truth-engine.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	170	0	0	ccb5db72b5e2b3769ca237356f44199ab08a31cb6aa1c67b264f3a9424e75834
 scripts/test-sentry-lazy.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	5	ac76a0f9064e58ef45f8da0dfa15e9b42b525f6ca2b69ba72df7fd8f79f6015b
-scripts/test-sentry-mapkit-nan-weather.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	7e8af4d7f05cb705b0f5f7c0ae9b747ad1bc9e93d4a1af5bd949669320b06ba2
+scripts/test-sentry-mapkit-nan-weather.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	e02f094c97ea0bab1607b0fdffb27679d3916f81e81eb3053d31b432cca48fef
 scripts/test-sentry-mapkit-parse.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	aa8d1e20761b0fd73344ef7fc4437127a513638d65bda5e322910b069a2af7f5
 scripts/test-sentry-meta-iab.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	6af19ced679b2e8dac94915fde48d9f55014fe16bf221fe83ab3e45dd0a8dee7
 scripts/test-sentry-webkit-bridge.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	c969671334fd3b4505d3605ad43960be12a794d5077909c9f55ab23f4acf68e6

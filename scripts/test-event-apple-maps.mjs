@@ -68,7 +68,7 @@ check(eventMapFamily(merged[0]) === "food" && eventMapFamily({ cat: "Night out" 
 check(eventMapGlyph(stays[0]) === EVENT_MAP_FAMILY.stay.icon && EVENT_MAP_FAMILY.stay.color === "#058ADB" && EVENT_MAP_FAMILY.food.color === "#F97316" && EVENT_MAP_FAMILY.cafe.color === "#A66A3F", "event pin presentation matches the blue-bed, orange-food and brown-coffee reference families");
 
 let selected = null; const errors = [];
-const controller = createAppleMapController({ mapkit: fakeKit, container: {}, venue, picks: [{ id: "pick-1", name: "Nearby", lat: 27.31, lng: -82.49, cat: "Restaurant" }], onSelect: (id) => { selected = id; }, onError: (message) => errors.push(message) });
+const controller = createAppleMapController({ mapkit: fakeKit, container: { clientWidth: 390, clientHeight: 340 }, venue, picks: [{ id: "pick-1", name: "Nearby", lat: 27.31, lng: -82.49, cat: "Restaurant" }], onSelect: (id) => { selected = id; }, onError: (message) => errors.push(message) });
 check(controller.map.annotations.length === 2 && controller.map.annotations[0].image[1] === mapPinUrl("food") && !controller.map.annotations[0].anchorOffset && controller.map.annotations[1].image[1] === mapPinUrl("event"), "venue star and a white-on-orange food pictogram share one native Apple map");
 controller.map.listener.fn({ annotation: controller.map.annotations[0] });
 check(selected === "pick-1", "nearby annotation selection reaches the UI callback");
@@ -138,7 +138,7 @@ callbacks[callbackCount - 1].resolve({ routes: [{ polyline: {}, distance: 10, ex
 await Promise.resolve();
 check(errors.length === 1, "callbacks after unmount are ignored and their promise is cancelled");
 
-const timeoutController = createAppleMapController({ mapkit: fakeKit, container: {}, venue, requestTimeoutMs: 1 });
+const timeoutController = createAppleMapController({ mapkit: fakeKit, container: { clientWidth: 390, clientHeight: 340 }, venue, requestTimeoutMs: 1 });
 const timedRoute = timeoutController.routeFromCoordinate({ lat: 27.4, lng: -82.4 });
 await assert.rejects(timedRoute, /timed out/);
 check(callbacks.at(-1).directions.cancelledRequest, "a directions promise that never settles times out and is passed to MapKit cancel");
@@ -147,7 +147,7 @@ await assert.rejects(timedSearch, /timed out/);
 check(searches.at(-1).search.cancelledRequest, "a search promise that never settles times out and is passed to MapKit cancel");
 timeoutController.destroy();
 
-const lateController = createAppleMapController({ mapkit: fakeKit, container: {}, venue, venueKind: "place" });
+const lateController = createAppleMapController({ mapkit: fakeKit, container: { clientWidth: 390, clientHeight: 340 }, venue, venueKind: "place" });
 check(lateController.map.annotations[0].image[1] === mapPinUrl("other"), "ordinary place venues do not get an event star");
 const lateRoute = lateController.routeFromCoordinate({ lat: 28, lng: -82 });
 lateController.setParkingMode(true, parking);
@@ -173,7 +173,7 @@ try {
       PointsOfInterestSearch: class { search() { return Promise.reject(new Error("HTTP 400 private-query")); } },
       Search: class { search() { return fails ? Promise.reject(new Error("fallback down")) : Promise.resolve({ places: [] }); } },
     };
-    const diagnosticController = createAppleMapController({ mapkit: recoveryKit, container: {}, venue });
+    const diagnosticController = createAppleMapController({ mapkit: recoveryKit, container: { clientWidth: 390, clientHeight: 340 }, venue });
     if (fails) await assert.rejects(diagnosticController.searchParking(), /could not load nearby parking/);
     else await diagnosticController.searchParking();
     diagnosticController.destroy();
