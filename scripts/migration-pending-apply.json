@@ -131,12 +131,5 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2878",
     "reason": "Deploy the reviewed general-photo worker and confirm its existing-worklist fallback before applying this service-only candidate view."
-  },
-  {
-    "file": "supabase/migrations/20261128190000_wf_place_name_requests.sql",
-    "sha256": "51b01583cfa21c24e783476d4f86cdaa84336b06de7b6ab101eb4b87ae920dc9",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2907 follow-up: place-name-ingest (owner 2026-11-28, create cards for places a creator filmed)",
-    "reason": "NOT APPLIED YET. Additive only: new table wf_place_name_requests (RLS on, no policies, anon/authenticated revoked, service role only) for /api/cron/place-name-ingest. Applied after merge with the exact file bytes, then this entry is replaced by an apply receipt. Rollback: drop table public.wf_place_name_requests."
   }
 ]
