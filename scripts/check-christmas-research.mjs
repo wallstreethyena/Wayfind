@@ -281,7 +281,12 @@ function CITIES() {
 
 // ── 8. The published spectator location corrections ─────────────────────────
 {
-  ok(Object.keys(CHRISTMAS_RESEARCH_CORRECTIONS).length === 5, "five published corrections including Winterfest's ticketed viewing area");
+  ok(Object.keys(CHRISTMAS_RESEARCH_CORRECTIONS).length === 6
+    && CHRISTMAS_RESEARCH_CORRECTIONS["winterfest-boat-parade-2026"].viewing === "Ticketed viewing"
+    && CHRISTMAS_RESEARCH_CORRECTIONS["deck-the-chairs-2026"].address === "75 1st Street North, Jacksonville Beach, FL 32250",
+  "six published corrections including Winterfest’s ticketed viewing area and the Deck the Chairs visitor address");
+  const deckTheChairs = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => r.event_id === "deck-the-chairs-2026");
+  ok(deckTheChairs?.start_date === "2026-11-27" && deckTheChairs?.end_date === "2027-01-01", "Deck the Chairs starts November 27 after the organizer’s announced date change");
   for (const [rid, fix] of Object.entries(CHRISTMAS_RESEARCH_CORRECTIONS)) {
     const pub = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => r.event_id === rid);
     ok(pub && pub.lat === fix.lat && pub.lng === fix.lng && pub.venue === fix.place && pub.address === fix.address && !pub.approxLocation, `${rid}: the research listing carries the corrected spot`);
@@ -454,7 +459,8 @@ function CITIES() {
     ok(card && browse && card.venue === label && browse.venue === label && card.lat === fix.lat && card.lng === fix.lng && browse.lat === fix.lat, `${dbId}: rail and browse cards say "${label}" at the corrected pin`);
     ok(row && row.venue === fix.place && row.address === fix.address && row.city === fix.city && row.viewing_label === label && row.lat === fix.lat && row.lng === fix.lng, `${dbId}: the page row carries the same place, street, town, label and pin`);
     const otherDirectionsText = decodeURIComponent(dirs).replace(fix.place, "");
-    ok(daddr === addressLine(row) && daddr.startsWith(fix.address + ", " + fix.city) && q === fix.place && !/Marker|Banana River|Intracoastal|Hugh Taylor Birch/.test(otherDirectionsText), `${dbId}: the directions go to "${fix.place}", "${daddr}" (${dirs.slice(0, 90)})`);
+    const expectedPrefix = fix.address.includes(", " + fix.city + ",") ? fix.address : fix.address + ", " + fix.city;
+    ok(daddr === addressLine(row) && daddr.startsWith(expectedPrefix) && q === fix.place && !/Marker|Banana River|Intracoastal|Hugh Taylor Birch/.test(otherDirectionsText), `${dbId}: the directions go to "${fix.place}", "${daddr}" (${dirs.slice(0, 90)})`);
   }
   const winterfest = christmasEventPageRow({ ...DB.find((r) => r.event_id === "winterfest-boat-parade-2026"), insider_tip: "Old grandstand at Hugh Taylor Birch State Park", pairing: "Dinner beforehand" }, "winterfest-boat-parade-fort-lauderdale-2026");
   ok(winterfest.venue === "Las Olas Intracoastal Promenade Park" && winterfest.address === "80 Las Olas Circle" && winterfest.lat === 26.1197833 && winterfest.lng === -80.1080812 && winterfest.place_id === null, "Winterfest directions use the exact organizer viewing point and street without the waterway's place ID");

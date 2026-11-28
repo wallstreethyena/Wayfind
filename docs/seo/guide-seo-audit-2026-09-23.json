@@ -342,7 +342,7 @@
       "url": "https://www.gowayfind.com/guides/winter-park-scenic-boat-tour",
       "primary_query": "winter park scenic boat tour",
       "geography": "Orlando",
-      "decision": "Everything to know before the Winter Park Scenic Boat Tour: what you'll see, tickets, parking, the cash-only catch, and whether it earns your hour.",
+      "decision": "Everything to know before the Winter Park Scenic Boat Tour: what you'll see, tickets, parking, first-come departures, and whether it earns your hour.",
       "checks": {
         "source_route": {
           "status": "pass",
@@ -1557,7 +1557,7 @@
       "url": "https://www.gowayfind.com/guides/myakka-river-state-park-guide",
       "primary_query": "myakka river state park",
       "geography": "Sarasota",
-      "decision": "A local's plan for Myakka River State Park: the canopy walkway, the deepest gator hole in Florida, airboat cruises, and when to go.",
+      "decision": "A local's plan for Myakka River State Park: the canopy walkway, lakeshore wildlife viewing, paddling and how to check park access.",
       "checks": {
         "source_route": {
           "status": "pass",
@@ -1800,7 +1800,7 @@
       "url": "https://www.gowayfind.com/guides/de-soto-national-memorial-bradenton",
       "primary_query": "de soto national memorial",
       "geography": "Bradenton",
-      "decision": "The small national memorial where Hernando de Soto's 1539 expedition landed: mangrove trails, winter living-history camp, and a kayak-friendly shoreline — free.",
+      "decision": "The small national memorial that commemorates Hernando de Soto’s 1539 expedition, with free access and trails around a mangrove shoreline.",
       "checks": {
         "source_route": {
           "status": "pass",
@@ -5931,7 +5931,7 @@
       "url": "https://www.gowayfind.com/guides/fall-events-orlando-2026",
       "primary_query": "fall events in orlando 2026",
       "geography": "Orlando",
-      "decision": "The Orlando fall events still ahead in 2026 with real dates, prices and who each one is for: EPCOT Food & Wine, EDC, Warped Tour, the Florida Classic, the Swan and Dolphin Food & Wine Classic, FusionFest and a pumpkin patch.",
+      "decision": "Plan the November 28–29 FusionFest visit and look back at Orlando’s fall 2026 food festivals, stadium music weekends, Florida Classic and pumpkin patch.",
       "checks": {
         "source_route": {
           "status": "pass",

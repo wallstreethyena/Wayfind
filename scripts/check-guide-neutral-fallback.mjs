@@ -84,7 +84,7 @@ ok(holidayExact >= 21, `the holiday guides keep their 21 exact, in season photos
 ok(exact >= 9, "the nine photographed picks from the earlier pass are still photographed");
 {
   const slug = "jacksonville-christmas-by-area-budget-2026";
-  const pick = GUIDES[slug].picks.find((p) => p.name === "Forgotten Tonic Miracle pop-up: current announcement needed");
+  const pick = GUIDES[slug].picks.find((p) => p.name === "Forgotten Tonic: Miracle holiday menu");
   ok(pick?.declinePlacePhotoReuse === true && placePhotoReuseAllowed(pick) === false, "Forgotten Tonic Miracle gap declines the Aviles Street photograph");
   ok(guidePickPhoto(slug, pick.name) == null && guidePhotoForPlace(pick.placeId)?.src, "the Aviles Street photograph still exists for its own pick and is not this gap's photograph");
   const rung = guideFinalRung(slug, pick, GUIDES[slug], { usedSrc: new Set() });

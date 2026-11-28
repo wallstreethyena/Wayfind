@@ -1,27 +1,6 @@
 {
   "slug": "st-armands-circle-restaurants",
-  "picks": {
-    "Shore": {
-      "src": "/guides/picks/st-armands-circle-restaurants/shore.webp",
-      "width": 1400,
-      "height": 1050,
-      "alt": "Shops and storefronts along a street at St. Armands Circle in Sarasota with palm trees in front",
-      "caption": "Storefronts on St. Armands Circle on Lido Key, where Shore is located. The restaurant itself is not shown.",
-      "credit": "Ebyabe",
-      "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg",
-      "license": "CC BY-SA 3.0",
-      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg",
-      "author": "Ebyabe",
-      "position": "50% 50%",
-      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
-      "sourceKind": "commons",
-      "placeId": null,
-      "verification": "Commons title Sarasota FL Harding Circle HD St Armands Circle03; description Harding Circle Historic District; closest-feature fallback since no licensed photo of Shore exists Live Commons licence checked: CC BY-SA 3.0.",
-      "sameAsCardPhoto": false,
-      "reviewedAt": "2026-10-07"
-    }
-  },
+  "picks": {},
   "hero": {
     "src": "/guides/picks/st-armands-circle-restaurants/st-armands-circle-storefronts.webp",
     "width": 1280,
@@ -72,6 +51,12 @@
       "placeId": null,
       "needsPermissionFrom": "Blue Dolphin Café",
       "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+    },
+    "Tommy Bahama Restaurant, Bar & Store": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "Tommy Bahama, St. Armands Circle",
+      "note": "Reviewed exact 465 John Ringling Boulevard location against the restaurant’s Sarasota site. The identifiable 2026 exterior photo from USA TODAY Network via Reuters Connect is rights-managed, and the operator site provides no public reuse licence. Older Tommy Bahama images can show its previous 300 John Ringling Boulevard location. Keep the pick free of an exact-venue photo until rights are confirmed."
     }
   }
 }

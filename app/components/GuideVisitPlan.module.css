@@ -1,0 +1,56 @@
+.plan {
+  margin: 26px 0 32px;
+  padding: 24px 0;
+  border-block: 1px solid #29313c;
+  color: #d5dde8;
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  scroll-margin-top: 16px;
+}
+
+.plan h2, .plan h3, .plan h4 {
+  margin: 0 0 6px;
+  color: #f8fafc;
+  font-family: var(--wf-display);
+  line-height: 1.25;
+}
+
+.plan h2 { font-size: clamp(24px, 4vw, 30px); }
+.plan h3 { font-size: 20px; }
+.plan h4 { font-size: 18px; }
+.plan p { margin: 6px 0 0; }
+.plan strong { color: #f8fafc; }
+.plan a { color: #fdba74; text-underline-offset: 3px; }
+
+.stops {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.stops > li {
+  padding: 14px 0;
+  border-bottom: 1px solid #29313c;
+}
+
+.stops > li:last-child { border-bottom: 0; }
+
+.address {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  font-weight: 650;
+}
+
+.address a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.section, .nearby { margin-top: 22px; }
+.reference, .sources { font-size: 14px; }
+.sources { margin-top: 16px; }
+.sources summary { cursor: pointer; font-weight: 650; }
