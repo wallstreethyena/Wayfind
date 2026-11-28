@@ -168,6 +168,20 @@ try {
    const blankTime=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"",end:null}],{},false,false,""]});blankTime.render();
    await blankTime.tree.props.onSubmit({preventDefault(){}});blankTime.render();eq(calls.length,0);matches(nodes(blankTime.tree).find(n=>typeof n.props?.message==="string"&&n.props.message)?.props.message||"",/Pick a day and start time/);blankTime.dispose();h.dispose();
  });
+ await test("quick Group Vote sends one open group vote in one tap",async()=>{
+   const priorNow=Date.now;Date.now=()=>Date.parse("2026-12-01T12:00:00Z");
+   try{
+     const calls=[];const pool=[{id:"place-1",name:"Original museum",score:92},{id:"place-2",name:"Alternative museum",score:91}];
+     const request=async(_p,payload)=>{calls.push(payload);return{plan:{id:"new-plan",groupToken:"",organizerName:"",places:pool}};};
+     const h=hooks(UI.GroupQuickCreate,{placeId:"place-1",session:{access_token:"t"},request,initialPool:pool},{effects:false,seeds:[pool,[pool[0]],false,["2026-12-05T18:00"],"America/New_York",""]});h.render();
+     const card=nodes(h.tree).find(n=>n.type==="QuickCard"||n.props?.item?.id==="place-2");yes(card,"the second spot sits in the rail");card.props.onToggle(pool[1]);h.render();
+     const send=nodes(h.tree).find(n=>n.type==="button"&&/Send to group/.test(text(n)));yes(send);matches(text(send),/2 spots/);await send.props.onClick();h.render();
+     eq(calls.length,1);eq(calls[0].selectedPlaceIds,["place-1","place-2"]);eq(calls[0].openGroup,true);eq(calls[0].invitees,[]);eq("organizerName" in calls[0],false,"a blank name is optional, never sent as an empty string");
+     yes(Date.parse(calls[0].deadline)<Date.parse(calls[0].times[0].startsAt),"reply deadline lands before the outing");h.dispose();
+     const empty=hooks(UI.GroupQuickCreate,{placeId:"place-1",session:{access_token:"t"},request,initialPool:pool},{effects:false,seeds:[pool,[],false,["2026-12-05T18:00"],"America/New_York",""]});empty.render();
+     await nodes(empty.tree).find(n=>n.type==="button"&&/Send to group/.test(text(n))).props.onClick();empty.render();eq(calls.length,1,"nothing picked, nothing created");matches(text(empty.tree),/Tap at least one spot/);empty.dispose();
+   }finally{Date.now=priorNow;}
+ });
  await test("ambiguous time recovery is local to the failing field",async()=>{
    const calls=[];const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-11-01T01:30",end:"2026-11-01T01:45"}],{},false,false,""]});h.render();
    eq(nodes(h.tree).filter(n=>n.type==="select").length,0);await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);let select=nodes(h.tree).find(n=>n.type==="select");yes(select);matches(text(h.tree),/Option 1 start\s+happens twice/);select.props.onChange({target:{value:"earlier"}});h.render();await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);matches(text(h.tree),/Option 1 end\s+happens twice/);select=nodes(h.tree).find(n=>n.type==="select");select.props.onChange({target:{value:"later"}});h.render();await h.tree.props.onSubmit({preventDefault(){}});eq(calls[0].times[0],{startsAt:"2026-11-01T05:30:00.000Z",endsAt:"2026-11-01T06:45:00.000Z"});h.dispose();

@@ -431,7 +431,7 @@ export function GroupQuickCreate({placeId,placeName="",session,request=groupRequ
     try{proposed=times.filter((t)=>String(t||"").trim()).map((t,i)=>({startsAt:parseZonedDateTime(t,zone,{disambiguation:"earlier"}),endsAt:null}));}
     catch{setError("One of your times isn’t a real time in your timezone. Pick another.");return;}
     if(!proposed.length){setError("Pick a day and time for your outing.");try{document.getElementById("gq-time-0")?.focus?.();}catch{}return;}
-    const replyBy=suggestedGroupDeadline(times.filter(Boolean),zone,Date.now(),{});
+    const replyBy=suggestedGroupDeadline(times.filter((t)=>String(t||"").trim()).map((t)=>({start:t,end:null})),zone,Date.now(),{});
     if(!replyBy){setError("Pick a time at least a few hours from now.");return;}
     if(demo){setCreated({id:"preview",groupToken:"preview",organizerName:name.trim(),places:selected});return;}
     inFlight.current=true;setBusy(true);
@@ -465,8 +465,9 @@ export function GroupQuickCreate({placeId,placeName="",session,request=groupRequ
       <a className="gq-link" href={demo?"?view=ballot":`/group-plans/${encodeURIComponent(created.id)}`}>{demo?"See what friends get →":"See who voted →"}</a>
     </section>;
   }
-  const extra=pool.filter((p)=>!selected.some((s)=>s.id===p.id));
-  const railItems=[...selected,...extra];
+  // Stable order (cards never jump when tapped); anything picked but not in the
+  // rail yet is shown at the end.
+  const railItems=[...pool,...selected.filter((s)=>!pool.some((p)=>p.id===s.id))];
   return <div className="gq">
     <section className="gq-section" aria-label="Spots to vote on">
       <div className="gq-head"><h2>Pick the spots</h2><span className="gq-count">{selected.length} of 5</span></div>
