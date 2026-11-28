@@ -15,6 +15,7 @@ import { retiredChristmasEventTarget, christmasEventPageRow } from "../lib/chris
 import { mergeChristmasResearch } from "../lib/christmasResearch.js";
 import { fetchEndedEventBySlug, eventJsonLd } from "../lib/curatedEvents.js";
 import { christmasTopicData } from "../lib/christmasTopicData.js";
+import { siteTodayStr } from "../lib/siteTime.js";
 
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -147,10 +148,16 @@ ok(christmasTopicPath("parades") === "/christmas-in-florida/parades", "topic pat
   process.env.NEXT_PHASE = "phase-production-build";
   try {
     const mod = await loadComponent(root + "app/christmas-in-florida/[topic]/page.js", root);
+    // The page renders for the site's own today (christmasTopicData), not the
+    // fixed test date above, so its expected row count is taken for that same
+    // day. A fixed count went red at midnight Nov 28 once Nov 25 to 27 events ended.
+    const pageToday = siteTodayStr();
+    const pageListings = christmasBrowseListings([], pageToday);
     for (const slug of CHRISTMAS_TOPIC_SLUGS) {
       const html = renderToStaticMarkup(await mod.default({ params: { topic: slug } }));
+      const expected = christmasTopicCards(pageListings, slug, pageToday).length;
       ok(html.includes("<h1>" + CHRISTMAS_TOPIC_PAGES[slug].h1 + "</h1>"), `${slug}: renders its h1`);
-      ok((html.match(/class="xt-row"/g) || []).length === counts[slug], `${slug}: renders every listing (${counts[slug]})`);
+      ok((html.match(/class="xt-row"/g) || []).length === expected, `${slug}: renders every listing for the page's day (${expected})`);
       ok(html.includes('href="/christmas-in-florida"') && html.includes("application/ld+json"), `${slug}: links the hub and carries schema`);
       ok(CHRISTMAS_TOPIC_PAGES[slug].map ? (html.includes('class="xt-map"') && /data-topic-stats/.test(html)) : !html.includes('class="xt-map"'), `${slug}: map only where the topic asks for one`);
     }
