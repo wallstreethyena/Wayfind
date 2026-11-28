@@ -436,7 +436,7 @@ import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES, evergreenLinksForTown } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
-import { FieldGuideArticle } from "../../components/FloridaFieldArticle";
+import { FieldGuideArticle } from "../../components/FieldGuideArticle";
 import { ssrPartnerInventory } from "../../../lib/landingRails";
 import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
 // Event guides reuse the ONE event "where" block (map, route, numbered nearby

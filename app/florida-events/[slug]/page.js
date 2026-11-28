@@ -108,7 +108,8 @@ export async function generateMetadata({ params }) {
   // Search title leads with the date and "Free" when entry is free (SEO engine
   // 2026-11-20, lib/eventSeoTitle.js). Facts from the row only.
   const article = e.slug === STRAWBERRY_FESTIVAL_ARTICLE.slug ? STRAWBERRY_FESTIVAL_ARTICLE : null;
-  const title = article?.seoTitle || eventSeoTitle(e);
+  const title = eventSeoTitle(e);
+  const publishedTitle = article && !ticketsUnavailable(e) ? article.seoTitle : title;
   // 2026-11-27 (owner): an event with no card hook leads its search snippet with
   // the stored why-go blurb (lib/eventWhyGo.js, cache read only, never a model call).
   const aiWhyGo = e.card_hook ? null : await readWhyGo(e);
@@ -133,10 +134,10 @@ export async function generateMetadata({ params }) {
   const og = `${SITE_URL}/api/og/hero?kind=event&id=${encodeURIComponent(e.event_id)}`
     + `&t=${encodeURIComponent(ogTitle)}&cat=Event&loc=${encodeURIComponent(e.city || "")}`;
   return {
-    title: title + " | Wayfind",
+    title: publishedTitle + " | Wayfind",
     description: desc.slice(0, 155),
-    openGraph: { type: "article", title, description: desc.slice(0, 155), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: title }] },
-    twitter: { card: "summary_large_image", title, images: [og] },
+    openGraph: { type: "article", title: publishedTitle, description: desc.slice(0, 155), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: publishedTitle }] },
+    twitter: { card: "summary_large_image", title: publishedTitle, images: [og] },
     alternates: { canonical: `${SITE_URL}/florida-events/${e.slug}` },
   };
 }
