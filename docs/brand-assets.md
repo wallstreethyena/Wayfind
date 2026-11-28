@@ -28,6 +28,13 @@ its public path (`/brand/wayfind/...`) instead of copying it.
 | --- | --- | --- |
 | Pin mark alone, square | `public/brand/wayfind/marks/wayfind-mark-gradient-on-black.png` | 1254x1254 on black. Suits avatars and app-style icons. |
 
+## In email
+
+| Use | File | Notes |
+| --- | --- | --- |
+| Founder signature icon in outreach and pitch emails | `public/brand/wayfind/derived/wayfind-mark-email-icon.png` | 156x156 copy of the gradient mark, shown at 52x52. Link it as `https://www.gowayfind.com/brand/wayfind/derived/wayfind-mark-email-icon.png` with `width`, `height` and `alt="Wayfind"`. Never attach it by `cid:`: Apple Mail showed the inline attachment as a broken image (2026-11-27). Core, because sent emails load this URL. |
+| Weekly email header | `public/brand/wayfind/derived/wayfind-logo-tagline-black-email.png` | Linked by URL from `lib/newsletter.js`. |
+
 ## Reference only
 
 | File | Notes |
