@@ -303,7 +303,21 @@ export default function ItineraryScreen({ ctx }) {
                   <div style={{ fontSize: 19, fontWeight: 800, color: C.text }}>Your trips</div>
                   {list.length > 0 && <span style={{ fontSize: 12.5, color: C.muted }}>{list.length} trip{list.length !== 1 ? "s" : ""}</span>}
                 </div>
-                {user && itineraryFlags && itineraryFlags.sync ? <span style={{ fontSize: 12, color: C.light }}>Synced across devices</span> : null}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  {user && itineraryFlags && itineraryFlags.sync ? <span style={{ fontSize: 12, color: C.light }}>Synced across devices</span> : null}
+                  <a href="/plan-my-day" style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    minHeight: 44,
+                    color: C.light,
+                    fontSize: 13,
+                    fontWeight: 800,
+                    textDecoration: "none",
+                  }}>
+                    Plan my day <span aria-hidden="true">›</span>
+                  </a>
+                </div>
               </div>
 
               {liveTrips && liveTrips.length > 0 && (
