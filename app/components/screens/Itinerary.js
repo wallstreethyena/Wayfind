@@ -1934,20 +1934,8 @@ const ITIN_CSS = `
 .wf-itin-badge.is-ok{background:rgba(16,185,129,.14);color:#6EE7B7}
 .wf-itin-badge.is-warn{background:rgba(245,158,11,.14);color:#FCD34D}
 .wf-itin-stop.is-visited .wf-itin-card{opacity:.6}
-.wf-itin-card .wf-place-card{height:auto!important;width:100%!important;max-width:none!important;flex:none!important;margin:0!important;border-radius:20px!important}
-.wf-itin-card .wf-place-card-layout{display:flex!important;flex-direction:column!important;height:auto!important;grid-template-columns:none!important}
-.wf-itin-card .wf-place-card-media{width:100%!important;height:184px!important;min-height:0!important;flex:none!important;border-radius:0!important}
-.wf-itin-card .wf-place-card-content{height:auto!important;min-height:0!important;padding:14px 16px 16px!important;gap:6px}
-.wf-itin-card .wf-place-card-name{font-size:18px!important;line-height:1.25!important;-webkit-line-clamp:2}
-.wf-itin-card .wf-place-card-title-row{min-height:0!important;height:auto!important}
-.wf-itin-card .wf-place-card-heading{padding-right:0!important;min-height:0!important;height:auto!important}
-.wf-itin-card .wf-place-card-category{margin:0 0 6px!important}
-.wf-itin-card .wf-place-card-name,.wf-itin-card .wf-place-card-heading .wf-place-card-name{margin-top:2px!important}
-.wf-itin-card .wf-place-card-take{-webkit-line-clamp:2}
+.wf-itin-card .wf-place-card{margin:0}
 .wf-itin-card .wf-place-card-save,.wf-itin-card .wf-place-card-like,.wf-itin-card .wf-place-card-dislike,.wf-itin-card .wf-place-card-share{display:none!important}
-.wf-itin-card .wf-place-card-actions{display:flex!important;grid-template-columns:none!important;padding-top:10px!important}
-.wf-itin-card .wf-place-card-actions:not(:has(.wf-place-card-book)){display:none!important}
-.wf-itin-card .wf-place-card-book{flex:1 1 auto;justify-content:center;min-height:44px}
 .wf-itin-mini{overflow:hidden;border-radius:20px;background:var(--it-card);border:1px solid rgba(159,177,203,.25);cursor:pointer;box-shadow:0 14px 36px rgba(0,0,0,.27)}
 .wf-itin-mini-photo{width:100%;height:184px;overflow:hidden;background:#111824}
 .wf-itin-note{margin-top:10px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(159,177,203,.14);font-size:14px;line-height:1.5;color:var(--it-soft)}
@@ -1988,7 +1976,7 @@ const ITIN_CSS = `
 @keyframes wfItinUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
 @keyframes wfItinGlow{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}25%{box-shadow:0 0 0 3px rgba(249,115,22,.55),0 18px 40px rgba(249,115,22,.18)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
 @keyframes wfItinPop{0%{transform:scale(1)}45%{transform:scale(1.18)}100%{transform:scale(1)}}
-@media (min-width:768px){.wf-itin-title{font-size:26px}.wf-itin-card .wf-place-card-media,.wf-itin-mini-photo{height:240px!important}.wf-itin-sheet{align-items:center}.wf-itin-sheet-panel{border-radius:24px;border-bottom:1px solid rgba(159,177,203,.16)}}
+@media (min-width:768px){.wf-itin-title{font-size:26px}.wf-itin-mini-photo{height:240px!important}.wf-itin-sheet{align-items:center}.wf-itin-sheet-panel{border-radius:24px;border-bottom:1px solid rgba(159,177,203,.16)}}
 @media (prefers-reduced-motion:reduce){.wf-itin *,.wf-itin-sheet,.wf-itin-sheet *{animation:none!important;transition:none!important}}
 `;
 
