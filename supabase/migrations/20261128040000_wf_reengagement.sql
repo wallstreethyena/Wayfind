@@ -23,22 +23,35 @@
 --   wf_reengage_push_subs     web push subscriptions (PR 2). The endpoint and keys
 --                             are stored encrypted (endpoint_enc, keys_enc); the
 --                             unique key is a sha256 of the endpoint.
---   wf_reengage_queue         one row per planned or sent message. Two unique keys
---                             make enqueueing idempotent: (anon_id, trigger_type,
---                             channel, step, dedupe_key) for push and anonymous
---                             rows, and (contact_id, trigger_type, channel, step,
---                             dedupe_key) for email rows, because a visitor with no
---                             wf_anon_id gets a fresh server id every request and
---                             only the contact is stable. The contact key is a plain
---                             (not partial) unique index on purpose: PostgREST's
---                             on_conflict cannot name a partial index predicate, and
---                             NULL contact_ids never collide in a unique index, so
---                             the plain index constrains exactly the rows with a
---                             contact. trigger_type 'itinerary_email' rows (step 0,
---                             status 'sent') are the immediate emails and serve the
---                             per recipient cap of 3 a day. A partial index on
---                             pending rows keeps the sender cheap, and indexes on
---                             sent rows serve the frequency caps.
+--   wf_reengage_queue         one row per planned or sent message. Two unique
+--                             indexes make enqueueing idempotent.
+--                             (contact_id, trigger_type, channel, step, dedupe_key)
+--                             is the EMAIL key: a visitor with no wf_anon_id gets a
+--                             fresh server id every request and only the contact is
+--                             stable. It is a plain (not partial) index on purpose:
+--                             PostgREST's on_conflict cannot name a partial index
+--                             predicate, and NULL contact_ids never collide in a
+--                             unique index, so it constrains exactly the rows with
+--                             a contact.
+--                             (anon_id, contact_id, trigger_type, channel, step,
+--                             dedupe_key) NULLS NOT DISTINCT (Postgres 15+) is the
+--                             PUSH and anonymous key (contact_id null). There is no
+--                             anon_id-only key over email rows: anon_id is
+--                             attacker-chosen, so the same anon_id and plan sent to
+--                             two addresses must not collide. Every collision on
+--                             this index is also a collision on the contact index
+--                             (it names a superset of those columns), so an email
+--                             insert that targets the contact index with
+--                             ignore-duplicates absorbs it.
+--                             trigger_type 'itinerary_email' rows (step 0) are the
+--                             immediate emails. Each send RESERVES a row first
+--                             (status 'sending', a unique dedupe_key), counts the
+--                             contact's sending+sent rows in the last 24 hours, and
+--                             only sends when that count is 3 or fewer; it then
+--                             marks the row 'sent' or 'failed' (or 'skipped_cap').
+--                             A partial index on pending rows keeps the sender
+--                             cheap, and indexes on sent rows serve the frequency
+--                             caps.
 --   wf_reengage_suppressions  addresses that must never be mailed again (hard
 --                             bounce, complaint, unsubscribe, manual). Keyed by a
 --                             sha256 of the lowercased address, so it survives a
@@ -121,14 +134,22 @@ create table if not exists public.wf_reengage_queue (
   attempts         smallint not null default 0 check (attempts >= 0),
   sent_at          timestamptz,
   opened_at        timestamptz,
-  created_at       timestamptz not null default now(),
-  unique (anon_id, trigger_type, channel, step, dedupe_key)
+  created_at       timestamptz not null default now()
 );
 
 -- One row per contact, trigger, channel, step and plan (see the header: plain,
 -- not partial, so on_conflict can target it).
 create unique index if not exists wf_reengage_queue_contact_key
   on public.wf_reengage_queue (contact_id, trigger_type, channel, step, dedupe_key);
+
+-- The push and anonymous key. contact_id is part of it (NULLS NOT DISTINCT keeps
+-- "no contact" a single value), so rows WITH a contact differ per contact.
+create unique index if not exists wf_reengage_queue_anon_key
+  on public.wf_reengage_queue (anon_id, contact_id, trigger_type, channel, step, dedupe_key) nulls not distinct;
+
+-- The per recipient daily cap counts sending+sent rows by contact and age.
+create index if not exists wf_reengage_queue_contact_recent_idx
+  on public.wf_reengage_queue (contact_id, trigger_type, created_at) where status in ('sending', 'sent');
 
 create index if not exists wf_reengage_queue_due_idx
   on public.wf_reengage_queue (scheduled_for) where status = 'pending';

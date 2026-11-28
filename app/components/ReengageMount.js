@@ -11,6 +11,20 @@
 // literal env compare lets the bundler drop the whole effect when it is off).
 import { useEffect, useState } from "react";
 
+// The itinerary email's "Open my plan" link (GET /api/reengage/open) leaves a
+// short lived wf_rc_pending=1 marker cookie; the matching HttpOnly token cookie
+// rides on this POST. That POST is what confirms the recipient (a mail scanner
+// follows the link but never runs this script). It is the person's own click,
+// not tracking, so it does NOT depend on the opt out checks below.
+export function confirmPendingEmail(win) {
+  try {
+    if (!win || !win.document || !/(?:^|;\s*)wf_rc_pending=1(?:;|$)/.test(String(win.document.cookie || ""))) return false;
+    const p = win.fetch("/api/reengage/confirm", { method: "POST", credentials: "same-origin" });
+    if (p && typeof p.catch === "function") p.catch(() => {});
+    return true;
+  } catch (e) { return false; }
+}
+
 export default function ReengageMount() {
   const [Banner, setBanner] = useState(null);
 
@@ -22,6 +36,7 @@ export default function ReengageMount() {
 
     const run = () => {
       if (cancelled) return;
+      confirmPendingEmail(window);
       import("../../lib/reengageClient.js").then((rc) => {
         if (cancelled) return;
         try {

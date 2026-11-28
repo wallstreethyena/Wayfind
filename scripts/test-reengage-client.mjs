@@ -341,6 +341,30 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
     ok(statics.length >= 1 && statics.every((x) => x === "react"), "SOURCE-LEVEL: ReengageMount (root layout, first load JS budget) statically imports only react, got " + JSON.stringify(statics));
     ok(/import\(\s*["']\.\.\/\.\.\/lib\/reengageClient\.js["']\s*\)/.test(mount), "SOURCE-LEVEL: ReengageMount loads lib/reengageClient.js lazily");
   }
+  {
+    // CALL-BASED: the exported helper the idle run() calls, against a fake window and a recording fetch.
+    const mountMod = await loadComponent(path.join(ROOT, "app/components/ReengageMount.js"), ROOT);
+    const fakeWin = (cookie, fetchLog) => ({ document: { cookie }, fetch: (u, init) => { fetchLog.push({ u, init }); return Promise.resolve(new Response("{}")); } });
+    ok(typeof mountMod.confirmPendingEmail === "function", "ReengageMount does not export confirmPendingEmail");
+    const log1 = [];
+    const posted = mountMod.confirmPendingEmail(fakeWin("a=1; wf_rc_pending=1; b=2", log1));
+    ok(posted === true && log1.length === 1 && log1[0].u === "/api/reengage/confirm" && log1[0].init.method === "POST" && log1[0].init.credentials === "same-origin", "with the wf_rc_pending=1 marker the mount did not POST /api/reengage/confirm same-origin: " + JSON.stringify(log1));
+    const log2 = [];
+    for (const cookie of ["", "a=1; b=2", "xwf_rc_pending=1", "wf_rc_pending=0", "wf_rc_pending=10", "wf_rc=" + "a".repeat(64)]) mountMod.confirmPendingEmail(fakeWin(cookie, log2));
+    ok(log2.length === 0, "the mount POSTed without the marker cookie: " + JSON.stringify(log2));
+    ok(mountMod.confirmPendingEmail(null) === false && mountMod.confirmPendingEmail({}) === false && mountMod.confirmPendingEmail({ document: { cookie: "wf_rc_pending=1" }, fetch() { throw new Error("blocked"); } }) === false, "confirmPendingEmail threw or reported success on a broken window");
+    // an opted out visitor (Global Privacy Control): the POST is the person's own click, not tracking, so it still goes
+    const log3 = [];
+    const gpcWin = { ...fakeWin("wf_rc_pending=1", log3), navigator: { globalPrivacyControl: true } };
+    mountMod.confirmPendingEmail(gpcWin);
+    ok(rc.optedOut(gpcWin) === true && log3.length === 1, "positive control: the opted out window was not opted out, or the confirm was skipped for it");
+    // SOURCE-LEVEL: where the effect calls it (the effect needs a React renderer this test does not have)
+    const eff = mount.slice(mount.indexOf("useEffect(() =>"));
+    const iFlag = eff.indexOf('process.env.NEXT_PUBLIC_WF_REENGAGE !== "1"');
+    const iConfirm = eff.indexOf("confirmPendingEmail(window)");
+    const iOpt = eff.indexOf("rc.optedOut(window)");
+    ok(iFlag > -1 && iConfirm > iFlag && iOpt > iConfirm && /const run = \(\) => \{\s*if \(cancelled\) return;\s*confirmPendingEmail\(window\);/.test(eff), "SOURCE-LEVEL: run() does not call confirmPendingEmail after the build flag gate and before the opt out check");
+  }
   ok(/<ReengageMount \/>/.test(layout) && (layout.match(/<ReengageMount \/>/g) || []).length === 1, "SOURCE-LEVEL: layout renders <ReengageMount /> exactly once");
   ok(!/\.css"/.test(banner + drawer + mount), "SOURCE-LEVEL: no CSS file is imported eagerly");
   ok(/addEventListener\("load"/.test(mount) && /requestIdleCallback/.test(mount) && /setTimeout\(run, 1500\)/.test(mount), "SOURCE-LEVEL: the mount waits for load and idle");

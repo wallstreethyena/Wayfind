@@ -115,6 +115,9 @@ function withPlanRef(out) {
  * Strip the private cache field before a cached answer goes out. A cached hit
  * mints a planRef (a 7 day cache write) only with the feature on AND the visitor
  * under the per-IP limit, so a cache hit loop cannot be used to fill the store.
+ * With the feature off nothing here spends rate-limit budget: a cache hit does
+ * not call limited() at all, so the limit only costs anything when reengage is
+ * configured.
  */
 function fromCache(v, ip) {
   const { _gap, ...rest } = v;

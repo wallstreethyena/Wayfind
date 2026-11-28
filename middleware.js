@@ -74,6 +74,9 @@ export const config = {
     "/api/reengage/unsubscribe",
     // "Open my plan" in the itinerary email: a GET-302 from a mail app, rate limit only.
     "/api/reengage/open",
+    // The page's own same-origin POST that confirms a contact after that click:
+    // full same-origin guard plus the per-IP limit.
+    "/api/reengage/confirm",
     "/api/places/search",
     // Free Apple Maps pins: same-origin POST that reserves units against the
     // one daily Apple service-call ceiling (lib/applePlaceIds.js). Not a cost

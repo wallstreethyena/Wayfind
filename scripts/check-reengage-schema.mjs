@@ -76,6 +76,12 @@ export function checkShape(rawSql) {
   const idx = /create\s+unique\s+index\s+(?:if\s+not\s+exists\s+)?\w+\s+on\s+(?:public\.)?wf_reengage_queue\s*\(\s*contact_id\s*,\s*trigger_type\s*,\s*channel\s*,\s*step\s*,\s*dedupe_key\s*\)\s*([^;]*);/i.exec(sql);
   if (!idx) problems.push("wf_reengage_queue has no unique index on (contact_id, trigger_type, channel, step, dedupe_key): per contact drip dedupe is gone");
   else if (/\bwhere\b/i.test(idx[1])) problems.push("the contact unique index is PARTIAL: PostgREST on_conflict cannot target a partial index, so every drip insert would fail");
+  // anon_id is attacker chosen, so NO key over email rows may be anon_id alone: the push/anon key names contact_id too, NULLS NOT DISTINCT.
+  if (/^\s*unique\s*\(/im.test(queue)) problems.push("wf_reengage_queue has a table level unique (...): an anon_id key over email rows lets one anonId + plan collide across two addresses");
+  const anon = /create\s+unique\s+index\s+(?:if\s+not\s+exists\s+)?\w+\s+on\s+(?:public\.)?wf_reengage_queue\s*\(\s*anon_id\s*,\s*contact_id\s*,\s*trigger_type\s*,\s*channel\s*,\s*step\s*,\s*dedupe_key\s*\)\s*([^;]*);/i.exec(sql);
+  if (!anon) problems.push("wf_reengage_queue has no unique index on (anon_id, contact_id, trigger_type, channel, step, dedupe_key): push/anonymous dedupe is gone or still ignores contact_id");
+  else if (!/\bnulls\s+not\s+distinct\b/i.test(anon[1])) problems.push("the anon unique index is not NULLS NOT DISTINCT: rows with no contact would never dedupe");
+  else if (/\bwhere\b/i.test(anon[1])) problems.push("the anon unique index is PARTIAL: on_conflict cannot target it");
   return problems;
 }
 
@@ -112,6 +118,10 @@ const shapeBreakers = {
   "itinerary_email trigger dropped": (x) => x.replace("'itinerary_email', ", ""),
   "contact unique index dropped": (x) => x.replace(/create unique index if not exists wf_reengage_queue_contact_key[\s\S]*?;\n/, ""),
   "contact unique index made partial": (x) => x.replace("(contact_id, trigger_type, channel, step, dedupe_key);", "(contact_id, trigger_type, channel, step, dedupe_key) where contact_id is not null;"),
+  "table level anon unique restored": (x) => x.replace("  created_at       timestamptz not null default now()\n);", "  created_at       timestamptz not null default now(),\n  unique (anon_id, trigger_type, channel, step, dedupe_key)\n);"),
+  "anon index loses nulls not distinct": (x) => x.replace(" nulls not distinct;", ";"),
+  "anon index loses contact_id": (x) => x.replace("(anon_id, contact_id, trigger_type, channel, step, dedupe_key) nulls", "(anon_id, trigger_type, channel, step, dedupe_key) nulls"),
+  "anon index dropped": (x) => x.replace(/create unique index if not exists wf_reengage_queue_anon_key[\s\S]*?;\n/, ""),
   "email_hash only in a comment": (x) => x.replace(/^(\s*)email_hash(\s+text\s+not\s+null\s+unique[^\n]*\n)/m, "$1-- email_hash$2"),
 };
 for (const [name, mutate] of Object.entries(shapeBreakers)) {
@@ -124,4 +134,4 @@ const commentedRevoke = sql.replace(`revoke all on table public.${first} from pu
 ok(commentedRevoke !== sql && checkSchema(commentedRevoke).problems.length > 0, "a commented-out revoke satisfied the check");
 
 if (failures) { console.error(`check-reengage-schema: ${failures} failure(s)`); process.exit(1); }
-console.log(`check-reengage-schema: OK — ${real.tables.length} tables (${real.tables.join(", ")}) each with RLS on, revoke from anon+authenticated, service_role grant only; 0 policies; ${Object.keys(breakers).length + 1} negative controls caught; contacts.email_hash + confirmed_at, queue itinerary_email trigger and a non partial contact unique index present (${Object.keys(shapeBreakers).length} shape negative controls caught)`);
+console.log(`check-reengage-schema: OK — ${real.tables.length} tables (${real.tables.join(", ")}) each with RLS on, revoke from anon+authenticated, service_role grant only; 0 policies; ${Object.keys(breakers).length + 1} negative controls caught; contacts.email_hash + confirmed_at, queue itinerary_email trigger and a non partial contact unique index and a NULLS NOT DISTINCT anon/contact index present, no table level unique (${Object.keys(shapeBreakers).length} shape negative controls caught)`);

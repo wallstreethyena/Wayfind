@@ -43,7 +43,62 @@ const allCalls = []; // never reset: the whole-run "no address in any URL" check
 let S = {};
 function reset(over = {}) {
   calls = [];
-  S = { plan: { [PLAN_REF]: null }, cache: {}, contact: null, insertConflict: false, suppressed: false, resendOk: true, queueOk: true, sentRows: [], itinRows: [], capDown: false, unsubRows: null, dbDown: false, ...over };
+  S = { plan: { [PLAN_REF]: null }, cache: {}, contact: null, insertConflict: false, suppressed: false, resendOk: true, queueOk: true, dripDown: false, queue: [], qid: 100, nextContact: 7, countDown: false, unsubRows: null, dbDown: false, ...over };
+}
+// Queue rows already in the table (ids 1..n, unique dedupe keys), by default 'sent' itinerary emails for contact 7 made just now.
+const seedRows = (n, over = {}) => Array.from({ length: n }, (_, i) => ({
+  id: i + 1, anon_id: ANON, contact_id: 7, trigger_type: "itinerary_email", channel: "email", step: 0, dedupe_key: `seed-${i}`,
+  status: "sent", created_at: new Date().toISOString(), sent_at: new Date().toISOString(), ...over,
+}));
+
+// The queue's unique keys are READ FROM THE MIGRATION (comments stripped), so this fake table enforces exactly what Postgres
+// would: table level `unique (...)` and `create unique index ... [nulls not distinct]`, with NULLs distinct unless declared otherwise.
+const QUEUE_KEYS = (() => {
+  const sql = readFileSync(path.join(ROOT, "supabase/migrations/20261128040000_wf_reengagement.sql"), "utf8").replace(/\/\*[\s\S]*?\*\/|--[^\n]*/g, "");
+  const body = (/create table if not exists public\.wf_reengage_queue \(([\s\S]*?)\n\);/.exec(sql) || [])[1] || "";
+  const keys = [];
+  for (const m of body.matchAll(/^\s*unique\s*\(([^)]*)\)/gm)) keys.push({ cols: m[1].split(",").map((c) => c.trim()), nnd: false });
+  for (const m of sql.matchAll(/create unique index (?:if not exists )?\w+\s+on public\.wf_reengage_queue\s*\(([^)]*)\)\s*(nulls not distinct)?\s*;/gi)) keys.push({ cols: m[1].split(",").map((c) => c.trim()), nnd: !!m[2] });
+  return keys;
+})();
+const sameKey = (ix, a, b) => {
+  for (const c of ix.cols) {
+    const x = a[c] ?? null; const y = b[c] ?? null;
+    if (!ix.nnd && (x === null || y === null)) return false; // NULLs are distinct in a unique index unless NULLS NOT DISTINCT
+    if (x !== y) return false;
+  }
+  return true;
+};
+const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
+const qFilters = (u) => (u.split("?")[1] || "").split("&").filter(Boolean).map((p) => { const i = p.indexOf("="); return [p.slice(0, i), decodeURIComponent(p.slice(i + 1))]; }).filter(([k]) => !["select", "limit", "order", "on_conflict"].includes(k));
+const qMatch = (row, [k, v]) => {
+  const op = v.slice(0, v.indexOf(".")); const val = v.slice(op.length + 1); const cell = row[k];
+  if (op === "eq") return String(cell) === val;
+  if (op === "neq") return String(cell) !== val;
+  if (op === "in") return val.slice(1, -1).split(",").includes(String(cell));
+  if (op === "gte") return cell != null && Date.parse(cell) >= Date.parse(val);
+  throw new Error("stub: unsupported filter " + k + "=" + v);
+};
+function queuePost(rec) {
+  if (!S.queueOk) return jsonRes({}, 500);
+  const rows = Array.isArray(rec.body) ? rec.body : [rec.body];
+  if (S.dripDown && rows.length === 3) return jsonRes({}, 500);
+  const prefer = String((rec.headers && rec.headers.Prefer) || "");
+  const ignore = /resolution=ignore-duplicates/.test(prefer);
+  const arbiterCols = ((rec.u.match(/[?&]on_conflict=([^&]+)/) || [])[1] || "").split(",").filter(Boolean);
+  const made = [];
+  for (const r of rows) {
+    const full = { status: "pending", contact_id: null, dedupe_key: "", created_at: new Date().toISOString(), sent_at: null, ...r, id: (S.qid += 1) };
+    const hit = QUEUE_KEYS.filter((ix) => S.queue.concat(made).some((o) => sameKey(ix, o, full)));
+    if (hit.length) {
+      const arbiter = arbiterCols.length ? QUEUE_KEYS.find((ix) => sameSet(ix.cols, arbiterCols)) : null;
+      if (ignore && (!arbiterCols.length || (arbiter && hit.includes(arbiter)))) continue; // ON CONFLICT DO NOTHING absorbed it
+      return jsonRes({ code: "23505", message: "duplicate key value violates unique constraint" }, 409);
+    }
+    made.push(full);
+  }
+  S.queue.push(...made);
+  return /return=representation/.test(prefer) ? jsonRes(made, 201) : jsonRes({}, 201);
 }
 const jsonRes = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json" } });
 const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
@@ -55,6 +110,12 @@ globalThis.fetch = async (url, init = {}) => {
   const rec = { u, method, raw, body: parse(raw), headers: (init && init.headers) || {} };
   calls.push(rec);
   allCalls.push(rec);
+  const res = await handle(rec);
+  rec.status = res.status;
+  return res;
+};
+async function handle(rec) {
+  const { u, method, raw } = rec;
   if (u.startsWith("https://api.resend.com/emails")) return S.resendOk ? jsonRes({ id: "em_1" }) : jsonRes({ message: "no" }, 422);
   if (!u.includes("/rest/v1/")) return jsonRes({}, 404);
   if (S.dbDown) return jsonRes({}, 500);
@@ -69,10 +130,10 @@ globalThis.fetch = async (url, init = {}) => {
   }
   if (u.includes("/rest/v1/wf_reengage_contacts")) {
     if (method === "GET") return jsonRes(S.contact ? [S.contact] : []);
-    if (method === "POST") return S.insertConflict ? jsonRes([]) : jsonRes([{ id: 7, status: "subscribed", unsubscribe_token: raw.includes('"unsubscribe_token"') ? parse(raw).unsubscribe_token : TOKEN }], 201);
+    if (method === "POST") return S.insertConflict ? jsonRes([]) : jsonRes([{ id: S.nextContact++, status: "subscribed", unsubscribe_token: raw.includes('"unsubscribe_token"') ? parse(raw).unsubscribe_token : TOKEN }], 201);
     if (method === "PATCH" && u.includes("unsubscribe_token=eq.") && u.includes("confirmed_at=is.null")) {
       // confirm: honours its own filters against the stateful contact
-      if (S.contact && u.includes("status=eq.subscribed") && S.contact.status === "subscribed" && !S.contact.confirmed_at) S.contact.confirmed_at = parse(raw).confirmed_at;
+      if (S.contact && u.includes(`unsubscribe_token=eq.${S.contact.unsubscribe_token}`) && u.includes("status=eq.subscribed") && S.contact.status === "subscribed" && !S.contact.confirmed_at) S.contact.confirmed_at = parse(raw).confirmed_at;
       return new Response(null, { status: 204 });
     }
     if (method === "PATCH" && u.includes("unsubscribe_token=eq.")) {
@@ -88,17 +149,22 @@ globalThis.fetch = async (url, init = {}) => {
   }
   if (u.includes("/rest/v1/wf_reengage_suppressions")) return method === "GET" ? jsonRes(S.suppressed ? [{ id: 1 }] : []) : jsonRes({}, 201);
   if (u.includes("/rest/v1/wf_reengage_queue")) {
-    if (method === "GET" && u.includes("trigger_type=eq.itinerary_email")) {
-      if (S.capDown) return jsonRes({}, 500);
+    if (method === "GET") {
+      if (S.countDown && u.includes("status=in.")) return jsonRes({}, 500);
+      const f = qFilters(u);
       const lim = Number((u.match(/[?&]limit=(\d+)/) || [])[1]) || 1000;
-      return jsonRes(S.itinRows.slice(0, lim));
+      return jsonRes(S.queue.filter((r) => f.every((x) => qMatch(r, x))).slice(0, lim));
     }
-    if (method === "GET") return jsonRes(S.sentRows);
-    if (method === "POST") return S.queueOk ? jsonRes({}, 201) : jsonRes({}, 500);
+    if (method === "POST") return queuePost(rec);
+    if (method === "PATCH") {
+      const f = qFilters(u);
+      for (const r of S.queue) if (f.every((x) => qMatch(r, x))) Object.assign(r, rec.body);
+      return new Response(null, { status: 204 });
+    }
     return new Response(null, { status: 204 });
   }
   return jsonRes({}, 404);
-};
+}
 const only = (pred) => calls.filter(pred);
 const resendCalls = () => only((c) => c.u.startsWith("https://api.resend.com/"));
 const queuePosts = () => only((c) => c.method === "POST" && c.u.includes("/rest/v1/wf_reengage_queue"));
@@ -228,7 +294,20 @@ ok(msg && msg.subject === "Your Sarasota plan", "email subject wrong: " + (msg &
   ok(c && c.body.every((r) => Buffer.byteLength(JSON.stringify(r.payload)) <= 16000), "queue payload exceeds the table's 16000 byte check");
   reset();
   await lib.enqueueDrip({ anonId: ANON, contactId: null, planRef: PLAN_REF, plan: SNAP }, { fetchImpl: globalThis.fetch, now: t0 });
-  ok(queuePosts().length === 1 && queuePosts()[0].u.includes("on_conflict=anon_id,trigger_type,channel,step,dedupe_key") && queuePosts()[0].body.every((r) => r.contact_id === null), "with no contact the drip did not fall back to the anon key");
+  ok(queuePosts().length === 1 && queuePosts()[0].u.includes("on_conflict=anon_id,contact_id,trigger_type,channel,step,dedupe_key") && queuePosts()[0].body.every((r) => r.contact_id === null), "with no contact the drip did not fall back to the anon key (which now includes contact_id)");
+  const again = await lib.enqueueDrip({ anonId: ANON, contactId: null, planRef: PLAN_REF, plan: SNAP }, { fetchImpl: globalThis.fetch, now: t0 });
+  ok(again.ok && S.queue.length === 3 && !calls.some((c) => c.status === 409), "the same anon+plan with no contact queued twice (the push/anon key does not dedupe NULL contact rows, or it errored)");
+  reset();
+  await lib.enqueueDrip({ anonId: ANON, contactId: 7, planRef: PLAN_REF, plan: SNAP }, { fetchImpl: globalThis.fetch, now: t0 });
+  await lib.enqueueDrip({ anonId: ANON, contactId: 7, planRef: PLAN_REF, plan: SNAP }, { fetchImpl: globalThis.fetch, now: t0 });
+  ok(S.queue.length === 3 && !calls.some((c) => c.status === 409), "enqueueing one contact's plan twice did not leave exactly 3 rows");
+  // positive control for the fake table: it really rejects a duplicate that is not absorbed
+  ok(QUEUE_KEYS.length >= 2 && QUEUE_KEYS.some((k) => k.cols[0] === "contact_id") && QUEUE_KEYS.some((k) => k.cols[0] === "anon_id" && k.nnd), "positive control: the fake queue did not read both unique keys (contact key and anon key NULLS NOT DISTINCT) from the migration: " + JSON.stringify(QUEUE_KEYS));
+  reset({ queue: seedRows(1) });
+  const dupRes = await fetch("https://fake-reengage.supabase.test/rest/v1/wf_reengage_queue", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ anon_id: ANON, contact_id: 7, trigger_type: "itinerary_email", channel: "email", step: 0, dedupe_key: "seed-0", status: "pending" }) });
+  ok(dupRes.status === 409, "positive control: the fake queue accepted a duplicate unique key (status " + dupRes.status + ")");
+  allCalls.pop(); // the deliberate duplicate above is not part of the whole-run 409 check
+  reset();
   reset();
   const badRef = await lib.enqueueDrip({ anonId: ANON, contactId: 7, planRef: "nope", plan: SNAP }, { fetchImpl: globalThis.fetch });
   ok(!badRef.ok && calls.length === 0, "enqueueDrip ran with a bad plan reference");
@@ -236,15 +315,20 @@ ok(msg && msg.subject === "Your Sarasota plan", "email subject wrong: " + (msg &
 
 // ── 5. the 7 day cap ────────────────────────────────────────────────────────
 {
-  reset({ sentRows: [{ id: 1 }] });
+  const rowsF = (n, over) => seedRows(n, { trigger_type: "itinerary_abandoned", step: 1, ...over });
+  reset({ queue: rowsF(1) });
   ok(await lib.withinWeeklyCap(ANON, "email", { contactId: 7, max: 2, fetchImpl: globalThis.fetch }) === true, "1 sent in 7 days should still be within the cap of 2");
   const u = calls[0] && calls[0].u;
   ok(u && u.includes("contact_id=eq.7") && !u.includes("anon_id=") && u.includes("trigger_type=neq.itinerary_email") && u.includes("channel=eq.email") && u.includes("status=eq.sent") && u.includes("sent_at=gte.") && u.includes("limit=2"), "the email cap query does not count this CONTACT's sent follow ups in the window: " + u);
-  reset({ sentRows: [{ id: 1 }, { id: 2 }] });
+  reset({ queue: rowsF(2) });
   ok(await lib.withinWeeklyCap(ANON, "email", { contactId: 7, max: 2, fetchImpl: globalThis.fetch }) === false, "2 sent in 7 days should be AT the cap of 2");
+  reset({ queue: [...rowsF(1), ...seedRows(5).map((r, i) => ({ ...r, id: 50 + i }))] });
+  ok(await lib.withinWeeklyCap(ANON, "email", { contactId: 7, max: 2, fetchImpl: globalThis.fetch }) === true, "immediate itinerary_email sends were counted against the follow up weekly cap");
+  reset({ queue: rowsF(2, { contact_id: 99 }) });
+  ok(await lib.withinWeeklyCap(ANON, "email", { contactId: 7, max: 2, fetchImpl: globalThis.fetch }) === true, "another contact's sent rows were counted against this contact");
   reset();
   ok(await lib.withinWeeklyCap(ANON, "email", { fetchImpl: globalThis.fetch }) === false && calls.length === 0, "the email cap ran without a contact id (a GPC visitor's anon id is new every request, so it would always pass)");
-  reset({ sentRows: [] });
+  reset();
   ok(await lib.withinWeeklyCap(ANON, "push", { max: 2, fetchImpl: globalThis.fetch }) === true && calls[0].u.includes("channel=eq.push") && calls[0].u.includes(`anon_id=eq.${ANON}`), "0 sent should be within the cap, scoped to the channel asked (push counts by anon id)");
   reset({ dbDown: true });
   ok(await lib.withinWeeklyCap(ANON, "email", { contactId: 7, max: 2, fetchImpl: globalThis.fetch }) === false, "the cap must fail closed on a read error");
@@ -338,10 +422,13 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
   x = await run(GOOD);
   ok(x.r.status === 200 && JSON.stringify(x.json) === '{"ok":true}', "happy path did not answer exactly {ok:true}: " + x.text);
   ok(resendCalls().length === 1, "happy path made " + resendCalls().length + " Resend calls");
-  const dripPost = queuePosts().find((c) => c.body && c.body.length === 3);
-  const sentPost = queuePosts().find((c) => c.body && c.body.length === 1);
-  ok(queuePosts().length === 2 && dripPost && dripPost.body.every((r) => r.contact_id === 7 && r.trigger_type === "itinerary_abandoned"), "happy path did not queue 3 drip rows for the contact (and exactly one more queue write)");
-  ok(sentPost && sentPost.body[0].trigger_type === "itinerary_email" && sentPost.body[0].channel === "email" && sentPost.body[0].step === 0 && sentPost.body[0].status === "sent" && typeof sentPost.body[0].sent_at === "string" && sentPost.body[0].resend_email_id === "em_1" && sentPost.body[0].dedupe_key === PLAN_REF && sentPost.body[0].contact_id === 7 && sentPost.u.includes("on_conflict=contact_id,trigger_type,channel,step,dedupe_key"), "the immediate send left no itinerary_email 'sent' queue row for the contact: " + JSON.stringify(sentPost && sentPost.body));
+  const dripPost = queuePosts().find((c) => Array.isArray(c.body) && c.body.length === 3);
+  const holdPost = queuePosts().find((c) => c.body && !Array.isArray(c.body));
+  ok(queuePosts().length === 2 && dripPost && dripPost.body.every((r) => r.contact_id === 7 && r.trigger_type === "itinerary_abandoned"), "happy path did not queue 3 drip rows for the contact (and exactly one reservation write)");
+  ok(holdPost && holdPost.body.trigger_type === "itinerary_email" && holdPost.body.channel === "email" && holdPost.body.step === 0 && holdPost.body.status === "sending" && holdPost.body.contact_id === 7 && new RegExp("^" + PLAN_REF + ":[0-9a-f-]{36}$").test(holdPost.body.dedupe_key) && !holdPost.u.includes("on_conflict") && /return=representation/.test(holdPost.headers.Prefer), "the send did not RESERVE an itinerary_email 'sending' row (planRef:uuid dedupe key, plain insert) before sending: " + JSON.stringify(holdPost && holdPost.body));
+  const settle = calls.find((c) => c.method === "PATCH" && c.u.includes("wf_reengage_queue?id=eq."));
+  const mine = S.queue.find((r) => r.trigger_type === "itinerary_email");
+  ok(settle && settle.body.status === "sent" && settle.body.resend_email_id === "em_1" && typeof settle.body.sent_at === "string" && mine && mine.status === "sent" && mine.resend_email_id === "em_1", "the reserved row was not settled to 'sent' with the Resend id: " + JSON.stringify(settle && settle.body));
   const ins = only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts"))[0];
   ok(ins && ins.body.email === EMAIL && ins.body.status === "subscribed" && ins.body.consent_version === "trip-v1" && ins.body.consent_text === lib.CONSENT_TEXT && ins.body.consent_page === "/plan-my-day" && ins.body.anon_id === ANON && /^[a-f0-9]{64}$/.test(ins.body.unsubscribe_token), "contact row missing the consent or token: " + JSON.stringify(ins && ins.body));
   const sent = resendCalls()[0].body;
@@ -349,17 +436,19 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
 
   // order: the email goes out before the drip is queued
   const iR = calls.findIndex((c) => c.u.startsWith("https://api.resend.com/"));
-  const iQ = calls.findIndex((c) => c.method === "POST" && c.u.includes("wf_reengage_queue"));
-  const iD = calls.findIndex((c) => c.method === "POST" && c.u.includes("wf_reengage_queue") && c.body && c.body.length === 3);
-  ok(iR > -1 && iQ > iR && iD > iQ, "the send row or the drip was queued out of order (send, then its row, then the drip)");
-  ok(calls.findIndex((c) => c.u.includes("trigger_type=eq.itinerary_email")) > -1 && calls.findIndex((c) => c.u.includes("trigger_type=eq.itinerary_email")) < iR, "the per recipient cap was not read before the email was sent");
+  const iH = calls.findIndex((c) => c.method === "POST" && c.u.includes("wf_reengage_queue") && c.body && !Array.isArray(c.body));
+  const iC = calls.findIndex((c) => c.method === "GET" && c.u.includes("wf_reengage_queue") && c.u.includes("status=in.(sending,sent)"));
+  const iP = calls.findIndex((c) => c.method === "PATCH" && c.u.includes("wf_reengage_queue?id=eq."));
+  const iD = calls.findIndex((c) => c.method === "POST" && c.u.includes("wf_reengage_queue") && Array.isArray(c.body) && c.body.length === 3);
+  ok(iH > -1 && iC > iH && iR > iC && iP > iR && iD > iP, "order is not reserve, count, send, settle, drip: " + [iH, iC, iR, iP, iD].join());
   ok(!calls.some((c) => c.u.includes("wf_reengage_contacts") && c.method === "GET" && c.u.includes("email=eq")) && calls.some((c) => c.u.includes("wf_reengage_contacts") && c.u.includes(`email_hash=eq.${lib.emailHash(EMAIL)}`)), "the contact was not looked up by email_hash alone");
   ok(ins && ins.body.email_hash === lib.emailHash(EMAIL) && ins.u.includes("on_conflict=email_hash"), "the contact insert is not keyed and conflicted on email_hash");
 
   // an existing contact: its consent record is NEVER rewritten (no PATCH at all), no second insert, token kept
   reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN } });
   x = await run({ ...GOOD, anonId: "00000000-0000-4000-8000-000000000001", page: "/somewhere-else" });
-  ok(x.r.status === 200 && resendCalls().length === 1 && only((c) => c.method === "PATCH").length === 0 && only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts")).length === 0, "an existing contact was re-inserted, or a later request PATCHed its consent fields (" + only((c) => c.method === "PATCH").length + " PATCH calls)");
+  const contactPatches = () => only((c) => c.method === "PATCH" && c.u.includes("wf_reengage_contacts"));
+  ok(x.r.status === 200 && resendCalls().length === 1 && contactPatches().length === 0 && only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts")).length === 0, "an existing contact was re-inserted, or a later request PATCHed its consent fields (" + contactPatches().length + " contact PATCH calls)");
   ok(resendCalls()[0].body.headers["List-Unsubscribe"].includes(TOKEN), "an existing contact's unsubscribe token changed");
 
   // a parallel insert won the race: the route reads the winner and carries on
@@ -378,48 +467,89 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
     x = await run(GOOD);
     ok(x.r.status === 200 && JSON.stringify(x.json) === '{"ok":true}', status + " contact did not get {ok:true}");
     ok(resendCalls().length === 0 && queuePosts().length === 0, status + " contact was emailed or queued");
-    ok(only((c) => c.method === "PATCH").length === 0 && only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts")).length === 0 && S.contact.status === status, status + " contact was rewritten by someone asking for a plan");
+    ok(contactPatches().length === 0 && only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts")).length === 0 && S.contact.status === status, status + " contact was rewritten by someone asking for a plan");
   }
   reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN }, suppressed: true });
   x = await run(GOOD);
   ok(x.r.status === 200 && x.text === '{"ok":true}' && resendCalls().length === 0 && queuePosts().length === 0, "a suppressed address was emailed or queued");
 
-  // per recipient cap: 3 immediate emails a day, the 4th is {ok:true} and nothing else
-  reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN }, itinRows: [{ id: 1 }, { id: 2 }, { id: 3 }] });
+  // per recipient cap: 3 immediate emails a day. RESERVE a row, COUNT sending+sent rows (own included), send only when <= 3.
+  const C7 = { id: 7, status: "subscribed", unsubscribe_token: TOKEN };
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 }, queue: seedRows(3) });
   x = await run(GOOD);
-  ok(x.r.status === 200 && x.text === '{"ok":true}' && resendCalls().length === 0 && queuePosts().length === 0, "the 4th itinerary email in 24 hours was sent or queued (" + resendCalls().length + " Resend calls)");
-  const capQ = calls.find((c) => c.u.includes("trigger_type=eq.itinerary_email"));
-  ok(capQ && capQ.u.includes("contact_id=eq.7") && capQ.u.includes("status=eq.sent") && capQ.u.includes("channel=eq.email") && /sent_at=gte\.[^&]+/.test(capQ.u) && capQ.u.includes("limit=3"), "the daily cap did not count this contact's sent itinerary emails in the window: " + (capQ && capQ.u));
-  const since = capQ ? Date.parse(decodeURIComponent(capQ.u.match(/sent_at=gte\.([^&]+)/)[1])) : 0;
+  ok(x.r.status === 200 && x.text === '{"ok":true}' && resendCalls().length === 0 && !queuePosts().some((c) => Array.isArray(c.body)), "the 4th itinerary email in 24 hours was sent or queued drips (" + resendCalls().length + " Resend calls)");
+  const capQ = calls.find((c) => c.method === "GET" && c.u.includes("status=in.(sending,sent)"));
+  ok(capQ && capQ.u.includes("contact_id=eq.7") && capQ.u.includes("trigger_type=eq.itinerary_email") && capQ.u.includes("channel=eq.email") && /created_at=gte\.[^&]+/.test(capQ.u) && capQ.u.includes("limit=4"), "the daily cap did not count this contact's sending+sent itinerary rows in the window: " + (capQ && capQ.u));
+  const since = capQ ? Date.parse(decodeURIComponent(capQ.u.match(/created_at=gte\.([^&]+)/)[1])) : 0;
   ok(Math.abs((Date.now() - since) - 24 * 3600e3) < 60e3, "the daily cap window is not 24 hours");
-  reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN }, itinRows: [{ id: 1 }, { id: 2 }] });
+  ok(S.queue.filter((r) => r.status === "skipped_cap").length === 1 && S.queue.filter((r) => r.status === "sending").length === 0, "the capped request's own reservation was not settled to skipped_cap: " + JSON.stringify(S.queue.map((r) => r.status)));
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 }, queue: seedRows(2) });
   x = await run(GOOD);
   ok(x.r.status === 200 && resendCalls().length === 1, "the 3rd itinerary email in 24 hours was refused (cap is 3)");
-  reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN }, capDown: true });
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 }, queue: seedRows(3, { created_at: new Date(Date.now() - 25 * 3600e3).toISOString() }) });
   x = await run(GOOD);
-  ok(x.r.status === 503 && resendCalls().length === 0, "a failed cap read still sent mail (it must fail closed)");
+  ok(x.r.status === 200 && resendCalls().length === 1, "itinerary emails older than 24 hours counted against the cap");
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 }, queue: seedRows(3, { contact_id: 99, dedupe_key: "other" }).map((r, i) => ({ ...r, dedupe_key: "o" + i })) });
+  x = await run(GOOD);
+  ok(x.r.status === 200 && resendCalls().length === 1, "another recipient's itinerary emails counted against this contact's cap");
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 }, queue: seedRows(3, { status: "failed" }) });
+  x = await run(GOOD);
+  ok(x.r.status === 200 && resendCalls().length === 1, "failed sends counted against the cap");
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 }, queue: seedRows(3, { status: "sending" }) });
+  x = await run(GOOD);
+  ok(x.r.status === 200 && resendCalls().length === 0, "rows still 'sending' (in flight or crashed) did not count against the cap");
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 }, countDown: true });
+  x = await run(GOOD);
+  ok(x.r.status === 503 && resendCalls().length === 0 && S.queue.every((r) => r.status === "failed"), "a failed cap read still sent mail or left its reservation open (it must fail closed)");
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 }, queueOk: false });
+  x = await run(GOOD);
+  ok(x.r.status === 503 && resendCalls().length === 0, "a failed reservation still sent mail (no row, no send)");
+
+  // THE SAME planRef four times: the repeat used to leave one row and never trip the cap
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 } });
+  const four = [];
+  for (let n = 0; n < 4; n++) four.push((await run(GOOD)).text);
+  ok(four.every((t) => t === '{"ok":true}'), "a capped repeat did not answer {ok:true}: " + four.join());
+  ok(resendCalls().length === 3, "the same planRef sent four times made " + resendCalls().length + " Resend calls, expected exactly 3");
+  const mineRows = S.queue.filter((r) => r.trigger_type === "itinerary_email");
+  ok(mineRows.length === 4 && mineRows.filter((r) => r.status === "sent").length === 3 && mineRows.filter((r) => r.status === "skipped_cap").length === 1 && new Set(mineRows.map((r) => r.dedupe_key)).size === 4 && mineRows.every((r) => r.dedupe_key.startsWith(PLAN_REF + ":")), "four sends of one planRef did not leave 4 distinct reservations (3 sent, 1 skipped_cap): " + JSON.stringify(mineRows.map((r) => [r.status, r.dedupe_key.slice(33, 41)])));
+  ok(S.queue.filter((r) => r.trigger_type === "itinerary_abandoned").length === 3, "three sends of one plan did not leave exactly one set of 3 drip rows: " + S.queue.filter((r) => r.trigger_type === "itinerary_abandoned").length);
+
+  // concurrent requests cannot all slip under the cap (check-then-send-then-record sent all of them)
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 } });
+  await Promise.all(Array.from({ length: 8 }, () => post(emailRoute, GOOD)));
+  ok(resendCalls().length <= 3, "8 concurrent requests for one recipient made " + resendCalls().length + " Resend calls (cap is 3)");
+  ok(S.queue.filter((r) => r.trigger_type === "itinerary_email").length === 8 && !calls.some((c) => c.status === 409), "the concurrent requests did not each leave a reservation without a unique key error");
 
   // GPC visitors (no anonId): a fresh server id each request, so dedupe must be per CONTACT
-  reset({ plan: { [PLAN_REF]: SNAP } });
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { ...C7 } });
   await run({ ...GOOD, anonId: undefined });
-  const gpc1 = queuePosts().find((c) => c.body && c.body.length === 3);
-  reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN } });
   await run({ ...GOOD, anonId: undefined });
-  const gpc2 = queuePosts().find((c) => c.body && c.body.length === 3);
+  const gpcPosts = queuePosts().filter((c) => Array.isArray(c.body) && c.body.length === 3);
   const ck = (c) => c.body.map((r) => [r.contact_id, r.trigger_type, r.channel, r.step, r.dedupe_key].join("|")).join(",");
-  ok(gpc1 && gpc2 && gpc1.body[0].anon_id !== gpc2.body[0].anon_id && ANON_RX_TEST(gpc1.body[0].anon_id), "positive control: two GPC requests did not get different server ids, so the dedupe check below proves nothing");
-  ok(gpc1 && gpc2 && ck(gpc1) === ck(gpc2) && gpc1.u.includes("on_conflict=contact_id,trigger_type,channel,step,dedupe_key") && gpc2.u.includes("on_conflict=contact_id,trigger_type,channel,step,dedupe_key"), "two GPC requests for one address and plan would queue duplicate drips: the conflict key is not the contact's");
+  ok(gpcPosts.length === 2 && gpcPosts[0].body[0].anon_id !== gpcPosts[1].body[0].anon_id && ANON_RX_TEST(gpcPosts[0].body[0].anon_id), "positive control: two GPC requests did not get different server ids, so the dedupe check below proves nothing");
+  ok(ck(gpcPosts[0]) === ck(gpcPosts[1]) && gpcPosts.every((c) => c.u.includes("on_conflict=contact_id,trigger_type,channel,step,dedupe_key")), "two GPC requests for one address and plan would queue duplicate drips: the conflict key is not the contact's");
+  ok(S.queue.filter((r) => r.trigger_type === "itinerary_abandoned").length === 3, "two GPC requests left " + S.queue.filter((r) => r.trigger_type === "itinerary_abandoned").length + " drip rows in the table, expected 3");
 
-  // failures are reported, not swallowed, and nothing is queued for a mail that never left
+  // an attacker-chosen anonId + planRef sent to address A then address B: both get their drips, no unique key collision
+  const EMAIL_B = "other.person@example.test";
+  reset({ plan: { [PLAN_REF]: SNAP } });
+  const xa = await run(GOOD);
+  const xb = await run({ ...GOOD, email: EMAIL_B });
+  const dripsFor = (id) => S.queue.filter((r) => r.trigger_type === "itinerary_abandoned" && r.contact_id === id).length;
+  ok(xa.r.status === 200 && xb.r.status === 200 && dripsFor(7) === 3 && dripsFor(8) === 3, "the same anonId and planRef sent to two addresses did not give each its 3 drips (A=" + dripsFor(7) + ", B=" + dripsFor(8) + ")");
+  ok(!calls.some((c) => c.status === 409) && resendCalls().length === 2, "the same anonId and planRef sent to two addresses hit a unique key collision (409) or missed an email");
+
+  // failures are reported, not swallowed, and no drips are queued for a mail that never left
   reset({ plan: { [PLAN_REF]: SNAP }, resendOk: false });
   x = await run(GOOD);
-  ok(x.r.status === 503 && x.json.code === "unavailable" && queuePosts().length === 0, "a refused send was not a 503 with no drip rows");
+  ok(x.r.status === 503 && x.json.code === "unavailable" && !queuePosts().some((c) => Array.isArray(c.body)) && S.queue.length === 1 && S.queue[0].status === "failed", "a refused send was not a 503 with no drip rows and a 'failed' reservation: " + JSON.stringify(S.queue.map((r) => r.status)));
   reset({ plan: { [PLAN_REF]: SNAP }, dbDown: true });
   x = await run(GOOD);
   ok(x.r.status === 503 && resendCalls().length === 0, "a database failure still sent mail");
-  reset({ plan: { [PLAN_REF]: SNAP }, queueOk: false });
+  reset({ plan: { [PLAN_REF]: SNAP }, dripDown: true });
   x = await run(GOOD);
-  ok(x.r.status === 200 && resendCalls().length === 1, "a drip queue failure should not undo an email that was already sent");
+  ok(x.r.status === 200 && resendCalls().length === 1 && S.queue.some((r) => r.trigger_type === "itinerary_email" && r.status === "sent"), "a drip queue failure should not undo an email that was already sent");
 
   // a synthetic request neither writes nor sends
   reset({ plan: { [PLAN_REF]: SNAP } });
@@ -503,34 +633,69 @@ const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe
   ok(r.status === 200 && calls.length === 0, "a HEAD request (link prefetch) changed or read the database");
 }
 
-// ── 9b. the open route: "Open my plan" confirms, and is never an open redirect ─
+// ── 9b. the open route (GET changes NOTHING) and the confirm route (the browser's POST confirms) ─
 const openRoute = await loadComponent(path.join(ROOT, "app/api/reengage/open/route.js"), ROOT);
+const confirmRoute = await loadComponent(path.join(ROOT, "app/api/reengage/confirm/route.js"), ROOT);
 const O = (qs, m = "GET") => new Request("https://www.gowayfind.com/api/reengage/open" + qs, { method: m });
+const CF = (cookie) => new Request("https://www.gowayfind.com/api/reengage/confirm", { method: "POST", headers: cookie === undefined ? {} : { cookie } });
 const UTMQ = "&utm_source=resend_lifecycle&utm_medium=email&utm_campaign=itinerary_email";
+const WF_RC = `wf_rc=${TOKEN}; Path=/api/reengage/confirm; Max-Age=900; HttpOnly; Secure; SameSite=Lax`;
+const WF_PENDING = "wf_rc_pending=1; Path=/; Max-Age=900; Secure; SameSite=Lax";
 {
+  // GET open: ZERO database calls, the redirect, and exactly the two cookies
   reset({ contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON, confirmed_at: null } });
   let r = await openRoute.GET(O(`?t=${TOKEN}&to=${encodeURIComponent("/plan-my-day")}${UTMQ}`));
-  const conf = calls.find((c) => c.method === "PATCH" && c.u.includes("wf_reengage_contacts"));
   ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/plan-my-day?utm_source=resend_lifecycle&utm_medium=email&utm_campaign=itinerary_email", "a valid open click did not 303 to the plan page keeping its utm params: " + r.headers.get("location"));
-  ok(conf && conf.u.includes(`unsubscribe_token=eq.${TOKEN}`) && conf.u.includes("status=eq.subscribed") && conf.u.includes("confirmed_at=is.null") && typeof conf.body.confirmed_at === "string" && !("status" in conf.body), "the confirm PATCH is not scoped to a subscribed, unconfirmed contact: " + (conf && conf.u));
-  ok(typeof S.contact.confirmed_at === "string" && calls.length === 1, "a valid token did not set confirmed_at (or made extra calls)");
+  ok(calls.length === 0 && S.contact.confirmed_at === null, "GET /api/reengage/open touched the database or confirmed a contact (a mail scanner follows that GET): " + calls.length + " calls");
+  const cookies = r.headers.getSetCookie();
+  ok(cookies.length === 2 && cookies[0] === WF_RC && cookies[1] === WF_PENDING, "GET open did not set exactly the two cookies with the exact attributes: " + JSON.stringify(cookies));
+
+  // the scanner story end to end: the GET alone never confirms; the browser's POST with the cookie does
+  r = await confirmRoute.POST(CF(`wf_rc=${TOKEN}; wf_rc_pending=1; other=1`));
+  const conf = calls.find((c) => c.method === "PATCH" && c.u.includes("wf_reengage_contacts"));
+  ok(r.status === 200 && (await r.text()) === '{"ok":true}', "confirm did not answer {ok:true}");
+  ok(conf && conf.u.includes(`unsubscribe_token=eq.${TOKEN}`) && conf.u.includes("status=eq.subscribed") && conf.u.includes("confirmed_at=is.null") && typeof conf.body.confirmed_at === "string" && Object.keys(conf.body).sort().join() === "confirmed_at,updated_at", "the confirm PATCH is not scoped to a subscribed, unconfirmed contact (or writes more than confirmed_at): " + (conf && conf.u));
+  ok(typeof S.contact.confirmed_at === "string" && calls.length === 1, "the confirm POST did not set confirmed_at (or made extra calls)");
+  const cleared = r.headers.getSetCookie();
+  ok(cleared.length === 2 && cleared[0] === "wf_rc=; Path=/api/reengage/confirm; Max-Age=0; HttpOnly; Secure; SameSite=Lax" && cleared[1] === "wf_rc_pending=; Path=/; Max-Age=0; Secure; SameSite=Lax", "confirm did not clear both cookies with the same names and paths: " + JSON.stringify(cleared));
   const firstAt = S.contact.confirmed_at;
-  // a second click never moves confirmed_at; an opted out contact is never confirmed
-  await openRoute.GET(O(`?t=${TOKEN}&to=%2F`));
-  ok(S.contact.confirmed_at === firstAt, "a second click moved confirmed_at");
+  await confirmRoute.POST(CF(`wf_rc=${TOKEN}`));
+  ok(S.contact.confirmed_at === firstAt, "a second confirm moved confirmed_at");
+
+  // no oracle: every outcome is the same answer, and only a regex valid cookie ever reaches the database
+  for (const [label, cookie, contact] of [
+    ["no cookie", undefined, null],
+    ["a short token", "wf_rc=short", null],
+    ["an injection shaped token", "wf_rc='; drop table--", null],
+    ["an uppercase token", "wf_rc=" + "A".repeat(64), null],
+    ["the marker only", "wf_rc_pending=1", null],
+    ["an empty cookie", "wf_rc=", null],
+  ]) {
+    reset();
+    r = await confirmRoute.POST(CF(cookie));
+    ok(r.status === 200 && (await r.text()) === '{"ok":true}' && calls.length === 0 && r.headers.getSetCookie().length === 0, `${label}: confirm made a database call or answered differently`);
+  }
   reset({ contact: { id: 7, status: "unsubscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON, confirmed_at: null } });
-  await openRoute.GET(O(`?t=${TOKEN}&to=%2Fplan-my-day`));
-  ok(S.contact.confirmed_at === null, "an unsubscribed contact was confirmed by a click");
+  r = await confirmRoute.POST(CF(`wf_rc=${TOKEN}`));
+  ok(S.contact.confirmed_at === null && r.status === 200 && (await r.text()) === '{"ok":true}', "an unsubscribed contact was confirmed, or the answer revealed it");
+  reset({ contact: { id: 7, status: "subscribed", unsubscribe_token: "c".repeat(64), email: EMAIL, anon_id: ANON, confirmed_at: null } });
+  r = await confirmRoute.POST(CF(`wf_rc=${TOKEN}`));
+  ok(S.contact.confirmed_at === null && r.status === 200 && (await r.text()) === '{"ok":true}', "a token that matches no contact was not a silent no-op");
+  reset({ dbDown: true });
+  r = await confirmRoute.POST(CF(`wf_rc=${TOKEN}`));
+  ok(r.status === 200 && (await r.text()) === '{"ok":true}' && r.headers.getSetCookie().length === 0, "a database failure changed the answer, or cleared the cookies so the confirm could not be retried");
+  ok(typeof confirmRoute.GET === "undefined" && typeof confirmRoute.POST === "function", "the confirm route answers something other than POST");
+
   // allowed targets
   for (const [to, want] of [["/", "/"], ["/plan-my-day", "/plan-my-day"], ["/p/ChIJabc_-9", "/p/ChIJabc_-9"], ["/guides/best-beaches", "/guides/best-beaches"]]) {
-    reset({ contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON } });
+    reset();
     r = await openRoute.GET(O(`?t=${TOKEN}&to=${encodeURIComponent(to)}`));
     ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com" + want, `allowed target ${to} was not honoured: ` + r.headers.get("location"));
   }
   // never an open redirect: everything else lands on "/"
   const evil = ["//evil.com", "https://evil.com", "/\\evil", "/\\evil.com/x", "http://www.gowayfind.com@evil.com", "javascript:alert(1)", "/plan-my-day?x=1", "/plan-my-day/../../evil", "/p/", "/p/a/b", "/guides/UPPER", "/api/reengage/unsubscribe", "///evil.com", "/%2F%2Fevil.com", "/plan-my-day\n", "evil.com", "", "/" + "a".repeat(300)];
   for (const to of evil) {
-    reset({ contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON } });
+    reset();
     r = await openRoute.GET(O(`?t=${TOKEN}&to=${encodeURIComponent(to)}`));
     const loc = r.headers.get("location");
     ok(r.status === 303 && loc === "https://www.gowayfind.com/", `to=${JSON.stringify(to).slice(0, 40)} did not land on "/": ${loc}`);
@@ -541,23 +706,19 @@ const UTMQ = "&utm_source=resend_lifecycle&utm_medium=email&utm_campaign=itinera
   r = await openRoute.GET(O(`?t=${TOKEN}&to=%2F&utm_source=${encodeURIComponent("x y<script>")}&utm_medium=email&evil=1`));
   const lu = new URL(r.headers.get("location"));
   ok(!lu.searchParams.has("utm_source") && lu.searchParams.get("utm_medium") === "email" && !lu.searchParams.has("evil"), "the redirect kept a malformed utm value or an unknown param: " + lu.search);
-  // a bad token costs zero database calls and still opens the page
+  // a bad token sets no cookie, makes zero database calls and still opens the page
   for (const bad of ["short", "'; drop table--", "A".repeat(64), ""]) {
     reset();
     r = await openRoute.GET(O(`?t=${encodeURIComponent(bad)}&to=%2Fplan-my-day`));
-    ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/plan-my-day" && calls.length === 0, `a malformed token (${bad.slice(0, 12)}) made a database call or did not redirect`);
+    ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/plan-my-day" && calls.length === 0 && r.headers.getSetCookie().length === 0, `a malformed token (${bad.slice(0, 12)}) made a database call, set a cookie or did not redirect`);
   }
   reset();
   r = await openRoute.GET(O(`?to=%2Fplan-my-day`));
-  ok(r.status === 303 && calls.length === 0, "no token made a database call");
-  // a database failure never blocks the redirect
-  reset({ dbDown: true });
-  r = await openRoute.GET(O(`?t=${TOKEN}&to=%2Fplan-my-day`));
-  ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/plan-my-day", "a database failure blocked the redirect");
-  // HEAD (link prefetch) changes nothing
+  ok(r.status === 303 && calls.length === 0 && r.headers.getSetCookie().length === 0, "no token made a database call or set a cookie");
+  // HEAD (link prefetch) changes nothing and sets nothing
   reset();
   r = await openRoute.HEAD(O(`?t=${TOKEN}`, "HEAD"));
-  ok(r.status === 200 && calls.length === 0, "a HEAD request confirmed a contact or touched the database");
+  ok(r.status === 200 && calls.length === 0 && r.headers.getSetCookie().length === 0, "a HEAD request touched the database or set a cookie");
 }
 
 // ── 10. planRef on /api/plan-my-day (EXECUTES the real route on a cached plan) ─
@@ -637,7 +798,7 @@ const UTMQ = "&utm_source=resend_lifecycle&utm_medium=email&utm_campaign=itinera
   ok(source !== mwSrc, "the middleware NextResponse import was not stubbed, so the checks below ran against nothing");
   const real = await loadComponent(entry, ROOT, { sourceOverrides: new Map([[entry, source]]) });
   ok(real.config.matcher.includes("/api/newsletter/subscribe"), "positive control: an existing matcher entry was not found");
-  ok(real.config.matcher.includes("/api/reengage/email") && real.config.matcher.includes("/api/reengage/unsubscribe") && real.config.matcher.includes("/api/reengage/open"), "a reengage route is missing from the middleware matcher");
+  ok(real.config.matcher.includes("/api/reengage/email") && real.config.matcher.includes("/api/reengage/unsubscribe") && real.config.matcher.includes("/api/reengage/open") && real.config.matcher.includes("/api/reengage/confirm"), "a reengage route is missing from the middleware matcher");
   const call = (p, method, headers) => real.middleware({ nextUrl: new URL("https://www.gowayfind.com" + p), method, headers: new Headers({ "x-forwarded-for": "203.0.113." + Math.floor(Math.random() * 250), ...headers }) });
   ok(call("/api/reengage/email", "POST", { "sec-fetch-site": "cross-site", origin: "https://external.example" }).status === 403, "a cross-site POST to /api/reengage/email was not refused");
   ok(call("/api/reengage/email", "POST", {}).status === 403, "a headerless POST to /api/reengage/email was not refused");
@@ -649,6 +810,12 @@ const UTMQ = "&utm_source=resend_lifecycle&utm_medium=email&utm_campaign=itinera
   const burst = [];
   for (let i = 0; i < 7; i++) burst.push(real.middleware({ nextUrl: new URL("https://www.gowayfind.com/api/reengage/email"), method: "POST", headers: new Headers(ip) }).status);
   ok(burst.slice(0, 5).every((s) => s === 204) && burst[5] === 429, "the per-IP limit on /api/reengage/email is not 5 a minute: " + burst.join());
+  // the confirm POST is our own page's same-origin fetch: gated like the send route
+  ok(call("/api/reengage/confirm", "POST", { "sec-fetch-site": "cross-site", origin: "https://external.example" }).status === 403 && call("/api/reengage/confirm", "POST", {}).status === 403, "a cross-site or headerless POST to /api/reengage/confirm was not refused");
+  ok(call("/api/reengage/confirm", "POST", { "sec-fetch-site": "same-origin" }).status === 204, "a same-origin POST to /api/reengage/confirm was refused");
+  const confBurst = [];
+  for (let i = 0; i < 130; i++) confBurst.push(real.middleware({ nextUrl: new URL("https://www.gowayfind.com/api/reengage/confirm"), method: "POST", headers: new Headers({ "x-forwarded-for": "198.51.100.80", "sec-fetch-site": "same-origin" }) }).status);
+  ok(confBurst.slice(0, 100).every((s) => s === 204) && confBurst.includes(429), "/api/reengage/confirm is not rate limited per IP");
   // the open link is opened from mail apps: rate limited, never same-origin gated
   ok(call("/api/reengage/open", "GET", {}).status === 204 && call("/api/reengage/open", "GET", { "sec-fetch-site": "cross-site" }).status === 204, "the mail link /api/reengage/open was blocked by the same-origin gate");
   const openBurst = [];
@@ -680,6 +847,8 @@ const UTMQ = "&utm_source=resend_lifecycle&utm_medium=email&utm_campaign=itinera
   ok(probe("https://x.test/rest/v1/wf_reengage_contacts?email=eq.test.user%40example.test") && probe("a@b.test") && !probe("https://x.test/rest/v1/wf_reengage_contacts?email_hash=eq." + "a".repeat(64)), "positive control: the URL probe does not recognise an address in a query string");
   const inUrl = allCalls.filter((c) => probe(c.u));
   ok(allCalls.length > 150 && inUrl.length === 0, "an '@' or '%40' appeared in " + inUrl.length + " of " + allCalls.length + " request URLs, e.g. " + (inUrl[0] && inUrl[0].u));
+  ok(allCalls.filter((c) => c.status === 409).length === 0, "a request in the whole run hit a unique key collision (409): " + allCalls.filter((c) => c.status === 409).map((c) => c.u.slice(-80)).join(" | "));
+  ok(allCalls.filter((c) => c.u.includes("wf_reengage_queue") && c.method === "POST").length > 20, "positive control: the 409 check saw almost no queue inserts");
   ok(allCalls.some((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts") && c.raw.includes(EMAIL)) && allCalls.some((c) => c.u.startsWith("https://api.resend.com/") && c.raw.includes(EMAIL)), "positive control: the address did not appear in any request BODY (the contact insert and the Resend call), so the URL check proved nothing");
   ok(allCalls.filter((c) => c.u.includes("wf_reengage_contacts") && c.method === "GET").every((c) => /[?&](?:email_hash|unsubscribe_token)=eq\.[a-f0-9]{64}/.test(c.u)) && allCalls.some((c) => c.u.includes("wf_reengage_contacts") && c.u.includes("email_hash=eq.")), "a contacts lookup used a key other than email_hash or the token");
 }
