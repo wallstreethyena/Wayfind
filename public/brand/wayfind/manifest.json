@@ -1,7 +1,7 @@
 {
   "$schema_version": 1,
   "name": "Wayfind Brand Asset Vault",
-  "updated": "2026-11-27",
+  "updated": "2026-11-28",
   "rules": [
     "Reuse these files; never redraw, approximate, recolor, stretch or regenerate the Wayfind logo when an asset here fits.",
     "Masters are stored exactly as supplied. Put any resized or optimized copy elsewhere and list it here with original=false and derivative_of set.",
@@ -200,6 +200,27 @@
       "core": false,
       "bytes": 19606,
       "sha256": "b2b9b178f4d2b5f39df94da6bd09f50e3985572f5fcc69694966a393a5cf3a26"
+    },
+    {
+      "id": "wayfind-mark-email-icon",
+      "path": "/brand/wayfind/derived/wayfind-mark-email-icon.png",
+      "file": "public/brand/wayfind/derived/wayfind-mark-email-icon.png",
+      "type": "mark",
+      "format": "png",
+      "width": 156,
+      "height": 156,
+      "transparent": false,
+      "purpose": "Email signature copy of wayfind-mark-gradient: the same square pin mark on black, scaled to 156px (shown 52px at 3x), nothing redrawn or recolored.",
+      "original": false,
+      "derivative_of": "wayfind-mark-gradient",
+      "source": "Made 2026-11-28 from public/brand/wayfind/marks/wayfind-mark-gradient-on-black.png (Lanczos resize only) for the founder signature in Wayfind outreach and pitch emails. Emails link it by its public https URL; an inline cid attachment showed as a broken image in Apple Mail.",
+      "date_added": "2026-11-28",
+      "background": "dark",
+      "usage_notes": "Reference it in email as https://www.gowayfind.com/brand/wayfind/derived/wayfind-mark-email-icon.png with width and height 52 and alt \"Wayfind\". Do not attach it by cid. Core because emails already in inboxes load it from this URL: never move, rename or re-save it.",
+      "approved_for_production": true,
+      "core": true,
+      "bytes": 12271,
+      "sha256": "5667cb8362f23f0ba8c3092dae7b00b5589f81e82a976e4240f1b5b51ed454cb"
     }
   ]
 }
