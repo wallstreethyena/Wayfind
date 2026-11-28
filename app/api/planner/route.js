@@ -42,7 +42,7 @@ import {
   parseAndValidateClaudeDraftRevision,
 } from "../../../lib/wayfindPlanner.js";
 import { sameDayPlannerWindow } from "../../../lib/plannerSameDay.js";
-import { readAsk, askedWhen, rankRecommendations, recommendReply, SUBJECTS } from "../../../lib/plannerRecommend.js";
+import { readAsk, askedWhen, asksToEditPlan, rankRecommendations, recommendReply, SUBJECTS } from "../../../lib/plannerRecommend.js";
 import { fetchCurrentWeather } from "../../../lib/plannerWeather.js";
 import { isUsableOwnedHours, resolveOwnedHoursSnapshot } from "../../../lib/ownedHours.js";
 import { siteHourFloat, siteDayOfWeek } from "../../../lib/nowContext.js";
@@ -650,8 +650,10 @@ export async function POST(req) {
   // A plan is only built when they ask for one; the reply offers "Turn this into a plan" instead.
   const hasDraftForAsk = body && body.proposedPlan !== undefined && body.proposedPlan !== null;
   const ask = routed.kind === "reserve" ? { kind: "other" } : readAsk(routed.text || message, { plannerIntent: routed.kind === "plan" || isPlannerIntent(message, { hasActiveTrip: Boolean(activeTrip) }) });
-  // While a plan draft or a saved trip is open, the words edit that plan (the draft reviser below), never a new list.
-  if (ask.kind === "picks" && !activeTrip && !hasDraftForAsk) {
+  // While a plan draft or a saved trip is open, only edit words ("add", "swap", "to my plan") go to the plan editor
+  // below. A plain ask for places gets picks and leaves the open plan as it is (live check 2026-11-28: "give me one
+  // restaurant" swapped a draft's evening stop). The chat keeps the draft on screen for a "recommend" reply.
+  if (ask.kind === "picks" && (!(activeTrip || hasDraftForAsk) || !asksToEditPlan(message))) {
     return okJson(await recommendPicks({ message, ask, voice, contextCity: typeof body?.contextCity === "string" ? body.contextCity.slice(0, 80) : null, homeCity, point, nowMs }));
   }
 

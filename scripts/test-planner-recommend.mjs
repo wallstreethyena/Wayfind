@@ -7,7 +7,7 @@
 // Pure functions are called directly; route and chat wiring is checked on source.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { readAsk, askedCount, askedWhen, dayPart, rankRecommendations, recommendReply, DEFAULT_PICKS, STATUS_LABEL } from "../lib/plannerRecommend.js";
+import { readAsk, askedCount, askedWhen, asksToEditPlan, dayPart, rankRecommendations, recommendReply, DEFAULT_PICKS, STATUS_LABEL } from "../lib/plannerRecommend.js";
 import { openStatusAt } from "../lib/plannerSameDay.js";
 import { parseCurrentWeather, currentWeatherUrl } from "../lib/plannerWeather.js";
 import { resolveSearchArea, AREA_STALE_MS } from "../lib/santaArea.js";
@@ -143,5 +143,16 @@ ok(/role === "recs"/.test(sheet) && /onPlan=\{\(prompt\) => submitPlannerPrompt\
 const recs = readFileSync(new URL("../app/components/PlannerRecs.js", import.meta.url), "utf8");
 ok(/Turn this into a plan/.test(recs) && /Book a table/.test(recs), "the picks offer a plan and a table, as buttons");
 ok(!/from "\.\/kit"/.test(recs), "the picks card stays out of the homepage card code, so the homepage download does not grow");
+
+// ---- 9. an open plan is edited only when asked (live check 2026-11-28: "give me one restaurant" swapped a stop) ----
+for (const t of ["give me one restaurant", "best brunch?", "3 bars in St Pete", "one place for dinner", "somewhere fun right now"]) {
+  ok(!asksToEditPlan(t), `"${t}" asks for places, so an open plan stays as it is`);
+}
+for (const t of ["add a restaurant for dinner", "swap the park for a beach", "put a coffee stop before the park", "add one more bar to my plan", "a lunch spot instead of the bakery"]) {
+  ok(asksToEditPlan(t), `"${t}" changes the open plan`);
+}
+const routeSrc = strip(readFileSync(new URL("../app/api/planner/route.js", import.meta.url), "utf8"));
+ok(/ask\.kind === "picks" && \(!\(activeTrip \|\| hasDraftForAsk\) \|\| !asksToEditPlan\(message\)\)/.test(routeSrc), "the route sends plain asks to picks even while a plan is open");
+ok(/data\.mode === "recommend"[\s\S]{0,400}role: "recs"/.test(sheet) && !/data\.mode === "recommend"[^\n]*setProposedPlan/.test(sheet), "a picks reply leaves the open plan on screen");
 
 console.log(`test-planner-recommend: ${count} assertions passed`);
