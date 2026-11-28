@@ -44,6 +44,7 @@ import {
 import { sameDayPlannerWindow } from "../../../lib/plannerSameDay.js";
 import { readAsk, askedWhen, rankRecommendations, recommendReply, SUBJECTS } from "../../../lib/plannerRecommend.js";
 import { fetchCurrentWeather } from "../../../lib/plannerWeather.js";
+import { isUsableOwnedHours, resolveOwnedHoursSnapshot } from "../../../lib/ownedHours.js";
 import { siteHourFloat, siteDayOfWeek } from "../../../lib/nowContext.js";
 import { serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
 import { executePlannerActionBatch } from "../../../lib/plannerActions.js";
@@ -536,6 +537,17 @@ async function planSameDay(parsed, window, candidates, { voice, req }) {
  * exactly `ask.count` of them, never closed now, with the local time, weather and each place's hours status.
  * No model call: grounded search plus pure ranking (lib/plannerRecommend.js).
  */
+function withVerifiedHours(candidate, nowMs) {
+  if (!candidate || !candidate.id || candidate.itemType === "event") return candidate;
+  if (candidate.ownedHours && isUsableOwnedHours(candidate.ownedHours, nowMs)) return candidate;
+  try {
+    const snap = resolveOwnedHoursSnapshot(candidate.id, { lat: candidate.lat, lng: candidate.lng, placeName: candidate.name, nowMs });
+    return snap && isUsableOwnedHours(snap, nowMs) ? { ...candidate, ownedHours: snap } : candidate;
+  } catch {
+    return candidate;
+  }
+}
+
 async function recommendPicks({ message, ask, voice, contextCity, homeCity, point, nowMs }) {
   const typed = parsePlannerCity(message);
   const fromContext = contextCity ? parsePlannerCity(contextCity) : null;
@@ -566,7 +578,10 @@ async function recommendPicks({ message, ask, voice, contextCity, homeCity, poin
     ...lists.map((items) => ({ sourceKind: "owned_search", items })),
     { sourceKind: "atlas_places", items: getFirstPartyAtlasPlaces() },
   ];
-  const candidates = buildGroundedCandidatePool(rawGroups, { destination: area, maxRadiusKm: 40, today: siteTodayStr(now) });
+  // Search results carry hours for few places. The repo's verified hours index (the same one the map uses) knows many
+  // more, so a place gets its open or closed answer from there when the result had none. Unverified hours stay unknown.
+  const candidates = buildGroundedCandidatePool(rawGroups, { destination: area, maxRadiusKm: 40, today: siteTodayStr(now) })
+    .map((c) => withVerifiedHours(c, nowMs));
   const ranked = rankRecommendations(candidates, { count: ask.count, subject: subject.key, nowMs, localHour, weather, origin: area, when });
   const reply = recommendReply({ picks: ranked.picks, count: ask.count, countGiven: ask.countGiven, subject: subject.key, areaLabel: area.name, localHour, dayIndex, weather, when, closedSkipped: ranked.closedSkipped });
   return {
