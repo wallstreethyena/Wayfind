@@ -1695,7 +1695,7 @@ export default function ItineraryScreen({ ctx }) {
                           openShareFlow({
                             title: p.name || "Trip stop",
                             name: p.name || "",
-                            city: t.city || "",
+                            city: inviteCity(p, t),
                             placeId: p.id || "",
                             kind: placeKinds(p),
                             when: menuStopDay || "",
@@ -2013,4 +2013,16 @@ export function readOpenTrip(now = Date.now()) {
 }
 export function clearOpenTrip() {
   try { if (typeof window !== "undefined") window.sessionStorage.removeItem(OPEN_TRIP_KEY); } catch {}
+}
+
+// The city on an "Ask someone" invite. A trip with no real city is named
+// "Unsorted" (or "Trip"/"Shared trip"), and that name must never be shown to
+// a friend as if it were a place: the stop's own city wins, then a real trip
+// city, else nothing.
+const PLACEHOLDER_TRIP_CITIES = new Set(["unsorted", "trip", "shared trip", "my"]);
+export function inviteCity(place, trip) {
+  const own = place && typeof place.city === "string" ? place.city.trim() : "";
+  if (own && !PLACEHOLDER_TRIP_CITIES.has(own.toLowerCase())) return own;
+  const tc = trip && typeof trip.city === "string" ? trip.city.trim() : "";
+  return tc && !PLACEHOLDER_TRIP_CITIES.has(tc.toLowerCase()) ? tc : "";
 }

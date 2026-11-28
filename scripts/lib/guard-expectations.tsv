@@ -929,7 +929,7 @@ scripts/test-inventory-gallery-card-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	41
 scripts/test-inventory-row-card-fields.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	358a8d386b62c0c8abb658d0d3be9088c3c10670ba4d02c08bf9fd93b84452e8
 scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	aa21f75f53d5223eb9334a6d755172239f1ae348d4da4e994b128846bea5310f
 scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	69b2842b1e6984e7515c77c884a4b3806816a49af40b65168337598e45577bdb
-scripts/test-itinerary-dates-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	6f89ec29e34b7714f4b25b1446df8522b3e9fa8fc24ab1661235545274967bab
+scripts/test-itinerary-dates-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	51	0	0	0d61216b7a98401e068c960402de86c1a8d1a8d4624582edd15207aa68523889
 scripts/test-itinerary-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	265	0	0	81552a3ebb57b4e3aea40468d702c725ddf5571af928fef60d2dab090499cc76
 scripts/test-itinerary-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	d991cbb7d6aa6e730b9496b5cb7330f6011eaa792a632c8279d3080dc0d6414c
 scripts/test-jev-mcp.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	92b552a17c1ffe5ea593b0296922d167adf48e497cf0d6f736dff321b8786477

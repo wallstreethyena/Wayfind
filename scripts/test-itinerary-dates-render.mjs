@@ -498,6 +498,24 @@ function baseCtx(overrides = {}) {
   }
 }
 
+// 8. The "Ask someone" invite never shows a placeholder trip name as the city
+//    (owner 2026-11-28 saw "Gatorland · Unsorted"). CALLED, not grepped.
+{
+  const inviteCity = itineraryMod.inviteCity;
+  ok(typeof inviteCity === "function", "inviteCity is exported");
+  if (typeof inviteCity === "function") {
+    ok(inviteCity({ city: "Orlando" }, { city: "Unsorted" }) === "Orlando", "the stop's own city wins over Unsorted");
+    ok(inviteCity({}, { city: "Unsorted" }) === "", "Unsorted is never sent as a city");
+    ok(inviteCity({}, { city: "Shared trip" }) === "", "Shared trip is never sent as a city");
+    ok(inviteCity({}, { city: "Tampa" }) === "Tampa", "a real trip city is kept");
+    ok(inviteCity({ city: "Unsorted" }, { city: "Tampa" }) === "Tampa", "a placeholder on the stop falls back to the trip city");
+    ok(inviteCity(null, null) === "", "no place and no trip gives no city");
+    // Negative control: the pre-fix rule (trip city as is) would have failed.
+    const oldRule = (place, trip) => (trip && trip.city) || "";
+    ok(oldRule({}, { city: "Unsorted" }) === "Unsorted", "control: the old rule did leak Unsorted");
+  }
+}
+
 if (failures > 0) {
   console.error(`test-itinerary-dates-render: FAILED — ${failures} of ${assertions} assertions failed`);
   process.exit(1);
