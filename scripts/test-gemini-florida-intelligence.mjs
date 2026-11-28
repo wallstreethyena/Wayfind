@@ -132,9 +132,9 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
   ok(Object.hasOwn(JSON.parse(researchPrompt.contents[0].parts[0].text), "research_topics"), "the OpenAI prompt can still include internal research");
   const carbon = buildCarbonEditorialPrompt(packet);
   const carbonText = carbon.contents[0].parts[0].text;
-  ok(carbon.generationConfig.maxOutputTokens === 3200 && carbon.generationConfig.thinkingConfig.thinkingLevel === "MEDIUM" &&
+  ok(carbon.generationConfig.maxOutputTokens === 3200 && carbon.generationConfig.thinkingConfig.thinkingLevel === "LOW" &&
     carbon.generationConfig.responseMimeType === "application/json" && !Object.hasOwn(carbon, "tools"),
-  "Carbon uses medium thinking and bounded JSON generation without any paid tools");
+  "Carbon uses low thinking and bounded JSON generation without any paid tools");
   ok(!Object.hasOwn(JSON.parse(carbonText), "research_topics") && carbonText.includes("ev:utc-holidays-2026"),
     "Carbon retains verified evidence while excluding private research");
   const oversized = { ...packet, trendingPicks: [{ ...packet.trendingPicks[0], name: "🌴".repeat(3072) }] };
@@ -303,6 +303,7 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
 // A child process owns the fixture environment and replaceable fetch.
 async function scheduledRouteFixture() {
   const { FLORIDA_INTEL_CACHE_KEY } = await import("./lib/floridaIntelligence.js");
+  const { CARBON_EDITORIAL_LANE } = await import("./lib/geminiEditorialPolicy.js");
   const { classifyHealth, isBudgetLimitNote } = await import("./lib/jobPulse.js");
   const { resetBreaker } = await import("./lib/providerHealth.js");
   const { GET: floridaCron } = await import("./app/api/cron/florida-intelligence/route.js");
@@ -321,6 +322,12 @@ async function scheduledRouteFixture() {
   let carbonText = '{"floridaBrief":"Verified waterfront walks and fall outings across Florida."}';
   let carbonHangs = false;
   let carbonAborted = false;
+  let carbonGrantHangs = false;
+  let carbonGrantAborted = false;
+  let openaiBodyHangs = false;
+  let openaiBodyAborted = false;
+  let simulateLateRun = false;
+  let elapsedOffsetMs = 0;
   let grant = true;
   let carbonGrant = true;
   let ledger = [{ used: 10, cap: 10 }];
@@ -328,6 +335,16 @@ async function scheduledRouteFixture() {
     const url = new URL(input);
     if (url.hostname === "api.openai.com") {
       providerCalls++;
+      if (openaiBodyHangs) {
+        return new Response(new ReadableStream({
+          start(controller) {
+            init.signal.addEventListener("abort", () => {
+              openaiBodyAborted = true;
+              controller.error(new Error("fixture response body aborted"));
+            }, { once: true });
+          },
+        }));
+      }
       const data = providerStatus === 200
         ? { choices: [{ message: { content: '{"floridaBrief":"Explore waterfront walks around Florida this week."}' } }] }
         : { error: { message: "You have no credits remaining. Credential: " + providerEcho } };
@@ -351,9 +368,16 @@ async function scheduledRouteFixture() {
       ] } }] });
     }
     if (url.hostname === "florida-monitor.test") {
+      if (simulateLateRun && url.pathname.endsWith("/wf_events")) elapsedOffsetMs = 4_500;
       if (url.pathname.endsWith("/wf_spend_take")) {
         const request = JSON.parse(init.body);
         grants.push(request);
+        if (carbonGrantHangs && request.p_sku === CARBON_EDITORIAL_LANE.sku) {
+          return new Promise((_, reject) => init.signal.addEventListener("abort", () => {
+            carbonGrantAborted = true;
+            reject(new Error("fixture ledger request aborted"));
+          }, { once: true }));
+        }
         return Response.json(request.p_sku === "gemini_editorial_carbon" ? carbonGrant : grant);
       }
       if (url.pathname.endsWith("/wf_spend_ledger")) return Response.json(ledger);
@@ -474,15 +498,47 @@ async function scheduledRouteFixture() {
   ok(invalid.aiStatus === "active" && invalid.model === "gpt-4o-mini",
     "Carbon output that fails the grounding validator falls through to OpenAI");
 
-  carbonHangs = true;
+  grant = false;
+  ledger = [{ used: 23, cap: 23 }];
+  const failedCarbon = await (await callCron()).json();
+  ok(failedCarbon.aiStatus === "provider_error" && failedCarbon.model === "gemini-4-carbon" && pulses.at(-1)?.failed === 1,
+    "fallbacks blocked by their caps cannot hide a Carbon validation failure");
+  grant = true;
+
   const realSetTimeout = globalThis.setTimeout;
-  globalThis.setTimeout = (callback, delay, ...args) => realSetTimeout(callback, delay === 17_000 ? 1 : delay, ...args);
+  const realPerformance = globalThis.performance;
+  globalThis.performance = { now: () => realPerformance.now() + elapsedOffsetMs };
+  globalThis.setTimeout = (callback, delay, ...args) => {
+    const simulateDeadline = delay === CARBON_EDITORIAL_LANE.timeoutMs || (simulateLateRun && delay === 8_000);
+    if (!simulateDeadline) return realSetTimeout(callback, delay, ...args);
+    return realSetTimeout(() => {
+      if (simulateLateRun) elapsedOffsetMs += delay;
+      callback(...args);
+    }, 1);
+  };
   try {
+    carbonGrantHangs = true;
+    const requestsBeforeGrant = geminiAttempts.length;
+    const stalledGrant = await (await callCron()).json();
+    ok(carbonGrantAborted && geminiAttempts.length === requestsBeforeGrant && stalledGrant.model === "gpt-4o-mini",
+      "a stalled Carbon grant is aborted, no generation starts, and OpenAI still publishes");
+
+    carbonGrantHangs = false;
+    carbonHangs = true;
     const timedOut = await (await callCron()).json();
     ok(carbonAborted && timedOut.aiStatus === "active" && timedOut.model === "gpt-4o-mini",
       "a stalled Carbon request is aborted at the deadline and OpenAI still publishes");
+
+    simulateLateRun = openaiBodyHangs = true;
+    const previousGeminiRequests = geminiAttempts.length;
+    const previousGrants = grants.length;
+    const late = await (await callCron()).json();
+    ok(openaiBodyAborted && geminiAttempts.length === previousGeminiRequests + 1 && grants.length === previousGrants + 2 &&
+      late.refresh === "fallback" && snapshots.at(-1)?.monitor.aiActive === false && pulses.at(-1)?.failed === 1,
+    "the shared deadline aborts a stalled fallback body, skips a late Gemini grant, and still publishes the deterministic snapshot and pulse");
   } finally {
     globalThis.setTimeout = realSetTimeout;
+    globalThis.performance = realPerformance;
   }
   return checks;
 }
@@ -504,7 +560,7 @@ async function scheduledRouteFixture() {
   });
   if (child.status !== 0) throw new Error("scheduled route fixture failed: " + String(child.stderr || child.error || child.status).slice(0, 500));
   const checks = JSON.parse(child.stdout.trim().split("\n").at(-1));
-  ok(checks.length === 19, "the scheduled route harness ran every expected assertion");
+  ok(checks.length === 22, "the scheduled route harness ran every expected assertion");
   for (const [passed, message] of checks) ok(passed, message);
 }
 
