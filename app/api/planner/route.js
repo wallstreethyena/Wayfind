@@ -4,8 +4,7 @@
 //   1. Searches Wayfind's real owned inventory (`app/api/search/route.js`) and
 //      curated seasonal/Christmas browse (`app/api/christmas/browse/route.js` +
 //      `lib/curatedEvents.js`) — zero Google Places spend.
-//   2. Routes any Anthropic spend exclusively through `paidAnthropicRequest`
-//      (`lib/paidAi.js`) with `breakerOpen`/`tripBreaker` and IP rate limiting.
+//   2. Uses the metered provider clients with circuit breakers and IP rate limiting.
 //   3. Never writes directly to Supabase or mutates user trips on the server:
 //      returns validated `proposedPlan` or narrow `actions` + canonical
 //      `candidateCatalog` so the client commits confirmed plans through
@@ -14,6 +13,11 @@
 
 import { aiKey } from "../../../lib/aiKey.js";
 import { paidAnthropicRequest } from "../../../lib/paidAi.js";
+import { openaiKey } from "../../../lib/openaiKey.js";
+import { findPersonalData } from "../../../lib/aiEngine.js";
+import {
+  paidOpenAiRequest, extractOpenAiText, openaiMonthlyCap,
+} from "../../../lib/paidOpenAi.js";
 import { breakerOpen, tripBreaker, classifyProviderFailure } from "../../../lib/providerHealth.js";
 import { siteTodayStr } from "../../../lib/siteTime.js";
 import { fetchCuratedEvents } from "../../../lib/curatedEvents.js";
@@ -23,6 +27,8 @@ import {
   buildGroundedCandidatePool,
   plannerInventoryQueries,
   buildDeterministicPlan,
+  rankSameDayPlannerCandidates,
+  buildSameDayPlannerPlan,
   resolveDeterministicEditActions,
   buildPlannerClaudePrompt,
   parseAndValidateClaudePlan,
@@ -35,6 +41,7 @@ import {
   buildDraftRevisionClaudePrompt,
   parseAndValidateClaudeDraftRevision,
 } from "../../../lib/wayfindPlanner.js";
+import { sameDayPlannerWindow } from "../../../lib/plannerSameDay.js";
 import { serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
 import { executePlannerActionBatch } from "../../../lib/plannerActions.js";
 import {
@@ -49,6 +56,7 @@ import {
   plannerPersona,
   pickLine,
   personaChatSystem,
+  personaPlanReply,
   cleanPersonaChat,
 } from "../../../lib/plannerPersona.js";
 
@@ -56,6 +64,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MODEL = "claude-haiku-5-5";
+const SANTA_PLANNER_MODEL = "gpt-6.2-sol";
+const SANTA_PLANNER_SKU = "openai_santa_planner";
+// The paid feature stays within the configured OpenAI request limit and a
+// separate 1,000-call ceiling. A turn sends at most 16 KiB and gets 2,000 tokens.
+const SANTA_PLANNER_MAX_CALLS = 1000;
+const SANTA_PLANNER_MAX_PROMPT_BYTES = 16_384;
 const RATE_WINDOW_MS = 60 * 1000;
 const RATE_MAX_REQUESTS = 12;
 const PUBLIC_CACHE_TTL_MS = 8 * 60 * 1000;
@@ -178,7 +192,7 @@ async function runOwnedSearchQuery(q, originPoint) {
   }
 }
 
-async function gatherServerCandidates(parsed, { point = null, savedPlaces = [] } = {}) {
+async function gatherServerCandidates(parsed, { point = null, savedPlaces = [], sameDay = null } = {}) {
   const origin = parsed.destination
     ? { lat: parsed.destination.lat, lng: parsed.destination.lng }
     : point;
@@ -233,18 +247,20 @@ async function gatherServerCandidates(parsed, { point = null, savedPlaces = [] }
 
   const atlasPlaces = isFloridaDest ? getFirstPartyAtlasPlaces() : [];
 
+  const curatedGroup = { sourceKind: "curated_events", items: curatedRows };
   const rawGroups = [
+    ...(sameDay ? [curatedGroup] : []),
     { sourceKind: "christmas", items: christmasCards },
     ...searchLists.map((items) => ({ sourceKind: "owned_search", items })),
-    { sourceKind: "curated_events", items: curatedRows },
+    ...(!sameDay ? [curatedGroup] : []),
     { sourceKind: "atlas_places", items: atlasPlaces },
     { sourceKind: "user_saved", items: Array.isArray(savedPlaces) ? savedPlaces.slice(0, 24) : [] },
   ];
 
   return buildGroundedCandidatePool(rawGroups, {
     destination: parsed.destination,
-    maxRadiusKm: 58,
-    today,
+    maxRadiusKm: sameDay ? 16 : 58,
+    today: sameDay?.date || today,
   });
 }
 
@@ -407,6 +423,111 @@ async function askClaudePlanner(promptObj, { maxTokens = 1400 } = {}) {
   }
 }
 
+async function askPlannerModel(prompt, { voice, maxTokens = 1400, json = true } = {}) {
+  if (voice !== "santa") {
+    const result = await askClaudePlanner(prompt, { maxTokens });
+    return { ...result, source: "claude" };
+  }
+
+  const apiKey = openaiKey();
+  if (!apiKey) return { ok: false, reason: "not_configured" };
+  const cap = Math.min(openaiMonthlyCap() || 0, SANTA_PLANNER_MAX_CALLS);
+  if (!cap) return { ok: false, reason: "missing_openai_request_cap" };
+  const textInput = prompt.system + "\n" + prompt.user;
+  if (Buffer.byteLength(textInput, "utf8") > SANTA_PLANNER_MAX_PROMPT_BYTES) {
+    return { ok: false, reason: "prompt_too_large" };
+  }
+  if (findPersonalData(textInput)) {
+    return { ok: false, reason: "personal_data_in_prompt" };
+  }
+  try {
+    if (await breakerOpen("openai")) return { ok: false, reason: "breaker_open" };
+  } catch { /* fall back to the capped request */ }
+
+  try {
+    const res = await paidOpenAiRequest({
+      apiKey,
+      model: SANTA_PLANNER_MODEL,
+      body: {
+        messages: [{ role: "system", content: prompt.system }, { role: "user", content: prompt.user }],
+        reasoning_effort: maxTokens >= 1000 ? "medium" : "low",
+        max_completion_tokens: maxTokens >= 1000 ? 2000 : 512,
+        ...(json ? { response_format: { type: "json_object" } } : {}),
+      },
+    }, { sku: SANTA_PLANNER_SKU, cap, timeoutMs: 12_000 });
+
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      const kind = classifyProviderFailure(res.status, detail);
+      if (kind) {
+        try { await tripBreaker("openai", kind, `Santa planner ${res.status}`); } catch { /* fail soft */ }
+      }
+      let reason = null;
+      try { reason = JSON.parse(detail).reason; } catch { /* provider did not send JSON */ }
+      return { ok: false, reason: reason || kind || "http_error" };
+    }
+    const text = extractOpenAiText(await res.json());
+    return text ? { ok: true, text, source: "openai" } : { ok: false, reason: "empty_response" };
+  } catch {
+    return { ok: false, reason: "network_error" };
+  }
+}
+
+async function planSameDay(parsed, window, candidates, { voice, req }) {
+  const options = rankSameDayPlannerCandidates(parsed, window, candidates);
+  const city = parsed.destination.name;
+  if (!options.length) {
+    const period = window.tonight ? "tonight" : "for the rest of today";
+    return {
+      mode: "empty_inventory",
+      voice,
+      reply: `I couldn't verify any options near ${city} ${period}. Say “tomorrow” and I’ll check that date.`,
+      metrics: { tripLength: 0, candidateCount: 0 },
+      source: "deterministic",
+    };
+  }
+
+  let selected = options[0];
+  let source = "deterministic";
+  let fallbackReason = options.length === 1 ? "not_needed" : "rate_limited";
+  if (options.length > 1 && !isRateLimited(clientIp(req))) {
+    const result = await askPlannerModel({
+      system: 'Pick the best option for the requested outing. Return JSON with exactly {"id":"an option ID"}. Use the provided options only.',
+      user: JSON.stringify({
+        request: parsed.raw,
+        interests: parsed.preferences?.interests,
+        options: options.slice(0, 12).map(({ candidate, slotLabel }) => ({
+          id: candidate.id, name: candidate.name, type: candidate.type, time: slotLabel,
+        })),
+      }),
+    }, { voice, maxTokens: 100 });
+    let id;
+    if (result.ok) {
+      try { id = JSON.parse(result.text).id; } catch { /* invalid selection */ }
+    }
+    const match = options.slice(0, 12).find((option) => option.candidate.id === id);
+    if (match) {
+      selected = match;
+      source = result.source;
+    } else {
+      fallbackReason = result.reason || "unusable_reply";
+    }
+  }
+
+  const proposedPlan = buildSameDayPlannerPlan(parsed, window, selected);
+  return {
+    mode: "propose_trip",
+    voice,
+    reply: proposedPlan.explanation,
+    proposedPlan,
+    candidateCatalog: { [selected.candidate.id]: selected.candidate },
+    confidenceSummary: proposedPlan.confidenceSummary,
+    metrics: { tripLength: 1, candidateCount: options.length, proposedStopCount: 1 },
+    source,
+    ...(source === "deterministic" ? { fallbackReason } : {}),
+  };
+}
+
 export async function POST(req) {
   const entitlement = checkPlannerEntitlement(null);
   if (!entitlement.allowed) {
@@ -429,12 +550,15 @@ export async function POST(req) {
   // The host on the page (Santa, Boo or plain Wayfind) owns the chat's voice.
   const voice = normalizePlannerVoice(body && body.voice);
   const persona = plannerPersona(voice);
-  const contextCity = body && typeof body.contextCity === "string" ? body.contextCity.slice(0, 80) : null;
+  const dateOnlyReply = /^(?:today|tonight|tomorrow)[.!?]*$/i.test(message);
+  const requestedCity = body?.contextCity || (dateOnlyReply ? body?.proposedPlan?.city : null);
+  const contextCity = typeof requestedCity === "string" ? requestedCity.slice(0, 80) : null;
   const point = sanitizePoint(body && body.point);
   const activeTrip = sanitizeActiveTrip(body && body.activeTrip);
   const seedPlace = body && body.seedPlace && typeof body.seedPlace === "object" ? body.seedPlace : null;
   const savedPlaces = Array.isArray(body && body.savedPlaces) ? body.savedPlaces.slice(0, 20) : [];
-  const today = siteTodayStr();
+  const nowMs = Date.now();
+  const today = siteTodayStr(new Date(nowMs));
 
   // The visitor's earlier turns this session (client sends at most 3), so the
   // host remembers what was already said and asks only for what is missing.
@@ -462,8 +586,9 @@ export async function POST(req) {
   }
 
   const hasRawDraft = body && body.proposedPlan !== undefined && body.proposedPlan !== null;
+  const replanningDate = dateOnlyReply && hasRawDraft;
 
-  if (hasRawDraft) {
+  if (hasRawDraft && !replanningDate) {
     const rawDraft = sanitizeProposedPlanDraft(body.proposedPlan);
     if (!rawDraft) {
       return jsonNoStore({ ok: false, code: "INVALID_PLAN_SHAPE", rejectedIds: [] }, 422);
@@ -562,32 +687,32 @@ export async function POST(req) {
 
     if (!rateLimited) {
       const promptObj = buildDraftRevisionClaudePrompt(intent, reval.draft, candidates, conversationHistory, { voice });
-      const claudeRes = await askClaudePlanner(promptObj);
-      if (claudeRes.ok) {
-        const claudeValidated = parseAndValidateClaudeDraftRevision(
-          claudeRes.text,
+      const modelResult = await askPlannerModel(promptObj, { voice });
+      if (modelResult.ok) {
+        const modelValidated = parseAndValidateClaudeDraftRevision(
+          modelResult.text,
           intent,
           reval.draft,
           candidates,
           { destination: draftParsed.destination }
         );
-        if (claudeValidated.ok) {
-          const candidateCatalog = buildSlimCatalog(claudeValidated.proposedPlan, candidates);
+        if (modelValidated.ok) {
+          const candidateCatalog = buildSlimCatalog(modelValidated.proposedPlan, candidates);
           return okJson({
-            mode: claudeValidated.mode || "revise_plan",
-            revisionStatus: claudeValidated.revisionStatus || "revised",
+            mode: modelValidated.mode || "revise_plan",
+            revisionStatus: modelValidated.revisionStatus || "revised",
             voice,
-            reply: claudeValidated.reply,
-            clarificationQuestion: claudeValidated.clarificationQuestion || null,
-            proposedPlan: claudeValidated.proposedPlan,
+            reply: modelValidated.reply,
+            clarificationQuestion: modelValidated.clarificationQuestion || null,
+            proposedPlan: modelValidated.proposedPlan,
             candidateCatalog,
-            changedStopIds: claudeValidated.changedStopIds || [],
-            confidenceSummary: claudeValidated.proposedPlan.confidenceSummary,
+            changedStopIds: modelValidated.changedStopIds || [],
+            confidenceSummary: modelValidated.proposedPlan.confidenceSummary,
             metrics: {
-              tripLength: claudeValidated.proposedPlan.days.length,
+              tripLength: modelValidated.proposedPlan.days.length,
               candidateCount: candidates.length,
             },
-            source: "claude",
+            source: modelResult.source,
           });
         }
       }
@@ -648,7 +773,7 @@ export async function POST(req) {
 
   // 1. Missing critical destination or dates -> ask ONE high-value question immediately (zero AI cost).
   // The host talks back in character (owner 2026-11-13): a short witty reply to
-  // whatever they said, always ending on the city/dates ask. Claude writes it
+  // whatever they said, always ending on the city/dates ask. The model writes it
   // when available; otherwise a hand written in-character line, never the bare
   // form question.
   if (parsed.clarificationQuestion) {
@@ -665,14 +790,14 @@ export async function POST(req) {
       if (isRateLimited(clientIp(req))) {
         fallbackReason = "rate_limited";
       } else {
-        const chat = await askClaudePlanner(
+        const chat = await askPlannerModel(
           { system: personaChatSystem(voice), user: [...recent, message].join("\n") },
-          { maxTokens: 220 },
+          { voice, maxTokens: 220, json: false },
         );
         const cleaned = chat.ok ? cleanPersonaChat(chat.text) : null;
         if (cleaned) {
           reply = cleaned;
-          source = "claude";
+          source = chat.source;
         } else {
           fallbackReason = chat.ok ? "unusable_reply" : (chat.reason || "unavailable");
         }
@@ -720,6 +845,13 @@ export async function POST(req) {
     }
   }
 
+  const sameDay = !parsed.edit && sameDayPlannerWindow(parsed, today, nowMs);
+  if (sameDay) {
+    const candidates = await gatherServerCandidates(parsed, { point, sameDay });
+    const result = await planSameDay(parsed, sameDay, candidates, { voice, req });
+    return okJson({ ...result, ...(replanningDate && !result.proposedPlan ? { resetDraft: true } : {}) });
+  }
+
   // Safe public cache check ONLY when there is no private user trip, raw draft, history, seedPlace, or savedPlaces.
   const isPublicCacheable = !activeTrip && !hasRawDraft && conversationHistory.length === 0 && !seedPlace && savedPlaces.length === 0;
   const cacheKey = isPublicCacheable
@@ -738,6 +870,7 @@ export async function POST(req) {
     return okJson({
       mode: "empty_inventory",
       voice,
+      ...(replanningDate ? { resetDraft: true } : {}),
       reply: pickLine(persona.empty(cityLabel), message),
       metrics: {
         tripLength: parsed.dates.dayCount || 0,
@@ -755,17 +888,17 @@ export async function POST(req) {
     let editPayload = null;
     let source = "deterministic";
 
-    // Deterministic edit resolver runs first for crisp accuracy; Claude refines complex freeform requests when available
+    // Deterministic edit resolver runs first for crisp accuracy; the model refines complex freeform requests when available
     editPayload = resolveDeterministicEditActions(parsed, activeTrip, candidates, { voice });
 
     if (!editPayload && !rateLimited) {
       const promptObj = buildPlannerClaudePrompt(parsed, candidates, { activeTrip, voice });
-      const claudeRes = await askClaudePlanner(promptObj);
-      if (claudeRes.ok) {
-        const validated = parseAndValidateClaudeEdit(claudeRes.text, activeTrip, candidates);
+      const modelResult = await askPlannerModel(promptObj, { voice });
+      if (modelResult.ok) {
+        const validated = parseAndValidateClaudeEdit(modelResult.text, activeTrip, candidates);
         if (validated.ok) {
           editPayload = { reply: validated.reply, actions: validated.actions };
-          source = "claude";
+          source = modelResult.source;
         }
       }
     }
@@ -830,17 +963,27 @@ export async function POST(req) {
 
   if (!rateLimited) {
     const promptObj = buildPlannerClaudePrompt(parsed, candidates, { voice });
-    const claudeRes = await askClaudePlanner(promptObj);
-    if (claudeRes.ok) {
-      const validated = parseAndValidateClaudePlan(claudeRes.text, parsed, candidates);
+    const modelResult = await askPlannerModel(promptObj, { voice });
+    if (modelResult.ok) {
+      const validated = parseAndValidateClaudePlan(modelResult.text, parsed, candidates);
       if (validated.ok) {
         proposedPlan = validated.plan;
-        source = "claude";
+        source = modelResult.source;
+        if (voice === "santa") {
+          const days = proposedPlan.days;
+          proposedPlan.title = `${proposedPlan.city} Itinerary`;
+          proposedPlan.explanation = personaPlanReply(voice, {
+            city: proposedPlan.city,
+            days: days.length,
+            stops: days.reduce((count, day) => count + day.stops.length, 0),
+            seed: message,
+          });
+        }
       } else {
         fallbackReason = `ungrounded_plan:${validated.code || "invalid"}`;
       }
     } else {
-      fallbackReason = claudeRes.reason || "unavailable";
+      fallbackReason = modelResult.reason || "unavailable";
     }
   }
 
@@ -853,6 +996,7 @@ export async function POST(req) {
     return okJson({
       mode: "empty_inventory",
       voice,
+      ...(replanningDate ? { resetDraft: true } : {}),
       reply: persona.noFit,
       metrics: {
         tripLength: parsed.dates.dayCount || 0,
@@ -882,7 +1026,7 @@ export async function POST(req) {
     ...(source === "deterministic" ? { fallbackReason } : {}),
   };
 
-  if (cacheKey && source === "claude") {
+  if (cacheKey && source !== "deterministic") {
     writePublicCache(cacheKey, responseBody);
   }
 
