@@ -125,6 +125,9 @@ ok(/body\?\.homeCity/.test(route) && /\|\| homeCity;/.test(route), "the picked c
 const sheet = strip(readFileSync(new URL("../app/components/WayfindPlannerSheet.js", import.meta.url), "utf8"));
 ok(/homeCity: \(readStoredCenter\(\) \|\| \{\}\)\.loc/.test(sheet), "the chat sends the picked city");
 ok(/routed\.kind === "find_food" && readAsk\(routed\.text \|\| text\)\.kind !== "picks"/.test(sheet), "a restaurant pick request goes to the server, not the three tables list");
+const askSrc = readFileSync(new URL("../lib/plannerAsk.js", import.meta.url), "utf8");
+ok(!/^\s*import\s/m.test(askSrc), "the ask reader imports nothing, so the browser can load it without server code");
+ok(/from "\.\.\/\.\.\/lib\/plannerAsk\.js"/.test(sheet) && !/lib\/plannerRecommend/.test(sheet), "the chat sheet loads only the browser safe ask reader, never the server ranking");
 ok(/role === "recs"/.test(sheet) && /onPlan=\{\(prompt\) => submitPlannerPrompt\(prompt\)\}/.test(sheet), "picks render with an optional plan button");
 const recs = readFileSync(new URL("../app/components/PlannerRecs.js", import.meta.url), "utf8");
 ok(/Turn this into a plan/.test(recs) && /Book a table/.test(recs), "the picks offer a plan and a table, as buttons");

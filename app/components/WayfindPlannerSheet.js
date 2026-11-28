@@ -48,7 +48,7 @@ import {
 } from "../../lib/plannerAnalytics.js";
 import { extractCityFromPath } from "../../lib/plannerProactive.js";
 import { classifySantaMessage, TRIP_WORDS } from "../../lib/santaIntent.js";
-import { readAsk } from "../../lib/plannerRecommend.js";
+import { readAsk } from "../../lib/plannerAsk.js";
 import PlannerRecs from "./PlannerRecs.js";
 import { resolveSearchArea } from "../../lib/santaArea.js";
 import { parsePlannerCity } from "../../lib/plannerParse.js";
