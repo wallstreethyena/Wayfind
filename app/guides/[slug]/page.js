@@ -1,5 +1,7 @@
 import ReturnToWayfind from "../../components/ReturnToWayfind";
 import SeasonalSearchNav from "../../components/SeasonalSearchNav";
+import GuideVisitPlan, { guideVisitPlan } from "../../components/GuideVisitPlan";
+import { haversineMiles } from "../../../lib/mapLocationTruth.js";
 import { seasonalHubsForGuide } from "../../../lib/seasonalSearch";
 // v4.16 — Server-rendered SEO guide pages. No "use client": these render to
 // HTML at build time so search engines index the full content. Each pick can
@@ -539,6 +541,7 @@ export default async function GuidePage({ params }) {
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
   if (!g) notFound();
   if (g.fieldArticle) return <FieldGuideArticle slug={params.slug} guide={g} />;
+  const visitPlan = guideVisitPlan(params.slug);
   // Picks with no registered photo stay in the record and off the page
   // (owner, 2026-11-23). They must not render "Photo unavailable".
   const shippingPicks = (Array.isArray(g.picks) ? g.picks : [])
@@ -945,7 +948,10 @@ export default async function GuidePage({ params }) {
   if (bridgeCity && !isSsgBuild()) {
     try {
       const ranked = await inventoryPlacesForRegion(g.region, 80);
-      bridgePicks = ranked.slice(0, 3).map((p) => ({
+      bridgePicks = ranked.filter((p) => {
+        const milesFromCity = haversineMiles(bridgeCity, p);
+        return milesFromCity != null && milesFromCity <= 12;
+      }).slice(0, 3).map((p) => ({
         id: p.id, name: p.name, rating: p.rating, reviews: p.reviews,
         distMi: p.distMi, openNow: p.openNow, photoRef: p.photoRef || null,
         // Inventory editorial is sourced; absence stays empty.
@@ -1079,12 +1085,15 @@ export default async function GuidePage({ params }) {
           guide's own tips (lib/guides.js) and check-guide-teasers.mjs proves the
           grounding, because a teaser promising something the body never delivers
           is the dark pattern the directive rules out. */}
-      {g.teaser ? (
+      {g.teaser && !visitPlan ? (
         <p className="wf-guide-teaser" style={{ margin: "0 0 14px", fontSize: 16.5, lineHeight: 1.5, color: "#FBBF24", fontWeight: 650 }}>
           {g.teaser}
         </p>
       ) : null}
-      <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
+      {visitPlan ? (
+        <p className="wf-guide-intro" style={S.p}>{visitPlan.intro}</p>
+      ) : <p className="wf-guide-intro" style={S.p}>{g.intro}</p>}
+      <GuideVisitPlan plan={visitPlan} />
       {params.slug === "things-to-do-orlando-not-theme-parks" ? (
         <p style={S.p}>
           Follow the <a href="https://blog.gowayfind.com/orlando-day-itinerary-without-theme-parks" style={S.footerLink}>seven-stop Orlando itinerary</a> for a full day downtown and in Winter Park. If it rains, take the kids to <a href="/guides/orlando-in-the-rain#pick-6" style={S.footerLink}>Orlando Science Center</a>. Set aside a separate day for <a href="#pick-7" style={S.footerLink}>Kennedy Space Center</a>.

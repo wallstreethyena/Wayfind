@@ -556,13 +556,14 @@ for (const origin of [[27.5875, -82.4251], [25.7617, -80.1918]]) {
       .every((card) => !FALL_FEATURED_FESTIVAL_IDS.has(card.event_id) || !!fallPhotoEvidence(card, "2026-09-25")),
     "featured festivals stay out of farms and family; only exact photo evidence permits their additional photo intent");
   const dates = cards.map((card) => nextFallOccurrence(card, "2026-09-25"));
-  ok(dates.join("|") === ["2026-10-03", "2026-10-03", "2026-10-10", "2026-10-10", "2026-10-17"].join("|"),
+  ok(dates.join("|") === ["2026-10-03", "2026-10-03", "2026-10-10", "2026-10-17", "2026-10-17"].join("|"),
     "the actual festival cards order by next attendance day");
   ok(answer.rails.map((rail) => rail.id).join("|") === fallRailOrder("2026-09-25").join("|"), "date ordering preserves seasonal rail section order");
 }
 ok(featured.length === 5 && featured.every((row) => !["editorial_score", "uniqueness_score", "popularity_score", "wfScore"].some((key) => key in row)), "the five new source records do not invent quality scores");
 ok(featured.every((row) => row.occurrence_dates.length > 0 && row.occurrence_dates.every((date) => [0, 6].includes(new Date(date + "T12:00:00Z").getUTCDay()))), "all advertised festival dates are actual weekend days in 2026");
 ok(nextFallOccurrence(featuredById.get("dakin-harvest-festival-2026"), "2026-10-12") === "2026-10-17", "a weekday between Dakin weekends advances to the next open Saturday");
+ok(nextFallOccurrence(featuredById.get("hunsader-pumpkin-2026"), "2026-10-10") === "2026-10-17", "Hunsader skips the rain-canceled October 10–11 weekend");
 ok(nextFallOccurrence(featuredById.get("fruitville-grove-pumpkin-2026"), "2026-10-26") === "2026-10-31", "Fruitville advances past closed weekdays");
 ok(nextFallOccurrence(featuredById.get("keel-farms-harvest-days-2026"), "2026-10-26") === "2026-10-31", "Keel includes the final October Saturday");
 ok(festivalAnswer("2026-10-26").rails.find((rail) => rail.id === "festivals").cards.length === 2,

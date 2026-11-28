@@ -94,26 +94,28 @@ ok(Math.min(...perTeaser.map(([, n]) => n)) >= 2,
 {
   const page = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8");
   const code = page.replace(/\/\*[\s\S]*?\*\//g, " ").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n").replace(/\{\/\*[\s\S]*?\*\/\}/g, " ");
-  ok(/g\.teaser \?/.test(code), "the page renders the teaser conditionally — a guide without one shows nothing, not an empty element");
-  // Anchor on the RENDER, not the class name: "wf-guide-intro" also appears in
-  // the CSS block above, so indexOf found the stylesheet and compared the wrong
-  // position. It would have failed with the teaser correctly placed.
-  const iT = code.indexOf("g.teaser ?");
-  const iIntro = code.indexOf('className="wf-guide-intro" style=');
-  // The server also maps picks while preparing photos, before JSX renders.
-  // Anchor on the JSX expression rather than that earlier data operation.
-  // Photo-less picks are filtered into shippingPicks before this JSX map.
-  const iPicks = code.indexOf("{shippingPicks.map(({ pick, index: i }, visibleIndex)");
+  const teaserRender = "{g.teaser && !visitPlan ? (";
+  const introRender = 'className="wf-guide-intro" style=';
+  const picksRender = "{shippingPicks.map(({ pick, index: i }, visibleIndex)";
+  // The teaser is a fallback for guides that do not have a visit plan. On the
+  // new guides, the visit plan's introduction gives the reader the same answer
+  // immediately. Keep checking the position of the actual JSX in both cases.
+  ok(code.includes(teaserRender), "the teaser requires both teaser text and absence of a visit plan");
+  ok(code.includes("{visitPlan.intro}") && code.includes("{g.intro}"), "both guide introduction paths render");
+  const iT = code.indexOf(teaserRender);
+  const iIntro = code.indexOf(introRender);
+  const iPicks = code.indexOf(picksRender);
   ok(iT > 0 && iIntro > 0 && iPicks > 0, "found the teaser, intro and picks RENDER sites");
   ok(iT > 0 && iIntro > 0 && iT < iIntro, "the teaser renders BEFORE the intro — above the fold is the point");
   const teaserPrecedesPicks = (source) => {
-    const teaser = source.indexOf("g.teaser ?");
-    const picks = source.indexOf("{shippingPicks.map(({ pick, index: i }, visibleIndex)");
+    const teaser = source.indexOf(teaserRender);
+    const picks = source.indexOf(picksRender);
     return teaser >= 0 && picks >= 0 && teaser < picks;
   };
   ok(teaserPrecedesPicks(code), "...and before the picks");
-  ok(!teaserPrecedesPicks("{shippingPicks.map(({ pick, index: i }, visibleIndex)" + code), "negative control rejects picks rendered before teaser");
-  ok(!teaserPrecedesPicks(code.replaceAll("{shippingPicks.map(({ pick, index: i }, visibleIndex)", "{other.map(")), "negative control rejects a missing picks render site");
+  ok(!teaserPrecedesPicks(picksRender + code), "negative control rejects picks rendered before teaser");
+  ok(!teaserPrecedesPicks(code.replaceAll(picksRender, "{other.map(")), "negative control rejects a missing picks render site");
+  ok(!teaserPrecedesPicks(code.replaceAll(teaserRender, "{g.teaser ? (")), "negative control rejects rendering the old teaser when a visit plan exists");
 }
 
 if (fail.length) {

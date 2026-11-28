@@ -75,7 +75,7 @@ scripts/check-christmas-photo-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0
 scripts/check-christmas-photo-rights-field.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	0c16e188d61aa809b99247f66599a39f9f0458fb0b95a5b52beb742139f153e1
 scripts/check-christmas-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	260	0	0	4e65df21516e5a83aeed3a1a31f919f5e6c7a7e55fff9e15d0abfd8bb1e3ac28
 scripts/check-christmas-rejected-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	819c85fc14cdcf04b76f2bbd1946ff834bcda13de5d35d073aa7edea6bbd31ce
-scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	175	0	0	701e1dcdda3e9fea0bc02808a2f5f5e7af942d58afebd489cceab614aa982b7c
+scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	176	0	0	d47c6e46001bb85003e66ca4907d1efe6a1110c3ff9b585b38ce876131824f97
 scripts/check-christmas-retired-redirects.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	c074760686ffb6e21e1bbcbcda11b080f975645a89524e757414d1c8c1eadff3
 scripts/check-christmas-static-gallery-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	8034aeecc1fae46c7c29699a51a43245bd5ecb3b553f6fe978116fe73179f170
 scripts/check-christmas-treats-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	8955551c1c731e4d2e06d94bd5850dcfc51eb239115115fbbd5d1e3a1813a9fd
@@ -234,7 +234,7 @@ scripts/check-guide-seo-audit.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	94ab857
 scripts/check-guide-share.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	46	0	0	12c03e408f67052d699341b8a9aacf18ddb666730d4d14db2b844d881a721913
 scripts/check-guide-ssg-not-phase-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	543bd321aa95b79eae3be219d6bf557a6013e2e27e2239b095ea5d3d2f001c07
 scripts/check-guide-standard.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	f3cef93e88ebffba183f5f00d5ccf680b512938a2caa3a5a7193b56ee1e69579
-scripts/check-guide-teasers.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	f9f77f59cf0b6fb1fcfe59e84de858a07c084077298537395f6bf334fc25f9ad
+scripts/check-guide-teasers.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	9c05fa59bd09bf2ffdba539ec843434e26060ea9310b8b84b2bd2eb968e89930
 scripts/check-guide-visual-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	1a79d2c0552e19ce41219ffb0b610e8f25059e2b59ff39200e5ffc232f53d4db
 scripts/check-guide-visual-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0	b8dfaa08d69ea0277c60d9b8f250a3a91e1481102eb858ee971901397c2c93f3
 scripts/check-guides.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	d64e883cb79afdcc20fa8b05f4f1e6174d151d21534dca983eb2ad410433b4f4
@@ -866,7 +866,7 @@ scripts/test-guide-map-pin-reveal.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	7c8
 scripts/test-guide-park-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	c39240ba523bef7184d0d05cbeac4e7a8a0419ec01f4fc19b094288a6a0bd5ed
 scripts/test-guide-pick-facts.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	506400fa558472a16c9aa7c777a438b7a42afa32a4992730281805fda245155e
 scripts/test-guide-pick-offers.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0	05df2e4d7f57d964aa9e4e3d8ba75f6c8187e434009a0c01033541e471c5615e
-scripts/test-guide-place-addresses.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	5684abf30547190b47446b055f3c630117d006539607c6d462cccfdd1b5b3b9f
+scripts/test-guide-place-addresses.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	35a10423f0d102f2ec559846a68a3daa43a3c525db4ae7cbd026b9b153a9cd5a
 scripts/test-guide-place-indexability.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	21ae009673cf910f1df0a42dc22e59f4aacf4d76cbf5d3bd50e2cc6eeb03486f
 scripts/test-guide-rays-game-day.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	26	0	0	bb8baeb5d1dde7a9989330a69d79edc85871efae75afffa53c95bcfe86b6a35c
 scripts/test-guide-search-as-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0	75a7c656b0b56bc49804ebbe653154accdbcc56ee273511e975b1868baf9fdd9

@@ -190,10 +190,10 @@ const mapSpots = [
     name: "Hunsader Farms Pumpkin Festival",
     groups: ["pumpkins", "family", "events"],
     city: "Bradenton",
-    when: "Oct 10 to 25 • 9 AM to 5 PM",
-    detail: "A three-weekend working-farm festival with pumpkins, hayrides, craft vendors and livestock. Plan on a half day, not a quick photo stop.",
-    tip: "Cash only. Go early; the access-road queue builds after 11 AM. Parking is $5.",
-    href: "/florida-events/hunsader-pumpkin-2026",
+    when: "Oct 17–18 and 24–25 • 9 AM to 5 PM",
+    detail: "The working-farm festival featured pumpkins, hayrides, craft vendors and livestock. Its October 10–11 opening weekend was canceled due to rain.",
+    tip: "For a future edition, check the farm’s weather updates and bring cash if it still requires cash for admission and parking.",
+    href: "/florida-events/hunsader-farms-pumpkin-festival-2026",
     lat: 27.4448076,
     lng: -82.3046144,
     category: "attractions",
@@ -1001,9 +1001,9 @@ export default async function FloridaFallGuide() {
       </div>
       <div className={styles.intro}>
         <p className={styles.kicker}>Florida fall, all in one place</p>
-        <h2>Pick your weekend. We did the rest.</h2>
+        <h2>What Florida’s 2026 fall weekends offered</h2>
         <p>
-          This guide combines dated 2026 farms, pumpkin patches, Halloween nights, trick or treating, food festivals, seasonal menus, Oktoberfests, fairs and fall day trips across Florida. Start with the ten anchors, plan an October weekend, then browse by vibe or region.
+          The 2026 fall events in this guide have ended. Browse the venues and past programs to decide what is worth putting on your list for next fall. Check the organizer for a new edition’s dates before you travel.
         </p>
       </div>
     </>
@@ -1029,13 +1029,13 @@ export default async function FloridaFallGuide() {
     <GuideStandardShell
       slug="florida-fall-festivals-2026"
       title="The Complete Florida Fall Guide 2026"
-      description="Plan every October weekend with pumpkin patches, farm days, haunted nights, family Halloween, seasonal food, fairs and statewide fall festivals."
+      description="Explore Florida’s 2026 fall season archive, with festival locations, what was worth the trip and practical advice for planning a future visit."
       image={hero}
       region="Florida"
       category="Fall guide"
-      updated="2026-09-25"
+      updated="2026-11-27"
       jumpHref="#guide"
-      jumpLabel="Plan October"
+      jumpLabel="Explore the guide"
       actions={<ShareButton
         url={pageShareUrl("/guides/florida-fall-festivals-2026")}
         title="The Complete Florida Fall Guide 2026"
