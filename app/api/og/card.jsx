@@ -332,6 +332,12 @@ export function WayfindHeroCard({ model }) {
   const lines = Array.isArray(m.lines) ? m.lines : [];
   const accent = Array.isArray(m.accent) ? m.accent : [];
   const size = m.size || 56;
+  const heroPhoto = m.hero ? <img src={m.hero}
+    width={m.fullFrameCredit ? 575 : HERO_CARD.w} height={m.fullFrameCredit ? 490 : HERO_CARD.h}
+    style={m.fullFrameCredit ? { objectFit: "contain" } : {
+      position: "absolute", left: 0, top: 0, width: HERO_CARD.w, height: HERO_CARD.h,
+      display: "flex", objectFit: "cover", objectPosition: m.position || "50% 50%",
+    }} /> : null;
   return (
     <div style={{ width: HERO_CARD.w, height: HERO_CARD.h, display: "flex", position: "relative",
       overflow: "hidden", backgroundColor: INK, fontFamily: "Archivo" }}>
@@ -340,18 +346,20 @@ export function WayfindHeroCard({ model }) {
           — a null here is a fallback that already happened upstream (the
           route ships the typographic card instead), never a broken image
           inside a card somebody has already sent. */}
-      {m.hero ? (
-        <img src={m.hero} width={HERO_CARD.w} height={HERO_CARD.h}
-          style={{ position: "absolute", left: 0, top: 0, width: HERO_CARD.w, height: HERO_CARD.h,
-            display: "flex", objectFit: "cover", objectPosition: m.position || "50% 50%" }} />
-      ) : <div style={{ display: "flex" }} />}
+      {m.hero && m.fullFrameCredit ? (
+        <div style={{ position: "absolute", right: 35, top: 35, width: 575, height: 560,
+          display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+          {heroPhoto}
+          <div style={{ display: "flex", marginTop: 12, color: WHITE, fontSize: 17, fontWeight: 600 }}>{m.fullFrameCredit}</div>
+        </div>
+      ) : heroPhoto}
 
       {/* Legibility scrim: bottom-to-ink, plus a soft left wash so the mark
           and kicker read at top-left over any photo. */}
-      <div style={{ position: "absolute", left: 0, top: 0, width: HERO_CARD.w, height: HERO_CARD.h, display: "flex",
+      {!m.fullFrameCredit && <><div style={{ position: "absolute", left: 0, top: 0, width: HERO_CARD.w, height: HERO_CARD.h, display: "flex",
         background: "linear-gradient(180deg, rgba(4,8,16,0) 0%, rgba(4,8,16,0.18) 30%, rgba(4,8,16,0.72) 58%, rgba(4,8,16,0.92) 80%, #040810 100%)" }} />
       <div style={{ position: "absolute", left: 0, top: 0, width: 640, height: HERO_CARD.h, display: "flex",
-        background: "linear-gradient(90deg, rgba(4,8,16,0.62) 0%, rgba(4,8,16,0.25) 55%, rgba(4,8,16,0) 85%)" }} />
+        background: "linear-gradient(90deg, rgba(4,8,16,0.62) 0%, rgba(4,8,16,0.25) 55%, rgba(4,8,16,0) 85%)" }} /></>}
 
       <div style={{ position: "absolute", left: HERO_CARD.padX, top: HERO_CARD.markY, display: "flex" }}>
         <Mark size={HERO_CARD.markSize} />

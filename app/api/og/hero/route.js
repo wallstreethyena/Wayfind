@@ -181,7 +181,7 @@ export async function GET(req) {
     // so a stray r/rev on a guide or event card still renders nothing extra.
     const model = heroCardModel({
       kind, title, cat, loc, n, r, rev, hero: heroDataUri,purpose:["group","group_final"].includes(url.searchParams.get("purpose"))?url.searchParams.get("purpose"):null,
-      position: source.position, alt: source.alt || title,
+      position: source.position, alt: source.alt || title, fullFrameCredit: source.fullFrameCredit,
     });
     const res = await shareCardResponse(model, { cache, fontBuffers, logoBuffer });
     return await toJpegResponse(res);

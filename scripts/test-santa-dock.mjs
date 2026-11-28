@@ -66,7 +66,7 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   ok(/<aside class="wf-sd" aria-label="Santa, Wayfind&#x27;s holiday host" data-santa-dock="">/.test(html), "the dock is a labelled landmark");
   ok(/<button type="button" class="wf-sd-av"[^>]*aria-label="Chat with Santa, Wayfind&#x27;s holiday host" aria-haspopup="dialog">/.test(html), "Santa himself is a real, labelled button (keyboard and touch)");
   ok(/class="wf-sd-msg is-said" role="status" aria-live="polite"/.test(html) && html.includes(HOST_LINE), "his line is a polite status inside the dock, not a bubble over the page");
-  ok(/<button type="button" class="wf-sd-cta" aria-haspopup="dialog" aria-label="Get 3 Christmas picks">/.test(html) && /class="wf-sd-s" aria-hidden="true">Get 3 picks</.test(html), "the action button carries its full label for assistive tech and a short phone label");
+  ok(/<button type="button" class="wf-sd-cta" aria-haspopup="dialog" title="Get 3 Christmas picks">/.test(html) && /class="wf-sd-l">Get 3 Christmas picks</.test(html) && /class="wf-sd-s">Get 3 picks</.test(html), "both responsive action labels are exposed when visible and the full description is available");
   ok(/data-act="greet"/.test(html) && /data-arm="both"/.test(html), "the hello waves with the wand still in hand (arm both)");
   const link = renderToStaticMarkup(createElement(DockView, { action: santaAction("/events"), msg: "" }));
   ok(/<a class="wf-sd-cta" href="\/christmas-in-florida"/.test(link) && !/<button[^>]*class="wf-sd-x"/.test(link) && /<b>Santa<\/b>, Wayfind&#x27;s holiday host/.test(link), "with no message he rests with his name, the link goes to the hub, no dismiss button");

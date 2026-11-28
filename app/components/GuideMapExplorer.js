@@ -357,6 +357,7 @@ export default function GuideMapExplorer({
                 <RailCard
                   key={spot.id}
                   className="wf-exploding-primary"
+                  separateActions
                   domRef={(node) => {
                     const key = String(spot.id);
                     if (node) {
@@ -371,7 +372,7 @@ export default function GuideMapExplorer({
                   photoAttrHref={spot.photoAttrHref || null}
                   photoFallbackCategory={spot.photoFallbackCategory || undefined}
                   photoPosition={spot.photoPosition || undefined}
-                  editorialPhoto={spot.editorialPhoto}
+                  fullFramePhoto={spot.editorialPhoto}
                   placeholder={photo ? null : spot.placeholder || null}
                   place={place}
                   title={spot.name}
@@ -393,6 +394,7 @@ export default function GuideMapExplorer({
                     type: "event",
                     title: spot.name,
                     image: photo,
+                    omitPhoto: spot.editorialPhoto,
                     url: String(spot.href || "").startsWith("#") ? pagePath + spot.href : (spot.href || pagePath),
                   } : null}
                   eagerMedia={index < 2}

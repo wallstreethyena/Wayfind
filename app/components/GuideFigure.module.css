@@ -110,6 +110,18 @@
   pointer-events: auto;
 }
 
+/* Documentary photographs whose complete composition or signature matters. */
+.figure[data-full-frame] .img {
+  object-fit: contain;
+}
+.figure[data-full-frame] .photoCredit {
+  position: static;
+  padding: 5px 9px;
+  color: #d4dbe2;
+  background: #101821;
+  white-space: normal;
+  text-shadow: none;
+}
 .photoCredit a {
   color: inherit;
   text-decoration: none;

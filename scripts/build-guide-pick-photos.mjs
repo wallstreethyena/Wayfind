@@ -109,6 +109,7 @@ export function buildGuideCardPhotoIndex(manifest, heroArt) {
   for (const slug of slugs) {
     const h = heroArt && heroArt[slug];
     const hero = h ? slim(h.src, h.credit, h.source, h.position, h.kind) : null;
+    if (hero && h.fullFrame) hero.fullFrame = true;
     const picks = (manifest && manifest[slug] && manifest[slug].picks) || {};
     const first = Object.keys(picks).sort().map((k) => picks[k]).find((e) => e && e.src);
     const pick = first ? slim(first.src, first.credit, first.creditHref || first.sourceUrl, first.position) : null;

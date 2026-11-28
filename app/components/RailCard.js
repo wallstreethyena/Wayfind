@@ -401,8 +401,6 @@ export function RailDots({ railId, count, layoutKey = 0 }) {
  *   own Google Places photos).
  * @param {string}   p.photoAttrHref link for that credit (the license / source
  *   page); the badge is a plain label instead of a link when omitted
- * @param {boolean}  p.editorialPhoto keep the original photo framing and save
- *   the entry without reusing an editorial-only image on other surfaces
  * @param {string}   p.title       place / event name (clamped to 2 lines by CSS)
  * @param {string}   p.eyebrow     the small category line ("Sports", "Fine dining")
  * @param {func}     p.onEyebrow   makes the eyebrow a real control; omit for a plain label
@@ -423,7 +421,7 @@ export function RailDots({ railId, count, layoutKey = 0 }) {
  *   pending or failed photo (e.g. "christmas"); art only, never the image.
  */
 export default function RailCard({
-  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", editorialPhoto = false, visitFacts = null, spooky = false, placeholder = null, photoFallbackCategory, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  fullFramePhoto = false, photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, placeholder = null, photoFallbackCategory, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -459,6 +457,8 @@ export default function RailCard({
   // `<RailCard ref={…}>`, so a prop avoids forwardRef's wrapper cost for the
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
+  // Map cards receive focus from pins and expose their primary action inside the article.
+  separateActions = false,
   // Paid rail buttons only. Visible commission line, inside the card, and a
   // commerce click when `cta.commerce` names the surface, rail and offer.
   disclose = false,
@@ -510,7 +510,8 @@ export default function RailCard({
     placeId: (actionItem && (actionItem.placeId || actionItem.place_id)) || "",
     type: (actionItem && actionItem.type) || "experience",
     title: (actionItem && (actionItem.title || actionItem.name)) || title,
-    image: editorialPhoto ? null : (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
+    // Editorial-only images stay on the guide when the entry is saved or shared.
+    image: actionItem?.omitPhoto ? null : (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
     url: (actionItem && actionItem.url) || cardHref || "",
     provider: actionItem && actionItem.provider,
   } : null;
@@ -559,8 +560,9 @@ export default function RailCard({
   // place's own photo, if one exists (lib/placeCardPhotoPosition.js).
   const shownPhotoPosition = photoPosition === "50% 50%" && !usingFallback && place?.id
     ? (placeCardPhotoPosition(place.id, displayedPhoto) || photoPosition) : photoPosition;
-  const photoStyle = { objectFit: "cover", objectPosition: shownPhotoPosition };
-  if (editorialPhoto) photoStyle.objectFit = "contain";
+  const shownPhotoStyle = fullFramePhoto
+    ? { objectFit: "contain", objectPosition: "center" }
+    : { objectFit: "cover", objectPosition: shownPhotoPosition };
   if (visitFacts) {
     const photoEvent = usingFallback ? { ...visitFacts, image_is_venue: false, imageIsVenue: false, photoAttr: null, photoAttrHref: null } : visitFacts;
     if (usingFallback) { photoAttr = null; photoAttrHref = null; }
@@ -616,13 +618,13 @@ export default function RailCard({
       data-guide-id={variant === "guide" && guideId ? guideId : undefined}
       data-guide-matched-id={variant === "guide" && guideId && guideMatchedId ? guideMatchedId : undefined}
       className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteDay)}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${ReserveSlot ? " has-cta" : ""}${className ? " " + className : ""}`}
-      role="button"
-      tabIndex={0}
+      role={separateActions ? undefined : "button"}
+      tabIndex={separateActions ? -1 : 0}
       onPointerDown={tapIntent.onPointerDown}
       onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp}
       onPointerCancel={tapIntent.onPointerCancel}
-      onKeyDown={KB_CLICK}
+      onKeyDown={separateActions ? (e) => { if (e.target === e.currentTarget) KB_CLICK(e); } : KB_CLICK}
       onClick={(e) => {
         const t = e && e.target;
         // Same nested-interactive contract as IconicPlaceCard: a tap that
@@ -666,7 +668,7 @@ export default function RailCard({
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={handleImageError}
                 fallbackCategory={photoFallbackCategory}
-                style={photoStyle}
+                style={shownPhotoStyle}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
               : placeFallback || <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
@@ -700,7 +702,14 @@ export default function RailCard({
                 ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEyebrow(e); }}>{shownEyebrow} ›</button>
                 : <span className="wf-place-card-category">{shownEyebrow}</span>) : null; })()}
               <AwardListRank award={shownAward} rank={rank} />
-              <div className="wf-place-card-name">{title}</div>
+              <div className="wf-place-card-name">
+                {separateActions && onOpen ? (
+                  <button type="button" aria-label={ariaLabel || title}
+                    style={{ background: "none", border: 0, padding: 0, color: "inherit", font: "inherit", textAlign: "inherit", cursor: "pointer" }}
+                    onClick={(e) => { if (e.detail === 0 || tapIntent.shouldOpen()) onOpen(e); }}
+                  >{title}</button>
+                ) : title}
+              </div>
               {place ? (() => { const where = storedPlaceHeader(place); return where ? <div className="wf-place-card-where">{where}</div> : null; })() : null}
             </div>
           </div>

@@ -28,6 +28,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import React from "react";
+import { JSDOM } from "jsdom";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
@@ -58,6 +59,15 @@ const fixture = readFileSync(path.join(ROOT, "scripts/fixtures/rail-card-place.p
 ok(placeHtml === fixture, "a place RailCard rendered WITHOUT variant differs from the pre-change fixture (scripts/fixtures/rail-card-place.pre-guide-variant.html): the place card look must not change");
 ok(!placeHtml.includes("wf-guide-card"), "a place RailCard carries wf-guide-card");
 ok(html(h(RailCard, { ...placeProps, variant: "other" })) === fixture, "an unknown variant value changed the place card markup (only variant=\"guide\" may)");
+
+// A map pin focuses its card. Keyboard users then reach the primary link or
+// map-selection button independently from Save, Like and Share.
+const mapCard = (props) => new JSDOM(html(h(RailCard, { separateActions: true, title: "Pier", ...props }))).window.document.querySelector("article");
+const linked = mapCard({ href: "/events/pier", cta: { href: "/events/pier", label: "Event details" } });
+ok(linked.tabIndex === -1 && !linked.hasAttribute("role"), "a pin can focus the map article without nesting action buttons inside another button");
+ok(linked.querySelector('a[href="/events/pier"]')?.textContent === "Event details" && !!linked.querySelector("button.wf-place-card-save"), "the primary link and Save are independent controls");
+const mapOnly = mapCard({ onOpen: () => {}, ariaLabel: "Show Pier on the map" });
+ok(mapOnly.querySelector(".wf-place-card-name button")?.getAttribute("aria-label") === "Show Pier on the map", "a stop without a link still has a native map-selection button");
 
 // ── 2. GUIDE CARD: no chips, full title, guide class, no clamp ──────────────
 const longest = [...slugs].sort((a, b) => GUIDES[b].title.length - GUIDES[a].title.length)[0];

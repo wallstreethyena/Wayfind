@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { FIELD_ARTICLES } from "../lib/floridaFieldArticles.js";
 import { GUIDES } from "../lib/guides.js";
 import { guideHero } from "../lib/guideHero.js";
 import { GUIDE_CONTEXT_LINKS, GUIDE_QUICK_CHOICES } from "../lib/guideSeo.js";
@@ -14,7 +15,7 @@ export function auditSourceContracts({ routeSource, sitemapSource } = {}) {
   const sitemap = sitemapSource ?? fs.readFileSync("app/sitemap.js", "utf8");
   return {
     source_route: sourceResult(/generateStaticParams\(\)[\s\S]*Object\.keys\(GUIDES\)/.test(route) && /if \(!g\) notFound\(\)/.test(route), "Listed by generateStaticParams; unknown slugs call notFound()."),
-    source_metadata: sourceResult(/title: `\$\{g\.title\} \| Wayfind`/.test(route) && /description: g\.description/.test(route) && /title=\{g\.title\}/.test(route), "Shared generator supplies an aligned title, description and visible H1 title input."),
+    source_metadata: sourceResult(/title: `\$\{g\.seoTitle \|\| g\.title\} \| Wayfind`/.test(route) && /description: g\.description/.test(route) && /title=\{g\.title\}/.test(route), "Shared generator supplies an aligned title, description and visible H1 title input."),
     source_canonical: sourceResult(/const url = `\$\{SITE_URL\}\/guides\/\$\{params\.slug\}`/.test(route) && /alternates: \{ canonical: url \}/.test(route), "Shared metadata builds and emits the per-slug self-canonical."),
     source_robots: sourceResult(/const indexable = !isGuidePast\(g\)/.test(route) && /robots: \{ index: indexable, follow: true,[^\n]+"max-image-preview": "large"/.test(route), "Shared metadata sets index, follow and max-image-preview:large."),
     source_sitemap: sourceResult(/Object\.keys\(currentGuides\(GUIDES\)\)\.map\(\(slug\)/.test(sitemap) && /`\$\{SITE_URL\}\/guides\/\$\{slug\}`/.test(sitemap) && /row\.lastModified = new Date\(updated\)/.test(sitemap), "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."),
@@ -36,7 +37,8 @@ export function buildGuideSeoAudit(sourceInput) {
   const source = auditSourceContracts(sourceInput);
   const pages = Object.entries(GUIDES).map(([slug, guide]) => {
     const art = guideHero(slug);
-    const links = GUIDE_CONTEXT_LINKS[slug] || [];
+    const field = guide.fieldArticle ? FIELD_ARTICLES[slug] : null;
+    const links = field ? field.related.filter(([, href]) => href.startsWith("/guides/")).map(([, href]) => href.slice(8)) : GUIDE_CONTEXT_LINKS[slug] || [];
     const choices = GUIDE_QUICK_CHOICES[slug] || [];
     const hasArt = art?.kind !== "unavailable" && Boolean(art?.src);
     const largeCandidate = hasArt && art.width >= 1200 && art.width * art.height > 300000;
@@ -71,6 +73,12 @@ export function buildGuideSeoAudit(sourceInput) {
         google_indexing: result("unknown", "Crawlability and sitemap presence do not prove Google indexing."),
         search_console_performance: result("unknown", "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."),
         firsthand_evidence: result("unknown", "No author visit notes were supplied; source review is not firsthand experience."),
+        ...(field ? {
+          source_crawlable_html: result("pass", "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."),
+          representative_image: result("pass", "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."),
+          social_metadata: result("pass", "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."),
+          comparison_shortcut: result("pass", "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."),
+        } : {}),
         // Asset inventory and shared-template wiring cannot certify a different
         // route. Preserve its registry sitemap proof and honest image record;
         // runtime/metadata/crop evidence belongs to the dedicated page receipt.

@@ -154,6 +154,7 @@ export default function GuideFigure({
     <figure
       className={[styles.figure, styles[role] || styles.pick, className].filter(Boolean).join(" ")}
       data-guide-figure={role}
+      data-full-frame={media.fullFrame || undefined}
       {...rest}
     >
       <div className={[styles.frame, frameClassName].filter(Boolean).join(" ")}>
