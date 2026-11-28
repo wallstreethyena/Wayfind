@@ -54,7 +54,7 @@ export default async function Page({ params }) {
   if (!view || !view.hasPage) notFound();
   const shareUrl = SITE_URL + view.path;
   const url = shareUrl;
-  const hero = guideContextPhoto("valentines-day-in-florida", { name: region.title }, { title: region.title, region: region.label, contextLocations: [region.label] }, { topic: "dining" });
+  const hero = guideContextPhoto("valentines-day-in-florida", { name: region.title }, { title: region.title, region: region.label, contextLocations: [region.label] }, { topic: "valentines" });
   const itemList = seasonItemListSchema(view.events, { siteUrl: SITE_URL, name: region.title, url });
   const breadcrumbs = { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
     { "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL },
