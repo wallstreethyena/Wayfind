@@ -7142,6 +7142,87 @@
       }
     },
     {
+      "slug": "angell-phelps-chocolate-daytona-beach",
+      "url": "https://www.gowayfind.com/guides/angell-phelps-chocolate-daytona-beach",
+      "primary_query": "Angell & Phelps chocolate factory viewing times",
+      "geography": "Daytona Beach",
+      "decision": "Visit the candy kitchen on Beach Street during its weekday viewing windows, then follow a short route to the Halifax River. Find hours, parking and the weekend alternative.",
+      "checks": {
+        "source_route": {
+          "status": "pass",
+          "evidence": "Listed by generateStaticParams; unknown slugs call notFound()."
+        },
+        "source_metadata": {
+          "status": "pass",
+          "evidence": "Shared generator supplies an aligned title, description and visible H1 title input."
+        },
+        "source_canonical": {
+          "status": "pass",
+          "evidence": "Shared metadata builds and emits the per-slug self-canonical."
+        },
+        "source_robots": {
+          "status": "pass",
+          "evidence": "Shared metadata sets index, follow and max-image-preview:large."
+        },
+        "source_sitemap": {
+          "status": "pass",
+          "evidence": "The guide registry is mapped into app/sitemap.js; updated is used as lastModified."
+        },
+        "source_crawlable_html": {
+          "status": "pass",
+          "evidence": "The field article server-renders its visit decisions, named sections, visit links and cited sources. scripts/test-florida-field-articles.mjs exercises the dynamic guide route."
+        },
+        "article_schema": {
+          "status": "pass",
+          "evidence": "Article wiring includes the reviewed image. datePublished (2026-11-27) is a real recorded publish date, sourced from git history for legacy entries lacking one."
+        },
+        "breadcrumb_schema": {
+          "status": "pass",
+          "evidence": "BreadcrumbList links Wayfind, Guides and the canonical article URL."
+        },
+        "social_metadata": {
+          "status": "pass",
+          "evidence": "Open Graph and Twitter use the branded 1200x630 hero card with the complete source photograph and adjacent photographer and license credit."
+        },
+        "image_record": {
+          "status": "pass",
+          "evidence": "/guides/field-notes/angell-phelps-chocolate-daytona-beach.jpg; 800x533; Rob Bixby; CC BY 2.0."
+        },
+        "representative_image": {
+          "status": "pass",
+          "evidence": "The full-frame photograph is used in the guide, its Article structured data and its credited social preview."
+        },
+        "large_image_candidate": {
+          "status": "unknown",
+          "evidence": "Reviewed source image is 800x533; it is not claimed as a 1200px-wide Discover candidate."
+        },
+        "contextual_guide_links": {
+          "status": "unknown",
+          "evidence": "No intent-fit sibling was added; a same-city link alone is insufficient evidence."
+        },
+        "comparison_shortcut": {
+          "status": "pass",
+          "evidence": "The contents link to the rendered visit decisions, both planning sections, visit actions and sources."
+        },
+        "production_http": {
+          "status": "unknown",
+          "evidence": "No all-page production HTTP response measurement is stored in this source audit."
+        },
+        "google_indexing": {
+          "status": "unknown",
+          "evidence": "Crawlability and sitemap presence do not prove Google indexing."
+        },
+        "search_console_performance": {
+          "status": "unknown",
+          "evidence": "No Search Console connector or export was available; no clicks, impressions, CTR or position were inferred."
+        },
+        "firsthand_evidence": {
+          "status": "unknown",
+          "evidence": "No author visit notes were supplied; source review is not firsthand experience."
+        }
+      }
+    },
+    {
       "slug": "la-segunda-bakery-ybor-seminole-heights",
       "url": "https://www.gowayfind.com/guides/la-segunda-bakery-ybor-seminole-heights",
       "primary_query": "La Segunda Ybor vs Seminole Heights",

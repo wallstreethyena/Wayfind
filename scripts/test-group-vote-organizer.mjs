@@ -67,6 +67,76 @@ const pickTime = (h,value) => { selects(h.tree)[1].props.onChange({ target: { va
 const check = (h,label,value = true) => { checkbox(h.tree,label).props.onChange({ target: { checked: value } }); h.render(); };
 const FLAGS = { partial: "Not everyone replied", tie: "It’s a tie", unavailable: "Not everyone can make this time", hours: "Opening hours for this time aren’t confirmed" };
 
+await test("device contacts require a tap; only checked phone numbers enter the local Messages draft", async () => {
+ const originalWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+ const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+ const drafts = [], prompts = [], notices = [];
+ let contacts = [];
+ const picker = { async select(fields, options) {
+   prompts.push({ fields, options });
+   if (contacts instanceof Error) throw contacts;
+   return contacts;
+ } };
+ const win = { isSecureContext: true, location: { assign(uri) { drafts.push(uri); } } };
+ const nav = {};
+ Object.defineProperty(globalThis, "window", { value: win, configurable: true });
+ Object.defineProperty(globalThis, "navigator", { value: nav, configurable: true });
+ let organizer, unsupported, supported;
+ try {
+   organizer = hooks(Org, org({ ...view(open2), groupToken: "fixture-group-token" }));
+   const entry = nodes(organizer.render()).find(node => typeof node.type === "function" && typeof node.props.body === "string" && typeof node.props.onNotice === "function");
+   yes(entry, "real organizer mounts the text invitation");
+   const props = { ...entry.props, onNotice: (message) => notices.push(message) };
+   unsupported = hooks(entry.type, props);
+   const fallback = unsupported.render();
+   eq(button(fallback, "Choose contacts"), undefined);
+   const fallbackUri = nodes(fallback).find(node => node.type === "a").props.href;
+   eq(new URL(fallbackUri).searchParams.get("body"), props.body);
+   matches(props.body, /#group=fixture-group-token/);
+   nav.contacts = picker;
+   supported = hooks(entry.type, props);
+   supported.render();
+   eq(prompts.length, 0, "mounting never asks to read contacts");
+   contacts = [{ tel: ["(813) 555-0100"] }, { tel: ["8135550100"] }, { tel: ["+1 813 555 0101", "+44 7700 900123"] }, { tel: ["123;body=wrong", "8135550102,8135550103"] }];
+   await button(supported.tree, "Choose contacts").props.onClick();
+   let tree = supported.render();
+   eq(prompts, [{ fields: ["tel"], options: { multiple: true } }]);
+   eq(drafts, [], "granting contact access never launches a message");
+   eq(labelBoxes(tree).length, 3, "deduplicates formatting and rejects receiver-list and URL syntax");
+   eq(checkbox(tree, "8135550100").props.checked, true);
+   eq(checkbox(tree, "+18135550101").props.checked, false, "multiple numbers on one contact require a choice");
+   checkbox(tree, "+447700900123").props.onChange();
+   tree = supported.render();
+   eq(button(tree, "Text 2 numbers").props.disabled, false);
+   yes(!nodes(tree).some(node => node.props?.href?.includes("8135550100")), "phone numbers stay out of link attributes");
+   button(tree, "Text 2 numbers").props.onClick();
+   eq(drafts.length, 1);
+   const uri = new URL(drafts[0]);
+   eq(uri.protocol, "sms:");
+   eq(uri.pathname, "8135550100,+447700900123");
+   eq(uri.searchParams.get("body"), props.body);
+   contacts = Object.assign(new Error("canceled"), { name: "AbortError" });
+   await button(tree, "Choose different contacts").props.onClick();
+   eq(button(supported.render(), "Text 2 numbers").props.disabled, false);
+   contacts = Array.from({ length: 11 }, (_, i) => ({ tel: ["81355501" + String(i).padStart(2, "0")] }));
+   await button(supported.tree, "Choose different contacts").props.onClick();
+   tree = supported.render();
+   eq(button(tree, "Text 11 numbers").props.disabled, true, "all selected numbers stay visible when the vote capacity is exceeded");
+   button(tree, "Clear numbers").props.onClick();
+   tree = supported.render();
+   yes(nodes(tree).some(node => node.props?.href === fallbackUri));
+   eq(labelBoxes(tree).length, 0);
+   contacts = Object.assign(new Error("access denied"), { name: "NotAllowedError" });
+   await button(tree, "Choose contacts").props.onClick();
+   matches(notices.at(-1), /choose recipients in Messages/);
+   eq(drafts.length, 1, "cancel, clearing, and denial never send or open another draft");
+ } finally {
+   organizer?.dispose(); unsupported?.dispose(); supported?.dispose();
+   if (originalWindow) Object.defineProperty(globalThis, "window", originalWindow); else delete globalThis.window;
+   if (originalNavigator) Object.defineProperty(globalThis, "navigator", originalNavigator); else delete globalThis.navigator;
+ }
+});
+
 await test("title and plain description",() => {
  const html = markup(Org,org(view(open2)));
  matches(html,/<h1>Who’s in &amp; when\?<\/h1>/); matches(html,/Your people\. A few great options\. One plan together/);

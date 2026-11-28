@@ -2,6 +2,7 @@
 // Exercise the published guide catalog and the server-rendered visitor copy.
 // No network or credentials are used.
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,6 +32,7 @@ const components = await loadComponent(path.join(root, "app/components/FloridaFi
 const docs = buildSearchCatalog({ today: "2026-11-27" });
 const hub = guideRegions(currentGuides(GUIDES, "2026-11-27")).flatMap((group) => group.guides);
 const places = [
+  ["angell-phelps-chocolate-daytona-beach", "has ended its guided tours"],
   ["la-segunda-bakery-ybor-seminole-heights", "5150 N. Florida Avenue"],
   ["black-point-wildlife-drive-merritt-island", "did not establish that Black Point was open"],
   ["ding-darling-wildlife-drive-sanibel", "except Friday"],
@@ -126,10 +128,15 @@ assert.equal(eventDom.querySelectorAll('h1,script[type="application/ld+json"]').
 assert.ok(eventDom.body.textContent.includes("$54 with one official parking space"));
 verifyArticle(eventDom, event);
 verifyPhoto(eventDom, FIELD_IMAGES[event.slug]);
+const daytona = FIELD_IMAGES[places[0][0]];
+assert.equal(createHash("sha256").update(readFileSync(path.join(root, "public", daytona.src))).digest("hex"), "92b083c3a44fb681e762b2f59a2eee6c4d0a282d1b534c70313dbe7825f0656c");
+assert.equal(daytona.source, "https://www.flickr.com/photos/scubabix/5207589937/");
+assert.equal(daytona.license, "CC BY 2.0");
+
 // Removing an actual rendered attribution or substituting a figure from another
 // place must fail the very same assertions as a release.
 const creditless = eventDom.cloneNode(true);
 creditless.querySelector('figure a').remove();
 assert.throws(() => verifyPhoto(creditless, FIELD_IMAGES[event.slug]), assert.AssertionError);
-assert.throws(() => verifyPhoto(eventDom, FIELD_IMAGES[places[0][0]]), assert.AssertionError);
-console.log("Florida field articles: 8 searchable guides and one existing event enrichment, exact photos, sources, bylines, directions and social credits verified.");
+assert.throws(() => verifyPhoto(eventDom, daytona), assert.AssertionError);
+console.log("Florida field articles: 9 searchable guides and one existing event enrichment, exact photos, sources, bylines, directions and social credits verified.");

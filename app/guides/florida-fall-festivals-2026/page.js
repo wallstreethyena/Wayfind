@@ -133,10 +133,10 @@ const mapSpots = [
     name: "St. Pete Pier Fall Fest + Pumpkin Patch",
     groups: ["pumpkins", "family", "events"],
     city: "St. Petersburg",
-    when: "Pumpkin patch Oct 9 to 25 • Fall Fest Oct 10 to 11",
-    detail: "Waterfront pumpkins, family activities, live music and food at the Pier. The festival is free to attend.",
-    href: "https://stpetepier.org/signature-event/st-pete-fall-festival/",
-    cta: "Official event",
+    when: "2026 pumpkin patch ended October 25",
+    detail: "The Pier hosted its waterfront pumpkin patch at Family Park from October 9 through 25, 2026.",
+    href: "https://stpetepier.org/event/st-pete-pier-pumpkin-patch-7/",
+    archiveLabel: "Pier’s 2026 pumpkin patch archive",
     lat: 27.7737074,
     lng: -82.622616,
     category: "attractions",
@@ -700,7 +700,7 @@ const GUIDE_TICKET_EVENT_IDS = Object.freeze({
 });
 
 function guideTicketCta(event, href) {
-  if (!event || !href || String(href).startsWith("/")) return null;
+  if (!event || event.archiveLabel || !href || String(href).startsWith("/")) return null;
   const registryId = GUIDE_TICKET_EVENT_IDS[event.event_id];
   return registryId ? eventTicketCta(registryId, { surface: "guide_fall_festivals" }) : null;
 }
@@ -746,7 +746,7 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true, ven
         <p>{event.card_hook || event.editorial_summary || eventWhen(event)}</p>
         <small className={styles.whenLine}>{eventWhen(event)}</small>
         {ticket ? <a href={ticket.href} rel="sponsored noopener" data-commerce-surface="guide_fall_festivals">{"Tickets at " + ticket.via + " \u2197"}</a>
-          : href ? <a href={href}>{String(href).startsWith("/") ? "Open on Wayfind" : "Official information"}</a> : null}
+          : href ? <a href={href}>{event.archiveLabel || (String(href).startsWith("/") ? "Open on Wayfind" : "Official information")}</a> : null}
       </div>
     </article>
   );

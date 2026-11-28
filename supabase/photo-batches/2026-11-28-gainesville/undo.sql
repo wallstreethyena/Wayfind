@@ -1,0 +1,10 @@
+begin;
+set local wayfind.photo_change_reason = 'undo 2026-11-28-gainesville photo batch';
+delete from public.wf_place_photo where place_id='ChIJn18R4Guj6IgRuMZobqHdvy8' and source_ref='File:Gainesville_FL_UF_bat_house01.jpg';
+delete from public.wf_place_photo where place_id='ChIJVZxw1tCj6IgRdJVRXYV9PDY' and source_ref='File:Gainesville_FL_Boulware_Springs_pano01.jpg';
+delete from public.wf_place_photo where place_id='ChIJGz1-6Yuu6IgRTUd3BUM-k0A' and source_ref='File:Lubee_Bat_Conservancy.jpg';
+delete from public.wf_place_photo where place_id='ChIJuWtcCEqh6IgRk9ow0lfVBqU' and source_ref='File:Morningside_Nature_Center_LHF_cabin01.jpg';
+delete from public.wf_place_photo where place_id='ChIJCURNZYKj6IgRX0Ismyjwfas' and source_ref='File:Gainesville_Fl_SwampRestaurant.jpg';
+delete from public.wf_place_photo where place_id='ChIJZVwj1oyj6IgRkeifh6f1Nzg' and source_ref='File:Harry''s_Seafood_Bar_and_Grille,_Gainesville_FL.JPG';
+delete from public.wf_place_photo where place_id='ChIJuTCquvK96IgR5dtZPIGnjWI' and source_ref='File:Dave_&_Buster''s,_Gainesville.jpg';
+commit;

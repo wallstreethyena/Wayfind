@@ -192,11 +192,11 @@
   .section[data-location-selected="false"] + .section { padding-top:24px; }
 }
 
-.sectionMenu { position:sticky; top:0; z-index:20; display:flex; gap:8px; width:min(1200px,100% - 32px); margin-inline:auto; padding:12px 0; overflow-x:auto; background:#0a1018; border-block:1px solid var(--fl-line); scrollbar-width:thin; }
+.sectionMenu { position:sticky; top:var(--wf-fixed-top, 0px); z-index:20; display:flex; gap:8px; width:min(1200px,100% - 32px); margin-inline:auto; padding:12px 0; overflow-x:auto; background:#0a1018; border-block:1px solid var(--fl-line); scrollbar-width:thin; }
 .sectionMenu a { flex:0 0 auto; display:flex; align-items:center; min-height:44px; padding:10px 16px; border:1px solid var(--fl-line); border-radius:999px; font-size:12px; font-weight:700; white-space:nowrap; }
 .sectionMenu a[aria-current="true"] { background:#30231d; border-color:var(--fl-orange); color:var(--fl-orange); }
 .sectionMenu a:hover { background:#18232c; text-decoration:none; }
-.sectionMenu ~ .content .section { scroll-margin-top:82px; }
+.sectionMenu ~ .content .section { scroll-margin-top:calc(var(--wf-fixed-top, 0px) + 82px); }
 .accordion { scroll-margin-top:86px; border-bottom:1px solid var(--fl-line); }
 .accordionHeading { margin:0; font-family:var(--wf-display); font-size:clamp(28px,3vw,38px); line-height:1.15; font-weight:700; letter-spacing:-.025em; }
 .accordionHeading button { display:flex; align-items:center; justify-content:space-between; gap:20px; width:100%; padding:28px 0; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; }

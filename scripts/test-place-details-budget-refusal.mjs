@@ -44,6 +44,7 @@ const PRELUDE = `
   const NextResponse = { json: (b, i) => Response.json(b, i) };
   const placeDiscoveryRef = (id) => "places/" + id + "/photos/fixture";
   const getCachedPlaceIdentity = async () => null;
+  const resolveGracefulDetailFallback = async () => null;
   const getInventoryIdentity = async () => { const s = globalThis.__budgetRefusal; s.inventoryReads++; return s.inventory; };
   const gateShut = () => globalThis.__budgetRefusal.shut;
   const spendAllow = async (sku) => { const s = globalThis.__budgetRefusal; s.grants.push(sku); return !s.denied; };
@@ -59,6 +60,17 @@ const post = (kind) => route.POST(new Request("https://fixture.test/api/places/d
 }));
 
 process.env.GOOGLE_MAPS_SERVER_KEY = "fixture-not-a-key";
+
+for (const kind of ["area", "place", "detail"]) {
+  const id = "wfadd_verified_area";
+  reset({ inventory: { ...IDENTITY, place_id: id } });
+  const res = await route.POST(new Request("https://fixture.test/api/places/details", {
+    method: "POST", body: JSON.stringify({ placeId: id, kind, allowPartial: true, forceLive: true }),
+  }));
+  eq((await res.json()).place.id, id, `native ${kind} returns the held identity`);
+  eq(state.googleCalls, 0, `native ${kind} never calls Google`);
+  eq(state.grants.length, 0, `native ${kind} never requests a grant`);
+}
 
 // ── 1. THE CORE INVARIANT, over every refusal x kind x inventory combination ─
 for (const [refusal, over] of [["gate shut", { shut: true }], ["budget", { denied: true }]]) {

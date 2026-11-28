@@ -59,8 +59,8 @@ const iNearby = home.indexOf("const result = await ownedSearch(q, nearGeo || sea
 ok(iArea > 0, "submitSearch resolves an area via geoTry");
 ok(iNearby > 0, "submitSearch supports free owned-business search (McDonald's etc)");
 ok(iArea < iNearby, "AREA resolution runs BEFORE the nearby-business search (the actual bug)");
-ok(/if \(area && area\.isArea\) \{ goTo\(area\); return; \}/.test(home),
-   "a real city short-circuits straight to recentering");
+ok(/if \(area && area\.isArea && !options\.placeIntent\) \{ goTo\(area\); return; \}/.test(home),
+   "a normal city search short-circuits straight to recentering; explicit place searches can open their exact sheet");
 
 // ── the recenter helper actually moves the app (center + name + exits search) ─
 ok(/function goToSearchCity\(g, attempt\) \{[\s\S]{0,500}setCenter\(g\)/.test(home), "goTo sets the center");
@@ -91,4 +91,4 @@ ok(/const searchCenter = \(userPickedLocation && center\)/.test(home),
 }
 
 if (fails) process.exit(1);
-console.log("test-city-search: OK — a city always recenters the feed; Enter is deterministic; search follows the chosen location");
+console.log("test-city-search: OK — city searches recenter the feed, Enter is deterministic and search follows the chosen location");

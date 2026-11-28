@@ -532,6 +532,13 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
   const { withViatorTracking } = await import(REPO + "lib/affiliates.js");
   const tm = await import(REPO + "app/api/ticketmaster/go/route.js");
   const hotels = await import(REPO + "app/api/hotels/go/route.js");
+  const { EVENT_UNAVAILABLE_HEADER } = await import(REPO + "lib/ticketAvailability.js");
+  const active = { offer: "1234P5", location: withViatorTracking("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5") };
+  const backup = { offer: "5678P1", location: withViatorTracking("https://www.viator.com/tours/Orlando/Paddle/d827-5678P1") };
+  const sold = { offer: "3805P5", location: "/florida-events/closed-party", unavailable: "1" };
+  let offers = [];
+  let probed = [];
+  const unexpectedPaths = [];
   const seenUAs = [];
   const server = createServer(async (inReq, out) => {
     try {
@@ -543,12 +550,24 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
       if (inReq.url.startsWith("/api/ticketmaster/go")) res = await tm.GET(new Request(url, { headers }));
       else if (inReq.url.startsWith("/api/hotels/go")) res = await hotels.GET(new Request(url, { headers }));
       else if (inReq.url.startsWith("/api/commerce/go")) {
-        // commerce/go's viator offer needs the live DB; stand in with the
-        // real attribution builder so the watchdog's pid check has a real input.
-        res = new Response(null, { status: 302, headers: { Location: withViatorTracking("https://www.viator.com/tours/Orlando/Airboat/d827-1234P5") } });
+        const id = new URL(url).searchParams.get("offer");
+        probed.push(id);
+        // No network lookup: issue the supplied first-hop response only.
+        const row = offers.find((offer) => offer.offer === id);
+        if (!row) throw new Error("unexpected offer " + id);
+        const responseHeaders = {};
+        if (row.location) responseHeaders.Location = row.location;
+        if (row.unavailable) responseHeaders[EVENT_UNAVAILABLE_HEADER] = row.unavailable;
+        res = new Response(null, { status: row.status || 302, headers: responseHeaders });
       } else if (inReq.url === "/" || inReq.url.startsWith("/?")) {
-        res = new Response('<html><body><a href="/api/commerce/go?provider=viator&amp;offer=v1&amp;surface=home">Book</a></body></html>', { status: 200, headers: { "Content-Type": "text/html" } });
-      } else res = new Response("nf", { status: 404 });
+        const cards = offers.map(({ offer, content = "event-" + offer, origin = "" }) =>
+          `<a href="${origin}/api/commerce/go?provider=viator&amp;offer=${offer}&amp;content=${content}">Book</a>`
+        ).join("");
+        res = new Response(cards, { status: 200, headers: { "Content-Type": "text/html" } });
+      } else {
+        unexpectedPaths.push(inReq.url);
+        res = new Response("nf", { status: 404 });
+      }
       const h = {};
       res.headers.forEach((v, k) => { h[k] = v; });
       out.writeHead(res.status, h);
@@ -568,6 +587,7 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
     globalThis.fetch = (u, i) => {
       const host = new URL(String(u && u.url ? u.url : u)).hostname;
       if (host !== "127.0.0.1") { process.stderr.write("WF_OFFSITE_FETCH " + host + "\\n"); return Promise.reject(new TypeError("offsite fetch blocked by guard: " + host)); }
+      if (i?.redirect !== "manual") { process.stderr.write("WF_AUTOMATIC_REDIRECT\\n"); return Promise.reject(new TypeError("automatic redirects blocked by guard")); }
       return real(u, i);
     };`);
   const runChild = (args) => new Promise((resolve) => {
@@ -583,16 +603,55 @@ for (const rel of ROUTES.filter((r) => r in FIX)) {
   const ctl = await runChild(["--input-type=module", "-e", "try { await fetch('https://partner.example/x'); } catch {}"]);
   ok(/WF_OFFSITE_FETCH partner\.example/.test(ctl.se), "PROBE BROKEN: the off-site fetch recorder must catch a deliberate off-site fetch (else 'zero partner fetches' below proves nothing)");
 
-  const w = await runChild(["scripts/watchdog-affiliate-links.mjs", `--base-url=http://127.0.0.1:${port}`]);
+  const wrongDomain = new URL(active.location);
+  wrongDomain.hostname = "viator.com.example";
+  const noPid = new URL(active.location);
+  noPid.searchParams.delete("pid");
+  const nestedPid = new URL(noPid);
+  nestedPid.searchParams.set("note", "pid=" + new URL(active.location).searchParams.get("pid"));
+  const wrongPid = new URL(active.location);
+  wrongPid.searchParams.set("pid", wrongPid.searchParams.get("pid") + "0");
+  const duplicatePid = new URL(active.location);
+  duplicatePid.searchParams.append("pid", "another-account");
+
+  // A healthy backup after a defective probe must never hide the defect.
+  const cases = [
+    { label: "repeated sold-out card and live offer", rows: [sold, sold, active], probes: [sold.offer, active.offer], success: true },
+    { label: "offsite commerce path cannot supply a sample", rows: [{ ...sold, origin: "https://partner.example" }, active], probes: [active.offer], success: true },
+    { label: "all unavailable", rows: [sold, { offer: "closed", location: "/florida-events", unavailable: "1" }], probes: [sold.offer, "closed"] },
+    { label: "unmarked event fallback", rows: [{ ...sold, unavailable: "" }, backup], probes: [sold.offer] },
+    { label: "unknown availability signal", rows: [{ ...sold, unavailable: "unknown" }, backup], probes: [sold.offer] },
+    { label: "marked offsite Location", rows: [{ ...active, unavailable: "1" }, backup], probes: [active.offer] },
+    { label: "marked refusal without event content", rows: [{ ...sold, content: "" }, backup], probes: [sold.offer] },
+    { label: "marked arbitrary local Location", rows: [{ ...sold, location: "/error" }, backup], probes: [sold.offer] },
+    { label: "non-Viator host with right pid", rows: [{ ...active, location: wrongDomain.href }, backup], probes: [active.offer] },
+    { label: "Viator product without pid", rows: [{ ...active, location: noPid.href }, backup], probes: [active.offer] },
+    { label: "pid hidden inside another parameter", rows: [{ ...active, location: nestedPid.href }, backup], probes: [active.offer] },
+    { label: "pid with Wayfind prefix only", rows: [{ ...active, location: wrongPid.href }, backup], probes: [active.offer] },
+    { label: "duplicate pid", rows: [{ ...active, location: duplicatePid.href }, backup], probes: [active.offer] },
+    { label: "wrong Viator product", rows: [{ ...active, location: backup.location }, backup], probes: [active.offer] },
+    { label: "invalid Location", rows: [{ ...active, location: "https://[" }, backup], probes: [active.offer] },
+    { label: "redirect missing Location", rows: [{ ...active, location: "" }, backup], probes: [active.offer] },
+    { label: "nonredirect response", rows: [{ ...active, status: 200 }, backup], probes: [active.offer] },
+    { label: "missing offer id", rows: [{ ...active, offer: "" }, backup], probes: [] },
+  ];
+  for (const { label, rows, probes, success = false } of cases) {
+    offers = rows;
+    probed = [];
+    const w = await runChild(["scripts/watchdog-affiliate-links.mjs", `--base-url=http://127.0.0.1:${port}`]);
+    const verdict = success ? "PASS" : "FAIL";
+    ok(w.code === (success ? 0 : 1) && w.so.includes(verdict + " viator"), `${label}: expected ${verdict} viator; stdout: ${w.so.slice(0, 1200)}; stderr: ${w.se.slice(0, 400)}`);
+    ok(JSON.stringify(probed) === JSON.stringify(probes), `${label}: expected offer probes ${probes}, got ${probed}`);
+    ok(!/WF_OFFSITE_FETCH|WF_AUTOMATIC_REDIRECT/.test(w.se), `${label}: no partner requests or automatic redirect following (${w.se})`);
+    for (const name of ["ticketmaster", "stay22"]) {
+      ok(w.so.includes("PASS " + name), `${label}: ${name} still passes using only its Wayfind-issued Location`);
+    }
+  }
   await settle();
   server.close();
-  const offsite = (w.se.match(/WF_OFFSITE_FETCH \S+/g) || []);
-  ok(offsite.length === 0, `watchdog must make ZERO requests outside our origin — no partner click per run (saw: ${offsite.join(", ")})`);
+  ok(unexpectedPaths.length === 0, `watchdog never fetches local event landings or fallback pages; saw ${unexpectedPaths}`);
   ok(seenUAs.length >= 3, `PROBE BROKEN: the local server must have served the watchdog's probes (served ${seenUAs.length})`);
   ok(seenUAs.length > 0 && seenUAs.every((ua) => isSyntheticMonitor(ua) && !isCrawler(ua)), `every watchdog request identifies as our internal probe (isSyntheticMonitor && !isCrawler); saw: ${[...new Set(seenUAs)].join(" | ")}`);
-  for (const name of ["ticketmaster", "viator", "stay22"]) {
-    ok(new RegExp("^PASS " + name + "\\b", "m").test(w.so), `watchdog still PASSES its ${name} tracking check from the first (Wayfind-issued) hop alone; output:\n${w.so.slice(0, 1200)}`);
-  }
   ok(captured.length === beforeCaptures, `watchdog run through the REAL ticketmaster/hotels handlers captured ${captured.length - beforeCaptures} events (must be 0 — it is never a human)`);
 }
 

@@ -16,9 +16,9 @@
  *      event URL; the redirect chain must contain the Impact path
  *      ticketmaster.evyy.net/c/7475855/264167/4272.
  *   2. Viator — take a real /api/commerce/go?provider=viator link off the
- *      live home page and follow it; the chain must contain
- *      pid=<WAYFIND_VIATOR_PID>, read from lib/viatorPid.js (never a second
- *      hardcoded copy of the pid in this file).
+ *      live home page. Skip verified no-sale event responses, then require
+ *      the offered Viator product and the exact WAYFIND_VIATOR_PID in the
+ *      first available redirect's Location. Never fetch that Location.
  *   3. Stay22 — GET /api/hotels/go for a hotel the repo's own verification
  *      data marks allowed (lib/hotelBookingVerification.json joined to
  *      lib/ownedHotels.json, the same shape lib/affiliates.js hotelGoUrl
@@ -68,6 +68,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { PROVIDERS, isAllowedHost } from "../lib/commerceProviders.js";
+import { EVENT_UNAVAILABLE_HEADER } from "../lib/ticketAvailability.js";
+import { parseViatorProductUrl } from "../lib/viatorIntegrity.js";
 import { WAYFIND_VIATOR_PID } from "../lib/viatorPid.js";
 import { TP_PROGRAMS, isTpProgramLive, tpDeepLink } from "../lib/travelpayouts.js";
 
@@ -111,6 +114,15 @@ function parseBaseUrl(argv) {
 const BASE_URL = parseBaseUrl(process.argv.slice(2));
 
 // ── Chain following ──────────────────────────────────────────────────────
+// Every request, including the homepage, stops before HTTP redirects.
+function fetchProbe(url) {
+  return fetch(url, {
+    redirect: "manual",
+    headers: { "User-Agent": WATCHDOG_UA, Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8" },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
+}
+
 /**
  * GET `url` with redirect:"manual", following Location hops by hand so the
  * WHOLE chain is observable. Returns { hops, chainText } where hops is a
@@ -127,11 +139,7 @@ async function followChain(url) {
   for (let i = 0; i < MAX_HOPS; i++) {
     let res;
     try {
-      res = await fetch(current, {
-        redirect: "manual",
-        headers: { "User-Agent": WATCHDOG_UA, Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8" },
-        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      });
+      res = await fetchProbe(current);
     } catch (err) {
       hops.push(`ERROR ${current} (${err && err.message ? err.message : err})`);
       break;
@@ -151,15 +159,6 @@ async function followChain(url) {
     break;
   }
   return { hops, chainText: seen.join("\n") };
-}
-
-async function fetchText(url) {
-  const res = await fetch(url, {
-    redirect: "follow",
-    headers: { "User-Agent": WATCHDOG_UA, Accept: "text/html,application/xhtml+xml" },
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-  });
-  return { status: res.status, text: await res.text() };
 }
 
 // ── Check plumbing ───────────────────────────────────────────────────────
@@ -187,35 +186,63 @@ async function checkTicketmaster() {
 // ── 2. Viator (a real commerce link off the live home page) ─────────────
 async function checkViator() {
   const expected = `pid=${WAYFIND_VIATOR_PID}`;
-  let home;
+  let html;
   try {
-    home = await fetchText(BASE_URL + "/");
+    const home = await fetchProbe(BASE_URL + "/");
+    if (home.status !== 200) return report("viator", false, `home page returned ${home.status}; expected 200`);
+    html = await home.text();
   } catch (err) {
-    report("viator", false, `home page fetch failed (${err && err.message ? err.message : err}); expected a /api/commerce/go?provider=viator link carrying ${expected}`);
-    return;
+    return report("viator", false, `home page fetch failed (${err.message})`);
   }
-  if (home.status !== 200) {
-    report("viator", false, `home page returned ${home.status}; expected 200 with a /api/commerce/go?provider=viator link carrying ${expected}`);
-    return;
+
+  // A card may appear in both HTML and the RSC payload.
+  const decoded = html.replace(/\\u0026/g, "&").replace(/&amp;/g, "&");
+  const homeOrigin = new URL(BASE_URL).origin;
+  const hrefs = new Set([...decoded.matchAll(/["']((?:(?:https?:)?\/\/[^/"'\\\s<]+)?\/api\/commerce\/go\?[^"'\\\s<]+)/g)].map((match) => match[1]));
+  let unavailable = 0;
+  for (const href of hrefs) {
+    if (!URL.canParse(href, BASE_URL)) continue;
+    const start = new URL(href, BASE_URL);
+    if (start.origin !== homeOrigin || start.username || start.password) continue;
+    if (start.searchParams.get("provider")?.trim().toLowerCase() !== "viator") continue;
+    const offer = start.searchParams.get("offer")?.trim();
+    if (!offer) return report("viator", false, `missing offer on ${short(href)}`);
+
+    try {
+      const res = await fetchProbe(start);
+      const location = res.headers.get("location");
+      if (res.status !== 302 || !location) {
+        return report("viator", false, `offer ${offer} returned HTTP ${res.status} with Location ${short(location || "(missing)")}`);
+      }
+      const dest = new URL(location, start);
+      if (res.headers.has(EVENT_UNAVAILABLE_HEADER)) {
+        // Only the no-sale branch may skip a sample. A local fallback alone
+        // also occurs on broken offers and must still raise the alarm.
+        const eventLanding = dest.origin === homeOrigin && !dest.username && !dest.password && !dest.search && !dest.hash
+          && /^\/florida-events(?:\/[^/]+)?$/.test(dest.pathname);
+        if (res.headers.get(EVENT_UNAVAILABLE_HEADER) !== "1" || !start.searchParams.get("content")?.trim() || !eventLanding) {
+          return report("viator", false, `invalid event-unavailable redirect for ${offer}: ${short(dest.href)}`);
+        }
+        unavailable++;
+        continue;
+      }
+      const product = parseViatorProductUrl(dest.pathname);
+      const pids = dest.searchParams.getAll("pid");
+      const tracked = dest.protocol === "https:" && !dest.username && !dest.password && !dest.port
+        && isAllowedHost(dest.href, PROVIDERS.viator.hosts)
+        && product?.productCode.toUpperCase() === offer.toUpperCase()
+        && dest.pathname.replace(/\/$/, "").endsWith(`/d${product.destId}-${product.productCode}`)
+        && pids.length === 1 && pids[0] === WAYFIND_VIATOR_PID;
+      return report("viator", tracked, tracked
+        ? `offer ${offer} redirects to its Viator product with ${expected} (${unavailable} unavailable event links skipped)`
+        : `offer ${offer} expected its Viator product with ${expected}; saw ${short(dest.href)}`);
+    } catch (err) {
+      return report("viator", false, `could not inspect redirect for ${offer}: ${err.message}`);
+    }
   }
-  // Home CTAs ship inside the RSC payload with & JSON-escaped as &.
-  const decoded = home.text.replace(/\\u0026/g, "&").replace(/&amp;/g, "&");
-  const hrefs = [...decoded.matchAll(/\/api\/commerce\/go\?[^"'\s<\\]+/g)].map((m) => m[0]);
-  const viatorHrefs = hrefs.filter((h) => h.includes("provider=viator"));
-  if (!viatorHrefs.length) {
-    report("viator", false, `no /api/commerce/go?provider=viator link on the home page (saw ${hrefs.length} commerce/go links, 0 viator); expected at least one carrying ${expected}`);
-    return;
-  }
-  const start = new URL(viatorHrefs[0], BASE_URL).toString();
-  const { hops, chainText } = await followChain(start);
-  const ok = chainText.includes(expected);
-  report(
-    "viator",
-    ok,
-    ok
-      ? `${short(start)} -> chain carries ${expected} (${hops.length} hops)`
-      : `followed ${short(start)}; expected chain to contain ${expected}; saw: ${hops.map(short).join(" | ") || "no response"}`
-  );
+  return report("viator", false, unavailable
+    ? `all ${unavailable} Viator links led to unavailable events; no commercial redirect verified`
+    : `no Viator commerce link on the home page (${hrefs.size} distinct commerce links)`);
 }
 
 // ── 3. Stay22 (a verified hotel through /api/hotels/go) ──────────────────

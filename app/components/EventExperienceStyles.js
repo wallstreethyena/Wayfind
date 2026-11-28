@@ -59,7 +59,32 @@ export const EVENT_EXPERIENCE_CSS = `
 .wf-event-story{margin:0;line-height:1.6}
 .wf-event-story-label{color:#ff9a55;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
 
-.wf-event-section-nav{position:sticky;top:0;z-index:20;display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding:12px 0;background:#080b10;border-bottom:1px solid #27313d;scrollbar-width:thin}.wf-event-section-nav[hidden]{display:none}.wf-event-section-nav a{flex:0 0 auto;padding:10px 16px;border:1px solid #394553;border-radius:999px;color:#ffad72;text-decoration:none;font-size:14px;font-weight:600;white-space:nowrap}.wf-event-section-nav a:hover{background:#231a14;border-color:#ff9a55}.wf-event-experience [data-event-section]{scroll-margin-top:88px}.wf-event-experience [data-event-section]:focus{outline:none}
+/* Section tab rail (EventSectionNav). Owner report 2026-11-27: it slid under
+   the Christmas lights, looked unfinished, gave no sideways cue and was a black
+   bar on a red page. It now floats BELOW any fixed top bar (--wf-fixed-top is
+   set by the garland, lib/christmasBackdrop.js), takes its colors from the
+   theme variables below (the Christmas season overrides them), highlights the
+   section being read, and fades the edge with an arrow when more tabs hide off
+   screen. Guarded by scripts/check-sticky-under-garland.mjs. */
+.wf-event-section-nav{--wf-nav-bg:rgba(15,20,28,.92);--wf-nav-solid:#0f141c;--wf-nav-line:rgba(255,255,255,.10);--wf-nav-tab:rgba(255,255,255,.05);--wf-nav-tab-line:rgba(255,255,255,.13);--wf-nav-text:#f4ece4;position:sticky;top:calc(var(--wf-fixed-top,0px) + var(--wf-nav-gap,8px));z-index:34;max-width:980px;margin:0 auto 18px;border:1px solid var(--wf-nav-line);border-radius:22px;background:var(--wf-nav-bg);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);box-shadow:0 10px 26px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
+.wf-event-section-nav[hidden]{display:none}
+.wf-event-section-rail{position:relative;display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:8px;scroll-padding-inline:48px}
+.wf-event-section-rail::-webkit-scrollbar{display:none}
+.wf-event-section-rail a{flex:0 0 auto;display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border:1px solid var(--wf-nav-tab-line);border-radius:999px;background:var(--wf-nav-tab);color:var(--wf-nav-text);text-decoration:none;font-size:14px;font-weight:600;line-height:1;white-space:nowrap;transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease}
+.wf-event-section-rail a:hover{border-color:#ff9a55;color:#fff}
+.wf-event-section-rail a[aria-current="true"]{background:linear-gradient(180deg,#FF9B47,#F97316 60%,#EA6A0F);border-color:rgba(255,190,140,.6);color:#1f0d02;box-shadow:0 4px 12px rgba(249,115,22,.32)}
+.wf-event-section-rail a:focus-visible{outline:3px solid #ff782f;outline-offset:2px}
+.wf-event-section-nav::before,.wf-event-section-nav::after{content:"";position:absolute;top:0;bottom:0;z-index:1;width:64px;pointer-events:none;opacity:0;transition:opacity .2s ease}
+.wf-event-section-nav::before{left:0;background:linear-gradient(90deg,var(--wf-nav-solid) 35%,rgba(0,0,0,0))}
+.wf-event-section-nav::after{right:0;background:linear-gradient(270deg,var(--wf-nav-solid) 35%,rgba(0,0,0,0))}
+.wf-event-section-nav[data-more-left]::before,.wf-event-section-nav[data-more-right]::after{opacity:1}
+.wf-event-section-more{position:absolute;top:50%;z-index:2;display:none;align-items:center;justify-content:center;width:34px;height:34px;margin-top:-17px;padding:0;border:1px solid rgba(255,154,85,.6);border-radius:50%;background:var(--wf-nav-solid);color:#ffad72;font:700 22px/1 var(--wf-sans,system-ui);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+.wf-event-section-more:before{content:"";position:absolute;inset:-6px}
+.wf-event-section-more span{display:block;margin-top:-3px}
+.wf-event-section-more[data-side="left"]{left:7px}.wf-event-section-more[data-side="right"]{right:7px}
+.wf-event-section-nav[data-more-left] .wf-event-section-more[data-side="left"],.wf-event-section-nav[data-more-right] .wf-event-section-more[data-side="right"]{display:flex}
+@media(prefers-reduced-motion:reduce){.wf-event-section-rail a,.wf-event-section-nav::before,.wf-event-section-nav::after{transition:none}}
+.wf-event-experience [data-event-section]{scroll-margin-top:calc(var(--wf-fixed-top,0px) + 92px)}.wf-event-experience [data-event-section]:focus{outline:none}
 .wf-event-content{max-width:820px;margin:40px auto 0;line-height:1.75}
 .wf-event-experience .wfw{margin:40px 0}
 .wf-event-experience .wfw-card{background:#111821;border:1px solid #27313d;box-shadow:none;border-radius:20px}

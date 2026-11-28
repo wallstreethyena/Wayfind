@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { hotelBookingRecords } from "../lib/hotelBookingVerification.js";
 import { eventStays, selectEventStays, venueStayProximity } from "../lib/eventStays.js";
 
 const origin = { lat: 28.475, lng: -81.467 };
@@ -14,6 +15,32 @@ assert.equal(canonicalOwned.detailHref, "/p/ChIJ-test");
 assert.match(selectEventStays([hotel("wfh-owned")], origin)[0].detailHref, /^https:\/\/maps.apple.com\//);
 assert.equal(selectEventStays([hotel("wfh-owned")], origin)[0].mapsOnly, true);
 assert.deepEqual(selectEventStays([good], { lat: 0, lng: 0 }), []);
+// #1595. Real identities and coordinates from the two Clearwater source
+// pools. Eligibility must run before the nearest rooms claim the six slots.
+{
+  const venue = { lat: 27.9675165, lng: -82.8027306 };
+  const privateId = "ChIJa0-k3t_wwogRxkuOyPuYPLo";
+  const publicId = "ChIJt_7NKNj3wogRAY1VCSopCS8";
+  const privateRoom = hotel(privateId, { name: "The Osceola Religious Retreat", primaryType: "hotel", lat: 27.9688558, lng: -82.8009074, wfScore: 99 });
+  const publicRoom = hotel(publicId, { name: "Opal Sol Resort", primaryType: "resort_hotel", lat: 27.9706938, lng: -82.8291588, wfScore: 88 });
+  const ownedAlias = { ...privateRoom, id: "wfh-owned-retreat", googlePlaceId: privateId, name: "Renamed accommodation" };
+  const eligible = (rows, limit = 6) => selectEventStays(rows, venue, limit, { rank: "venue" }).map((p) => p.id);
+  assert.deepEqual(eligible([privateRoom, ownedAlias, publicRoom], 1), [publicId], "the public property fills the slot ahead of the closer participant-only hotel and its owned alias");
+  assert.deepEqual(eligible([{ ...privateRoom, name: "Downtown Hotel" }]), [], "operator eligibility is keyed by stable identity even if the hotel's display name changes");
+  assert.deepEqual(eligible([{ ...publicRoom, id: "unrelated", name: "Gulf Retreat Inn" }]), ["unrelated"], "a commercial hotel is not excluded because its name includes Retreat");
+  const uncertain = { ...publicRoom, id: "unconfirmed-group-stay", primaryType: "lodging", types: ["lodging"], name: "Camp Conference Lodge" };
+  assert.deepEqual(eligible([uncertain]), [], "generic lodging alone cannot verify a public room for an event");
+  assert.deepEqual(eligible([{ ...uncertain, primaryType: "campground", types: ["campground", "lodging", "hotel"] }]), [], "a group camp cannot acquire public guest rooms from a secondary hotel tag");
+  const partnerMatch = hotelBookingRecords().find((row) => row.placeId);
+  assert.ok(partnerMatch, "exercise an actual exact-property booking verification");
+  assert.deepEqual(eligible([{ ...uncertain, id: partnerMatch.placeId }]), [partnerMatch.placeId], "an exact booking match is positive evidence for a generically typed stay");
+  assert.deepEqual(eligible([{ ...uncertain, id: publicId, name: publicRoom.name }]), [publicId], "the operator's documented public rooms survive incomplete taxonomy");
+  const inventoryRow = { id: privateId, displayName: { text: privateRoom.name }, primaryType: "hotel", types: ["hotel", "lodging"], location: { latitude: privateRoom.lat, longitude: privateRoom.lng }, rating: 4.9, userRatingCount: 1000 };
+  const answer = await eventStays(venue, { readOwned: async () => [ownedAlias, publicRoom], readInventory: async () => [inventoryRow] });
+  assert.deepEqual(answer.places.map((p) => p.id), [publicId], "the real event loader filters both inventories before ranking");
+  const onlyRestricted = await eventStays(venue, { readOwned: async () => [ownedAlias], readInventory: async () => [inventoryRow] });
+  assert.deepEqual(onlyRestricted, { places: [], unavailable: false }, "an all-restricted owned pool is an empty answer, not an outage");
+}
 let calls = 0;
 assert.deepEqual(await eventStays({ lat: null, lng: null }, { readOwned: () => { calls++; }, readInventory: () => { calls++; } }), { places: [], unavailable: false });
 assert.equal(calls, 0);

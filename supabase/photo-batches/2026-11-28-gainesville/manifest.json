@@ -1,0 +1,82 @@
+{
+ "batch": "2026-11-28-gainesville",
+ "places": [
+  {
+   "place_id": "ChIJn18R4Guj6IgRuMZobqHdvy8",
+   "name": "UF Bat Houses",
+   "file": "Gainesville FL UF bat house01.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Gainesville_FL_UF_bat_house01.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Gainesville_FL_UF_bat_house01.jpg",
+   "license": "CC BY-SA 4.0",
+   "author": "Ebyabe",
+   "width": 4288,
+   "height": 3216
+  },
+  {
+   "place_id": "ChIJVZxw1tCj6IgRdJVRXYV9PDY",
+   "name": "Boulware Springs Park",
+   "file": "Gainesville FL Boulware Springs pano01.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Gainesville_FL_Boulware_Springs_pano01.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Gainesville_FL_Boulware_Springs_pano01.jpg",
+   "license": "CC BY-SA 3.0",
+   "author": "Ebyabe",
+   "width": 3401,
+   "height": 1710
+  },
+  {
+   "place_id": "ChIJGz1-6Yuu6IgRTUd3BUM-k0A",
+   "name": "Lubee Bat Conservancy",
+   "file": "Lubee Bat Conservancy.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/a/a5/Lubee_Bat_Conservancy.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Lubee_Bat_Conservancy.jpg",
+   "license": "CC BY-SA 4.0",
+   "author": "LittleT889",
+   "width": 4032,
+   "height": 3024
+  },
+  {
+   "place_id": "ChIJuWtcCEqh6IgRk9ow0lfVBqU",
+   "name": "Morningside Nature Center",
+   "file": "Morningside Nature Center LHF cabin01.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Morningside_Nature_Center_LHF_cabin01.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Morningside_Nature_Center_LHF_cabin01.jpg",
+   "license": "CC BY 2.5",
+   "author": "Ebyabe",
+   "width": 3264,
+   "height": 2448
+  },
+  {
+   "place_id": "ChIJCURNZYKj6IgRX0Ismyjwfas",
+   "name": "The Swamp Restaurant",
+   "file": "Gainesville Fl SwampRestaurant.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/0/00/Gainesville_Fl_SwampRestaurant.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Gainesville_Fl_SwampRestaurant.jpg",
+   "license": "CC BY-SA 3.0",
+   "author": "WillMcC",
+   "width": 3072,
+   "height": 2304
+  },
+  {
+   "place_id": "ChIJZVwj1oyj6IgRkeifh6f1Nzg",
+   "name": "Harry's Seafood Bar & Grille",
+   "file": "Harry's Seafood Bar and Grille, Gainesville FL.JPG",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/f/f2/Harry%27s_Seafood_Bar_and_Grille%2C_Gainesville_FL.JPG",
+   "page": "https://commons.wikimedia.org/wiki/File:Harry%27s_Seafood_Bar_and_Grille%2C_Gainesville_FL.JPG",
+   "license": "CC BY-SA 4.0",
+   "author": "Michael Rivera",
+   "width": 4608,
+   "height": 3456
+  },
+  {
+   "place_id": "ChIJuTCquvK96IgR5dtZPIGnjWI",
+   "name": "Dave & Buster's Gainesville",
+   "file": "Dave & Buster's, Gainesville.jpg",
+   "url": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Dave_%26_Buster%27s%2C_Gainesville.jpg",
+   "page": "https://commons.wikimedia.org/wiki/File:Dave_%26_Buster%27s%2C_Gainesville.jpg",
+   "license": "CC0",
+   "author": "Michael Rivera",
+   "width": 5184,
+   "height": 3456
+  }
+ ]
+}
