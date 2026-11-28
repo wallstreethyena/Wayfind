@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { SOCIAL_AD_ATTR, SOCIAL_AD_FEATURE_ATTR, isSocialAdLanding, socialAdFeature } from "../../lib/socialAdLanding.js";
 import { christmasPickMeasurement } from "../../lib/christmasPickMeasurement.js";
 import { XM_CARD_CSS, organizerTap } from "./ChristmasTicketCard.js";
@@ -9,7 +9,7 @@ import { useCommerceImpression } from "./useCommerceImpression.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
 import { CHRISTMAS_BG_GRADIENT, CHRISTMAS_DOODLE_CSS, CHRISTMAS_LIGHTS_CSS } from "../../lib/christmasBackdrop.js";
 import ChristmasElves from "./ChristmasElves.js";
-import { FestivalLights } from "./ChristmasDecor.js";
+import { ChristmasSnow, FestivalLights } from "./ChristmasDecor.js";
 import GuidePhoto from "./GuidePhoto.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
@@ -109,64 +109,6 @@ ${CHRISTMAS_LIGHTS_CSS}
 .xm-empty{margin:16px 0 0;color:var(--muted);font-size:14px}
 `;
 
-// Gentle falling snow, drawn behind the page content (z-index below it, no
-// pointer events, hidden from assistive tech). Capped at 36 flakes on a phone
-// and 70 on a desktop, paused while the tab is hidden, and with reduced motion
-// a single still frame of flakes instead of falling snow.
-function Snow() {
-  const ref = useRef(null);
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas || typeof window === "undefined") return undefined;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return undefined;
-    const reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    let w = 0, h = 0, raf = 0, last = 0;
-    let flakes = [];
-    const build = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = window.innerWidth; h = window.innerHeight;
-      canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = w < 720 ? 36 : 70;
-      flakes = Array.from({ length: count }, () => ({
-        x: Math.random() * w, y: Math.random() * h, r: 0.9 + Math.random() * 2.3,
-        v: 14 + Math.random() * 26, sw: 8 + Math.random() * 16, ph: Math.random() * 6.28, a: 0.35 + Math.random() * 0.5,
-      }));
-    };
-    const paint = (t) => {
-      ctx.clearRect(0, 0, w, h);
-      for (const f of flakes) {
-        ctx.globalAlpha = f.a;
-        ctx.fillStyle = "#FFF8EE";
-        ctx.beginPath();
-        ctx.arc(f.x + (reduced ? 0 : Math.sin(t / 1800 + f.ph) * f.sw), f.y, f.r, 0, 6.2832);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-    };
-    const tick = (now) => {
-      raf = window.requestAnimationFrame(tick);
-      const dt = Math.min(0.05, (now - (last || now)) / 1000);
-      last = now;
-      for (const f of flakes) {
-        f.y += f.v * dt;
-        if (f.y > h + 6) { f.y = -6; f.x = Math.random() * w; }
-      }
-      paint(now);
-    };
-    const start = () => { if (!raf && !reduced) { last = 0; raf = window.requestAnimationFrame(tick); } };
-    const stop = () => { if (raf) { window.cancelAnimationFrame(raf); raf = 0; } };
-    const onVisibility = () => (document.hidden ? stop() : start());
-    const onResize = () => { build(); if (reduced) paint(0); };
-    build();
-    if (reduced) paint(0); else start();
-    document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("resize", onResize);
-    return () => { stop(); document.removeEventListener("visibilitychange", onVisibility); window.removeEventListener("resize", onResize); };
-  }, []);
-  return <canvas ref={ref} className="xm-snow" aria-hidden="true" data-xm-snow="" />;
-}
 
 // The wordmark follows the one seasonal resolver like every other header
 // (owner direction: the original logo sitewide, so this is null today).
@@ -312,7 +254,7 @@ export default function ChristmasTickets({ model, share = null, browse = null, t
       <CommerceClickBeacon surface={SURFACE} />
       <div className="xm-doodles" aria-hidden="true" />
       <div className="xm-sparkles" aria-hidden="true" />
-      <Snow />
+      <ChristmasSnow />
       <FestivalLights />
       <ChristmasElves />
       <WayfindHeader seasonal={seasonal} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // The string lights from /christmas-in-florida, shared with the site backdrop
 // so both paint the same garland. CSS lives in lib/christmasBackdrop.js.
@@ -97,58 +97,72 @@ export function FestivalLights() {
   );
 }
 
-// PREMIUM GARLAND (owner 2026-11-24, homepage screenshot: "the lights at the
-// top are not looking premium"). The site-wide header uses this instead of
-// the cartoon bulbs: one thin gold wire with small warm white lights, like a
-// hotel lobby at Christmas. No bows, no multicolor, no sway. The lights only
-// breathe (opacity), and stop completely under reduced motion.
-// /christmas-in-florida keeps FestivalLights above.
-export const PREMIUM_LIGHT_COUNT = 16;
-const PREMIUM_DIPS = 4;
-const PREMIUM_WIRE_PATH = (() => {
-  const pitch = 1200 / PREMIUM_DIPS;
-  let d = "M0 3";
-  for (let i = 0; i < PREMIUM_DIPS; i += 1) d += " Q" + ((i + 0.5) * pitch).toFixed(1) + " 25 " + ((i + 1) * pitch).toFixed(1) + " 3";
-  return d;
-})();
-// Height of the quadratic dip at x (0..1 of one span), in the 0..22 box, so
-// every light sits exactly on the wire.
-function premiumWireY(t) {
-  const span = 1 / PREMIUM_DIPS;
-  const u = (t % span) / span;
-  return 3 + 2 * u * (1 - u) * 22;
-}
-
-export function PremiumGarland() {
-  return (
-    <div className="xm-garland" aria-hidden="true">
-      <svg className="xm-garland-wire" viewBox="0 0 1200 22" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="xm-gold" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="#8C6A2F" stopOpacity="0" />
-            <stop offset=".12" stopColor="#C9A15A" />
-            <stop offset=".5" stopColor="#F1D592" />
-            <stop offset=".88" stopColor="#C9A15A" />
-            <stop offset="1" stopColor="#8C6A2F" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <path d={PREMIUM_WIRE_PATH} fill="none" stroke="url(#xm-gold)" strokeWidth="1.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-      </svg>
-      {Array.from({ length: PREMIUM_LIGHT_COUNT }, (_, i) => {
-        const t = (i + 0.5) / PREMIUM_LIGHT_COUNT;
-        return (
-          <span
-            key={i}
-            className="xm-glow"
-            style={{
-              left: (t * 100).toFixed(2) + "%",
-              top: ((premiumWireY(t) / 22) * 100).toFixed(1) + "%",
-              "--d": "-" + ((i * 1.3) % 5).toFixed(1) + "s",
-              "--f": (3.4 + ((i * 7) % 18) / 10).toFixed(1) + "s",
-            }}
-          />
-        );
-      })}
-    </div>
-  );
+// Gentle falling snow, drawn behind the page content (z-index below it, no
+// pointer events, hidden from assistive tech). Capped at 36 flakes on a phone
+// and 70 on a desktop, paused while the tab is hidden, and with reduced motion
+// a single still frame of flakes instead of falling snow. Shared by
+// /christmas-in-florida and the site-wide backdrop (owner 2026-11-28: the site
+// is red "with the snow like the christmas in florida page"). It only runs
+// while the canvas is actually on screen: the site backdrop is display:none on
+// pages that own a theme, so a ResizeObserver stops it there (0x0 box) and
+// starts it again after a client navigation back to a themed-off page.
+export function ChristmasSnow() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas || typeof window === "undefined") return undefined;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return undefined;
+    const reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    let w = 0, h = 0, raf = 0, last = 0;
+    let flakes = [];
+    const build = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth; h = window.innerHeight;
+      canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = w < 720 ? 36 : 70;
+      flakes = Array.from({ length: count }, () => ({
+        x: Math.random() * w, y: Math.random() * h, r: 0.9 + Math.random() * 2.3,
+        v: 14 + Math.random() * 26, sw: 8 + Math.random() * 16, ph: Math.random() * 6.28, a: 0.35 + Math.random() * 0.5,
+      }));
+    };
+    const paint = (t) => {
+      ctx.clearRect(0, 0, w, h);
+      for (const f of flakes) {
+        ctx.globalAlpha = f.a;
+        ctx.fillStyle = "#FFF8EE";
+        ctx.beginPath();
+        ctx.arc(f.x + (reduced ? 0 : Math.sin(t / 1800 + f.ph) * f.sw), f.y, f.r, 0, 6.2832);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    };
+    const tick = (now) => {
+      raf = window.requestAnimationFrame(tick);
+      const dt = Math.min(0.05, (now - (last || now)) / 1000);
+      last = now;
+      for (const f of flakes) {
+        f.y += f.v * dt;
+        if (f.y > h + 6) { f.y = -6; f.x = Math.random() * w; }
+      }
+      paint(now);
+    };
+    const start = () => { if (!raf && !reduced) { last = 0; raf = window.requestAnimationFrame(tick); } };
+    const stop = () => { if (raf) { window.cancelAnimationFrame(raf); raf = 0; } };
+    const onVisibility = () => (document.hidden || !canvas.getClientRects().length ? stop() : start());
+    const onResize = () => { build(); if (reduced) paint(0); };
+    const shown = () => canvas.getClientRects().length > 0;
+    build();
+    if (reduced) paint(0); else if (shown()) start();
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("resize", onResize);
+    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(() => {
+      if (!shown()) { stop(); return; }
+      if (reduced) paint(0); else if (!document.hidden) start();
+    }) : null;
+    if (ro) ro.observe(canvas);
+    return () => { stop(); if (ro) ro.disconnect(); document.removeEventListener("visibilitychange", onVisibility); window.removeEventListener("resize", onResize); };
+  }, []);
+  return <canvas ref={ref} className="xm-snow" aria-hidden="true" data-xm-snow="" />;
 }
