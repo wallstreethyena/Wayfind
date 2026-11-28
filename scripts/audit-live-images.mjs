@@ -32,7 +32,7 @@ if (!BASE || !OUT) {
   console.error("audit-live-images: set AUDIT_BASE_URL (e.g. https://www.gowayfind.com) and AUDIT_OUT (report path)");
   process.exit(1);
 }
-const MAX_PAGES = Number(process.env.AUDIT_MAX_PAGES || 70);
+const MAX_PAGES = Number(process.env.AUDIT_MAX_PAGES || 45);
 const PER_PATTERN = Number(process.env.AUDIT_PER_PATTERN || 5);
 const UA = "WayfindBot/1.0 (https://gowayfind.com) live-image-audit";
 
@@ -69,23 +69,34 @@ function bucketOf(path) {
 }
 
 async function scrollEverything(page) {
-  // Pages scroll the window and also inner rails (horizontal scrollers).
+  // The app shell scrolls an inner element (.wf-scrollarea), not the window,
+  // so scroll every tall scroller plus the window, then the horizontal rails.
   await page.evaluate(async () => {
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-    const h = () => Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-    for (let y = 0; y < h() && y < 40000; y += Math.round(window.innerHeight * 0.8)) {
-      window.scrollTo(0, y);
-      await sleep(220);
+    const scrollers = [document.scrollingElement, ...[...document.querySelectorAll("*")].filter((el) => {
+      const s = getComputedStyle(el);
+      return (s.overflowY === "auto" || s.overflowY === "scroll") && el.scrollHeight > el.clientHeight + 200;
+    })].filter(Boolean).slice(0, 4);
+    for (const sc of scrollers) {
+      for (let y = 0; y < sc.scrollHeight && y < 30000; y += Math.round((sc.clientHeight || window.innerHeight) * 0.8)) {
+        sc.scrollTop = y;
+        await sleep(250);
+      }
     }
     const rails = [...document.querySelectorAll("*")].filter((el) => {
       const s = getComputedStyle(el);
       return (s.overflowX === "auto" || s.overflowX === "scroll") && el.scrollWidth > el.clientWidth + 40;
-    }).slice(0, 60);
+    }).slice(0, 40);
     for (const r of rails) {
-      for (let x = 0; x < r.scrollWidth && x < 12000; x += r.clientWidth) { r.scrollLeft = x; await sleep(90); }
+      r.scrollIntoView({ block: "center" });
+      for (let x = 0; x < r.scrollWidth && x < 8000; x += r.clientWidth) { r.scrollLeft = x; await sleep(120); }
     }
-    window.scrollTo(0, 0);
   });
+}
+
+function withTimeout(promise, ms, label) {
+  let t;
+  return Promise.race([promise, new Promise((_, rej) => { t = setTimeout(() => rej(new Error(label + " timed out")), ms); })]).finally(() => clearTimeout(t));
 }
 
 async function auditPage(context, path) {
@@ -107,7 +118,7 @@ async function auditPage(context, path) {
     const res = await page.goto(BASE + path, { waitUntil: "domcontentloaded", timeout: 45000 });
     status = res?.status() || 0;
     await page.waitForLoadState("networkidle", { timeout: 15000 }).catch(() => {});
-    await scrollEverything(page);
+    await withTimeout(scrollEverything(page), 60000, "scroll");
     await page.waitForLoadState("networkidle", { timeout: 10000 }).catch(() => {});
     await page.waitForTimeout(1500);
   } catch (e) {
@@ -115,7 +126,7 @@ async function auditPage(context, path) {
   }
   let dom = { imgs: [], fallbacks: [], links: [], bgBroken: [] };
   try {
-    dom = await page.evaluate(() => {
+    dom = await withTimeout(page.evaluate(() => {
       const imgs = [...document.images].map((im) => ({
         src: im.currentSrc || im.src || "",
         alt: im.alt || "",
@@ -129,10 +140,11 @@ async function auditPage(context, path) {
         visible: !!(el.offsetWidth || el.offsetHeight),
       }));
       const links = [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href"));
-      return { imgs, fallbacks, links };
-    });
+      const pending = [...document.querySelectorAll('[data-photo-fallback="pending"]')].filter((el) => el.offsetWidth || el.offsetHeight).length;
+      return { imgs, fallbacks, links, pending };
+    }), 20000, "evaluate");
   } catch {}
-  await page.close();
+  await page.close().catch(() => {});
   const broken = dom.imgs.filter((i) => i.src && !i.src.startsWith("data:") && i.complete && i.w === 0 && i.visible);
   const emptySrc = dom.imgs.filter((i) => !i.src && i.visible);
   const ok = dom.imgs.filter((i) => i.complete && i.w > 0);
@@ -142,6 +154,7 @@ async function auditPage(context, path) {
     broken: broken.map((b) => ({ src: b.src.slice(0, 300), alt: b.alt.slice(0, 120) })),
     emptySrc: emptySrc.length,
     fallbacks: dom.fallbacks.filter((f) => f.visible).length,
+    stillLoading: dom.pending || 0,
     fallbackNames: dom.fallbacks.filter((f) => f.visible).map((f) => f.label.replace(/^Photo not available( for )?/, "")).slice(0, 40),
     badResponses: badResponses.slice(0, 40),
     failedRequests: failedRequests.slice(0, 40),
@@ -163,7 +176,7 @@ async function main() {
       const r = await auditPage(context, path);
       const { links, ...rest } = r;
       pages.push(rest);
-      console.error(`[${vp.name}] ${path} status=${r.status} imgs=${r.images} ok=${r.ok} broken=${r.broken.length} bad=${r.badResponses.length} failed=${r.failedRequests.length} fallback=${r.fallbacks}${r.error ? " ERR " + r.error : ""}`);
+      console.error(`[${vp.name}] ${path} status=${r.status} imgs=${r.images} ok=${r.ok} broken=${r.broken.length} bad=${r.badResponses.length} failed=${r.failedRequests.length} fallback=${r.fallbacks} loading=${r.stillLoading}${r.error ? " ERR " + r.error : ""}`);
       for (const href of links || []) {
         if (!href || !href.startsWith("/") || href.startsWith("//") || href.startsWith("/api/")) continue;
         const clean = href.split("#")[0];
@@ -189,9 +202,10 @@ async function main() {
       `- broken images (visible, 0 px): ${sum("broken")}`,
       `- image responses >= 400: ${sum("badResponses")}; failed image requests: ${sum("failedRequests")}`,
       `- empty-src images: ${sum("emptySrc")}`,
-      `- "no photo" fallback tiles: ${sum("fallbacks")}`, "",
-      "| page | imgs | ok | broken | 4xx/5xx | failed | fallback |", "|---|---|---|---|---|---|---|");
-    for (const p of pages) lines.push(`| ${p.path} | ${p.images} | ${p.ok} | ${p.broken.length} | ${p.badResponses.length} | ${p.failedRequests.length} | ${p.fallbacks} |`);
+      `- "no photo" fallback tiles: ${sum("fallbacks")}`,
+      `- photo slots still on "Loading photo" after scrolling: ${sum("stillLoading")}`, "",
+      "| page | imgs | ok | broken | 4xx/5xx | failed | fallback | loading |", "|---|---|---|---|---|---|---|---|");
+    for (const p of pages) lines.push(`| ${p.path} | ${p.images} | ${p.ok} | ${p.broken.length} | ${p.badResponses.length} | ${p.failedRequests.length} | ${p.fallbacks} | ${p.stillLoading} |`);
     const hosts = {};
     for (const p of pages) for (const b of [...p.broken.map((x) => x.src), ...p.badResponses.map((x) => x.url + " (" + x.status + ")"), ...p.failedRequests.map((x) => x.url + " (" + x.error + ")")]) {
       let key; try { const u = new URL(b.split(" (")[0]); key = u.host + u.pathname.split("/").slice(0, 3).join("/"); } catch { key = b.slice(0, 60); }
