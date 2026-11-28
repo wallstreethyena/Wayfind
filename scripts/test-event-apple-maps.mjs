@@ -207,4 +207,8 @@ dispatchCheck.equal(JSON.stringify(breadcrumbs[0]?.data), JSON.stringify({ servi
 console.log(`test-event-apple-maps: OK — ${pass} assertions (category pins, exact/deduped card identity, streamed updates that preserve routes, MapKit JS 6 promises, cancellation, timeouts, and teardown)`);
 
 // The place sheet and durable place page add explicit device controls to this controller.
-execFileSync(process.execPath, ["--test", fileURLToPath(new URL("../tests/places/device-location.test.mjs", import.meta.url))], { stdio: "inherit" });
+execFileSync(process.execPath, ["--test", fileURLToPath(new URL("../tests/places/device-location.test.mjs", import.meta.url))], {
+  // React selects its act() implementation when the test process imports it.
+  env: { ...process.env, NODE_ENV: "test" },
+  stdio: "inherit",
+});
