@@ -94,7 +94,7 @@ ok(/utm_medium=weekly_email/.test(issue.html) && !/api\/commerce\/go\?[^"]*utm_/
   const imgs = issue.html.match(/<img\b[^>]*>/g) || [];
   ok(imgs.length >= 3, "the email has almost no pictures");
   ok(imgs.every((t) => /\balt="[^"]+"/.test(t) && /\bwidth="\d+"/.test(t) && /\bheight="\d+"/.test(t)), "an email image lacks alt, width or height");
-  ok(imgs.every((t) => /src="https:\/\/(www\.gowayfind\.com|images\.unsplash\.com)\//.test(t)), "an email image is not on our domain or Unsplash's host");
+  ok(imgs.every((t) => /src="https:\/\/(www\.gowayfind\.com|images\.unsplash\.com|[a-z0-9]+\.supabase\.co\/storage\/v1\/render\/image\/public\/place-photos)\//.test(t)), "an email image is not on our domain, our photo vault or Unsplash's host");
   ok(!/\/api\/photo/.test(issue.html), "a Google photo reached the email");
   const hero = NL.EMAIL_PHOTOS.hero.christmas;
   ok(issue.html.includes(hero.src.replace(/&/g, "&amp;")) && issue.html.includes("Photo: " + hero.credit), "Christmas hero photo or its credit missing");
@@ -102,6 +102,15 @@ ok(/utm_medium=weekly_email/.test(issue.html) && !/api\/commerce\/go\?[^"]*utm_/
   const ES = await lc(path.join(REPO, "lib/newsletterServer.js"), REPO);
   ok(ES.eventEmailPhoto({ event_id: "x", event_name: "X", hero_image: "/api/photo?ref=places%2Fabc", hero_image_kind: "venue" }) === null, "a Google event photo was allowed in email");
   ok(ES.eventEmailPhoto({ event_id: "selby-lights-in-bloom-2026", event_name: "Lights in Bloom" })?.src === "/events/christmas/selby-lights-in-bloom-2026.jpg", "a licensed event photo was not used");
+  const vault = "https://abc.supabase.co/storage/v1/render/image/public/place-photos/x/y.jpg?width=640&resize=contain&quality=75";
+  const pp = (o) => ES.placeEmailPhoto("ChIJx", { findPhoto: async () => o });
+  const okPhoto = await pp({ url: vault, license: "cc-by-sa-4.0", attributionText: "Jane Doe", attributionUrl: "https://commons.wikimedia.org/x" });
+  ok(okPhoto && /width=152&height=152&resize=cover/.test(okPhoto.src) && /Jane Doe, CC BY SA 4\.0/.test(okPhoto.credit), "a licensed vault place photo was not cropped and credited");
+  ok(await pp({ url: vault, license: "cc-by-nc-4.0", attributionText: "J", attributionUrl: "https://x" }) === null, "a non commercial licence reached the email");
+  ok(await pp({ url: vault, license: "Owner permission on record (2026-10-28)", attributionText: "Owner", attributionUrl: "https://x" }) === null, "a site only owner permission reached the email");
+  ok(await pp({ url: "https://upload.wikimedia.org/a.jpg", license: "cc0", attributionText: "J", attributionUrl: "https://x" }) === null, "an uncroppable non vault photo reached the email");
+  const withPlace = NL.buildWeeklyIssue({ ...base, events: [], places: { eat: [{ name: "Cafe", where: "Tampa", score: "9.1", href: "/places/a", photo: { ...okPhoto, alt: "Cafe, Tampa" } }, { name: "Diner", where: "Tampa", score: "8.9", href: "/places/b" }] } });
+  ok(withPlace.html.includes('width="76" height="76" alt="Cafe, Tampa"') && withPlace.html.includes("Photo: Jane Doe") && /8\.9<div[^>]*>WAYFIND/.test(withPlace.html), "place photo tile or score tile missing");
   const withPhoto = NL.buildWeeklyIssue({ ...base, events: [{ name: "Lights", day: "2026-11-28", detailsHref: "/florida-events/l", photo: { src: "/events/christmas/selby-lights-in-bloom-2026.jpg", alt: "Lights at Selby", credit: "Kimberli · CC BY-SA 4.0" } }], places: {} });
   ok(withPhoto.html.includes('src="https://www.gowayfind.com/events/christmas/selby-lights-in-bloom-2026.jpg"') && withPhoto.html.includes("Photo: Kimberli"), "event photo or its licence credit missing");
 }
