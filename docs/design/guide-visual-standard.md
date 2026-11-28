@@ -126,12 +126,16 @@ Guides render through the shared guide components. A guide with its own folder
 (Pinto's farm map, the fall explorer, the Universal and Disney park maps) keeps
 its custom module as a child of the standard shell; it does not fork the shell.
 
-The shell is `app/components/GuideStandardShell.js` (owner, 2026-11-18: "make
+The page frame is the UTC Holidays layout (`docs/GUIDE_BLOG_STANDARD.md`,
+`app/components/EditorialStandard.js`). Owner, 2026-11-23: guide and blog pages
+must look like `/florida-events/utc-holidays-2026`, and that appearance is
+locked by `scripts/check-editorial-standard.mjs`. Dedicated routes still enter
+through `app/components/GuideStandardShell.js` (owner, 2026-11-18: "make
 sure we have a uniform standard look and dont allow any other blogs or guide to
-be created that does not fit our standards"). It renders, in order: Back to
-Wayfind, the GuideArticleHero with its photo, the byline, the intro, "In this
-guide", the partner disclosure, then the guide's numbered `GuideSection` blocks.
-Its CSS is `lib/guideStandardCss.js`, the same rules the `[slug]` template
+be created that does not fit our standards"). The shell now renders that shared
+frame, then the byline, "In this guide", the partner disclosure, and the
+guide's numbered `GuideSection` blocks. Pick photos stay on `GuideFigure`.
+Guide section CSS is `lib/guideStandardCss.js`, the same rules the `[slug]` template
 renders. `scripts/check-guide-standard.mjs` fails the build when a dedicated
 route skips the shell or `GuideSection`, imports GuideArticleHero itself,
 declares its own Article/BreadcrumbList schema, re-styles a `.wf-guide-*`

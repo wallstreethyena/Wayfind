@@ -278,12 +278,14 @@ if (!DISCLOSURE_RX.test(templateSrc)) fail("app/guides/[slug]/page.js: the share
 if (!/GUIDE_STANDARD_CSS/.test(templateSrc)) fail("app/guides/[slug]/page.js: the shared template must render GUIDE_STANDARD_CSS (lib/guideStandardCss.js), the same rules GuideStandardShell uses");
 {
   const shellSrc = readFileSync(path.join(ROOT, "app/components/GuideStandardShell.js"), "utf8");
-  for (const [what, rx] of [["the Back to Wayfind breadcrumb", /<ReturnToWayfind\b/], ["GuideArticleHero", /<GuideArticleHero\b/], ["GUIDE_STANDARD_CSS", /GUIDE_STANDARD_CSS/], ["the contents list", /<GuideContents\b/], ["the partner disclosure", /<GuideDisclosure\b/], ["the byline", /Gabriel Pereira/], ["the shared place-card CSS", /WF_PLACE_CARD_CSS/]]) {
+  for (const [what, rx] of [["the shared editorial frame", /<EditorialStandard\b/], ["GUIDE_STANDARD_CSS", /GUIDE_STANDARD_CSS/], ["the contents list", /<GuideContents\b/], ["the partner disclosure", /GUIDE_DISCLOSURE_TEXT/], ["the byline", /Gabriel Pereira/], ["the shared place-card CSS", /WF_PLACE_CARD_CSS/]]) {
     if (!rx.test(shellSrc)) fail(`app/components/GuideStandardShell.js no longer renders ${what} — the shell IS the standard`);
   }
+  const frameSrc = readFileSync(path.join(ROOT, "app/components/EditorialStandard.js"), "utf8");
+  if (!/<ReturnToWayfind\b/.test(frameSrc)) fail("app/components/EditorialStandard.js no longer renders the Back to Wayfind link");
 }
-if (!HERO_IMPORT_RX.test(templateSrc) && !/PremiumIntentHero|GuideArticleHero/.test(templateSrc)) {
-  fail("app/guides/[slug]/page.js: the shared template itself is missing its hero chrome");
+if (!/EditorialStandard/.test(templateSrc)) {
+  fail("app/guides/[slug]/page.js: the shared template itself is missing the editorial frame");
 }
 if (!/from ["']\.\.\/\.\.\/components\/GuideMapExplorer["']/.test(templateSrc)) {
   fail("app/guides/[slug]/page.js: the shared template does not wire up GuideMapExplorer as a config-driven opt-in — a future guide with >=3 mappable places should need zero bespoke code");
