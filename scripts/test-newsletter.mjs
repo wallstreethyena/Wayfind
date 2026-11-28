@@ -119,6 +119,8 @@ ok(/utm_medium=weekly_email/.test(issue.html) && !/api\/commerce\/go\?[^"]*utm_/
   const pp = (o) => ES.placeEmailPhoto("ChIJx", { findPhoto: async () => o });
   const okPhoto = await pp({ url: vault, license: "cc-by-sa-4.0", attributionText: "Jane Doe", attributionUrl: "https://commons.wikimedia.org/x" });
   ok(okPhoto && /width=152&height=152&resize=cover/.test(okPhoto.src) && /Jane Doe, CC BY SA 4\.0/.test(okPhoto.credit), "a licensed vault place photo was not cropped and credited");
+  const once = await pp({ url: vault, license: "cc-by-sa-4.0", attributionText: "Adog, CC BY-SA-4.0, via Wikimedia Commons", attributionUrl: "https://x" });
+  ok(once && once.credit === "Adog, CC BY-SA-4.0, via Wikimedia Commons", "a Commons credit repeats its licence: " + (once && once.credit));
   ok(await pp({ url: vault, license: "cc-by-nc-4.0", attributionText: "J", attributionUrl: "https://x" }) === null, "a non commercial licence reached the email");
   ok(await pp({ url: vault, license: "Owner permission on record (2026-10-28)", attributionText: "Owner", attributionUrl: "https://x" }) === null, "a site only owner permission reached the email");
   ok(await pp({ url: "https://upload.wikimedia.org/a.jpg", license: "cc0", attributionText: "J", attributionUrl: "https://x" }) === null, "an uncroppable non vault photo reached the email");
