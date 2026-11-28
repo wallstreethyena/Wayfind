@@ -24,7 +24,7 @@ import {
   proactiveWaitsForAdPicks,
 } from "../../lib/plannerProactive.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
-import { pickCharacter, santaOffPath } from "./companionCharacter.js";
+import { pickCharacter, santaDockOnPath } from "./companionCharacter.js";
 import { resolveOrganizeTrip } from "../../lib/organizeTrips.js";
 
 // Santa season: the offer is Santa's, popped up in place of his dock and
@@ -34,7 +34,7 @@ const PlannerSantaOffer = dynamic(() => import("./PlannerSantaOffer"), { ssr: fa
 
 function santaSeasonOn(pathname) {
   try {
-    if (santaOffPath(pathname)) return false;
+    if (!santaDockOnPath(pathname)) return false;
     return pickCharacter(pathname, siteTodayStr()) === "santa";
   } catch {
     return false;
@@ -100,7 +100,8 @@ function countUnassignedStops(trips) {
 export default function WayfindPlannerLoader() {
   const pathname = usePathname() || "/";
   const [sheetMounted, setSheetMounted] = useState(false);
-  const [proactiveOffer, setProactiveOffer] = useState(null);
+  const [routeOffer, setProactiveOffer] = useState(null);
+  const proactiveOffer = routeOffer?.path === pathname ? routeOffer.offer : null;
   const [ctxTick, setCtxTick] = useState(0);
   // An offer already on screen steps aside while the Ask Santa button or the
   // picks row is visible again (owner 2026-11-26: never two Santa CTAs at once).
@@ -167,7 +168,7 @@ export default function WayfindPlannerLoader() {
         });
         if (offer) {
           recordProactiveShown(sess, offer.kind);
-          setProactiveOffer(offer);
+          setProactiveOffer({ path: pathname, offer });
         } else {
           setProactiveOffer(null);
         }

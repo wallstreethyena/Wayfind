@@ -6,6 +6,7 @@ import DocumentPosition from "./components/DocumentPosition";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./links.css";
 import "./placeCardPhoto.css";
+import "./siteFooter.css";
 import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
 import SeasonalSearchNav from "./components/SeasonalSearchNav";
@@ -395,68 +396,54 @@ export default function RootLayout({ children }) {
             treatment ProofVeil already gives the SSR proof block above.
             Article routes are unaffected and render it normally. */}
         <FooterVeil>
-        <footer className="wf-site-footer" style={{ background: "#040810", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "var(--wf-sans)" }}>
-          <div style={{ maxWidth: 880, margin: "0 auto" }}>
+        <footer className="wf-site-footer">
+          <div className="wf-footer-inner">
             <SeasonalSearchNav />
-            <nav aria-label="Guides and cities" style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Local guides</div>
+            <nav className="wf-footer-grid" aria-label="Explore Wayfind">
+              <div className="wf-footer-guides">
+                <h2>Local guides</h2>
                 {Object.entries(currentGuides(GUIDES)).slice(0, 8).map(([k, guide]) => (
-                  <a key={k} href={"/guides/" + k} style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>{guide.title}</a>
+                  <a key={k} href={"/guides/" + k}>{guide.title}</a>
                 ))}
-                <a href="/guides" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#CBD5E1", textDecoration: "none", padding: "0", fontWeight: 700 }}>All guides</a>
+                <a className="wf-footer-all-guides" href="/guides">All guides <span aria-hidden="true">→</span></a>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Cities</div>
+                <h2>Cities</h2>
                 {footerCultureKeys(CULTURE).map((m) => (
-                  <a key={m} href={"/culture/" + m} style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0", textTransform: "capitalize" }}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
+                  <a key={m} href={"/culture/" + m}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
                 ))}
               </div>
-              {/* SEO audit 2026-11-27: the Florida hub chain (Gulf Coast first,
-                  then Tampa Bay, Orlando and Miami) linked from every page, so
-                  the ranked city pages and the statewide events calendar are
-                  never more than one hop from anywhere. FLORIDA_HUB_LINKS lives
-                  in lib/floridaHubLinks.js and every href is a real route. */}
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Things to do in Florida</div>
+                <h2>Things to do in Florida</h2>
                 {FLORIDA_HUB_LINKS.map((l) => (
-                  <a key={l.href} href={l.href} style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>{l.label}</a>
+                  <a key={l.href} href={l.href}>{l.label}</a>
                 ))}
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Quick plans</div>
-                <a href="/?go=events" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Find something to do tonight</a>
-                <a href="/guides/things-to-do-orlando-not-theme-parks" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Plan a family day out</a>
-                <a href="/?go=map" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>See the best places on a map</a>
-                <a href="/guides" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Skip the tourist traps</a>
+                <h2>Quick plans</h2>
+                <a href="/?go=events">Find something to do tonight</a>
+                <a href="/guides/things-to-do-orlando-not-theme-parks">Plan a family day out</a>
+                <a href="/?go=map">See the best places on a map</a>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Explore</div>
-                <a href="/events" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Events near you</a>
-                <a href="/map" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Map view</a>
-                {/* v8.33 — the indexable creator layer needs a site-wide entry
-                    point or every /creators/* page is an orphan no crawler
-                    reaches from the homepage. This is that link. */}
-                <a href="/creators" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Local creators</a>
-                <a href="/trending" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Trending places</a>
-                {/* v8.43.1 — same reason as the creator link above: without a
-                    site-wide entry point every /partners/* page is an orphan no
-                    crawler reaches. It doubles as the honest, permanently linked
-                    answer to "does Wayfind take money from businesses?" */}
-                <a href="/partners" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Partners</a>
-                <a href="/terms" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Terms</a>
-                <a href="/privacy" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Privacy</a>
-                <a href="/about" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>About</a>
-                <a href="/editorial-policy" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Editorial policy</a>
-                <a href="/how-wayfind-ranks" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>How we rank</a>
-              </div>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Follow</div>
-                <a href="https://www.instagram.com/gowayfind.app/" target="_blank" rel="noopener" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Instagram</a>
+                <h2>Explore</h2>
+                <a href="/events">Events near you</a>
+                <a href="/map">Map view</a>
+                <a href="/creators">Local creators</a>
+                <a href="/trending">Trending places</a>
               </div>
             </nav>
-            <p style={{ fontSize: 13, color: "#C5D0DC", lineHeight: 1.45, margin: "20px 0 0" }}>Some links on this page are affiliate links. We may earn a commission if you book through them. It never changes our rankings. Operated by WAYFIND LLC.</p>
-            <PoweredByStrip />
+            <nav className="wf-footer-company" aria-label="About Wayfind">
+              <a href="/about">About</a>
+              <a href="/how-wayfind-ranks">How we rank</a>
+              <a href="/editorial-policy">Editorial policy</a>
+              <a href="/partners">Partners</a>
+              <a href="/privacy">Privacy</a>
+              <a href="/terms">Terms</a>
+              <a href="https://www.instagram.com/gowayfind.app/" target="_blank" rel="noopener">Instagram</a>
+            </nav>
+            <p className="wf-footer-disclosure">Some links on this page are affiliate links. We may earn a commission if you book through them. It never changes our rankings. Operated by WAYFIND LLC.</p>
+            <PoweredByStrip compact />
           </div>
         </footer>
         </FooterVeil>

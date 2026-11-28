@@ -52,8 +52,9 @@ const loaderSrc = stripComments(readFileSync(path.join(REPO, "app/components/Way
 ok(/const PlannerSantaOffer = dynamic\(\(\) => import\("\.\/PlannerSantaOffer"\)/.test(loaderSrc), "the Santa offer is lazy (no Santa art in first paint)");
 ok(/<PlannerSantaOffer[\s/>]/.test(loaderSrc), "the loader renders PlannerSantaOffer");
 ok(/!santaOffer && \(/.test(loaderSrc), "the plain offer card never renders alongside Santa's");
-ok(/pickCharacter\(pathname, siteTodayStr\(\)\) === "santa"/.test(loaderSrc) && /santaOffPath\(pathname\)/.test(loaderSrc),
-  "Santa season is decided by the same rules as the companion (pickCharacter + santaOffPath, Eastern date)");
+ok(/pickCharacter\(pathname, siteTodayStr\(\)\) === "santa"/.test(loaderSrc) && /if \(!santaDockOnPath\(pathname\)\) return false/.test(loaderSrc),
+  "the full-width Santa offer follows the same routes and Eastern date as Santa's dock");
+ok(/routeOffer\?\.path === pathname \? routeOffer\.offer : null/.test(loaderSrc), "a city offer cannot carry into the next route");
 
 // ── 3. The chat sheet is an iMessage thread ────────────────────────────────
 const sheetRaw = readFileSync(path.join(REPO, "app/components/WayfindPlannerSheet.js"), "utf8");
