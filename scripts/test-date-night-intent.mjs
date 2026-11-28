@@ -167,6 +167,62 @@ ok(!isDateMuseum(PRESERVE_WITH_MUSEUM_TAG) && !isDateMuseum(THEME_PARK_WITH_MUSE
 ok(!isDateDessert(BREAKFAST_DESSERT_LEAK), "a breakfast restaurant cannot leak into the Dessert stop");
 ok(!isDateShopping(ACTIVITY_SHOP_LEAK), "an activity/rental shop is an errand, not a Date Night browse");
 
+// #1685. Owned-inventory rows used broad store, restaurant and spa types for
+// places whose more specific identity contradicted the promise of the rail.
+{
+  const cases = [
+    [isDateShopping, false, "Siesta G Dispensary", "store", ["medical_clinic", "store"]],
+    [isDateShopping, false, "Yerb Labs Kava Lounge & Smoke Shop", "store", ["hookah_bar", "store"]],
+    [isDateShopping, false, "Impact Nutrition - Independent Herbalife Distributor", "store", ["wellness_center", "store"]],
+    [isDateShopping, false, "Unnamed Hemp Retailer", "cannabis_store", ["cannabis_store", "store"]],
+    [isDateShopping, true, "Hyde Park Village", "shopping_mall", ["shopping_mall"]],
+    [isDateShopping, true, "The Clearwater Record Shop", "store", ["store"]],
+    [isDateShopping, true, "Books & Books", "book_store", ["book_store", "store"]],
+    [isDateDinner, false, "Walk-On's Sports Bistreaux", "restaurant", ["restaurant", "sports_bar", "bar"]],
+    [isDateDinner, false, "KPOT Korean BBQ & Hot Pot", "korean_barbecue_restaurant", ["restaurant", "buffet_restaurant", "hot_pot_restaurant"]],
+    [isDateDinner, false, "Hong BBQ & Hot Pot Fowler", "korean_barbecue_restaurant", ["restaurant", "hot_pot_restaurant"], "Korean BBQ and hot pot with tabletop grills and combo broths."],
+    [isDateDinner, true, "Seoul Table", "korean_restaurant", ["korean_restaurant", "restaurant"]],
+    [isDateDinner, true, "Hot Pot for Two", "hot_pot_restaurant", ["hot_pot_restaurant", "restaurant"]],
+    [isDateDinner, true, "Bulla Gastrobar Tampa", "spanish_restaurant", ["restaurant", "tapas_restaurant", "cocktail_bar"]],
+    [isDateDessert, false, "The Healthy Hangout", "juice_shop", ["juice_shop", "food"]],
+    [isDateDessert, false, "The Avalon Miami", "restaurant", ["restaurant", "juice_shop", "health_food_store", "coffee_shop"]],
+    [isDateDessert, true, "Berry & Gelato", "juice_shop", ["juice_shop", "ice_cream_shop"]],
+    [isDateDessert, true, "Bobe Kitchen & Bakery", "restaurant", ["restaurant", "bakery"]],
+    [isDateTogether, false, "The Garden Medical Spa, Wellness & Massage", "spa", ["skin_care_clinic", "massage_spa", "medical_clinic", "spa"]],
+    [isDateTogether, false, "Restore Hyper Wellness", "spa", ["wellness_center", "spa", "health"]],
+    [isDateTogether, false, "Omni Life Med+ Wellness", "spa", ["wellness_center", "spa", "medical_clinic", "doctor"]],
+    [isDateTogether, false, "Asana Head Spa", "spa", ["spa"]],
+    [isDateTogether, false, "Rejuvenation Spa", "spa", ["spa", "beauty_salon", "hair_care", "massage_spa"]],
+    [isDateTogether, false, "Fitness Wellness Spa", "spa", ["spa", "fitness_center", "gym"]],
+    [isDateTogether, false, "Key West Cruise Port", "tourist_attraction", ["tourist_attraction"]],
+    [isDateTogether, true, "The Spa at The Epicurean", "spa", ["spa", "wellness"]],
+    [isDateTogether, true, "The Sanctuary Day Spa", "spa", ["massage_spa", "spa", "beauty_salon"]],
+    [isDateTogether, true, "Serenity Massage", "massage_spa", ["massage_spa", "spa"], "Reserve a couples massage in a shared suite."],
+    [isDateTogether, true, "Gaia Spa", "spa", ["spa", "sauna", "beauty_salon", "public_bath"]],
+    [isDateTogether, true, "Go Tiki Tours Clearwater - Floating Tiki Boat", "tourist_attraction", ["tourist_attraction", "tour_agency"], "Private tiki boat tours in Clearwater Beach."],
+    [isDateTogether, true, "Tampa Bay Sunset Sail", "tour_agency", ["tour_agency", "tourist_attraction"]],
+  ];
+  for (const [qualifies, expected, name, primaryType, types, editorial] of cases) {
+    ok(qualifies(p({ name, primaryType, types, editorial, priceNum: 2 })) === expected, `${name} must ${expected ? "qualify" : "be excluded"} under its Date Night rail`);
+  }
+  // The neighborhood is selected before score ordering. A genuinely thin
+  // market retains the 27-mile choices and a qualified local dessert remains.
+  const stops = [
+    ["dinner", DINNER_CASUAL, "Pepe's Cantina"], ["dessert", DESSERT, "Keik Restaurant"],
+    ["together", TOUR, "Coastal Sunset Cruise"], ["shopping", p({ name: "Bookshop", primaryType: "book_store", types: ["book_store"] }), "Harbor Books"],
+  ];
+  for (const [id, fixture, farName] of stops) {
+    const near = ["First", "Second", "Third"].map((name, i) => ({ ...fixture, name: `${name} ${fixture.name}`, id: name, distMi: i + 1 }));
+    const far = { ...fixture, name: farName, id: "far", distMi: 17.7, wfScore: 100 };
+    const picks = (rows) => composeDateNightRails(rows, {}).rails.find((rail) => rail.id === id)?.places || [];
+    const local = picks([...near, far]);
+    ok(local.length === 3 && !local.some((row) => row.id === "far"),
+      `${id}: a full local choice keeps a 17.7-mile option out of the neighborhood`);
+    ok(picks([near[0], far]).some((row) => row.id === "far"),
+      `${id}: the same qualified option remains available in a thin market`);
+  }
+}
+
 // ── Radius is the datenight RAIL pair; Worth the Drive stays 27 ─────────────
 {
   const tb = readFileSync(join(ROOT, "lib/todaysBest.js"), "utf8");
