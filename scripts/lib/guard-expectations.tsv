@@ -761,7 +761,7 @@ scripts/test-event-section-nav.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	6b4c
 scripts/test-event-seo-title.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	4578177fc186803ed7b73f2298b23ad2bccfa03432a535d687f10c1d50d4ba88
 scripts/test-event-signin.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	e6175f0f300675410915ecde0ed1293721a077a93b0ab5bd5530bcffb3a6a59f
 scripts/test-event-source-corrections-20261021.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	597a8f03a8df6c3dc232e817f134664b3354b3e6dfa658647c55d241bde74ac5
-scripts/test-event-stays.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	fb81dd5fe3a9013daba42feef5d7e71abcbbf1b320dd72d744c031bcaac7e6fc
+scripts/test-event-stays.mjs	0	CALL	blocks-ci-and-deploy	1	-	74	0	0	760de6efc1cf22e86ec6c4c742e8fc706a0ca47d58b5bbfb8eb1267f62f6e04e
 scripts/test-event-ticket-first-screen.mjs	0	RENDER	blocks-ci-and-deploy	1	-	19	0	0	091087d0a5637a4e58998984790e4088d7f65ba3e92252985aab2b08e923316e
 scripts/test-event-truth-held-recheck.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	df8f23b3afc1faa055918159247c01896f5b24ea1f7a49993aa34ccfe9c2cdc6
 scripts/test-event-venue-nearby-api.mjs	0	RENDER	blocks-ci-and-deploy	1	-	56	0	0	03707b6cfebe370a788cc5d3cb79a9632d6b140eb1fb840365b2d491b70f6a62
