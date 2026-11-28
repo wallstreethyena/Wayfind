@@ -349,7 +349,7 @@ export default function GuideMapExplorer({
                 hook: spot.detail || null,
               } : null;
               const cta = spot.href ? {
-                label: isExternal(spot.href) ? "Official details ↗" : String(spot.href).startsWith("#") ? "See the details ↓" : "View details ↗",
+                label: spot.archiveLabel || (isExternal(spot.href) ? "Official details ↗" : String(spot.href).startsWith("#") ? "See the details ↓" : "View details ↗"),
                 href: spot.href,
                 external: isExternal(spot.href),
               } : null;
