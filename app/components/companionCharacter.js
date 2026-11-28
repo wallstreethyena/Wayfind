@@ -1,12 +1,9 @@
-// Which character the site wide companion is on a given page, and when each
-// one is allowed to appear. Plain module on purpose: BooCompanion imports it
-// and scripts/test-santa-companion.mjs calls it directly.
+// The companion's seasonal voice and the routes with a visible Santa dock.
+// Choosing a voice also serves explicitly opened chats, independent of the dock.
 //
 //   /christmas-in-florida (and subpaths)  Santa   Oct 1 through Jan 1
 //   everywhere else, Oct 1 to Oct 31      Boo
-//   everywhere else, Nov 1 to Jan 1       Santa  (owner 2026-10-30: Santa goes
-//                                         site wide Nov 1 and helps visitors
-//                                         find anything on Wayfind, /api/santa)
+//   everywhere else, Nov 1 to Jan 1       Santa
 //
 // Boo must never render on the Christmas page, so the character is chosen from
 // the path and the Eastern date: there is no state in which both can be picked.
@@ -33,6 +30,13 @@ export function isChristmasPath(p) {
 export const SANTA_OFF_RX = /(?:^|[/-])(?:hanukkah|chanukah)(?:[/-]|$)/i;
 export function santaOffPath(p) {
   return SANTA_OFF_RX.test(cleanPath(p));
+}
+
+export function santaDockOnPath(p) {
+  const path = cleanPath(p);
+  return !santaOffPath(path) && (
+    path === "/" || isChristmasPath(path) || /^\/guides\/(?:[^/]+-)?christmas(?:-[^/]+)?$/.test(path)
+  );
 }
 
 /** "santa" on the Christmas page, and everywhere from Nov 1 when the Eastern
