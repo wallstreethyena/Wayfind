@@ -146,6 +146,7 @@ const EQUIVALENT = {
 // hand off (the item then opens inside the app shell, which has its own Share
 // on every card and sheet).
 const EXEMPT = {
+  "app/preview/insider-tips/page.js": { kind: "internal", why: "noindex homepage mockup for the owner to review before anything ships; not a public destination, and each tip card links to its place page, which carries the standard share" },
   "app/group-plans/page.js": { kind: "internal", why: "private signed-in organizer dashboard; individual invite/final-plan capabilities are shared from inside the plan" },
   "app/trips/[id]/page.js": { kind: "internal", why: "private signed-in Live Trip; the address alone opens nothing for a stranger, and its Invite friends button shares the private invite link (code in the fragment) through shareOut" },
   "app/group-plans/new/page.js": { kind: "internal", why: "private plan-creation form; no recipient link exists until a plan is created" },

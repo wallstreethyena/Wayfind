@@ -5,12 +5,14 @@
 // key so the mockup never touches anyone's real favorites.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { styleHtml } from "../../../lib/styleHtml.js";
+import { safeLocalStorage } from "../../../lib/safeStorage.js";
 
 const SAVE_KEY = "wf_preview_insider_saves";
 const NUDGE_KEY = "wf_preview_insider_nudge_dismissed";
 
 const safe = (fn, fallback) => { try { return fn(); } catch { return fallback; } };
-const readSaves = () => safe(() => new Set(JSON.parse(window.localStorage.getItem(SAVE_KEY) || "[]")), new Set());
+const store = () => safeLocalStorage();
+const readSaves = () => safe(() => new Set(JSON.parse((store() && store().getItem(SAVE_KEY)) || "[]")), new Set());
 
 // Plain labels for the inventory's category slugs.
 const KIND = { attractions: "Things to do", activities: "Things to do", beach: "Beach", beaches: "Beach", food: "Eat", restaurants: "Eat", nightlife: "Night out", shopping: "Shop", hotels: "Stay", parks: "Outdoors", outdoors: "Outdoors", museums: "Museum", culture: "Culture" };
@@ -127,7 +129,7 @@ function Heart({ on }) {
   );
 }
 
-function TipCard({ c, saved, onSave, loading }) {
+function TipCard({ c, saved, onSave, loading, onBroken }) {
   return (
     <article className="it-card" data-insider-card={c.id}>
       <button type="button" className="it-heart" aria-pressed={saved ? "true" : "false"} aria-label={(saved ? "Remove " : "Save ") + c.name} onClick={() => onSave(c.id)}>
@@ -135,7 +137,7 @@ function TipCard({ c, saved, onSave, loading }) {
       </button>
       <a href={c.href} aria-label={c.name + ", " + c.town}>
         <div className="it-media">
-          <img className="it-photo" src={c.photo} alt={c.name} loading="lazy" decoding="async" width="640" height="480" />
+          <img className="it-photo" src={c.photo} alt={c.name} loading="lazy" decoding="async" width="640" height="480" onError={() => onBroken(c.id)} />
           {c.town ? <span className="it-place">{Icon.place}{c.town}</span> : null}
         </div>
         <div className="it-body">
@@ -164,6 +166,9 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
   const [loading, setLoading] = useState(true);
   const [saves, setSaves] = useState(() => new Set());
   const [nudge, setNudge] = useState(false);
+  // A photo that fails to load takes its card with it: never a grey box.
+  const [broken, setBroken] = useState(() => new Set());
+  const onBroken = useCallback((id) => setBroken((prev) => (prev.has(id) ? prev : new Set(prev).add(id))), []);
   const seq = useRef(0);
 
   const ask = useCallback(async (text) => {
@@ -184,8 +189,8 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
     setSaves((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
-      safe(() => window.localStorage.setItem(SAVE_KEY, JSON.stringify([...next])));
-      if (next.size > prev.size && !safe(() => window.localStorage.getItem(NUDGE_KEY), null)) setNudge(true);
+      safe(() => store() && store().setItem(SAVE_KEY, JSON.stringify([...next])));
+      if (next.size > prev.size && !safe(() => store() && store().getItem(NUDGE_KEY), null)) setNudge(true);
       return next;
     });
   }, []);
@@ -213,9 +218,9 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
     return () => { clearTimeout(t); window.removeEventListener("resize", lift); };
   }, [nudge]);
 
-  const dismiss = () => { setNudge(false); safe(() => window.localStorage.setItem(NUDGE_KEY, "1")); };
+  const dismiss = () => { setNudge(false); safe(() => store() && store().setItem(NUDGE_KEY, "1")); };
   const submit = (e) => { e.preventDefault(); ask(q.trim()); };
-  const cards = Array.isArray(answer && answer.cards) ? answer.cards : [];
+  const cards = (Array.isArray(answer && answer.cards) ? answer.cards : []).filter((c) => c && c.photo && !broken.has(c.id));
   const firstLoad = loading && !asked && !(answer && answer.ai);
   const switching = loading && !!asked;
   const area = answer && answer.metroLabel && answer.metroLabel !== "Florida" ? answer.metroLabel : "Florida";
@@ -255,7 +260,7 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
           </div>
           {cards.length ? (
             <div className={"it-grid" + (switching ? " dim" : "")}>
-              {cards.map((c) => <TipCard key={c.id} c={c} saved={saves.has(c.id)} onSave={onSave} loading={firstLoad} />)}
+              {cards.map((c) => <TipCard key={c.id} c={c} saved={saves.has(c.id)} onSave={onSave} loading={firstLoad} onBroken={onBroken} />)}
             </div>
           ) : (
             <p className="it-empty">No insider tips there yet. Try a Florida town or one of the picks above.</p>
