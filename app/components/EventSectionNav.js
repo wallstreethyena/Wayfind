@@ -54,7 +54,11 @@ export default function EventSectionNav() {
         const right = max - rail.scrollLeft > 4;
         setMore(current => current.left === left && current.right === right ? current : { left, right });
       }
-      const line = nav.getBoundingClientRect().bottom + 24;
+      // A section counts as "being read" once its top passes a line just under
+      // the rail. The line sits past the anchor landing spot (scroll-margin-top
+      // = garland + 92px, rail bottom = garland + ~62px), so a tap on a tab
+      // highlights that tab, not the one above it (live check 2026-11-28).
+      const line = nav.getBoundingClientRect().bottom + 48;
       let current = sections[0].id;
       for (const section of sections) {
         const el = document.getElementById(section.id);
