@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { formatGroupTimeShort } from "../../lib/groupPlanTime.js";
-import { PARTICIPANT_SMS_CONSENT_TEXT } from "../../lib/groupPlanShareText.js";
+import { SMS_SUBSCRIBE_CONSENT_TEXT } from "../../lib/groupPlanShareText.js";
 import { LANDING_CITIES } from "../../lib/landingCities.js";
 import { C } from "../components/kit.js";
 import { GroupPlaceOptions } from "./GroupPlaceOptions.js";
@@ -39,7 +39,7 @@ export const GROUP_BALLOT_CSS=`
 .gb-chip input:checked + .gb-chip-box{background:${C.accent};border-color:${C.accent};animation:gb-pop .3s ease-out}
 .gb-chip input:checked + .gb-chip-box .gb-check{opacity:1}
 @keyframes gb-pop{0%{transform:scale(1)}50%{transform:scale(1.24)}100%{transform:scale(1)}}
-.gb-sms-opt{margin:0 0 14px;padding:12px;border:1px solid ${C.border};border-radius:14px;background:${C.card}}
+.gb-consent{display:block;margin-top:4px;font-size:11.5px;line-height:1.45;color:${C.muted};font-weight:500}.gb-consent a{color:inherit;text-decoration:underline}.gb-sms-opt{margin:0 0 14px;padding:12px;border:1px solid ${C.border};border-radius:14px;background:${C.card}}
 .gb-error{margin:12px 0 0;padding:10px 14px;border-left:3px solid #f87171;border-radius:4px;background:rgba(248,113,113,.14);font-weight:700;line-height:1.5;color:#FCA5A5}
 .gb-secondary{display:flex;flex-wrap:wrap;gap:6px 22px;justify-content:center;margin-top:12px}
 .gb-link{min-height:44px;padding:8px 4px;border:0;background:none;color:${C.light};font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}
@@ -119,11 +119,14 @@ export function GroupBallot({plan,onCommand,busy}) {
   const deadline=formatGroupTimeShort(plan.deadline,plan.timeZone);
   const chosen=plan.places.find((p)=>p.id===selected)||plan.places.find((p)=>p.id===plan.originalPlaceId)||plan.places[0];
   const toggle=(id,on)=>{setError("");setCelebrate(false);setAvailable(on?(available.includes(id)?available:[...available,id]):available.filter((x)=>x!==id));};
-  const smsExtra=plan.smsAvailable&&smsOn&&voterPhone.trim()?{voterPhone:voterPhone.trim(),voterSmsConsent:true}:{};
+  // One optional box: the voter's own yes to Wayfind texts (results + Florida
+  // picks). Where Twilio is live it also covers this plan's final-plan text.
+  const subscriberName=(isGroupJoin?guestName:plan.invitee?.name||"").trim();
+  const smsExtra=smsOn&&voterPhone.trim()?{subscribeConsent:true,subscribePhone:voterPhone.trim(),subscribeName:subscriberName,...(plan.smsAvailable?{voterPhone:voterPhone.trim(),voterSmsConsent:true}:{})}:{};
   const send=()=>{
     if(isGroupJoin&&!guestName.trim()){setError("Enter your first name first");return;}
     if(!available.length){setError("Tap at least one day in step 2 first");return;}
-    if(plan.smsAvailable&&smsOn&&!voterPhone.trim()){setError("Enter your mobile number or uncheck the text alert box");return;}
+    if(smsOn&&!/^\+?1?\D*\d{3}\D*\d{3}\D*\d{4}\D*$/.test(voterPhone.trim())){setError("Enter your mobile number, or untick the text box");return;}
     setError("");
     if(isGroupJoin){
       onCommand({type:"join_respond",guestName:guestName.trim(),placeId:selected,availableTimeIds:available,declined:false,...smsExtra});
@@ -157,11 +160,11 @@ export function GroupBallot({plan,onCommand,busy}) {
         {chosen?.hoursStatus==="unverified"&&chosen.hoursNote&&<p className="gp-note">{chosen.hoursNote}</p>}
       </section>
       <section className="gb-step" aria-labelledby="gb-s3"><div className="gb-step-head"><span className="gb-num" aria-hidden="true">3</span><h2 id="gb-s3">Send it</h2></div>
-        {plan.smsAvailable&&<div className="gb-sms-opt"><label className="gp-choice" style={{margin:0}}><input type="checkbox" checked={smsOn} onChange={(e)=>{setSmsOn(e.target.checked);setError("");}}/><span>{PARTICIPANT_SMS_CONSENT_TEXT}</span></label>{smsOn&&<label className="gp-field" style={{marginBottom:0}}>Your mobile number<input type="tel" autoComplete="tel" placeholder="(555) 555-5555" value={voterPhone} onChange={(e)=>{setVoterPhone(e.target.value);setError("");}}/></label>}</div>}
+        <div className="gb-sms-opt"><label className="gp-choice" style={{margin:0}}><input type="checkbox" checked={smsOn} onChange={(e)=>{setSmsOn(e.target.checked);setError("");}}/><span><strong>Text me the results</strong><small className="gb-consent">{SMS_SUBSCRIBE_CONSENT_TEXT} <a href="/terms" target="_blank" rel="noopener">Terms</a> · <a href="/privacy" target="_blank" rel="noopener">Privacy</a></small></span></label>{smsOn&&<label className="gp-field" style={{marginBottom:0}}>Your mobile number<input type="tel" inputMode="tel" autoComplete="tel" placeholder="(555) 555-5555" value={voterPhone} onChange={(e)=>{setVoterPhone(e.target.value);setError("");}}/></label>}</div>
         <button type="button" className="gb-send" disabled={busy||!selected} onClick={send}>{busy?"Saving your vote…":response&&!response.declined?"Update my vote":"Send my vote"}</button>
         {error&&<p className="gb-error" role="alert">{error}</p>}
         <div className="gb-secondary"><button type="button" className="gb-link" disabled={busy} onClick={decline}>I can’t make it</button>{response&&<button type="button" className="gb-link" disabled={busy} onClick={()=>onCommand({type:"withdraw",slotId:plan.invitee.id})}>Withdraw my vote</button>}</div>
-        <p className="gb-note">Your response is saved when you send it. No text message is sent. Only the organizer sees who has responded.</p>
+        <p className="gb-note">Your response is saved when you send it. No text message is sent unless you tick the box above. Only the organizer sees who has responded.</p>
       </section>
       {response&&<ExploreMore place={chosen}/>}
     </>}

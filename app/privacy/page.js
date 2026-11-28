@@ -18,7 +18,7 @@ export default function Privacy() {
     <div style={S.page} className="wf-page-canvas">
       <div style={S.wrap}>
         <h1 style={S.h1}>Privacy &amp; Disclosures</h1>
-        <div style={S.date}>Wayfind &middot; Operated by WAYFIND LLC &middot; Effective August 1, 2026 &middot; Updated November 13, 2026</div>
+        <div style={S.date}>Wayfind &middot; Operated by WAYFIND LLC &middot; Effective August 1, 2026 &middot; Updated November 28, 2026</div>
 
         <h2 style={S.h2}>What Wayfind is</h2>
         <p style={S.p}>Wayfind is a local discovery app that helps visitors find great places nearby. You can use most of it without an account. WAYFIND LLC is the data controller for the personal information described here.</p>
@@ -33,6 +33,7 @@ export default function Privacy() {
         <p style={S.li}>&bull; <b>On-device data</b> (signed-out saves and preferences): stays on your device until you clear it; we never see it.</p>
         <p style={S.li}>&bull; <b>Analytics events</b>: retained by PostHog per our project settings.</p>
         <p style={S.li}>&bull; <b>Server logs</b> (Vercel): short-lived operational logs.</p>
+        <p style={S.li}>&bull; <b>Text message signups</b> (name, mobile number, consent record): kept while you’re subscribed; the opt-out record is kept after you reply STOP so you aren’t texted again.</p>
 
         <h2 style={S.h2}>Legal bases</h2>
         <p style={S.p}>Where laws such as the GDPR apply, we process personal data on these bases: performing our service for you (accounts, saved places), our legitimate interest in understanding and improving the product (analytics, security), and your consent where required (marketing email, if ever introduced).</p>
@@ -68,6 +69,10 @@ export default function Privacy() {
 
         <h2 style={S.h2}>Emails</h2>
         <p style={S.p}>We send account emails (confirmation, password reset) through Resend and Supabase. No marketing email without your consent.</p>
+
+        <h2 style={S.h2}>Group Vote, text messages &amp; contacts</h2>
+        <p style={S.p}><b>Picking friends from your contacts.</b> To make voting easier and more convenient, Group Vote can open your phone’s own contact picker or Messages app so you can send your vote invite. If you pick friends from your contacts, we use them only to help you send your vote invite. We don’t upload or store your contact list. Numbers you pick stay on your own device (we may remember your recent picks on that device so resending is one tap), and the invite is sent from your own phone, not by Wayfind.</p>
+        <p style={S.p}><b>Text messages from Wayfind.</b> When you vote, you can choose to tick a box asking Wayfind to text you the vote’s results and Wayfind’s Florida plans, events and picks. Only if you tick it, we keep your first name, mobile number, the exact consent wording you saw, when you agreed, which vote you agreed on, and your IP address and device type as a record of your consent. We use this only to send you those texts. Texts are recurring automated marketing messages, up to 4 a month; message and data rates may apply. Consent isn’t required to vote or to buy anything. Reply STOP to any text to stop them, or HELP for help, or email hello@gowayfind.com. We keep your number and consent record while you’re subscribed and keep the opt-out record after you stop so we don’t text you again. We don’t sell or share mobile numbers or text-message consent with third parties for their own marketing.</p>
 
         <h2 style={S.h2}>Affiliate disclosure</h2>
         <p style={S.p}>Some links to tickets, tours, hotels, and experiences (for example via Viator, GetYourGuide, Stay22 and its booking partners, and Travelpayouts and its partner brands such as Tiqets, Klook and TicketNetwork) are affiliate links. If you book through them, Wayfind may earn a commission. Commissions never influence our merit-based Wayfind Score. Where a placement is sponsored or commercially promoted, it is clearly labeled as such.</p>

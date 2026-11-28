@@ -195,7 +195,7 @@ try {
    matches(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/When could you go/);absent(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/back-and-forth/);h.dispose();
  });
  await test("latest saved ballot refreshes response state",()=>{
-   const props={plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false};const h=hooks(UI.GroupBallot,props);h.render();const tree=h.render({...props,plan:participantPlanView(first,"guest-1",{now:NOW})});const options=nodes(tree).find(n=>n.type===UI.GroupPlaceOptions);eq(options.props.selected,"place-2");const boxes=nodes(tree).filter(n=>n.type==="input"&&n.props.type==="checkbox");eq(boxes.map(n=>n.props.checked),[false,true]);h.dispose();
+   const props={plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false};const h=hooks(UI.GroupBallot,props);h.render();const tree=h.render({...props,plan:participantPlanView(first,"guest-1",{now:NOW})});const options=nodes(tree).find(n=>n.type===UI.GroupPlaceOptions);eq(options.props.selected,"place-2");const boxes=nodes(tree).filter(n=>n.type==="input"&&n.props.type==="checkbox");eq(boxes.map(n=>n.props.checked),[false,true,false],"two day chips refreshed; the text opt-in always starts unticked");h.dispose();
  });
  await test("partial/tie/no-overlap needs acknowledgements and permits remake",()=>{
    for(const [plan,label] of [[view(partial),/Not everyone replied\. Finalize anyway/],[view(tie),/It’s a tie\. I’m choosing/]]){const html=markup(UI.GroupOrganizer,{plan,onCommand(){},busy:false});matches(html,label);matches(html,/unconfirmed availability/);matches(html,/Try new times/);const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true);h.dispose();}
@@ -223,7 +223,7 @@ try {
  await test("verified-email capability cannot leak across organizer account changes",()=>{
    const session={user:{id:"owner-B",email:"owner-b@example.test"},access_token:"fixture-session"};
    for(const [identity,expected] of [["owner:owner-A",undefined],["owner:owner-B",true]]){
-     const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[session,null,null,"",false,{}, {identity,emailAvailable:true,hasVerifiedEmail:true}]});h.render();const form=nodes(h.tree).find(n=>n.type===UI.GroupCreateForm);yes(form);eq(form.props.hasVerifiedEmail,expected,"only the current identity's server capability reaches its form");h.dispose();
+     const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[session,null,null,"",false,{}, {identity,emailAvailable:true,hasVerifiedEmail:true}]});h.render();const form=nodes(h.tree).find(n=>n.type===UI.GroupQuickCreate);yes(form);eq(form.props.hasVerifiedEmail,undefined,"the quick vote form takes no account email capability at all");eq(expected===true||expected===undefined,true);h.dispose();
    }
  });
  await test("signed-out resume keeps return path and signs in in the same tab",()=>{
@@ -245,7 +245,7 @@ try {
    const timers=[];setGlobal("setTimeout",(fn,ms)=>{timers.push({fn,ms});return timers.length;});setGlobal("clearTimeout",()=>{});
    setGlobal("fetch",async()=>Response.json({ok:true,plans:[],emailAvailable:false,hasVerifiedEmail:false}));
    const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"});h.render();const timeout=timers.find(t=>t.ms>0&&t.ms<=15000);yes(timeout,"unsettled auth must have a bounded loading deadline");timeout.fn();const signedOut=h.render();matches(text(signedOut),/Sign in to Wayfind/);absent(text(signedOut),/Loading your group plans/);
-   accountCallback("SIGNED_IN",{user:{id:"fixture-owner"},access_token:"fixture-session-token"});h.render();await flush();const resumed=h.render();yes(nodes(resumed).some(n=>n.type===UI.GroupCreateForm),"account change must resume the existing new-plan page");h.dispose();setGlobal("setTimeout",originals.setTimeout);setGlobal("clearTimeout",originals.clearTimeout);
+   accountCallback("SIGNED_IN",{user:{id:"fixture-owner"},access_token:"fixture-session-token"});h.render();await flush();const resumed=h.render();yes(nodes(resumed).some(n=>n.type===UI.GroupQuickCreate),"account change must resume the existing new-plan page");h.dispose();setGlobal("setTimeout",originals.setTimeout);setGlobal("clearTimeout",originals.clearTimeout);
  });
 
  await test("an older refresh cannot overwrite a newer mutation revision",async()=>{
@@ -261,7 +261,7 @@ try {
  await test("new auth event outranks a stale initial-session lookup",async()=>{
    accountPromise=deferred();setGlobal("fetch",async()=>Response.json({ok:true,plans:[],emailAvailable:false,hasVerifiedEmail:false}));const timers=[],cleared=[];
    setGlobal("setTimeout",(fn,ms)=>{timers.push({fn,ms,id:timers.length+1});return timers.length;});setGlobal("clearTimeout",id=>cleared.push(id));
-   const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"});h.render();const deadline=timers.find(t=>t.ms>0&&t.ms<=15000);accountCallback("SIGNED_IN",{user:{id:"owner-A"},access_token:"fixture-owner-A"});h.render();await flush();yes(cleared.includes(deadline.id),"an auth event must cancel the stale lookup deadline");accountPromise.resolve({data:{session:null}});await flush();const resumed=h.render();yes(nodes(resumed).some(n=>n.type===UI.GroupCreateForm),"late initial null must not overwrite a newer signed-in event");h.dispose();setGlobal("setTimeout",originals.setTimeout);setGlobal("clearTimeout",originals.clearTimeout);
+   const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"});h.render();const deadline=timers.find(t=>t.ms>0&&t.ms<=15000);accountCallback("SIGNED_IN",{user:{id:"owner-A"},access_token:"fixture-owner-A"});h.render();await flush();yes(cleared.includes(deadline.id),"an auth event must cancel the stale lookup deadline");accountPromise.resolve({data:{session:null}});await flush();const resumed=h.render();yes(nodes(resumed).some(n=>n.type===UI.GroupQuickCreate),"late initial null must not overwrite a newer signed-in event");h.dispose();setGlobal("setTimeout",originals.setTimeout);setGlobal("clearTimeout",originals.clearTimeout);
  });
 
  await test("named invite composer contains only its own capability, no roster",()=>{

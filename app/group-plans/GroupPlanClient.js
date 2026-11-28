@@ -2,7 +2,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { parseZonedDateTime, formatGroupTimeShort } from "../../lib/groupPlanTime.js";
-import { ORGANIZER_SMS_CONSENT_TEXT } from "../../lib/groupPlanShareText.js";
+import { ORGANIZER_SMS_CONSENT_TEXT, groupShareMessage } from "../../lib/groupPlanShareText.js";
+import { shareOut } from "../../lib/shareOut.js";
+import { SITE_URL } from "../../lib/site.js";
+import { GroupTextInvite } from "./GroupTextInvite.js";
 import { signInUrlWithReturn } from "../../lib/authReturn.js";
 import { rewardMoment } from "../../lib/heartRewards.js";
 import { SantaSvg } from "../components/santaArt.js";
@@ -377,6 +380,125 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
   </form>;
 }
 
+// ── Quick Group Vote (owner redesign, 2026-11-28: "really weird and difficult
+// to use"). One short screen: pick spots in a swipe rail, say when, tap
+// "Send to group". The phone's own share sheet / Messages sends the link, so
+// friends' numbers never touch Wayfind. Name is optional; no friend-name form.
+function QuickCard({item,on,disabled,onToggle,original}) {
+  const score=Number.isFinite(item.score)?(item.score>10?(item.score/10).toFixed(1):Number(item.score).toFixed(1)):null;
+  const photo=typeof item.photo==="string"&&/^(https:\/\/|\/)/.test(item.photo)?item.photo:null;
+  const kind=item.kind==="experience"?"Tour":String(item.category||"").replace(/_/g," ");
+  return <button type="button" className={`gq-card${on?" is-on":""}`} aria-pressed={on} disabled={!on&&disabled} onClick={()=>onToggle(item)} aria-label={`${on?"Remove":"Add"} ${item.name}`}>
+    <span className="gq-photo">{photo?<img src={photo} alt="" loading="lazy" decoding="async"/>:<span className="gq-photo-blank" aria-hidden="true">{String(item.name||"?").slice(0,1)}</span>}
+      <span className="gq-check" aria-hidden="true">{on?"✓":"+"}</span>
+      {score&&<span className="gq-score" aria-hidden="true">{score}</span>}
+      {original&&<span className="gq-orig">Your pick</span>}
+    </span>
+    <span className="gq-body"><strong>{item.name}</strong><span>{[kind,item.city].filter(Boolean).join(" · ")}</span></span>
+    {item.photoAttr&&<span className="gq-credit">{item.photoAttr}</span>}
+  </button>;
+}
+export function GroupQuickCreate({placeId,placeName="",session,request=groupRequest}) {
+  const metaName=String(session?.user?.user_metadata?.first_name||session?.user?.user_metadata?.given_name||session?.user?.user_metadata?.full_name||session?.user?.user_metadata?.name||"").trim().split(/\s+/)[0]||"";
+  const [pool,setPool]=useState([]),[selected,setSelected]=useState([]),[loading,setLoading]=useState(false);
+  const [times,setTimes]=useState([""]),[zone,setZone]=useState("America/New_York"),[name,setName]=useState(metaName);
+  const [addOpen,setAddOpen]=useState(false),[addQuery,setAddQuery]=useState(""),[addResults,setAddResults]=useState(null),[addBusy,setAddBusy]=useState(false);
+  const [busy,setBusy]=useState(false),[error,setError]=useState(""),[created,setCreated]=useState(null),[notice,setNotice]=useState("");
+  const createKey=useRef(null),inFlight=useRef(false);
+  useEffect(()=>{setZone(Intl.DateTimeFormat().resolvedOptions().timeZone||"America/New_York");setTimes([localDefault(3,18)]);},[]);
+  useEffect(()=>{
+    if(!placeId||!session?.access_token)return;
+    let alive=true;setLoading(true);
+    request("/api/group-plans",{action:"suggest",placeId},session)
+      .then((res)=>{if(!alive)return;const seed=res?.seed?[res.seed]:[];const more=[...(res?.places||[]),...(res?.experiences||[])];setPool([...seed,...more]);if(seed.length)setSelected((prev)=>prev.length?prev:seed);})
+      .catch((e)=>{if(alive)setError(e?.code==="PLACE_UNAVAILABLE"?`${placeName||"That spot"} can’t be used for a group vote right now. Tap + Add a place to pick another.`:"We couldn’t load that spot yet. Tap + Add a place, or refresh to try again.");})
+      .finally(()=>{if(alive)setLoading(false);});
+    return ()=>{alive=false;};
+  },[placeId,session?.access_token]);
+  const isOn=(item)=>selected.some((p)=>p.id===item.id);
+  const toggle=(item)=>{setError("");setSelected((prev)=>prev.some((p)=>p.id===item.id)?prev.filter((p)=>p.id!==item.id):prev.length>=5?prev:[...prev,item]);};
+  const runAdd=async()=>{
+    const q=addQuery.trim();if(!q||addBusy)return;setAddBusy(true);setError("");
+    try{const a=selected[0]||pool[0];const near=a&&Number.isFinite(a.lat)&&Number.isFinite(a.lng)?{lat:a.lat,lng:a.lng}:null;setAddResults(await searchWayfindAll(q,near,session,request));}
+    catch{setError("Search didn’t answer. Try again.");}finally{setAddBusy(false);}
+  };
+  const addFromSearch=(item)=>{setPool((prev)=>prev.some((p)=>p.id===item.id)?prev:[...prev,item]);if(!isOn(item))toggle(item);setAddOpen(false);setAddResults(null);setAddQuery("");};
+  const send=async()=>{
+    if(inFlight.current)return;setError("");setNotice("");
+    if(!selected.length){setError("Tap at least one spot so your group has something to vote on.");return;}
+    let proposed;
+    try{proposed=times.filter((t)=>String(t||"").trim()).map((t,i)=>({startsAt:parseZonedDateTime(t,zone,{disambiguation:"earlier"}),endsAt:null}));}
+    catch{setError("One of your times isn’t a real time in your timezone. Pick another.");return;}
+    if(!proposed.length){setError("Pick a day and time for your outing.");try{document.getElementById("gq-time-0")?.focus?.();}catch{}return;}
+    const replyBy=suggestedGroupDeadline(times.filter(Boolean),zone,Date.now(),{});
+    if(!replyBy){setError("Pick a time at least a few hours from now.");return;}
+    inFlight.current=true;setBusy(true);
+    try{
+      const ids=selected.map((p)=>p.id);
+      const payload={action:"create",originalPlaceId:ids[0],selectedPlaceIds:ids,...(name.trim()?{organizerName:name.trim().slice(0,40)}:{}),shareMode:"group",openGroup:true,autoStart:true,invitees:[],timeZone:zone,deadline:parseZonedDateTime(replyBy,zone,{disambiguation:"earlier"}),times:proposed,emailConsent:false};
+      const fp=JSON.stringify(payload);if(createKey.current?.fp!==fp)createKey.current={id:crypto.randomUUID(),fp};
+      const result=await request("/api/group-plans",{...payload,createKey:createKey.current.id},session);
+      rewardMoment("group");setCreated(result.plan);
+      const url=quickGroupUrl(result.plan);
+      if(url&&typeof navigator!=="undefined"&&typeof navigator.share==="function"){
+        // Straight to the phone's share sheet. Some phones only allow it on a
+        // fresh tap; then the buttons below do the same in one more tap.
+        try{await navigator.share({title:"Group Vote on Wayfind",text:quickGroupText(result.plan,url),url});setNotice("Sent. Track who voted on your vote page.");}catch{/* buttons below */}
+      }
+    }catch(e){setError(e?.message||"We couldn’t create your vote. Please try again.");}
+    finally{inFlight.current=false;setBusy(false);}
+  };
+  if(created){
+    const url=quickGroupUrl(created),body=quickGroupText(created,url);
+    return <section className="gp-panel gq-ready" aria-label="Your vote is ready">
+      <div className="gp-step">Your vote is ready</div>
+      <h2>Send it to your group</h2>
+      <p className="gp-muted">One link for everyone. Friends tap, add their name and vote. No app or account needed.</p>
+      <div className="gq-preview">{body}</div>
+      <div className="gq-send-stack">
+        <GroupTextInvite key={created.id} body={body} single={false} onNotice={setNotice} remember/>
+        <button type="button" className="gp-button" onClick={()=>shareOut({title:"Group Vote on Wayfind",text:body.replace(url,"").trim(),url},()=>setNotice("Link copied. Paste it into your group chat."))}>More ways to share</button>
+      </div>
+      {notice&&<p className="gp-status" role="status">{notice}</p>}
+      <a className="gq-link" href={`/group-plans/${encodeURIComponent(created.id)}`}>See who voted →</a>
+    </section>;
+  }
+  const extra=pool.filter((p)=>!selected.some((s)=>s.id===p.id));
+  const railItems=[...selected,...extra];
+  return <div className="gq">
+    <section className="gq-section" aria-label="Spots to vote on">
+      <div className="gq-head"><h2>Pick the spots</h2><span className="gq-count">{selected.length} of 5</span></div>
+      <p className="gp-note gq-sub">Tap to add or remove. Your group votes on these.</p>
+      <div className="gq-rail" role="list">
+        {railItems.map((item)=><div role="listitem" key={item.id} className="gq-slot"><QuickCard item={item} on={isOn(item)} disabled={selected.length>=5} onToggle={toggle} original={item.id===placeId}/></div>)}
+        {loading&&<div role="listitem" className="gq-slot"><div className="gq-card gq-loading" aria-label="Loading similar spots"><span className="gq-photo"/><span className="gq-body"><strong>Finding great picks…</strong></span></div></div>}
+        <div role="listitem" className="gq-slot gq-slot-add"><button type="button" className="gq-add" aria-expanded={addOpen} onClick={()=>setAddOpen((v)=>!v)}><span aria-hidden="true">+</span>Add a place</button></div>
+      </div>
+      {addOpen&&<div className="gq-search">
+        <div className="gp-search-row"><input autoFocus value={addQuery} onChange={(e)=>setAddQuery(e.target.value)} onKeyDown={(e)=>{if(e.key==="Enter"){e.preventDefault();runAdd();}}} placeholder="A name, or brunch, bowling, date night" aria-label="Search Wayfind to add a spot" enterKeyHint="search"/>
+          <button type="button" className="gp-button" disabled={addBusy||!addQuery.trim()} onClick={runAdd}>{addBusy?"…":"Search"}</button></div>
+        {addResults?.length>0&&<ul className="gq-results">{addResults.map((item)=><li key={item.id}><button type="button" onClick={()=>addFromSearch(item)} disabled={!isOn(item)&&selected.length>=5}><strong>{item.name}</strong><span>{[item.kind==="experience"?"Tour":item.category,item.city].filter(Boolean).join(" · ")}</span><b aria-hidden="true">{isOn(item)?"✓":"+"}</b></button></li>)}</ul>}
+        {addResults&&addResults.length===0&&<p className="gp-note">Nothing matched. Try a name, or something like brunch or bowling.</p>}
+      </div>}
+    </section>
+    <section className="gq-section" aria-label="When">
+      <h2>When?</h2>
+      {times.map((t,i)=><div className="gq-time" key={i}><input id={`gq-time-${i}`} type="datetime-local" value={t} aria-label={`Time option ${i+1}`} onChange={(e)=>{setError("");setTimes(times.map((v,n)=>n===i?e.target.value:v));}}/>{times.length>1&&<button type="button" className="gq-x" aria-label={`Remove time ${i+1}`} onClick={()=>setTimes(times.filter((_v,n)=>n!==i))}>×</button>}</div>)}
+      {times.length<3&&<button type="button" className="gq-more" onClick={()=>setTimes([...times,""])}>+ Another time</button>}
+    </section>
+    <section className="gq-section gq-name" aria-label="Your name">
+      <label className="gp-field">Your name <span className="gp-note">(optional, shows in the text)</span><input maxLength={40} autoComplete="given-name" value={name} onChange={(e)=>setName(e.target.value)} placeholder="First name"/></label>
+    </section>
+    <div className="gq-bar">
+      {error&&<p className="gp-status gp-error" role="alert">{error}</p>}
+      <button type="button" className="gp-button primary gq-send" disabled={busy} onClick={send}>{busy?"Creating your vote…":`Send to group${selected.length>1?` · ${selected.length} spots`:""}`}</button>
+      <p className="gp-note gq-fine">Opens your phone’s share sheet. Friends vote from the link.</p>
+    </div>
+  </div>;
+}
+function quickGroupUrl(plan){return plan?.groupToken?`${SITE_URL}/group-plans/${encodeURIComponent(plan.id)}#group=${encodeURIComponent(plan.groupToken)}`:"";}
+function quickGroupText(plan,url){return url?groupShareMessage({organizerName:plan?.organizerName,places:plan?.places||[],url,santa:false,single:false}):"";}
+
 const PLAN_STATUS_LABELS={draft:"Invites not started",open:"Waiting for replies",closed:"Ready for your decision",finalized:"Final plan",cancelled:"Cancelled"};
 
 export default function GroupPlanClient({mode="view",planId,placeId,placeName="",pickQuery="",enabled=false}) {
@@ -494,9 +616,9 @@ export default function GroupPlanClient({mode="view",planId,placeId,placeName=""
   const finishedCount=(list?.plans||[]).filter((item)=>["closed","finalized","cancelled"].includes(item.status)||item.draftExpired).length;
 
   return <GroupFrame>
-    {mode!=="view"&&<GroupVoteIntro title={mode==="new"?"Who’s in & when?":"Your group votes"}><p className="gp-lede">{mode==="new"?"Start a group vote. Bring your people. Make a plan.":"Good plans start with your people. Pick up where you left off."}</p></GroupVoteIntro>}
+    {mode!=="view"&&<GroupVoteIntro title={mode==="new"?"Group Vote":"Your group votes"}><p className="gp-lede">{mode==="new"?"Pick a few spots and a time. Your group votes from one link.":"Good plans start with your people. Pick up where you left off."}</p></GroupVoteIntro>}
     <ErrorNotice message={error}/>
-    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId,placeName,pickQuery)):mode==="new"&&!placeId?<GroupPlacePicker session={session} initialQuery={pickQuery}/>:mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} placeName={placeName} session={session} {...(emailReady.identity===identityKey?emailReady:{})} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
+    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId,placeName,pickQuery)):mode==="new"&&!placeId?<GroupPlacePicker session={session} initialQuery={pickQuery}/>:mode==="new"?<GroupQuickCreate key={session.user.id} placeId={placeId} placeName={placeName} session={session}/>:mode==="list"?<>
       {list?.notices?.length>0&&<section className="gp-panel"><h2>Updates for you</h2>{list.notices.map((notice)=><div className="gp-notice-row" key={notice.id}>
         <div>
           <a className="gp-button" href={`/group-plans/${notice.plan_id}`}>{notice.planTitle?`${notice.planTitle} · `:""}{notice.event_type==="voting_closed"?"Voting has finished":notice.event_type==="plan_finalized"?"Your plan is ready":"Plan cancelled"}</a>
