@@ -131,5 +131,6 @@ ok(/from "\.\.\/\.\.\/lib\/plannerAsk\.js"/.test(sheet) && !/lib\/plannerRecomme
 ok(/role === "recs"/.test(sheet) && /onPlan=\{\(prompt\) => submitPlannerPrompt\(prompt\)\}/.test(sheet), "picks render with an optional plan button");
 const recs = readFileSync(new URL("../app/components/PlannerRecs.js", import.meta.url), "utf8");
 ok(/Turn this into a plan/.test(recs) && /Book a table/.test(recs), "the picks offer a plan and a table, as buttons");
+ok(!/from "\.\/kit"/.test(recs), "the picks card stays out of the homepage card code, so the homepage download does not grow");
 
 console.log(`test-planner-recommend: ${count} assertions passed`);

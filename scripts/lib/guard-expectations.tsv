@@ -1097,7 +1097,7 @@ scripts/test-places-photo-breaker.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	155
 scripts/test-planner-arrival.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	70f2c018ed7b1bb44d4013561f34c3f60cf2b3c91c9b17a23c9bed189dc833e3
 scripts/test-planner-host-voice.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	67d3b9fc349b154f8712b67e4e3b9938350992a4d885159785248da573bdd01a
 scripts/test-planner-imessage.mjs	0	RENDER	blocks-ci-and-deploy	1	-	50	0	0	c880bad81343be42b6d346c19f23c3ba0c8815d59e967109c4a186db54ea6bd5
-scripts/test-planner-recommend.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0	50536c3edc53fe2e8e01215d7f59bf043c1a5887fa29297541cfc388b085ede1
+scripts/test-planner-recommend.mjs	0	CALL	blocks-ci-and-deploy	1	-	73	0	0	b5e6cfb75bcea26371f5c9383506de0f715efbd84dcc22f41b9c7cc4792a17d4
 scripts/test-planner-right-now.mjs	0	CALL	blocks-ci-and-deploy	1	-	110	0	0	1729ac1c6d364a445deece36206f4d2b938bcd5ce0077544d365644991bfbb95
 scripts/test-plist-parse.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	60eca4881e8f46ca518cce4708a8e6c9f530af4e7b8bead1cc4d53d04066f3cf
 scripts/test-popularity.mjs	0	CALL	blocks-ci-and-deploy	1	-	94	0	0	7870002a209202401d6786ba3df16131fad8528baeeaf82e2d6a4b821fa4c867

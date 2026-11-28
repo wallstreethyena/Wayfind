@@ -3,7 +3,9 @@
 // exactly what was asked). Exactly the places the server chose, each with its open or hours status, a link to its
 // Wayfind page, "Book a table" for restaurants (a tap starts the booking, it never books), and one small optional
 // "Turn this into a plan" button. Nothing here builds a plan unless that button is pressed.
-import { C } from "./kit";
+// The kit palette's values, copied here on purpose: importing ./kit would pull the homepage card code into the
+// chat's lazy chunk and split it into a shared chunk the homepage then downloads (check-bundle, 2026-11-28).
+const C = { card: "#1C2230", border: "#2D3748", accent: "#F97316", green: "#22C55E", text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1" };
 
 const STATUS_COLOR = { open: C.green, today: C.green, unknown: C.muted, later: C.muted };
 
