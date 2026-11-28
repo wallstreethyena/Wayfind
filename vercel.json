@@ -110,6 +110,10 @@
       "schedule": "*/5 * * * *"
     },
     {
+      "path": "/api/cron/place-name-ingest",
+      "schedule": "8,38 * * * *"
+    },
+    {
       "path": "/api/cron/inventory-refresh",
       "schedule": "10 * * * *"
     },
