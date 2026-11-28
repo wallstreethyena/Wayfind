@@ -2,6 +2,7 @@
 import PlaceDistance, { usePlaceDistance } from "./components/PlaceDistance.js";
 import { Component, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useEdgeFade } from "./components/EdgeFade";
+import { startLandingLocation } from "../lib/deviceLocationStore.js";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
@@ -7708,8 +7709,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // Give GPS a head start; if it hasn't answered in 2.5s, use IP so the page
     // isn't stuck empty. GPS, if it later resolves, still wins via the handler.
     const ipTimer = setTimeout(ipFallback, 2500);
+    let cancelLocation;
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      cancelLocation = startLandingLocation(navigator, initialPlaceId, () => navigator.geolocation.getCurrentPosition(
         async (pos) => {
           gotGPS = true;
           clearTimeout(ipTimer);
@@ -7771,11 +7773,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         // recenterToMe() runs. The 8s timeout and IP fallback are unchanged,
         // so a denied prompt or slow GPS still resolves the page.
         { enableHighAccuracy: true, timeout: 8000 }
-      );
+      ));
     } else {
       ipFallback();
     }
-    return () => clearTimeout(ipTimer);
+    return () => { cancelLocation?.(); clearTimeout(ipTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
