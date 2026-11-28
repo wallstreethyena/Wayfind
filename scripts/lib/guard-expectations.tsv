@@ -770,7 +770,7 @@ scripts/test-events-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	76d4ae15
 scripts/test-events-expanded-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	90	0	0	311c14d0151bb8096668998d941908ec4114b8972851ee893e7ecd6c296970b2
 scripts/test-events-fall-feed-image.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a47e6406cc56ebd0602d4c419d058c431fdd856e58da015376b0d32594211975
 scripts/test-events-hub-not-prerendered.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	13	0	0	d0625a279c8da8753aeb8658e1465ad5016b67653f2e14264062ef1ee498ea8f
-scripts/test-events-list.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	5c6a10712eb53eaa9629afdc3b0b270861a5479bca46e1913614a7b5cbed8d82
+scripts/test-events-list.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	f640522cb717ed58db03693956fb6b718a80248f52fa52204bfc383305842a5f
 scripts/test-events-prime.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	3002bc42196740a6e850d5d59b6fe61ebdde96a193137e4942a262136e14888e
 scripts/test-events-spend.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	24	0	0	70873125f6f918b07c1b0fbf5868caa0d296e575254aed225974cad92d0af93b
 scripts/test-events-tours.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	28	1	0	90c282aaec22975a09ad3a04a2791578a8d70f974ebaac51f4588c937a3a8c82

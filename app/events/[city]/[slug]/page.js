@@ -171,6 +171,7 @@ function fmtDay(dateStr) {
 // url ListItem (valid on its own; never an Event missing its location).
 function listEventItem(e) {
   const url = e.destKind === "internal" ? `${CANON}${e.dest}` : e.dest;
+  if (e.windowAvailability) return { name: e.name, url };
   const item = providerEventJsonLd(e, { pageUrl: url });
   return item ? { item } : { name: e.name, url };
 }
@@ -289,6 +290,8 @@ async function EventListPage({ params }) {
             <div className="wf-rail" data-rail={`event-window-${params.city}-${params.slug}`} role="region" tabIndex={0} aria-label={`Events ${win.label.toLowerCase()} in ${city.name}`}>
             {events.map((e) => {
               const internal = e.destKind === "internal";
+              const actionLabel = e.windowAvailability === "sold_out" ? "Sold out" : e.windowAvailability === "off_sale" ? "Off sale" :
+                e.windowSeries && e.ticketed ? "See showtimes" : e.ticketed ? "Get tickets ↗" : "Explore event";
               // 2026-10-08 (owner): no stock photo stands in for an event.
               const image = e.image || "";
               return <RailCard
@@ -297,12 +300,12 @@ async function EventListPage({ params }) {
                 placeholder={eventPlaceholder(e.segment || e.genre || "events", e)}
                 title={e.name}
                 eyebrow="Event"
-                when={{ label: fmtDay(e.date).toUpperCase(), value: fmtClock(e.time) || "All day", tone: "later" }}
+                when={{ label: fmtDay(e.date).toUpperCase(), value: fmtClock(e.time) || (e.allDay ? "All day" : "Check times"), tone: "later" }}
                 facts={[e.venue || city.name, e.price || null].filter(Boolean)}
                 href={e.dest}
                 external={!internal}
                 actionItem={{ id: e.id, type: "event", title: e.name, image, url: e.dest, provider: e.source || null }}
-                cta={{ label: e.ticketed ? "Get tickets ↗" : "Explore event", href: e.dest, external: !internal, sponsored: e.ticketed }}
+                cta={{ label: actionLabel, href: e.dest, external: !internal, sponsored: e.ticketed }}
                 ariaLabel={`Open ${e.name}`}
               />;
             })}
