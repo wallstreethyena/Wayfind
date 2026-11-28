@@ -512,7 +512,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   const take = toHookLine(editorial, place.name);
   const validAiSummary = !take && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
   const hasTake = !!(take || validAiSummary);
-  const placeFallback = <PlaceCardPhotoFallback place={place} category={category} eager={eagerMedia} />;
+  const placeFallback = <PlaceCardPhotoFallback name={place.name} />;
   // 2026-10-29: NO ACTION IS A LINK ANY MORE — save included. The old
   // pre-hydration <a href="/p/{id}?action=save"> was followed by crawlers and
   // headless browsers, and the deep-link handler saved the place for them

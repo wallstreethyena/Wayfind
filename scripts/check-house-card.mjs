@@ -267,7 +267,7 @@ for (const f of AWARD_SITES) {
     "positive control: ThingsToDoList produced markup (got " + html.slice(0, 80) + ")");
 }
 
-// ── 7. Place-card fallback photography stays clearly labelled. ─
+// ── 7. Missing venue photos have an explicit image-free state. ─
 {
   const kids = renderToStaticMarkup(React.createElement(Iconic, {
     place: { id: "kids-empire", name: "Kids Empire Bradenton", types: ["playground"], city: "Parrish" },
@@ -279,10 +279,10 @@ for (const f of AWARD_SITES) {
     rank: 2,
     href: "/p/intense-escape",
   }));
-  ok(kids.includes('aria-label="Illustrative photo for Kids Empire Bradenton"') && escape.includes('aria-label="Illustrative photo for Intense Escape"'),
-    "uncategorized attractions disclose an illustrative photo with the venue name");
-  ok([kids, escape].every((markup) => markup.includes('src="/place-photos/representative/neutral.webp"') && !markup.includes("/api/market-photo")),
-    "uncategorized attractions use the local compass photo without a market photo lookup");
+  ok([kids, escape].every((markup) => markup.includes('class="wf-place-card-monogram wf-place-photo-unavailable"') && markup.includes(">Photo unavailable<")),
+    "uncategorized attractions disclose the unavailable photo");
+  ok([kids, escape].every((markup) => !/<img\b|data-card-photo-request|\/api\/market-photo/.test(markup)),
+    "uncategorized attractions render without a substitute image or a market photo lookup");
   const ownA = renderToStaticMarkup(React.createElement(Iconic, {
     place: { id: "a", name: "Place A", photoRef: "places/ChIJN1t_tDeuEmsRUsoyG83frY4/photos/BBB", types: ["museum"] },
     rank: 1,
@@ -297,8 +297,8 @@ for (const f of AWARD_SITES) {
     "each house card with a photoRef uses that place's own /api/photo URL");
   ok(!ownA.includes("place=ChIJ3SpvbYPhwogRS17En4FSzVI") && !ownB.includes("place=ChIJN1t_tDeuEmsRUsoyG83frY4"),
     "one place's photoRef must not appear on the other card");
-  ok([ownA, ownB].every((markup) => /data-card-photo-request=/.test(markup) && !markup.includes("/place-photos/representative/")),
-    "pending venue requests wait for an exact result before loading a representative photo");
+  ok([ownA, ownB].every((markup) => /data-card-photo-request=/.test(markup) && !markup.includes("wf-place-photo-unavailable")),
+    "pending venue requests wait for an exact result before declaring the photo unavailable");
   const iconic = strip(read("app/components/IconicPlaceCard.js"));
   const homePc = (() => {
     const raw = strip(read("app/home.js"));

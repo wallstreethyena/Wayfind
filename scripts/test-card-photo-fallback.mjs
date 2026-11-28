@@ -4,7 +4,10 @@
 // place-scoped /api/photo?place=<id> rung landing cards use — never to another
 // place's photo, never for a non-Google id.
 import { readFileSync } from "node:fs";
-import { ownedPlacePhotoSrc, cardImageSrc } from "../lib/placePhoto.js";
+import { ownedPlacePhotoSrc, cardImageSrc, isPlaceOwnedPhotoUrl } from "../lib/placePhoto.js";
+import { isOwnedPhotoUrl } from "../lib/placePhotoServe.js";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 let pass = 0;
 const fail = (m) => { console.error("test-card-photo-fallback: FAIL — " + m); process.exit(1); };
@@ -27,30 +30,26 @@ ok(/import \{ ownedPlacePhotoSrc \} from "\.\.\/lib\/placePhoto";/.test(src), "h
 ok(/const cardPlaceSrc = ownedPlacePhotoSrc\(p && p\.id\);/.test(body), "PlaceCard derives the place rung from ITS OWN id");
 ok(/const cardPrimarySrc = cardPhoto \|\| \(p && p\.photo\) \|\| cardPlaceSrc;/.test(body), "a card with no ref still gets the place rung");
 ok(/<FallbackImg src=\{cardPrimarySrc\} fallbackSrc=\{cardPlaceSrc && cardPlaceSrc !== cardPrimarySrc \? cardPlaceSrc : undefined\}/.test(body), "a dead ref retries through the place rung");
-ok(/placeFallback=\{<PlaceCardPhotoFallback place=\{p\} category=\{pcat\}\s*\/>/.test(body), "a place-card miss renders the labelled photo component with the place taxonomy");
-
+ok(/placeFallback=\{<PlaceCardPhotoFallback name=\{p\.name\}\s*\/>/.test(body), "a place-card miss renders the shared unavailable-photo state");
 
 const { loadComponent } = await import("./lib/jsxLoad.mjs");
 const { resolve } = await import("node:path");
-const sharp = (await import("sharp")).default;
-const { placeCardPhotoTheme } = await loadComponent(resolve("app/components/PlaceCardPhotoFallback.js"), process.cwd());
-const representative = "public/place-photos/representative";
-const credits = readFileSync(representative + "/CREDITS.md", "utf8");
-const types = {
-  aquarium: "aquarium", arts: "art_gallery", beach: "Beach", breakfast: "breakfast_restaurant",
-  burger: "fast_food_restaurant", coffee: "Cafés", dessert: "ice_cream_shop", dining: "fine_dining_restaurant",
-  family: "Family", food: "Food", music: "live_music_venue", neutral: "uncategorized",
-  nightlife: "Night out", outdoors: "state_park", pizza: "pizza_restaurant", shopping: "Shopping",
-  stays: "Stays", themeparks: "amusement_park",
-};
-for (const [theme, type] of Object.entries(types)) {
-  ok(placeCardPhotoTheme({ primary_type: type }) === theme, type + " maps to " + theme);
-  const file = await sharp(`${representative}/${theme}.webp`).metadata();
-  ok(file.format === "webp" && file.width >= 600 && file.height >= 1000, theme + " has a valid high-resolution local photo");
-  ok(credits.includes(`| ${theme} | `), theme + " has source and photographer credit");
+const { default: PlaceCardPhotoFallback, placeInitials } = await loadComponent(resolve("app/components/PlaceCardPhotoFallback.js"), process.cwd());
+const restaurants = ["Restaurant iDalia", "OSAKA Sushi & Grill", "Mizu Sushi & Hibachi Express", "Michael John's"];
+for (const [index, name] of restaurants.entries()) {
+  const html = renderToStaticMarkup(React.createElement(PlaceCardPhotoFallback, { name }));
+  ok(html.includes("wf-place-photo-unavailable") && html.includes(">Photo unavailable<"), name + " has an explicit unavailable-photo state");
+  ok(html.includes('aria-hidden="true">' + ["RI", "OS", "MS", "MJ"][index] + "</span>"), name + " shows its own initials");
+  ok(!/<img\b|<picture\b|\.webp|data-card-photo-request/.test(html), name + " cannot render a substitute photo");
 }
-ok(placeCardPhotoTheme({ primary_type: "cafe", types: ["restaurant"] }, "Food") === "coffee",
-  "specific known place type takes precedence over general Food");
-ok(placeCardPhotoTheme({ name: "Restaurant-looking venue name" }, null) === "neutral",
-  "missing taxonomy uses neutral artwork without guessing from names");
-console.log(`test-card-photo-fallback: OK — ${pass} venue-source, taxonomy, image and credit assertions`);
+
+ok(placeInitials() === "WF" && placeInitials("  Étoile  Bistro  ") === "ÉB", "monograms handle missing names, accents, and spaces");
+
+for (const src of ["/place-photos/representative/food.webp", "https://www.gowayfind.com/place-photos/representative/dining.webp?v=1"]) {
+  ok(!isPlaceOwnedPhotoUrl(src) && !isOwnedPhotoUrl(src), "a retired illustration is rejected by the client and server venue-photo selectors");
+  ok(cardImageSrc({ id: gid, photo_url: src }) === ownedPlacePhotoSrc(gid), "an old illustration retries the same venue");
+}
+const exact = "/place-photos/venue-a.webp";
+ok(isPlaceOwnedPhotoUrl(exact) && isOwnedPhotoUrl(exact) && cardImageSrc({ id: gid, photo_url: exact }) === exact,
+  "an exact owned photo still takes precedence");
+console.log(`test-card-photo-fallback: OK — ${pass} exact-source and unavailable-state assertions`);

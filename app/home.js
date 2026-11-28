@@ -12953,7 +12953,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
         <div className="wf-place-card-media">
           <FallbackImg src={cardPrimarySrc} fallbackSrc={cardPlaceSrc && cardPlaceSrc !== cardPrimarySrc ? cardPlaceSrc : undefined}
-            placeFallback={<PlaceCardPhotoFallback place={p} category={pcat} />} />
+            placeFallback={<PlaceCardPhotoFallback name={p.name} />} />
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={cardAward} />
         </div>
