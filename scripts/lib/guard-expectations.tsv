@@ -532,7 +532,7 @@ scripts/test-affiliates.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	50fa
 scripts/test-ai-board.mjs	0	CALL	blocks-ci-and-deploy	1	-	74	0	0	b864841cd7fd3d2a81a5b2e4f5b7b1f4b437998763ee77a0d2bb0273e84b52eb
 scripts/test-ai-engine-community.mjs	0	CALL	blocks-ci-and-deploy	1	-	116	0	0	3266f4d04417b537d15f32e7c77310786a4e3a4019c51b7c37b6ceecd420c1d2
 scripts/test-ai-engine-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	fb702054edf271a8067b05815e2341be352e2883f7390db2a7d453fe90d5785e
-scripts/test-ai-itinerary-planner.mjs	0	RENDER	blocks-ci-and-deploy	1	-	151	0	0	223794e4422656a046723b66679a70eb47b91e32f1f3163aab1a176632cf9c67
+scripts/test-ai-itinerary-planner.mjs	0	RENDER	blocks-ci-and-deploy	1	-	170	0	0	8df1e14c3dfd837867c592ed21e12d37dbfd1c05a09a800d9029f6ed736fe8dd
 scripts/test-analytics-attribution-meta.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	346c0a79c94fdb93509d27d97948b971c4fb400bb3fb05ccd9f2f8febdaa39d1
 scripts/test-analytics-write-suppression.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	80ca8962f5280349833df026eb8704f60d8fe597fc7d940af85f5335b5097e55
 scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	139	0	0	e5aad00f12fb53777c8a2b92b2f7bb1f8a03437bc6584c0b83f2d1e75f042980
@@ -1091,7 +1091,7 @@ scripts/test-place-share-metadata.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	8d7
 scripts/test-place-suggestions.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	41	1	0	118b2fd364e3f09a18419f254667082f85805150c1a8260b97a0d00afc197505
 scripts/test-places-photo-breaker.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	155b8dade6f47b1ce08e45c0f31a60e615b42e8d09d4badb1c7f68c5a3e6b8c4
 scripts/test-planner-arrival.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	70f2c018ed7b1bb44d4013561f34c3f60cf2b3c91c9b17a23c9bed189dc833e3
-scripts/test-planner-host-voice.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	f15fa7aebf52634b9201ec7adcf212b31b8cfc8be8367b179b80b2b6c8c1d7ed
+scripts/test-planner-host-voice.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	67d3b9fc349b154f8712b67e4e3b9938350992a4d885159785248da573bdd01a
 scripts/test-planner-imessage.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	89308e90b74fd45afd6d77517aa87a1d21073e757983ffc408c5c8b0e409d1d1
 scripts/test-planner-right-now.mjs	0	CALL	blocks-ci-and-deploy	1	-	110	0	0	1729ac1c6d364a445deece36206f4d2b938bcd5ce0077544d365644991bfbb95
 scripts/test-plist-parse.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	60eca4881e8f46ca518cce4708a8e6c9f530af4e7b8bead1cc4d53d04066f3cf
