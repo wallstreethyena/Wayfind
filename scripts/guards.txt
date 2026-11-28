@@ -708,6 +708,7 @@ node scripts/check-home-bundle-splits.mjs
 # against the REAL lib/creatorSignals.js, across the whole curated corpus,
 # and red-proves five ways the comparison could otherwise be vacuous.
 node scripts/check-creator-signal-equivalence.mjs
+node scripts/check-creator-place-key.mjs
 node scripts/check-chef-picks.mjs
 node scripts/check-creator-events.mjs
 node scripts/check-guard-integrity.mjs
@@ -2333,6 +2334,7 @@ node scripts/test-group-vote-frame.mjs
 # Shared tours start Group Vote on that tour; picker counts category searches.
 node scripts/test-group-vote-tours.mjs
 node scripts/test-group-vote-keep-place.mjs
+node scripts/test-group-vote-distinct-picks.mjs
 
 node scripts/test-place-share-metadata.mjs
 node scripts/test-cached-place-identity.mjs
@@ -2799,6 +2801,8 @@ node scripts/test-primary-cta-gap.mjs
 node scripts/test-indexnow.mjs
 # 2026-11-23 SEO engine: Sarasota guide and Christmas hub headlines carry the searched words, real picks only.
 node scripts/test-seo-money-headlines.mjs
+# 2026-11-28 SEO engine: the Florida boat parade hub links every live Wayfind boat parade page, read from wf_events, failing closed.
+node scripts/test-guide-event-links.mjs
 # 2026-11-23 Group Vote overhaul: site-wide share prefill, Wayfind IP suggestions + experiences (1-5), optional Santa AI, 1-tap group link + compliant first-party Twilio SMS, Wayfind native theme (no purple), and vote history deletion.
 node scripts/test-group-vote-overhaul.mjs
 # 2026-11-23 Card photo delivery: wf_inventory signals.photo_gallery serves exact-place photos with license/venue credit and zero Google spend.
@@ -2857,6 +2861,7 @@ node scripts/test-live-trip-route.mjs
 node scripts/test-live-trip-idb.mjs
 node scripts/test-ai-engine-community.mjs
 node scripts/test-planner-right-now.mjs
+node scripts/test-planner-recommend.mjs
 node scripts/test-ai-engine-rls.mjs
 node scripts/test-web-push.mjs
 node scripts/test-web-push-client.mjs

@@ -266,7 +266,13 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
   const updateTime=(i,field,value)=>{const key=`${field}-${i}`;setTimes(times.map((t,n)=>n===i?{...t,[field]:value}:t));setFolds((previous)=>({...previous,[key]:"reject"}));setAmbiguous((previous)=>previous?.key===key?null:previous);setError("");};
   const removeTime=(i)=>{setTimes(times.filter((_t,n)=>n!==i));setFolds((previous)=>Object.fromEntries(Object.entries(previous).flatMap(([key,value])=>{const match=/^(start|end)-(\d+)$/.exec(key);if(!match)return [[key,value]];const n=Number(match[2]);return n===i?[]:[[`${match[1]}-${n>i?n-1:n}`,value]];})));setAmbiguous(null);setFieldError("");setError("");};
   const parseField=(value,key,label)=>{try{return parseZonedDateTime(value,zone,{disambiguation:folds[key]||"reject"});}catch(e){setFieldError(key);if(e.code==="AMBIGUOUS_LOCAL_TIME")setAmbiguous({key,label});e.message=`${label}: ${e.message}`;throw e;}};
-  const submit=async(event)=>{event.preventDefault();if(inFlight.current)return;inFlight.current=true;setError("");setAmbiguous(null);setFieldError("");setBusy(true);
+  // Shown next to the button and the field scrolled into view: on iPhone Safari a
+  // native "required" bubble on a field far up the page looked like the button did nothing.
+  const showFieldProblem=(id,message)=>{setError(message);try{const el=document.getElementById(id);el?.scrollIntoView?.({block:"center",behavior:"smooth"});el?.focus?.({preventScroll:true});}catch{}};
+  const submit=async(event)=>{event.preventDefault();if(inFlight.current)return;
+    if(!String(name||"").trim()){showFieldProblem("gp-organizer-name","Add your first name above so your friends know who’s asking.");return;}
+    if(times.some((t)=>!String(t.start||"").trim())){showFieldProblem("gp-time-start-0","Pick a day and start time for your outing.");return;}
+    inFlight.current=true;setError("");setAmbiguous(null);setFieldError("");setBusy(true);
     try {
       if(smsAvailable&&orgSmsConsent&&!orgPhone.trim()) throw new Error("Enter your mobile number or uncheck the text alert box.");
       const proposed=times.map((t,i)=>({startsAt:parseField(t.start,`start-${i}`,`Option ${i+1} start`),endsAt:t.end?parseField(t.end,`end-${i}`,`Option ${i+1} end`):null}));
@@ -296,7 +302,7 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
   };
   const foldChoice=(key)=>ambiguous?.key===key?<label className="gp-field gp-fold">{ambiguous.label} happens twice when clocks change<select required value={folds[key]||""} onChange={(e)=>{setFolds({...folds,[key]:e.target.value});setError("");}}><option value="">Choose which time</option><option value="earlier">First occurrence</option><option value="later">Second occurrence</option></select></label>:null;
 
-  return <form onSubmit={submit} className="gp-create">
+  return <form onSubmit={submit} className="gp-create" noValidate>
     <section className="gp-panel gp-builder" aria-label="Build your vote lineup">
       <div className="gp-section-head">
         <div><div className="gp-step">1 · Your vote options (1–5)</div><h2>{selectedPlaces.length?"Your pick is locked in — tweak or add more":placeName?`Starting with ${placeName}`:"Your starting pick"}</h2></div>
@@ -347,7 +353,7 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
     </section>
 
     <section className="gp-panel"><div className="gp-step">2 · Your people & your text</div><h2>Who’s voting?</h2><p className="gp-muted">Invite up to 10 people with one link — works for 1 friend or a group text. No account needed.</p>
-      <label className="gp-field">Your first name<input required maxLength={40} autoComplete="given-name" value={name} onChange={(e)=>setName(e.target.value)}/></label>
+      <label className="gp-field">Your first name<input id="gp-organizer-name" required maxLength={40} autoComplete="given-name" value={name} onChange={(e)=>setName(e.target.value)}/></label>
       {smsAvailable&&<div className="gp-sms-box">
         <label className="gp-field" style={{marginTop:0}}>Your mobile number (get your link by text too)<input type="tel" autoComplete="tel" placeholder="(555) 555-5555" value={orgPhone} onChange={(e)=>setOrgPhone(e.target.value)}/></label>
         <label className="gp-choice" style={{marginBottom:0}}><input type="checkbox" checked={orgSmsConsent} onChange={(e)=>setOrgSmsConsent(e.target.checked)}/><span>{ORGANIZER_SMS_CONSENT_TEXT}</span></label>
@@ -358,7 +364,7 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
     </section>
 
     <section className="gp-panel"><div className="gp-step">3 · Make some plans</div><h2>When could you go?</h2><p className="gp-muted">Pick up to 3 times you can make. Friends tap every option that works.</p>
-      {times.map((time,i)=><div className="gp-time-option" key={i}><div className="gp-option-head"><h3>Option {i+1}</h3>{times.length>1&&<button className="gp-button gp-remove" type="button" onClick={()=>removeTime(i)}>Remove time</button>}</div><div className="gp-time"><div><label className="gp-field">Day & start time<input type="datetime-local" required value={time.start} onChange={(e)=>updateTime(i,"start",e.target.value)}/></label>{foldChoice(`start-${i}`)}</div>{time.end!=null?<div><label className="gp-field">End time<input type="datetime-local" required value={time.end} onChange={(e)=>updateTime(i,"end",e.target.value)}/></label>{foldChoice(`end-${i}`)}<button className="gp-button gp-remove" type="button" onClick={()=>updateTime(i,"end",null)}>Remove end time</button></div>:<button className="gp-button gp-add-end" type="button" onClick={()=>updateTime(i,"end","")}>Add end time</button>}</div></div>)}
+      {times.map((time,i)=><div className="gp-time-option" key={i}><div className="gp-option-head"><h3>Option {i+1}</h3>{times.length>1&&<button className="gp-button gp-remove" type="button" onClick={()=>removeTime(i)}>Remove time</button>}</div><div className="gp-time"><div><label className="gp-field">Day & start time<input id={`gp-time-start-${i}`} type="datetime-local" required value={time.start} onChange={(e)=>updateTime(i,"start",e.target.value)}/></label>{foldChoice(`start-${i}`)}</div>{time.end!=null?<div><label className="gp-field">End time<input type="datetime-local" required value={time.end} onChange={(e)=>updateTime(i,"end",e.target.value)}/></label>{foldChoice(`end-${i}`)}<button className="gp-button gp-remove" type="button" onClick={()=>updateTime(i,"end",null)}>Remove end time</button></div>:<button className="gp-button gp-add-end" type="button" onClick={()=>updateTime(i,"end","")}>Add end time</button>}</div></div>)}
       {times.length<3&&<button type="button" className="gp-button" onClick={()=>setTimes([...times,{start:"",end:null}])}>Add another time</button>}
       <p className="gp-note">Times shown in your local time</p>
     </section>

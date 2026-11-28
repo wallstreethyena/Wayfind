@@ -111,7 +111,9 @@ eq(recs.experiences[0].id, "vx_11P1", "matched Riverwalk cruise experience");
   eq(mixed.map((x) => x.kind || "place"), ["place", "experience"], "hydrate supports mixed places and experiences");
   const suggested = await pd.suggest(seed.id, NOW);
   eq(suggested.seed.id, seed.id, "suggest returns hydrated original seed");
-  eq(suggested.places[0].id, "ChIJmatch111111111", "suggest returns similar nearby place");
+  // Owner 2026-11-28: options must look premium (Wayfind Score 9.0+ with a real photo).
+  // This fixture's match has neither (no owner score context, no photo), so it is not offered.
+  eq(suggested.places.length, 0, "suggest never offers a match without a 9.0+ score and a real photo");
   eq(suggested.experiences[0].id, "vx_11P1", "suggest returns matching nearby experience");
   const prep = await pd.prepareSelected([seed.id, "vx_11P1"], [], NOW);
   eq(prep.places.map((p) => p.id), [seed.id, "vx_11P1"], "prepareSelected verifies user's custom mixed lineup");

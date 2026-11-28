@@ -441,6 +441,7 @@ import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
 import { FieldGuideArticle } from "../../components/FieldGuideArticle";
 import { ssrPartnerInventory } from "../../../lib/landingRails";
 import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
+import { fetchGuideEventLinks, guideEventLinkConfig } from "../../../lib/guideEventLinks.js";
 // Event guides reuse the ONE event "where" block (map, route, numbered nearby
 // picks) that /florida-events/[slug] renders, fed by the same curated row and
 // the same cached pairings, so a guide can never draw a second map rule.
@@ -576,6 +577,9 @@ export default async function GuidePage({ params }) {
   const liveGuides = currentGuides(GUIDES);
   const continueTo = guideContinue(g, params.slug, liveGuides);
   const contextLinks = guideContextLinks(params.slug, liveGuides);
+  // Hub guides list every real Wayfind event page of their kind (lib/guideEventLinks.js).
+  const eventLinkCfg = past ? null : guideEventLinkConfig(params.slug);
+  const eventLinks = eventLinkCfg ? await fetchGuideEventLinks(params.slug, { today: siteTodayStr() }) : [];
   const quickChoices = visibleQuickChoices(guideQuickChoices(params.slug), shippingPicks);
   const articleImage = guideArticleImage(guideHero(params.slug));
 
@@ -990,6 +994,11 @@ export default async function GuidePage({ params }) {
         .wf-guide-quick strong{font-size:13px;line-height:1.35}
         .wf-guide-related>div{grid-template-columns:repeat(2,minmax(0,1fr))}
         .wf-guide-related a{font-size:13px;line-height:1.4;justify-content:center}
+        .wf-guide-events-lede{margin:0 0 10px;font-size:13px;line-height:1.45;color:#a8b3c2}
+        .wf-guide-events a{justify-content:flex-start}
+        .wf-guide-events a span{font-size:11px;color:#94a3b8}
+        .wf-guide-events a strong{font-size:13px;line-height:1.3}
+        @media(max-width:760px){.wf-guide-related.wf-guide-events>div{grid-template-columns:repeat(2,minmax(0,1fr))}.wf-guide-events a{padding:8px 9px}}
         @media(max-width:760px){
           .wf-guide-quick>div,.wf-guide-related>div{grid-template-columns:1fr}
           .wf-guide-actions a{margin:7px 0 0!important;padding:8px 13px!important;font-size:12.5px!important}
@@ -1337,6 +1346,13 @@ export default async function GuidePage({ params }) {
         </section>
       ) : null}
       <GuideStays slug={params.slug} />
+      {eventLinks.length ? (
+        <section className="wf-guide-related wf-guide-events" aria-labelledby="guide-events-title" data-wf-guide-event-links={eventLinks.length}>
+          <h2 id="guide-events-title">{eventLinkCfg.heading}</h2>
+          {eventLinkCfg.lede ? <p className="wf-guide-events-lede">{eventLinkCfg.lede}</p> : null}
+          <div>{eventLinks.map((ev) => <a key={ev.slug} href={ev.href}><span>{[ev.when, ev.city].filter(Boolean).join(" · ")}{ev.soldOut ? " · Sold out" : ""}</span><strong>{ev.name}</strong></a>)}</div>
+        </section>
+      ) : null}
       {contextLinks.length ? (
         <aside className="wf-guide-related" aria-labelledby="guide-related-title">
           <h2 id="guide-related-title">Compare another plan</h2>

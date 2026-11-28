@@ -8,6 +8,8 @@ import { corroborationTrend, CORROBORATION_MIN_CREATORS } from "../lib/trendSign
 import { creatorCountFor, buildLeanResolver } from "../lib/creatorSignals.js";
 import { creatorCountFor as fullCount } from "../lib/creatorVideos.js";
 import { LEAN_CURATED } from "../lib/creatorSignalsData.generated.js";
+import { __CURATED_FOR_CODEGEN__ as CURATED } from "../lib/creatorVideos.js";
+import { creatorPlaceKey } from "../lib/creatorPlaceKey.js";
 import { NON_INDEPENDENT_CREATOR_HANDLES, isIndependentCreator } from "../lib/creatorIndependence.js";
 
 let n = 0, bad = 0;
@@ -25,10 +27,10 @@ ok(isIndependentCreator("tampaiman"), "a genuine creator stays independent");
 //    and negative controls that do not depend on the committed data).
 const PLAT = ["instagram"];
 const fx = buildLeanResolver([
-  ["FX_GOOD", "Fixture Good", "Tampa", [["tampaiman", 0, 0], ["eatsbylaurr", 0, 0]]],
-  ["FX_SELF", "Fixture Self", "Tampa", [["tampaiman", 0, 0], ["nuevacantina", 0, 0]]],
-  ["FX_TOURISM", "Fixture Tourism", "Tampa", [["tampaiman", 0, 0], ["visitspc", 0, 0]]],
-  ["FX_ONLYSELF", "Fixture OnlySelf", "Tampa", [["secretsoftampabay", 0, 0], ["influencetampa", 0, 0]]],
+  [creatorPlaceKey("FX_GOOD"), "Fixture Good", "Tampa", [["tampaiman", 0, 0], ["eatsbylaurr", 0, 0]]],
+  [creatorPlaceKey("FX_SELF"), "Fixture Self", "Tampa", [["tampaiman", 0, 0], ["nuevacantina", 0, 0]]],
+  [creatorPlaceKey("FX_TOURISM"), "Fixture Tourism", "Tampa", [["tampaiman", 0, 0], ["visitspc", 0, 0]]],
+  [creatorPlaceKey("FX_ONLYSELF"), "Fixture OnlySelf", "Tampa", [["secretsoftampabay", 0, 0], ["influencetampa", 0, 0]]],
 ], PLAT);
 const cnt = (id) => fx.creatorCountFor({ id, name: "x" });
 ok(cnt("FX_GOOD") === 2, "CONTROL two genuine creators count 2");
@@ -39,7 +41,10 @@ ok(fx.creatorVideosFor({ id: "FX_SELF", name: "x" }).length === 2, "excluded cre
 
 // 3. Real data, through corroborationTrend (the call the rails/rankings make).
 let genuine = 0, losers = [], positive = null;
-for (const [pid, name, city, vids] of LEAN_CURATED) {
+// LEAN_CURATED slot 0 is a lookup key (lib/creatorPlaceKey.js); the place a
+// card carries has the REAL id, which the full registry holds at the same index.
+for (const [i, [, name, city, vids]] of LEAN_CURATED.entries()) {
+  const pid = CURATED[i] && CURATED[i].placeId;
   if (!vids || !vids.length) continue;
   const handles = [...new Set(vids.map((v) => norm(v[0])).filter(Boolean))];
   const indep = handles.filter(isIndependentCreator).length;
@@ -62,12 +67,12 @@ ok(losers.length > 0, "NEGATIVE CONTROL: at least one place lost the floor (prob
 // independent creator (whenintampa) posted it, alongside tampavida. Its own
 // account (perfectpresscoffeeco) still never counts; that is asserted below.
 for (const [nm, ct] of [["Nueva Cantina", "Tampa"]]) {
-  const e = LEAN_CURATED.find((x) => x[1] === nm && x[2] === ct);
-  ok(e && corroborationTrend({ id: e[0], name: e[1], city: e[2] }, ct).trending === false, `${nm} (${ct}) must not trend on its own account`);
+  const e = CURATED.find((x) => x.match && x.match.name === nm && x.match.city === ct);
+  ok(e && corroborationTrend({ id: e.placeId, name: nm, city: ct }, ct).trending === false, `${nm} (${ct}) must not trend on its own account`);
 }
 {
-  const e = LEAN_CURATED.find((x) => x[1] === "The Perfect Press Coffee Co." && x[2] === "Tampa");
-  ok(e && creatorCountFor({ id: e[0], name: e[1] }, "Tampa") === 2, "The Perfect Press Coffee Co. counts only its two independent creators, never its own account");
+  const e = CURATED.find((x) => x.match && x.match.name === "The Perfect Press Coffee Co." && x.match.city === "Tampa");
+  ok(e && creatorCountFor({ id: e.placeId, name: e.match.name }, "Tampa") === 2, "The Perfect Press Coffee Co. counts only its two independent creators, never its own account");
 }
 
 console.log(`creator-independence: ${losers.length} places lost the 2-creator floor: ${losers.join("; ")}`);

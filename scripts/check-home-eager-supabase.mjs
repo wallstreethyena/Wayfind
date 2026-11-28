@@ -149,5 +149,68 @@ try {
   ok(false, e && e.message ? e.message : String(e));
 }
 
+// THE ROOT LAYOUT TOO (2026-11-28). The walk above starts at app/home.js, so
+// it never saw the root layout, which renders on EVERY page: PostHogProvider.js
+// and NativeShellInit.js imported lib/supabase.js statically and put 53.2KB gz
+// of Supabase in every visitor's first load, unseen by this guard. The layout
+// is a server component, and server code may use Supabase, so the property is:
+// no module reachable from app/layout.js AFTER a "use client" boundary may
+// statically import lib/supabase.js. Server-side edges before the boundary are
+// fine; once a file says "use client", everything it imports ships to browsers.
+const USE_CLIENT = /^(?:\s|\/\/[^\n]*\n|\/\*[\s\S]*?\*\/)*["']use client["']/;
+function clientPathsToTarget(root, entryRel, targetRel) {
+  const found = [];
+  const seen = new Set();
+  const walk = (rel, inClient, chain) => {
+    const key = rel + "|" + inClient;
+    if (rel === targetRel) { if (inClient) found.push(chain); return; }
+    if (seen.has(key)) return;
+    seen.add(key);
+    const ext = path.extname(rel).toLowerCase();
+    if (!CODE_EXTS.includes(ext)) return;
+    const src = readFileSync(path.join(root, rel), "utf8");
+    const client = inClient || USE_CLIENT.test(src);
+    for (const spec of staticSpecifiers(src, rel)) {
+      const resolved = resolveRelative(root, rel, spec);
+      if (resolved) walk(resolved, client, [...chain, resolved]);
+    }
+  };
+  walk(entryRel, false, [entryRel]);
+  return { found, scanned: new Set([...seen].map((k) => k.split("|")[0])).size };
+}
+{
+  // Red-prove the layout walker on a synthetic tree first: a client provider
+  // with a static import must be found, a server-only import must not, and a
+  // dynamic import() must be the boundary.
+  const root = mkdtempSync(path.join(tmpdir(), "wf-layout-sb-"));
+  try {
+    mkdirSync(path.join(root, "app", "components"), { recursive: true });
+    mkdirSync(path.join(root, "lib"), { recursive: true });
+    writeFileSync(path.join(root, "lib", "supabase.js"), "export const supabase = {};\n");
+    writeFileSync(path.join(root, "lib", "serverData.js"), 'import { supabase } from "./supabase.js"; export const d = supabase;\n');
+    writeFileSync(path.join(root, "app", "components", "Provider.js"), '"use client";\nimport { supabase } from "../../lib/supabase";\nexport default function P(){ return supabase; }\n');
+    writeFileSync(path.join(root, "app", "layout.js"), 'import "../lib/serverData.js"; import P from "./components/Provider"; export default P;\n');
+    const bad = clientPathsToTarget(root, "app/layout.js", TARGET);
+    ok(bad.found.length === 1 && bad.found[0].includes("app/components/Provider.js"), `red-prove: the layout walker must find exactly the one client path; got ${bad.found.length}`);
+    writeFileSync(path.join(root, "lib", "lazySupabase.js"), 'export const getSupabase = () => import("./supabase.js").then(m => m.supabase);\n');
+    writeFileSync(path.join(root, "app", "components", "Provider.js"), '"use client";\n// a comment first\nimport { getSupabase } from "../../lib/lazySupabase";\nexport default function P(){ return getSupabase; }\n');
+    const good = clientPathsToTarget(root, "app/layout.js", TARGET);
+    ok(good.found.length === 0, "red-prove: a dynamic import() must be the boundary and server-only imports must not count");
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+  try {
+    const { found, scanned } = clientPathsToTarget(ROOT, "app/layout.js", TARGET);
+    if (found.length) {
+      for (const p of found.slice(0, 20)) console.error("  eager client path: " + p.join(" -> "));
+      ok(false, `${TARGET} is statically reachable from the root layout's client graph through ${found.length} path(s); every page would ship it in first-load JS. Use getSupabase() from lib/lazySupabase.js`);
+    }
+    ok(scanned > 20, `the layout walk must traverse the real layout graph (scanned ${scanned})`);
+    console.log(`check-home-eager-supabase: scanned ${scanned} modules from app/layout.js; client static paths to ${TARGET} = ${found.length}`);
+  } catch (e) {
+    ok(false, e && e.message ? e.message : String(e));
+  }
+}
+
 if (failures) process.exit(1);
-console.log("check-home-eager-supabase: OK — Supabase stays behind a dynamic boundary from the homepage eager graph");
+console.log("check-home-eager-supabase: OK — Supabase stays behind a dynamic boundary from the homepage eager graph and the root layout's client graph");
