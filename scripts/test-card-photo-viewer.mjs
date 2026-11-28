@@ -85,6 +85,44 @@ try {
     await page.addScriptTag({ content: `window.hostPolicy={};(function(exports){${hostPolicy}})(hostPolicy);window.placePhotoMod={};(function(exports,require){${placePhoto}})(placePhotoMod,id=>hostPolicy);window.photoAnswers={};(function(exports,require){${answers}})(photoAnswers,id=>placePhotoMod);window.photoHelpers={};(function(exports,require){${helper}})(photoHelpers,id=>id.includes('placePhoto')?placePhotoMod:photoAnswers);window.creditLinkModule={};(function(exports){${creditLink}})(creditLinkModule);window.tileModule={};(function(exports,require){${tile}})(tileModule,id=>React);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:id==='./PhotoCreditLink.js'?creditLinkModule:id==='./PhotoFallbackTile.js'?tileModule:id==='../../lib/photoAnswers.js'?photoAnswers:photoHelpers);window.__cardPhotoRecovery={};(function(exports,require){${recovery}})(__cardPhotoRecovery,id=>id.indexOf('photoAnswers')>=0?photoAnswers:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
     await page.waitForTimeout(100);
     assert.equal(photoCalls, 0, "offscreen card makes no request");
+    // An SSR image may have finished loading before React listens for errors.
+    // Hydrate actual completed DOM nodes and keep the successful control intact.
+    await page.evaluate(async () => {
+      window.__earlyPhotoFailures = 0;
+      window.__earlyPhotoRoots = [];
+      const host = document.createElement("div");
+      host.id = "pre-hydration-photos";
+      document.body.appendChild(host);
+      for (const [id, url] of [["default", "broken.jpg"], ["parent", "broken.jpg"], ["good", "exact.jpg"]]) {
+        const box = document.createElement("div");
+        box.id = "early-photo-" + id;
+        box.innerHTML = '<img alt="Venue" src="https://photo.test/' + url + '">';
+        host.appendChild(box);
+        const before = box.querySelector("img");
+        await before.decode().catch(() => {});
+        box.dataset.earlyWidth = String(before.naturalWidth);
+        function OwnedPhoto() {
+          const [lost, setLost] = React.useState(false);
+          if (lost) return React.createElement("span", { "data-parent-fallback": true }, "Venue photo unavailable");
+          const onError = id === "parent" ? (event) => {
+            if (event.currentTarget !== before) throw Error("Expected the hydrated image");
+            window.__earlyPhotoFailures++;
+            setLost(true);
+          } : undefined;
+          return React.createElement(photoModule.default, { src: "https://photo.test/" + url, alt: "Venue", onError });
+        }
+        window.__earlyPhotoRoots.push(ReactDOM.hydrateRoot(box, React.createElement(OwnedPhoto)));
+      }
+    });
+    await page.locator('#early-photo-default [data-photo-fallback="unavailable"]').waitFor({ state: "attached", timeout: 3500 });
+    assert.equal(await page.locator("#early-photo-default").getAttribute("data-early-width"), "0", "the raw photo failed before hydration");
+    assert.equal(await page.locator("#early-photo-parent [data-parent-fallback]").count(), 1, "the caller's own retry or fallback receives an early failure");
+    assert.equal(await page.evaluate(() => window.__earlyPhotoFailures), 1, "an early failure is reported once");
+    assert.ok(Number(await page.locator("#early-photo-good").getAttribute("data-early-width")) > 0, "a completed valid image stays visible");
+    await page.evaluate(() => {
+      window.__earlyPhotoRoots.forEach((root) => root.unmount());
+      document.getElementById("pre-hydration-photos").remove();
+    });
     await page.locator("#root").scrollIntoViewIfNeeded();
     const button = page.getByRole("button", { name: "View larger photo of Test venue and photographer credit" });
     await button.waitFor();
