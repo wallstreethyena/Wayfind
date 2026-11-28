@@ -2,6 +2,27 @@
 @media(max-width:760px){.article{padding-top:14px}.quickChoices{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.quickChoices a{min-height:66px;padding:10px 12px}.quickChoices strong{font-size:12px}.quickChoices span{font-size:10px}.reading{font-size:16px;line-height:1.75}.reading h2{font-size:29px}.reading h3{font-size:25px}.reading h4{font-size:26px}.section{margin-top:46px}.photoPair{gap:10px}.intro{font-size:20px}.foodStop{margin:28px 0}.photoCredit{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.reading{scroll-behavior:auto}}
 
+/* Map photography is mostly landscape. Give it the full card width so
+   uncropped Universal press photos still read on a phone. */
+.reading [data-universal-map] :global(.wf-rail > .wf-rail-card) {
+  height: auto;
+}
+
+.reading [data-universal-map] :global(.wf-rail-card .wf-place-card-layout) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+}
+
+.reading [data-universal-map] :global(.wf-rail-card .wf-place-card-layout > .wf-place-card-media) {
+  width: 100% !important;
+  height: clamp(140px, 45vw, 248px) !important;
+  min-height: 0 !important;
+}
+
+.reading [data-universal-map] :global(.wf-rail-card .wf-place-card-take) {
+  -webkit-line-clamp: 2 !important;
+}
+
 .links {
   display: flex;
   flex-wrap: wrap;
