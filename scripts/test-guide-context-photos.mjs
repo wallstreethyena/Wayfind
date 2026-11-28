@@ -60,11 +60,30 @@ assert.equal(guideContextTopic("things-to-do-orlando-not-theme-parks", { name: "
 assert.equal(guideContextTopic("city-guide", { name: "Neighborhood Market", blurb: "Local makers serve food in this food hall" }), "dining", "food-market identity is a category, not a named exception");
 assert.equal(guideContextTopic("best-hotels-near-magic-kingdom", { name: "Disney's Grand Floridian" }), "hotel");
 assert.equal(guideContextTopic("orlando-in-the-rain", { name: "Orange County Regional History Center", blurb: "Close to theme parks" }), "culture");
-assert.equal(guideContextTopic("city-guide", { name: "Mote Science Education Aquarium" }), "wildlife", "aquarium identity outranks incidental science vocabulary");
+assert.equal(guideContextTopic("city-guide", { name: "Mote Science Education Aquarium" }), "aquarium", "aquarium identity outranks incidental science vocabulary");
 assert.equal(guideContextTopic("orlando-in-the-rain", { name: "Crayola Experience" }), "craft");
 assert.equal(guideContextTopic("florida-fall-festivals-2026", { name: "You Do the Dishes Fall Pottery" }), "craft");
 assert.equal(guideContextTopic("florida-fall-festivals-2026", { name: "Rosallie Lattes & Leaves" }), "coffee");
-assert.equal(guideContextTopic("orlando-halloween-food-2026", { name: "Booo! Pumpkin Cream Ale" }), "cocktails");
+assert.equal(guideContextTopic("orlando-halloween-food-2026", { name: "Booo! Pumpkin Cream Ale" }), "breweries");
+// iStock batch 2 (2026-11-28): subjects with their own licensed photo, and
+// the look-alike names that must not borrow them.
+assert.equal(guideContextTopic("city-guide", { name: "Casita Taqueria" }), "tacos");
+assert.equal(guideContextTopic("city-guide", { name: "Breakfast with Santa" }), "brunch", "an earlier, more specific food rule still wins");
+assert.equal(guideContextTopic("city-guide", { name: "Santa's Village Night" }), "santa");
+assert.equal(guideContextTopic("florida-winter-beaches-2026", { name: "Santa Rosa Beach" }), "beach", "Santa Rosa is a place, not Santa");
+assert.equal(guideContextTopic("city-guide", { name: "Coral Springs Park" }), "nature", "a city named Springs is not a spring");
+assert.equal(guideContextTopic("city-guide", { name: "Ichetucknee Springs State Park" }), "springs");
+assert.equal(guideContextTopic("city-guide", { name: "Miami Dolphins vs Jets" }), "florida", "a football team is not a dolphin tour");
+assert.equal(guideContextTopic("city-guide", { name: "Dolphin Watch Cruise" }), "dolphins");
+assert.equal(guideContextTopic("city-guide", { name: "Busch Gardens Christmas Town" }), "holiday-lights", "a theme park named Gardens is not a botanical garden");
+assert.equal(guideContextTopic("city-guide", { name: "Marie Selby Botanical Gardens" }), "gardens");
+assert.equal(guideContextTopic("city-guide", { name: "Spring Training at CoolToday Park" }), "baseball");
+assert.equal(guideContextTopic("city-guide", { name: "Sarasota Farmers Market", blurb: "Local makers and produce" }), "farmers-market");
+assert.equal(guideContextTopic("city-guide", { name: "Florida Strawberry Festival" }), "u-pick");
+assert.equal(guideContextTopic("city-guide", { name: "Captain Memo's Pirate Cruise", blurb: "A sunset cruise" }), "boat-tour");
+assert.equal(guideContextTopic("city-guide", { name: "Hanukkah Menorah Lighting" }), "hanukkah");
+assert.equal(guideContextTopic("city-guide", { name: "Lowry Park Zoo Lights" }), "holiday-lights", "a zoo light show is a light show");
+assert.equal(guideContextTopic("city-guide", { name: "Lowry Park Zoo" }), "zoo");
 assert.equal(guideContextTopic("florida-holiday-nights-out-2026", { name: "Downtown evening", blurb: "Indoor entertainment" }), "holiday-lights");
 assert.equal(guideContextTopic("florida-new-year-2026", { name: "Midnight celebration", blurb: "Indoor entertainment" }), "fireworks");
 assert.equal(guideContextTopic("florida-theme-park-christmas-2026", { name: "EPCOT International Festival of the Holidays" }), "holiday-lights");
