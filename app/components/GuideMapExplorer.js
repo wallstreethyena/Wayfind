@@ -19,7 +19,15 @@ import CreatorAppleMap from "./CreatorAppleMap";
 import MapCategoryPin from "./MapCategoryPin";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import styles from "./GuideMapExplorer.module.css";
-import { clampRailTarget, isAtRailTarget, followShouldRelease } from "../../lib/mapRailFollow.js";
+import { clampRailTarget, isAtRailTarget, followShouldRelease, revealScrollTop } from "../../lib/mapRailFollow.js";
+import { measureStickyInsets, scrollParentOf } from "../../lib/stickyInsets.js";
+
+function prefersReducedMotion() {
+  try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch { return false; }
+}
+
+// How long a card tapped from the map stays highlighted.
+export const PICKED_HIGHLIGHT_MS = 1800;
 
 function isExternal(href) {
   return /^https?:\/\//i.test(String(href || ""));
@@ -102,6 +110,9 @@ export default function GuideMapExplorer({
   // passes on the way; the viewer touching the rail cancels it.
   const followMap = useRef(null);
   const railZone = useRef(null);
+  // The card a map tap last highlighted, and the timer that clears it.
+  const picked = useRef({ node: null, timer: 0 });
+  useEffect(() => () => clearTimeout(picked.current.timer), []);
 
   const rows = useMemo(
     () => (Array.isArray(spots) ? spots : []).filter((spot) =>
@@ -190,7 +201,48 @@ export default function GuideMapExplorer({
     };
   }, [visible]);
 
-  const selectFromMap = (id) => {
+  // Mark the card a map tap chose so the eye lands on it (CSS:
+  // [data-map-picked]); the mark clears itself.
+  const highlightPicked = (node) => {
+    const last = picked.current;
+    clearTimeout(last.timer);
+    if (last.node && last.node !== node) delete last.node.dataset.mapPicked;
+    node.dataset.mapPicked = "true";
+    picked.current = { node, timer: setTimeout(() => { delete node.dataset.mapPicked; }, PICKED_HIGHLIGHT_MS) };
+  };
+
+  // Scroll the PAGE so the card rail sits fully in the band the sticky bars
+  // leave visible (the rail is below the map on phones and on every
+  // illustrated park map, so a pin tap otherwise moves a card off screen).
+  // Keyboard and screen-reader users land on the card too: focus moves to it
+  // without a second, jumpy scroll.
+  const revealRail = (node, smooth) => {
+    const zone = railZone.current;
+    const scroller = zone && scrollParentOf(zone);
+    if (scroller && typeof scroller.scrollTo === "function") {
+      // The visible band is the viewport, clipped to the scroller's own box
+      // (the document, or the shell's scroll area) and minus the sticky bars.
+      const vh = window.innerHeight;
+      const isDocument = scroller === document.scrollingElement || scroller === document.documentElement;
+      const frame = isDocument ? { top: 0, bottom: vh } : scroller.getBoundingClientRect();
+      const insets = measureStickyInsets(window);
+      const box = zone.getBoundingClientRect();
+      const target = revealScrollTop({
+        top: box.top,
+        bottom: box.bottom,
+        scrollY: scroller.scrollTop,
+        viewportHeight: vh,
+        topInset: Math.max(insets.top, frame.top),
+        bottomInset: Math.max(insets.bottom, vh - frame.bottom),
+      });
+      if (target != null) scroller.scrollTo({ top: target, behavior: smooth ? "smooth" : "auto" });
+    }
+    try { node.focus({ preventScroll: true }); } catch { /* old browsers: focus is a nicety */ }
+  };
+
+  // A pin tap (reveal: true) also brings the rail on screen and marks the
+  // card; a tap on a card itself (onOpen) only re-centres the rail.
+  const selectFromMap = (id, { reveal = false } = {}) => {
     if (id == null) return;
     followMap.current = { id: String(id), left: null };
     setSelectedId(id);
@@ -198,6 +250,11 @@ export default function GuideMapExplorer({
       const rail = railRef.current;
       const node = cardNodes.current.get(String(id));
       if (!rail || !node) return;
+      const smooth = !prefersReducedMotion();
+      if (reveal) {
+        highlightPicked(node);
+        revealRail(node, smooth);
+      }
       const railBox = rail.getBoundingClientRect();
       const cardBox = node.getBoundingClientRect();
       const left = rail.scrollLeft
@@ -210,9 +267,10 @@ export default function GuideMapExplorer({
         return;
       }
       if (followMap.current) followMap.current.left = target;
-      rail.scrollTo({ left: target, behavior: "smooth" });
+      rail.scrollTo({ left: target, behavior: smooth ? "smooth" : "auto" });
     });
   };
+  const selectFromPin = (id) => selectFromMap(id, { reveal: true });
 
   if (rows.length < 3) return null;
 
@@ -263,8 +321,8 @@ export default function GuideMapExplorer({
       <div className={styles.mapRailStage}>
         <div className={styles.mapWrap} data-map-kind={renderMap ? "illustrated" : "apple"}>
           {renderMap
-            ? renderMap({ active, visible, selectedId: selected?.id ?? null, onSelect: selectFromMap })
-            : <CreatorAppleMap places={visible} selectedId={selected?.id || null} onSelect={selectFromMap} />}
+            ? renderMap({ active, visible, selectedId: selected?.id ?? null, onSelect: selectFromPin })
+            : <CreatorAppleMap places={visible} selectedId={selected?.id || null} onSelect={selectFromPin} />}
         </div>
 
         <div ref={railZone} className={styles.activeRail}>
