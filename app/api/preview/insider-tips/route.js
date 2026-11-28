@@ -7,11 +7,21 @@
 // key or a new month's cap takes effect quickly.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-import { answerInsiderQuestion, normalizeQuery } from "../../../../lib/insiderTipsPreview";
+import { answerInsiderQuestion, normalizeQuery, loadInsiderTips, plainAnswerFrom } from "../../../../lib/insiderTipsPreview";
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const q = normalizeQuery(searchParams.get("q") || "");
+  // plain=1: Wayfind's verified tips only, no Gemini call, so a new town shows
+  // at once while the rewritten answer is still being written.
+  if (searchParams.get("plain") === "1") {
+    try {
+      const out = plainAnswerFrom(await loadInsiderTips(), q, { reason: "plain_first" });
+      return Response.json(out, { headers: { "Cache-Control": "public, s-maxage=300", "X-Robots-Tag": "noindex" } });
+    } catch {
+      return Response.json({ error: "unavailable" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+    }
+  }
   let out;
   try {
     out = await answerInsiderQuestion(q);

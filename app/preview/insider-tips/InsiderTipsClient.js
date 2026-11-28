@@ -14,6 +14,12 @@ const safe = (fn, fallback) => { try { return fn(); } catch { return fallback; }
 const store = () => safeLocalStorage();
 const readSaves = () => safe(() => new Set(JSON.parse((store() && store().getItem(SAVE_KEY)) || "[]")), new Set());
 
+// "gemini-3-pro-preview" -> "Gemini 3 Pro": the reader sees which AI wrote the line.
+function modelName(id) {
+  const m = /^gemini-([\d.]+)-([a-z]+)/i.exec(String(id || ""));
+  return m ? `Gemini ${m[1]} ${m[2].charAt(0).toUpperCase()}${m[2].slice(1)}` : "AI";
+}
+
 // Plain labels for the inventory's category slugs.
 const KIND = { attractions: "Things to do", activities: "Things to do", beach: "Beach", beaches: "Beach", food: "Eat", restaurants: "Eat", nightlife: "Night out", shopping: "Shop", hotels: "Stay", parks: "Outdoors", outdoors: "Outdoors", museums: "Museum", culture: "Culture" };
 const kindLabel = (c) => KIND[String(c || "").toLowerCase()] || (c ? String(c).replace(/[-_]/g, " ").replace(/^\w/, (m) => m.toUpperCase()) : "");
@@ -81,7 +87,8 @@ const CSS = `
 .it-tiplabel{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--it-warm2);margin:0 0 5px}
 .it-tiplabel svg{width:13px;height:13px}
 .it-tip{font-size:15.5px;line-height:1.5;margin:0;color:var(--it-text)}
-.it-tip.loading{color:transparent;background:linear-gradient(90deg,#17223A 0%,#22304C 50%,#17223A 100%);background-size:200% 100%;animation:it-shim 1.2s infinite;border-radius:6px}
+.it-ai.working svg{animation:it-pulse 1.4s ease-in-out infinite}
+@keyframes it-pulse{50%{opacity:.35;transform:scale(.85)}}
 @keyframes it-shim{to{background-position:-200% 0}}
 .it-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-top:auto;padding-top:4px}
 .it-credit{font-size:11px;color:var(--it-faint);margin:0;line-height:1.35;overflow-wrap:anywhere}
@@ -94,7 +101,7 @@ const CSS = `
 .it-heart[aria-pressed="true"]{background:rgba(255,79,139,.18);border-color:rgba(255,79,139,.5)}
 .it-heart[aria-pressed="true"] svg{animation:it-pop .35s ease}
 @keyframes it-pop{40%{transform:scale(1.25)}}
-@media (prefers-reduced-motion:reduce){.it-tip.loading,.it-heart[aria-pressed="true"] svg{animation:none}.it-card,.it-card:hover,.it-photo,.it-card:hover .it-photo{transition:none;transform:none}}
+@media (prefers-reduced-motion:reduce){.it-ai.working svg,.it-heart[aria-pressed="true"] svg{animation:none}.it-card,.it-card:hover,.it-photo,.it-card:hover .it-photo{transition:none;transform:none}}
 .it-skel{border-radius:20px;border:1px solid var(--it-line);background:var(--it-card);overflow:hidden}
 .it-skel div{background:linear-gradient(90deg,#111A2B 0%,#1A2540 50%,#111A2B 100%);background-size:200% 100%;animation:it-shim 1.2s infinite}
 .it-join{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:36px 0 0;padding:22px 24px;border-radius:20px;border:1px solid var(--it-line);background:linear-gradient(120deg,rgba(255,138,61,.10),rgba(138,60,255,.08))}
@@ -129,7 +136,7 @@ function Heart({ on }) {
   );
 }
 
-function TipCard({ c, saved, onSave, loading, onBroken }) {
+function TipCard({ c, saved, onSave, onBroken }) {
   return (
     <article className="it-card" data-insider-card={c.id}>
       <button type="button" className="it-heart" aria-pressed={saved ? "true" : "false"} aria-label={(saved ? "Remove " : "Save ") + c.name} onClick={() => onSave(c.id)}>
@@ -147,7 +154,7 @@ function TipCard({ c, saved, onSave, loading, onBroken }) {
           </div>
           <div className="it-tipbox" title={c.ai ? "Wayfind's verified tip: " + c.tip : undefined}>
             <p className="it-tiplabel">{Icon.bulb}Insider tip</p>
-            <p className={"it-tip" + (loading ? " loading" : "")}>{c.line}</p>
+            <p className="it-tip">{c.line}</p>
           </div>
           <div className="it-foot">
             {c.credit ? <p className="it-credit">Photo: {c.credit}</p> : <span />}
@@ -163,7 +170,9 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
   const [answer, setAnswer] = useState(initial);
   const [q, setQ] = useState("");
   const [asked, setAsked] = useState("");
-  const [loading, setLoading] = useState(true);
+  // "plain": fetching the verified tips for a new town; "ai": verified tips on
+  // screen while Gemini rewrites them; "done": settled.
+  const [phase, setPhase] = useState("ai");
   const [saves, setSaves] = useState(() => new Set());
   const [nudge, setNudge] = useState(false);
   // A photo that fails to load takes its card with it: never a grey box.
@@ -173,14 +182,21 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
 
   const ask = useCallback(async (text) => {
     const my = ++seq.current;
-    setLoading(true);
+    const url = "/api/preview/insider-tips?q=" + encodeURIComponent(text);
+    const get = async (u) => { try { const r = await fetch(u, { headers: { accept: "application/json" } }); const d = r.ok ? await r.json() : null; return d && Array.isArray(d.cards) ? d : null; } catch { return null; } };
     setAsked(text);
-    try {
-      const res = await fetch("/api/preview/insider-tips?q=" + encodeURIComponent(text), { headers: { accept: "application/json" } });
-      const data = res.ok ? await res.json() : null;
-      if (my === seq.current && data && Array.isArray(data.cards)) setAnswer(data);
-    } catch { /* keep what is on screen */ }
-    if (my === seq.current) setLoading(false);
+    // A new town: show its verified tips at once, then let the AI rewrite them.
+    if (text) {
+      setPhase("plain");
+      const plain = await get(url + "&plain=1");
+      if (my !== seq.current) return;
+      if (plain) setAnswer(plain);
+    }
+    setPhase("ai");
+    const data = await get(url);
+    if (my !== seq.current) return;
+    if (data) setAnswer(data);
+    setPhase("done");
   }, []);
 
   useEffect(() => { setSaves(readSaves()); ask(""); }, [ask]);
@@ -221,8 +237,9 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
   const dismiss = () => { setNudge(false); safe(() => store() && store().setItem(NUDGE_KEY, "1")); };
   const submit = (e) => { e.preventDefault(); ask(q.trim()); };
   const cards = (Array.isArray(answer && answer.cards) ? answer.cards : []).filter((c) => c && c.photo && !broken.has(c.id));
-  const firstLoad = loading && !asked && !(answer && answer.ai);
-  const switching = loading && !!asked;
+  const switching = phase === "plain";
+  const polishing = phase === "ai";
+  const loading = phase !== "done";
   const area = answer && answer.metroLabel && answer.metroLabel !== "Florida" ? answer.metroLabel : "Florida";
 
   return (
@@ -256,11 +273,12 @@ export default function InsiderTipsClient({ initial, quickPicks = [], tipCount =
           <div className="it-head">
             <span className="it-kicker">Local picks · {area}</span>
             <p className={"it-intro" + (switching ? " dim" : "")}>{answer && answer.intro}</p>
-            {answer && answer.ai && !switching ? <span className="it-ai">{Icon.spark}Said simply by AI, from Wayfind&apos;s checked tips</span> : null}
+            {polishing ? <span className="it-ai working">{Icon.spark}Rewriting these tips in plain words…</span>
+              : answer && answer.ai && !switching ? <span className="it-ai" title={answer.model || undefined}>{Icon.spark}Said simply by {modelName(answer.model)}, from Wayfind&apos;s checked tips</span> : null}
           </div>
           {cards.length ? (
             <div className={"it-grid" + (switching ? " dim" : "")}>
-              {cards.map((c) => <TipCard key={c.id} c={c} saved={saves.has(c.id)} onSave={onSave} loading={firstLoad} onBroken={onBroken} />)}
+              {cards.map((c) => <TipCard key={c.id} c={c} saved={saves.has(c.id)} onSave={onSave} onBroken={onBroken} />)}
             </div>
           ) : (
             <p className="it-empty">No insider tips there yet. Try a Florida town or one of the picks above.</p>
