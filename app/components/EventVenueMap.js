@@ -11,6 +11,7 @@ import { VENUE_MAP_SHELL_CSS } from "./VenueMapLoading.js";
 // only the controls and summary shown below this map.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createAppleMapController, loadAppleMapKit } from "../../lib/appleMapsRuntime.js";
+import PlaceMapLocationControls from "./PlaceMapLocationControls.js";
 import { readGrantedDeviceLocation } from "../../lib/mapPinStandard.js";
 import { appleMapsTokenUsable } from "../../lib/appleMapsToken.js";
 import { EVENT_MAP_FAMILY, eventMapFamily } from "../../lib/eventMapPlaces.js";
@@ -53,9 +54,9 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
   const [grantedLoc, setGrantedLoc] = useState(null);
   const hasExplicitDeviceLoc = !!(deviceLoc && Number.isFinite(Number(deviceLoc.lat)) && Number.isFinite(Number(deviceLoc.lng)));
   useEffect(() => {
-    if (hasExplicitDeviceLoc) return undefined;
+    if (venueKind === "place" || hasExplicitDeviceLoc) return undefined;
     return readGrantedDeviceLocation(setGrantedLoc);
-  }, [hasExplicitDeviceLoc]);
+  }, [venueKind, hasExplicitDeviceLoc]);
   const effectiveDeviceLoc = hasExplicitDeviceLoc
     ? { lat: Number(deviceLoc.lat), lng: Number(deviceLoc.lng) }
     : grantedLoc;
@@ -144,9 +145,9 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
   const pinIdentity = JSON.stringify(shown.map(p => [p.id, p.lat, p.lng, p.name, p.cat, p.primaryType, p.mapKind, p.mapRank]));
   useEffect(() => { controllerRef.current?.setPicks(shown); }, [pinIdentity, ready]);
   useEffect(() => {
-    if (!ready || !controllerRef.current) return;
+    if (venueKind === "place" || !ready || !controllerRef.current) return;
     if (effectiveDeviceLoc) controllerRef.current.setUserLocation?.(effectiveDeviceLoc);
-  }, [ready, effectiveDeviceLoc?.lat, effectiveDeviceLoc?.lng]);
+  }, [venueKind, ready, effectiveDeviceLoc?.lat, effectiveDeviceLoc?.lng]);
   useEffect(() => {
     if (active && active !== "parking" && !groups.some((group) => group.family === active)) setActive(null);
   }, [active, groups]);
@@ -226,6 +227,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
         </div> : null}
         {failed || unavailable ? <div className="wfev-fb"><div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(148,163,184,.14)", border: "1px solid rgba(148,163,184,.38)", display: "grid", placeItems: "center", color: "#FB923C", fontSize: 20 }}>⌁</div><div style={{ fontSize: 14, fontWeight: 800, color: "#F8FAFC" }}>{venue.name}</div><div style={{ maxWidth: 280, color: "#94A3B8", fontSize: 12, lineHeight: 1.5 }}>The map preview is unavailable right now. The address and external navigation link are still available.</div>{!unavailable ? <button type="button" onClick={retry} style={{ marginTop: 4, padding: "9px 18px", borderRadius: 999, border: "1px solid rgba(249,115,22,.5)", background: "rgba(249,115,22,.14)", color: "#FB923C", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Try again</button> : null}</div> : null}
       </div>
+      {venueKind === "place" && ready && controllerRef.current ? <PlaceMapLocationControls controller={controllerRef.current} deviceLoc={deviceLoc} /> : null}
       {parkingMode ? <VenueParkingResults venue={mapVenue} places={parking.places} status={failed || unavailable ? "error" : parking.status} message={failed || unavailable ? "The map preview is unavailable. Open Apple Maps below to find parking near the venue." : undefined} radiusMeters={parking.radiusMeters} selectedId={sel} onSelect={(id) => { setSel(id); controllerRef.current?.selectParking(id); }} onRetry={unavailable ? undefined : () => { if (failed) retry(); else setParkingAttempt((attempt) => attempt + 1); }} /> : null}
     </div>
   );
