@@ -434,6 +434,70 @@ function baseCtx(overrides = {}) {
   ok(plannerLink.test(renderIndex({ id: "user-123" })), "The signed-in trip index links to Plan my day");
 }
 
+// ── 7. A remount keeps the open trip (owner 2026-11-28: "it just took me right
+// back to the top and told me to rebuild the itinerary") ─────────────────────
+{
+  const { JSDOM } = await import("jsdom");
+  const { flushSync } = await import("react-dom");
+  const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: "https://www.gowayfind.com/itinerary", pretendToBeVisual: true });
+  const saved = { window: globalThis.window, document: globalThis.document };
+  globalThis.window = dom.window;
+  globalThis.document = dom.window.document;
+  dom.window.matchMedia = () => ({ matches: false });
+  const settle = () => new Promise((r) => setTimeout(r, 30));
+  try {
+    let trips = {};
+    trips = addPlaceToTrips(trips, makePlace("s1", "Owen's Fish Camp", 27.33, -82.54), 100);
+    trips = addPlaceToTrips(trips, makePlace("s2", "Selby Gardens", 27.32, -82.53), 200);
+    const { createRoot } = await import("react-dom/client");
+
+    // (a) Opening a trip remembers it for this tab.
+    let root = createRoot(dom.window.document.getElementById("root"));
+    flushSync(() => { root.render(createElement(ItineraryScreen, { ctx: baseCtx({ trips, activeTrip: "fl_sarasota" }) })); });
+    await settle();
+    const stored = JSON.parse(dom.window.sessionStorage.getItem("wf_itinerary_open_trip") || "null");
+    ok(stored && stored.key === "fl_sarasota", "an open trip is remembered for this tab");
+
+    // (b) The ‹ back button forgets it, so the trip list stays reachable.
+    const calls = [];
+    flushSync(() => { root.render(createElement(ItineraryScreen, { ctx: baseCtx({ trips, activeTrip: "fl_sarasota", setActiveTrip: (k) => calls.push(k) }) })); });
+    const back = dom.window.document.querySelector('button[aria-label="Back to all trips"]');
+    ok(Boolean(back), "the open trip renders its back button");
+    if (back) flushSync(() => { back.click(); });
+    ok(calls.includes(null) && dom.window.sessionStorage.getItem("wf_itinerary_open_trip") === null, "back clears the remembered trip and returns to the trip list");
+    root.unmount();
+
+    // (c) A remount with no open trip (reload, Safari tab restore, nav tap)
+    // reopens the remembered trip instead of the "Build a trip" list.
+    dom.window.sessionStorage.setItem("wf_itinerary_open_trip", JSON.stringify({ key: "fl_sarasota", ts: Date.now() }));
+    const reopened = [];
+    root = createRoot(dom.window.document.getElementById("root"));
+    flushSync(() => { root.render(createElement(ItineraryScreen, { ctx: baseCtx({ trips, activeTrip: null, setActiveTrip: (k) => reopened.push(k) }) })); });
+    await settle();
+    ok(reopened[0] === "fl_sarasota", "a remount reopens the trip that was open, not the trip list");
+    root.unmount();
+
+    // (d) Negative controls: an expired or missing trip is never forced open.
+    for (const [label, value, list] of [
+      ["an entry older than 12 hours", { key: "fl_sarasota", ts: Date.now() - 13 * 3600 * 1000 }, trips],
+      ["a trip that no longer exists", { key: "fl_gone", ts: Date.now() }, trips],
+      ["a remembered trip that is now empty", { key: "fl_sarasota", ts: Date.now() }, { fl_sarasota: { ...trips.fl_sarasota, items: [] } }],
+    ]) {
+      dom.window.sessionStorage.setItem("wf_itinerary_open_trip", JSON.stringify(value));
+      const seen = [];
+      root = createRoot(dom.window.document.getElementById("root"));
+      flushSync(() => { root.render(createElement(ItineraryScreen, { ctx: baseCtx({ trips: list, activeTrip: null, setActiveTrip: (k) => seen.push(k) }) })); });
+      await settle();
+      ok(seen.length === 0, "the trip list stays put for " + label);
+      root.unmount();
+    }
+  } finally {
+    globalThis.window = saved.window;
+    globalThis.document = saved.document;
+    dom.window.close();
+  }
+}
+
 if (failures > 0) {
   console.error(`test-itinerary-dates-render: FAILED — ${failures} of ${assertions} assertions failed`);
   process.exit(1);
