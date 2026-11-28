@@ -10,7 +10,7 @@ Gabriel asked to add Kaleigh's (@neverboredinorlando, "Never Bored in Orlando") 
 - Sponsored posts (`#ad`, `#GrouponPartner`, `#brevardzoopartner`) are not entered, following the iviethefoodie precedent in `lib/creatorVideos.js`: a brand-paid post is not an organic find and would launder advertising into the ranking.
 - Captions in `lib/creatorCaptions.js` are Wayfind's own words, with no prices.
 
-## Added (11 places, 16 videos)
+## Added (10 places, 15 videos)
 
 | Place | placeId | Base score | Reels |
 | --- | --- | --- | --- |
@@ -24,7 +24,6 @@ Gabriel asked to add Kaleigh's (@neverboredinorlando, "Never Bored in Orlando") 
 | Lake Apopka Wildlife Drive (2850 Lust Rd) | ChIJNTn4Jsud54gRNiSjBtKBnyg | 9.6 | DewOW2Hgv4y |
 | Ponce de Leon Inlet Lighthouse & Museum | ChIJw2VLy7sp54gRE6a7GJmmDaY | 9.6 | DeN0Cb3NFTw |
 | Boggy Creek Airboat Adventures (2001 E Southport Rd) | ChIJE1158xWa3YgRyxYmba83M0o | 9.6 | DeIfEnYt1xG, Dd5AzgVtUPA, Dd9XDAUAvKz |
-| Solomon's Castle, Ona (4533 Solomon Rd) | ChIJ02eYWOfG3IgRZLgh4LgucUg | 9.2 | Df2nXHvA182 |
 
 Already on cards before this intake: Catboat Clermont (DVymPmojQ0x), Myakka Canopy Walkway (DfcRzRvgDcB), Taza Cafe Fort Myers (De8D7NhtMqk), Silver Moon Drive-In, Old Sugar Mill Pancake House, Main Street Pizza Kissimmee.
 
@@ -40,7 +39,7 @@ Baldwin Perk Caffè 8.8, BTW's Crafted Concoctions 8.5, Café Coquí 8.0, The Co
 
 ## Left out: no score yet (Score pending on the card)
 
-Mirada Lagoon, Snowcat Ridge, Wunder Glow (two Reels), Casa Del Despecho. Their rows carry no rating, so a 9.0 cannot be shown.
+Mirada Lagoon, Snowcat Ridge, Wunder Glow (two Reels), Casa Del Despecho, Solomon's Castle (Df2nXHvA182). Their rows carry no rating, so a 9.0 cannot be shown. Solomon's Castle was added first from a cached Google rating (4.6 on 2,409 reviews) and taken off the same day: that cache was written 2026-07-23, past the 30-day limit, and the live card reads Score pending.
 
 ## Left out: no confident single location
 
