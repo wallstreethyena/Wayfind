@@ -314,6 +314,7 @@ node scripts/test-meta-pixel.mjs
 node scripts/test-campaign-attribution.mjs
 node scripts/test-meta-partner-handoff.mjs
 node scripts/test-paid-landing.mjs
+node scripts/test-lifecycle-keeps-click-id.mjs
 node scripts/test-landing-inventory-ssg.mjs
 # 2026-09-29 owner decision: exact-place_id not-public registry (Le Mans Kitchen) - excluded from landing pool + inventory, /places stays noindex
 node scripts/check-not-public-places.mjs
@@ -2882,3 +2883,7 @@ node scripts/test-guide-map-pin-reveal.mjs
 node scripts/test-reengage-server.mjs
 node scripts/test-reengage-client.mjs
 node scripts/check-reengage-schema.mjs
+
+# 2026-11-28 re-engagement PR 2 (sender): dispatcher, conversion suppression seam, signal route, Resend webhook; sealed push kernel; UTM and no go links on every message.
+node scripts/test-reengage-dispatch.mjs
+node scripts/test-reengage-edges.mjs

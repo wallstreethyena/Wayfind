@@ -232,6 +232,10 @@
     {
       "path": "/api/cron/weekly-email",
       "schedule": "30 12 * * 4"
+    },
+    {
+      "path": "/api/cron/reengage-dispatch",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
