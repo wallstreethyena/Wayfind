@@ -124,5 +124,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2861 / #1934 / #1899",
     "reason": "Five source-verified Wayfind inventory identities. Awaiting independent review and the recorded production migration. Original source dates and empty provider ratings are preserved. The scoped reverse is in supabase/data-fixes."
+  },
+  {
+    "file": "supabase/migrations/20261128021500_wf_photo_business_free_candidate.sql",
+    "sha256": "b7341c9ebc999e3694b315d8dbda8dc0b32178a245620eadab4f0b36b412b35d",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2878",
+    "reason": "Deploy the reviewed general-photo worker and confirm its existing-worklist fallback before applying this service-only candidate view."
   }
 ]
