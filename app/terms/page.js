@@ -1,7 +1,7 @@
 import ReturnToWayfind from "../components/ReturnToWayfind";
 // Terms of Service for Wayfind, operated by WAYFIND LLC (Florida).
 const CONTACT_EMAIL = "hello@gowayfind.com";
-const EFFECTIVE = "June 30, 2026";
+const EFFECTIVE = "November 28, 2026";
 
 export const metadata = { alternates: { canonical: "https://www.gowayfind.com/terms" },
   title: "Terms of Service | Wayfind",
@@ -44,6 +44,10 @@ export default function Terms() {
 
         <h2 style={h2}>Disclaimers and limitation of liability</h2>
         <p>Wayfind is provided "as is" and "as available", without warranties of any kind, whether express or implied, including accuracy, fitness for a particular purpose, or non infringement. To the fullest extent permitted by law, Wayfind and its operators are not liable for any indirect, incidental, or consequential damages, or for any loss arising from your reliance on information in the app or from transactions with third party providers.</p>
+
+        <h2 style={h2}>Text messages</h2>
+        <p>If you tick the box on a Group Vote to get texts from Wayfind, you agree that WAYFIND LLC may send recurring automated marketing text messages to the mobile number you gave, about that vote’s results and Wayfind’s Florida plans, events and picks, up to 4 messages a month. Consent is not a condition of voting or of any purchase. Message and data rates may apply. Reply STOP to cancel at any time and HELP for help, or email hello@gowayfind.com. Carriers are not liable for delayed or undelivered messages. Only enter a number that is yours.</p>
+        <p>Group Vote can open your phone’s own contact picker or Messages app so you can invite friends. Those invites are sent by you, from your phone, to people you choose. Send them only to people who would want to hear from you.</p>
 
         <h2 style={h2}>Changes to these terms</h2>
         <p>We may update these terms as the app evolves. When we do, we will revise the effective date above. Continued use of Wayfind after a change means you accept the updated terms.</p>

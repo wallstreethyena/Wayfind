@@ -7,7 +7,9 @@ export async function POST(req,{params}) {
     const credentials=await groupCredentials(req,body,config);
     if(body.action==="view") return groupReply({ok:true,plan:await service.read(id,credentials)});
     if(body.action==="command") {
-      const plan = await service.command(id,body.command,credentials);
+      // Proof of consent for an optional text-list signup: where and on what device.
+      const meta={ip:String(req.headers.get("x-forwarded-for")||req.headers.get("x-real-ip")||"").split(",")[0].trim(),userAgent:String(req.headers.get("user-agent")||"")};
+      const plan = await service.command(id,body.command,credentials,meta);
       const slotToken = plan && plan.slotToken ? plan.slotToken : undefined;
       if (slotToken) delete plan.slotToken;
       return groupReply({ok:true,plan,...(slotToken ? { slotToken } : {})});

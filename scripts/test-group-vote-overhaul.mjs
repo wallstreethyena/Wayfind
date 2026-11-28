@@ -17,7 +17,7 @@ import { concreteSharePlaceId, groupPlanHref, groupSubjectId } from "../lib/shar
 import { extractPlaceVibes, experienceCategoriesForPlace, recommendGroupOptions } from "../lib/groupPlanCandidates.js";
 import { createGroupPlaceData } from "../lib/groupPlanPlaceData.js";
 import { deterministicSantaLineup, parseSantaCurate, santaCurateShortlist } from "../lib/groupPlanSanta.js";
-import { groupShareMessage, ORGANIZER_SMS_CONSENT_TEXT, PARTICIPANT_SMS_CONSENT_TEXT } from "../lib/groupPlanShareText.js";
+import { groupShareMessage, ORGANIZER_SMS_CONSENT_TEXT, PARTICIPANT_SMS_CONSENT_TEXT, SMS_SUBSCRIBE_CONSENT_TEXT } from "../lib/groupPlanShareText.js";
 import { groupSmsConfig, groupSmsText, sendGroupPlanSms, applyGroupSmsStatusCallback } from "../lib/groupPlanSms.js";
 import { createGroupPlanService } from "../lib/groupPlanService.js";
 import { createGroupPlan, applyGroupPlanCommand, groupPlanView, organizerPlanView } from "../lib/groupPlan.js";
@@ -352,7 +352,9 @@ const UI = await loadComponent(path.join(ROOT, "app/group-plans/GroupPlanClient.
   const grpHtml = renderToStaticMarkup(React.createElement(UI.GroupBallot, { plan: { ...groupPlanView(plan, { now: NOW }), role: "group", smsAvailable: true }, onCommand() {}, busy: false }));
   matches(grpHtml, /Gabriel started a group vote/, "capitalizes lowercase organizer name");
   matches(grpHtml, /Your first name/, "group-link ballot asks for voter's first name");
-  matches(grpHtml, new RegExp(PARTICIPANT_SMS_CONSENT_TEXT.slice(0, 30)), "ballot shows optional voter SMS opt-in when enabled");
+  ok(grpHtml.includes(SMS_SUBSCRIBE_CONSENT_TEXT.replace(/&/g, "&amp;").replace(/’/g, "’").slice(0, 40)), "ballot shows the optional text opt-in with its full consent wording");
+  ok(!/checked=""/.test(grpHtml.split("gb-sms-opt")[1] || ""), "the text opt-in box starts unticked");
+  ok(typeof PARTICIPANT_SMS_CONSENT_TEXT === "string", "legacy per-plan consent text still exported for the Twilio final-plan text");
 
   const orgView = { ...organizerPlanView(plan, { now: NOW }), role: "organizer", groupToken: "fixture-group-tok", organizerSmsTail: "99", invites: [] };
   const orgHtml = renderToStaticMarkup(React.createElement(UI.GroupOrganizer, { plan: orgView, onCommand() {}, onDelete() {}, busy: false }));

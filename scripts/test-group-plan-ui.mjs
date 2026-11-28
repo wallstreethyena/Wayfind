@@ -168,6 +168,20 @@ try {
    const blankTime=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"",end:null}],{},false,false,""]});blankTime.render();
    await blankTime.tree.props.onSubmit({preventDefault(){}});blankTime.render();eq(calls.length,0);matches(nodes(blankTime.tree).find(n=>typeof n.props?.message==="string"&&n.props.message)?.props.message||"",/Pick a day and start time/);blankTime.dispose();h.dispose();
  });
+ await test("quick Group Vote sends one open group vote in one tap",async()=>{
+   const priorNow=Date.now;Date.now=()=>Date.parse("2026-12-01T12:00:00Z");
+   try{
+     const calls=[];const pool=[{id:"place-1",name:"Original museum",score:92},{id:"place-2",name:"Alternative museum",score:91}];
+     const request=async(_p,payload)=>{calls.push(payload);return{plan:{id:"new-plan",groupToken:"",organizerName:"",places:pool}};};
+     const h=hooks(UI.GroupQuickCreate,{placeId:"place-1",session:{access_token:"t"},request,initialPool:pool},{effects:false,seeds:[pool,[pool[0]],false,["2026-12-05T18:00"],"America/New_York",""]});h.render();
+     const card=nodes(h.tree).find(n=>n.type==="QuickCard"||n.props?.item?.id==="place-2");yes(card,"the second spot sits in the rail");card.props.onToggle(pool[1]);h.render();
+     const send=nodes(h.tree).find(n=>n.type==="button"&&/Send to group/.test(text(n)));yes(send);matches(text(send),/2 spots/);await send.props.onClick();h.render();
+     eq(calls.length,1);eq(calls[0].selectedPlaceIds,["place-1","place-2"]);eq(calls[0].openGroup,true);eq(calls[0].invitees,[]);eq("organizerName" in calls[0],false,"a blank name is optional, never sent as an empty string");
+     yes(Date.parse(calls[0].deadline)<Date.parse(calls[0].times[0].startsAt),"reply deadline lands before the outing");h.dispose();
+     const empty=hooks(UI.GroupQuickCreate,{placeId:"place-1",session:{access_token:"t"},request,initialPool:pool},{effects:false,seeds:[pool,[],false,["2026-12-05T18:00"],"America/New_York",""]});empty.render();
+     await nodes(empty.tree).find(n=>n.type==="button"&&/Send to group/.test(text(n))).props.onClick();empty.render();eq(calls.length,1,"nothing picked, nothing created");matches(text(empty.tree),/Tap at least one spot/);empty.dispose();
+   }finally{Date.now=priorNow;}
+ });
  await test("ambiguous time recovery is local to the failing field",async()=>{
    const calls=[];const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-11-01T01:30",end:"2026-11-01T01:45"}],{},false,false,""]});h.render();
    eq(nodes(h.tree).filter(n=>n.type==="select").length,0);await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);let select=nodes(h.tree).find(n=>n.type==="select");yes(select);matches(text(h.tree),/Option 1 start\s+happens twice/);select.props.onChange({target:{value:"earlier"}});h.render();await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);matches(text(h.tree),/Option 1 end\s+happens twice/);select=nodes(h.tree).find(n=>n.type==="select");select.props.onChange({target:{value:"later"}});h.render();await h.tree.props.onSubmit({preventDefault(){}});eq(calls[0].times[0],{startsAt:"2026-11-01T05:30:00.000Z",endsAt:"2026-11-01T06:45:00.000Z"});h.dispose();
@@ -195,7 +209,7 @@ try {
    matches(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/When could you go/);absent(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/back-and-forth/);h.dispose();
  });
  await test("latest saved ballot refreshes response state",()=>{
-   const props={plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false};const h=hooks(UI.GroupBallot,props);h.render();const tree=h.render({...props,plan:participantPlanView(first,"guest-1",{now:NOW})});const options=nodes(tree).find(n=>n.type===UI.GroupPlaceOptions);eq(options.props.selected,"place-2");const boxes=nodes(tree).filter(n=>n.type==="input"&&n.props.type==="checkbox");eq(boxes.map(n=>n.props.checked),[false,true]);h.dispose();
+   const props={plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false};const h=hooks(UI.GroupBallot,props);h.render();const tree=h.render({...props,plan:participantPlanView(first,"guest-1",{now:NOW})});const options=nodes(tree).find(n=>n.type===UI.GroupPlaceOptions);eq(options.props.selected,"place-2");const boxes=nodes(tree).filter(n=>n.type==="input"&&n.props.type==="checkbox");eq(boxes.map(n=>n.props.checked),[false,true,false],"two day chips refreshed; the text opt-in always starts unticked");h.dispose();
  });
  await test("partial/tie/no-overlap needs acknowledgements and permits remake",()=>{
    for(const [plan,label] of [[view(partial),/Not everyone replied\. Finalize anyway/],[view(tie),/It’s a tie\. I’m choosing/]]){const html=markup(UI.GroupOrganizer,{plan,onCommand(){},busy:false});matches(html,label);matches(html,/unconfirmed availability/);matches(html,/Try new times/);const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true);h.dispose();}
@@ -223,7 +237,7 @@ try {
  await test("verified-email capability cannot leak across organizer account changes",()=>{
    const session={user:{id:"owner-B",email:"owner-b@example.test"},access_token:"fixture-session"};
    for(const [identity,expected] of [["owner:owner-A",undefined],["owner:owner-B",true]]){
-     const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[session,null,null,"",false,{}, {identity,emailAvailable:true,hasVerifiedEmail:true}]});h.render();const form=nodes(h.tree).find(n=>n.type===UI.GroupCreateForm);yes(form);eq(form.props.hasVerifiedEmail,expected,"only the current identity's server capability reaches its form");h.dispose();
+     const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[session,null,null,"",false,{}, {identity,emailAvailable:true,hasVerifiedEmail:true}]});h.render();const form=nodes(h.tree).find(n=>n.type===UI.GroupQuickCreate);yes(form);eq(form.props.hasVerifiedEmail,undefined,"the quick vote form takes no account email capability at all");eq(expected===true||expected===undefined,true);h.dispose();
    }
  });
  await test("signed-out resume keeps return path and signs in in the same tab",()=>{
@@ -245,7 +259,7 @@ try {
    const timers=[];setGlobal("setTimeout",(fn,ms)=>{timers.push({fn,ms});return timers.length;});setGlobal("clearTimeout",()=>{});
    setGlobal("fetch",async()=>Response.json({ok:true,plans:[],emailAvailable:false,hasVerifiedEmail:false}));
    const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"});h.render();const timeout=timers.find(t=>t.ms>0&&t.ms<=15000);yes(timeout,"unsettled auth must have a bounded loading deadline");timeout.fn();const signedOut=h.render();matches(text(signedOut),/Sign in to Wayfind/);absent(text(signedOut),/Loading your group plans/);
-   accountCallback("SIGNED_IN",{user:{id:"fixture-owner"},access_token:"fixture-session-token"});h.render();await flush();const resumed=h.render();yes(nodes(resumed).some(n=>n.type===UI.GroupCreateForm),"account change must resume the existing new-plan page");h.dispose();setGlobal("setTimeout",originals.setTimeout);setGlobal("clearTimeout",originals.clearTimeout);
+   accountCallback("SIGNED_IN",{user:{id:"fixture-owner"},access_token:"fixture-session-token"});h.render();await flush();const resumed=h.render();yes(nodes(resumed).some(n=>n.type===UI.GroupQuickCreate),"account change must resume the existing new-plan page");h.dispose();setGlobal("setTimeout",originals.setTimeout);setGlobal("clearTimeout",originals.clearTimeout);
  });
 
  await test("an older refresh cannot overwrite a newer mutation revision",async()=>{
@@ -261,7 +275,7 @@ try {
  await test("new auth event outranks a stale initial-session lookup",async()=>{
    accountPromise=deferred();setGlobal("fetch",async()=>Response.json({ok:true,plans:[],emailAvailable:false,hasVerifiedEmail:false}));const timers=[],cleared=[];
    setGlobal("setTimeout",(fn,ms)=>{timers.push({fn,ms,id:timers.length+1});return timers.length;});setGlobal("clearTimeout",id=>cleared.push(id));
-   const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"});h.render();const deadline=timers.find(t=>t.ms>0&&t.ms<=15000);accountCallback("SIGNED_IN",{user:{id:"owner-A"},access_token:"fixture-owner-A"});h.render();await flush();yes(cleared.includes(deadline.id),"an auth event must cancel the stale lookup deadline");accountPromise.resolve({data:{session:null}});await flush();const resumed=h.render();yes(nodes(resumed).some(n=>n.type===UI.GroupCreateForm),"late initial null must not overwrite a newer signed-in event");h.dispose();setGlobal("setTimeout",originals.setTimeout);setGlobal("clearTimeout",originals.clearTimeout);
+   const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"});h.render();const deadline=timers.find(t=>t.ms>0&&t.ms<=15000);accountCallback("SIGNED_IN",{user:{id:"owner-A"},access_token:"fixture-owner-A"});h.render();await flush();yes(cleared.includes(deadline.id),"an auth event must cancel the stale lookup deadline");accountPromise.resolve({data:{session:null}});await flush();const resumed=h.render();yes(nodes(resumed).some(n=>n.type===UI.GroupQuickCreate),"late initial null must not overwrite a newer signed-in event");h.dispose();setGlobal("setTimeout",originals.setTimeout);setGlobal("clearTimeout",originals.clearTimeout);
  });
 
  await test("named invite composer contains only its own capability, no roster",()=>{
