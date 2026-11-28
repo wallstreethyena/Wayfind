@@ -1,4 +1,5 @@
 // scripts/check-reengage-schema.mjs — lock for the re-engagement tables
+// STRUCTURAL-ONLY: the target is SQL DDL; there is no local Postgres to run it, so the comment-stripped text is parsed (with negative controls).
 // (supabase/migrations/20261128040000_wf_reengagement.sql).
 //
 // These tables hold email addresses, consent records and push endpoints. The

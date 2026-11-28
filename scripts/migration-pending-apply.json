@@ -136,7 +136,7 @@
     "file": "supabase/migrations/20261128040000_wf_reengagement.sql",
     "sha256": "c68032cf32d028fbe7c3c025c3242e7ad5b66d6ce0b1eb0da40e0d5e05dd78b6",
     "decision_owner": "wallstreethyena",
-    "tracking": "re-engagement PR 1 (this branch)",
+    "tracking": "#2891 re-engagement PR 1",
     "reason": "Additive only: five new service-role-only tables (wf_reengage_contacts, _push_subs, _queue, _suppressions, _signals), RLS on with no policies, anon/authenticated revoked. Apply after the cold verifier passes, then flip NEXT_PUBLIC_WF_REENGAGE / WF_REENGAGE_ENABLED. Reverse is in the file header."
   }
 ]

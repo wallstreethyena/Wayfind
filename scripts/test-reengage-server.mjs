@@ -270,14 +270,14 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
   x = await run(GOOD);
   ok(x.r.status === 503 && calls.length === 0, "a non \"1\" WF_REENGAGE_ENABLED turned the route on");
   process.env.WF_REENGAGE_ENABLED = "1";
-  const key = process.env.RESEND_API_KEY; delete process.env.RESEND_API_KEY;
+  delete process.env.RESEND_API_KEY;
   x = await run(GOOD);
   ok(x.r.status === 503 && x.json.code === "unconfigured" && calls.length === 0, "route ran without RESEND_API_KEY");
-  process.env.RESEND_API_KEY = key;
-  const sb = process.env.SUPABASE_URL; delete process.env.SUPABASE_URL;
+  process.env.RESEND_API_KEY = "re_test_key";
+  delete process.env.SUPABASE_URL;
   x = await run(GOOD);
   ok(x.r.status === 503 && x.json.code === "unconfigured" && calls.length === 0, "route ran without Supabase env");
-  process.env.SUPABASE_URL = sb;
+  process.env.SUPABASE_URL = "https://fake-reengage.supabase.test";
 
   // validation, before any store is touched
   reset({ plan: { [PLAN_REF]: SNAP } });
