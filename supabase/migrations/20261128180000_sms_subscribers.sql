@@ -2,6 +2,7 @@
 -- saved for later texts). Only people who tick the opt-in box themselves on a
 -- Group Vote ballot are stored. Service role only: RLS on with no policies, so
 -- no browser client can read or write these rows.
+-- Reverse: drop table if exists public.wf_sms_consent_log; drop table if exists public.wf_sms_subscribers;
 create table if not exists public.wf_sms_subscribers (
   phone text primary key check (phone ~ '^\+[1-9][0-9]{7,14}$'),
   first_name text check (first_name is null or char_length(first_name) <= 40),
