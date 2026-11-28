@@ -1146,8 +1146,8 @@ scripts/test-red-tide.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	3665c2f2520aa17
 scripts/test-redirect-failure-quality.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	29	0	0	7906ef5ad79ad3329304baf889d0dea77fdbe448226f710b1ec786884069aadf
 scripts/test-redirect-integrity.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0	790d24d12b3b1c8d27042d4e54666b92e602bfb441d32e31422a32a22c8bae83
 scripts/test-redirect-visitor-scope.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	bd6aaa4c3eed3fa111ca756b67a22f22fb610766ec10d65cb94237d17a0c2010
-scripts/test-reengage-client.mjs	0	RENDER	blocks-ci-and-deploy	1	-	174	0	0	b57e98fc2c545ff77fdfd168ad075f4367528c824dee66f615fc8decaee893ad
-scripts/test-reengage-push.mjs	0	RENDER	blocks-ci-and-deploy	1	-	259	0	0	01fd2df03a63351bed610580e32bfe89c168afea4f2b2ec704b148ff35ec7dc8
+scripts/test-reengage-client.mjs	0	RENDER	blocks-ci-and-deploy	1	-	176	0	0	9963f914dc5ec45727ac06acfefba5ee559a1e2bf207621473ecfee675f1e071
+scripts/test-reengage-push.mjs	0	RENDER	blocks-ci-and-deploy	1	-	275	0	0	00f299d5ee87fe0f953791ae906ad93331fafcb43e53f24206f0a00d99a1c7b2
 scripts/test-reengage-server.mjs	0	RENDER	blocks-ci-and-deploy	1	-	242	0	0	d49c22bf3a931e911f3becbcf5b21fce8db38f75350f2cd25944e74fa3777d46
 scripts/test-refresh-dedup.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	58	0	0	cff3d058266b8f8541b84d174d17d926d6c404850ec72f73db62db449dcbc18a
 scripts/test-refresh-reserve.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0	fbff7f398a7c411c0e88e4490a10ce721a0709f7ca7ec4a672a62ee62f373d6c

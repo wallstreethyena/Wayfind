@@ -23,6 +23,9 @@
 //   * A fixed bottom dock (the Santa dock on holiday pages, z-index 930, 65px at 390
 //     wide) would cover the card, so the card is lifted by the measured dock height.
 //   * Escape, Not now and the close button are the same answer: no new ask for 21 days.
+//     Escape counts only when focus (or the key event) is inside this card, so an Escape
+//     that closes some other overlay (a planner sheet above it) is not an answer here.
+//   * The title names what the ask is about: the plan, the Christmas hub or the guide.
 // Copy rules: plain words, no dashes, no pressure, no countdowns, no claim of new.
 import { useEffect, useRef, useState } from "react";
 import { markPushAsked, reengageEvent } from "../../lib/reengageClient.js";
@@ -58,11 +61,20 @@ function dockLift(win) {
   } catch (e) { return 0; }
 }
 
+// The ask names what it is about. A plan: "this trip". A hub page: the Christmas hub, or the guide. Owner copy (contract 7.10).
+function askTitle(kind, trigger) {
+  if (kind !== "hub") return "Want a heads up about this trip?";
+  const p = trigger && typeof trigger.path === "string" ? trigger.path : "";
+  if (/^\/christmas-in-florida(?:\/|$)/.test(p)) return "Want a heads up about Christmas in Florida?";
+  return "Want a heads up about this guide?";
+}
+
 export default function PushPrompt() {
   const [m, setM] = useState(null); // { mode, kind, trigger }
   const [phase, setPhase] = useState("ask"); // ask | busy | done | blocked | failed | gone
   const [lift, setLift] = useState(0);
   const shown = useRef(false);
+  const card = useRef(null);
 
   useEffect(() => {
     if (shown.current) return;
@@ -92,11 +104,16 @@ export default function PushPrompt() {
     return () => { timers.forEach(clearTimeout); window.removeEventListener("resize", measure); };
   }, [m]);
 
-  // Escape is the same answer as Not now (and as Got it on the iPhone helper), while the ask is open.
+  // Escape is the same answer as Not now (and as Got it on the iPhone helper), while the ask is open
+  // and the key belongs to this card: the event target or the focused element is inside it.
   useEffect(() => {
     if (!m || phase !== "ask") return undefined;
     const onKey = (e) => {
       if (e.key !== "Escape") return;
+      const el = card.current;
+      const doc = window.document;
+      const inside = !!el && ((e.target && typeof e.target.nodeType === "number" && el.contains(e.target)) || (!!doc.activeElement && el.contains(doc.activeElement)));
+      if (!inside) return;
       markPushAsked(window);
       if (m.mode === "push") reengageEvent(window, "reengage_push_ask_no", { kind: m.kind, surface: "push" });
       setPhase("gone");
@@ -131,7 +148,7 @@ export default function PushPrompt() {
     body = "Tap Share, then Add to Home Screen.";
     buttons = <div style={ROW}><button type="button" style={PRIMARY} onClick={no}>Got it</button></div>;
   } else {
-    title = "Want a heads up about this trip?";
+    title = askTitle(kind, trigger);
     body = "We send at most 2 short notes a week, never at night. Turn them off anytime in your browser settings.";
     buttons = (
       <div style={ROW}>
@@ -142,7 +159,7 @@ export default function PushPrompt() {
   }
 
   return (
-    <div role="region" aria-label="Reminders" aria-live="polite" data-reengage-push={mode} data-dock-lift={lift} style={{ ...BAR, bottom: `calc(12px + ${lift}px + env(safe-area-inset-bottom, 0px))` }}>
+    <div ref={card} role="region" aria-label="Reminders" aria-live="polite" data-reengage-push={mode} data-dock-lift={lift} style={{ ...BAR, bottom: `calc(12px + ${lift}px + env(safe-area-inset-bottom, 0px))` }}>
       <p style={TITLE}>{title}</p>
       {body ? <p style={BODY}>{body}</p> : null}
       {buttons}

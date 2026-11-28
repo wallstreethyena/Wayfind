@@ -401,7 +401,9 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
   {
     // CALL-BASED: the lazy boot module, against a fake window, a recording fetch and an injected client.
     const bootMod = await loadComponent(path.join(ROOT, "app/components/reengageBoot.js"), ROOT);
-    const fakeWin = (cookie, fetchLog) => ({ document: { cookie }, fetch: (u, init) => { fetchLog.push({ u, init }); return Promise.resolve(new Response("{}")); } });
+    const budgetMod = await loadComponent(path.join(ROOT, "lib/interruptionBudget.js"), ROOT);
+    const memStore = () => { const m = new Map(); return { getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => { m.set(k, String(v)); } }; };
+    const fakeWin = (cookie, fetchLog, store) => ({ document: { cookie }, sessionStorage: store || memStore(), fetch: (u, init) => { fetchLog.push({ u, init }); return Promise.resolve(new Response("{}")); } });
     ok(typeof bootMod.confirmPendingEmail === "function" && typeof bootMod.boot === "function", "reengageBoot does not export confirmPendingEmail and boot");
     const log1 = [];
     const posted = bootMod.confirmPendingEmail(fakeWin("a=1; wf_rc_pending=1; b=2", log1));
@@ -417,7 +419,7 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
       win.requestIdleCallback = (cb) => { idleCb = cb; return 7; };
       win.location = { pathname: "/" };
       const shown = [];
-      const cancel = bootMod.boot(win, (C) => shown.push(C), { loadClient: async () => rcFake(order), loadBanner: async () => ({ default: "BANNER" }) });
+      const cancel = bootMod.boot(win, (C) => shown.push(C), { loadClient: async () => rcFake(order), loadBanner: async () => ({ default: "BANNER" }), loadBudget: async () => budgetMod });
       const scheduled = typeof idleCb === "function";
       const p = scheduled ? idleCb() : null;
       await p;
@@ -431,6 +433,11 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
     const logA = [];
     const a = await runBoot(fakeWin("wf_rc_pending=1", logA), rcFake(false, true));
     ok(a.scheduled && logA.length === 1 && a.order.join(",") === "optedOut,anon,visit,hook,should" && a.shown.length === 1 && a.shown[0] === "BANNER", "boot() for a returning visitor: " + JSON.stringify({ a, logA }));
+    // the banner is one of the visit's unsolicited interruptions: with the budget already spent the boot hands over nothing
+    const spentStore = memStore();
+    budgetMod.claimInterruption(spentStore, "planner_christmas");
+    const aSpent = await runBoot(fakeWin("", [], spentStore), rcFake(false, true));
+    ok(aSpent.scheduled && aSpent.order.join(",") === "optedOut,anon,visit,hook,should" && aSpent.shown.length === 0, "boot() showed the banner after the visit's interruption was spent: " + JSON.stringify(aSpent));
     // an opted out visitor (Global Privacy Control): the confirm POST is the person's own click, so it still goes; nothing else runs
     const logB = [];
     const b = await runBoot(fakeWin("wf_rc_pending=1", logB), rcFake(true, true));

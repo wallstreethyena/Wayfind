@@ -43,6 +43,8 @@ export function boot(win, onBanner, deps) {
   const loadBanner = (deps && deps.loadBanner) || (() => import("./ReturnBanner"));
   const loadPush = (deps && deps.loadPush) || (() => import("../../lib/reengagePushClient.js"));
   const loadPrompt = (deps && deps.loadPrompt) || (() => import("./PushPrompt"));
+  // The visit's one interruption (lib/interruptionBudget.js): the banner is one too, so it asks first.
+  const loadBudget = (deps && deps.loadBudget) || (() => import("../../lib/interruptionBudget.js"));
 
   // Push half. Returns a promise, or undefined when the push flag is off.
   const pushStep = (rc, bannerShown) => {
@@ -100,7 +102,14 @@ export function boot(win, onBanner, deps) {
         const show = rc.shouldShowBanner(rc.readState(win), rc.readFlags(win), Date.now(), win.location.pathname);
         const push = pushStep(rc, show);
         if (!show) return push;
-        return loadBanner().then((m) => { if (!cancelled) onBanner(m.default); }, () => {});
+        // Budget already spent this visit (the push prompt or the planner got there first): no banner.
+        // A budget module that will not load fails closed, like an unusable sessionStorage does.
+        return loadBudget().then((ib) => {
+          let store = null;
+          try { store = win.sessionStorage; } catch (e) { store = null; }
+          if (cancelled || !ib.canInterrupt(store)) return undefined;
+          return loadBanner().then((m) => { if (!cancelled) onBanner(m.default); }, () => {});
+        }, () => {});
       } catch (e) { /* best effort, never break the page */ }
     }, () => {});
   };

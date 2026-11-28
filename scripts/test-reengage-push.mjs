@@ -77,6 +77,8 @@ const rc = await loadComponent(rel("lib/reengageClient.js"), ROOT);
 const pc = await loadComponent(PUSHCLIENT, ROOT);
 const bootMod = await loadComponent(rel("app/components/reengageBoot.js"), ROOT);
 const Prompt = (await loadComponent(rel("app/components/PushPrompt.js"), ROOT)).default;
+const Banner = (await loadComponent(rel("app/components/ReturnBanner.js"), ROOT)).default;
+const ib = await loadComponent(rel("lib/interruptionBudget.js"), ROOT);
 const route = await loadComponent(rel("app/api/reengage/push/route.js"), ROOT);
 
 // ── Date.now pin ──────────────────────────────────────────────────────────────
@@ -131,7 +133,9 @@ eq(kernelProblems(kc), [], "A1: the kernel does not hold the pinned vector and b
 
 // The consent copy, word for word. The system sends push for later plans, affiliate drops and hub pages, at most 2 a week
 // (1 a day, never 8 PM to 9 AM local), so the ask says exactly that. Changing any of it is an owner decision (contract 7.10).
-const CONSENT_ASK_TITLE = "Want a heads up about this trip?";
+const CONSENT_ASK_TITLE = "Want a heads up about this trip?"; // the plan trigger
+const CONSENT_HUB_TITLE = "Want a heads up about Christmas in Florida?"; // the hub trigger on /christmas-in-florida*
+const CONSENT_GUIDE_TITLE = "Want a heads up about this guide?"; // the hub trigger on /guides/*
 const CONSENT_ASK_BODY = "We send at most 2 short notes a week, never at night. Turn them off anytime in your browser settings.";
 const CONSENT_DONE = "Done. We will send at most 2 short notes a week.";
 
@@ -202,7 +206,7 @@ const fetchesTo = (win, prefix) => win.__rec.fetches.filter((f) => f.u.startsWit
 const stateOf = (win) => rc.readState(win);
 const draftState = (extra = {}) => ({ recent: [], draft: { planRef: PLAN_REF, area: "sarasota", areaName: "Sarasota", at: NOW - MIN }, visits: 2, lastVisitAt: NOW - 10 * MIN, prevVisitAt: NOW - 3 * DAY, ...extra });
 
-async function bootWin(win, { loadClient, loadPush, loadPrompt, loadBanner } = {}) {
+async function bootWin(win, { loadClient, loadPush, loadPrompt, loadBanner, loadBudget } = {}) {
   let idle = null;
   win.requestIdleCallback = (cb) => { idle = cb; return 1; };
   const shown = [];
@@ -212,6 +216,7 @@ async function bootWin(win, { loadClient, loadPush, loadPrompt, loadBanner } = {
     loadPush: async () => { loads.push += 1; return loadPush ? loadPush() : pc; },
     loadPrompt: async () => { loads.prompt += 1; return loadPrompt ? loadPrompt() : { default: Prompt }; },
     loadBanner: async () => { loads.banner += 1; return loadBanner ? loadBanner() : { default: "BANNER" }; },
+    loadBudget: async () => (loadBudget ? loadBudget() : ib),
   });
   await idle();
   await settle();
@@ -439,7 +444,6 @@ const modeFailures = (rows) => rows.filter(([, got, want, plat, wantPlat]) => go
 }
 
 // ══ A13. one unsolicited interruption per visit (lib/interruptionBudget.js), and the planner's Santa offer ══
-const ib = await loadComponent(rel("lib/interruptionBudget.js"), ROOT);
 const pp = await loadComponent(rel("lib/plannerProactive.js"), ROOT);
 {
   const HUB = "/christmas-in-florida";
@@ -468,7 +472,7 @@ const pp = await loadComponent(rel("lib/plannerProactive.js"), ROOT);
   eq(budget(open), null, "A13: offering the prompt (before it renders) already spent the budget");
   // (2) when the prompt SHOWS it spends the budget, so the planner then has nothing
   const shownOut = await renderPrompt(open, o2.shown[0]);
-  ok(shownOut.region && shownOut.text.includes(CONSENT_ASK_TITLE), "A13: the prompt did not render with budget available: " + shownOut.text);
+  ok(shownOut.region && shownOut.text.includes(CONSENT_HUB_TITLE), "A13: the prompt did not render with budget available: " + shownOut.text);
   eq(budget(open), { n: 1, kind: "push_prompt" }, "A13: showing the prompt did not claim the interruption budget");
   ok(pp.selectProactivePlannerOffer({ pathname: HUB, storage: open.sessionStorage }) === null, "A13: the planner still offered Santa after the push prompt used the visit's interruption");
   // (3) Santa's offer is already on screen: the prompt steps aside, spends nothing, stamps nothing
@@ -508,7 +512,14 @@ const pp = await loadComponent(rel("lib/plannerProactive.js"), ROOT);
       if (how === "Not now") await click(win, buttonByText(win, "Not now"));
       else if (how === "Got it") await click(win, buttonByText(win, "Got it"));
       else if (how === "close") await click(win, win.document.querySelector('[aria-label="Close"]'));
-      else await act(async () => { win.document.dispatchEvent(new win.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); await settle(30); });
+      else if (how === "Escape") await act(async () => { win.document.querySelector("[data-reengage-push] button").dispatchEvent(new win.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); await settle(30); }); // the key comes from a button inside the card
+      else if (how === "Escape (focus inside)") await act(async () => { win.document.querySelector("[data-reengage-push] button").focus(); win.document.dispatchEvent(new win.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); await settle(30); }); // focus is inside, the event is on the document
+      else { // "Escape elsewhere": another overlay closes with Escape (target outside the card, focus outside the card)
+        const other = win.document.createElement("div");
+        other.setAttribute("role", "dialog");
+        win.document.body.appendChild(other);
+        await act(async () => { other.dispatchEvent(new win.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); win.document.dispatchEvent(new win.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); await settle(30); });
+      }
       const out = {
         gone: !win.document.querySelector("[data-reengage-push]"), stamp: stateOf(win).pushAskedAt,
         asked: win.__rec.log.includes("requestPermission"), pushPosts: fetchesTo(win, "/api/reengage/push").length, subscribed: win.__rec.log.includes("subscribe"),
@@ -517,7 +528,7 @@ const pp = await loadComponent(rel("lib/plannerProactive.js"), ROOT);
       return out;
     }));
   };
-  for (const how of ["Not now", "close", "Escape"]) {
+  for (const how of ["Not now", "close", "Escape", "Escape (focus inside)"]) {
     const o = await answerWith(how);
     ok(o.gone, `A14 ${how}: the prompt stayed on screen`);
     ok(o.stamp === NOW + 2 * MIN, `A14 ${how}: markPushAsked was not called by the answer (stamp ${o.stamp}, expected ${NOW + 2 * MIN})`);
@@ -527,6 +538,89 @@ const pp = await loadComponent(rel("lib/plannerProactive.js"), ROOT);
     const o = await answerWith(how, { mode: "a2hs", ua: IOS, pushApis: false });
     ok(o.gone && o.stamp === NOW + 2 * MIN && !o.asked && o.pushPosts === 0, `A14 iPhone helper ${how}: ` + JSON.stringify(o));
   }
+  // an Escape that belongs to another overlay (target and focus outside the card) is NOT an answer: the prompt stays and nothing is stamped
+  for (const opts of [{}, { mode: "a2hs", ua: IOS, pushApis: false }]) {
+    const o = await answerWith("Escape elsewhere", opts);
+    ok(!o.gone && o.stamp === NOW && !o.asked && o.pushPosts === 0, `A14 Escape elsewhere (${opts.mode || "push"}): the prompt closed or stamped a refusal for an Escape that was not its own: ` + JSON.stringify(o));
+  }
+}
+
+// ══ A15. the return banner is an interruption too: it asks the budget first and claims it when it shows ══
+{
+  const HUB = "/christmas-in-florida";
+  const away = { recent: [{ id: "abc", name: "Some Place", at: NOW - 2 * DAY }], city: { slug: "orlando", name: "Orlando", at: NOW - 2 * DAY }, visits: 3, lastVisitAt: NOW - 2 * DAY, prevVisitAt: NOW - 5 * DAY, hubViews: 0 };
+  const visitor = () => makeWin({ ua: ANDROID, url: "https://www.gowayfind.com" + HUB, state: { ...away } });
+  const budget = (win) => JSON.parse(win.sessionStorage.getItem(ib.INTERRUPTION_KEY) || "null");
+  const renderBanner = (win) => pinned(NOW, () => withDom(win, async () => {
+    const { host, root } = await mount(win, Banner);
+    const out = { region: !!win.document.querySelector("[data-reengage-banner]"), text: host.textContent };
+    await act(async () => root.unmount());
+    return out;
+  }));
+  // (1) the budget already spent: the boot never loads the banner
+  const spent = visitor();
+  ok(ib.claimInterruption(spent.sessionStorage, "planner_christmas") === true, "A15: could not spend the interruption budget for the test");
+  const b1 = await pinned(NOW, () => bootWin(spent));
+  ok(b1.loads.banner === 0 && b1.shown.length === 0, "A15: the boot showed the return banner after the visit's interruption was spent: " + JSON.stringify(b1.loads));
+  // control: the same returning visitor with the budget unspent DOES get the banner, so "none" proves something
+  const open = visitor();
+  const b2 = await pinned(NOW, () => bootWin(open));
+  ok(b2.loads.banner === 1 && b2.shown.length === 1 && b2.shown[0] === "BANNER", "A15 control: with the budget unspent the boot did not hand over the banner: " + JSON.stringify(b2.loads));
+  eq(budget(open), null, "A15: handing over the banner (before it renders) already spent the budget");
+  // (2) the banner SHOWS: it spends the visit's budget, naming itself
+  const shownB = await renderBanner(open);
+  ok(shownB.region && /Back for more Orlando\?/.test(shownB.text), "A15: the real banner did not render for a returning visitor with budget: " + shownB.text);
+  eq(budget(open), { n: 1, kind: "return_banner" }, "A15: showing the return banner did not claim the interruption budget");
+  // (3) the next load of the same visit (2 minutes later, a hub page, second view): no push prompt, no banner
+  const second = await pinned(NOW + 2 * MIN, () => bootWin(open));
+  ok(second.loads.prompt === 0 && second.shown.length === 0 && open[pc.PROMPT_CTX_KEY] === undefined, "A15: a push prompt was offered in the same visit as the return banner: " + JSON.stringify(second.loads));
+  ok(stateOf(open).hubViews === 2 && fetchesTo(open, "/api/reengage/signal").some((f) => f.body.kind === "hub_view"), "A15: the facts (second hub view and its signal) must still be counted when the prompt is not offered");
+  // control: the same second load with the banner never shown (budget unspent) DOES offer the prompt
+  const fresh = visitor();
+  await pinned(NOW, () => bootWin(fresh));
+  const c2 = await pinned(NOW + 2 * MIN, () => bootWin(fresh));
+  ok(c2.loads.prompt === 1 && c2.shown.length === 1 && fresh[pc.PROMPT_CTX_KEY] && fresh[pc.PROMPT_CTX_KEY].kind === "hub", "A15 control: without the banner's claim the second load did not offer the prompt (so the claim is what stops it): " + JSON.stringify(c2.loads));
+  // (4) the budget is spent between the boot's check and the mount: the banner renders nothing
+  const raced = visitor();
+  ib.claimInterruption(raced.sessionStorage, "planner_x");
+  const r4 = await renderBanner(raced);
+  ok(!r4.region && r4.text === "" && budget(raced).kind === "planner_x", "A15: the banner rendered after another surface claimed the budget: " + JSON.stringify({ r4, b: budget(raced) }));
+  // (5) no usable sessionStorage fails closed for the boot and for the banner
+  const blocked = visitor();
+  Object.defineProperty(blocked, "sessionStorage", { configurable: true, get() { throw new Error("storage blocked"); } });
+  const b5 = await pinned(NOW, () => bootWin(blocked));
+  ok(b5.loads.banner === 0 && b5.shown.length === 0, "A15: the banner was handed over with no usable sessionStorage (the cap cannot be kept): " + JSON.stringify(b5.loads));
+  // (6) the budget module will not load: fail closed
+  const nomod = visitor();
+  const b6 = await pinned(NOW, () => bootWin(nomod, { loadBudget: () => Promise.reject(new Error("chunk failed")) }));
+  ok(b6.loads.banner === 0 && b6.shown.length === 0, "A15: the banner was handed over although the budget module could not load: " + JSON.stringify(b6.loads));
+}
+
+// ══ A16. the ask names what it is about: the plan, the Christmas hub or the guide ══
+{
+  const titleFor = async (kind, pathname) => {
+    const win = makeWin({ ua: ANDROID, url: "https://www.gowayfind.com" + pathname, state: kind === "itinerary" ? draftState() : { recent: [], visits: 3, lastVisitAt: NOW - 10 * MIN, hubViews: 2 } });
+    win[pc.PROMPT_CTX_KEY] = { kind, mode: "push", trigger: kind === "itinerary" ? { planRef: PLAN_REF } : { path: pathname } };
+    return pinned(NOW, () => withDom(win, async () => {
+      const { host, root } = await mount(win, Prompt);
+      const out = { text: host.textContent, title: (win.document.querySelector("[data-reengage-push] p") || {}).textContent };
+      await act(async () => root.unmount());
+      return out;
+    }));
+  };
+  const rows = [
+    ["itinerary", "/plan-my-day", CONSENT_ASK_TITLE],
+    ["hub", "/christmas-in-florida", CONSENT_HUB_TITLE],
+    ["hub", "/christmas-in-florida/orlando", CONSENT_HUB_TITLE],
+    ["hub", "/guides/best-beaches", CONSENT_GUIDE_TITLE],
+  ];
+  for (const [kind, p, want] of rows) {
+    const o = await titleFor(kind, p);
+    eq(o.title, want, `A16: the ${kind} trigger on ${p} shows the wrong title`);
+    ok(o.text.includes(CONSENT_ASK_BODY), `A16: the ${kind} trigger on ${p} lost the consent body: ` + o.text);
+  }
+  // only the plan trigger says "trip"
+  ok(!(await titleFor("hub", "/christmas-in-florida")).title.includes("trip") && !(await titleFor("hub", "/guides/best-beaches")).title.includes("trip"), "A16: a hub view with no plan still says 'this trip'");
 }
 
 // ══ A6c. a plan the server gave no reference must not borrow the previous plan's reference ══

@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   readState, readFlags, bannerKind, freshDraft, cityLabel, markDismissed, reengageEvent,
 } from "../../lib/reengageClient.js";
+import { claimInterruption } from "../../lib/interruptionBudget.js";
 import { activeHolidayPromos } from "../../lib/holidayPromos.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 
@@ -45,6 +46,10 @@ export default function ReturnBanner() {
     const flags = readFlags(window);
     const kind = bannerKind(state, now);
     if (!kind) return;
+    // One unsolicited interruption per visit: spend it now, or show nothing (another surface already did).
+    let store = null;
+    try { store = window.sessionStorage; } catch (e) { store = null; }
+    if (!claimInterruption(store, "return_banner")) return;
     const surface = surfaceOf(window.location.pathname);
     let offer = null;
     try { offer = activeHolidayPromos(surface, siteTodayStr())[0] || null; } catch (e) { offer = null; }
