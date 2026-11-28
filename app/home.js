@@ -9627,10 +9627,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         attempt.finish("unavailable", { status: "unavailable", count: 0, reason: "unsupported_location", result_source: "owned-inventory" });
         return;
       }
-      // Exact owned cities always win over venue names and discovery shortcuts.
+      // Ordinary city searches recenter immediately. An explicit place link may
+      // name an independently verified area sheet, such as Siesta Key.
       const area = await geoTry(q);
       if (!current()) return;
-      if (area && area.isArea) { goTo(area); return; }
+      if (area && area.isArea && !options.placeIntent) { goTo(area); return; }
       const ql = q.toLowerCase();
       const parkIntent = themeParkIntent(q);
       if (!options.placeIntent && !parkIntent) {
@@ -9786,7 +9787,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       if (!current()) return;
       const result = await ownedSearch(q, nearGeo || searchCenter);
       if (!current()) return;
-      if (result.cards && result.cards.length && !(result.status === "ok" && result.matches.length === 1 && result.matches.filter((item) => item.exactMatch).length === 1)) {
+      const exact = result.matches.filter((item) => item.kind === "place" && item.exactMatch);
+      const explicitPlaces = options.placeIntent ? result.matches.filter((item) => item.kind === "place") : null;
+      const singleExact = result.status === "ok" && (explicitPlaces || result.matches).length === 1 && exact.length === 1;
+      if (area && area.isArea && !exact.length && (result.status !== "unavailable" || result.reason === "place-query-required")) {
+        goTo(area); return;
+      }
+      if (result.cards && result.cards.length && !singleExact && !(explicitPlaces && exact.length)) {
         closeSearchLayers();
         setSearchFeed(result.cards);
         setSearchFeedQuery(q);
@@ -9805,8 +9812,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         return;
       }
       // Exact identity, not merely one fuzzy result, grants automatic opening.
-      const exact = result.matches.filter((item) => item.exactMatch);
-      if (result.status === "ok" && result.matches.length === 1 && exact.length === 1) {
+      if (singleExact) {
         if (onMapScreen && exact[0].place && Number.isFinite(exact[0].place.lat) && Number.isFinite(exact[0].place.lng)) {
           closeSearchLayers();
           setScreen("map");
@@ -9826,7 +9832,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
-      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place" || (!options.placeIntent && isSafeSearchHref(item.href)))].slice(0, 8);
+      const choices = (explicitPlaces && exact.length
+        ? [...explicitPlaces, ...localCitySuggestions(q)]
+        : [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place" || (!options.placeIntent && isSafeSearchHref(item.href)))]).slice(0, 8);
       if (choices.length) {
         if (onMapScreen && !(typeof mapSearchOpen !== "undefined" && mapSearchOpen)) {
           setScreen("map");
