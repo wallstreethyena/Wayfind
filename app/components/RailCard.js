@@ -662,7 +662,11 @@ export default function RailCard({
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={handleImageError}
                 fallbackCategory={photoFallbackCategory}
-                style={{ objectFit: preservePhotoFraming ? "contain" : "cover", objectPosition: shownPhotoPosition }}
+                style={{
+                  objectFit: "cover",
+                  objectPosition: shownPhotoPosition,
+                  ...(preservePhotoFraming ? { objectFit: "contain" } : {}),
+                }}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
               : placeFallback || <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
