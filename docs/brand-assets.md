@@ -27,12 +27,13 @@ its public path (`/brand/wayfind/...`) instead of copying it.
 | Use | File | Notes |
 | --- | --- | --- |
 | Pin mark alone, square | `public/brand/wayfind/marks/wayfind-mark-gradient-on-black.png` | 1254x1254 on black. Suits avatars and app-style icons. |
+| White pin mark alone, square | `public/brand/wayfind/marks/wayfind-mark-white-on-black.png` | 1254x1254, white outline pin on black. Supplied 2026-11-28 as the email signature logo. |
 
 ## In email
 
 | Use | File | Notes |
 | --- | --- | --- |
-| Founder signature icon in outreach and pitch emails | `public/brand/wayfind/derived/wayfind-mark-email-icon.png` | 156x156 copy of the gradient mark, shown at 52x52. Link it as `https://www.gowayfind.com/brand/wayfind/derived/wayfind-mark-email-icon.png` with `width`, `height` and `alt="Wayfind"`. Never attach it by `cid:`: Apple Mail showed the inline attachment as a broken image (2026-11-27). Core, because sent emails load this URL. |
+| Founder signature logo in outreach and pitch emails | `public/brand/wayfind/derived/wayfind-mark-white-email.png` | Gabriel's white pin on black (156x156 copy of `wayfind-mark-white`), his choice for the signature on 2026-11-28. Link it as `https://www.gowayfind.com/brand/wayfind/derived/wayfind-mark-white-email.png` at `width="52" height="52"` with `alt="Wayfind"`, exactly as it is: no tile, frame, rounded corners or background added. Never attach it by `cid:`: Apple Mail showed inline attachments as a broken image (2026-11-27). Core, because sent emails load this URL. |
 | Weekly email header | `public/brand/wayfind/logo/wayfind-logo-white-orange-transparent-a.png` (the owner's original, unaltered, on a dark header) | Linked by URL from `lib/newsletter.js` (NEWSLETTER_LOGO). |
 
 ## Reference only

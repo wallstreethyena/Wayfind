@@ -159,6 +159,27 @@
       "sha256": "422051fa682d07bb879845e51dd86b0c5f6ad19ca7be6c5fbfe0cd96e5c3b57e"
     },
     {
+      "id": "wayfind-mark-white",
+      "path": "/brand/wayfind/marks/wayfind-mark-white-on-black.png",
+      "file": "public/brand/wayfind/marks/wayfind-mark-white-on-black.png",
+      "type": "mark",
+      "format": "png",
+      "width": 1254,
+      "height": 1254,
+      "transparent": false,
+      "purpose": "The pin mark alone: white outline pin with a ring, centered on solid black, square.",
+      "original": true,
+      "derivative_of": null,
+      "source": "Supplied by Gabriel Pereira (owner) in the Claude Duet main chat, 2026-11-28, as the logo for the email signature; stored byte for byte as received.",
+      "date_added": "2026-11-28",
+      "background": "dark",
+      "usage_notes": "Black square is part of the file; show it as is, with no added tile, frame or background. The owner's choice for the founder email signature (email copy: wayfind-mark-white-email).",
+      "approved_for_production": true,
+      "core": true,
+      "bytes": 422400,
+      "sha256": "2bda544b0f24e77e4309779cea85078e54c5375983c68455ae525ac92104d5a7"
+    },
+    {
       "id": "wayfind-reel-endcard-reference",
       "path": "/brand/wayfind/social/wayfind-reel-endcard-reference.png",
       "file": "public/brand/wayfind/social/wayfind-reel-endcard-reference.png",
@@ -181,25 +202,25 @@
       "checksum_note": "The social-media channel listed sha256 74d620796968f86543dc7f6f5d8e6b5327f6e0d8d1a6a01c76e2fa3049133944 for this file (same byte size, 1272693). The bytes received for the vault hash differently; the image decodes cleanly. Recorded here is the vault copy's own hash."
     },
     {
-      "id": "wayfind-mark-email-icon",
-      "path": "/brand/wayfind/derived/wayfind-mark-email-icon.png",
-      "file": "public/brand/wayfind/derived/wayfind-mark-email-icon.png",
+      "id": "wayfind-mark-white-email",
+      "path": "/brand/wayfind/derived/wayfind-mark-white-email.png",
+      "file": "public/brand/wayfind/derived/wayfind-mark-white-email.png",
       "type": "mark",
       "format": "png",
       "width": 156,
       "height": 156,
       "transparent": false,
-      "purpose": "Email signature copy of wayfind-mark-gradient: the same square pin mark on black, scaled to 156px (shown 52px at 3x), nothing redrawn or recolored.",
+      "purpose": "Email signature copy of wayfind-mark-white: the same square, scaled to 156px (shown 52px at 3x), nothing redrawn, recolored or framed.",
       "original": false,
-      "derivative_of": "wayfind-mark-gradient",
-      "source": "Made 2026-11-28 from public/brand/wayfind/marks/wayfind-mark-gradient-on-black.png (Lanczos resize only) for the founder signature in Wayfind outreach and pitch emails. Emails link it by its public https URL; an inline cid attachment showed as a broken image in Apple Mail.",
+      "derivative_of": "wayfind-mark-white",
+      "source": "Made 2026-11-28 from public/brand/wayfind/marks/wayfind-mark-white-on-black.png (Lanczos resize only) for the founder signature in Wayfind outreach and pitch emails.",
       "date_added": "2026-11-28",
       "background": "dark",
-      "usage_notes": "Reference it in email as https://www.gowayfind.com/brand/wayfind/derived/wayfind-mark-email-icon.png with width and height 52 and alt \"Wayfind\". Do not attach it by cid. Core because emails already in inboxes load it from this URL: never move, rename or re-save it.",
+      "usage_notes": "Link it in email as https://www.gowayfind.com/brand/wayfind/derived/wayfind-mark-white-email.png with width and height 52 and alt \"Wayfind\", no tile, frame or background around it. Never attach it by cid. Core because emails in inboxes load this URL: never move, rename or re-save it.",
       "approved_for_production": true,
       "core": true,
-      "bytes": 12271,
-      "sha256": "5667cb8362f23f0ba8c3092dae7b00b5589f81e82a976e4240f1b5b51ed454cb"
+      "bytes": 6304,
+      "sha256": "5800720f161f2109668967f6b154c741262a5d677f4b05b188d576ad3b342701"
     }
   ]
 }
