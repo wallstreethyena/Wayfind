@@ -44,6 +44,6 @@ ok(/import\s*\{\s*placePathWithName\s*\}\s*from\s*"\.\.\/lib\/placeLinkName\.js"
 ok(/openDetail\(opened\);\s*try\s*\{\s*const named = placePathWithName\(window\.location\.pathname, window\.location\.search, opened\);\s*if \(named\) window\.history\.replaceState\(/.test(home),
   "B2 the deep-linked place writes its name right after it opens");
 const page = strip(readFileSync(new URL("../app/p/[id]/page.js", import.meta.url), "utf8"));
-ok(/const t = identity\?\.name \|\| s\(searchParams\.t\) \|\|/.test(page), "B3 the preview prefers a fresh stored name, then ?t=");
+ok(/const t = identity\?\.name \|\| editorialSharePlaceName\(id\) \|\| s\(searchParams\.t\) \|\|/.test(page), "B3 the preview prefers a fresh stored name, then a published editorial identity, then ?t=");
 
 console.log(`test-place-link-name: OK — ${n} assertions (helper 11 cases; home.js wiring; preview still reads ?t=)`);

@@ -10,6 +10,8 @@ import { FALL_CARD_IDS, fallCardClass, fallShareLine } from "../lib/fallSkin.js"
 import { fallPlaceEvidenceCurrent } from "../lib/fallPlaceEvidence.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 
+import { isGooglePlaceId } from "../lib/placePhoto.js";
+
 const DEAD = "ChIJwZ_GK-d-54gRm5Ahg7PZYeY";
 let count = 0;
 const eq = (actual, expected, message) => { assert.deepEqual(actual, expected, message); count++; };
@@ -71,8 +73,11 @@ const declaration = source.slice(start, end).replace("export async function gene
 let metadataToday = "2026-11-01";
 const mutation = process.argv.includes("--mutation-control-child");
 const skin = mutation ? () => " wf-fall-card" : fallCardClass;
-const metadata = Function("getInventoryIdentity", "SITE_URL", "placeCanonical", "fallCardClass", "siteTodayStr", "durablePlaceUrl",
-  `${declaration}\nreturn generateMetadata;`)(async () => ({ name: "Red Coconut Club" }), "https://www.gowayfind.com", () => null, skin, () => metadataToday, async () => null);
+const notFound = () => { throw new Error("Unexpected 404 for seasonal fixture"); };
+const editorialSharePlaceName = () => { throw new Error("Stored venue name should take precedence"); };
+const trimDescriptionToLimit = (value, limit) => value.slice(0, limit);
+const metadata = Function("isGooglePlaceId", "notFound", "editorialSharePlaceName", "trimDescriptionToLimit", "getInventoryIdentity", "SITE_URL", "placeCanonical", "fallCardClass", "siteTodayStr", "durablePlaceUrl",
+  `${declaration}\nreturn generateMetadata;`)(isGooglePlaceId, notFound, editorialSharePlaceName, trimDescriptionToLimit, async () => ({ name: "Red Coconut Club" }), "https://www.gowayfind.com", () => null, skin, () => metadataToday, async () => null);
 for (const [today, live] of [["2026-11-01", true], ["2026-11-02", false], ["2027-10-01", false]]) {
   metadataToday = today;
   const result = await metadata({ params: Promise.resolve({ id: DEAD }), searchParams: Promise.resolve({}) });
