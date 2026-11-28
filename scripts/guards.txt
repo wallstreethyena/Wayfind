@@ -2000,6 +2000,8 @@ node scripts/test-event-driving-route.mjs
 node scripts/test-morning-candidate-integrity.mjs
 # Shared event navigation, map cards, and explicit sharing choices.
 node scripts/test-event-section-nav.mjs
+# Owner 2026-11-27: no sticky bar slides under the fixed garland; event tab rail look and sideways cue.
+node scripts/check-sticky-under-garland.mjs
 node scripts/test-event-nearby-cards.mjs
 node scripts/test-share-out-chooser.mjs
 node scripts/check-home-eager-supabase.mjs
