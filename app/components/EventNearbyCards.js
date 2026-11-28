@@ -2,6 +2,8 @@
 
 import IconicPlaceCard from "./IconicPlaceCard.js";
 import EventPlaceRail from "./EventPlaceRail.js";
+import PhotoCreditLink from "./PhotoCreditLink.js";
+import { PARK_MAP_CREDIT } from "../../lib/parkMaps2026.js";
 import { orderPlaceRecommendations } from "../../lib/placeRecommendationOrder.js";
 import { useEventMapPlaces } from "./EventMapPlaces.js";
 import useEditorialHooks from "./useEditorialHooks.js";
@@ -31,8 +33,12 @@ export default function EventNearbyCards({ places = [] }) {
   const outing = orderedPlaces[0] && orderedPlaces[0].outing;
   const title = (outing && outing.railTitle) || "Nearby places";
   const description = (outing && outing.railNote) || "Nearby picks by Wayfind Score.";
+  const creditedDescription = outing?.parkPosition ? <>
+    {description} <PhotoCreditLink href={PARK_MAP_CREDIT.href}>{PARK_MAP_CREDIT.label}</PhotoCreditLink>
+    {" · "}<a href="/data/event-park-footprints.json" download>Park boundaries</a>
+  </> : description;
   return (
-    <EventPlaceRail railClassName="wf-event-nearby-rail" title={title} description={description} label={title + " shown on the map"} count={orderedPlaces.length}>
+    <EventPlaceRail railClassName="wf-event-nearby-rail" title={title} description={creditedDescription} label={title + " shown on the map"} count={orderedPlaces.length}>
       {orderedPlaces.map((place, index) => (
         <IconicPlaceCard
           key={place.id}

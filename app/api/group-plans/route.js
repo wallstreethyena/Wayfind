@@ -9,6 +9,7 @@ export async function POST(req) {
     if(body.action==="suggest") return groupReply({ok:true,...await service.suggest(body.placeId,user)});
     if(body.action==="santa_suggest") return groupReply({ok:true,...await service.santaSuggest(body.placeId,user)});
     if(body.action==="search_experiences") return groupReply({ok:true,...await service.searchExperiences(body.query,body.near||null,user)});
+    if(body.action==="smart_search") return groupReply({ok:true,...await service.smartSearch(body.query,body.near||null,user)});
     if(body.action==="delete") return groupReply({ok:true,...await service.deletePlan(body.planId,user)});
     if(body.action==="clean_history") return groupReply({ok:true,...await service.cleanHistory(body.scope,user)});
     if(body.action==="dismiss_notice") return groupReply({ok:true,...await service.dismissNotice(body.noticeId,user)});

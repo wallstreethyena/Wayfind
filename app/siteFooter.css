@@ -1,0 +1,125 @@
+.wf-site-footer {
+  background: #0d1420;
+  border-top: 1px solid #293649;
+  color: #c2ccda;
+  padding: clamp(24px, 4vw, 44px) clamp(18px, 4vw, 48px) 32px;
+}
+
+.wf-footer-inner {
+  max-width: 1120px;
+  margin-inline: auto;
+}
+
+.wf-site-footer .wf-seasonal-search-nav {
+  --wf-seasonal-gap: 6px 10px;
+  --wf-seasonal-margin: 0 0 24px;
+  --wf-seasonal-color: #f2d8aa;
+}
+
+.wf-site-footer .wf-seasonal-search-nav a {
+  padding-inline: 14px;
+  border: 1px solid #3b3a37;
+  border-radius: 8px;
+  background: #19202c;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.wf-site-footer .wf-seasonal-search-nav a:hover {
+  border-color: #bc9762;
+  background: #222936;
+}
+
+.wf-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 18px;
+}
+
+.wf-footer-guides {
+  grid-column: 1 / -1;
+}
+
+.wf-footer-grid h2 {
+  margin: 0 0 5px;
+  color: #f0f4f9;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.wf-footer-grid a,
+.wf-footer-company a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 44px;
+  color: #c2ccda;
+  font-size: 13px;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.wf-footer-grid a:hover,
+.wf-footer-company a:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.wf-footer-grid .wf-footer-all-guides {
+  color: #f2d8aa;
+  font-weight: 700;
+}
+
+.wf-footer-company {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 20px;
+  margin-top: 24px;
+  padding-top: 9px;
+  border-top: 1px solid #293649;
+}
+
+.wf-footer-disclosure {
+  max-width: 68ch;
+  margin: 9px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #a8b6c8;
+}
+
+@media (min-width: 690px) {
+  .wf-footer-grid {
+    grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr));
+    gap: 22px 26px;
+  }
+
+  .wf-footer-guides {
+    grid-column: auto;
+    grid-row: span 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wf-footer-grid {
+    grid-template-columns: minmax(0, 2.4fr) minmax(0, .7fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, .85fr);
+    gap: 26px;
+  }
+
+  .wf-footer-guides {
+    grid-row: auto;
+  }
+}
+
+@media (pointer: fine) {
+  .wf-footer-grid a,
+  .wf-footer-company a {
+    min-height: 32px;
+    padding-block: 3px;
+    box-sizing: border-box;
+  }
+}

@@ -1,16 +1,14 @@
-// app/api/cron/florida-intelligence/route.js — scheduled Gemini AI monitor
+// app/api/cron/florida-intelligence/route.js — scheduled AI monitor
 // for What is Trending in Florida and Holiday Special picks.
 //
-// Fail-closed CRON_SECRET Bearer auth. Never spends on visitor traffic: only
-// this scheduled job invokes Gemini (via lib/paidGemini.js behind WAYFIND_GATE,
-// GEMINI_MONTHLY_REQUEST_CAP, atomic wf_spend_take, and the gemini breaker).
-// Every terminal path reports a wf_job_pulse row.
+// The cron refreshes deterministic picks even during an AI outage. Its pulse
+// tracks AI output so the fallback refresh cannot hide a provider failure.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-import { recordPulse } from "../../../../lib/jobPulse.js";
-import { runFloridaIntelligenceMonitor } from "../../../../lib/floridaIntelligenceServer.js";
+import { BUDGET_LIMIT_PREFIX, recordPulse } from "../../../../lib/jobPulse.js";
+import { floridaIntelligenceAiSkipped, runFloridaIntelligenceMonitor } from "../../../../lib/floridaIntelligenceServer.js";
 
 const JOB = "florida-intelligence";
 
@@ -23,27 +21,33 @@ export async function GET(req) {
 
   try {
     const result = await runFloridaIntelligenceMonitor();
+    const active = result.aiStatus === "active";
+    const skipped = floridaIntelligenceAiSkipped(result.aiStatus);
+    const failed = !active && !skipped;
     const prefix = result.breakerKind === "billing" ? "billing: "
       : result.breakerKind === "quota" ? "quota: "
+      : skipped ? BUDGET_LIMIT_PREFIX + " "
       : "";
-    const succeeded = result.breakerKind ? 0 : 1;
+    const refresh = active ? "ai" : "fallback";
     const note = (
       prefix +
-      `ai=${result.aiStatus}(${result.model}); health=${result.healthScore}/100(${result.auditStatus}); ` +
-      `trending=${result.trendingCount}; holiday=${result.holidayKey || "none"}; issues=${result.issuesCount}` +
-      (result.aiReason ? `; ${result.aiReason}` : "")
+      `ai=${result.aiStatus}(${result.model}); refresh=${refresh}` +
+      (result.aiReason ? `; ${result.aiReason}` : "") +
+      `; health=${result.healthScore}/100(${result.auditStatus}); ` +
+      `trending=${result.trendingCount}; holiday=${result.holidayKey || "none"}; issues=${result.issuesCount}`
     ).slice(0, 200);
 
-    await recordPulse(JOB, { attempted: 1, succeeded, failed: succeeded ? 0 : 1, note });
+    await recordPulse(JOB, { attempted: Number(!skipped), succeeded: Number(active), failed: Number(failed), note });
 
     return Response.json(
       {
-        ok: succeeded === 1,
+        ok: !failed,
         job: JOB,
         today: result.today,
         model: result.model,
         aiStatus: result.aiStatus,
         aiReason: result.aiReason,
+        refresh,
         healthScore: result.healthScore,
         auditStatus: result.auditStatus,
         issuesCount: result.issuesCount,
@@ -52,7 +56,7 @@ export async function GET(req) {
         floridaBrief: result.snapshot.floridaBrief,
         holidayBrief: result.snapshot.holiday ? result.snapshot.holiday.brief : null,
       },
-      { status: succeeded === 1 ? 200 : 503, headers: { "cache-control": "no-store" } }
+      { status: failed ? 503 : 200, headers: { "cache-control": "no-store" } }
     );
   } catch (err) {
     const msg = String((err && err.message) || err || "monitor-failed").slice(0, 140);

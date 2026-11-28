@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase.js";
 import { parseZonedDateTime, formatGroupTimeShort } from "../../lib/groupPlanTime.js";
 import { ORGANIZER_SMS_CONSENT_TEXT } from "../../lib/groupPlanShareText.js";
 import { signInUrlWithReturn } from "../../lib/authReturn.js";
+import { rewardMoment } from "../../lib/heartRewards.js";
 import { SantaSvg } from "../components/santaArt.js";
 import { GroupFrame, GroupVoteIntro } from "./GroupFrame.js";
 import { PlaceCard } from "./GroupPlaceOptions.js";
@@ -56,44 +57,89 @@ async function searchWayfindAll(q,near,session,request=groupRequest) {
   return items;
 }
 
-export function GroupPlacePicker({session}) {
-  const [query,setQuery]=useState("");const [results,setResults]=useState(null);const [busy,setBusy]=useState(false);const [error,setError]=useState("");
-  const search=async(event)=>{
-    event.preventDefault();
-    const q=query.trim();
-    if(!q||busy)return;
-    setBusy(true);setError("");
+// Exact-name test for the place a person came from ("Dry Dock Waterfront
+// Grill — found on Wayfind" and "dry dock waterfront grill" are the same).
+export function samePlaceName(a,b) {
+  const n=(v)=>String(v||"").toLowerCase().replace(/\s+[—–-]\s+found on wayfind$/i,"").replace(/[^a-z0-9]+/g," ").trim();
+  return !!n(a)&&n(a)===n(b);
+}
+// The one result that is the place the link named, or null (none, or two
+// same-named spots: then the organizer picks, never a guess).
+export function pickerAutoChoice(items,q) {
+  const same=(Array.isArray(items)?items:[]).filter((x)=>x&&x.kind!=="experience"&&samePlaceName(x.name,q));
+  return same.length===1?same[0]:null;
+}
+async function pickerPoint() {
+  const point=await new Promise((resolve)=>{
     try {
-      const point=await new Promise((resolve)=>{
-        try {
-          if(!navigator.geolocation)return resolve(null);
-          const timer=setTimeout(()=>resolve(null),2500);
-          navigator.geolocation.getCurrentPosition((pos)=>{clearTimeout(timer);resolve({lat:pos.coords.latitude,lng:pos.coords.longitude});},()=>{clearTimeout(timer);resolve(null);},{timeout:2500});
-        } catch {resolve(null);}
-      });
-      // No GPS answer: the area the person was already browsing on Wayfind.
-      let near=point;
-      if(!near){try{const c=JSON.parse(window.localStorage.getItem("wf_center")||"null");if(c&&Number.isFinite(c.lat)&&Number.isFinite(c.lng))near={lat:c.lat,lng:c.lng};}catch{}}
-      const found=await searchWayfindAll(q,near,session);
-      setResults(found);
-      if(!found.length)setError("No spots or experiences matched that yet. Try a name, or something like bars, sushi, brunch, or kayak.");
-    } catch {setError("Search did not answer. Try again.");}
-    finally {setBusy(false);}
-  };
+      if(!navigator.geolocation)return resolve(null);
+      const timer=setTimeout(()=>resolve(null),2500);
+      navigator.geolocation.getCurrentPosition((pos)=>{clearTimeout(timer);resolve({lat:pos.coords.latitude,lng:pos.coords.longitude});},()=>{clearTimeout(timer);resolve(null);},{timeout:2500});
+    } catch {resolve(null);}
+  });
+  if(point)return point;
+  // No GPS answer: the area the person was already browsing on Wayfind.
+  try{const c=JSON.parse(window.localStorage.getItem("wf_center")||"null");if(c&&Number.isFinite(c.lat)&&Number.isFinite(c.lng))return {lat:c.lat,lng:c.lng};}catch{}
+  return null;
+}
+// Keyword search first (free). When it finds fewer than 3 spots, the server
+// reads the ask in plain language ("somewhere fun") and answers with real
+// Wayfind places of the matching kinds (lib/groupVoteSmartSearch.js). Either
+// half failing leaves the other half's answer.
+export async function searchGroupPicker(q,near,session,request=groupRequest,searchAll=searchWayfindAll) {
+  let items=[];
+  try{items=await searchAll(q,near,session,request);}catch{items=[];}
+  let label="";
+  if(items.length<3&&session?.access_token){
+    const smart=await request("/api/group-plans",{action:"smart_search",query:q,near:near||null},session).catch(()=>null);
+    const seen=new Set(items.map((x)=>String(x.id)));
+    const extra=[...(Array.isArray(smart?.places)?smart.places:[]),...(Array.isArray(smart?.experiences)?smart.experiences.map((e)=>({...e,kind:"experience"})):[])]
+      .filter((x)=>x&&x.id&&x.name&&!seen.has(String(x.id))&&seen.add(String(x.id)));
+    if(extra.length){items=[...items,...extra].slice(0,12);label=String(smart?.label||"");}
+  }
+  return {items,label};
+}
+const PICKER_IDEAS=["Somewhere fun","Date night","Rainy day with kids","Drinks","Brunch","Outdoors"];
+
+export function GroupPlacePicker({session,initialQuery="",request=groupRequest,navigate}) {
+  const [query,setQuery]=useState(initialQuery);const [results,setResults]=useState(null);const [busy,setBusy]=useState(false);const [error,setError]=useState("");const [label,setLabel]=useState("");const [asked,setAsked]=useState("");
+  const go=navigate||((href)=>window.location.assign(href));
   const choose=(place)=>{
     const name=place?.name||"";
     const qs=new URLSearchParams({place:String(place.id)});
     if(name)qs.set("name",String(name).slice(0,60));
-    window.location.assign("/group-plans/new?"+qs.toString());
+    go("/group-plans/new?"+qs.toString());
   };
-  return <section className="gp-panel"><div className="gp-step">First · Pick the spot</div><h2>Where should your group go?</h2><p className="gp-muted">Search any place or experience on Wayfind. We’ll pair it with similar nearby options you can keep or swap.</p>
-    <form onSubmit={search} className="gp-field"><label className="gp-field">Search places & experiences<input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Try bars, sushi, kayak tour, or a place name" autoComplete="search"/></label><button type="submit" className="gp-button primary" disabled={busy||!query.trim()}>{busy?"Searching…":"Search"}</button></form>
+  const run=async(raw,{fromLink=false}={})=>{
+    const q=String(raw||"").trim();
+    if(!q||busy)return;
+    setBusy(true);setError("");setLabel("");setAsked(q);
+    try {
+      const near=await pickerPoint();
+      const {items,label:smartLabel}=await searchGroupPicker(q,near,session,request);
+      // Arrived from a card that had no place id: when exactly one result is
+      // that same place by name, start the vote on it, as the card meant.
+      const auto=fromLink?pickerAutoChoice(items,q):null;
+      if(auto){choose(auto);return;}
+      setResults(items);setLabel(smartLabel);
+      if(!items.length)setError("Nothing on Wayfind matched that yet. Try one of these, or a place name.");
+    } catch {setError("Search did not answer. Try again.");}
+    finally {setBusy(false);}
+  };
+  const autoRan=useRef(false);
+  useEffect(()=>{if(!autoRan.current&&initialQuery.trim()){autoRan.current=true;run(initialQuery,{fromLink:true});}},[]); // eslint-disable-line react-hooks/exhaustive-deps
+  const search=(event)=>{event.preventDefault();run(query);};
+  const tryIdea=(idea)=>{setQuery(idea);run(idea);};
+  return <section className="gp-panel"><div className="gp-step">First · Pick the spot</div><h2>Where should your group go?</h2><p className="gp-muted">Search any place or experience on Wayfind, or just say what you feel like. We’ll pair it with similar nearby options you can keep or swap.</p>
+    <form onSubmit={search} className="gp-field"><label className="gp-field">Search places & experiences<input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Try somewhere fun, date night, sushi, or a place name" autoComplete="off" enterKeyHint="search"/></label><button type="submit" className="gp-button primary" disabled={busy||!query.trim()}>{busy?"Searching…":"Search"}</button></form>
     <ErrorNotice message={error}/>
+    {label&&results?.length?<p className="gp-note" role="status">Ideas for “{asked}”: {label}</p>:null}
     {results?.length?<div className="gp-people gp-pick-list">{results.map((place)=><button type="button" key={place.id} className="gp-button gp-pick" onClick={()=>choose(place)}><strong>{place.name}{place.kind==="experience"?" · Experience":""}</strong>{place.city?<span className="gp-muted">{place.city}</span>:null}</button>)}</div>:null}
+    {!busy&&(!results||!results.length)?<div className="gp-ideas" aria-label="Search ideas">{PICKER_IDEAS.map((idea)=><button type="button" key={idea} className="gp-tag gp-idea" onClick={()=>tryIdea(idea)}>{idea}</button>)}</div>:null}
   </section>;
 }
 
-function returnPathFor(mode,planId,placeId,placeName) {return mode==="new"?`/group-plans/new?place=${encodeURIComponent(placeId||"")}${placeName?`&name=${encodeURIComponent(placeName)}`:""}`:mode==="list"?"/group-plans":planId?`/group-plans/${encodeURIComponent(planId)}`:"/group-plans";}
+function returnPathFor(mode,planId,placeId,placeName,pickQuery="") {return mode==="new"?(!placeId?`/group-plans/new?pick=1${pickQuery?`&q=${encodeURIComponent(pickQuery)}`:""}`:`/group-plans/new?place=${encodeURIComponent(placeId||"")}${placeName?`&name=${encodeURIComponent(placeName)}`:""}`):mode==="list"?"/group-plans":planId?`/group-plans/${encodeURIComponent(planId)}`:"/group-plans";}
 function localDefault(days,hour) {
   const date=new Date();date.setDate(date.getDate()+days);date.setHours(hour,0,0,0);
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}T${String(date.getHours()).padStart(2,"0")}:00`;
@@ -161,7 +207,8 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
         setSuggestedPlaces(Array.isArray(res?.places)?res.places:[]);
         setSuggestedExperiences(Array.isArray(res?.experiences)?res.experiences:[]);
       })
-      .catch(()=>{})
+      // Say so instead of silently starting from nothing: the organizer came here for this place.
+      .catch((e)=>{if(alive)setError(e?.code==="PLACE_UNAVAILABLE"?`${placeName||"That spot"} can’t be used for a group vote right now. Search below for it or for another spot.`:"We couldn’t load that spot yet. Search below, or refresh to try again.");})
       .finally(()=>{if(alive)setSuggestLoading(false);});
     return ()=>{alive=false;};
   },[placeId,session?.access_token]);
@@ -243,6 +290,7 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
       const fingerprint=JSON.stringify(payload);
       if(createKey.current?.fingerprint!==fingerprint) createKey.current={id:crypto.randomUUID(),fingerprint};
       const result=await request("/api/group-plans",{...payload,createKey:createKey.current.id},session);
+      rewardMoment("group");
       onCreated(result.plan);
     }catch(e){setError(e.message);}finally{inFlight.current=false;setBusy(false);}
   };
@@ -325,7 +373,7 @@ export function GroupCreateForm({placeId,placeName="",session,onCreated,emailAva
 
 const PLAN_STATUS_LABELS={draft:"Invites not started",open:"Waiting for replies",closed:"Ready for your decision",finalized:"Final plan",cancelled:"Cancelled"};
 
-export default function GroupPlanClient({mode="view",planId,placeId,placeName="",enabled=false}) {
+export default function GroupPlanClient({mode="view",planId,placeId,placeName="",pickQuery="",enabled=false}) {
   // Keep original 7 state hooks in exact slot order (0..6) for deterministic test seeds.
   const session=useAccount();const [loaded,setLoaded]=useState(null),[listState,setListState]=useState(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[credentials,setCredentials]=useState(undefined);
   const [emailReady,setEmailReady]=useState({emailAvailable:false,hasVerifiedEmail:false,smsAvailable:false});
@@ -380,6 +428,7 @@ export default function GroupPlanClient({mode="view",planId,placeId,placeName=""
     try{
       const isGuest=!!(credentials?.token||credentials?.groupToken);
       const r=await groupRequest(`/api/group-plans/${planId}`,{action:"command",...credentials,command:{...cmd,id:pendingCommand.current.id}},isGuest?null:session);
+      if((cmd.type==="respond"||cmd.type==="join_respond")&&!cmd.declined)rewardMoment("vote");
       if(r.slotToken){
         try{window.sessionStorage?.setItem(`wf_gp_slot_${planId}`,r.slotToken);}catch{}
         const nextIdentity=`invite:${r.slotToken}`;
@@ -441,7 +490,7 @@ export default function GroupPlanClient({mode="view",planId,placeId,placeName=""
   return <GroupFrame>
     {mode!=="view"&&<GroupVoteIntro title={mode==="new"?"Who’s in & when?":"Your group votes"}><p className="gp-lede">{mode==="new"?"Start a group vote. Bring your people. Make a plan.":"Good plans start with your people. Pick up where you left off."}</p></GroupVoteIntro>}
     <ErrorNotice message={error}/>
-    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId,placeName)):mode==="new"&&!placeId?<GroupPlacePicker session={session}/>:mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} placeName={placeName} session={session} {...(emailReady.identity===identityKey?emailReady:{})} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
+    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId,placeName,pickQuery)):mode==="new"&&!placeId?<GroupPlacePicker session={session} initialQuery={pickQuery}/>:mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} placeName={placeName} session={session} {...(emailReady.identity===identityKey?emailReady:{})} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
       {list?.notices?.length>0&&<section className="gp-panel"><h2>Updates for you</h2>{list.notices.map((notice)=><div className="gp-notice-row" key={notice.id}>
         <div>
           <a className="gp-button" href={`/group-plans/${notice.plan_id}`}>{notice.planTitle?`${notice.planTitle} · `:""}{notice.event_type==="voting_closed"?"Voting has finished":notice.event_type==="plan_finalized"?"Your plan is ready":"Plan cancelled"}</a>

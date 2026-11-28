@@ -70,7 +70,7 @@ for (const slug of SLUGS) {
       ok(!rung.media.contextual && !rung.media.caption && !rung.media.credit, `${slug} / ${pick.name}: neutral record carries no photo, caption or credit`);
       const html = renderToStaticMarkup(React.createElement(GuideNeutralFigure, { name: pick.name }));
       ok(!/<img\b/i.test(html) && !/illustrative/i.test(text(html)) && !/Photo:/.test(text(html)), `${slug} / ${pick.name}: neutral tile has no image, credit or "Illustrative"`);
-      ok(html.includes('data-photo-fallback="unavailable"') && text(html).includes("Photo unavailable") && html.includes(`Photo not available for ${pick.name.replace(/&/g, "&amp;").replace(/'/g, "&#x27;")}`), `${slug} / ${pick.name}: neutral tile is the shared Wayfind fallback tile, labelled for this place`);
+      ok(html.includes('data-photo-fallback="unavailable"') && !text(html).includes("Photo unavailable") && html.includes(`Photo not available for ${pick.name.replace(/&/g, "&amp;").replace(/'/g, "&#x27;")}`), `${slug} / ${pick.name}: neutral tile is the shared Wayfind fallback tile, labelled for this place`);
     }
   }
 }
@@ -84,7 +84,7 @@ ok(holidayExact >= 21, `the holiday guides keep their 21 exact, in season photos
 ok(exact >= 9, "the nine photographed picks from the earlier pass are still photographed");
 {
   const slug = "jacksonville-christmas-by-area-budget-2026";
-  const pick = GUIDES[slug].picks.find((p) => p.name === "Forgotten Tonic Miracle pop-up: current announcement needed");
+  const pick = GUIDES[slug].picks.find((p) => p.name === "Forgotten Tonic: Miracle holiday menu");
   ok(pick?.declinePlacePhotoReuse === true && placePhotoReuseAllowed(pick) === false, "Forgotten Tonic Miracle gap declines the Aviles Street photograph");
   ok(guidePickPhoto(slug, pick.name) == null && guidePhotoForPlace(pick.placeId)?.src, "the Aviles Street photograph still exists for its own pick and is not this gap's photograph");
   const rung = guideFinalRung(slug, pick, GUIDES[slug], { usedSrc: new Set() });

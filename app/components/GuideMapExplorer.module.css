@@ -225,6 +225,27 @@
   padding: 2px 0 7px;
 }
 
+/* The card a map pin tap carried the rail to (GuideMapExplorer sets
+   data-map-picked for PICKED_HIGHLIGHT_MS): an accent ring plus one soft glow
+   pulse, so the eye lands on it. The ring sits inside the card edge so the
+   rail's scroll box never clips it. Reduced motion keeps the ring, no pulse. */
+.houseRail [data-map-picked="true"] {
+  outline: 3px solid var(--gme-accent);
+  outline-offset: -3px;
+  animation: gmePicked 1.2s ease-out 1;
+}
+
+@keyframes gmePicked {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--gme-accent) 60%, transparent); }
+  100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--gme-accent) 0%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .houseRail [data-map-picked="true"] {
+    animation: none;
+  }
+}
+
 .viewedTip {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

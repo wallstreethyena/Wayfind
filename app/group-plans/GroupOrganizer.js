@@ -10,6 +10,7 @@ import IconicPlaceCard from "../components/IconicPlaceCard.js";
 import { PhotoSrcFilterContext } from "../components/photoPolicyContext.js";
 import { GroupPlaceOptions, PlaceCard, staleFactsNote, groupPhotoFilter } from "./GroupPlaceOptions.js";
 import { GroupVoteIntro } from "./GroupFrame.js";
+import { GroupTextInvite } from "./GroupTextInvite.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
 // Group Vote organizer dashboard (Wayfind dark slate + orange + green).
@@ -71,7 +72,7 @@ export const GROUP_ORGANIZER_CSS=`
 .gpo-times{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));margin-top:14px}.gpo-time{display:flex;flex-direction:column;gap:8px;justify-content:center;padding:14px;border-radius:14px;background:var(--gp-card)}.gpo-time strong{font-size:15px;line-height:1.45}.gpo-time.everyone{border:2px solid var(--gpo-ok);background:rgba(34,197,94,.1)}.gpo-pill{order:-1;align-self:flex-start;margin:0;background:var(--gpo-ok);color:#04120A;font-size:10px;letter-spacing:.3px;text-transform:uppercase}.gpo-time .gpo-listing{font-size:13px}.gpo-time.everyone .gpo-listing{color:#86EFAC}
 .gpo-shortlist>.gp-section-head{margin:0 0 14px}.gpo-shortlist>.gp-section-head h2{color:var(--gp-text);font-size:22px}.gpo-shortlist .gp-grid{grid-template-columns:1fr;gap:18px}.gpo-shortlist .gp-option{padding:14px;border:1px solid var(--gp-border);border-radius:18px;background:var(--gp-panel)}.gpo-shortlist .gp-option>.gp-tag{margin:0 0 10px;color:var(--gpo-accent);border-color:rgba(249,115,22,.45)}
 .gpo-ballot .gp-actions>.primary,.gpo-ballot .gp-panel>.primary{width:100%}.gpo-ballot .gpo-locked{color:var(--gpo-ok)}.gpo-ballot .gpo-back{background:rgba(34,197,94,.1)}
-@media(min-width:900px){.gpo-layout{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}.gpo-shortlist{position:sticky;top:20px}}
+@media(min-width:900px){.gpo-layout{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}.gpo-shortlist{position:sticky;top:calc(var(--wf-fixed-top,0px) + 20px)}}
 @media(max-width:560px){.gpo-ballot{padding:16px 14px;border-radius:18px}.gpo-shortlist .gp-option{padding:12px}.gpo-head>.gpo-ring{width:54px;height:54px;margin-top:20px}.gpo-head>.gpo-ring svg{width:54px;height:54px}.gpo-response-ring{width:54px;height:54px}.gpo-response-ring b{width:44px;height:44px;font-size:15px}.gpo-times{grid-template-columns:1fr}.gpo-ballot .gpo-summary-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.gpo-circle.voted,.gpo-flip-inner,.gpo-confetti i{animation:none!important}.gpo-confetti{display:none}.gpo-ring-arc,.gpo-bar span{transition:none!important}.gpo-flip-inner{transform:none}.gpo-front{display:none}.gpo-back{transform:none}}
 `;
@@ -162,7 +163,6 @@ export function GroupOrganizer({plan,onCommand,onDelete,busy,nowMs:nowOverride})
   const groupUrl=plan.groupToken?planUrl(plan,plan.groupToken,"group"):"";
   const isSingleFriend=plan.invitees.length===1&&!plan.openGroup;
   const groupBody=groupUrl?groupShareMessage({organizerName:plan.organizerName,places:plan.places,url:groupUrl,santa:useSantaText,single:isSingleFriend}):"";
-  const groupSmsHref=groupBody?`sms:?&body=${encodeURIComponent(groupBody)}`:"";
   const copyGroupLink=()=>{
     if(!groupUrl)return;
     try{navigator.clipboard?.writeText(groupUrl).then(()=>setNotice("Group vote link copied. Paste it into your group text or DM.")).catch(()=>setNotice("Copy failed. Use More share options below."));}
@@ -205,7 +205,7 @@ export function GroupOrganizer({plan,onCommand,onDelete,busy,nowMs:nowOverride})
       </div>
       <div className="gpo-share-preview">{groupBody}</div>
       <div className="gp-actions" style={{marginTop:10}}>
-        <a className="gp-button primary" href={groupSmsHref} onClick={()=>setNotice("Opened your Messages app with your group vote link ready to send.")}>{isSingleFriend?"Text your friend":"Send one text to your group"}</a>
+        <GroupTextInvite key={plan.id} body={groupBody} single={isSingleFriend} onNotice={setNotice}/>
         <button type="button" className="gp-button" onClick={copyGroupLink}>Copy link</button>
         <button type="button" className="gp-button" onClick={shareGroupOut}>More share options</button>
       </div>

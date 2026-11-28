@@ -68,6 +68,8 @@ import {
 import {
   buildGroundedCandidatePool,
   buildDeterministicPlan,
+  rankSameDayPlannerCandidates,
+  buildSameDayPlannerPlan,
   resolveDeterministicEditActions,
   buildPlannerClaudePrompt,
   parseAndValidateClaudePlan,
@@ -80,6 +82,7 @@ import {
   buildDraftRevisionClaudePrompt,
   parseAndValidateClaudeDraftRevision,
 } from "../lib/wayfindPlanner.js";
+import { sameDayPlannerWindow } from "../lib/plannerSameDay.js";
 import { addPlaceToTrips, setNote, toggleVisited } from "../lib/trips.js";
 import { setStopDate, moveItem, removePlaceFromTrip } from "../lib/tripDays.js";
 import { tripsToRecords, recordsToTrips } from "../lib/itineraryMigrate.js";
@@ -334,6 +337,7 @@ async function postPlanner(payload, ip = "198.51.100.10") {
 // or ambient shell dependency.
 delete process.env.ANTHROPIC_API_KEY;
 delete process.env.LLM_API_KEY;
+delete process.env.OPENAI_API_KEY;
 delete process.env.SUPABASE_URL;
 delete process.env.NEXT_PUBLIC_SUPABASE_URL;
 delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -2528,6 +2532,80 @@ const workingKey = seededCommit.tripKey;
       !JSON.stringify(userBRes16.json).includes("Secret User A"),
     "Scenario 12.16: POST /api/planner never sets cached:true or leaks stops/history across two distinct visitors"
   );
+}
+
+// November 27 screenshot regression: it was already 8 PM in Parrish.
+{
+  const date = "2026-11-27";
+  const now = Date.parse("2026-11-28T01:00:00Z");
+  const parsed = parsePlannerRequest("tonight", { contextCity: "Parrish", todayYmd: date });
+  const window = sameDayPlannerWindow(parsed, date, now);
+  ok(window?.date === date && window?.earliestMinute > 20 * 60,
+    "Tonight uses the remaining local evening, even when UTC is already tomorrow");
+  const loc = { city: "Parrish", lat: 27.586, lng: -82.425 };
+  const hours = (open, close) => [{ open: { day: 5, hour: open, minute: 0 }, close: { day: 5, hour: close, minute: 0 } }];
+  const restaurant = (id, name, periods, specialHours = null) => ({
+    ...loc, id, name, category: "restaurant", businessStatus: "OPERATIONAL",
+    ownedHours: { periods, specialHours, verifiedAt: "2026-11-26T14:00:00Z", timezone: "America/New_York", source: "editorial_curated" },
+  });
+  const event = (id, startTime, props = {}) => ({
+    ...loc, id, name: id, itemType: "event", startDate: date, endDate: date, startTime, isFree: true,
+    eventStatus: "scheduled", ...props,
+  });
+  const rows = [
+    restaurant("granary", "The Granary", hours(7, 14)),
+    restaurant("unsure", "Unverified Holiday Hours", hours(11, 22)),
+    { ...loc, id: "museum", name: "Florida Railroad Museum", category: "museum" },
+    event("event:train", "7:15 PM", { isFree: false, ticketUrl: "https://example.test/booking", ticketStatus: "sold_out" }),
+    event("event:train-unknown", "9:15 PM", { isFree: false, ticketUrl: "https://example.test/booking" }),
+    event("event:tomorrow", "9:00 PM", { startDate: "2026-11-28", endDate: "2026-11-28" }),
+    event("event:canceled", "9:00 PM", { canceledDates: [date] }),
+    event("event:early", "6:00 PM"),
+    event("event:confirmed", "9:00 PM"),
+  ];
+  const pool = buildGroundedCandidatePool([{ sourceKind: "owned", items: rows }], { destination: parsed.destination, maxRadiusKm: 16 });
+  const options = rankSameDayPlannerCandidates(parsed, window, pool);
+  ok(options.length === 1 && options[0].candidate.id === "event:confirmed" && options[0].slotLabel === "9:00 PM",
+    "Remaining-evening options exclude expired times, unknown hours and tickets, sold-out stops, cancellations, and tomorrow");
+  if (options.length) {
+    const plan = buildSameDayPlannerPlan(parsed, window, options[0]);
+    const stop = plan.days[0].stops[0];
+    ok(plan.days[0].date === date && plan.explanation.includes(stop.name) && plan.explanation.includes(stop.slotLabel),
+      "The itinerary and chat name the same accepted event at its published time");
+  } else {
+    ok(false, "The itinerary and chat use a verified later stop");
+  }
+  const validRestaurant = restaurant("verified", "Verified Hours", hours(17, 23), [{ date, periods: hours(17, 23) }]);
+  validRestaurant.weekdayDescriptions = ["Friday: Closed"];
+  const [normalized] = buildGroundedCandidatePool([[validRestaurant]], { destination: parsed.destination });
+  const [validOption] = rankSameDayPlannerCandidates(parsed, window, [normalized]);
+  ok(validOption?.slotLabel === "8:15 PM",
+    "Explicit holiday hours allow a restaurant only for a visit with enough time before closing");
+  ok(rankSameDayPlannerCandidates(parsed, { ...window, earliestMinute: 22 * 60 + 59 }, [normalized]).length === 0,
+    "A closing-soon restaurant is not proposed when there is no time for the visit");
+
+  const holidayPlan = validOption && buildSameDayPlannerPlan(parsed, window, validOption);
+  const saved = holidayPlan && commitProposedPlanToTrips({}, holidayPlan, { [normalized.id]: normalized });
+  ok(saved?.ok === true && holidayPlan.days[0].stops[0].confidence.label === "Hours verified",
+    "The plan displays the date-specific verification and saves even when the weekly schedule says closed");
+
+  const realNow = Date.now;
+  try {
+    Date.now = () => now;
+    const result = await postPlanner({ voice: "santa", message: "tonight", contextCity: "Parrish", recent: ["Parrish"] }, "198.51.100.247");
+    ok(result.status === 200 && result.json.mode === "empty_inventory" && !result.json.proposedPlan
+      && /couldn't verify any options near Parrish tonight/i.test(result.json.reply) && /tomorrow/i.test(result.json.reply),
+    "The real Santa route offers tomorrow when the remaining night in Parrish has no confirmed options");
+    const retry = await postPlanner({
+      voice: "santa",
+      message: "tonight",
+      proposedPlan: { city: "Parrish", days: [{ date, stops: [{ id: "granary", slotLabel: "11:30 AM" }] }] },
+    }, "198.51.100.248");
+    ok(retry.status === 200 && retry.json.mode === "empty_inventory" && retry.json.resetDraft === true && !retry.json.proposedPlan,
+      "Repeating tonight clears a stale itinerary rather than revising the morning stops");
+  } finally {
+    Date.now = realNow;
+  }
 }
 
 if (failures > 0) {

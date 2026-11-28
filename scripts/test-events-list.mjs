@@ -6,6 +6,7 @@ import { EVENT_WINDOWS, isEventWindow, windowRange, eventInWindow, filterByWindo
 import { readFileSync } from "node:fs";
 import { eventInWeekendRegion, regionalWeekendPicks, weekendRegion } from "../lib/regionalWeekend.js";
 import { eventHoursOnDay } from "../lib/eventVisitFacts.js";
+import { providerEventJsonLd } from "../lib/providerEventJsonLd.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-events-list: FAIL — " + m); failures++; };
@@ -82,6 +83,33 @@ if (Object.keys(EVENT_WINDOWS).length !== 3) fail("expected exactly 3 windows");
   const evs = [{ date: "2026-07-18" }, { date: "2026-07-20" }, { date: "" }, { date: "not-a-date" }, {}];
   const kept = filterByWindow(evs, "this-weekend", wed);
   if (kept.length !== 1 || kept[0].date !== "2026-07-18") fail(`filterByWindow kept wrong set: ${JSON.stringify(kept)}`);
+}
+
+// A window listing supplies the occurrence to both the card and its JSON-LD.
+{
+  const now = new Date("2026-11-27T21:00:00Z");
+  const series = { name: "Bridge Street", date: "2026-11-21", endDate: "2026-12-26", time: "14:00", endTime: "20:00",
+    timezone: "America/New_York", dayRule: { k: "w", d: [6], x: [] }, dest: "/florida-events/bridge-street" };
+  const [next] = filterByWindow([series], "this-weekend", now);
+  if (next?.date !== "2026-11-28" || next.dest !== series.dest) fail("select Saturday's occurrence and preserve the event destination");
+  if (next?.time || next?.endDate || next?.endTime) fail("never attach opening-day clocks or the season end to an unclocked occurrence");
+  const dates = { ...series, occurrences: ["2026-11-29", "2026-11-27", "2026-11-28"],
+    visitFacts: { visit_schedule: { excluded_dates: ["2026-11-27"], date_hours: { "2026-11-28": [["09:00", "11:00"], ["18:00", "20:00"]] } } } };
+  const [second] = filterByWindow([dates], "this-weekend", new Date("2026-11-28T21:00:00Z"));
+  if (second?.date !== "2026-11-28" || second?.time !== "18:00" || second?.endTime !== "20:00") fail("select the remaining verified session on the venue clock");
+  const schema = providerEventJsonLd({ ...second, venue: "Bridge Street", city: "Bradenton Beach", state: "FL" }, { pageUrl: "https://www.gowayfind.com" + second.dest });
+  if (schema?.startDate !== "2026-11-28T18:00:00-05:00" || schema.endDate !== "2026-11-28T20:00:00-05:00") fail("card and structured data identify one venue-local session");
+  const [listed] = filterByWindow([{ ...series, status: "sold_out", ticketed: true, destKind: "internal" }], "this-weekend", now);
+  if (listed?.windowAvailability !== "sold_out" || listed.ticketed || filterByWindow([{ ...series, status: "sold_out", destKind: "external" }], "this-weekend", now).length) fail("a sold-out listing cannot send visitors to an external checkout");
+  const [closed] = filterByWindow([dates], "this-weekend", now);
+  if (closed?.date !== "2026-11-28") fail("an explicit closure overrides a listed date");
+  if (filterByWindow([{ ...series, dayRule: { k: "r", x: [] } }, { ...series, status: "cancelled" }], "this-weekend", now).length) fail("unknown recurring nights and cancelled events have no dated card");
+  const overnight = { date: "2026-11-28", endDate: "2026-11-29", time: "22:00", endTime: "02:00" };
+  const [late] = filterByWindow([overnight], "this-weekend", now);
+  if (late?.endDate !== overnight.endDate || late?.endTime !== "02:00" || late.windowSeries) fail("preserve a single ticketed performance that crosses midnight");
+  const once = { name: "One show", date: "2026-11-28", time: "19:30", dest: "/events/sarasota/one-show" };
+  const [single] = filterByWindow([once], "this-weekend", now);
+  if (single?.date !== once.date || single?.time !== once.time || single?.dest !== once.dest || series.date !== "2026-11-21") fail("one-off tickets and the source rows retain their dates");
 }
 
 // 7. spreadAcrossDays (2026-10-23): a date-ordered feed capped at 60 must not

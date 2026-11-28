@@ -116,6 +116,7 @@ export default function GuideDiscoveryCard({ guide, matched = null, onOpen, clas
     photoAttr={art.credit}
     photoAttrHref={art.creditHref}
     photoPosition={art.position}
+    fullFramePhoto={art.fullFrame}
     title={title}
     eyebrow={tag}
     take={teaser || undefined}

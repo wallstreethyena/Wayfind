@@ -66,7 +66,7 @@ export default function CheckedCreatorPost({ post, kicker = null }) {
   const hidden = state !== "ready";
   const cover = <>
     {photo && failedPhoto !== photoSrc ? <>
-      <img ref={photoRef} className={styles.coverPhoto} src={photoSrc} alt={photo.alt} loading="lazy" decoding="async" onError={() => setFailedPhoto(photoSrc)} />
+      <img ref={photoRef} className={styles.coverPhoto} src={photoSrc} alt={photo.alt} style={photo.preserveFraming ? { objectFit: "contain" } : undefined} loading="lazy" decoding="async" onError={() => setFailedPhoto(photoSrc)} />
       <span className={styles.coverCredit}>Photo: {photo.credit}</span>
     </> : null}
     <span className={styles.coverEyebrow}>THE @{post.creator} EDIT</span>

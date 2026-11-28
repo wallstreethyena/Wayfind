@@ -24,7 +24,7 @@ const SLUG = "gulf-coast-brunch-and-date-night";
 const ARMANDS = "st-armands-circle-restaurants";
 const MANATEE = "swim-with-manatees-crystal-river";
 const MANATEE_TEASER =
-  "You reach the springs only by water, and the manatees crowd in when the Gulf turns cold, not in the warm summer.";
+  "Which Three Sisters Springs entrance should you use for a cold winter morning, the boardwalk or the water?";
 
 const cards = JSON.parse(
   readFileSync(new URL("../data/atlas/editorial-cards.json", import.meta.url), "utf8"),

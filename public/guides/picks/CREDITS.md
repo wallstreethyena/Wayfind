@@ -6,7 +6,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## anna-maria-island-day-trip
 
-- `/guides/picks/anna-maria-island-day-trip/anna-maria-city-pier.webp` — anna-maria-island-day-trip: Pine Avenue and the City Pier. [RayRR](https://commons.wikimedia.org/wiki/File:AMI_City_Pier.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/anna-maria-island-day-trip/anna-maria-island-historical-museum.webp` — anna-maria-island-day-trip: Pine Avenue and the island museum. [Ebyabe](https://commons.wikimedia.org/wiki/File:FL_Anna_Maria_Island_Hist_Society_museum02.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/anna-maria-island-day-trip/the-free-trolley-your-parking-cheat-code.webp` — anna-maria-island-day-trip: The free trolley, your parking cheat code. [Fred Hsu on en.wikipedia](https://commons.wikimedia.org/wiki/File:2017_Sarasota_Coquina_Beach_Lifeguard_Station_FRD_9087.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## best-cuban-sandwich-tampa
@@ -344,7 +344,6 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## st-armands-circle-restaurants
 
-- `/guides/picks/st-armands-circle-restaurants/shore.webp` — st-armands-circle-restaurants: Shore. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/st-armands-circle-restaurants/st-armands-circle-storefronts.webp` — st-armands-circle-restaurants: hero image. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Harding_Circle_HD_St_Armands_Circle03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## st-augustine-christmas-coffee-snow-walk-2026
@@ -711,7 +710,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## winter-park-scenic-boat-tour
 
 - `/guides/picks/winter-park-scenic-boat-tour/make-it-a-winter-park-day.webp` — winter-park-scenic-boat-tour: Make it a Winter Park day. [Jared](https://www.flickr.com/photos/93283041@N00/8312342768); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
-- `/guides/picks/winter-park-scenic-boat-tour/scenic-boat-tour-dock-sign.webp` — winter-park-scenic-boat-tour: Tickets, timing, and the cash catch. [Mike Whaling](https://www.flickr.com/photos/52699067@N00/3308589496); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/winter-park-scenic-boat-tour/scenic-boat-tour-dock-sign.webp` — winter-park-scenic-boat-tour: Tickets and first-come departures. [Mike Whaling](https://www.flickr.com/photos/52699067@N00/3308589496); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/winter-park-scenic-boat-tour/rollins-college-bell-tower.webp` — winter-park-scenic-boat-tour: What the hour actually covers. [Mike Whaling](https://www.flickr.com/photos/52699067@N00/3308593602); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## ybor-city-tampa-guide

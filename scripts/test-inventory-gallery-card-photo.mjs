@@ -403,7 +403,7 @@ try {
   await page.evaluate((id) => {
     root.render(React.createElement(photoModule.default, { src: "/api/photo?place=" + id, alt: "Missing place", loading: "eager", style: { width: "100%", height: "100%", objectFit: "cover" } }));
   }, MISSING);
-  await page.getByText("Photo unavailable", { exact: true }).waitFor();
+  await page.locator('[data-photo-fallback="unavailable"]').first().waitFor();
   assert.equal(await page.locator("[data-card-photo-credit]").count(), 0, "missing photo leaves 0 credit overlays");
   assert.equal(googleHits, 0, "0 Google API requests during rendered Chromium tests");
   pass += 2;

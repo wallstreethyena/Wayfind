@@ -105,7 +105,7 @@ export default function ShareButton({
     <button
       type="button"
       onClick={onClick}
-      aria-label={said || (title ? "Share: " + title : "Share this page")}
+      aria-label={said || (title ? `${label}: ${title}` : label)}
       style={{
         display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
         padding: "11px 18px", borderRadius: 999, cursor: "pointer",

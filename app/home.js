@@ -2,6 +2,7 @@
 import PlaceDistance, { usePlaceDistance } from "./components/PlaceDistance.js";
 import { Component, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useEdgeFade } from "./components/EdgeFade";
+import { startLandingLocation } from "../lib/deviceLocationStore.js";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
@@ -17,6 +18,7 @@ import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks"
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { spookyOverFall } from "../lib/spookySkin.js";
 import { siteTodayStr } from "../lib/siteTime";
+import { rewardForEvent } from "../lib/heartRewards.js";
 import { useSiteToday } from "../lib/siteDayClock.js";
 import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
@@ -3170,7 +3172,8 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   ].filter(Boolean).slice(0, 2);
   const shareEvent = () => {
     try { onLog("share", null, { id: event.id, kind: "event_card" }); } catch (e) {}
-    shareLink(event.name + " — Wayfind", href, onCopied, event.name + " at " + venue + ". Found on Wayfind.");
+    // The venue's place id (when the event has one) lets Group Vote start on it.
+    shareLink(event.name + " — Wayfind", href, onCopied, event.name + " at " + venue + ". Found on Wayfind.", null, { placeId: event.place_id || event.placeId || "" });
   };
   return (
     <RailCard
@@ -3929,7 +3932,7 @@ function MoreSpotsButton({ onClick }) {
   );
 }
 
-function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null, newsletterSlot = null }) {
   const [supabaseReady, setSupabaseReady] = useState(false);
   // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
   // after hydration, then rerun only effects whose dependency lists were
@@ -6743,6 +6746,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   }, [screen, supabaseReady]);
   function logEvent(action, place, extra) {
     try { if (place && place.type) tasteBump(place); } catch (e) {}
+    // Heart rewards (lib/heartRewards.js): before the owner/bot analytics skip, so everyone sees them.
+    rewardForEvent(action, place, extra);
     if (skipOwnerOrBotAnalytics(user)) return;
     const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
     // Pre-ready queue, not raw window.posthog: a share-link landing logs
@@ -7704,8 +7709,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // Give GPS a head start; if it hasn't answered in 2.5s, use IP so the page
     // isn't stuck empty. GPS, if it later resolves, still wins via the handler.
     const ipTimer = setTimeout(ipFallback, 2500);
+    let cancelLocation;
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
+      cancelLocation = startLandingLocation(navigator, initialPlaceId, () => navigator.geolocation.getCurrentPosition(
         async (pos) => {
           gotGPS = true;
           clearTimeout(ipTimer);
@@ -7767,11 +7773,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         // recenterToMe() runs. The 8s timeout and IP fallback are unchanged,
         // so a denied prompt or slow GPS still resolves the page.
         { enableHighAccuracy: true, timeout: 8000 }
-      );
+      ));
     } else {
       ipFallback();
     }
-    return () => clearTimeout(ipTimer);
+    return () => { cancelLocation?.(); clearTimeout(ipTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -9623,10 +9629,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         attempt.finish("unavailable", { status: "unavailable", count: 0, reason: "unsupported_location", result_source: "owned-inventory" });
         return;
       }
-      // Exact owned cities always win over venue names and discovery shortcuts.
+      // Ordinary city searches recenter immediately. An explicit place link may
+      // name an independently verified area sheet, such as Siesta Key.
       const area = await geoTry(q);
       if (!current()) return;
-      if (area && area.isArea) { goTo(area); return; }
+      if (area && area.isArea && !options.placeIntent) { goTo(area); return; }
       const ql = q.toLowerCase();
       const parkIntent = themeParkIntent(q);
       if (!options.placeIntent && !parkIntent) {
@@ -9782,7 +9789,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       if (!current()) return;
       const result = await ownedSearch(q, nearGeo || searchCenter);
       if (!current()) return;
-      if (result.cards && result.cards.length && !(result.status === "ok" && result.matches.length === 1 && result.matches.filter((item) => item.exactMatch).length === 1)) {
+      const exact = result.matches.filter((item) => item.kind === "place" && item.exactMatch);
+      const explicitPlaces = options.placeIntent ? result.matches.filter((item) => item.kind === "place") : null;
+      const singleExact = result.status === "ok" && (explicitPlaces || result.matches).length === 1 && exact.length === 1;
+      if (area && area.isArea && !exact.length && (result.status !== "unavailable" || result.reason === "place-query-required")) {
+        goTo(area); return;
+      }
+      if (result.cards && result.cards.length && !singleExact && !(explicitPlaces && exact.length)) {
         closeSearchLayers();
         setSearchFeed(result.cards);
         setSearchFeedQuery(q);
@@ -9801,8 +9814,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         return;
       }
       // Exact identity, not merely one fuzzy result, grants automatic opening.
-      const exact = result.matches.filter((item) => item.exactMatch);
-      if (result.status === "ok" && result.matches.length === 1 && exact.length === 1) {
+      if (singleExact) {
         if (onMapScreen && exact[0].place && Number.isFinite(exact[0].place.lat) && Number.isFinite(exact[0].place.lng)) {
           closeSearchLayers();
           setScreen("map");
@@ -9822,7 +9834,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
-      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place" || (!options.placeIntent && isSafeSearchHref(item.href)))].slice(0, 8);
+      const choices = (explicitPlaces && exact.length
+        ? [...explicitPlaces, ...localCitySuggestions(q)]
+        : [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place" || (!options.placeIntent && isSafeSearchHref(item.href)))]).slice(0, 8);
       if (choices.length) {
         if (onMapScreen && !(typeof mapSearchOpen !== "undefined" && mapSearchOpen)) {
           setScreen("map");
@@ -10950,6 +10964,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     />
   );
 
+  const activitiesParkRail = browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") &&
+    <ThemeParkRail mode={resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />;
+
   return (
     <div className="wf-xmas-canvas" style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }} data-wf-own-theme={screen === "map" ? "map" : undefined}>
@@ -11786,6 +11803,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   area — see LOCAL_EDIT_RADIUS_MI — so "local" stays a fact. */}
               {!browseCat && <ThisWeekEvents events={thisWeekEvents} guide={thisWeekGuide} />}
               {!browseCat && <LocalEdit center={locResolved ? center : null} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {/* Weekly email signup: server-rendered markup from app/page.js (no client code). */}
+              {!browseCat && newsletterSlot}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
@@ -11815,7 +11834,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ThemeParkRail mode="family" familyContext={{ lat: center?.lat, lng: center?.lng, radiusMi: sliderMi, ready: !!center }} onOpenPlace={(place) => openDetail(place, "theme_park_family")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
-                  {browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") && <ThemeParkRail mode={resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
+                  {sub === "themeparks" && activitiesParkRail}
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="family" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="attractions" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="hotels" sub={sub} categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -11848,6 +11867,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                       scope='national', so geoFilterDeals keeps them for every user and
                       orderDealsByScope holds them below the local inventory. */}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} city={cityNow} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const offer = r.product_code || r.code; const path = offer ? commerceHref({ provider: "viator", offerId: offer, surface: "ttd_share", contentId: cityNow }) : Aff.experienceGoUrl(r.title, cityNow, "attractions", r.id, { surface: "ttd_share", contentId: cityNow }); const u = r.kind === "experience" && path ? originUrl(path) : originUrl("/p/" + encodeURIComponent(r.id)); const subject = r.kind === "experience" ? { groupId: experienceGroupId(String(offer || r.id || "")) } : { placeId: r.place_id || r.id }; shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied"), null, null, subject); } catch (e) {} }} />}
+                  {(!sub || sub === "all") && activitiesParkRail}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}
@@ -12933,7 +12953,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       <div className="wf-place-card-layout" style={{ position: "relative", zIndex: 1, pointerEvents: "none" }}>
         <div className="wf-place-card-media">
           <FallbackImg src={cardPrimarySrc} fallbackSrc={cardPlaceSrc && cardPlaceSrc !== cardPrimarySrc ? cardPlaceSrc : undefined}
-            placeFallback={<PlaceCardPhotoFallback place={p} category={pcat} />} />
+            placeFallback={<PlaceCardPhotoFallback name={p.name} />} />
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={cardAward} />
         </div>
@@ -13159,10 +13179,10 @@ const EV_RAIL_MIN_H = PLACE_CARD_HEIGHT_PX; // Loading and loaded cards share th
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "var(--wf-sans)", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
-export default function Page({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+export default function Page({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null, newsletterSlot = null }) {
   return (
     <ErrorBoundary>
-      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} />
+      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} newsletterSlot={newsletterSlot} />
     </ErrorBoundary>
   );
 }

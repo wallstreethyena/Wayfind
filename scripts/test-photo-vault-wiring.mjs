@@ -1062,7 +1062,13 @@ const PHOTO = (id) => ({
     describeCalls.length = 0;
     result.atRiskScanned = 0;
     result.atRiskTaken = 0;
-    await hit("?source=all");
+    Object.assign(result, { partial: true, deadlineStopped: 7, businessAttempted: 1, businessTaken: 4, businessScanned: 40 });
+    const generalReport = await (await hit("?source=all")).json();
+    const persistedNote = String(pulses[0].stats.note).slice(0, 200);
+    ok(persistedNote.includes("business 1/4 attempted") && persistedNote.includes("PARTIAL")
+      && generalReport.businessAttempted === 1 && generalReport.businessScanned === 40,
+      "businesses: even a partial run retains started/selected counts in the actual 200-character pulse and exposes its source scan in JSON");
+    result.partial = false;
     eq(describeCalls[0] && describeCalls[0].source, "all", "H5: the route passes the REQUEST's source= into the note, not the worker's echo of it");
     ok(String((pulses[0].stats || {}).note || "").includes("skipped (source=all)"), "H5: a general-only run's pulse says the worklist was skipped on purpose");
 
@@ -1543,6 +1549,147 @@ const PHOTO = (id) => ({
   console.log("test-photo-vault-wiring: Section J OK — the run stops on its own budget inside the platform ceiling, finishes what it started, writes those rows, always pulses, reports PARTIAL honestly, and the next run picks up exactly what was left");
 }
 
+
+// The :50 general run reserves at most four existing slots; its source and
+// work budget remain independent of the :05 repair and :35 at-risk drains.
+{
+  const categories = ["food", "nightlife", "shopping", "hotels"];
+  const businesses = categories.flatMap(category => Array.from({ length: 8 }, (_, n) => ({
+    place_id: `business-${category}-${n}`, name: `Venue ${category} ${n}`,
+    lat: 27.7, lng: -82.6, category, city: "St. Petersburg",
+  })));
+  const classic = Array.from({ length: 32 }, (_, n) => ({ place_id: `beach-${n}`, name: `Beach ${n}`, category: "beach", tags: [], lat: 27.7, lng: -82.6 }));
+  const stored = new Map(), requests = [], resolved = [], writes = [];
+  const curatedId = "ChIJ73_jJQBn54gRyBzOZRlSfi4";
+  const raceId = businesses[0].place_id;
+  let failNewView = false, raced = false, replayRows = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    const u = new URL(url), table = u.pathname.split("/").at(-1), method = init.method || "GET";
+    ok(u.origin === SB.url, "businesses: real worker calls only the fake owned REST service; resolver/vault are injected");
+    requests.push({ table, method, params: u.searchParams });
+    if (table === "wf_photo_business_free_candidate") {
+      ok(u.searchParams.get("order") === "category_position.asc,category.asc,place_id.asc", "businesses: balanced category rank precedes the scan limit");
+      ok(u.searchParams.get("place_id")?.startsWith("not.in.(") && u.searchParams.get("place_id").includes(curatedId), "businesses: actual exact curated IDs are excluded before LIMIT");
+      if (failNewView) return Response.json({}, { status: 503 });
+      // Challenge a stale/misconfigured source with a curated row and an
+      // already-decided row. Neither can eat an external source call.
+      return Response.json([{ ...businesses[0], place_id: curatedId }, ...businesses]);
+    }
+    if (table === "wf_photo_general_free_candidate") return Response.json(classic.slice(0, Number(u.searchParams.get("limit"))));
+    if (table === "wf_photo_at_risk_free_candidate" || table === "wf_photo_repair_queue") return Response.json([]);
+    if (table === "wf_inventory") return Response.json(replayRows);
+    if (table === "wf_place_photo" && method === "GET") {
+      if (u.searchParams.has("status")) return Response.json(replayRows);
+      return Response.json([...stored.values()]);
+    }
+    if (table === "wf_place_photo" && method === "POST") {
+      const [row] = JSON.parse(init.body);
+      const fresh = row.place_id.startsWith("business-");
+      if (fresh) ok(init.headers.Prefer === "resolution=ignore-duplicates,return=representation", "businesses: another photo decision cannot be overwritten");
+      if (fresh && row.place_id === raceId && !raced) {
+        raced = true;
+        stored.set(raceId, { place_id: raceId, status: "active", source: "owner" });
+        return Response.json([]);
+      }
+      writes.push(row); stored.set(row.place_id, row);
+      return Response.json(fresh ? [{ place_id: row.place_id }] : []);
+    }
+    throw new Error("Unexpected worker fetch " + table + " " + method);
+  };
+  const opts = { source: "all", limit: 25, scanLimit: 1000, sbEnv: SB, now: Date.UTC(2026, 10, 28),
+    dryRun: false, storePhoto: null, wikimedia: { canRequest: () => true }, resolvePhoto: async (place, deps) => {
+      resolved.push(place);
+      if (place.place_id === raceId) return PHOTO(place.place_id);
+      deps.onReject("no_direct_commons_candidate"); return null;
+    } };
+  try {
+    const coveredId = businesses.find(row => row.category === "hotels").place_id;
+    stored.set(coveredId, { place_id: coveredId, source: "owner", status: "active" });
+    const first = await runBackfill(opts);
+    const chosen = resolved.filter(p => categories.includes(p.category));
+    eq(first.attempted, 25, "businesses: four new opportunities come out of the existing 25");
+    eq(first.businessTaken, 4, "businesses: general hour takes four independent businesses when all cohorts exist");
+    eq(new Set(chosen.map(x => x.category)).size, 4, "businesses: food cannot monopolize nightlife, shopping or hotels");
+    eq(resolved.filter(x => x.category === "beach").length, 21, "businesses: 21 original beach/attraction slots remain without replay backlog");
+    ok(chosen.every(p => p.city === "St. Petersburg" && p.place_id !== coveredId && p.place_id !== curatedId), "businesses: current city evidence is carried and known covers are skipped");
+    const used = requests.filter(x => ["wf_photo_general_free_candidate","wf_photo_business_free_candidate"].includes(x.table)).reduce((n,x) => n + Number(x.params.get("limit")), 0);
+    eq(used, 1000, "businesses: both fresh candidate reads share the original 1000-row scan cap");
+    ok(raced && stored.get(raceId).source === "owner" && !writes.some(x => x.place_id === raceId) && first.details.some(x => x.reason === "concurrent-photo-decision"), "businesses: an owner decision appearing during resolution wins and uses no vault write");
+    eq(first.businessAttempted, 4, "businesses: only work that actually reached resolution counts as attempted");
+    const throttled = await runBackfill({ ...opts, dryRun: true, wikimedia: { canRequest: () => false } });
+    ok(throttled.businessTaken === 4 && throttled.businessAttempted === 0 && throttled.attempted === 0,
+      "businesses: an upstream backoff keeps four assigned slots observable while counting zero attempts");
+    const prior = new Set(resolved.map(x => x.place_id)); resolved.length = 0;
+    const second = await runBackfill(opts);
+    ok(second.businessTaken === 4 && resolved.filter(x => categories.includes(x.category)).every(x => !prior.has(x.place_id)), "businesses: the next run advances past every previous terminal decision");
+    stored.clear(); resolved.length = 0;
+    replayRows = Array.from({ length: 20 }, (_, i) => ({ ...classic[i], place_id: "replay-" + i, source_ref: "rejected:no_wiki_candidate", status: "rejected", verified_at: "2026-10-01T00:00:00Z" }));
+    const mixed = await runBackfill({ ...opts, dryRun: true });
+    eq(mixed.replayTaken, 13, "businesses: the established half-run replay reservation is preserved");
+    ok(mixed.attempted === 25 && mixed.businessTaken === 4 && resolved.filter(x => x.place_id.startsWith("beach-")).length === 8, "businesses: four business and eight original fresh places share the remainder");
+    replayRows = []; failNewView = true; resolved.length = 0; requests.length = 0;
+    const degraded = await runBackfill({ ...opts, dryRun: true });
+    ok(degraded.businessError?.includes("503") && degraded.attempted === 25 && resolved.every(x => x.category === "beach"), "businesses: failed/missing new view is distinguishable and all 25 classic slots still work");
+    ok(requests.some(x => x.table === "wf_photo_general_free_candidate" && Number(x.params.get("limit")) === 1000), "businesses: a missing optional view restores the entire legacy read ceiling");
+    requests.length = 0;
+    for (const source of ["repair", "at-risk", undefined]) await runBackfill({ ...opts, source, dryRun: true });
+    ok(!requests.some(x => x.table === "wf_photo_business_free_candidate"), "businesses: no other source or implicit CLI lane reads new businesses");
+  } finally { globalThis.fetch = originalFetch; }
+}
+
+// Execute the committed view with the same mixed-case inventory and cover
+// shapes the deployed worklist must handle. This database lives only in memory.
+{
+  const { PGlite } = await import("@electric-sql/pglite");
+  const db = new PGlite();
+  try {
+    await db.exec(`
+      CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role;
+      CREATE SCHEMA storage;
+      CREATE TABLE storage.objects(bucket_id text, name text);
+      CREATE TABLE wf_inventory(place_id text PRIMARY KEY, name text DEFAULT 'Venue',
+        lat numeric DEFAULT 27, lng numeric DEFAULT -82, category text, tags text[],
+        status text DEFAULT 'OPERATIONAL', excluded boolean DEFAULT false,
+        postal_city text, locality text DEFAULT 'Tampa', signals jsonb DEFAULT '{}');
+      CREATE TABLE wf_place_photo(place_id text);
+      CREATE TABLE wf_photo_repair_queue(place_id text, status text);
+      CREATE TABLE wf_google_photo_store(place_id text, state text, storage_path text);
+      INSERT INTO wf_inventory(place_id,category) VALUES
+        ('food-1','food'), ('food-2',' Food '), ('hotel','HOTELS'), ('shop','Shopping'),
+        ('night','nIGhtLife'), ('other','Food service'), ('repair','Food'), ('photo','Hotels'),
+        ('stored','Food'), ('unstored','Shopping'), ('direct','Food'), ('gallery','food'),
+        ('excluded','Shopping'), ('closed','food');
+      UPDATE wf_inventory SET excluded=true WHERE place_id='excluded';
+      UPDATE wf_inventory SET status='CLOSED' WHERE place_id='closed';
+      UPDATE wf_inventory SET signals='{"photo_url":"/place-photos/venue.webp"}' WHERE place_id='direct';
+      UPDATE wf_inventory SET signals='{"photo_gallery":[{"url":"/place-photos/venue.webp","license":"CC BY","credit":"Author","source_ref":"https://example.org/photo"}]}' WHERE place_id='gallery';
+      INSERT INTO wf_photo_repair_queue VALUES ('repair','open');
+      INSERT INTO wf_place_photo VALUES ('photo');
+      INSERT INTO wf_google_photo_store VALUES ('stored','ready','present.jpg'), ('unstored','ready','absent.jpg');
+      INSERT INTO storage.objects VALUES ('google-place-photos','present.jpg');
+    `);
+    const migration = readFileSync(new URL("../supabase/migrations/20261128021500_wf_photo_business_free_candidate.sql", import.meta.url), "utf8");
+    await db.exec(migration);
+    const view = "public.wf_photo_business_free_candidate";
+    const { rows } = await db.query(`SELECT place_id, category, category_position FROM ${view} ORDER BY place_id`);
+    eq(rows.map(row => row.place_id + "=" + row.category).join(","),
+      "food-1=food,food-2=food,hotel=hotels,night=nightlife,shop=shopping,unstored=shopping",
+      "businesses: actual SQL normalizes exactly four categories and excludes existing decisions, repairs and usable covers, while retaining an unbacked Google reference");
+    eq(Number(rows.find(row => row.place_id === "food-2")?.category_position), 2,
+      "businesses: mixed-case food shares one category ranking with lowercase food");
+    await db.exec("UPDATE wf_photo_repair_queue SET status='resolved' WHERE place_id='repair'");
+    eq((await db.query(`SELECT category FROM ${view} WHERE place_id='repair'`)).rows[0]?.category, "food",
+      "businesses: Food becomes eligible under its canonical category after an existing repair clears");
+    const permissions = (await db.query(`SELECT reloptions, has_table_privilege('anon',oid,'SELECT') AS anon,
+      has_table_privilege('authenticated',oid,'SELECT') AS auth, has_table_privilege('service_role',oid,'SELECT') AS service
+      FROM pg_class WHERE oid='${view}'::regclass`)).rows[0];
+    ok(permissions.reloptions.includes("security_invoker=true") && !permissions.anon && !permissions.auth && permissions.service,
+      "businesses: actual invoker view requires service-role access and retains caller RLS");
+  } finally {
+    await db.close();
+  }
+}
 
 // Scheduled-size scans must reach undecided rows after a fully decided prefix.
 // The fake database distinguishes the actionable view from raw inventory, so

@@ -85,6 +85,44 @@ try {
     await page.addScriptTag({ content: `window.hostPolicy={};(function(exports){${hostPolicy}})(hostPolicy);window.placePhotoMod={};(function(exports,require){${placePhoto}})(placePhotoMod,id=>hostPolicy);window.photoAnswers={};(function(exports,require){${answers}})(photoAnswers,id=>placePhotoMod);window.photoHelpers={};(function(exports,require){${helper}})(photoHelpers,id=>id.includes('placePhoto')?placePhotoMod:photoAnswers);window.creditLinkModule={};(function(exports){${creditLink}})(creditLinkModule);window.tileModule={};(function(exports,require){${tile}})(tileModule,id=>React);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:id==='./PhotoCreditLink.js'?creditLinkModule:id==='./PhotoFallbackTile.js'?tileModule:id==='../../lib/photoAnswers.js'?photoAnswers:photoHelpers);window.__cardPhotoRecovery={};(function(exports,require){${recovery}})(__cardPhotoRecovery,id=>id.indexOf('photoAnswers')>=0?photoAnswers:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
     await page.waitForTimeout(100);
     assert.equal(photoCalls, 0, "offscreen card makes no request");
+    // An SSR image may have finished loading before React listens for errors.
+    // Hydrate actual completed DOM nodes and keep the successful control intact.
+    await page.evaluate(async () => {
+      window.__earlyPhotoFailures = 0;
+      window.__earlyPhotoRoots = [];
+      const host = document.createElement("div");
+      host.id = "pre-hydration-photos";
+      document.body.appendChild(host);
+      for (const [id, url] of [["default", "broken.jpg"], ["parent", "broken.jpg"], ["good", "exact.jpg"]]) {
+        const box = document.createElement("div");
+        box.id = "early-photo-" + id;
+        box.innerHTML = '<img alt="Venue" src="https://photo.test/' + url + '">';
+        host.appendChild(box);
+        const before = box.querySelector("img");
+        await before.decode().catch(() => {});
+        box.dataset.earlyWidth = String(before.naturalWidth);
+        function OwnedPhoto() {
+          const [lost, setLost] = React.useState(false);
+          if (lost) return React.createElement("span", { "data-parent-fallback": true }, "Venue photo unavailable");
+          const onError = id === "parent" ? (event) => {
+            if (event.currentTarget !== before) throw Error("Expected the hydrated image");
+            window.__earlyPhotoFailures++;
+            setLost(true);
+          } : undefined;
+          return React.createElement(photoModule.default, { src: "https://photo.test/" + url, alt: "Venue", onError });
+        }
+        window.__earlyPhotoRoots.push(ReactDOM.hydrateRoot(box, React.createElement(OwnedPhoto)));
+      }
+    });
+    await page.locator('#early-photo-default [data-photo-fallback="unavailable"]').waitFor({ state: "attached", timeout: 3500 });
+    assert.equal(await page.locator("#early-photo-default").getAttribute("data-early-width"), "0", "the raw photo failed before hydration");
+    assert.equal(await page.locator("#early-photo-parent [data-parent-fallback]").count(), 1, "the caller's own retry or fallback receives an early failure");
+    assert.equal(await page.evaluate(() => window.__earlyPhotoFailures), 1, "an early failure is reported once");
+    assert.ok(Number(await page.locator("#early-photo-good").getAttribute("data-early-width")) > 0, "a completed valid image stays visible");
+    await page.evaluate(() => {
+      window.__earlyPhotoRoots.forEach((root) => root.unmount());
+      document.getElementById("pre-hydration-photos").remove();
+    });
     await page.locator("#root").scrollIntoViewIfNeeded();
     const button = page.getByRole("button", { name: "View larger photo of Test venue and photographer credit" });
     await button.waitFor();
@@ -186,7 +224,7 @@ try {
     assert.ok(await linkedCredit.evaluate((el) => document.activeElement === el), "linked credit restores keyboard focus");
     responseMode = "miss";
     await render("ChIJCardPhotoFail0001", "Missing photo");
-    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    await page.locator('[data-photo-fallback="unavailable"]').first().waitFor();
     assert.equal(await page.locator("#root > img").count(), 0);
     assert.equal(await page.locator("[data-card-photo-credit]").count(), 0);
     responseMode = "success";
@@ -209,12 +247,12 @@ try {
     await page.locator('#root > img[alt="Other photo again"]').waitFor();
     assert.equal(photoCalls, callsBeforeReturn, "returning to an already shown place reuses its photo: no second purchase");
     await render("ChIJCardPhotoFail0001", "Missing again");
-    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    await page.locator('[data-photo-fallback="unavailable"]').first().waitFor();
     assert.equal(photoCalls, callsBeforeReturn, "a genuine no-photo place is not asked again");
     responseMode = "broken";
     const paidBeforeBroken = paidCalls;
     await render("ChIJCardPhotoBroken03", "Broken photo");
-    await page.getByText("Photo unavailable", { exact: true }).waitFor({ timeout: 15000 });
+    await page.locator('[data-photo-fallback="unavailable"]').first().waitFor({ timeout: 15000 });
     assert.equal(await page.locator("#root > img").count(), 0);
     assert.equal(await page.locator("[data-card-photo-credit]").count(), 0);
     await page.waitForTimeout(7000);
@@ -227,7 +265,7 @@ try {
     const paidBeforeBlip = paidCalls;
     await render("ChIJCardPhotoBlip0007", "Blip photo");
     await page.locator('#root > img[alt="Blip photo"]').waitFor();
-    const blipSeen = await page.evaluate(async () => { for (let i = 0; i < 80; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0) return img.getAttribute("src"); if (document.body.innerText.includes("Photo unavailable")) return "UNAVAILABLE"; await new Promise((r) => setTimeout(r, 100)); } return "TIMEOUT"; });
+    const blipSeen = await page.evaluate(async () => { for (let i = 0; i < 80; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0) return img.getAttribute("src"); if (document.querySelector('[data-photo-fallback="unavailable"]')) return "UNAVAILABLE"; await new Promise((r) => setTimeout(r, 100)); } return "TIMEOUT"; });
     assert.match(blipSeen, /^\/api\/photo\/stored\/ChIJCardPhotoBlip0007\?v=blip&retry=1$/, "the same saved photo reloads after a blip (got " + blipSeen + ")");
     assert.equal(paidCalls, paidBeforeBlip + 1, "blip recovery took no paid request");
     // A photo re-saved under a new version while the tab was open: the card picks up the new version.
@@ -247,7 +285,7 @@ try {
       const img = document.querySelector('#root > img[alt="Resaved photo again"]');
       if (img?.complete && img.naturalWidth > 0 && img.getAttribute("src") === "/api/photo/stored/ChIJCardPhotoResave08?v=old") img.src += "&stale_probe=1";
     });
-    const resavedSeen = await page.evaluate(async () => { for (let i = 0; i < 80; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0 && img.getAttribute("src").includes("v=new")) return img.getAttribute("src"); if (document.body.innerText.includes("Photo unavailable")) return "UNAVAILABLE"; await new Promise((r) => setTimeout(r, 100)); } return "TIMEOUT"; });
+    const resavedSeen = await page.evaluate(async () => { for (let i = 0; i < 80; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0 && img.getAttribute("src").includes("v=new")) return img.getAttribute("src"); if (document.querySelector('[data-photo-fallback="unavailable"]')) return "UNAVAILABLE"; await new Promise((r) => setTimeout(r, 100)); } return "TIMEOUT"; });
     assert.equal(resavedSeen, "/api/photo/stored/ChIJCardPhotoResave08?v=new", "a re-saved photo is picked up instead of 'Photo unavailable'");
     assert.equal(staleVersionRejects, 1, "the stale version really returned 404 before recovery, including a decoded-image cache hit");
     // Temporary refusal (budget/quota): one delayed retry recovers; a persistent refusal stops after exactly 2 requests.
@@ -255,14 +293,14 @@ try {
     responseMode = "denied-once";
     const base = photoCalls;
     await render("ChIJCardPhotoTemp0004", "Temp photo");
-    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    await page.locator('[data-photo-fallback="unavailable"]').first().waitFor();
     assert.equal(photoCalls, base + 1);
     await page.clock.fastForward(25000);
     await page.locator('#root > img[alt="Temp photo"]').waitFor();
     assert.equal(photoCalls, base + 2, "temporary failure recovered with exactly one delayed retry");
     responseMode = "always-denied";
     await render("ChIJCardPhotoDown0006", "Down photo");
-    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    await page.locator('[data-photo-fallback="unavailable"]').first().waitFor();
     await page.clock.fastForward(25000);
     await page.clock.fastForward(25000);
     await page.clock.fastForward(25000);

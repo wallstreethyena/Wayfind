@@ -167,9 +167,13 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph, sourceOverrid
       // pass-through dep keeps its own Next-style extensionless imports
       // ("./businessStatus"), which plain node cannot resolve — the first version
       // only compiled JSX deps and died on exactly that.
-      .replace(/from\s+["'](\.[^"']+)["']/g, (m, spec) => {
+      .replace(/from\s+["'](\.[^"']+)["'](\s+with\s*\{\s*type\s*:\s*["']json["']\s*,?\s*\})?/g, (m, spec, jsonAttribute) => {
         const target = localTarget(abs, spec);
-        return target ? `from "${emit(target)}"` : m;
+        if (!target) return m;
+        // emit() turns JSON into a JavaScript default export, so the emitted
+        // module must be imported as JavaScript. Keep attributes on other files.
+        const attribute = /\.json$/i.test(target) ? "" : (jsonAttribute || "");
+        return `from "${emit(target)}"${attribute}`;
       })
       // …and bare side-effect imports — 2026-10-01. `import "./fontFallbacks.css"`
       // (app/fontsDisplay.js) has no `from`, so neither rule above saw it and

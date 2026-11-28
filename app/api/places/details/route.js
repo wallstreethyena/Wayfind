@@ -137,6 +137,18 @@ async function handleDetailsPost(req) {
       if (ownedDetail) return NextResponse.json(ownedDetail);
     } catch {}
   }
+  // An official-source intake ID belongs to Wayfind. No Google Details SKU
+  // can enrich it, including a forced live fetch or an area lookup.
+  if (placeId.startsWith("wfadd_")) {
+    if (kind === "detail") {
+      const detail = await resolveGracefulDetailFallback(placeId, { reason: "native inventory", allowPartial });
+      if (detail) return NextResponse.json(detail);
+    }
+    const identity = await ownedIdentity();
+    return identity && (kind !== "detail" || allowPartial)
+      ? NextResponse.json({ place: identity, source: "inventory" })
+      : NextResponse.json({ error: "owned detail unavailable" }, { status: 404 });
+  }
   if (!serverKey) {
     if (kind === "detail" && typeof resolveGracefulDetailFallback === "function") {
       try {

@@ -141,10 +141,10 @@ ok(/setDetail\(\s*p\s*\)\s*;[\s\S]{0,120}setDetail\(\s*attachOfficialScoreReceip
   "receipt attach is a same-turn follow-up after setDetail(p), not a replacement of the first paint");
 
 // The detail hero stays separate from the main list-card photo policy.
-ok(/placeFallback=\{<PlaceCardPhotoFallback place=\{p\}/.test(home),
-  "list PlaceCard uses the labelled representative photo component");
+ok(/placeFallback=\{<PlaceCardPhotoFallback name=\{p\.name\}/.test(home),
+  "list PlaceCard uses the shared unavailable-photo component");
 ok(!readFileSync(new URL("../app/components/PlaceDetailPhotoHeader.js", import.meta.url), "utf8").includes("PlaceCardPhotoFallback"),
-  "the detail hero does not use the list's representative photo component");
+  "the detail hero does not use the list's unavailable-photo component");
 
 // A /p/{id} arrival may keep the populated Home shell mounted for Back, but
 // an unrelated homepage poster must not be the visual backdrop of the shared
@@ -199,7 +199,8 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
   if (media) ok(nodes.indexOf(media) < nodes.indexOf(title) && !walk(media).includes(title), label + ': full-width photo is above a separate headline');
   ok(nodes.some(n => n.props['aria-label'] === 'Back'), label + ': Back control remains available');
   if (label === 'pending photo') ok(nodes.some(n => 'data-detail-photo-pending' in n.props), 'pending photo reserves the full frame without a fallback image');
-  if (!expandedHero) ok(nodes.some(n => 'data-detail-photo-unavailable' in n.props), label + ': compact truthful no-photo text');
+  // Owner 2026-11-27 ("we cannot have a broken site"): the compact no-photo header is a clean headline, never a "Photo unavailable" line that reads as broken.
+  if (!expandedHero) ok(!nodes.some(n => 'data-detail-photo-unavailable' in n.props) && !nodes.some(n => n.children.includes('Photo unavailable')), label + ': compact header shows no "Photo unavailable" text');
   ok(!nodes.some(n => n.type === 'fixture-credit'), label + ': no credit without a credited photo');
   if (photos.length > 1) {
     const direction = galleryIdx > 0 ? -1 : 1;

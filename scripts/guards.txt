@@ -1969,6 +1969,7 @@ node scripts/test-family-day-data.mjs
 node scripts/test-family-day-events.mjs
 node scripts/test-family-day-taxonomy.mjs
 node scripts/check-guide-seo-audit.mjs
+node scripts/test-florida-field-articles.mjs
 # 2026-09-23 — best-restaurants-disney-springs (and 24 other legacy lib/guides.js
 # entries) had no datePublished in their Article JSON-LD. See lib/guides.js
 # `published` fields and app/guides/[slug]/page.js's datePublished fallback.
@@ -2000,6 +2001,8 @@ node scripts/test-event-driving-route.mjs
 node scripts/test-morning-candidate-integrity.mjs
 # Shared event navigation, map cards, and explicit sharing choices.
 node scripts/test-event-section-nav.mjs
+# Owner 2026-11-27: no sticky bar slides under the fixed garland; event tab rail look and sideways cue.
+node scripts/check-sticky-under-garland.mjs
 node scripts/test-event-nearby-cards.mjs
 node scripts/test-share-out-chooser.mjs
 node scripts/check-home-eager-supabase.mjs
@@ -2219,6 +2222,7 @@ node scripts/check-evergreen-landing-zero-spend.mjs
 # rendered places, 17 mi straight-line, "in and near" on every surface, 404 below
 # the floor but THROW on a read error, never link a withheld pair.
 node scripts/test-evergreen-eligibility.mjs
+node scripts/test-evergreen-photo-only.mjs
 node scripts/test-beach-never-booking.mjs
 
 # 2026-10-01: the Clipp owner-audit fuses used to fail every Vercel build when they lapsed
@@ -2327,6 +2331,7 @@ node scripts/test-group-vote-organizer.mjs
 node scripts/test-group-vote-frame.mjs
 # Shared tours start Group Vote on that tour; picker counts category searches.
 node scripts/test-group-vote-tours.mjs
+node scripts/test-group-vote-keep-place.mjs
 
 node scripts/test-place-share-metadata.mjs
 node scripts/test-cached-place-identity.mjs
@@ -2565,6 +2570,7 @@ node scripts/test-deep-link-no-mutation.mjs
 # 2026-10-27: signup journey. signup_completed/login_completed emit once from onAuthStateChange (lib/authJourney.js); Ads mirror gets exactly one signup conversion.
 node scripts/test-auth-journey.mjs
 node scripts/test-photo-queue-close-condition.mjs
+node scripts/test-repair-queue-starvation.mjs
 
 # 2026-10-27: parallel guard runner (worker pool, serial list, fail-closed exit codes). Fake-guard scenarios against the real runner, plus --red-prove mutants of the runner.
 node scripts/test-run-guards.mjs
@@ -2616,6 +2622,10 @@ node scripts/test-refresh-reserve.mjs
 # Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
 node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
+# 2026-11-27: the This week in Florida strip is never blank after a deploy (placeholder + /api/events/this-week fallback + self-heal).
+node scripts/check-this-week-fallback.mjs
+# 2026-11-27: both event routes carry a header Sign in that returns the reader to the event.
+node scripts/test-event-signin.mjs
 # 2026-11-23: This week in Florida rail cards must have a self hosted photo.
 node scripts/test-this-week-rail-photos.mjs
 # 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
@@ -2812,6 +2822,8 @@ node scripts/test-ai-board.mjs
 # rules, server flow and renders of Log your visit and the rewards drawer.
 node scripts/test-trip-rewards-rls.mjs
 node scripts/test-trip-rewards.mjs
+# Heart rewards (owner request 2026-11-27): caps, tasteful copy, soft sound, lazy pop chunk.
+node scripts/test-heart-rewards.mjs
 node scripts/test-journey-telemetry.mjs
 
 # 2026-11-25 Competitor watch: private wf_competitor_intel / wf_competitor_promos (PGlite: service role only, dedupe),
@@ -2843,6 +2855,7 @@ node scripts/test-live-trip-db.mjs
 node scripts/test-live-trip-route.mjs
 node scripts/test-live-trip-idb.mjs
 node scripts/test-ai-engine-community.mjs
+node scripts/test-planner-right-now.mjs
 node scripts/test-ai-engine-rls.mjs
 node scripts/test-web-push.mjs
 node scripts/test-web-push-client.mjs
@@ -2853,6 +2866,7 @@ node scripts/test-city-weekend-seo.mjs
 node scripts/test-nearby-picks.mjs
 node scripts/test-og-every-path.mjs
 node scripts/test-jsonld-check.mjs
+node scripts/test-newsletter.mjs
 # SEO + conversion audit (2026-11-27): Florida homepage title, brand entity graph, town list items, schema.org hours; /events never prerendered empty; Florida hub footer; ticket button on the first phone screen.
 node scripts/test-seo-audit-entity.mjs
 node scripts/test-events-hub-not-prerendered.mjs
@@ -2860,3 +2874,4 @@ node scripts/test-florida-hub-links.mjs
 node scripts/test-event-ticket-first-screen.mjs
 # Insider-tips homepage mockup (2026-11-27, noindex preview): AI rewrites never add facts; capped Gemini lane; fallbacks; guard wiring.
 node scripts/test-insider-tips-preview.mjs
+node scripts/test-guide-map-pin-reveal.mjs

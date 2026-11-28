@@ -120,11 +120,11 @@ export default function EventWhere({ venue, address, directionsHref, website, la
                 <a className="wfw-btn wfw-dir" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Get directions to " + (venue || address)}>{"→ Get directions"}</a>
               ) : null}
               {hasPoint && directionsHref ? (
-                <a className="wfw-btn wfw-site" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open directions to " + (venue || address) + " in Apple Maps"}>Open in Apple Maps ↗</a>
+                <a className="wfw-btn wfw-site" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open in Apple Maps for " + (venue || address)}>Open in Apple Maps <span aria-hidden="true">↗</span></a>
               ) : null}
               {website ? (
-                <a className="wfw-btn wfw-site wfw-official" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)} {...(ticketLink ? { "data-wf-ticket": "1" } : {})}>
-                  <span>Official site ↗</span>{host ? <>{" "}<small>{host}</small></> : null}
+                <a className="wfw-btn wfw-site wfw-official" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} {...(ticketLink ? { "data-wf-ticket": "1" } : {})}>
+                  <span>Official site <span aria-hidden="true">↗</span></span>{host ? <>{" "}<small>{host}</small></> : null}
                 </a>
               ) : null}
             </div>

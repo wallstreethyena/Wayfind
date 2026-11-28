@@ -301,6 +301,34 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue( · (Featured in creator 
 }
 
 
+// #1589: source-backed wf_events fields. A public aquarium can run an adults-only tasting.
+{
+  // winterfestparade.com/events/parade-viewing-area invites families to its seated viewing area.
+  const parade = classifyEvent({ event_name: "Seminole Hard Rock Winterfest Boat Parade", category: "holiday", subcategory: "boat-parade", start_time: "18:00", audience: ["families", "couples", "adults"] });
+  ok(parade.archetype === "family_evening" && parade.family && !parade.adult, "Winterfest's raw families audience yields a family evening even without the Christmas page overlay");
+  const familyPicks = fillOutingSlots(parade, downtown(), {});
+  ok(familyPicks.length > 0 && familyPicks.every((p) => !ALCOHOL_TYPES.has(p.primaryType) && !/bar|drink|nightcap/.test(p.outing.slotKey)), "Winterfest offers real nearby places with no bar or drinks slot");
+  // The 2026 operator records confirm German food and beer at oktoberfesttampa.com and
+  // included tastings, food vendors and 21+ admission at mote.org/event/sharktoberfest/.
+  const tampa = classifyEvent({ event_name: "Oktoberfest Tampa", category: "festival", subcategory: "oktoberfest", tags: ["beer", "german"], start_date: "2026-10-30", end_date: "2026-11-01", audience: ["adults"] });
+  const mote = classifyEvent({ event_name: "Sharktoberfest at Mote SEA", category: "seasonal", subcategory: "oktoberfest", tags: ["nightlife", "beer", "beer-garden"], audience: ["adults", "couples"], start_time: "19:00", minimum_age: 21 });
+  ok(tampa.archetype === "festival_fed" && tampa.alreadyFed, "Oktoberfest Tampa's curated festival and beer tags select the on-site food outing");
+  ok(mote.archetype === "festival_fed" && mote.adult && !mote.family, "the 21+ Mote tasting selects an adult on-site food and drink outing");
+  for (const ctx of [tampa, mote]) {
+    const picks = fillOutingSlots(ctx, downtown(), {});
+    ok(picks.length > 0 && picks.every((p) => p.outing.timing === "after" && !RESTAURANT_LIKE(p.primaryType)), "an Oktoberfest with on-site food or tasting gets no pre-event restaurant slot");
+  }
+  const familyFest = classifyEvent({ category: "festival", subcategory: "oktoberfest", tags: ["beer"], audience: ["families"] });
+  const festPicks = fillOutingSlots(familyFest, downtown(), {});
+  ok(familyFest.family && festPicks.length > 0 && festPicks.every((p) => !ALCOHOL_TYPES.has(p.primaryType) && p.outing.slotKey !== "low_key_wine_after"), "an Oktoberfest explicitly welcoming families excludes bars from every slot");
+  const restricted = classifyEvent({ name: "Family Brewing Tasting", subcategory: "oktoberfest", tags: ["family", "beer"], minimum_age: 21 });
+  ok(restricted.adult && !restricted.family, "a published 21+ minimum age overrides incidental family wording");
+  const concert = classifyEvent({ name: "Oktoberfest Overture", category: "arts", genre: "Classical", start_time: "19:30" });
+  ok(concert.archetype === "show_classy" && !concert.alreadyFed, "a concert title containing Oktoberfest does not classify it as a food festival");
+  const reception = classifyEvent({ name: "Exhibit Opening", subcategory: "after-hours", tags: ["beer"], start_time: "19:00" });
+  ok(!reception.alreadyFed, "serving beer at an unrelated after-hours event is insufficient");
+}
+
 // 12. classifyEvent({}) is a generic archetype, and AVOID still applies.
 {
   const ctx = classifyEvent({});

@@ -169,6 +169,11 @@ ok(/^[A-Za-z0-9_-]{10,}$/.test(PLACE_ID) && PLACE_ID.length > 10, "PROBE: the fi
     const sandwich = await findFreePhoto({ placeId: fatShack }, emptyVault);
     eq(sandwich?.url, "https://www.gowayfind.com/places/food/fat-shack-sandwich.webp", "the missing Fat Shack photo uses its own sandwich photo");
     eq(sandwich?.license, "CC BY-SA 4.0", "the Fat Shack fallback preserves its license");
+    const mizu = await findFreePhoto({ placeId: "ChIJmQoo1qo7w4gR9XNE9oEQpec" }, emptyVault);
+    eq(mizu?.url, "https://www.gowayfind.com/places/food/mizu-tempura.jpg", "the exact Bradenton Mizu listing gets the licensed takeout photo");
+    eq(mizu?.attributionText, "Carol VanHook, CC BY-SA 2.0", "the Mizu cover is credited to the photographer");
+    eq(mizu?.attributionUrl, "https://www.flickr.com/photos/librariesrock/50499991557/", "the Mizu credit links to the original and its license");
+    eq(await findFreePhoto({ placeId: "ChIJeynD5C0lw4gRLd7l0-FF988" }, emptyVault), null, "the Osaka listing does not inherit Mizu's photo");
     eq(await findFreePhoto({ placeId: PLACE_ID }, emptyVault), null, "an unlisted venue never inherits a menu photo");
     const existing = await findFreePhoto({ placeId: whataburger }, { env, fetchImpl: respondWith([VALID_ROW]) });
     eq(existing?.attributionText, VALID_ROW.attribution_text, "an active place photo takes precedence over the menu fallback");

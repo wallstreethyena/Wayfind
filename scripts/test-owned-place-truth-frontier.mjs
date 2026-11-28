@@ -15,6 +15,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { mock } from "node:test";
 
 import {
   parseEditorialHours,
@@ -429,26 +430,48 @@ function eq(a, b, msg) {
   const robertsPseudoRefUrl = `/api/photo?ref=places%2F${robertsId}%2Fphotos%2Fwfplacediscovery&w=800`;
   eq(uncreditedPlacePhotoId(robertsPseudoRefUrl), robertsId, "uncreditedPlacePhotoId extracts placeId from wfplacediscovery pseudo-ref URL");
 
-  const dropped = await dropUnservableCardPhotos(
-    {
-      kind: "event",
-      id: "roberts-christmas-wonderland-2026",
-      name: "Robert's Christmas Wonderland",
-      title: "Robert's Christmas Wonderland",
-      christmasRail: "markets",
-      image: robertsPseudoRefUrl,
-      imageIsVenue: true,
+  const legacy = {
+    kind: "event",
+    id: "roberts-christmas-wonderland-2026",
+    name: "Robert's Christmas Wonderland",
+    title: "Robert's Christmas Wonderland",
+    christmasRail: "markets",
+    image: robertsPseudoRefUrl,
+    imageIsVenue: true,
+  };
+  const cover = { ...legacy, image: `/api/photo?place=${robertsId}&g=2&w=640`, placeholder: { label: "Christmas market" } };
+  const deps = {
+    servable: {
+      noMemo: true,
+      resolve: async () => ({ type: "miss", location: null }),
+      findFree: async () => null,
     },
-    {
-      servable: {
-        noMemo: true,
-        resolve: async () => ({ type: "miss", location: null }),
-        findFree: async () => null,
-      },
-    }
-  );
-  eq(dropped.image, null, "Unservable wfplacediscovery card image is dropped before render");
-  ok(dropped.placeholder && dropped.placeholder.label, "Card receives designed placeholder tile instead of emitting a 404 image request");
+    backfillEnv: {},
+  };
+  const enabled = {
+    WAYFIND_PHOTOS_BACKFILL: "1",
+    GOOGLE_PHOTOS_BACKFILL_CAP: "1",
+    GOOGLE_PHOTOS_BACKFILL_PER_HOUR: "1",
+    GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
+    VERCEL_ENV: "production",
+  };
+  mock.timers.enable({ apis: ["Date"], now: new Date("2026-11-28T02:00:00Z") });
+  try {
+    const dropped = await dropUnservableCardPhotos(legacy, deps);
+    eq(dropped.image, null, "Unservable wfplacediscovery card image is dropped before render");
+    ok(dropped.placeholder && dropped.placeholder.label, "Card receives designed placeholder tile instead of emitting a 404 image request");
+    eq((await dropUnservableCardPhotos(cover, deps)).image, null, "Switching off backfill also drops the unservable place-based cover");
+
+    const enabledDeps = { ...deps, backfillEnv: enabled };
+    const stillDropped = await dropUnservableCardPhotos(legacy, enabledDeps);
+    eq(stillDropped.image, null, "Backfill never retains a legacy pseudo-ref that the photo endpoint cannot backfill");
+    ok(stillDropped.placeholder?.label, "The pseudo-ref falls back to the designed tile while backfill is enabled");
+    const kept = await dropUnservableCardPhotos(cover, enabledDeps);
+    eq(kept.image, cover.image, "The eligible place-based cover is retained while backfill is enabled");
+    eq(kept.placeholder, cover.placeholder, "The retained cover keeps its designed fallback tile");
+  } finally {
+    mock.timers.reset();
+  }
 }
 
 // ── 8. Verified Coverage vs Fallback Readiness & Ranking Separation ────────

@@ -276,6 +276,7 @@ ok(travelPlausible(null, { lat: 1, lng: 1 }, now), "no previous visit is fine");
     p_google: { url: "https://lh3.googleusercontent.com/x", attributionText: "Someone", license: "Google" },
     p_nocredit: { url: "https://upload.wikimedia.org/a.jpg", attributionText: "", license: "CC BY 4.0" },
     p_relative: { url: "/api/photo?ref=places/x/photos/y", attributionText: "X", license: "CC BY 4.0" },
+    p_curated: { url: "/places/editorial/x.webp", attributionText: "OhanaUnited, CC BY 4.0", license: "CC BY 4.0" },
   };
   const finder = async ({ placeId }) => { if (placeId === "p_boom") throw new Error("down"); return store[placeId] || null; };
   const kept = { url: "https://example.org/k.jpg", credit: "K (CC0)" };
@@ -297,6 +298,7 @@ ok(travelPlausible(null, { lat: 1, lng: 1 }, now), "no previous visit is fine");
   eq(out[5].photo, kept, "a stop that already has a photo keeps it");
   eq(out[6].photo, null, "events are not filled from the place store");
   eq((await withLicensedPhotos([{ kind: "place", ref_id: "p_owned", photo: null }], null))[0].photo, null, "no finder means no change");
+  eq((await withLicensedPhotos([{ kind: "place", ref_id: "p_curated", photo: null }], finder))[0].photo.credit, "OhanaUnited, CC BY 4.0", "a credit that already names its licence does not repeat it");
 }
 
 console.log(`test-ai-engine-community: ${count} assertions passed`);

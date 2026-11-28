@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { C } from "./kit";
 import { listMyGuides, publishMyGuide, unpublishMyGuide, shareLink } from "../../lib/communityClient.js";
+import { rewardMoment } from "../../lib/heartRewards.js";
 
 const pill = { background: "transparent", border: "1px solid rgba(251,191,36,.55)", color: C.gold, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit" };
 const btn = (primary) => ({ minHeight: 46, padding: "0 16px", borderRadius: 12, border: primary ? "none" : `1px solid ${C.border}`, background: primary ? C.gold : "transparent", color: primary ? "#0D1117" : C.light, fontSize: 14.5, fontWeight: 800, cursor: "pointer", fontFamily: "inherit" });
@@ -45,6 +46,7 @@ export default function PublishGuideButton({ trip, user, requireAuth, logEvent }
       setMine({ slug: r.slug, localKey: key, status: r.status, showAuthor: showName });
       setMsg({ text: r.status === "published" ? (r.pointsAwarded ? `Your guide is live. +${r.pointsAwarded} points` : "Your guide is live.") : "Your guide is waiting for a quick review.", bad: false });
       try { logEvent && logEvent("community_guide_published", null, { key, cached: r.cached === true }); } catch {}
+      if (r.status === "published" && r.cached !== true) rewardMoment("guide");
     } else setMsg({ text: (r && r.error) || "Please try again.", bad: true });
   };
   const unpublish = async () => {

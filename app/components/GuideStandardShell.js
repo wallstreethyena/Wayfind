@@ -10,6 +10,7 @@
 // fails the build when a dedicated route skips this shell or GuideSection.
 import ReturnToWayfind from "./ReturnToWayfind";
 import GuideArticleHero from "./GuideArticleHero";
+import GuideVisitPlan, { guideVisitPlan } from "./GuideVisitPlan";
 import GuideDayAction from "./GuideDayAction";
 import { dedicatedGuideAction } from "../../lib/guideActionPlan.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
@@ -88,10 +89,11 @@ export function GuideSection({ index, id, eyebrow, title, children, className = 
 export default function GuideStandardShell({
   slug, title, description, image, region, category = "Local guide",
   published = null, updated, actions = null, jumpHref = "#guide", jumpLabel = "Explore the guide",
-  quick = null, intro = null, contents = [], lead = null, extraLd = [], css = "", children,
+  dayAction = null, quick = null, intro = null, contents = [], lead = null, extraLd = [], css = "", children,
 }) {
   if (!slug || !title || !updated) throw new Error("GuideStandardShell needs slug, title and updated");
-  const action = dedicatedGuideAction(slug, siteTodayStr());
+  const action = dayAction || dedicatedGuideAction(slug, siteTodayStr());
+  const visitPlan = guideVisitPlan(slug);
   return (
     <div style={PAGE} className="wf-guide-editorial" data-guide-standard={slug}>
       <nav aria-label="Breadcrumb" style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 18 }}>
@@ -107,7 +109,9 @@ export default function GuideStandardShell({
       </GuideArticleHero>
       <article id="guide" className="wf-guide-article">
         <div style={META}>By <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · {published ? <>Published {longDate(published)} · </> : null}Updated {longDate(updated)}</div>
-        {typeof intro === "string" ? <p className="wf-guide-intro">{intro}</p> : intro}
+        {visitPlan ? <p className="wf-guide-intro">{visitPlan.intro}</p> : null}
+        <GuideVisitPlan plan={visitPlan} />
+        {typeof intro === "string" ? (!visitPlan ? <p className="wf-guide-intro">{intro}</p> : null) : intro}
         <GuideContents items={contents} />
         <GuideDisclosure />
         {lead}

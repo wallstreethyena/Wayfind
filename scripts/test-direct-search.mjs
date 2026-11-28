@@ -7,6 +7,7 @@ import {
   splitCityQualifier,
 } from "../lib/directSearch.js";
 import { GET as searchRoute } from "../app/api/search/route.js";
+import { searchResultCards } from "../lib/searchCards.js";
 
 const ENV = { SUPABASE_URL: "https://owned.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "service-test-key" };
 const NOW = Date.parse("2026-09-19T12:00:00.000Z");
@@ -342,4 +343,33 @@ assert.equal(splitCityQualifier("Dolce & Bake, Orlando, FL").text, "dolce and ba
   assert.equal(cdNoPoint.places[0].id, "ChIJpXGK53VC24gRWMneFVtK6hY");
 }
 
-console.log("test-direct-search: OK — punctuation, city intent, stored addresses, 30-day freshness, empty, scope and failures");
+{
+  const nowMs = Date.parse("2026-11-28T12:00:00Z");
+  const id = "ChIJ45l98Ky22YgRP4ycv8twMFU";
+  const place = { place_id: id, name: "Fireman Derek’s Bake Shop", lat: 25.801387756041, lng: -80.19495501528, category: "food", signals: { rating: 4.1, reviews: 51 }, seen_at: "2026-11-21T03:32:06Z" };
+  const run = (query, at = nowMs, seenAt = place.seen_at, excluded = false) => searchOwnedPlaces({
+    query, lat: 25.7617, lng: -80.1918, env: ENV, nowMs: at,
+    fetchImpl: async (url) => ({ ok: true, json: async () => {
+      if (url.pathname.endsWith("/wf_place_ids")) return [{ ...place, seen_at: seenAt }];
+      if (url.searchParams.has("place_id")) return [{ place_id: id, status: "OPERATIONAL", excluded }];
+      return [];
+    } }),
+  });
+  const [hit] = (await run("key lime pie")).places;
+  assert.equal(hit.id, id);
+  assert.equal(hit.matchKind, "verified-dish");
+  assert.equal(hit.verifiedDish, "Key lime pie");
+  assert.equal(hit.exactMatch, false);
+  assert.equal(hit.userRatingCount, place.signals.reviews);
+  const cards = await searchResultCards({ query: "key lime pie", lat: 25.7617, lng: -80.1918,
+    ownedPlaces: [hit], places: [], events: [], env: {}, nowMs });
+  assert.ok(cards.cards.some((card) => card.id === id), "the verified dish reaches the result card through normal ranking");
+  assert.equal((await run("key lime cake")).places.length, 0);
+  assert.equal((await run("key lime pie Tampa")).places.length, 0);
+  assert.equal((await run("key lime pie", nowMs, "2026-09-01T00:00:00Z")).places.length, 0);
+  assert.equal((await run("key lime pie", nowMs, place.seen_at, true)).places.length, 0);
+  const later = Date.parse("2026-12-29T12:00:00Z");
+  assert.equal((await run("key lime pie", later, new Date(later).toISOString())).places.length, 0);
+}
+
+console.log("test-direct-search: OK — identity, verified dishes, city intent, scope, freshness and failures");

@@ -11,7 +11,7 @@ cards never take a paid Google Places Photo grant).
 
 ## Food card menu photos
 
-Each photo shows a menu item from the named restaurant. Some photos were taken at another branch. The photo files were resized and converted to WebP. The Whataburger, Fat Shack and White Castle photos were also recentered for narrow cards. Adapted photos are shared under their original licenses.
+Each photo shows a menu item from the named restaurant. Some photos were taken at another branch. See each photo's entry for any image changes. The Whataburger, Fat Shack and White Castle photos were also recentered for narrow cards. Adapted photos are shared under their original licenses.
 
 | File | Subject and source | Photographer | License or permission |
 |---|---|---|---|
@@ -20,6 +20,7 @@ Each photo shows a menu item from the named restaurant. Some photos were taken a
 | `food/giordanos-stuffed-pizza.webp` | [Giordano's stuffed pizza](https://commons.wikimedia.org/wiki/File:Giordanos_stuffed_pizza.jpg) | Eric Chan | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |
 | `food/white-castle-sliders.webp` | [White Castle sliders and crinkle fries](https://commons.wikimedia.org/wiki/File:White_Castle_-_Chicago,_IL_(3026769554).jpg) | Arnold Gatilao | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |
 | `food/culvers-double-butterburger.webp` | [Culver's Double ButterBurger with cheddar](https://commons.wikimedia.org/wiki/File:Culver%27s_Double_Butterburger_with_Cheddar.jpg) | @joefoodie | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |
+| `food/mizu-tempura.jpg` | [From Mizu Sushi Japanese Restaurant in Bradenton, FL – Tempura Style Shrimp](https://www.flickr.com/photos/librariesrock/50499991557/) | Carol VanHook | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Original Flickr rendition. The narrow card crops it for display. |
 
 ## Place card photos by venue
 
@@ -27,7 +28,8 @@ The restaurant photos show named menu items, with photography from other branche
 
 | File | Subject and source | Photographer | License |
 |---|---|---|---|
-| `editorial/wonderworks.webp` | [WonderWorks Orlando](https://commons.wikimedia.org/wiki/File:WonderWorks_%28Orlando%2C_Florida%29_001.jpg) | Leonard J. DeFrancisci | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+| `editorial/wonderworks.webp` | [WonderWorks Orlando, also used for The Outta Control Magic Dinner Show held inside it](https://commons.wikimedia.org/wiki/File:WonderWorks_%28Orlando%2C_Florida%29_001.jpg) | Leonard J. DeFrancisci | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+| `editorial/jc-newman-cigar.webp` | [J.C. Newman Cigar Co. building, Ybor City](https://commons.wikimedia.org/wiki/File:J.C._Newman_Cigar_Co._building.jpg) | OhanaUnited | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
 | `editorial/basilica.webp` | [Basilica of Mary, Queen of the Universe](https://commons.wikimedia.org/wiki/File:Basilica_of_the_Nat%27l_Shrine_of_Mary%2C_Queen_of_the_Universe_%28Orlando%2C_FL%29_-_reflection_2.jpg) | Nheyob | [CC0](https://creativecommons.org/publicdomain/zero/1.0/) |
 | `editorial/skyviews.webp` | [Skyviews Miami Observation Wheel](https://commons.wikimedia.org/wiki/File:Skyviews_Miami_Bayside_Marketplace_-_Ferris_Wheel_Cars%2C_2022.jpg) | Phillip Pessar | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |
 | `editorial/bunche.webp` | [Bunche Beach Preserve](https://commons.wikimedia.org/wiki/File:Shell_creek_at_bunche_beach%2C_view_towards_Sanibel_%2822550546317%29.jpg) | Russ | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/) |

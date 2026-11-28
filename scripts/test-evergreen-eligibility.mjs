@@ -70,7 +70,7 @@ const NAP = ev.EVERGREEN_CITIES.naples;
 const isNotFound = (e) => !!e && (/NEXT_HTTP_ERROR_FALLBACK;404|NEXT_NOT_FOUND/.test(String(e.digest || "")) || /NEXT_NOT_FOUND/.test(String(e.message || "")));
 async function renderPair(cat, slug, inventoryRows) {
   try {
-    const el = await page.LandingPage({ catSlug: cat, citySlug: slug, rankOpts: { inventoryRows } });
+    const el = await page.LandingPage({ catSlug: cat, citySlug: slug, rankOpts: { inventoryRows, photoReadyIds: async (ids) => new Set(ids) } });
     return { html: renderToStaticMarkup(el), notFound: false, error: null };
   } catch (e) { return { html: "", notFound: isNotFound(e), error: e }; }
 }
@@ -164,7 +164,7 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
 {
   const withheld = Object.entries(ev.EVERGREEN_WITHHELD).flatMap(([s, cs]) => cs.map((c) => `/${c}/${s}`));
   const published = Object.keys(landing.LANDING_CATS).flatMap((c) => ev.evergreenSlugsFor(c).map((s) => `/${c}/${s}`));
-  ok(withheld.includes("/things-to-do/st-augustine") && published.length === 16 && published.includes("/things-to-do/clearwater") && published.includes("/things-to-do/crystal-river"), `fixture sanity: 16 published, including Clearwater and Crystal River things-to-do, withheld includes things-to-do/st-augustine (${withheld.length})`);
+  ok(withheld.includes("/things-to-do/st-augustine") && published.length === 17 && published.includes("/things-to-do/clearwater") && published.includes("/things-to-do/crystal-river") && published.includes("/things-to-do/gainesville"), `fixture sanity: 17 published, including Clearwater, Crystal River and Gainesville things-to-do, withheld includes things-to-do/st-augustine (${withheld.length})`);
   const pages = [...published.map((p) => p.slice(1).split("/")), ["restaurants", "sarasota"], ["things-to-do", "orlando"], ["nightlife", "tampa"], ["beaches", "sarasota"]];
   for (const [c, s] of pages) {
     const city = landing.landingPair(c, s).city;
@@ -187,7 +187,7 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
     "no evergreen links for a LANDING_CITIES town, a near-miss name, or no region");
 }
 
-// ── 7. Evergreen and regular cards identify illustrative photos ───────────
+// ── 7. Evergreen and regular cards disclose missing venue photos ───────────
 {
   const Card = card.default;
   // No id and no photo = no photo source at all, so the server render takes
@@ -195,9 +195,9 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
   // its nospend place photo 404s (onError -> setImgFailed).
   const base = { name: "Corkscrew Swamp Sanctuary", rating: 4.8, reviews: 3100, photo: null, cardCategory: "Things to Do" };
   const ev1 = renderToStaticMarkup(React.createElement(Card, { place: { ...base, photoNoSpend: true }, rank: 1 }));
-  ok(/role="img" aria-label="Illustrative photo for Corkscrew Swamp Sanctuary"/.test(ev1) && />Illustrative photo</.test(ev1), "evergreen card with no verified photo has a labelled image and visible caption");
+  ok(ev1.includes("wf-place-photo-unavailable") && />Photo unavailable</.test(ev1) && !/<img\b/.test(ev1), "evergreen card with no verified photo has an explicit missing-photo label");
   const plain = renderToStaticMarkup(React.createElement(Card, { place: base, rank: 1 }));
-  ok(plain.includes('/place-photos/representative/neutral.webp') && />Illustrative photo</.test(plain), "the standard card gives uncategorized places the same honest illustrative photo");
+  ok(plain.includes("wf-place-photo-unavailable") && />Photo unavailable</.test(plain) && !/<img\b/.test(plain), "the standard card gives uncategorized places the same image-free state");
 }
 
 ok(google === 0, `no Google request anywhere in this test (${google})`);

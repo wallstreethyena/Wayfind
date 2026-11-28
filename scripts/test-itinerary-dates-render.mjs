@@ -425,6 +425,15 @@ function baseCtx(overrides = {}) {
   );
 }
 
+{
+  const renderIndex = (user) => renderToStaticMarkup(
+    createElement(ItineraryScreen, { ctx: baseCtx({ activeTrip: null, user }) })
+  );
+  const plannerLink = /<a\b[^>]*\bhref="\/plan-my-day"[^>]*>Plan my day\b/;
+  ok(plannerLink.test(renderIndex(null)), "The guest trip index links to Plan my day");
+  ok(plannerLink.test(renderIndex({ id: "user-123" })), "The signed-in trip index links to Plan my day");
+}
+
 if (failures > 0) {
   console.error(`test-itinerary-dates-render: FAILED — ${failures} of ${assertions} assertions failed`);
   process.exit(1);

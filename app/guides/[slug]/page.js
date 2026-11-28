@@ -1,5 +1,7 @@
 import ReturnToWayfind from "../../components/ReturnToWayfind";
 import SeasonalSearchNav from "../../components/SeasonalSearchNav";
+import GuideVisitPlan, { guideVisitPlan } from "../../components/GuideVisitPlan";
+import { haversineMiles } from "../../../lib/mapLocationTruth.js";
 import { seasonalHubsForGuide } from "../../../lib/seasonalSearch";
 // v4.16 — Server-rendered SEO guide pages. No "use client": these render to
 // HTML at build time so search engines index the full content. Each pick can
@@ -436,6 +438,7 @@ import IntentPartnerPick from "../../components/IntentPartnerPick";
 import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES, evergreenLinksForTown } from "../../../lib/landing";
 import { isSsgBuild, guideFetch } from "../../../lib/landingInventory";
+import { FieldGuideArticle } from "../../components/FieldGuideArticle";
 import { ssrPartnerInventory } from "../../../lib/landingRails";
 import { guideArticleImage, guideContextLinks, guideQuickChoices } from "../../../lib/guideSeo";
 // Event guides reuse the ONE event "where" block (map, route, numbered nearby
@@ -483,16 +486,16 @@ export async function generateMetadata({ params }) {
   // route's own cache-selection comment in app/api/og/hero/route.js.
   const heroV = art && art.kind !== "unavailable" && art.reviewedAt
     ? "&v=" + encodeURIComponent(art.reviewedAt + "." + HERO_CARD_DESIGN_V) : "";
-  const heroUrl = `${SITE_URL}/api/og/hero?kind=guide&id=${encodeURIComponent(params.slug)}&t=${encodeURIComponent(g.title)}&cat=Guide&loc=${encodeURIComponent(g.region || "")}${heroV}`;
+  const heroUrl = `${SITE_URL}/api/og/hero?kind=guide&id=${encodeURIComponent(params.slug)}&t=${encodeURIComponent(g.shareTitle || g.title)}&cat=Guide&loc=${encodeURIComponent(g.region || "")}${heroV}`;
   const indexable = !isGuidePast(g) && !guideAwaitingPhotos(params.slug, g);
   return {
-    title: `${g.title} | Wayfind`,
+    title: `${g.seoTitle || g.title} | Wayfind`,
     description: g.description,
     keywords: g.relatedKeywords || (g.keyword ? [g.keyword] : undefined),
     alternates: { canonical: url },
     robots: { index: indexable, follow: true, googleBot: { index: indexable, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
-    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: heroUrl, width: 1200, height: 630, type: "image/jpeg", alt: `${g.title} on Wayfind` }] },
-    twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [heroUrl] },
+    openGraph: { title: g.seoTitle || g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: heroUrl, width: 1200, height: 630, type: "image/jpeg", alt: `${g.title} on Wayfind` }] },
+    twitter: { card: "summary_large_image", title: g.seoTitle || g.title, description: g.description, images: [heroUrl] },
   };
 }
 
@@ -537,6 +540,8 @@ export default async function GuidePage({ params }) {
   // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
   if (!g) notFound();
+  if (g.fieldArticle) return <FieldGuideArticle slug={params.slug} guide={g} />;
+  const visitPlan = guideVisitPlan(params.slug);
   // Picks with no registered photo stay in the record and off the page
   // (owner, 2026-11-23). They must not render "Photo unavailable".
   const shippingPicks = (Array.isArray(g.picks) ? g.picks : [])
@@ -943,7 +948,10 @@ export default async function GuidePage({ params }) {
   if (bridgeCity && !isSsgBuild()) {
     try {
       const ranked = await inventoryPlacesForRegion(g.region, 80);
-      bridgePicks = ranked.slice(0, 3).map((p) => ({
+      bridgePicks = ranked.filter((p) => {
+        const milesFromCity = haversineMiles(bridgeCity, p);
+        return milesFromCity != null && milesFromCity <= 12;
+      }).slice(0, 3).map((p) => ({
         id: p.id, name: p.name, rating: p.rating, reviews: p.reviews,
         distMi: p.distMi, openNow: p.openNow, photoRef: p.photoRef || null,
         // Inventory editorial is sourced; absence stays empty.
@@ -1077,12 +1085,15 @@ export default async function GuidePage({ params }) {
           guide's own tips (lib/guides.js) and check-guide-teasers.mjs proves the
           grounding, because a teaser promising something the body never delivers
           is the dark pattern the directive rules out. */}
-      {g.teaser ? (
+      {g.teaser && !visitPlan ? (
         <p className="wf-guide-teaser" style={{ margin: "0 0 14px", fontSize: 16.5, lineHeight: 1.5, color: "#FBBF24", fontWeight: 650 }}>
           {g.teaser}
         </p>
       ) : null}
-      <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
+      {visitPlan ? (
+        <p className="wf-guide-intro" style={S.p}>{visitPlan.intro}</p>
+      ) : <p className="wf-guide-intro" style={S.p}>{g.intro}</p>}
+      <GuideVisitPlan plan={visitPlan} />
       {params.slug === "things-to-do-orlando-not-theme-parks" ? (
         <p style={S.p}>
           Follow the <a href="https://blog.gowayfind.com/orlando-day-itinerary-without-theme-parks" style={S.footerLink}>seven-stop Orlando itinerary</a> for a full day downtown and in Winter Park. If it rains, take the kids to <a href="/guides/orlando-in-the-rain#pick-6" style={S.footerLink}>Orlando Science Center</a>. Set aside a separate day for <a href="#pick-7" style={S.footerLink}>Kennedy Space Center</a>.
@@ -1224,9 +1235,11 @@ export default async function GuidePage({ params }) {
       ) : null}
       {dayAction?.href === "#guide-plan-options" ? <div id="guide-plan-options" style={{ scrollMarginTop: 16 }} /> : null}
       {shippingPicks.map(({ pick, index: i }, visibleIndex) => {
+        const arrival = visitPlan?.stops.find((stop) => stop.officialEntrance && stop.name === pick.name);
         const resolved = pickPlaces[i];
         const noSale = unavailableFor(pick.eventSlug);
         const ticket = noSale ? null : guidePickTicket(pick.ticket);
+        const relatedGuide = pick.relatedGuide;
         // One editorial photograph per recommendation. Curated images win;
         // otherwise use the same venue-owned source as discovery cards.
         const pickImage = curatedPickImages[i] || editorialImages.get(pickPlaceIds[i]);
@@ -1236,12 +1249,15 @@ export default async function GuidePage({ params }) {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
-              <GuidePickWhere where={guidePickWhere(pick, params.slug)} />
+              <GuidePickWhere where={arrival ? { address: arrival.address, mapsUrl: arrival.source } : guidePickWhere(pick, params.slug)} />
               {neutralPickFigures[i] ? <GuideNeutralFigure name={pick.name} className="wf-guide-pick-figure" /> : null}
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
+              {relatedGuide?.label && liveGuides[relatedGuide.slug] ? (
+                <p style={S.p}><a href={"/guides/" + encodeURIComponent(relatedGuide.slug)} style={S.footerLink}>{relatedGuide.label}</a></p>
+              ) : null}
               {(() => {
                 const facts = guidePickFacts(pick, g);
                 return facts.length ? (

@@ -49,6 +49,7 @@ import EventWhere from "../../components/EventWhere";
 import CrownOutbound from "../../components/CrownOutbound.js";
 import { CROWN_EVENT_SLUGS } from "../../../lib/crownCampaign.js";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
+import EventSignIn from "../../components/EventSignIn.js";
 import { pairingHref } from "../../../lib/eventPairings";
 import { seriesHubFor } from "../../../lib/eventSeriesHubs.js";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
@@ -62,8 +63,12 @@ import { isEmbeddable } from "../../../lib/videoEmbed";
 import { loadEventDetailPhotos } from "../../../lib/placeDetailGallery.js";
 import { eventRailPhotoCredit } from "../../../lib/christmasPlacePhotos.js";
 import PhotoCreditLink from "../../components/PhotoCreditLink.js";
+import { EventFieldArticle } from "../../components/FloridaFieldArticle";
+import { STRAWBERRY_FESTIVAL_ARTICLE } from "../../../lib/floridaFieldArticles.js";
 import SnowcatTicketExplainer from "../../components/SnowcatTicketExplainer.js";
 import { isSnowcatTicketPage, SNOWCAT_PLACE_ID } from "../../../lib/snowcatTickets.js";
+import NewsletterSignup from "../../components/NewsletterSignup";
+import { regionForEvent } from "../../../lib/newsletter.js";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -102,12 +107,14 @@ export async function generateMetadata({ params }) {
   }
   // Search title leads with the date and "Free" when entry is free (SEO engine
   // 2026-11-20, lib/eventSeoTitle.js). Facts from the row only.
+  const article = e.slug === STRAWBERRY_FESTIVAL_ARTICLE.slug ? STRAWBERRY_FESTIVAL_ARTICLE : null;
   const title = eventSeoTitle(e);
+  const publishedTitle = article && !ticketsUnavailable(e) ? article.seoTitle : title;
   // 2026-11-27 (owner): an event with no card hook leads its search snippet with
   // the stored why-go blurb (lib/eventWhyGo.js, cache read only, never a model call).
   const aiWhyGo = e.card_hook ? null : await readWhyGo(e);
   // A watchlist twin (2026 not confirmed) never "runs" on any date.
-  const desc = (e.christmas_watchlist
+  const desc = article?.description || (e.christmas_watchlist
     ? `${e.event_name} in ${e.city}: ${e.when_label}. ${e.card_hook || ""} Wayfind checks the official page and updates this listing.`
     : `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}.${eventIsFree(e) ? " Free entry." : ""} ${e.card_hook || aiWhyGo || ""} Wayfind's verdict, timing, parking and what to pair it with.`).trim();
   // THE SHARE CARD (v9, owner 2026-09-23: "everything on wayfind that is
@@ -127,10 +134,10 @@ export async function generateMetadata({ params }) {
   const og = `${SITE_URL}/api/og/hero?kind=event&id=${encodeURIComponent(e.event_id)}`
     + `&t=${encodeURIComponent(ogTitle)}&cat=Event&loc=${encodeURIComponent(e.city || "")}`;
   return {
-    title: title + " | Wayfind",
+    title: publishedTitle + " | Wayfind",
     description: desc.slice(0, 155),
-    openGraph: { type: "article", title, description: desc.slice(0, 155), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: title }] },
-    twitter: { card: "summary_large_image", title, images: [og] },
+    openGraph: { type: "article", title: publishedTitle, description: desc.slice(0, 155), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: publishedTitle }] },
+    twitter: { card: "summary_large_image", title: publishedTitle, images: [og] },
     alternates: { canonical: `${SITE_URL}/florida-events/${e.slug}` },
   };
 }
@@ -172,9 +179,10 @@ const S = {
     display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px",
     borderRadius: 999, background: "#161B22", border: "1px solid #21262D",
     color: "#FF8A3D", fontSize: 13.5, fontWeight: 800, textDecoration: "none",
-    marginBottom: 18,
   },
-  backRow: { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" },
+  // The bottom space lives on the row, not on each pill, so the header Sign in
+  // (EventSignIn) lines up with the two back links instead of sitting 9px low.
+  backRow: { display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", marginBottom: 18 },
   addr: { color: "#C9D1D9", fontSize: 14, marginTop: 2 },
   // v9.00 (owner, 2026-09-07: "not a premium Wayfind event page … directions
   // are duplicated"). Directions now lives in EXACTLY ONE place — the shared
@@ -416,6 +424,7 @@ export default async function CuratedEventPage({ params }) {
       <div className="wf-event-brand"><a href="/" aria-label="Wayfind home"><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="145" height="42" /></a><div style={S.backRow}>
         <ReturnToWayfind style={S.back} />
         <a style={S.back} href="/florida-events">&lsaquo; Florida Events</a>
+        <EventSignIn returnPath={"/florida-events/" + e.slug} />
       </div>
 
       </div>
@@ -604,6 +613,7 @@ export default async function CuratedEventPage({ params }) {
         />}
       />
       </EventHeroPhotoProvider>
+      {e.slug === STRAWBERRY_FESTIVAL_ARTICLE.slug ? <EventFieldArticle article={STRAWBERRY_FESTIVAL_ARTICLE} /> : null}
 
       {/* A Fall card that names a creator must pay that promise off before the
           map and nearby recommendations. The map can be more than a viewport
@@ -716,6 +726,9 @@ export default async function CuratedEventPage({ params }) {
           meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "page_end" }}
         />
       </section>
+
+      {/* Weekly email signup (owner 2026-11-27), preset to this event's area. */}
+      <NewsletterSignup source="event" region={regionForEvent(e)} back={`/florida-events/${params.slug}`} heading="Get next weekend's picks too" style={{ padding: 0 }} />
 
       <p style={S.foot}>
         Verified {e.last_verified_at ? String(e.last_verified_at).slice(0, 10) : "recently"} against the organiser&rsquo;s own listing.

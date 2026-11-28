@@ -5,6 +5,8 @@ import { mapPinUrl } from "../lib/mapPinStandard.js";
 // responses, timeout handling, and teardown are exercised rather than inferred.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import { createAppleMapController } from "../lib/appleMapsRuntime.js";
 import { formatDistance, formatDuration, routeSummary, validateRouteInput } from "../lib/appleEventRouting.js";
@@ -203,3 +205,10 @@ dispatchCheck.equal(consoleRows.map(row => row[0]).join(","), "info,warning", "c
 dispatchCheck.equal(JSON.stringify(telemetry[0]?.tags), JSON.stringify({ service: "parking-poi-fallback", reason: "request" }), "failure diagnostics contain only enumerated service and reason tags");
 dispatchCheck.equal(JSON.stringify(breadcrumbs[0]?.data), JSON.stringify({ service: "parking-poi-fallback", reason: "request" }), "recovery breadcrumbs contain only enumerated service and reason data");
 console.log(`test-event-apple-maps: OK — ${pass} assertions (category pins, exact/deduped card identity, streamed updates that preserve routes, MapKit JS 6 promises, cancellation, timeouts, and teardown)`);
+
+// The place sheet and durable place page add explicit device controls to this controller.
+execFileSync(process.execPath, ["--test", fileURLToPath(new URL("../tests/places/device-location.test.mjs", import.meta.url))], {
+  // React selects its act() implementation when the test process imports it.
+  env: { ...process.env, NODE_ENV: "test" },
+  stdio: "inherit",
+});

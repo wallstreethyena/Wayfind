@@ -168,9 +168,11 @@ html.wf-santa-docked.wf-has-bottom-nav body{padding-bottom:calc(var(--wf-santa-d
 @media(min-width:1024px){html.wf-santa-docked.wf-has-bottom-nav body{padding-bottom:calc(var(--wf-santa-dock,${DOCK_H_WIDE}px) + 118px + env(safe-area-inset-bottom))}}
 html.wf-has-bottom-nav .wf-sd{--wf-santa-lift:78px}
 @media(min-width:1024px){html.wf-has-bottom-nav .wf-sd{--wf-santa-lift:118px}}
-.wf-sd{--wf-santa-lift:0px;position:fixed;left:0;right:0;bottom:var(--wf-santa-lift);z-index:930;box-sizing:border-box;padding:0 max(10px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(10px,env(safe-area-inset-left));background:rgba(10,15,24,.95);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border-top:1px solid rgba(255,255,255,.08);box-shadow:0 -10px 28px rgba(0,0,0,.28);font-family:var(--wf-sans,system-ui,sans-serif);contain:layout paint}
-.wf-sd.is-yield{visibility:hidden;pointer-events:none;transform:translateY(calc(100% + 12px))}
-.wf-sd::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:linear-gradient(90deg,#D92C37,#F5C451 50%,#3FBF7F);opacity:.85}
+.wf-sd{--wf-santa-lift:0px;position:fixed;left:0;right:0;bottom:var(--wf-santa-lift);z-index:930;box-sizing:border-box;padding:0 max(10px,env(safe-area-inset-right)) env(safe-area-inset-bottom) max(10px,env(safe-area-inset-left));background:rgba(10,15,24,.97);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid rgba(232,180,138,.28);font-family:var(--wf-sans,system-ui,sans-serif);contain:layout paint}
+/* On phones the dock is the persistent entry point. The hero button is
+   still available before the dock mounts or when it is disabled. */
+@media(max-width:600px){html.wf-santa-docked [data-santa-ask]{display:none}}
+@media(width > 600px){.wf-sd.is-yield{visibility:hidden;pointer-events:none;transform:translateY(calc(100% + 12px))}}
 .wf-sd.is-in{animation:wf-sd-rise .45s cubic-bezier(.2,.8,.25,1) both}
 @keyframes wf-sd-rise{from{transform:translateY(100%)}to{transform:none}}
 .wf-sd-in{max-width:760px;height:var(--wf-santa-dock);margin:0 auto;display:flex;align-items:center;gap:10px}
@@ -218,7 +220,7 @@ html.wf-has-bottom-nav .wf-sd{--wf-santa-lift:78px}
 .wf-sd-x:focus-visible{outline:2px solid #F97316;outline-offset:1px}
 .wf-sd-fb{all:unset;box-sizing:border-box;display:none;flex:0 0 auto;width:40px;height:40px;place-items:center;border-radius:50%;border:1px solid #2D3748;color:#CBD5E1;cursor:pointer}
 .wf-sd-fb:focus-visible{outline:2px solid #F97316;outline-offset:2px}
-.wf-sd-cta{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:0;border-radius:999px;background:linear-gradient(180deg,#FF9B47,#F97316 60%,#EA6A0F);color:#0D1117;font:800 14px/1 var(--wf-sans,system-ui,sans-serif);text-decoration:none;white-space:nowrap;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 14px rgba(249,115,22,.25)}
+.wf-sd-cta{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:0;border-radius:999px;background:#F97316;color:#0D1117;font:800 14px/1 var(--wf-sans,system-ui,sans-serif);text-decoration:none;white-space:nowrap;cursor:pointer}
 .wf-sd-cta:hover{filter:brightness(1.05)}
 .wf-sd-s{display:none}
 .wf-sd-cta:focus-visible{outline:2px solid #fff;outline-offset:2px}
@@ -363,9 +365,8 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
     return () => { clearTimeout(id); timers.current.delete(id); };
   }, [reduced, later]);
 
-  // One Santa call to action per phone screen (owner 2026-11-26): while a
-  // page's own Ask Santa button ([data-santa-ask], the Christmas hero) is on
-  // screen, the dock steps aside; it returns once that button scrolls away.
+  // On wider screens the dock steps aside while the Christmas hero's Ask
+  // Santa button is on screen. The phone layout keeps the dock visible.
   const [yielded, setYielded] = useState(false);
   useEffect(() => {
     setYielded(false);
@@ -422,7 +423,7 @@ export function DockView({ action, msg, quip = "", tight = false, act, face = "h
   const label = (
     <>
       <span className="wf-sd-l">{action.label}</span>
-      <span className="wf-sd-s" aria-hidden="true">{action.short}</span>
+      <span className="wf-sd-s">{action.short}</span>
     </>
   );
   return (
@@ -444,8 +445,8 @@ export function DockView({ action, msg, quip = "", tight = false, act, face = "h
           </p>
           {msg ? <button type="button" className="wf-sd-x" aria-label="Dismiss Santa's message" onClick={onDismiss}>{"×"}</button> : null}
           {action.kind === "link"
-            ? <a className="wf-sd-cta" href={action.href} onClick={onCta} aria-label={action.label}>{label}</a>
-            : <button type="button" className="wf-sd-cta" onClick={onCta} aria-haspopup="dialog" aria-label={action.label}>{label}</button>}
+            ? <a className="wf-sd-cta" href={action.href} onClick={onCta} title={action.label}>{label}</a>
+            : <button type="button" className="wf-sd-cta" onClick={onCta} aria-haspopup="dialog" title={action.label}>{label}</button>}
           <button type="button" className="wf-sd-fb" onClick={onFeedback} aria-label="Send feedback" title="Feedback">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></svg>
           </button>

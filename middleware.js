@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { guardPaidRoute, isOperatorDiagnostic, APPLE_BUDGET_RL, PLAN_VOTES_RL } from "./lib/apiGuard";
+import { guardPaidRoute, isOperatorDiagnostic, APPLE_BUDGET_RL, PLAN_VOTES_RL, NEWSLETTER_RL } from "./lib/apiGuard";
 
 // Cost-leak fix (the $735 Google Places incident): these routes are public,
 // unauthenticated proxies to METERED third-party APIs — Google Places
@@ -34,6 +34,11 @@ export const config = {
     // a same-origin XHR (app/components/EventNearbyReanchor.js), no metered
     // upstream; same-origin + per-IP rate limit, exactly like /api/search.
     "/api/events/venue-nearby",
+    // Homepage "This week in Florida" fallback (2026-11-27): a same-origin GET
+    // from app/components/ThisWeekEvents.js when the cached HTML had no events.
+    // One cached Supabase read, no metered upstream; it can also mark "/" for
+    // regeneration, so same-origin + per-IP rate limit keeps that bounded.
+    "/api/events/this-week",
     // Opt-in nearby picks (2026-11-27): a same-origin POST of a rounded point,
     // free owned-inventory reads only (lib/nearbyPicksServe.js). Same-origin +
     // per-IP rate limit, like /api/events/venue-nearby.
@@ -58,6 +63,9 @@ export const config = {
     "/api/group-plans/:path*",
     // Friend votes on a shared Christmas plan (anonymous voter token, service role write): same-origin + per-IP rate limit.
     "/api/christmas/plan-votes",
+    // Weekly email signup (2026-11-27): a plain same-origin form post that
+    // stores one address (sends nothing). Same-origin + a tight per-IP limit.
+    "/api/newsletter/subscribe",
     "/api/places/search",
     // Free Apple Maps pins: same-origin POST that reserves units against the
     // one daily Apple service-call ceiling (lib/applePlaceIds.js). Not a cost
@@ -293,6 +301,7 @@ export function middleware(req) {
     || isOperatorDiagnostic(path, req.nextUrl && req.nextUrl.searchParams);
   // Apple pin budget: its own 10/min per-IP window (lib/apiGuard.APPLE_BUDGET_RL).
   const routeLimit = path === "/api/maps/apple-budget" ? APPLE_BUDGET_RL
-    : path === "/api/christmas/plan-votes" ? PLAN_VOTES_RL : undefined;
+    : path === "/api/christmas/plan-votes" ? PLAN_VOTES_RL
+    : path === "/api/newsletter/subscribe" ? NEWSLETTER_RL : undefined;
   return guardPaidRoute(req, { rateLimitOnly, routeLimit }) || NextResponse.next();
 }

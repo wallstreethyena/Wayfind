@@ -160,8 +160,15 @@ function notifyMutation() {
   observers[0].trigger();
   flushEffectsAndRenders();
 }
+// The links live in the inner scrolling rail (2026-11-27 rail redesign); the
+// nav also carries the two edge arrow buttons.
+function railOf(t) {
+  const kids = [].concat(t.props.children);
+  return kids.find((kid) => kid && kid.props && kid.props.className === "wf-event-section-rail") || null;
+}
 function links() {
-  const children = tree.props.children;
+  const rail = railOf(tree);
+  const children = rail ? rail.props.children : null;
   return Array.isArray(children) ? children : children ? [children] : [];
 }
 
@@ -194,7 +201,8 @@ function toReact(element) {
   if (Array.isArray(element)) return element.map(toReact);
   if (!element || typeof element !== "object") return element;
   const { children, ref, ...props } = element.props;
-  return React.createElement(element.type, props, toReact(children));
+  const kids = toReact(children);
+  return Array.isArray(kids) ? React.createElement(element.type, props, ...kids) : React.createElement(element.type, props, kids);
 }
 const rendered = renderToStaticMarkup(toReact(tree));
 assert.match(rendered, /<nav[^>]+aria-label="Explore this event"/);
@@ -223,7 +231,15 @@ notifyMutation();
 const detailsLink = links()[0];
 check(detailsLink.props.href === "#event-details", "a details section receives an anchor link");
 detailsLink.props.onClick();
+flushEffectsAndRenders();
 check(details.open === true, "clicking a details anchor opens the target details element");
+check(links()[0].props["aria-current"] === "true", "the clicked section becomes the highlighted tab");
+{
+  const kids = [].concat(tree.props.children);
+  const arrows = kids.filter((kid) => kid && kid.type === "button" && kid.props.className === "wf-event-section-more");
+  check(arrows.length === 2 && arrows.map((a) => a.props["data-side"]).join(",") === "left,right" && arrows.every((a) => /sections/.test(a.props["aria-label"])), "the rail carries labeled left and right arrow buttons for the sideways cue");
+  check(tree.props["data-more-left"] === undefined && tree.props["data-more-right"] === undefined, "without a measured overflow neither edge claims more tabs, so the arrows stay hidden");
+}
 check(details.focusCalls.length === 1 && details.focusCalls[0]?.preventScroll === true, "clicking an anchor focuses its target without an extra scroll");
 
 const rendersBeforeCleanup = renderCount;

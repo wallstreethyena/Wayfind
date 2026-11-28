@@ -25,6 +25,7 @@ export default function Privacy() {
 
         <h2 style={S.h2}>What we collect</h2>
         <p style={S.p}>If you create an account: your email address. If you choose Sign in with Apple, Apple may provide the email address you choose to share (including a private relay address) and, on the first authorization, the name you choose to share. Authentication credentials are managed by Supabase and Apple; Wayfind does not receive or store plaintext passwords. Supabase stores salted password hashes for password-based accounts.</p>
+        <p style={S.p}>If you sign up for the weekly email: your email address, the area you picked, and when and where you agreed to get it. Every email has a one click unsubscribe.</p>
         <p style={S.p}>If you use features: places you save, like, or write tips about, and coupons you keep. Your search location is used to find nearby places and power results. Preferences for signed-out visitors (saved spots, likes, settings) are stored on your own device and never leave it unless you sign in.</p>
 
         <h2 style={S.h2}>How long we keep it</h2>

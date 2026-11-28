@@ -86,7 +86,7 @@ const slugPage = read("app/events/[city]/[slug]/page.js");
 // 2026-10-22: the return now also anchors the venue (lib/venueAnchor.js); the
 // stored start correction is still applied on the same return path.
 ok(/return (?:anchorEventVenue\()?applyStoredStartCorrection\(e\)/.test(slugPage), "the event detail page applies the same stored start correction");
-ok(/value: fmtClock\(e\.time\) \|\| "All day"/.test(slugPage) && !/e\.time\.slice\(0, 5\) : "All day"/.test(slugPage), "list cards print 12-hour time, not the raw 24-hour feed value");
+ok(/value: fmtClock\(e\.time\) \|\| \(e\.allDay \? "All day" : "Check times"\)/.test(slugPage), "list cards format known times in 12-hour time and distinguish confirmed all-day events from unknown showtimes");
 
 // ── 3. beaches only ───────────────────────────────────────────────────────
 ok(!isRankableBeach({ name: "Apollo Beach Fishing Charters", primary_type: "fishing_charter" }), "a fishing charter is not a beach");

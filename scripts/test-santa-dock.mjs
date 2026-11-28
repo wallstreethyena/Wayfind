@@ -33,11 +33,10 @@ const { santaAction, santaMessage, DockView, SANTA_DOCK_CSS: CSS, HOST_LINE, SAI
   const xmas = santaAction("/christmas-in-florida");
   ok(xmas.kind === "ask" && xmas.label === "Get 3 Christmas picks" && /3 .*Christmas/.test(xmas.prompt), "Christmas page: the action asks Santa's Christmas chat for 3 picks");
   ok(santaAction("/christmas-in-florida/").kind === "ask", "a trailing slash is still the Christmas page");
-  const guide = santaAction("/guides/tampa-rainy-day", "Tampa rainy day guide");
-  ok(guide.kind === "ask" && guide.label === "Picks like this guide" && guide.prompt.includes("Tampa rainy day guide"), "a guide page: picks like this guide, grounded in its title");
+  const guide = santaAction("/guides/tampa-christmas-lights", "Tampa Christmas lights guide");
+  ok(guide.kind === "ask" && guide.label === "Picks like this guide" && guide.prompt.includes("Tampa Christmas lights guide"), "a Christmas guide: picks like this guide, grounded in its title");
   const home = santaAction("/");
-  ok(home.kind === "link" && home.href === "/christmas-in-florida" && home.label === "Explore Christmas", "everywhere else: Explore Christmas opens the Christmas hub");
-  ok(santaAction("/guides").kind === "link", "the guides index is not a guide: it gets the hub link");
+  ok(home.kind === "link" && home.href === "/christmas-in-florida" && home.label === "Explore Christmas", "the home app links to the Christmas hub");
   ok(fsExists("app/christmas-in-florida/page.js") && fsExists("app/api/santa-chat/route.js") && fsExists("app/api/santa/route.js"), "every destination exists: the hub page, the Christmas chat and the finder");
   for (const a of [xmas, guide, home]) ok(a.short && a.short.length <= a.label.length && !/[–—-]/.test(a.label + a.short), "labels are dash free and the phone label is no longer than the full one (" + a.label + ")");
 }
@@ -66,9 +65,9 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   ok(/<aside class="wf-sd" aria-label="Santa, Wayfind&#x27;s holiday host" data-santa-dock="">/.test(html), "the dock is a labelled landmark");
   ok(/<button type="button" class="wf-sd-av"[^>]*aria-label="Chat with Santa, Wayfind&#x27;s holiday host" aria-haspopup="dialog">/.test(html), "Santa himself is a real, labelled button (keyboard and touch)");
   ok(/class="wf-sd-msg is-said" role="status" aria-live="polite"/.test(html) && html.includes(HOST_LINE), "his line is a polite status inside the dock, not a bubble over the page");
-  ok(/<button type="button" class="wf-sd-cta" aria-haspopup="dialog" aria-label="Get 3 Christmas picks">/.test(html) && /class="wf-sd-s" aria-hidden="true">Get 3 picks</.test(html), "the action button carries its full label for assistive tech and a short phone label");
+  ok(/<button type="button" class="wf-sd-cta" aria-haspopup="dialog" title="Get 3 Christmas picks">/.test(html) && /class="wf-sd-l">Get 3 Christmas picks</.test(html) && /class="wf-sd-s">Get 3 picks</.test(html), "both responsive action labels are exposed when visible and the full description is available");
   ok(/data-act="greet"/.test(html) && /data-arm="both"/.test(html), "the hello waves with the wand still in hand (arm both)");
-  const link = renderToStaticMarkup(createElement(DockView, { action: santaAction("/events"), msg: "" }));
+  const link = renderToStaticMarkup(createElement(DockView, { action: santaAction("/"), msg: "" }));
   ok(/<a class="wf-sd-cta" href="\/christmas-in-florida"/.test(link) && !/<button[^>]*class="wf-sd-x"/.test(link) && /<b>Santa<\/b>, Wayfind&#x27;s holiday host/.test(link), "with no message he rests with his name, the link goes to the hub, no dismiss button");
   const still = renderToStaticMarkup(createElement(DockView, { action, msg: "", reduced: true }));
   ok(!/class="wf-sd-fig wf-sd-live"/.test(still) && /class="wf-sd-fig wf-sd-live"/.test(html) && /class="wf-sd-fig"/.test(still), "reduced motion: the figure renders without the living animations");
@@ -85,6 +84,8 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   // 2026-11-13: "is there a bottom nav / scroll area on this page" is an html.wf-has-* class kept by
   // lib/rootPresence.js, not html:has() (scripts/test-root-has-selectors.mjs has the measurements).
   ok(/html\.wf-has-bottom-nav \.wf-sd\{--wf-santa-lift:78px\}/.test(CSS) && /bottom:var\(--wf-santa-lift\)/.test(CSS), "where the app shows its own bottom navigation, the dock sits above it");
+  ok(/@media\(max-width:600px\)\{\s*html\.wf-santa-docked \[data-santa-ask\]\{display:none\}/.test(CSS), "phones keep the bottom entry point and hide the hero button only while the dock is mounted");
+  ok(/@media\(width > 600px\)\{\s*\.wf-sd\.is-yield\{visibility:hidden/.test(CSS), "a visible hero button never hides the phone dock during a scroll or resize");
   ok(/\.wf-sd-av\{[^}]*overflow:hidden/.test(CSS) && /\.wf-sd\{[^}]*contain:layout paint/.test(CSS), "his moving parts are clipped to his own spot; the dock contains its own layout");
   ok(DOCK_H >= 56 && DOCK_H <= 72, "the dock stays slim (" + DOCK_H + "px)");
   ok(/\.wf-sd-msg\{[^}]*-webkit-line-clamp:2/.test(CSS) && /\.wf-sd-msg\{-webkit-line-clamp:3/.test(phone), "messages are clamped to fit inside the dock");
@@ -152,8 +153,10 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   ok(typeof cc.santaOffPath === "function", "companionCharacter exports santaOffPath");
   const hanukkah = Object.entries(GUIDES).filter(([, g]) => /hanukkah|chanukah/i.test([g.title, g.keyword].join(" ")) && !/christmas/i.test(g.keyword || ""));
   ok(hanukkah.length >= 1, "positive control: at least one Hanukkah guide is published (found " + hanukkah.length + ")");
-  for (const [slug] of hanukkah) ok(cc.santaOffPath("/guides/" + slug), "Santa is off the Hanukkah guide /guides/" + slug);
-  for (const p of ["/christmas-in-florida", "/guides/florida-christmas-markets-and-towns-2026", "/guides/florida-new-years-eve-2026", "/", "/guides"]) ok(!cc.santaOffPath(p), "Santa stays on " + p);
+  for (const [slug] of hanukkah) ok(cc.santaOffPath("/guides/" + slug) && !cc.santaDockOnPath("/guides/" + slug), "Santa is off the Hanukkah guide /guides/" + slug);
+  for (const p of ["/", "/christmas-in-florida", "/christmas-in-florida/tampa/", "/guides/florida-christmas-markets-and-towns-2026?x=1#y", "/guides/christmas-lights"]) ok(cc.santaDockOnPath(p), "Santa's dock is available on " + p);
+  for (const p of ["/restaurants/parrish", "/things-to-do/tampa", "/guides", "/guides/tampa-rainy-day", "/guides/florida-new-years-eve-2026", "/guides/christmas-and-hanukkah", "/guides/pre-christmastime", "/christmas-in-florida-other", "/florida-events/tickets", "/p/venue", "/trips/live/example", "/partners"]) ok(!cc.santaDockOnPath(p), "Santa's dock stays off " + p);
+  ok(/const eligible = [^;]*elig\.path === pathname && \(!santa \|\| santaDockOnPath\(pathname\)\)/.test(boo), "the dock and impression only mount for the current eligible route");
   ok(cc.santaOffPath("/guides/florida-hanukkah-2026?x=1#y") && cc.santaOffPath("/chanukah-in-florida"), "the rule holds with a query string and for a Chanukah spelling");
   const gates = (boo.match(/!\((?:character|ch) === "santa" && santaOffPath\((?:pathname|pathRef\.current)\)\)/g) || []).length;
   ok(gates === 3, "all three BooCompanion mount gates apply the Hanukkah rule (found " + gates + ")");

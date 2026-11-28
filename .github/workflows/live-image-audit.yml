@@ -1,0 +1,47 @@
+# .github/workflows/live-image-audit.yml — open real pages, count what a visitor sees.
+#
+# Owner report 2026-11-27 ("images are missing all over"). photo-monitor and
+# guide-visual-monitor measure data; this opens gowayfind.com in a real
+# browser at phone and desktop size and counts broken images, failed image
+# requests and "no photo" fallback tiles per page (scripts/audit-live-images.mjs).
+# On demand only: it pages nobody. The report is the run's summary + artifact.
+name: live-image-audit
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Site to audit (default production)"
+        required: false
+        type: string
+  push:
+    branches: ["audit/live-images*"]
+permissions:
+  contents: read
+concurrency:
+  group: live-image-audit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install Playwright only
+        # A throwaway folder, so the app's full dependency tree is never installed.
+        run: |
+          mkdir -p "$RUNNER_TEMP/pw" && cp scripts/audit-live-images.mjs "$RUNNER_TEMP/pw/audit.mjs"
+          cd "$RUNNER_TEMP/pw" && npm init -y >/dev/null
+          npm install --ignore-scripts --no-audit --no-fund @playwright/test@1.61.1
+          npx playwright install --with-deps chromium
+      - name: Audit live pages
+        env:
+          AUDIT_BASE_URL: ${{ inputs.base_url || 'https://www.gowayfind.com' }}
+          AUDIT_OUT: ${{ github.workspace }}/live-image-audit.json
+        run: node "$RUNNER_TEMP/pw/audit.mjs"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-image-audit
+          path: live-image-audit.json

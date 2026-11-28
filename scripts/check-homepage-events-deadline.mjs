@@ -74,6 +74,8 @@ const deps = {
   react: React,
   "./home": { default: Home },
   "./components/SiteDaySeed": { default: function SiteDaySeed() {} },
+  // Weekly email signup: a static server form passed into <Home> as markup; no data read.
+  "./components/NewsletterSignup": { default: function NewsletterSignup() { return null; } },
   "../lib/siteTime": siteTime,
   "./components/ProofVeil": veil,
   "../lib/locationHonesty": { homeProofCopy: () => ({ kicker: "Example", heading: "Fixture proof", sub: "Verified control" }) },
@@ -101,6 +103,17 @@ const homeProps = tree => React.Children.toArray(tree.props.children).find(child
 // AbortSignal.timeout is unref'd; the real server keeps the event loop alive.
 const keepAlive = setInterval(() => {}, 1000);
 try {
+  // `next build` (2026-11-27): the build-phase skip must happen OUTSIDE the
+  // hourly data cache. Inside it, every deploy stored an empty success for
+  // today's key and the homepage strip stayed blank for up to an hour, and
+  // the first regeneration read that stale [] back. Executed, not grepped.
+  process.env.NEXT_PHASE = "phase-production-build";
+  const buildRows = await server.thisWeekEventsForHome(siteTime.siteTodayStr());
+  delete process.env.NEXT_PHASE;
+  ok(Array.isArray(buildRows) && buildRows.length === 0 && requests.length === 0,
+    "a build-phase homepage read returns no strip without touching Supabase");
+  ok(writes.length === 0 && entries.size === 0,
+    "a build-phase homepage read never writes an empty success into the hourly data cache");
   const started = Date.now();
   const stalled = homeProps(await Page());
   const elapsed = Date.now() - started;

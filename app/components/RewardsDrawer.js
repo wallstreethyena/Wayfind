@@ -8,6 +8,33 @@ import { C } from "./kit";
 import { Shell, showInHost, quietBtn, mainBtn, errStyle } from "./reserveUi.js";
 import { fetchRewards } from "../../lib/tripLogClient.js";
 import { LeaderboardSettings, DailyPicksToggle } from "./CommunitySettings.js";
+import { heartStatus, soundOn, setSoundOn } from "../../lib/heartPop.js";
+
+// Heart level (lib/heartPop.js): the hearts earned on this device for saving,
+// sharing, coming back and more, plus the one switch for the reward sound.
+export function HeartLevelCard() {
+  const [h, setH] = useState(null);
+  const [snd, setSnd] = useState(true);
+  useEffect(() => { setH(heartStatus()); setSnd(soundOn()); }, []);
+  if (!h) return null;
+  const pct = Math.round(h.progress * 100);
+  const toggle = () => { const next = !snd; setSoundOn(next); setSnd(next); };
+  return (
+    <div data-heart-level={h.level} style={{ background: "rgba(244,114,182,.07)", border: "1px solid rgba(244,114,182,.35)", borderRadius: 14, padding: 14, marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, letterSpacing: ".5px", textTransform: "uppercase" }}>Hearts</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: "2px 0 0" }}>Heart level {h.level}</div>
+        </div>
+        <button type="button" data-heart-sound={snd ? "on" : "off"} aria-pressed={!snd} onClick={toggle} style={{ minHeight: 44, padding: "0 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 13, fontWeight: 700, cursor: "pointer", flex: "0 0 auto" }}>{snd ? "Sound on" : "Sound off"}</button>
+      </div>
+      <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Progress to next heart level" style={{ height: 8, background: C.border, borderRadius: 999, overflow: "hidden", margin: "10px 0 8px" }}>
+        <div style={{ height: "100%", width: pct + "%", background: `linear-gradient(90deg, ${C.pink}, ${C.accent})`, borderRadius: 999 }} />
+      </div>
+      <div style={{ fontSize: 13, color: C.light }}>{h.xp} hearts. {h.toGo} more for level {h.level + 1}. Earn them by saving, sharing, exploring the map and coming back.</div>
+    </div>
+  );
+}
 
 function ProgressBar({ value }) {
   const pct = Math.round(Math.max(0, Math.min(1, Number(value) || 0)) * 100);
@@ -34,7 +61,7 @@ export function RewardsBody({ state, onRetry, onSignIn }) {
     return (
       <div data-rewards-error={code || "unknown"}>
         <p role="alert" style={errStyle}>{(r && r.error) || "We could not load your rewards. Please try again."}</p>
-        {code === "sign_in" && onSignIn ? <button type="button" style={mainBtn} onClick={onSignIn}>Sign in</button>
+        {code === "sign_in" ? (onSignIn ? <button type="button" style={mainBtn} onClick={onSignIn}>Sign in</button> : null)
           : <button type="button" style={quietBtn} onClick={onRetry}>Try again</button>}
       </div>
     );
@@ -90,6 +117,7 @@ export default function RewardsDrawer({ onClose, onSignIn }) {
   }, [tick]);
   return (
     <Shell title="Rewards and badges" sub="Log visits to earn points, move up tiers and unlock badges." onClose={onClose} titleId="wf-rewards-title">
+      <HeartLevelCard />
       <RewardsBody state={state} onRetry={() => setTick((n) => n + 1)} onSignIn={onSignIn ? () => { onClose(); onSignIn(); } : null} />
     </Shell>
   );

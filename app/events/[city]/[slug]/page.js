@@ -5,6 +5,7 @@
 // shows real, current data; an id that no longer resolves 404s via
 // notFound() — never a silent redirect to the homepage. This implements
 // the /events/[city]/[event-slug] leg of the audit prompt's URL scheme.
+import EventSignIn from "../../../components/EventSignIn.js";
 import EventPlacePhoto from "../../../components/EventPlacePhoto.js";
 import { EventHeroPhotoProvider, EventHeroCredit } from "../../../components/EventHeroPhotoContext.js";
 import { eventImageIsVenue } from "../../../../lib/eventImageProvenance.js";
@@ -39,6 +40,8 @@ import { styleHtml } from "../../../../lib/styleHtml.js";
 import { eventCostSummary, eventHoursOnDay } from "../../../../lib/eventVisitFacts.js";
 import { eventInWeekendRegion, regionalWeekendPicks, weekendRegion } from "../../../../lib/regionalWeekend.js";
 import { readWeekendEvents } from "../../../../lib/weekendEventsRead.js";
+import NewsletterSignup from "../../../components/NewsletterSignup";
+import { regionForCity } from "../../../../lib/newsletter.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -168,6 +171,7 @@ function fmtDay(dateStr) {
 // url ListItem (valid on its own; never an Event missing its location).
 function listEventItem(e) {
   const url = e.destKind === "internal" ? `${CANON}${e.dest}` : e.dest;
+  if (e.windowAvailability) return { name: e.name, url };
   const item = providerEventJsonLd(e, { pageUrl: url });
   return item ? { item } : { name: e.name, url };
 }
@@ -286,6 +290,8 @@ async function EventListPage({ params }) {
             <div className="wf-rail" data-rail={`event-window-${params.city}-${params.slug}`} role="region" tabIndex={0} aria-label={`Events ${win.label.toLowerCase()} in ${city.name}`}>
             {events.map((e) => {
               const internal = e.destKind === "internal";
+              const actionLabel = e.windowAvailability === "sold_out" ? "Sold out" : e.windowAvailability === "off_sale" ? "Off sale" :
+                e.windowSeries && e.ticketed ? "See showtimes" : e.ticketed ? "Get tickets ↗" : "Explore event";
               // 2026-10-08 (owner): no stock photo stands in for an event.
               const image = e.image || "";
               return <RailCard
@@ -294,12 +300,12 @@ async function EventListPage({ params }) {
                 placeholder={eventPlaceholder(e.segment || e.genre || "events", e)}
                 title={e.name}
                 eyebrow="Event"
-                when={{ label: fmtDay(e.date).toUpperCase(), value: fmtClock(e.time) || "All day", tone: "later" }}
+                when={{ label: fmtDay(e.date).toUpperCase(), value: fmtClock(e.time) || (e.allDay ? "All day" : "Check times"), tone: "later" }}
                 facts={[e.venue || city.name, e.price || null].filter(Boolean)}
                 href={e.dest}
                 external={!internal}
                 actionItem={{ id: e.id, type: "event", title: e.name, image, url: e.dest, provider: e.source || null }}
-                cta={{ label: e.ticketed ? "Get tickets ↗" : "Explore event", href: e.dest, external: !internal, sponsored: e.ticketed }}
+                cta={{ label: actionLabel, href: e.dest, external: !internal, sponsored: e.ticketed }}
                 ariaLabel={`Open ${e.name}`}
               />;
             })}
@@ -310,6 +316,7 @@ async function EventListPage({ params }) {
         <p style={{ margin: "20px 0 0", fontSize: 14 }}>
           <a href={`/things-to-do/${params.city}`} style={{ color: A, fontWeight: 700, display: "inline-flex", alignItems: "center", minHeight: 44 }}>Best things to do in {city.name}, any weekend</a>
         </p>
+        <NewsletterSignup source="events_list" region={regionForCity(params.city)} back={`/events/${params.city}/${params.slug}`} style={{ padding: 0 }} />
         <div style={{ marginTop: 18, fontSize: 11.5, color: "#64748B" }}>Every listing is a real, validated event — no dead links, no past dates. Times can change; confirm before you go.</div>
       </div>
     </div>
@@ -384,7 +391,10 @@ export default async function EventPage({ params }) {
       <div className="wf-event-wrap">
         <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginBottom: 18 }}>
           <a href="/" aria-label="Wayfind home" style={{ display: "inline-flex", alignItems: "center" }}><img src="/brand/wayfind-official-white.png" alt="Wayfind" width="132" height="38" style={{ width: 132, height: "auto", display: "block" }} /></a>
-          <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 12, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
+            <EventSignIn returnPath={`/events/${encodeURIComponent(params.city)}/${encodeURIComponent(params.slug)}`} />
+          </span>
         </nav>
         <EventSectionNav />
       <EventHeroPhotoProvider src={e.image || ""}>
@@ -419,7 +429,7 @@ export default async function EventPage({ params }) {
           </>}
           note={e.ticketed ? "Confirm availability and booking terms with the ticket provider before paying." : "Confirm dates and availability on the official listing."}
           credit={e.image ? <EventHeroCredit eventName={e.name} isVenue={eventImageIsVenue(e, e.image)} style={{ fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" }} linkStyle={{ color: "#FF8A3D", textDecoration: "none", fontWeight: 700 }} /> : null}
-          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span><small>Photo unavailable</small></div>}
+          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span></div>}
         />
       </EventHeroPhotoProvider>
         {/* v8.99 — the shared WHERE block (address, official site, map with
@@ -447,6 +457,7 @@ export default async function EventPage({ params }) {
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
           Listing from {e.source}. Times and availability can change — confirm on the {e.ticketed ? "ticket page" : "official site"} before you go.
         </div>
+        <NewsletterSignup source="event" region={regionForCity(params.city)} back={`/events/${params.city}/${params.slug}`} heading="Get next weekend's picks too" style={{ padding: 0 }} />
         <a href="/events" style={{ display: "inline-block", marginTop: 20, color: A, fontWeight: 800, fontSize: 13.5, textDecoration: "none" }}>‹ Back to all events</a>
       </div>
     </div>

@@ -671,7 +671,7 @@ export default function WayfindPlannerSheet() {
     });
 
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-    const timeoutId = controller ? window.setTimeout(() => { try { controller.abort(); } catch {} }, 16000) : null;
+    const timeoutId = controller ? window.setTimeout(() => { try { controller.abort(); } catch {} }, effVoice === "santa" ? 25_000 : 16_000) : null;
 
     try {
       const res = await fetch("/api/planner", {
@@ -748,6 +748,12 @@ export default function WayfindPlannerSheet() {
       } else if (data.mode === "no_change" || data.revisionStatus === "unchanged") {
         setPlanState("revision_failed");
         setRevisionNotice(data.reply || "Could not make that change.");
+      } else if (data.mode === "empty_inventory" && data.resetDraft) {
+        setProposedPlan(null);
+        setCandidateCatalog({});
+        setDraftHistory([]);
+        setPlanState("draft");
+        setRevisionNotice(null);
       } else if (data.mode === "clarify") {
         setRevisionNotice(null);
       } else if (organizing && currentActiveTrip) {

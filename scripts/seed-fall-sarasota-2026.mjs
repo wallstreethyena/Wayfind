@@ -291,7 +291,7 @@ export const ROWS = [
   start_date: "2026-10-17", end_date: "2026-10-17", start_time: "19:00:00", end_time: "23:00:00", select_nights: false, minimum_age: 21,
   schedule_note: "Saturday, October 17, 7–11pm. 21+ only. Ticketed; includes a commemorative glass and swag bag.",
   venue: "Mote Science Education Aquarium", address: "225 University Town Center Dr", city: "Sarasota", county: "Sarasota", _q: "Mote Science Education Aquarium, 225 University Town Center Dr, Sarasota, FL", place_id: "ChIJRyOEfAo5w4gR664aD_YYBLU", lat: 27.3804755, lng: -82.451898,
-  category: "seasonal", subcategory: "after-hours", tags: ["fall", "nightlife", "beer", "date-night", "local"],
+  category: "seasonal", subcategory: "oktoberfest", tags: ["fall", "nightlife", "beer", "date-night", "local"],
   is_free: false, price_band: "$$$", official_event_url: "https://mote.org/event/sharktoberfest/",
   card_hook: "Breweries, wineries and distilleries pouring after hours inside the new aquarium — 21+, sharks included.",
   editorial_summary: "Mote's after-hours tasting night at the new Science Education Aquarium: Florida breweries, wineries and distilleries pour among the exhibits, with live entertainment, for adults only.",

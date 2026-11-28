@@ -1332,7 +1332,6 @@ export default function DetailSheet({ ctx }) {
               <div data-detail-headline style={{ padding: expandedHero ? "14px 18px 0" : "calc(52px + env(safe-area-inset-top)) 18px 0", minWidth: 0, overflowWrap: "anywhere" }}>
                   {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5 }}>{pc}</div> : null; })()}
                   <div style={{ fontSize: 27, fontWeight: 800, color: C.text, lineHeight: 1.13, letterSpacing: "-0.5px" }}>{detail.name}</div>
-                  {!expandedHero ? <div data-detail-photo-unavailable style={{ marginTop: 8, color: C.muted, fontSize: 12 }}>Photo unavailable</div> : null}
               </div>
             </div>
             <div data-detail-body style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
