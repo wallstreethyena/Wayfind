@@ -858,6 +858,7 @@ scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	65	0	0	292cb9
 scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	45	0	0	829d02729f0180baee9f9a049f5cf231d270c719e28446324e3df43a38503c51
 scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	46	0	0	84c3118d018c3b6497ff5d02225f53a9753d12fa29afe91c0ed849cd47fffc26
 scripts/test-guide-email.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	18a4fa0c52f478c7c67d7e4b9e12cbe677cde98b069cf243725e688705249fc2
+scripts/test-guide-event-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	cf538d282ef5ec6ce9185c4f98a014cbd2b65044d2879dd15e50ef9b454c817c
 scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7f289d84def988b2ae1ee4137f853861ea8d69353f2588b2c1154fb9f93f0aec
 scripts/test-guide-florida-trending.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	3563db7f310be88a6f4163122414a4623829c3b476fd12286bf5919431eecc03
 scripts/test-guide-gulf-coast-world-series.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	ce58ce0d12f936d26a0f8012edf6f98bbf160b022ac5b64310a24af8a6de9330
