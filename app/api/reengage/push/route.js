@@ -35,6 +35,31 @@ const KEY_RX = /^[A-Za-z0-9_-]+=*$/;
 const TZ_RX = /^[A-Za-z_]+(\/[A-Za-z0-9_+-]+){0,2}$/;
 const json = (body, status = 200) => Response.json(body, { status, headers: NO_STORE });
 
+// The 4,096 byte limit is enforced BEFORE and WHILE the body is read: a declared
+// content-length over the limit is refused without reading anything, and a body
+// with no (or a false) length is read chunk by chunk and abandoned at the limit.
+async function readCapped(req, max) {
+  const declared = Number(req.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > max) return null;
+  if (!req.body) return "";
+  const reader = req.body.getReader();
+  const parts = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > max) { try { await reader.cancel(); } catch { /* already closed */ } return null; }
+    parts.push(Buffer.from(value));
+  }
+  return Buffer.concat(parts).toString("utf8");
+}
+
+function validTimeZone(tz) {
+  if (typeof tz !== "string" || tz.length > 64 || !TZ_RX.test(tz)) return false;
+  try { new Intl.DateTimeFormat("en-US", { timeZone: tz }); return true; } catch { return false; }
+}
+
 function anonIdFromCookie(req) {
   try {
     const m = String(req.headers.get("cookie") || "").match(/(?:^|;\s*)wf_anon_id=([^;]*)/);
@@ -50,8 +75,8 @@ export async function POST(req) {
 
   let body = null;
   try {
-    const raw = await req.text();
-    body = Buffer.byteLength(raw, "utf8") <= MAX_BODY ? JSON.parse(raw) : null;
+    const raw = await readCapped(req, MAX_BODY);
+    body = raw === null ? null : JSON.parse(raw);
   } catch { body = null; }
   if (!body || typeof body !== "object") return json({ ok: false, code: "invalid" }, 400);
 
@@ -63,7 +88,7 @@ export async function POST(req) {
   if (!KEY_RX.test(p256dh) || p256dh.length < 80 || p256dh.length > 120 || !KEY_RX.test(auth) || auth.length < 16 || auth.length > 40) {
     return json({ ok: false, code: "invalid" }, 400);
   }
-  const tz = typeof body.tz === "string" && TZ_RX.test(body.tz) && body.tz.length <= 64 ? body.tz : "America/New_York";
+  const tz = validTimeZone(body.tz) ? body.tz : "America/New_York";
   const platform = PLATFORMS.includes(body.platform) ? body.platform : null;
 
   const saved = await savePushSubscription({ anonId, endpoint, p256dh, auth, platform, tz });

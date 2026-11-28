@@ -13,16 +13,25 @@
 //     and as the one ask in 21 days, so a visitor is not asked twice.
 //   * Two equal buttons. 44px tap targets, safe area inset, z-index 890 (under the
 //     app's sheets, same as the return banner).
-//   * It sits ABOVE any bottom dock (the Santa dock on holiday pages, the planner
-//     offer bar): those are z-index 930 and up and would cover the buttons, so the
-//     card is lifted by the dock's height (measured at 390 wide: 65px).
+//   * It is an unsolicited interruption, so it obeys the owner rule of ONE per visit
+//     (lib/interruptionBudget.js): lib/reengagePushClient.offerFor asks canInterrupt()
+//     before it is offered, and this component claims the budget when it shows. That
+//     is also what keeps the planner's Santa offer (z-index 936, a bubble and a 104px
+//     figure that would cover these buttons) from appearing in the same visit. If the
+//     Santa offer is already on screen, or the budget is already spent, this renders
+//     nothing and spends nothing.
+//   * A fixed bottom dock (the Santa dock on holiday pages, z-index 930, 65px at 390
+//     wide) would cover the card, so the card is lifted by the measured dock height.
+//   * Escape, Not now and the close button are the same answer: no new ask for 21 days.
 // Copy rules: plain words, no dashes, no pressure, no countdowns, no claim of new.
 import { useEffect, useRef, useState } from "react";
 import { markPushAsked, reengageEvent } from "../../lib/reengageClient.js";
-import { PROMPT_CTX_KEY, enableReengagePush, noteAskShown, pushMode } from "../../lib/reengagePushClient.js";
+import { PROMPT_CTX_KEY, enableReengagePush, noteAskShown, pushMode, sessionStoreOf } from "../../lib/reengagePushClient.js";
+import { claimInterruption } from "../../lib/interruptionBudget.js";
 
 const T = { card: "#161B22", border: "#2D3748", text: "#F1F5F9", muted: "#94A3B8", accent: "#F97316" };
 const DOCKS = ["[data-santa-dock]", ".wfp-so"];
+const PLANNER_OFFER = "[data-wf-planner-santa-offer]";
 const BAR = {
   position: "fixed", left: 12, right: 12, margin: "0 auto", maxWidth: 520, boxSizing: "border-box", zIndex: 890,
   background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, padding: "12px 52px 12px 14px",
@@ -60,6 +69,9 @@ export default function PushPrompt() {
     const h = window[PROMPT_CTX_KEY];
     const mode = pushMode(window);
     if (!h || !mode || (h.kind !== "itinerary" && h.kind !== "hub")) return;
+    // Step aside for the planner's Santa offer, and spend the visit's one interruption (or show nothing).
+    if (window.document.querySelector(PLANNER_OFFER)) return;
+    if (!claimInterruption(sessionStoreOf(window), "push_prompt")) return;
     shown.current = true;
     noteAskShown(window);
     if (mode === "a2hs") reengageEvent(window, "reengage_a2hs_shown", { kind: h.kind, surface: "a2hs" });
@@ -70,12 +82,28 @@ export default function PushPrompt() {
   // A dock can mount after this card, so measure again shortly, and on resize.
   useEffect(() => {
     if (!m) return undefined;
-    const measure = () => setLift(dockLift(window));
+    const measure = () => {
+      if (window.document.querySelector(PLANNER_OFFER)) { setPhase("gone"); return; }
+      setLift(dockLift(window));
+    };
     measure();
     const timers = [setTimeout(measure, 700), setTimeout(measure, 2500)];
     window.addEventListener("resize", measure);
     return () => { timers.forEach(clearTimeout); window.removeEventListener("resize", measure); };
   }, [m]);
+
+  // Escape is the same answer as Not now (and as Got it on the iPhone helper), while the ask is open.
+  useEffect(() => {
+    if (!m || phase !== "ask") return undefined;
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      markPushAsked(window);
+      if (m.mode === "push") reengageEvent(window, "reengage_push_ask_no", { kind: m.kind, surface: "push" });
+      setPhase("gone");
+    };
+    window.document.addEventListener("keydown", onKey);
+    return () => window.document.removeEventListener("keydown", onKey);
+  }, [m, phase]);
 
   if (!m || phase === "gone") return null;
   const { mode, kind, trigger } = m;
@@ -94,7 +122,7 @@ export default function PushPrompt() {
 
   let title; let body; let buttons;
   if (phase === "done" || phase === "blocked" || phase === "failed") {
-    title = phase === "done" ? "Done. We will send one short note."
+    title = phase === "done" ? "Done. We will send at most 2 short notes a week."
       : phase === "blocked" ? "No problem. You can change this in your browser settings."
         : "That did not work. Please try again later.";
     buttons = <div style={ROW}><button type="button" style={PRIMARY} onClick={() => setPhase("gone")}>OK</button></div>;
@@ -103,8 +131,8 @@ export default function PushPrompt() {
     body = "Tap Share, then Add to Home Screen.";
     buttons = <div style={ROW}><button type="button" style={PRIMARY} onClick={no}>Got it</button></div>;
   } else {
-    title = kind === "itinerary" ? "Want a reminder about this plan?" : "Want a reminder about this page?";
-    body = "One short note, not at night. You can turn it off in your browser settings.";
+    title = "Want a heads up about this trip?";
+    body = "We send at most 2 short notes a week, never at night. Turn them off anytime in your browser settings.";
     buttons = (
       <div style={ROW}>
         <button type="button" style={PRIMARY} disabled={phase === "busy"} onClick={yes}>Yes, remind me</button>

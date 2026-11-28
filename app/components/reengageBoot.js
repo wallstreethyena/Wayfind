@@ -70,12 +70,17 @@ export function boot(win, onBanner, deps) {
         };
         // Every plan built on this page: tell the server (once per plan reference), then maybe ask.
         const sentRefs = new Set();
+        // A draft is THIS plan's only if it is newer than the newest draft seen so far (the one stored when
+        // the page loaded, or the last plan's). A plan the server gave no reference (noteDraft was never
+        // called) must not borrow the previous plan's reference.
+        let seenAt = state.draft ? state.draft.at : 0;
         win[rc.HOOK_ITINERARY_CALLBACK] = () => {
           if (cancelled) return;
-          const st = rc.readState(win);
-          const ref = st.draft && st.draft.planRef;
+          const d = rc.readState(win).draft;
+          const ref = d && d.at > seenAt ? d.planRef : null;
+          if (d && d.at > seenAt) seenAt = d.at;
           if (ref && !sentRefs.has(ref)) { sentRefs.add(ref); pc.sendSignal(win, "itinerary_generated", { planRef: ref }); }
-          return offer({ itinerarySeen: true });
+          return ref ? offer({ itinerarySeen: true }) : undefined;
         };
         return offer({});
       } catch (e) { /* best effort, never break the page */ }

@@ -129,6 +129,12 @@ eq(kernelProblems(kc), [], "A1: the kernel does not hold the pinned vector and b
   ok(a && b && a !== b && !a.includes("fcm.googleapis.com") && kc.openField(a, "endpoint") === ENDPOINT, "A1: sealing under the live env key did not round trip with a fresh IV and hide the host");
 }
 
+// The consent copy, word for word. The system sends push for later plans, affiliate drops and hub pages, at most 2 a week
+// (1 a day, never 8 PM to 9 AM local), so the ask says exactly that. Changing any of it is an owner decision (contract 7.10).
+const CONSENT_ASK_TITLE = "Want a heads up about this trip?";
+const CONSENT_ASK_BODY = "We send at most 2 short notes a week, never at night. Turn them off anytime in your browser settings.";
+const CONSENT_DONE = "Done. We will send at most 2 short notes a week.";
+
 // ══ browser fixtures: a real DOM with fake push plumbing and a recording fetch ═══
 const CHROME = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 const ANDROID = "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36";
@@ -241,7 +247,7 @@ const storedStrings = (win) => {
 const FLAGS0 = { hasSavedEmail: false, hasPushOptIn: false };
 const EMPTY_LEDGER = { day: null, count: 0, places: {} };
 const stateAt = (extra = {}) => ({ v: 1, recent: [], city: null, draft: { planRef: PLAN_REF, area: "sarasota", areaName: "Sarasota", at: NOW - MIN }, visits: 2, lastVisitAt: NOW, prevVisitAt: null, dismissedAt: null, hubViews: 0, pushAskedAt: null, ...extra });
-const ctxAt = (extra = {}) => ({ now: NOW, tz: "America/New_York", optedOut: false, reengageOn: true, pushOn: true, permission: "default", ledger: EMPTY_LEDGER, bannerShown: false, native: false, itinerarySeen: true, path: "/plan-my-day", ...extra });
+const ctxAt = (extra = {}) => ({ now: NOW, tz: "America/New_York", optedOut: false, reengageOn: true, pushOn: true, permission: "default", ledger: EMPTY_LEDGER, bannerShown: false, native: false, interruptOk: true, itinerarySeen: true, path: "/plan-my-day", ...extra });
 function offerRows(p) {
   const f = (state, flags, ctx) => p.shouldOfferPush(state, flags, ctx);
   return [
@@ -268,13 +274,15 @@ function offerRows(p) {
     ["7 alert cap spent yesterday is fine", f(stateAt(), FLAGS0, ctxAt({ ledger: { day: "2026-11-26", count: 1, places: {} } })), true],
     ["8 return banner shown this page load", f(stateAt(), FLAGS0, ctxAt({ bannerShown: true })), false],
     ["9 native app", f(stateAt(), FLAGS0, ctxAt({ native: true })), false],
+    ["10 this visit's one interruption is already spent", f(stateAt(), FLAGS0, ctxAt({ interruptOk: false })), false],
+    ["10 interruption budget unknown (missing)", f(stateAt(), FLAGS0, ctxAt({ interruptOk: undefined })), false],
     ["bad clock", f(stateAt(), FLAGS0, ctxAt({ now: NaN })), false],
     ["null state", f(null, FLAGS0, ctxAt()), false],
   ];
 }
 const rowFailures = (rows) => rows.filter(([, got, want]) => got !== want).map(([label]) => label);
 eq(rowFailures(offerRows(pc)), [], "A2: shouldOfferPush truth table rows failed");
-ok(offerRows(pc).length === 25, "A2: the truth table lost rows");
+ok(offerRows(pc).length === 27, "A2: the truth table lost rows");
 {
   // red-prove, executed here: delete the canAlert condition and the quiet hours and daily cap rows must fail
   const src = read("lib/reengagePushClient.js");
@@ -430,6 +438,119 @@ const modeFailures = (rows) => rows.filter(([, got, want, plat, wantPlat]) => go
   ok(/data-dock-lift/.test(read("app/components/PushPrompt.js")) && /bottom: `calc\(12px \+ \$\{lift\}px \+ env\(safe-area-inset-bottom, 0px\)\)`/.test(read("app/components/PushPrompt.js")), "A5b SOURCE-LEVEL: the measured lift is not what the bottom offset is built from");
 }
 
+// ══ A13. one unsolicited interruption per visit (lib/interruptionBudget.js), and the planner's Santa offer ══
+const ib = await loadComponent(rel("lib/interruptionBudget.js"), ROOT);
+const pp = await loadComponent(rel("lib/plannerProactive.js"), ROOT);
+{
+  const HUB = "/christmas-in-florida";
+  const hubWin = (extra = {}) => makeWin({ ua: ANDROID, url: "https://www.gowayfind.com" + HUB, state: { recent: [], visits: 3, lastVisitAt: NOW - 10 * MIN, hubViews: 1 }, ...extra });
+  const handoff = (win) => { win[pc.PROMPT_CTX_KEY] = { kind: "hub", mode: "push", trigger: { path: HUB } }; };
+  const budget = (win) => JSON.parse(win.sessionStorage.getItem(ib.INTERRUPTION_KEY) || "null");
+  const renderPrompt = (win, comp) => pinned(NOW, () => withDom(win, async () => {
+    const { host, root } = await mount(win, comp);
+    const out = { region: !!win.document.querySelector("[data-reengage-push]"), text: host.textContent };
+    await act(async () => root.unmount());
+    return out;
+  }));
+  // positive control: a fresh session of this very page DOES get the planner's Santa offer, so "none after the prompt" proves something
+  const control = pp.selectProactivePlannerOffer({ pathname: HUB, storage: hubWin().sessionStorage });
+  ok(control && typeof control.kind === "string", "A13 control: the planner has no offer on a fresh session of " + HUB + ", so the checks below would prove nothing");
+  // (1) the budget already spent (the planner got there first): no offer, the boot never loads the prompt
+  const spent = hubWin();
+  ok(ib.claimInterruption(spent.sessionStorage, "planner_christmas") === true && ib.canInterrupt(spent.sessionStorage) === false, "A13: could not spend the interruption budget for the test");
+  const o1 = await pinned(NOW, () => bootWin(spent));
+  ok(o1.loads.prompt === 0 && o1.shown.length === 0 && spent[pc.PROMPT_CTX_KEY] === undefined, "A13: the boot offered the push prompt after the visit's interruption was spent: " + JSON.stringify(o1.loads));
+  ok(stateOf(spent).hubViews === 2 && fetchesTo(spent, "/api/reengage/signal").length === 1, "A13: the facts (hub view and signal) must still be counted when the prompt is not offered");
+  // control: the same page with the budget unspent hands the prompt over
+  const open = hubWin();
+  const o2 = await pinned(NOW, () => bootWin(open));
+  ok(o2.loads.prompt === 1 && o2.shown.length === 1 && open[pc.PROMPT_CTX_KEY] && open[pc.PROMPT_CTX_KEY].kind === "hub", "A13 control: with the budget unspent the boot did not offer the prompt: " + JSON.stringify(o2.loads));
+  eq(budget(open), null, "A13: offering the prompt (before it renders) already spent the budget");
+  // (2) when the prompt SHOWS it spends the budget, so the planner then has nothing
+  const shownOut = await renderPrompt(open, o2.shown[0]);
+  ok(shownOut.region && shownOut.text.includes(CONSENT_ASK_TITLE), "A13: the prompt did not render with budget available: " + shownOut.text);
+  eq(budget(open), { n: 1, kind: "push_prompt" }, "A13: showing the prompt did not claim the interruption budget");
+  ok(pp.selectProactivePlannerOffer({ pathname: HUB, storage: open.sessionStorage }) === null, "A13: the planner still offered Santa after the push prompt used the visit's interruption");
+  // (3) Santa's offer is already on screen: the prompt steps aside, spends nothing, stamps nothing
+  const santa = hubWin();
+  const aside = santa.document.createElement("aside");
+  aside.setAttribute("data-wf-planner-santa-offer", "1");
+  santa.document.body.appendChild(aside);
+  handoff(santa);
+  const stepped = await renderPrompt(santa, Prompt);
+  ok(!stepped.region && stepped.text === "", "A13: the prompt rendered over the planner's Santa offer: " + stepped.text);
+  ok(budget(santa) === null && stateOf(santa).pushAskedAt === null && santa.localStorage.getItem("wf_alert_ledger") === null, "A13: stepping aside still spent the budget, stamped the ask or recorded an alert");
+  // (4) the budget is spent between the offer and the mount: nothing shows, nothing is stamped
+  const raced = hubWin();
+  handoff(raced);
+  ib.claimInterruption(raced.sessionStorage, "planner_x");
+  const r4 = await renderPrompt(raced, Prompt);
+  ok(!r4.region && stateOf(raced).pushAskedAt === null && raced.localStorage.getItem("wf_alert_ledger") === null, "A13: the prompt showed after another surface claimed the budget");
+  // (5) no usable sessionStorage fails CLOSED
+  const blocked = hubWin();
+  Object.defineProperty(blocked, "sessionStorage", { configurable: true, get() { throw new Error("storage blocked"); } });
+  const st = { ...stateAt({ draft: null, hubViews: 3 }) };
+  ok(pc.offerFor(blocked, st, FLAGS0, { now: NOW }) === null, "A13: the prompt was offered with no usable sessionStorage (the cap cannot be kept)");
+  ok(pc.offerFor(hubWin(), st, FLAGS0, { now: NOW }) !== null, "A13 control: the same state is offered when sessionStorage works");
+}
+
+// ══ A14. every way of saying no is the same answer: Not now, the close button and Escape all stamp the ask ══
+{
+  const HUB = "/christmas-in-florida";
+  const answerWith = async (how, { mode = "push", ua = ANDROID, pushApis = true } = {}) => {
+    const win = makeWin({ ua, pushApis, url: "https://www.gowayfind.com" + HUB, state: { recent: [], visits: 3, lastVisitAt: NOW - 10 * MIN, hubViews: 2 } });
+    win[pc.PROMPT_CTX_KEY] = { kind: "hub", mode, trigger: { path: HUB } };
+    return pinned(NOW, () => withDom(win, async () => {
+      const { root } = await mount(win, Prompt);
+      ok(!!win.document.querySelector("[data-reengage-push]"), `A14 ${how}: the prompt was not on screen before the answer`);
+      eq(stateOf(win).pushAskedAt, NOW, `A14 ${how}: showing did not stamp the ask`);
+      Date.now = () => NOW + 2 * MIN; // the answer comes two minutes later, so its own stamp is distinguishable from the one made when it showed
+      if (how === "Not now") await click(win, buttonByText(win, "Not now"));
+      else if (how === "Got it") await click(win, buttonByText(win, "Got it"));
+      else if (how === "close") await click(win, win.document.querySelector('[aria-label="Close"]'));
+      else await act(async () => { win.document.dispatchEvent(new win.KeyboardEvent("keydown", { key: "Escape", bubbles: true })); await settle(30); });
+      const out = {
+        gone: !win.document.querySelector("[data-reengage-push]"), stamp: stateOf(win).pushAskedAt,
+        asked: win.__rec.log.includes("requestPermission"), pushPosts: fetchesTo(win, "/api/reengage/push").length, subscribed: win.__rec.log.includes("subscribe"),
+      };
+      await act(async () => root.unmount());
+      return out;
+    }));
+  };
+  for (const how of ["Not now", "close", "Escape"]) {
+    const o = await answerWith(how);
+    ok(o.gone, `A14 ${how}: the prompt stayed on screen`);
+    ok(o.stamp === NOW + 2 * MIN, `A14 ${how}: markPushAsked was not called by the answer (stamp ${o.stamp}, expected ${NOW + 2 * MIN})`);
+    ok(!o.asked && o.pushPosts === 0 && !o.subscribed, `A14 ${how}: the answer opened the permission dialog, subscribed or posted`);
+  }
+  for (const how of ["Got it", "Escape"]) {
+    const o = await answerWith(how, { mode: "a2hs", ua: IOS, pushApis: false });
+    ok(o.gone && o.stamp === NOW + 2 * MIN && !o.asked && o.pushPosts === 0, `A14 iPhone helper ${how}: ` + JSON.stringify(o));
+  }
+}
+
+// ══ A6c. a plan the server gave no reference must not borrow the previous plan's reference ══
+{
+  const OLD_REF = PLAN_REF;
+  const NEW_REF = "fedcba9876543210fedcba9876543210";
+  const win = makeWin({ state: { ...draftState(), lastVisitAt: NOW - 10 * MIN } }); // an OLD draft (OLD_REF) is already stored and still fresh
+  await pinned(NOW, async () => {
+    await bootWin(win);
+    win.__WF_REENGAGE_HOOK("itinerary_generated", {}); // a new plan, but noteDraft is never called: no planRef came back
+    await settle();
+  });
+  eq(fetchesTo(win, "/api/reengage").length, 0, "A6c: a plan with no planRef posted a signal (it reused the older draft's reference)");
+  ok(win.__rec.log.length === 0 && win[pc.PROMPT_CTX_KEY] === undefined, "A6c: a plan with no planRef offered the prompt");
+  // control: the next plan DOES come back with a reference, and it is the NEW one that is posted
+  await pinned(NOW + MIN, async () => {
+    win.__WF_REENGAGE_HOOK("itinerary_generated", {});
+    rc.noteDraft(NEW_REF, "sarasota", "Sarasota", win, NOW + MIN);
+    await settle();
+  });
+  eq(fetchesTo(win, "/api/reengage/signal").map((f) => f.body.planRef), [NEW_REF], "A6c control: the new plan's own reference was not the one posted");
+  ok(OLD_REF !== NEW_REF, "A6c: test refs must differ");
+}
+
 // ══ A6. the Yes path, end to end: boot, hook, ask rendered, click, permission, subscribe, POST, flag, signal ══
 {
   const win = makeWin({ state: { ...draftState({ draft: null }), lastVisitAt: NOW - 10 * MIN } });
@@ -447,7 +568,7 @@ const modeFailures = (rows) => rows.filter(([, got, want, plat, wantPlat]) => go
   ok(win.__rec.fetches[0].init.keepalive === true && win.__rec.fetches[0].init.credentials === "same-origin" && win.__rec.fetches[0].init.method === "POST", "A6: the signal call is not a keepalive same-origin POST");
   await pinned(NOW, () => withDom(win, async () => {
     const { host, root } = await mount(win, out.shown[0]);
-    ok(host.textContent.includes("Want a reminder about this plan?") && buttonByText(win, "Yes, remind me") && buttonByText(win, "Not now"), "A6: the soft ask is not rendered with two buttons: " + host.textContent);
+    ok(host.textContent.includes(CONSENT_ASK_TITLE) && host.textContent.includes(CONSENT_ASK_BODY) && buttonByText(win, "Yes, remind me") && buttonByText(win, "Not now"), "A6: the soft ask is not rendered with the owner approved copy and two buttons: " + host.textContent);
     ok(!win.__rec.log.includes("requestPermission") && !win.__rec.log.includes("subscribe") && fetchesTo(win, "/api/reengage/push").length === 0, "A6: permission, subscribe or the push POST happened before the click");
     const mark = win.__rec.log.length;
     await click(win, buttonByText(win, "Yes, remind me"));
@@ -458,7 +579,7 @@ const modeFailures = (rows) => rows.filter(([, got, want, plat, wantPlat]) => go
     eq([post.body.subscription.endpoint, post.body.tz, post.body.platform], [ENDPOINT, "America/New_York", "desktop"], "A6: the POST body is wrong");
     eq(fetchesTo(win, "/api/reengage/signal").map((f) => f.body), [{ kind: "itinerary_generated", planRef: PLAN_REF }, { kind: "itinerary_generated", planRef: PLAN_REF }], "A6: the trigger signal was not resent with the plan reference after opt in");
     eq(JSON.parse(win.__rec.flagAtSignal[1]), { hasSavedEmail: false, hasPushOptIn: true }, "A6: the flag was not already true when the signal was resent");
-    ok(host.textContent.includes("Done. We will send one short note."), "A6: no confirmation after opting in: " + host.textContent);
+    ok(host.textContent.includes(CONSENT_DONE), "A6: no confirmation after opting in: " + host.textContent);
     // A8: the browser holds two booleans, never the endpoint or a key
     const flags = JSON.parse(win.localStorage.getItem("wf_reengage_flags"));
     eq(Object.keys(flags).sort(), ["hasPushOptIn", "hasSavedEmail"], "A8: wf_reengage_flags is not exactly two keys");
@@ -666,12 +787,54 @@ async function expect(label, req, status, extra) {
   ok(!text.includes(ENDPOINT) && !text.includes("fcm.googleapis.com"), "A10: the response holds the endpoint");
   ok(!consoleLines.some((l) => l.includes(ENDPOINT) || l.includes("fcm.googleapis.com") || l.includes(P256DH)), "A10: a log line holds the endpoint or a key");
   ok(consoleLines.concat(["x " + ENDPOINT]).some((l) => l.includes(ENDPOINT)), "A10 control: the log scan does not find a known endpoint");
+  // a zone that LOOKS right but is not a real one (Intl refuses it) becomes the default too; a real one is kept
+  await expect("A10 tz that only looks right", post(subBody({ tz: "Mars/Olympus" })), 200);
+  eq(JSON.parse(sbCalls[0].raw).tz, "America/New_York", "A10: a zone Intl does not know (Mars/Olympus) was stored");
+  await expect("A10 real tz", post(subBody({ tz: "Pacific/Auckland" })), 200);
+  eq(JSON.parse(sbCalls[0].raw).tz, "Pacific/Auckland", "A10: a real zone was not kept");
   // sanitizing: bad platform becomes null, bad tz becomes the default
   await expect("A10 sanitize", post(subBody({ platform: "toaster", tz: "not a zone!!" })), 200);
   const r2 = JSON.parse(sbCalls[0].raw);
   eq([r2.platform, r2.tz], [null, "America/New_York"], "A10: a bad platform must become null and a bad tz America/New_York");
   ok(!allCalls.some((x) => /wf_web_push_subscriptions/.test(x.u)), "A10: the member daily picks table was touched");
   ok(allCalls.every((x) => x.u.startsWith(SB + "/rest/v1/wf_reengage_push_subs")), "A10: a call went somewhere other than wf_reengage_push_subs: " + JSON.stringify([...new Set(allCalls.map((x) => x.u))]));
+}
+
+// ══ A9b. the 4,096 byte limit is enforced BEFORE and WHILE the body is read ══════
+{
+  const streamReq = ({ chunks, chunkBytes = 1000, headers = {}, body = null }) => {
+    let pulls = 0;
+    let i = 0;
+    const stream = new ReadableStream({
+      pull(c) {
+        pulls += 1;
+        if (body !== null) { c.enqueue(new TextEncoder().encode(body)); c.close(); return; }
+        if (i >= chunks) { c.close(); return; }
+        i += 1;
+        c.enqueue(new TextEncoder().encode("x".repeat(chunkBytes)));
+      },
+    }, { highWaterMark: 0 });
+    const req = new Request("https://www.gowayfind.com/api/reengage/push", {
+      method: "POST", body: stream, duplex: "half", headers: { "content-type": "application/json", cookie: "wf_anon_id=" + ANON, "user-agent": IOS, ...headers },
+    });
+    return { req, pulls: () => pulls };
+  };
+  // control: a small body arriving as a stream is accepted and written, so a refusal below is about the size
+  const good = streamReq({ body: JSON.stringify(subBody()) });
+  await expect("A9b control: small streamed body", route.POST(good.req), 200);
+  ok(sbCalls.length === 1 && good.pulls() >= 1, "A9b control: the small streamed body was not read and written");
+  // declared too large: refused with the stream never touched
+  const declared = streamReq({ chunks: 100, headers: { "content-length": "100000" } });
+  await expect("A9b declared content-length over the limit", route.POST(declared.req), 400);
+  ok(declared.pulls() === 0 && sbCalls.length === 0, `A9b: a declared 100,000 byte body was read (${declared.pulls()} pulls) or written`);
+  // no length declared: read chunk by chunk and abandoned at the limit (5 chunks of 1,000 bytes pass 4,096)
+  const unbounded = streamReq({ chunks: 100 });
+  await expect("A9b no content-length, endless body", route.POST(unbounded.req), 400);
+  ok(unbounded.pulls() >= 1 && unbounded.pulls() <= 7 && sbCalls.length === 0, `A9b: an undeclared 100,000 byte body was read ${unbounded.pulls()} times, expected it to stop near the limit`);
+  // a false (too small) declared length does not let a large body through
+  const lying = streamReq({ chunks: 100, headers: { "content-length": "10" } });
+  await expect("A9b content-length that lies", route.POST(lying.req), 400);
+  ok(lying.pulls() <= 7, `A9b: a body declared as 10 bytes was read ${lying.pulls()} times`);
 }
 
 // ══ A11. the real middleware ════════════════════════════════════════════════════
