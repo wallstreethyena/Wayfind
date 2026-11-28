@@ -20,7 +20,10 @@
 // drive-by visitor — only identify() calls (real sign-ins) create one.
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { supabase } from "../../lib/supabase";
+// The Supabase client (~53KB gz with auth-js) loads behind a dynamic import
+// AFTER the page opens. A static import here put it in the root layout's
+// first-load JS on every route (2026-11-28, homepage size gate).
+import { getSupabase } from "../../lib/lazySupabase";
 import { isGroupPlanPath } from "../../lib/groupPlanPrivacy.js";
 import {
   EARLY_DISTINCT_KEY,
@@ -214,13 +217,15 @@ export default function PostHogProvider({ children }) {
       else timerHandle = setTimeout(boot, 1500);
     };
 
-    if (supabase) {
+    getSupabase().then((supabase) => {
+      if (cancelled) return;
+      if (!supabase) { schedule(null); return; }
       try {
         const result = supabase.auth.onAuthStateChange((_event, session) => noteAuthUser(session && session.user));
         authSubscription = result && result.data && result.data.subscription;
       } catch (e) {}
       supabase.auth.getSession().then(({ data }) => schedule(data && data.session && data.session.user)).catch(() => schedule(null));
-    } else schedule(null);
+    }, () => schedule(null));
 
     return () => {
       cancelled = true;
