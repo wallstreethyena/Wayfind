@@ -10,6 +10,7 @@ import IconicPlaceCard from "../components/IconicPlaceCard.js";
 import { PhotoSrcFilterContext } from "../components/photoPolicyContext.js";
 import { GroupPlaceOptions, PlaceCard, staleFactsNote, groupPhotoFilter } from "./GroupPlaceOptions.js";
 import { GroupVoteIntro } from "./GroupFrame.js";
+import { GroupTextInvite } from "./GroupTextInvite.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
 // Group Vote organizer dashboard (Wayfind dark slate + orange + green).
@@ -162,7 +163,6 @@ export function GroupOrganizer({plan,onCommand,onDelete,busy,nowMs:nowOverride})
   const groupUrl=plan.groupToken?planUrl(plan,plan.groupToken,"group"):"";
   const isSingleFriend=plan.invitees.length===1&&!plan.openGroup;
   const groupBody=groupUrl?groupShareMessage({organizerName:plan.organizerName,places:plan.places,url:groupUrl,santa:useSantaText,single:isSingleFriend}):"";
-  const groupSmsHref=groupBody?`sms:?&body=${encodeURIComponent(groupBody)}`:"";
   const copyGroupLink=()=>{
     if(!groupUrl)return;
     try{navigator.clipboard?.writeText(groupUrl).then(()=>setNotice("Group vote link copied. Paste it into your group text or DM.")).catch(()=>setNotice("Copy failed. Use More share options below."));}
@@ -205,7 +205,7 @@ export function GroupOrganizer({plan,onCommand,onDelete,busy,nowMs:nowOverride})
       </div>
       <div className="gpo-share-preview">{groupBody}</div>
       <div className="gp-actions" style={{marginTop:10}}>
-        <a className="gp-button primary" href={groupSmsHref} onClick={()=>setNotice("Opened your Messages app with your group vote link ready to send.")}>{isSingleFriend?"Text your friend":"Send one text to your group"}</a>
+        <GroupTextInvite key={plan.id} body={groupBody} single={isSingleFriend} onNotice={setNotice}/>
         <button type="button" className="gp-button" onClick={copyGroupLink}>Copy link</button>
         <button type="button" className="gp-button" onClick={shareGroupOut}>More share options</button>
       </div>
