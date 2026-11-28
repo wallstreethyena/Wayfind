@@ -79,7 +79,10 @@ globalThis.fetch = async (url, init) => {
 process.env.NEXT_PUBLIC_POSTHOG_KEY = "phc_guardtest_not_a_real_key";
 delete process.env.WF_SUPPRESS_ANALYTICS;
 const CHROME = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";
-const NAV = { "user-agent": CHROME, "sec-fetch-dest": "document", "sec-fetch-mode": "navigate", "sec-fetch-site": "cross-site", "sec-fetch-user": "?1" };
+// A tap on a Wayfind page is same-origin. Since 2026-11-28 a desktop click_id opened
+// cross-site with no cookie of ours is the lifted-href robot shape and gets the
+// Continue page (lib/redirectTrafficClass.js proofMismatchReason).
+const NAV = { "user-agent": CHROME, "sec-fetch-dest": "document", "sec-fetch-mode": "navigate", "sec-fetch-site": "same-origin", "sec-fetch-user": "?1" };
 const mkHeaders = (o) => { const m = new Map(Object.entries(o).map(([k, v]) => [k.toLowerCase(), v])); return { get: (n) => (m.has(String(n).toLowerCase()) ? m.get(String(n).toLowerCase()) : null) }; };
 const { GET, HEAD } = await import("../app/api/stubhub/go/route.js");
 let n = 0;
