@@ -66,6 +66,9 @@ for (const [k, body] of [["html", issue.html], ["text", issue.text]]) {
   ok(/signed up for Wayfind's weekly email|signed up for Wayfind&#39;s weekly email/.test(body), `${k}: why-you-got-this line missing`);
 }
 ok(issue.html.includes("/api/commerce/go?provider=x"), "our redirect ticket link missing");
+// A card whose label already says the price ("Free admission") does not repeat it.
+ok((visibleText(issue.html).match(/Free admission/gi) || []).length === 1, "html repeats a cost that the label already says");
+ok((issue.text.match(/Free admission/gi) || []).length === 1, "text repeats a cost that the label already says");
 ok(!issue.html.includes("partner.example.com") && !issue.text.includes("partner.example.com"), "a raw partner URL reached the email");
 ok(/utm_medium=weekly_email/.test(issue.html) && !/api\/commerce\/go\?[^"]*utm_/.test(issue.html), "UTM rules wrong (our pages tagged, redirects untouched)");
 // Owner 2026-11-28: "that is not my logo". The header carries his white logo
