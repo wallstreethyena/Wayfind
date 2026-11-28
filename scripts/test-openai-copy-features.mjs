@@ -52,7 +52,13 @@ for (const f of ["lib/openAiCopy.js", "lib/eventWhyGo.js", "lib/reviewSummary.js
 ok(/paidOpenAiRequest\(/.test(rd("lib/openAiCopy.js")), "the copy gate calls paidOpenAiRequest");
 const publicNotes = "Tampa tomorrow. An indoor museum followed by lunch.";
 ok(notesForOpenAi(publicNotes) === publicNotes, "ordinary outing notes are eligible for OpenAI interpretation");
-for (const privateDetail of ["email example@wayfind.invalid", "call 813-555-0100", "reservation number ABC42F", "meet at 123 West Main Street", "my name is Jane", "record locator ABC123", "passport X12345678", "my SSN is 000-12-3456"]) {
+const datedNotes = "Tampa 2027-02-17. Looking for dinner reservation ideas.";
+ok(notesForOpenAi(datedNotes) === datedNotes, "ordinary dates and reservation ideas remain eligible");
+for (const privateDetail of [
+  "email example@wayfind.invalid", "call 813-555-0100", "call +44 20 7946 0958",
+  "reservation number ABC42F", "Confirmation ABC42F", "meet at 123 West Main Street",
+  "my name is Jane", "record locator ABC123", "passport X12345678", "my SSN is 000-12-3456", "000-12-3456",
+]) {
   ok(notesForOpenAi(publicNotes + " " + privateDetail) === null, "private notes stay with the local parser");
 }
 ok(/const aiNotes = notesForOpenAi\(notes\)/.test(rd("app/api/plan-my-day/route.js")) &&
