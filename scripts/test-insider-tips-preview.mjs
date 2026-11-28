@@ -127,6 +127,11 @@ const page = strip(readFileSync(new URL("../app/preview/insider-tips/page.js", i
 ok(/robots:\s*\{\s*index:\s*false,\s*follow:\s*false\s*\}/.test(page), "mockup page is noindex");
 const mw = strip(readFileSync(new URL("../middleware.js", import.meta.url), "utf8"));
 ok(/"\/api\/preview\/insider-tips"/.test(mw), "route is in the middleware guard matcher");
+const route = strip(readFileSync(new URL("../app/api/preview/insider-tips/route.js", import.meta.url), "utf8"));
+const plainAt = route.indexOf('searchParams.get("plain") === "1"'), aiAt = route.indexOf("answerInsiderQuestion(q)");
+ok(plainAt > 0 && aiAt > plainAt && /plainAnswerFrom\(await loadInsiderTips\(\)/.test(route.slice(plainAt, aiAt)) && !/answerInsiderQuestion/.test(route.slice(plainAt, aiAt)), "plain=1 answers from the verified tips with no Gemini call, before the AI path");
+const client = strip(readFileSync(new URL("../app/preview/insider-tips/InsiderTipsClient.js", import.meta.url), "utf8"));
+ok(/&plain=1/.test(client) && /Said simply by \{modelName\(answer\.model\)\}/.test(client) && !/color:transparent/.test(client), "a new town shows its verified tips first (readable, never hidden), and the AI line names the model");
 const lib = strip(readFileSync(new URL("../lib/insiderTipsPreview.js", import.meta.url), "utf8"));
 ok(!/generativelanguage\.googleapis\.com/.test(lib), "no direct Gemini endpoint outside lib/paidGemini.js");
 
