@@ -117,5 +117,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2552 follow-up: reserve notification kinds beyond confirmation texts",
     "reason": "NOT APPLIED. Additive only, and only after 20261116120000_wf_reserve_notifications.sql. Widens the kind check to request_received_sms, request_accepted_sms, request_declined_sms, opentable_handoff, cancellation_sms and failure_sms. Adds status recorded and channel none so a row we chose not to text is not left queued. Recipient may be null only when channel is none. No new table, no grant, RLS unchanged. Unused until RESERVE_SMS_ENABLED=1 with Twilio credentials."
+  },
+  {
+    "file": "supabase/migrations/20261128004000_owned_search_intake.sql",
+    "sha256": "09fccd1edebca264fa8f9ffc79c864605b55780e88896ab5d88ea94ac36ede8d",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2861 / #1934 / #1899",
+    "reason": "Five source-verified Wayfind inventory identities. Awaiting independent review and the recorded production migration. Original source dates and empty provider ratings are preserved. The scoped reverse is in supabase/data-fixes."
   }
 ]

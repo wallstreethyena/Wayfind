@@ -8,7 +8,7 @@ import { themeParkIntent } from '../lib/themeParks.js';
 import { attachOfficialScoreReceipt } from '../lib/lawfulOrder.js';
 import { readableScoreReceipt } from '../lib/scoreExplanation.js';
 import { resolveSearchIntent } from '../lib/searchIntent.js';
-import { cardComplete } from '../lib/score.js';
+import { cardComplete, searchEditorialCard } from '../lib/score.js';
 
 // Run the actual UI handlers. React setters, the network and sheet rendering
 // are the only boundaries mocked here; no copied search algorithm.
@@ -31,7 +31,7 @@ function harness(query, response = {status:'ok',places:[row()]}) {
     searchInputRef:{current:{focus(){state.inputFocused=true;}}}, mainSearchAbortRef:{current:null}, mainSearchAttemptRef:{current:null}, detailOpenRequestRef:{current:0},
     localCitySuggestions, createSearchAttempt, themeParkIntent, localityFromFormattedAddress, centerAgreesWithLabel, attachOfficialScoreReceipt,
     geocodeCity: async q => knownCityGeocode(q), feelingToMoment:()=>null,
-    resolveSearchIntent, cardComplete,
+    resolveSearchIntent, cardComplete, searchEditorialCard,
     EXPERIENCES:{ pizza:{label:'Pizza',keyword:'pizza'}, coffee:{label:'Coffee',keyword:'coffee shop'}, citytrap:{label:'Best of Sarasota',keyword:'Sarasota highlights'} },
     C:{accent:'#ff7a12'},
     logEvent:(name,place,extra)=>state.events.push({name,place,...extra}),
@@ -53,7 +53,7 @@ function harness(query, response = {status:'ok',places:[row()]}) {
       };
     },
   });
-  for (const name of ['cancelMainSearch','clearSearch','onQueryChange','mainSearchJson','ownedSearch','searchFailureMessage','fetchSuggestions','closeSearchLayers','goToSearchCity','openSearchPlace','pickSuggestion','submitSearch']) {
+  for (const name of ['cancelMainSearch','clearSearch','onQueryChange','mainSearchJson','isSafeSearchHref','ownedSearch','searchFailureMessage','fetchSuggestions','closeSearchLayers','goToSearchCity','openSearchPlace','pickSuggestion','submitSearch']) {
     assert(functions.has(name), `${name} exists`);
     target[name]=new Function('ctx', `with(ctx) { return (${functions.get(name)}); }`)(ctx);
   }
@@ -90,6 +90,26 @@ for(const places of [[row({exactMatch:false})],[row(),row({id:'second'})]]) {
  ctx.pickSuggestion(state.suggestions[0]);
  assert.equal(state.detail.id,'known-cafe'); assert.equal(state.detail._searchId,searchId);
  assert.equal(outcomes(state).length,1,'choosing a submitted result does not doublecount terminal outcome');
+}
+{
+ const native = row({id:'wfadd_siesta_key_area',displayName:{text:'Siesta Key'},location:{latitude:27.274813,longitude:-82.549327}});
+ const response = {status:'ok',places:[native],results:[{kind:'event',title:'Island festival',href:'/florida-events/island'}],cards:[{kind:'event',id:'festival',name:'Island festival',href:'/florida-events/island'}]};
+ const {ctx,state}=harness('Siesta Key',response);
+ await ctx.submitSearch('Siesta Key',{placeIntent:true,near:'Sarasota, FL'});
+ assert.equal(state.detail.id,native.id,'explicit place scope opens the sole exact area even with an unrelated event');
+ oneOutcome(state,'place_opened');
+ const ordinary=harness('Siesta Key',response); await ordinary.ctx.submitSearch();
+ assert.equal(ordinary.state.calls.length,0,'ordinary city search still recenters without a venue read');
+ oneOutcome(ordinary.state,'city_changed');
+ const missing=harness('Siesta Key',{status:'empty',places:[]});
+ await missing.ctx.submitSearch('Siesta Key',{placeIntent:true,near:'Sarasota, FL'});
+ oneOutcome(missing.state,'city_changed');
+ const other = row({id:'terminal-cafe', exactMatch:false});
+ const ambiguous=harness('Tampa International Airport',{...response,places:[row({id:'airport'}),other]});
+ await ambiguous.ctx.submitSearch('Tampa International Airport',{placeIntent:true,near:'Tampa, FL'});
+ assert.equal(ambiguous.state.detail.id,'old','multiple venue candidates are never auto-opened');
+ assert.equal(ambiguous.state.suggestions[0].placeId,'airport','exact venue remains available above unrelated ranked content');
+ oneOutcome(ambiguous.state,'choices_shown');
 }
 for(const query of ['Orlando','Sarasota','Sarasota, Florida']) {
  const {ctx,state}=harness(query); await ctx.submitSearch();

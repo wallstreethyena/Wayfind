@@ -128,6 +128,9 @@ async function checkSightings(prov, mapData) {
   // fresh own Google coordinate wins over a sighting; OSM only when Google cannot be drawn.
   const freshOwn = { ...stale, refreshed_at: iso(2), independent_coords: [sighting(1, { lat: 1.5 }), { source: "osm", lat: 27.5404, lng: -82.4806 }] };
   assert.equal(resolveMapCoordinate(freshOwn, NOW).lat, stale.lat, "D: a fresh own Google coordinate is tried first");
+  const native = { ...freshOwn, place_id: "wfadd_verified_area", independent_coords: [{ source: "owner_verified", lat: 27.27, lng: -82.55 }] };
+  assert.equal(resolveMapCoordinate(native, NOW).source, "owner_verified", "a native Census coordinate retains its independent provenance");
+  assert.equal(resolveMapCoordinate({ ...native, independent_coords: [] }, NOW).ok, false, "a native ID cannot stand in for a Google observation");
   // OSM with attribution -> drawn with credit; unknown -> not drawn.
   const osm = resolveMapCoordinate({ ...stale, independent_coords: [{ source: "osm", lat: 27.5404, lng: -82.4806, observed_at: iso(200) }] }, NOW);
   assert.ok(osm.ok && osm.source === "osm" && /OpenStreetMap contributors/.test(osm.attribution), "D: an old OSM coordinate is drawn with its credit");
