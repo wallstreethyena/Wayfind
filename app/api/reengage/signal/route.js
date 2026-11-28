@@ -25,6 +25,25 @@ const NO_STORE = { "cache-control": "no-store" };
 const MAX_BODY = 1024;
 const json = (body, status = 200) => Response.json(body, { status, headers: NO_STORE });
 
+/** The body as text, or null as soon as it passes `max` bytes (the rest is never read). */
+async function readCapped(req, max) {
+  if (!req.body || typeof req.body.getReader !== "function") {
+    const t = await req.text();
+    return Buffer.byteLength(t, "utf8") <= max ? t : null;
+  }
+  const reader = req.body.getReader();
+  const chunks = [];
+  let n = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    n += value.byteLength;
+    if (n > max) { try { await reader.cancel(); } catch {} return null; }
+    chunks.push(Buffer.from(value));
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 export async function POST(req) {
   if (!reengageConfigured()) return json({ ok: false, code: "unconfigured" }, 503);
   if (isSyntheticRequest(req)) return json({ ok: true });
@@ -32,10 +51,14 @@ export async function POST(req) {
   const anonId = anonIdFromCookieHeader(req.headers.get("cookie"));
   if (!anonId) return json({ ok: true });
 
+  // Fail closed on its own if reached without the middleware: refuse an oversized body by its declared length
+  // before reading anything, and cap the bytes actually read.
+  const declared = Number(req.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > MAX_BODY) return json({ ok: false, code: "invalid" }, 400);
   let body = null;
   try {
-    const raw = await req.text();
-    body = raw.length <= MAX_BODY ? JSON.parse(raw) : null;
+    const raw = await readCapped(req, MAX_BODY);
+    body = raw === null ? null : JSON.parse(raw);
   } catch { body = null; }
   if (!body || typeof body !== "object" || !SIGNAL_KINDS.includes(body.kind)) return json({ ok: false, code: "invalid" }, 400);
 

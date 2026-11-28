@@ -61,7 +61,7 @@ let S = {};
 let seq = 5000;
 function world(over = {}) {
   calls = [];
-  S = { queue: [], contacts: [], suppressions: [], signals: [], pushSubs: [], cache: {}, deals: [], hang: false, storeDown: false, resendCancels: [], ...over };
+  S = { queue: [], contacts: [], suppressions: [], signals: [], pushSubs: [], cache: {}, deals: [], hang: false, storeDown: false, failQueuePatch: false, resendCancels: [], ...over };
 }
 const jsonRes = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json" } });
 const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
@@ -108,6 +108,7 @@ async function handle(rec) {
   }
   if (method === "PATCH") {
     const hit = rows.filter((r) => filters(u).every((x) => qMatch(r, x)));
+    if (S.failQueuePatch && key === "queue") return jsonRes({ message: "boom" }, 500);
     if (key === "queue" && rec.body.status && !QUEUE_STATUS.has(rec.body.status)) return jsonRes({ code: "23514" }, 400);
     for (const r of hit) Object.assign(r, rec.body);
     return /return=representation/.test(String((rec.headers || {}).Prefer)) ? jsonRes(project(hit, decodeURIComponent(param(u, "select") || ""))) : new Response(null, { status: 204 });
@@ -339,6 +340,24 @@ const seedForConversion = () => {
     const res = await post(bad);
     ok(res.status === 400 && S.signals.length === 0 && writeCalls().length === 0, `B16 ${JSON.stringify(bad).slice(0, 40)} was not a 400 with zero writes: ${res.status}`);
   }
+  // an oversized body is refused by its declared length BEFORE anything is read, and the read itself is capped
+  {
+    world();
+    let pulled = 0;
+    const stream = (chunks, size) => new ReadableStream({ pull(ctrl) { if (chunks <= 0) { ctrl.close(); return; } chunks -= 1; pulled += size; ctrl.enqueue(new Uint8Array(size).fill(120)); } });
+    const declaredReq = new Request("https://www.gowayfind.com/api/reengage/signal", { method: "POST", headers: { "content-type": "application/json", cookie: "wf_anon_id=" + ANON, "content-length": "5000" }, body: stream(5, 8), duplex: "half" });
+    await sleep(30);
+    const primed = pulled; // the runtime primes a stream when the Request is built; only reads AFTER this are the route's
+    const declared = await signalRoute.POST(declaredReq);
+    ok(declared.status === 400 && pulled === primed && S.signals.length === 0 && calls.length === 0, `B16 a declared content-length of 5000 was not refused before reading the body: ${declared.status} pulled=${pulled}`);
+    pulled = 0;
+    const chunked = await signalRoute.POST(new Request("https://www.gowayfind.com/api/reengage/signal", { method: "POST", headers: { "content-type": "application/json", cookie: "wf_anon_id=" + ANON }, body: stream(2000, 512), duplex: "half" }));
+    ok(chunked.status === 400 && pulled <= 4096 && S.signals.length === 0, `B16 an undeclared 1 MB body was read in full or accepted: ${chunked.status} pulled=${pulled} bytes`);
+    const exact = await post(JSON.stringify({ kind: "return_visit", pad: "x".repeat(1024 - 36) }));
+    ok(exact.status === 200 || exact.status === 400, "B16 a body at the limit did not get a normal answer");
+    const small = await post({ kind: "return_visit" });
+    ok(small.status === 200 && S.signals.length >= 1, "B16 positive control: a normal body was refused by the capped reader");
+  }
   // the body can never choose the visitor
   world();
   await post({ kind: "return_visit", anonId: ANON2, anon_id: ANON2 });
@@ -514,6 +533,17 @@ const bounce = (to, type = "Permanent") => ({ type: "email.bounced", created_at:
   const res = await hook(signed(bounce(six), { id: "msg_six" }));
   ok(res.status === 200 && S.suppressions.length === 5 && S.suppressions.map((s) => s.provider_event_id).join() === "resend:msg_six:0,resend:msg_six:1,resend:msg_six:2,resend:msg_six:3,resend:msg_six:4" && S.suppressions.every((s, i) => s.email_hash === R.emailHash(six[i])), "B15 six addresses and no contact: expected 5 suppressions keyed by index, got " + S.suppressions.length);
   ok(!calls.some((c) => /@|%40/i.test(c.u)) && !calls.some((c) => c.raw.includes("@")), "B15 an address reached a URL or a request body (only the hash may)");
+  // a retry after the cancel failed: the first delivery flipped the contact then failed, the retry must still cancel the pending rows
+  {
+    const rows = seed();
+    S.failQueuePatch = true;
+    const first = await hook(signed(bounce([EMAIL]), { id: "msg_retry" }));
+    ok(first.status === 503 && S.contacts[0].status === "bounced" && rows.email.status === "pending", `B15 retry: the first delivery (cancel fails) was not 503 with the contact already flipped: ${first.status} ${S.contacts[0].status}`);
+    S.failQueuePatch = false;
+    const second = await hook(signed(bounce([EMAIL]), { id: "msg_retry" }));
+    ok(second.status === 200 && rows.email.status === "cancelled" && rows.email.cancelled_reason === "hard_bounce" && rows.email2.status === "cancelled" && rows.other.status === "pending", `B15 retry: the Svix retry left pending rows behind after the contact was already flipped: ${second.status} ${state(rows.email)} ${state(rows.email2)}`);
+    ok(S.suppressions.length === 1, "B15 retry: the retry added a second suppression row");
+  }
   // a store failure is 503 so Svix retries
   seed(); S.storeDown = true;
   const down = await hook(signed(bounce([EMAIL]), { id: "msg_down" }));

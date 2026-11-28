@@ -88,7 +88,9 @@ function world(over = {}) {
   S = {
     queue: [], contacts: [], suppressions: [], signals: [], pushSubs: [], memberSubs: [], cache: {},
     resendOk: true, ticks: () => 0, selectStatus: 0, claimIgnoresStatus: false,
-    pushResult: {}, pushCalls: [], ...over,
+    pushResult: {}, pushCalls: [], onResend: null, onPush: null, failClaim: false, pulseClock: null,
+    pulses: [{ id: 1, job: "reengage-retention", ran_at: "2099-01-01T00:00:00.000Z" }], // retention is "done" unless a test says otherwise
+    ...over,
   };
 }
 const jsonRes = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json" } });
@@ -114,17 +116,17 @@ const project = (rows, sel) => {
   const cols = sel && sel !== "*" ? sel.split(",") : null;
   return rows.map((r) => (cols ? Object.fromEntries(cols.map((c) => [c, r[c] ?? null])) : { ...r }));
 };
-const TABLES = { wf_reengage_queue: "queue", wf_reengage_contacts: "contacts", wf_reengage_suppressions: "suppressions", wf_reengage_signals: "signals", wf_reengage_push_subs: "pushSubs", wf_web_push_subscriptions: "memberSubs" };
+const TABLES = { wf_job_pulse: "pulses", wf_reengage_queue: "queue", wf_reengage_contacts: "contacts", wf_reengage_suppressions: "suppressions", wf_reengage_signals: "signals", wf_reengage_push_subs: "pushSubs", wf_web_push_subscriptions: "memberSubs" };
 const sameKey = (ix, a, b) => ix.cols.every((c) => { const x = a[c] ?? null; const y = b[c] ?? null; if (!ix.nnd && (x === null || y === null)) return false; return x === y; });
 
 async function handle(rec) {
   const { u, method } = rec;
   for (let i = S.ticks(); i > 0; i -= 1) await new Promise((r) => setImmediate(r));
   if (u.startsWith("https://api.resend.com/emails")) {
+    if (S.onResend) S.onResend();
     if (!S.resendOk) return jsonRes({ message: "no" }, 422);
     return jsonRes({ id: "em_" + (seq += 1) });
   }
-  if (u.includes("/rest/v1/wf_job_pulse")) return new Response(null, { status: 201 });
   if (u.includes("/rest/v1/wf_places_cache")) {
     const key = decodeURIComponent(u.split("k=eq.")[1].split("&")[0]);
     const v = S.cache[key];
@@ -145,6 +147,7 @@ async function handle(rec) {
   if (method === "PATCH") {
     const f = filters(u);
     const hit = rows.filter((r) => f.every((x) => qMatch(r, x)));
+    if (S.failClaim && key === "queue" && rec.body.status === "sending") return jsonRes({ message: "boom" }, 500);
     if (key === "queue" && rec.body.status && !QUEUE_STATUS.has(rec.body.status)) return jsonRes({ code: "23514" }, 400);
     if (key === "queue" && rec.body.cancelled_reason && String(rec.body.cancelled_reason).length > 80) return jsonRes({ code: "23514" }, 400);
     for (const r of hit) Object.assign(r, rec.body);
@@ -159,7 +162,7 @@ async function handle(rec) {
     const list = Array.isArray(rec.body) ? rec.body : [rec.body];
     const ignore = /resolution=ignore-duplicates/.test(String((rec.headers || {}).Prefer));
     for (const r of list) {
-      const full = { id: (seq += 1), created_at: iso(NOW), ...r };
+      const full = { id: (seq += 1), created_at: iso(NOW), ...(key === "pulses" ? { ran_at: iso(S.pulseClock ?? Date.now()) } : {}), ...r };
       if (key === "queue") {
         if (!QUEUE_STATUS.has(full.status || "pending")) return jsonRes({ code: "23514" }, 400);
         full.status = full.status || "pending"; full.attempts = 0; full.sent_at = null;
@@ -183,6 +186,7 @@ const fetchStub = async (url, init = {}) => {
 };
 globalThis.fetch = fetchStub;
 const pushSend = async ({ subscription, payload, ttl }) => {
+  if (S.onPush) S.onPush();
   S.pushCalls.push({ endpoint: subscription.endpoint, keys: subscription.keys, payload, ttl });
   return S.pushResult[subscription.endpoint] || { ok: true, status: 201, gone: false };
 };
@@ -419,18 +423,106 @@ async function gate(label, setup, expect) {
   ok(S.queue.every((r) => r.status !== "cancelled"), "B11 a row inside its lateness limit was cancelled stale: " + S.queue.map(state).join(" | "));
 }
 
-// ── retention: signals older than 90 days go in the first run after 09:00 UTC ─
+// ── retention: signals older than 90 days, once a day, on the first invocation at or after 09:00 UTC ─
 {
+  const sigs = (t) => [{ id: 1, anon_id: ANON, kind: "hub_view", created_at: iso(t - 100 * 24 * H) }, { id: 2, anon_id: ANON, kind: "hub_view", created_at: iso(t - 10 * 24 * H) }];
   const T9 = Date.parse("2026-12-02T09:02:00Z");
-  const sigs = () => [{ id: 1, anon_id: ANON, kind: "hub_view", created_at: iso(T9 - 100 * 24 * H) }, { id: 2, anon_id: ANON, kind: "hub_view", created_at: iso(T9 - 10 * 24 * H) }];
-  world({ signals: sigs() });
+  world({ signals: sigs(T9), pulses: [] });
+  S.pulseClock = T9;
   const r9 = await run({ now: T9 });
   ok(r9.retention === true && S.signals.length === 1 && S.signals[0].id === 2, "retention: the 100 day old signal was not deleted (or the recent one was): " + JSON.stringify(S.signals.map((x) => x.id)));
-  for (const at of ["2026-12-02T08:59:00Z", "2026-12-02T09:06:00Z", "2026-12-02T21:02:00Z"]) {
-    world({ signals: sigs() });
-    await run({ now: Date.parse(at) });
-    ok(S.signals.length === 2 && !calls.some((c) => c.method === "DELETE"), "retention: signals were deleted outside the 09:00 to 09:05 UTC slot (" + at + ")");
+  ok(S.pulses.length === 1 && S.pulses[0].job === "reengage-retention" && S.pulses[0].ran_at === iso(T9), "retention: the daily marker pulse was not written after the delete: " + JSON.stringify(S.pulses));
+  // the same day again: no second delete
+  S.signals = sigs(T9); calls = [];
+  await run({ now: T9 + 5 * 60e3 }); await run({ now: T9 + 9 * H });
+  ok(S.signals.length === 2 && !calls.some((c) => c.method === "DELETE"), "retention: ran again on the same UTC day after the marker was written");
+  // a missed 09:00 to 09:05 window is caught up by the first invocation after it
+  world({ signals: sigs(Date.parse("2026-12-02T14:00:00Z")), pulses: [] });
+  S.pulseClock = Date.parse("2026-12-02T14:00:00Z");
+  const late = await run({ now: Date.parse("2026-12-02T14:00:00Z") });
+  ok(late.retention === true && S.signals.length === 1, "retention: an invocation at 14:00 UTC with no marker for the day did not run it");
+  // the next day runs again
+  S.signals = sigs(Date.parse("2026-12-03T09:00:00Z")); calls = [];
+  S.pulseClock = Date.parse("2026-12-03T09:00:00Z");
+  await run({ now: Date.parse("2026-12-03T09:00:00Z") });
+  ok(S.signals.length === 1, "retention: did not run on the next UTC day");
+  // before 09:00 UTC: never
+  world({ signals: sigs(Date.parse("2026-12-02T08:59:00Z")), pulses: [] });
+  await run({ now: Date.parse("2026-12-02T08:59:00Z") });
+  ok(S.signals.length === 2 && !calls.some((c) => c.method === "DELETE"), "retention: signals were deleted before 09:00 UTC");
+  // a failed delete writes no marker (so the next run retries)
+  world({ signals: sigs(T9), pulses: [] });
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (u, i = {}) => (i && i.method === "DELETE" ? Promise.resolve(new Response("{}", { status: 500 })) : realFetch(u, i));
+  const failedDel = await D.runReengageDispatch({ sb: SB, env: ENV, now: T9, fetchImpl: globalThis.fetch, send: pushSend });
+  globalThis.fetch = realFetch;
+  ok(failedDel.retention === false && failedDel.errors >= 1 && S.pulses.length === 0, "retention: a failed delete counted as done or wrote the marker");
+}
+
+// ── P2-1 head of line: rows that are only HELD BACK must not fill the page ───
+{
+  const anons = Array.from({ length: 60 }, (_, i) => "123e4567-e89b-42d3-a456-4266141740" + String(i).padStart(2, "0"));
+  const pushSubs = anons.map((a, i) => sub({ endpoint: "https://fcm.googleapis.com/fcm/send/hol-" + i, row: { anon_id: a, tz: "Asia/Tokyo" } })); // 02:00 in Tokyo at NOW: quiet hours
+  const rows = anons.map((a, i) => pushRow({ anon_id: a, dedupe_key: "hol" + i, scheduled_for: iso(NOW - 30 * 60e3) }));
+  const em = emailRow({ scheduled_for: iso(NOW - 60e3), dedupe_key: "hol-email" });
+  world({ contacts: [contact()], pushSubs, queue: [...rows, em] });
+  const res = await run();
+  ok(em.status === "sent" && resendCalls().length === 1 && res.sent === 1, "P2-1 60 quiet-hours push rows ahead of one sendable email: the email was not sent in ONE run (status " + em.status + ", deferred " + res.deferred + ", examined " + res.examined + ")");
+  ok(res.deferred === 60 && S.pushCalls.length === 0 && rows.every((r) => r.status === "pending" && !wrote(r.id)), "P2-1 the held back rows were sent, written or not all counted as deferred: deferred=" + res.deferred);
+  // member daily pick and email spacing hold back the same way
+  const anons2 = anons.slice(0, 55);
+  world({ contacts: [contact(), contact({ id: 9, email: "z@example.test", email_hash: R.emailHash("z@example.test"), unsubscribe_token: "ef".repeat(32) })],
+    pushSubs: anons2.map((a, i) => sub({ endpoint: "https://fcm.googleapis.com/fcm/send/hol2-" + i, row: { anon_id: a } })),
+    memberSubs: anons2.map((a, i) => ({ id: i + 1, endpoint: "https://fcm.googleapis.com/fcm/send/hol2-" + i, last_sent_on: "2026-12-01" })),
+    queue: [...anons2.map((a, i) => pushRow({ anon_id: a, dedupe_key: "hm" + i, scheduled_for: iso(NOW - 30 * 60e3) })), emailRow({ contact_id: 9, scheduled_for: iso(NOW - 60e3), dedupe_key: "hm-email" })] });
+  const res2 = await run();
+  ok(S.queue[55].status === "sent" && res2.sent === 1, "P2-1 55 member-daily-pick deferrals ahead of one sendable email: not sent in one run: " + state(S.queue[55]));
+}
+
+// ── quiet hours follow the SUBSCRIPTION's zone, and a bad stored zone is the site zone ─
+{
+  const at = (tz, now) => {
+    world({ pushSubs: [sub({ row: { tz } })], queue: [pushRow({ scheduled_for: iso(now - 60e3) })] });
+    return run({ now }).then((r) => ({ r, row: S.queue[0] }));
+  };
+  const T17 = Date.parse("2026-12-01T17:00:00Z"); // 12:00 New York, 02:00 Tokyo
+  const nyNoon = await at("America/New_York", T17);
+  ok(nyNoon.row.status === "sent", "tz: a New York subscription at 12:00 local was not sent: " + state(nyNoon.row));
+  const tokyo = await at("Asia/Tokyo", T17);
+  ok(tokyo.row.status === "pending" && tokyo.r.deferred === 1 && !wrote(tokyo.row.id), "tz: a Tokyo subscription at 02:00 local was not held back: " + state(tokyo.row));
+  const T16 = Date.parse("2026-12-02T07:00:00Z"); // 02:00 New York, 16:00 Tokyo
+  const tokyoDay = await at("Asia/Tokyo", T16);
+  ok(tokyoDay.row.status === "sent", "tz: a Tokyo subscription at 16:00 local was held back by the New York clock: " + state(tokyoDay.row));
+  const nyNight = await at("America/New_York", T16);
+  ok(nyNight.row.status === "pending", "tz: a New York subscription at 02:00 local was sent");
+  const T11 = Date.parse("2026-12-02T11:00:00Z"); // 06:00 New York, 11:00 UTC
+  for (const bad of ["Not/AZone", "", null, "x".repeat(80)]) {
+    const r = await at(bad, T11);
+    ok(r.row.status === "pending" && r.r.deferred === 1, `tz: a stored zone ${JSON.stringify(bad).slice(0, 14)} fell back to the process zone (UTC, where 11:00 is allowed) instead of New York (06:00, quiet): ${state(r.row)}`);
   }
+  ok(D.safeTz("Europe/London") === "Europe/London" && D.safeTz("Not/AZone") === "America/New_York" && D.safeTz(undefined) === "America/New_York", "tz: safeTz does not keep a valid zone or default a bad one to New York");
+  const london = await at("Europe/London", T11);
+  ok(london.row.status === "sent", "tz: positive control: a London subscription at 11:00 local was not sent: " + state(london.row));
+}
+
+// ── settle must not overwrite a row another actor already ended ─────────────
+{
+  world({ contacts: [contact()], queue: [emailRow()] });
+  const id = S.queue[0].id;
+  S.onResend = () => { Object.assign(S.queue[0], { status: "failed", cancelled_reason: "stuck_sending" }); }; // the reaper got there while the send was in flight
+  await run();
+  ok(S.queue[0].status === "failed" && S.queue[0].cancelled_reason === "stuck_sending" && id, "settle overwrote a row that had already left `sending`: " + state(S.queue[0]));
+  world({ pushSubs: [sub()], queue: [pushRow()] });
+  S.onPush = () => { Object.assign(S.queue[0], { status: "failed", cancelled_reason: "stuck_sending" }); };
+  await run();
+  ok(state(S.queue[0]) === "failed/stuck_sending", "settle overwrote a push row that had already left `sending`: " + state(S.queue[0]));
+}
+
+// ── a failed claim is a store error: the cron must not report plain success ─
+{
+  world({ contacts: [contact()], queue: [emailRow()], failClaim: true });
+  const res = await run();
+  ok(res.errors >= 1 && res.sent === 0 && S.queue[0].status === "pending" && resendCalls().length === 0, "a failed claim was not counted as an error or still sent: " + JSON.stringify({ errors: res.errors, status: S.queue[0].status }));
 }
 
 // ── B12 + B5. messages: UTM, no go links, no address, tag ────────────────────
@@ -498,7 +590,7 @@ async function gate(label, setup, expect) {
 // ── B13 and B17. the cron route, EXECUTED ───────────────────────────────────
 {
   const get = (headers) => cronRoute.GET(new Request("https://www.gowayfind.com/api/cron/reengage-dispatch", { headers }));
-  const pulses = () => calls.filter((c) => c.u.includes("wf_job_pulse")).map((c) => c.body);
+  const pulses = () => calls.filter((c) => c.u.includes("wf_job_pulse") && c.method === "POST").map((c) => c.body).filter((b) => b && b.job === "reengage-dispatch");
   world({ contacts: [contact()], queue: [emailRow()] });
   const secret = CRON_SECRET;
   delete process.env.CRON_SECRET;
@@ -523,6 +615,21 @@ async function gate(label, setup, expect) {
   res = await get({ authorization: "Bearer " + secret });
   body = await res.json();
   ok(res.status === 200 && body.ok === true && body.attempted === 0 && pulses().length === 1 && pulses()[0].attempted === 0 && !pulses()[0].failed, "B17 an idle run was not a successful pulse with 0 attempted: " + JSON.stringify({ status: res.status, body, pulses: pulses() }));
+  // store errors with nothing sent: a failed run, never a plain success
+  world({ contacts: [contact()], queue: [emailRow({ scheduled_for: iso(Date.now() - 60e3) })], failClaim: true });
+  res = await get({ authorization: "Bearer " + secret });
+  body = await res.json();
+  ok(res.status === 500 && body.ok === false && pulses().length === 1 && pulses()[0].failed === 1 && /store error/.test(pulses()[0].note || ""), "a failed claim with nothing sent did not answer 500 with a failed pulse: " + JSON.stringify({ status: res.status, pulses: pulses() }));
+  // store errors beside a real send: the pulse counts them as failures
+  world({ contacts: [contact(), contact({ id: 8, email: "b@example.test", email_hash: R.emailHash("b@example.test"), unsubscribe_token: "cd".repeat(32) })], queue: [emailRow({ scheduled_for: iso(Date.now() - 120e3) }), emailRow({ contact_id: 8, anon_id: ANON2, scheduled_for: iso(Date.now() - 60e3) })] });
+  let n = 0;
+  S.onResend = () => { n += 1; };
+  const origHandle = globalThis.fetch;
+  globalThis.fetch = (u, i = {}) => { const claim = i && i.method === "PATCH" && /"status":"sending"/.test(String(i.body || "")) && /id=eq\./.test(String(u)); return claim && S.queue[1] && String(u).includes("id=eq." + S.queue[1].id) ? Promise.resolve(new Response("{}", { status: 500 })) : origHandle(u, i); };
+  res = await get({ authorization: "Bearer " + secret });
+  globalThis.fetch = origHandle;
+  body = await res.json();
+  ok(res.status === 200 && body.sent === 1 && body.errors === 1 && pulses().length === 1 && pulses()[0].succeeded === 1 && pulses()[0].failed === 1, "a failed claim beside a real send was not counted as a failure in the pulse: " + JSON.stringify({ status: res.status, sent: body.sent, errors: body.errors, pulses: pulses() }));
   // B13: a failing due select is a FAILED run
   world({ contacts: [contact()], queue: [emailRow()], selectStatus: 500 });
   res = await get({ authorization: "Bearer " + secret });

@@ -38,7 +38,10 @@ export async function GET(req) {
       await recordPulse(JOB, { attempted: 0, succeeded: 0, note: "skipped: " + r.reason });
       return Response.json({ ok: true, skipped: r.reason }, { headers: NO_STORE });
     }
-    await recordPulse(JOB, { attempted: r.attempted, succeeded: r.sent, failed: r.failed, note: `cap=${r.skippedCap} supp=${r.skippedSuppressed} stale=${r.stale} reaped=${r.reaped} deferred=${r.deferred} errors=${r.errors}` });
+    // Store errors (a failed claim, settle, reap or sweep) are not a success: nothing sent plus errors is a failed run,
+    // and errors beside real sends are counted as failures in the pulse so job-watch sees them.
+    if (r.errors > 0 && r.sent === 0) return jobFailed(JOB, `${r.errors} store error(s) and nothing sent`, { attempted: r.attempted, succeeded: 0 });
+    await recordPulse(JOB, { attempted: r.attempted, succeeded: r.sent, failed: r.failed + r.errors, note: `cap=${r.skippedCap} supp=${r.skippedSuppressed} stale=${r.stale} reaped=${r.reaped} deferred=${r.deferred} errors=${r.errors}` });
     try { console.log(JSON.stringify({ tag: "reengage_dispatch", ...r })); } catch {}
     return Response.json(r, { headers: NO_STORE });
   } catch (e) {
