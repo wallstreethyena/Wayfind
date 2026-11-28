@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { THEME_PARKS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks, filterFamilyThemeParks } from "../lib/themeParks.js";
+import { distanceMiles, formatDistanceMiles } from "../lib/deviceDistance.js";
 import { THEME_PARK_PLACE_IDS } from "../lib/themeParksServer.js";
 import { themeParkRows, loadThemeParks, themeParkAliasPattern, isTransientInventoryError, OWNER_PICKS_DEADLINE_MS } from "../lib/themeParksServer.js";
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
@@ -29,6 +30,13 @@ assert.ok(!/near/i.test(themeParkHeading("flagship").title + themeParkHeading("f
 const row = (name, id, rating, reviews) => ({ place_id: id, name, lat: 28, lng: -81, category: "attractions", primary_type: "amusement_park", google_types: ["theme_park"], status: "OPERATIONAL", photo_ref: `places/${id}123456789012345/photos/photo123456789012345`, signals: { rating, reviews } });
 const shaped = themeParkRows([row("Gatorland", "g", 4.7, 1000), row("SeaWorld Orlando", "s", 4.8, 10000), row("Universal CityWalk Orlando", "x", 5, 99999)], "flagship");
 assert.deepEqual(shaped.map((x) => x.id), ["s", "g"], "exact parks only, ordered by visible score");
+const [locatedPark] = themeParkRows([{ ...row("Gatorland", "g", 4.7, 1000), lat: "28.354", lng: "-81.404" }]);
+for (const [fix, expected] of [[{lat:25.77, lng:-80.19}, "193.5"], [{lat:24.56, lng:-81.78}, "263.2"]]) {
+  assert.equal(formatDistanceMiles(distanceMiles(fix, locatedPark)), expected, "a real device fix gives the straight-line distance to this park");
+}
+assert.equal(distanceMiles(null, locatedPark), null, "a chosen city alone never fabricates a device distance");
+const [unlocatedPark] = themeParkRows([{ ...row("Gatorland", "g", 4.7, 1000), lat: null, lng: null }]);
+assert.ok(unlocatedPark && distanceMiles({ lat: 25.77, lng: -80.19 }, unlocatedPark) === null, "missing park coordinates cannot become a distance to zero degrees");
 assert.ok(shaped.every((x) => placePartnerPick(x)), "every returned place has one shared winner");
 assert.equal(themeParkRows([{ ...row("Gatorland", "cold", 4.9, 9999), photo_ref: null }], "flagship").length, 0, "a cold place-id photo lookup cannot enter the owned-only rail");
 const operatorRows = [row("Magic Kingdom Park", "m", 4.8, 9000), row("Universal Studios Florida", "u", 4.9, 9000), row("SeaWorld Orlando", "s2", 4.9, 9000)];

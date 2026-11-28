@@ -38,10 +38,18 @@ assert.ok(home.indexOf("<HomeAffiliateActivityRail") < home.indexOf('<ThemeParkR
   "the homepage keeps Bookable near the reader first, then Florida's Biggest Parks");
 assert.match(home, /browseCat === "family" && <ThemeParkRail mode="family"/,
   "Family browse has the permanent park rail");
-assert.match(home, /browseCat === "attractions" && \(!sub \|\| sub === "all" \|\| sub === "themeparks"\) && <ThemeParkRail/,
+assert.match(home, /browseCat === "attractions" && \(!sub \|\| sub === "all" \|\| sub === "themeparks"\) &&\s*<ThemeParkRail/,
   "Activities All and Theme Parks have the park rail");
 assert.match(home, /resolveMetro\(locName\) === "orlando" \? "orlando" : "flagship"/,
   "Orlando uses its dedicated park mode while other cities keep the honest Florida label");
+
+const parkTab = home.indexOf('{sub === "themeparks" && activitiesParkRail}');
+const localOffers = home.indexOf('{browseCat === "attractions" && center && <UnifiedBrowseCommerceRail');
+const localRanking = home.indexOf('{browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList');
+const generalParks = home.indexOf('{(!sub || sub === "all") && activitiesParkRail}');
+assert.ok(parkTab >= 0 && parkTab < localOffers, "the explicit Theme Parks tab keeps its ticketed park rail first");
+assert.ok(localOffers >= 0 && localRanking >= 0 && generalParks > localOffers && generalParks > localRanking,
+  "Activities All puts its local offers and ranked nearby activities above statewide destination parks");
 
 const intentIndex = home.indexOf("const parkIntent = themeParkIntent(q)");
 const areaIndex = home.indexOf("const result = await ownedSearch(q, nearGeo || searchCenter)", intentIndex);
