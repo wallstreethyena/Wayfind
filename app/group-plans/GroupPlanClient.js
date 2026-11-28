@@ -398,16 +398,17 @@ function QuickCard({item,on,disabled,onToggle,original}) {
     {item.photoAttr&&<span className="gq-credit">{item.photoAttr}</span>}
   </button>;
 }
-export function GroupQuickCreate({placeId,placeName="",session,request=groupRequest}) {
+export function GroupQuickCreate({placeId,placeName="",session,request=groupRequest,initialPool=null,demo=false}) {
   const metaName=String(session?.user?.user_metadata?.first_name||session?.user?.user_metadata?.given_name||session?.user?.user_metadata?.full_name||session?.user?.user_metadata?.name||"").trim().split(/\s+/)[0]||"";
-  const [pool,setPool]=useState([]),[selected,setSelected]=useState([]),[loading,setLoading]=useState(false);
+  // initialPool/demo serve only the preview-build demo page (app/group-plans/preview).
+  const [pool,setPool]=useState(()=>Array.isArray(initialPool)?initialPool:[]),[selected,setSelected]=useState(()=>Array.isArray(initialPool)&&initialPool[0]?[initialPool[0]]:[]),[loading,setLoading]=useState(false);
   const [times,setTimes]=useState([""]),[zone,setZone]=useState("America/New_York"),[name,setName]=useState(metaName);
   const [addOpen,setAddOpen]=useState(false),[addQuery,setAddQuery]=useState(""),[addResults,setAddResults]=useState(null),[addBusy,setAddBusy]=useState(false);
   const [busy,setBusy]=useState(false),[error,setError]=useState(""),[created,setCreated]=useState(null),[notice,setNotice]=useState("");
   const createKey=useRef(null),inFlight=useRef(false);
   useEffect(()=>{setZone(Intl.DateTimeFormat().resolvedOptions().timeZone||"America/New_York");setTimes([localDefault(3,18)]);},[]);
   useEffect(()=>{
-    if(!placeId||!session?.access_token)return;
+    if(demo||!placeId||!session?.access_token)return;
     let alive=true;setLoading(true);
     request("/api/group-plans",{action:"suggest",placeId},session)
       .then((res)=>{if(!alive)return;const seed=res?.seed?[res.seed]:[];const more=[...(res?.places||[]),...(res?.experiences||[])];setPool([...seed,...more]);if(seed.length)setSelected((prev)=>prev.length?prev:seed);})
@@ -432,6 +433,7 @@ export function GroupQuickCreate({placeId,placeName="",session,request=groupRequ
     if(!proposed.length){setError("Pick a day and time for your outing.");try{document.getElementById("gq-time-0")?.focus?.();}catch{}return;}
     const replyBy=suggestedGroupDeadline(times.filter(Boolean),zone,Date.now(),{});
     if(!replyBy){setError("Pick a time at least a few hours from now.");return;}
+    if(demo){setCreated({id:"preview",groupToken:"preview",organizerName:name.trim(),places:selected});return;}
     inFlight.current=true;setBusy(true);
     try{
       const ids=selected.map((p)=>p.id);
@@ -460,7 +462,7 @@ export function GroupQuickCreate({placeId,placeName="",session,request=groupRequ
         <button type="button" className="gp-button" onClick={()=>shareOut({title:"Group Vote on Wayfind",text:body.replace(url,"").trim(),url},()=>setNotice("Link copied. Paste it into your group chat."))}>More ways to share</button>
       </div>
       {notice&&<p className="gp-status" role="status">{notice}</p>}
-      <a className="gq-link" href={`/group-plans/${encodeURIComponent(created.id)}`}>See who voted →</a>
+      <a className="gq-link" href={demo?"?view=ballot":`/group-plans/${encodeURIComponent(created.id)}`}>{demo?"See what friends get →":"See who voted →"}</a>
     </section>;
   }
   const extra=pool.filter((p)=>!selected.some((s)=>s.id===p.id));
