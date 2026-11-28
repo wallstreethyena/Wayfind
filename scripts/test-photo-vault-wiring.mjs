@@ -1544,6 +1544,94 @@ const PHOTO = (id) => ({
 }
 
 
+// The :50 general run reserves at most four existing slots; its source and
+// work budget remain independent of the :05 repair and :35 at-risk drains.
+{
+  const categories = ["food", "nightlife", "shopping", "hotels"];
+  const businesses = categories.flatMap(category => Array.from({ length: 8 }, (_, n) => ({
+    place_id: `business-${category}-${n}`, name: `Venue ${category} ${n}`,
+    lat: 27.7, lng: -82.6, category, city: "St. Petersburg",
+  })));
+  const classic = Array.from({ length: 32 }, (_, n) => ({ place_id: `beach-${n}`, name: `Beach ${n}`, category: "beach", tags: [], lat: 27.7, lng: -82.6 }));
+  const stored = new Map(), requests = [], resolved = [], writes = [];
+  const curatedId = "ChIJ73_jJQBn54gRyBzOZRlSfi4";
+  const raceId = businesses[0].place_id;
+  let failNewView = false, raced = false, replayRows = [];
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init = {}) => {
+    const u = new URL(url), table = u.pathname.split("/").at(-1), method = init.method || "GET";
+    ok(u.origin === SB.url, "businesses: real worker calls only the fake owned REST service; resolver/vault are injected");
+    requests.push({ table, method, params: u.searchParams });
+    if (table === "wf_photo_business_free_candidate") {
+      ok(u.searchParams.get("order") === "category_position.asc,category.asc,place_id.asc", "businesses: balanced category rank precedes the scan limit");
+      ok(u.searchParams.get("place_id")?.startsWith("not.in.(") && u.searchParams.get("place_id").includes(curatedId), "businesses: actual exact curated IDs are excluded before LIMIT");
+      if (failNewView) return Response.json({}, { status: 503 });
+      // Challenge a stale/misconfigured source with a curated row and an
+      // already-decided row. Neither can eat an external source call.
+      return Response.json([{ ...businesses[0], place_id: curatedId }, ...businesses]);
+    }
+    if (table === "wf_photo_general_free_candidate") return Response.json(classic.slice(0, Number(u.searchParams.get("limit"))));
+    if (table === "wf_photo_at_risk_free_candidate" || table === "wf_photo_repair_queue") return Response.json([]);
+    if (table === "wf_inventory") return Response.json(replayRows);
+    if (table === "wf_place_photo" && method === "GET") {
+      if (u.searchParams.has("status")) return Response.json(replayRows);
+      return Response.json([...stored.values()]);
+    }
+    if (table === "wf_place_photo" && method === "POST") {
+      const [row] = JSON.parse(init.body);
+      const fresh = row.place_id.startsWith("business-");
+      if (fresh) ok(init.headers.Prefer === "resolution=ignore-duplicates,return=representation", "businesses: another photo decision cannot be overwritten");
+      if (fresh && row.place_id === raceId && !raced) {
+        raced = true;
+        stored.set(raceId, { place_id: raceId, status: "active", source: "owner" });
+        return Response.json([]);
+      }
+      writes.push(row); stored.set(row.place_id, row);
+      return Response.json(fresh ? [{ place_id: row.place_id }] : []);
+    }
+    throw new Error("Unexpected worker fetch " + table + " " + method);
+  };
+  const opts = { source: "all", limit: 25, scanLimit: 1000, sbEnv: SB, now: Date.UTC(2026, 10, 28),
+    dryRun: false, storePhoto: null, wikimedia: { canRequest: () => true }, resolvePhoto: async (place, deps) => {
+      resolved.push(place);
+      if (place.place_id === raceId) return PHOTO(place.place_id);
+      deps.onReject("no_direct_commons_candidate"); return null;
+    } };
+  try {
+    const coveredId = businesses.find(row => row.category === "hotels").place_id;
+    stored.set(coveredId, { place_id: coveredId, source: "owner", status: "active" });
+    const first = await runBackfill(opts);
+    const chosen = resolved.filter(p => categories.includes(p.category));
+    eq(first.attempted, 25, "businesses: four new opportunities come out of the existing 25");
+    eq(first.businessTaken, 4, "businesses: general hour takes four independent businesses when all cohorts exist");
+    eq(new Set(chosen.map(x => x.category)).size, 4, "businesses: food cannot monopolize nightlife, shopping or hotels");
+    eq(resolved.filter(x => x.category === "beach").length, 21, "businesses: 21 original beach/attraction slots remain without replay backlog");
+    ok(chosen.every(p => p.city === "St. Petersburg" && p.place_id !== coveredId && p.place_id !== curatedId), "businesses: current city evidence is carried and known covers are skipped");
+    const used = requests.filter(x => ["wf_photo_general_free_candidate","wf_photo_business_free_candidate"].includes(x.table)).reduce((n,x) => n + Number(x.params.get("limit")), 0);
+    eq(used, 1000, "businesses: both fresh candidate reads share the original 1000-row scan cap");
+    ok(raced && stored.get(raceId).source === "owner" && !writes.some(x => x.place_id === raceId) && first.details.some(x => x.reason === "concurrent-photo-decision"), "businesses: an owner decision appearing during resolution wins and uses no vault write");
+    const prior = new Set(resolved.map(x => x.place_id)); resolved.length = 0;
+    const second = await runBackfill(opts);
+    ok(second.businessTaken === 4 && resolved.filter(x => categories.includes(x.category)).every(x => !prior.has(x.place_id)), "businesses: the next run advances past every previous terminal decision");
+    stored.clear(); resolved.length = 0;
+    replayRows = Array.from({ length: 20 }, (_, i) => ({ ...classic[i], place_id: "replay-" + i, source_ref: "rejected:no_wiki_candidate", status: "rejected", verified_at: "2026-10-01T00:00:00Z" }));
+    const mixed = await runBackfill({ ...opts, dryRun: true });
+    eq(mixed.replayTaken, 13, "businesses: the established half-run replay reservation is preserved");
+    ok(mixed.attempted === 25 && mixed.businessTaken === 4 && resolved.filter(x => x.place_id.startsWith("beach-")).length === 8, "businesses: four business and eight original fresh places share the remainder");
+    replayRows = []; failNewView = true; resolved.length = 0; requests.length = 0;
+    const degraded = await runBackfill({ ...opts, dryRun: true });
+    ok(degraded.businessError?.includes("503") && degraded.attempted === 25 && resolved.every(x => x.category === "beach"), "businesses: failed/missing new view is distinguishable and all 25 classic slots still work");
+    ok(requests.some(x => x.table === "wf_photo_general_free_candidate" && Number(x.params.get("limit")) === 1000), "businesses: a missing optional view restores the entire legacy read ceiling");
+    requests.length = 0;
+    for (const source of ["repair", "at-risk", undefined]) await runBackfill({ ...opts, source, dryRun: true });
+    ok(!requests.some(x => x.table === "wf_photo_business_free_candidate"), "businesses: no other source or implicit CLI lane reads new businesses");
+    const migration = readFileSync(new URL("../supabase/migrations/20261128021500_wf_photo_business_free_candidate.sql", import.meta.url), "utf8");
+    ok(/security_invoker\s*=\s*true/.test(migration) && /revoke all[\s\S]+from public, anon, authenticated/.test(migration) && /grant select[\s\S]+service_role/.test(migration), "businesses: candidate view retains caller RLS and is service-role-only");
+    ok(/i\.excluded is not true/.test(migration) && /wf_place_photo p where p\.place_id = i\.place_id/.test(migration) && /q\.status in \('open', 'budget_blocked'\)/.test(migration), "businesses: SQL excludes nonpublic inventory, any existing photo decision, and active repair cases before selection");
+    ok(/join storage\.objects/.test(migration) && /g\.state = 'ready'/.test(migration) && /photo_gallery/.test(migration) && /attribution_url/.test(migration) && /wf-photo-fallback/.test(migration), "businesses: a retained Google object, eligible inventory cover and credited general gallery are distinguished from unretained refs and fallback art");
+  } finally { globalThis.fetch = originalFetch; }
+}
+
 // Scheduled-size scans must reach undecided rows after a fully decided prefix.
 // The fake database distinguishes the actionable view from raw inventory, so
 // reverting only the worker URL reproduces the original starvation.

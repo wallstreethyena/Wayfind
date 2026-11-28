@@ -113,11 +113,13 @@ export async function GET(req) {
   // OTHER note (idle, tableUnavailable, the ordinary summary) still gets the
   // "place-photos: " job label, because those notes carry no anchor to
   // protect.
-  const note = result.tableUnavailable
+  const baseNote = result.tableUnavailable
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? (isDeterministicFailureNote(result.note) ? result.note : `place-photos: ${result.note}`)
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeRepair(result)}, ${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered, revault ${result.revaulted || 0}/${result.revaultAttempted || 0})`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeRepair(result)}, ${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}${source === "all" ? `, business ${result.businessTaken || 0}/${result.businessScanned || 0}` : ""}, ${result.alreadyCovered} already covered, revault ${result.revaulted || 0}/${result.revaultAttempted || 0})`;
+
+  const note = result.businessError ? `unavailable: business photo candidates (${result.businessError}); ${baseNote}` : baseNote;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });
@@ -139,6 +141,9 @@ export async function GET(req) {
     vaulted: result.vaulted || 0,
     vaultSkipped: result.vaultSkipped || 0,
     scanned: result.scanned || 0,
+    businessScanned: result.businessScanned || 0,
+    businessTaken: result.businessTaken || 0,
+    businessError: result.businessError || null,
     repairScanned: result.repairScanned || 0,
     repairTaken: result.repairTaken || 0,
     repairUnavailable: !!result.repairUnavailable,
