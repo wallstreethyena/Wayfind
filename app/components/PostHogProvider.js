@@ -28,6 +28,7 @@ import {
   EARLY_SESSION_KEY,
   PRE_READY_QUEUE_KEY,
   analyticsSuppressionReason,
+  captureOrQueue,
   captureSpaPageview,
   clearPreReadyQueue,
   createPageVisitTracker,
@@ -51,7 +52,7 @@ export default function PostHogProvider({ children }) {
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     if (typeof window === "undefined" || window._phInit) return;
-    if (isGroupPlanPath(window.location.pathname)) { window.__WF_ANALYTICS_SUPPRESSED="private_group_plan"; clearPreReadyQueue(window); return; }
+    if (isGroupPlanPath(window.location.pathname)) { window.__wfTakeChunkIncident?.(); window.__WF_ANALYTICS_SUPPRESSED="private_group_plan"; clearPreReadyQueue(window); return; }
     // SHARE ATTRIBUTION v2 (2026-11-13, lib/shareAttribution.js). First, so
     // wf_st leaves the address bar before landing capture or any app effect
     // reads the URL, and so refresh/back cannot recount the visit. Fail-open.
@@ -87,6 +88,7 @@ export default function PostHogProvider({ children }) {
     const pendingEvents = [];
 
     const suppress = (reason) => {
+      window.__wfTakeChunkIncident?.();
       window.__WF_ANALYTICS_SUPPRESSED = reason;
       try { if (window.posthog) window.posthog.opt_out_capturing(); } catch (e) {}
       phClient = null;
@@ -169,6 +171,8 @@ export default function PostHogProvider({ children }) {
         phClient = ph;
         window.posthog = ph;
         window._phInit = "ready";
+        const incident = window.__wfTakeChunkIncident?.();
+        if (incident) captureOrQueue(window, "chunk_recovery", incident);
         while (pendingEvents.length) {
           const [event, properties, timestamp] = pendingEvents.shift();
           ph.capture(event, properties, { timestamp });
@@ -192,7 +196,7 @@ export default function PostHogProvider({ children }) {
       if (cancelled) return;
       const blocked = reason(user);
       if (blocked) { suppress(blocked); return; }
-      if (!key) return;
+      if (!key) { window.__wfTakeChunkIncident?.(); return; }
       bootUser = user;
       // Start measuring before the idle-loaded SDK is ready. Events stay only
       // in memory, and are discarded if auth later proves this is the owner.
@@ -233,7 +237,7 @@ export default function PostHogProvider({ children }) {
   const landingPageview = useRef(false);
   useEffect(() => {
     if (isGroupPlanPath(pathname)) {
-      try { window.__WF_ANALYTICS_SUPPRESSED="private_group_plan";window.posthog?.opt_out_capturing();window.__WF_PAGE_TRACKER?.stop({emitExit:false});clearPreReadyQueue(window); } catch (e) {}
+      try { window.__wfTakeChunkIncident?.(); window.__WF_ANALYTICS_SUPPRESSED="private_group_plan";window.posthog?.opt_out_capturing();window.__WF_PAGE_TRACKER?.stop({emitExit:false});clearPreReadyQueue(window); } catch (e) {}
       return;
     }
     try { if (window.__WF_PAGE_TRACKER) window.__WF_PAGE_TRACKER.navigate(pathname); } catch (e) {}
