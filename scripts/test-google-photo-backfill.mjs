@@ -31,6 +31,7 @@ import {
 import { BACKFILL_BROWSE_PLACE_IDS, BACKFILL_CHRISTMAS_VENUE_PLACE_IDS, GOOGLE_PHOTO_BACKFILL_PLACE_COUNT, isGooglePhotoBackfillPlace } from "../lib/googlePhotoBackfillAllowlist.js";
 import { coverPhotoIndex, liveCreditFrom, resolvePlacePhoto } from "../lib/placePhotoServe.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
+import { dropUnservableCardPhotos } from "../lib/christmasTickets.js";
 import { CHRISTMAS_EVENT_VENUE_PLACE_IDS } from "../lib/christmasPool.js";
 
 let failures = 0, passes = 0;
@@ -227,6 +228,10 @@ const base = (L, extra = {}) => ({ env: ON, now: NOV, take: L.take, refund: L.re
     const on = christmasEventCard(ev, { today: "2026-11-23" });
     ok(String(on.image || "").startsWith("/api/photo?place=" + pid + "&"), "E: switched on, the card asks for its venue cover");
     ok(!!on.placeholder, "E: the designed tile stays as the fallback");
+    const kept = await dropUnservableCardPhotos(on, {
+      servable: { noMemo: true, resolve: async () => ({ type: "miss" }), findFree: async () => null },
+    });
+    ok(kept.image === on.image && kept.placeholder === on.placeholder, "E: cleanup keeps the allowlisted venue cover and its fallback tile when the free-photo probe would miss");
     const other = christmasEventCard({ ...ev, event_id: "x-not-mapped-2026", slug: "x-not-mapped-2026", place_id: UNLISTED }, { today: "2026-11-23" });
     ok(!String(other.image || "").includes(UNLISTED) || other.image === "/api/photo?place=" + UNLISTED + "&g=2&w=640", "E: an unlisted venue is untouched by the backfill");
   } finally {

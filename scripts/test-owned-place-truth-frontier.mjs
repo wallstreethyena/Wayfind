@@ -425,18 +425,19 @@ function eq(a, b, msg) {
 
 // ── 7. Photo Resilience (`wfplacediscovery` 404 Prevention) ────────────────
 {
-  const robertsId = "ChIJYybWKcrvwogRT8I06QALhdI";
-  const robertsPseudoRefUrl = `/api/photo?ref=places%2F${robertsId}%2Fphotos%2Fwfplacediscovery&w=800`;
-  eq(uncreditedPlacePhotoId(robertsPseudoRefUrl), robertsId, "uncreditedPlacePhotoId extracts placeId from wfplacediscovery pseudo-ref URL");
+  // Use an unlisted venue so the optional backfill cannot make this image eligible.
+  const unlistedVenueId = "ChIJfixtureUnlistedHolidayVenue01";
+  const pseudoRefUrl = `/api/photo?ref=places%2F${unlistedVenueId}%2Fphotos%2Fwfplacediscovery&w=800`;
+  eq(uncreditedPlacePhotoId(pseudoRefUrl), unlistedVenueId, "uncreditedPlacePhotoId extracts placeId from wfplacediscovery pseudo-ref URL");
 
   const dropped = await dropUnservableCardPhotos(
     {
       kind: "event",
-      id: "roberts-christmas-wonderland-2026",
-      name: "Robert's Christmas Wonderland",
-      title: "Robert's Christmas Wonderland",
+      id: "unlisted-holiday-venue-fixture",
+      name: "Unlisted Holiday Venue",
+      title: "Unlisted Holiday Venue",
       christmasRail: "markets",
-      image: robertsPseudoRefUrl,
+      image: pseudoRefUrl,
       imageIsVenue: true,
     },
     {
