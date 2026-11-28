@@ -129,6 +129,7 @@ import { servableRows, isNowRail } from "../../lib/daylight.js";
 // `cityLabel` is aliased because this component already takes a prop by that
 // name. The import is the LAW (never "you", never "your area"); the prop is a
 // string the caller handed down.
+import KeyWestOpeningPick from "./KeyWestOpeningPick";
 import { emptyRailLive, liveFromRailsResponse, mergeRailPage, isFailedRailsResponse, cityLabel as honestCityLabel } from "../../lib/locationHonesty.js";
 // Paging and Lunch Break need this only after a poster opens. Keep the reuse
 // machinery outside the homepage's eager graph and its fixed bundle budget.
@@ -1824,6 +1825,7 @@ export default function DaypartRail({
     <div className={`wf8 is-${daypart}${selected && (selected !== "augtober" || fallPosterLive) ? " is-open" : ""}`} data-daypart={daypart}>
       <section className="wf8-railsec" aria-label="What to do right now">
         <div className="wf8-in">
+          <KeyWestOpeningPick locName={locName} resolved={center?.hasLocalOrigin} live={live} />
           <div className="wf8-railwrap">
             <div className="wf8-track" data-wf-scroll-key="poster-track" ref={trackRef}>
               {visiblePosterIds.map((id, i) => {
