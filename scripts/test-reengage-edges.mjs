@@ -30,11 +30,12 @@ const until = async (pred, ms = 3000) => { const end = Date.now() + ms; while (D
 // ── environment ─────────────────────────────────────────────────────────────
 const SECRET = "whsec_MfKQ9r8GKYqrTwjUPD8ILPZIo2LaLaSw"; // the fake secret Resend publishes in its docs, never a real one
 process.env.WF_REENGAGE_ENABLED = "1";
-process.env.SUPABASE_URL = "https://fake-edges.supabase.test";
+const SUPABASE_URL = "https://fake-edges.supabase.test";
+process.env.SUPABASE_URL = SUPABASE_URL;
 process.env.SUPABASE_SERVICE_ROLE_KEY = "service_role_test_key";
 process.env.RESEND_API_KEY = "re_test_key";
 process.env.WF_RESEND_WEBHOOK_SECRET = SECRET;
-process.env.NEXT_PUBLIC_SUPABASE_URL = process.env.SUPABASE_URL; // the go route reads offers with the anon pair
+process.env.NEXT_PUBLIC_SUPABASE_URL = SUPABASE_URL; // the go route reads offers with the anon pair
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon_test_key";
 delete process.env.NEXT_PUBLIC_SITE_URL;
 delete process.env.NEXT_PUBLIC_POSTHOG_KEY;
@@ -233,12 +234,11 @@ const seedForConversion = () => {
     await sleep(settleMs);
     ok(reengageCalls().length === 0, `B3 ${label}: ${reengageCalls().length} re-engagement calls were made (${reengageCalls().map((c) => c.method + " " + c.u.slice(-60)).join(" | ")})`);
   };
-  const flag = process.env.WF_REENGAGE_ENABLED;
   delete process.env.WF_REENGAGE_ENABLED;
   await neg("WF_REENGAGE_ENABLED unset", () => started(events));
   process.env.WF_REENGAGE_ENABLED = "0";
   await neg("WF_REENGAGE_ENABLED=0", () => started(events));
-  process.env.WF_REENGAGE_ENABLED = flag;
+  process.env.WF_REENGAGE_ENABLED = "1";
   for (const tc of ["synthetic", "automation", "crawler", undefined]) await neg("traffic_class " + tc, () => started(events, { properties: { ...human, traffic_class: tc } }));
   await neg("no cookie", () => started(events, { headers: hdrs(null) }));
   await neg("a cookie that is not wf_anon_id", () => started(events, { headers: hdrs("other=" + ANON) }));
@@ -278,11 +278,10 @@ const seedForConversion = () => {
   ok(await until(() => S.signals.some((s) => s.kind === "out_click")), "B4 positive control: the seam did not run behind the real go route (so the redirect equality proves nothing)");
   world({ deals: deal });
   const without = await goRoute.GET(goReq());
-  const flagBefore = process.env.WF_REENGAGE_ENABLED;
   delete process.env.WF_REENGAGE_ENABLED;
   seedForConversion(); S.deals = deal;
   const off = await goRoute.GET(goReq());
-  process.env.WF_REENGAGE_ENABLED = flagBefore;
+  process.env.WF_REENGAGE_ENABLED = "1";
   ok(snap(withRows) === snap(without) && snap(without) === snap(off), "B4 the redirect differs with pending rows, without, and with re-engagement off:\n" + [snap(withRows), snap(without), snap(off)].join("\n"));
   // a store that never answers must not hold the redirect either
   seedForConversion(); S.deals = deal; S.hang = true;
@@ -320,7 +319,7 @@ const seedForConversion = () => {
   for (const [label, mutate, restore] of [
     ["flag off", () => { delete process.env.WF_REENGAGE_ENABLED; }, () => { process.env.WF_REENGAGE_ENABLED = "1"; }],
     ["no Resend key", () => { delete process.env.RESEND_API_KEY; }, () => { process.env.RESEND_API_KEY = "re_test_key"; }],
-    ["no Supabase", () => { delete process.env.SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_URL; }, () => { process.env.SUPABASE_URL = "https://fake-edges.supabase.test"; process.env.NEXT_PUBLIC_SUPABASE_URL = process.env.SUPABASE_URL; }],
+    ["no Supabase", () => { delete process.env.SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_URL; }, () => { process.env.SUPABASE_URL = SUPABASE_URL; process.env.NEXT_PUBLIC_SUPABASE_URL = SUPABASE_URL; }],
   ]) {
     world(); mutate();
     const res = await post({ kind: "return_visit" });
@@ -441,7 +440,6 @@ const hook = (req) => hookRoute.POST(req);
 const bounce = (to, type = "Permanent") => ({ type: "email.bounced", created_at: new Date().toISOString(), data: { email_id: "e1", to, bounce: { type, subType: "General", message: "x" } } });
 {
   // no secret: 503 and the body is never read
-  const kept = process.env.WF_RESEND_WEBHOOK_SECRET;
   delete process.env.WF_RESEND_WEBHOOK_SECRET;
   world();
   let read = false;
@@ -450,7 +448,7 @@ const bounce = (to, type = "Permanent") => ({ type: "email.bounced", created_at:
   process.env.WF_RESEND_WEBHOOK_SECRET = "   ";
   const res2 = await hookRoute.POST({ headers: new Headers(), text: async () => { read = true; return "{}"; } });
   ok(res2.status === 503 && read === false, "B14 a blank secret was accepted as configured");
-  process.env.WF_RESEND_WEBHOOK_SECRET = kept;
+  process.env.WF_RESEND_WEBHOOK_SECRET = SECRET;
   // 401 with zero database calls: flipped byte, 301 s old, each missing header, wrong secret, junk
   const good = bounce([EMAIL]);
   world({ contacts: [contact()] });

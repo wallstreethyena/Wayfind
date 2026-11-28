@@ -38,18 +38,23 @@ const { OWN_LIFECYCLE_SOURCES } = await import("../lib/attribution.js");
 // ── environment (process.env is what the route reads, so the library gets it too) ──
 const vapid = webPush.generateVapidKeys();
 process.env.WF_REENGAGE_ENABLED = "1";
-process.env.SUPABASE_URL = "https://fake-dispatch.supabase.test";
-process.env.SUPABASE_SERVICE_ROLE_KEY = "service_role_test_key";
+const SUPABASE_URL = "https://fake-dispatch.supabase.test";
+const SERVICE_KEY = "service_role_test_key";
+const CRON_SECRET = "cron_test_secret";
+process.env.SUPABASE_URL = SUPABASE_URL;
+process.env.SUPABASE_SERVICE_ROLE_KEY = SERVICE_KEY;
 process.env.RESEND_API_KEY = "re_test_key";
 process.env.NEXT_PUBLIC_WF_VAPID_PUBLIC_KEY = vapid.publicKey;
 process.env.WF_VAPID_PRIVATE_KEY = vapid.privateKey;
-process.env.CRON_SECRET = "cron_test_secret";
+process.env.CRON_SECRET = CRON_SECRET;
 delete process.env.NEXT_PUBLIC_SUPABASE_URL;
 delete process.env.NEXT_PUBLIC_SITE_URL;
 delete process.env.NEWSLETTER_POSTAL;
 delete process.env.WF_REENGAGE_FROM;
 delete process.env.WF_REENGAGE_DISPATCH;
-const SB = { url: process.env.SUPABASE_URL, key: process.env.SUPABASE_SERVICE_ROLE_KEY };
+const SB = { url: SUPABASE_URL, key: SERVICE_KEY };
+// What the library receives as `env`: a plain object, so no assertion reads the shell (check-guard-hermeticity).
+const ENV = { ...process.env };
 const OTHER_VAPID = webPush.generateVapidKeys();
 
 const TOKEN = "ab".repeat(32);
@@ -183,7 +188,7 @@ const pushSend = async ({ subscription, payload, ttl }) => {
 };
 const resendCalls = () => calls.filter((c) => c.u.startsWith("https://api.resend.com/"));
 const writes = () => calls.filter((c) => c.method !== "GET" && c.u.includes("/rest/v1/"));
-const run = (over = {}) => D.runReengageDispatch({ sb: SB, env: process.env, now: NOW, fetchImpl: fetchStub, send: pushSend, ...over });
+const run = (over = {}) => D.runReengageDispatch({ sb: SB, env: ENV, now: NOW, fetchImpl: fetchStub, send: pushSend, ...over });
 
 // ── fixtures ────────────────────────────────────────────────────────────────
 const contact = (o = {}) => ({ id: 7, email: EMAIL, email_hash: R.emailHash(EMAIL), status: "subscribed", confirmed_at: iso(NOW - 48 * H), unsubscribe_token: TOKEN, ...o });
@@ -193,7 +198,7 @@ const pushRow = (o = {}) => qrow({ payload: { v: 1, flow: "itinerary_abandoned",
 const ENDPOINT = "https://fcm.googleapis.com/fcm/send/dispatch-endpoint-1";
 const sub = (o = {}) => {
   const endpoint = o.endpoint || ENDPOINT;
-  const env = o.env || process.env;
+  const env = o.env || ENV;
   return { id: (seq += 1), anon_id: ANON, endpoint_hash: crypto.endpointHash(endpoint), endpoint_enc: crypto.sealField(endpoint, "endpoint", { env }), keys_enc: crypto.sealField(JSON.stringify({ p256dh: "p256dh_value", auth: "auth_value" }), "keys", { env }), tz: "America/New_York", revoked_at: null, created_at: iso(NOW - 5 * H), ...(o.row || {}) };
 };
 const find = (id) => S.queue.find((r) => r.id === id);
@@ -414,6 +419,20 @@ async function gate(label, setup, expect) {
   ok(S.queue.every((r) => r.status !== "cancelled"), "B11 a row inside its lateness limit was cancelled stale: " + S.queue.map(state).join(" | "));
 }
 
+// ── retention: signals older than 90 days go in the first run after 09:00 UTC ─
+{
+  const T9 = Date.parse("2026-12-02T09:02:00Z");
+  const sigs = () => [{ id: 1, anon_id: ANON, kind: "hub_view", created_at: iso(T9 - 100 * 24 * H) }, { id: 2, anon_id: ANON, kind: "hub_view", created_at: iso(T9 - 10 * 24 * H) }];
+  world({ signals: sigs() });
+  const r9 = await run({ now: T9 });
+  ok(r9.retention === true && S.signals.length === 1 && S.signals[0].id === 2, "retention: the 100 day old signal was not deleted (or the recent one was): " + JSON.stringify(S.signals.map((x) => x.id)));
+  for (const at of ["2026-12-02T08:59:00Z", "2026-12-02T09:06:00Z", "2026-12-02T21:02:00Z"]) {
+    world({ signals: sigs() });
+    await run({ now: Date.parse(at) });
+    ok(S.signals.length === 2 && !calls.some((c) => c.method === "DELETE"), "retention: signals were deleted outside the 09:00 to 09:05 UTC slot (" + at + ")");
+  }
+}
+
 // ── B12 + B5. messages: UTM, no go links, no address, tag ────────────────────
 {
   const urlsIn = (s) => [...String(s).matchAll(/https?:\/\/[^\s"'<>)]+/g)].map((m) => m[0].replace(/&amp;/g, "&"));
@@ -481,13 +500,13 @@ async function gate(label, setup, expect) {
   const get = (headers) => cronRoute.GET(new Request("https://www.gowayfind.com/api/cron/reengage-dispatch", { headers }));
   const pulses = () => calls.filter((c) => c.u.includes("wf_job_pulse")).map((c) => c.body);
   world({ contacts: [contact()], queue: [emailRow()] });
-  const secret = process.env.CRON_SECRET;
+  const secret = CRON_SECRET;
   delete process.env.CRON_SECRET;
   let res = await get({ authorization: "Bearer undefined" });
   ok(res.status === 401 && calls.length === 0, "B17 no CRON_SECRET did not answer 401 with zero calls: " + res.status + " calls=" + calls.length);
   res = await get({ authorization: "Bearer " });
   ok(res.status === 401 && calls.length === 0, "B17 no CRON_SECRET and an empty bearer did not answer 401");
-  process.env.CRON_SECRET = secret;
+  process.env.CRON_SECRET = CRON_SECRET;
   res = await get({ authorization: "Bearer wrong" });
   ok(res.status === 401 && calls.length === 0, "B17 a wrong bearer did not answer 401 with zero calls");
   res = await get({});
@@ -514,11 +533,10 @@ async function gate(label, setup, expect) {
   const direct = await run();
   ok(direct.selectFailed === true && direct.ok === false, "B13 runReengageDispatch did not flag selectFailed");
   // no Supabase env is 503
-  const urlKept = process.env.SUPABASE_URL;
   delete process.env.SUPABASE_URL;
   res = await get({ authorization: "Bearer " + secret });
   ok(res.status === 503, "B13 no Supabase env did not answer 503");
-  process.env.SUPABASE_URL = urlKept;
+  process.env.SUPABASE_URL = SUPABASE_URL;
   // a not enabled deployment is a skipped pulse, no queue read
   process.env.WF_REENGAGE_ENABLED = "0";
   world({ contacts: [contact()], queue: [emailRow()] });
