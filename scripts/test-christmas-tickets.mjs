@@ -1095,7 +1095,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Filters<") && html.
   // moved to lib/christmasBackdrop.js and app/components/ChristmasDecor.js so
   // the rest of the site paints the same art. The assertions follow that code.
   const shell = strip(read("app/components/ChristmasTickets.js"));
-  const decor = strip(read("lib/christmasBackdrop.js") + "\n" + read("app/components/ChristmasDecor.js"));
+  const decor = strip(read("lib/christmasBackdrop.js") + "\n" + read("app/components/ChristmasDecor.js") + "\n" + read("app/components/ChristmasSnow.js"));
   const theme = shell + "\n" + decor;
   ok(/w < 720 \? 36 : 70/.test(decor) && /visibilitychange/.test(decor) && /prefers-reduced-motion: reduce/.test(decor) && /aria-hidden="true" data-xm-snow/.test(decor) && /<ChristmasSnow \/>/.test(shell), "snow: 36 flakes on a phone, 70 on desktop, pauses on a hidden tab, still frame for reduced motion, aria-hidden");
   ok(/#FF4458/.test(decor) && /#3DDC84/.test(decor) && /#FFC94A/.test(decor) && /#4DA3FF/.test(decor) && /#FF7AC8/.test(decor) && /xm-chase/.test(decor) && /xm-alt/.test(decor) && /xm-twinkle/.test(decor), "lights: red, green, gold, blue and pink bulbs with chase, alternate and twinkle sequences");

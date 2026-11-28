@@ -9,7 +9,8 @@ import { useCommerceImpression } from "./useCommerceImpression.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
 import { CHRISTMAS_BG_GRADIENT, CHRISTMAS_DOODLE_CSS, CHRISTMAS_LIGHTS_CSS } from "../../lib/christmasBackdrop.js";
 import ChristmasElves from "./ChristmasElves.js";
-import { ChristmasSnow, FestivalLights } from "./ChristmasDecor.js";
+import { FestivalLights } from "./ChristmasDecor.js";
+import { ChristmasSnow } from "./ChristmasSnow.js";
 import GuidePhoto from "./GuidePhoto.js";
 import { styleHtml } from "../../lib/styleHtml.js";
 
