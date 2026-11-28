@@ -2327,6 +2327,7 @@ node scripts/test-group-vote-organizer.mjs
 node scripts/test-group-vote-frame.mjs
 # Shared tours start Group Vote on that tour; picker counts category searches.
 node scripts/test-group-vote-tours.mjs
+node scripts/test-group-vote-keep-place.mjs
 
 node scripts/test-place-share-metadata.mjs
 node scripts/test-cached-place-identity.mjs
@@ -2565,6 +2566,7 @@ node scripts/test-deep-link-no-mutation.mjs
 # 2026-10-27: signup journey. signup_completed/login_completed emit once from onAuthStateChange (lib/authJourney.js); Ads mirror gets exactly one signup conversion.
 node scripts/test-auth-journey.mjs
 node scripts/test-photo-queue-close-condition.mjs
+node scripts/test-repair-queue-starvation.mjs
 
 # 2026-10-27: parallel guard runner (worker pool, serial list, fail-closed exit codes). Fake-guard scenarios against the real runner, plus --red-prove mutants of the runner.
 node scripts/test-run-guards.mjs
@@ -2860,6 +2862,7 @@ node scripts/test-city-weekend-seo.mjs
 node scripts/test-nearby-picks.mjs
 node scripts/test-og-every-path.mjs
 node scripts/test-jsonld-check.mjs
+node scripts/test-newsletter.mjs
 # SEO + conversion audit (2026-11-27): Florida homepage title, brand entity graph, town list items, schema.org hours; /events never prerendered empty; Florida hub footer; ticket button on the first phone screen.
 node scripts/test-seo-audit-entity.mjs
 node scripts/test-events-hub-not-prerendered.mjs

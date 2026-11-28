@@ -52,6 +52,7 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
       onClick: () => openShareFlow({
         title: event.name,
         name: event.name,
+        placeId: event.place_id || event.placeId || "",
         city: event.city || "",
         when: eventIso,
         eventDate: eventIso,

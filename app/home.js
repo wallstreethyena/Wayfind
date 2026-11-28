@@ -3171,7 +3171,8 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   ].filter(Boolean).slice(0, 2);
   const shareEvent = () => {
     try { onLog("share", null, { id: event.id, kind: "event_card" }); } catch (e) {}
-    shareLink(event.name + " — Wayfind", href, onCopied, event.name + " at " + venue + ". Found on Wayfind.");
+    // The venue's place id (when the event has one) lets Group Vote start on it.
+    shareLink(event.name + " — Wayfind", href, onCopied, event.name + " at " + venue + ". Found on Wayfind.", null, { placeId: event.place_id || event.placeId || "" });
   };
   return (
     <RailCard
@@ -3930,7 +3931,7 @@ function MoreSpotsButton({ onClick }) {
   );
 }
 
-function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null, newsletterSlot = null }) {
   const [supabaseReady, setSupabaseReady] = useState(false);
   // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
   // after hydration, then rerun only effects whose dependency lists were
@@ -11789,6 +11790,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                   area — see LOCAL_EDIT_RADIUS_MI — so "local" stays a fact. */}
               {!browseCat && <ThisWeekEvents events={thisWeekEvents} guide={thisWeekGuide} />}
               {!browseCat && <LocalEdit center={locResolved ? center : null} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {/* Weekly email signup: server-rendered markup from app/page.js (no client code). */}
+              {!browseCat && newsletterSlot}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
@@ -13162,10 +13165,10 @@ const EV_RAIL_MIN_H = PLACE_CARD_HEIGHT_PX; // Loading and loaded cards share th
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "var(--wf-sans)", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
-export default function Page({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+export default function Page({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, thisWeekGuide = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null, newsletterSlot = null }) {
   return (
     <ErrorBoundary>
-      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} />
+      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} thisWeekEvents={thisWeekEvents} thisWeekGuide={thisWeekGuide} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} newsletterSlot={newsletterSlot} />
     </ErrorBoundary>
   );
 }

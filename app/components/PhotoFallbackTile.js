@@ -30,13 +30,19 @@ const CATEGORY_RX = [
   ["attractions", /attraction|museum|park|zoo|aquarium|tour|activity|things.?to.?do|culture|gallery|theme/],
 ];
 
-/** Category label/key -> glyph, or "" when unknown (the brand pin is used instead). */
-export function categoryGlyph(category) {
+/** Category label/key -> section key ("food", "beach", ...), or "" when unknown. */
+export function categoryKey(category) {
   const c = String(category || "").toLowerCase();
   if (!c) return "";
-  if (CAT_GLYPH[c]) return CAT_GLYPH[c];
-  for (const [key, rx] of CATEGORY_RX) if (rx.test(c)) return CAT_GLYPH[key];
+  if (CAT_GLYPH[c]) return c;
+  for (const [key, rx] of CATEGORY_RX) if (rx.test(c)) return key;
   return "";
+}
+
+/** Category label/key -> glyph, or "" when unknown (the brand pin is used instead). */
+export function categoryGlyph(category) {
+  const k = categoryKey(category);
+  return k ? CAT_GLYPH[k] : "";
 }
 
 /** The accessible name; also what the guards assert is non-empty. */
@@ -46,30 +52,66 @@ export function fallbackLabel(name, pending) {
   return n ? "Photo not available for " + n : "Photo not available";
 }
 
-const GRADIENT = "linear-gradient(135deg, #161B22 0%, #1C2230 55%, #232B3A 100%)";
+// Owner, 2026-11-27: "we cannot have a broken site". The old tile was a flat
+// slate box with "Photo unavailable" printed in it, which read as a broken
+// image. The tile is now a designed, category-tinted card: a deep gradient in
+// the category's colour, a soft light bloom, a faint diagonal texture and the
+// category glyph in a glass medallion. Still HONEST: it never shows anything
+// that could pass for a photograph of the venue, and the accessible name still
+// says no photo is available. [deep, mid, accent] per section key.
+export const TILE_THEMES = {
+  food: ["#2B0F0B", "#7A2412", "#FF8A4C"],
+  coffee: ["#22150E", "#5E3720", "#E9AE73"],
+  nightlife: ["#140B29", "#43196B", "#C47BFF"],
+  beach: ["#04222F", "#0A5F7C", "#5BD6EC"],
+  attractions: ["#25112B", "#6E2850", "#FFB86E"],
+  hotels: ["#0F1630", "#2F3B73", "#A5B8FF"],
+  shopping: ["#2C0D24", "#7D1C53", "#FF85BE"],
+  events: ["#1B0D2E", "#5E1C70", "#FF6AA8"],
+  christmas: ["#25060E", "#721127", "#F2B9A0"],
+  brand: ["#170F1C", "#4E1B3F", "#FD5F00"],
+};
 
-export default function PhotoFallbackTile({ name, category, icon, compact = false, pending = false, decorative = false, caption = "Photo unavailable", className, style }) {
+/** The tile's CSS background for a section key (unknown -> Wayfind brand). */
+export function tileBackground(key) {
+  const [deep, mid, accent] = TILE_THEMES[key] || TILE_THEMES.brand;
+  return [
+    `radial-gradient(120% 85% at 88% 0%, ${accent}59 0%, ${accent}00 58%)`,
+    `radial-gradient(90% 75% at 0% 100%, ${mid}d9 0%, ${mid}00 62%)`,
+    "repeating-linear-gradient(135deg, rgba(255,255,255,.035) 0 2px, rgba(255,255,255,0) 2px 14px)",
+    `linear-gradient(160deg, ${mid} 0%, ${deep} 72%)`,
+  ].join(", ");
+}
+
+export default function PhotoFallbackTile({ name, category, icon, compact = false, pending = false, decorative = false, caption = null, className, style }) {
+  const key = categoryKey(category) || (icon === CAT_GLYPH.christmas ? "christmas" : "");
   const glyph = pending ? "" : (typeof icon === "string" && icon.trim()) || categoryGlyph(category);
-  const size = compact ? 22 : 30;
+  const size = compact ? 20 : 30;
+  const disc = compact ? 36 : 64;
   return (
     <div
       className={className}
       {...(decorative ? { "aria-hidden": "true" } : { role: "img", "aria-label": fallbackLabel(name, pending) })}
       data-photo-fallback={pending ? "pending" : "unavailable"}
+      data-tile-theme={key || "brand"}
       style={{
         boxSizing: "border-box", width: "100%", height: "100%", minHeight: compact ? 40 : 60, overflow: "hidden",
         borderRadius: "inherit", ...style,
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
-        background: GRADIENT, boxShadow: "inset 0 0 0 1px rgba(148,163,184,.10)", color: "#94A3B8", textAlign: "center",
+        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
+        background: tileBackground(key), boxShadow: "inset 0 0 0 1px rgba(255,255,255,.08)", color: "rgba(255,255,255,.78)", textAlign: "center",
       }}
     >
-      {pending ? null : glyph
-        ? <span aria-hidden="true" style={{ fontSize: size, lineHeight: 1, opacity: 0.85 }}>{glyph}</span>
-        : <svg aria-hidden="true" width={size + 2} height={size + 2} viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ opacity: 0.5, flexShrink: 0 }}>
-            <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
-            <circle cx="12" cy="9.4" r="2.4" />
-          </svg>}
-      {!pending && !compact && caption ? <small style={{ fontSize: 10, lineHeight: 1.3, padding: "0 6px" }}>{caption}</small> : null}
+      {pending ? null : (
+        <span aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: disc, height: disc, maxWidth: "70%", maxHeight: "70%", aspectRatio: "1 / 1", borderRadius: "50%", flexShrink: 0, background: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.24)", boxShadow: "0 8px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.18)" }}>
+          {glyph
+            ? <span style={{ fontSize: size, lineHeight: 1 }}>{glyph}</span>
+            : <svg width={size + 2} height={size + 2} viewBox="0 0 24 24" fill="none" stroke="#FD5F00" strokeWidth="1.8" style={{ flexShrink: 0 }}>
+                <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
+                <circle cx="12" cy="9.4" r="2.4" />
+              </svg>}
+        </span>
+      )}
+      {!pending && !compact && caption ? <small style={{ fontSize: 10, lineHeight: 1.3, padding: "0 6px", color: "rgba(255,255,255,.72)" }}>{caption}</small> : null}
     </div>
   );
 }

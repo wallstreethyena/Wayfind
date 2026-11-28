@@ -70,7 +70,7 @@ for (const slug of SLUGS) {
       ok(!rung.media.contextual && !rung.media.caption && !rung.media.credit, `${slug} / ${pick.name}: neutral record carries no photo, caption or credit`);
       const html = renderToStaticMarkup(React.createElement(GuideNeutralFigure, { name: pick.name }));
       ok(!/<img\b/i.test(html) && !/illustrative/i.test(text(html)) && !/Photo:/.test(text(html)), `${slug} / ${pick.name}: neutral tile has no image, credit or "Illustrative"`);
-      ok(html.includes('data-photo-fallback="unavailable"') && text(html).includes("Photo unavailable") && html.includes(`Photo not available for ${pick.name.replace(/&/g, "&amp;").replace(/'/g, "&#x27;")}`), `${slug} / ${pick.name}: neutral tile is the shared Wayfind fallback tile, labelled for this place`);
+      ok(html.includes('data-photo-fallback="unavailable"') && !text(html).includes("Photo unavailable") && html.includes(`Photo not available for ${pick.name.replace(/&/g, "&amp;").replace(/'/g, "&#x27;")}`), `${slug} / ${pick.name}: neutral tile is the shared Wayfind fallback tile, labelled for this place`);
     }
   }
 }

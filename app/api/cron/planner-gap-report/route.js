@@ -6,7 +6,8 @@
 // see lib/plannerGaps.js), groups them, looks up to MAX_LEADS of the most asked
 // for missing places on the web through the capped AI engine
 // (lib/aiEngine.js engineSearch, which shares the weekly OpenAI budget), and
-// stores one plain text report in wf_planner_gap_reports. Leads are pages to
+// stores one plain text report in wf_planner_gap_reports and emails it to the
+// owner through Resend (DIGEST_EMAIL, from WF_ALERT_FROM) when it has content. Leads are pages to
 // check, never facts: this job writes nothing into Wayfind's places, events,
 // hours or photos. Rows older than 90 days are deleted.
 //
@@ -22,7 +23,8 @@ import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
 import { siteTodayStr } from "../../../../lib/siteTime";
 import { COVERED_CITIES } from "../../../../lib/landingCities.js";
 import { engineSearch } from "../../../../lib/aiEngine.js";
-import { summarizeGaps, reportText, readLeadAnswer, pickLeadUrl, leadQuestion } from "../../../../lib/plannerGaps.js";
+import { summarizeGaps, reportText, readLeadAnswer, pickLeadUrl, leadQuestion, reportEmail, sendReportEmail } from "../../../../lib/plannerGaps.js";
+import { resolveOverride } from "../../../../lib/envAudit.js";
 
 const JOB = "planner-gap-report";
 const MAX_LEADS = 8;
@@ -66,12 +68,23 @@ export async function GET(req) {
     });
     if (!up.ok) return jobFailed(JOB, "report write failed: " + up.status, { attempted: 1, succeeded: 0 });
 
+    // One email a night to the owner's digest address, only when something
+    // needs attention (owner, 2026-11-27). A failed send never fails the job:
+    // the report row above is the record.
+    const mail = reportEmail(today, summary, leads);
+    const emailed = await sendReportEmail(mail, {
+      key: String(process.env.RESEND_API_KEY || "").trim(),
+      from: resolveOverride("WF_ALERT_FROM").value,
+      to: resolveOverride("DIGEST_EMAIL").value,
+    });
+    if (mail && !emailed.sent) { try { console.error(JSON.stringify({ tag: "planner_gap_email", ok: false, reason: emailed.reason, status: emailed.status || null })); } catch { /* ignore */ } }
+
     const cutoff = new Date(Date.now() - KEEP_DAYS * 86400000).toISOString();
     await fetch(`${s.url}/rest/v1/wf_planner_gaps?created_at=lt.${encodeURIComponent(cutoff)}`, { method: "DELETE", headers: { ...headers, Prefer: "return=minimal" }, cache: "no-store" }).catch(() => null);
 
     const checked = leads.filter((l) => l.answer !== "unchecked").length;
-    await recordPulse(JOB, { attempted: 1, succeeded: 1, failed: 0, note: `rows=${rows.length} leads=${checked}/${leads.length}` });
-    return Response.json({ ok: true, report_date: today, requests: summary.requests, leads: checked }, { headers: { "cache-control": "no-store" } });
+    await recordPulse(JOB, { attempted: 1, succeeded: 1, failed: 0, note: `rows=${rows.length} leads=${checked}/${leads.length} email=${mail ? (emailed.sent ? "sent" : emailed.reason) : "none"}` });
+    return Response.json({ ok: true, report_date: today, requests: summary.requests, leads: checked, emailed: !!emailed.sent }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return jobFailed(JOB, String((e && e.message) || e), { attempted: 1, succeeded: 0 });
   }

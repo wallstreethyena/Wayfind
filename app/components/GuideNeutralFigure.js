@@ -8,7 +8,7 @@ export default function GuideNeutralFigure({ name, className }) {
   return (
     <figure className={className} data-guide-figure="pick-neutral" style={{ margin: 0, minWidth: 0 }}>
       <div style={{ position: "relative", overflow: "hidden", borderRadius: 3, aspectRatio: "16 / 9", width: "100%" }}>
-        <PhotoFallbackTile name={name} caption="Photo unavailable" style={{ position: "absolute", inset: 0, minHeight: 0 }} />
+        <PhotoFallbackTile name={name} style={{ position: "absolute", inset: 0, minHeight: 0 }} />
       </div>
     </figure>
   );

@@ -65,6 +65,8 @@ import { eventRailPhotoCredit } from "../../../lib/christmasPlacePhotos.js";
 import PhotoCreditLink from "../../components/PhotoCreditLink.js";
 import SnowcatTicketExplainer from "../../components/SnowcatTicketExplainer.js";
 import { isSnowcatTicketPage, SNOWCAT_PLACE_ID } from "../../../lib/snowcatTickets.js";
+import NewsletterSignup from "../../components/NewsletterSignup";
+import { regionForEvent } from "../../../lib/newsletter.js";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -719,6 +721,9 @@ export default async function CuratedEventPage({ params }) {
           meta={{ slug: params.slug, event_id: e.event_id || null, city: e.city || null, placement: "page_end" }}
         />
       </section>
+
+      {/* Weekly email signup (owner 2026-11-27), preset to this event's area. */}
+      <NewsletterSignup source="event" region={regionForEvent(e)} back={`/florida-events/${params.slug}`} heading="Get next weekend's picks too" style={{ padding: 0 }} />
 
       <p style={S.foot}>
         Verified {e.last_verified_at ? String(e.last_verified_at).slice(0, 10) : "recently"} against the organiser&rsquo;s own listing.

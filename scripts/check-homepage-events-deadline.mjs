@@ -74,6 +74,8 @@ const deps = {
   react: React,
   "./home": { default: Home },
   "./components/SiteDaySeed": { default: function SiteDaySeed() {} },
+  // Weekly email signup: a static server form passed into <Home> as markup; no data read.
+  "./components/NewsletterSignup": { default: function NewsletterSignup() { return null; } },
   "../lib/siteTime": siteTime,
   "./components/ProofVeil": veil,
   "../lib/locationHonesty": { homeProofCopy: () => ({ kicker: "Example", heading: "Fixture proof", sub: "Verified control" }) },
