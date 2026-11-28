@@ -31,6 +31,7 @@ import FooterVeil from "./components/FooterVeil";
 import PoweredByStrip from "./components/PoweredByStrip";
 import NativeShellInit from "./components/NativeShellInit";
 import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
+import ReengageMount from "./components/ReengageMount";
 // Boo, the Halloween companion (Oct 1 to Nov 1). The loader is a client component
 // holding the next/dynamic ssr:false boundary (scripts/check-boo-companion.mjs).
 import BooCompanionLoader from "./components/BooCompanionLoader";
@@ -449,6 +450,7 @@ export default function RootLayout({ children }) {
         </FooterVeil>
         </div>
         <Suspense fallback={null}><SiteFeedback /></Suspense>
+        <ReengageMount />
         </PostHogProvider>
       </body>
     </html>

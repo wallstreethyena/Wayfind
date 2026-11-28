@@ -131,5 +131,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2878",
     "reason": "Deploy the reviewed general-photo worker and confirm its existing-worklist fallback before applying this service-only candidate view."
+  },
+  {
+    "file": "supabase/migrations/20261128040000_wf_reengagement.sql",
+    "sha256": "e663c977cee97f71a2b9dcd4cdbbcee9984d71a00d9f54e50751c8941315c446",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2891 re-engagement PR 1",
+    "reason": "Additive only: five new service-role-only tables (wf_reengage_contacts, _push_subs, _queue, _suppressions, _signals), RLS on with no policies, anon/authenticated revoked. Apply after the cold verifier passes, then flip NEXT_PUBLIC_WF_REENGAGE / WF_REENGAGE_ENABLED. Reverse is in the file header."
   }
 ]

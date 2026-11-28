@@ -737,6 +737,10 @@
     {
       "file": "scripts/check-claude-md-owner-sections.mjs",
       "reason": "STRUCTURAL-ONLY (2026-11-12): the protected thing is a document (CLAUDE.md owner rules), not code; asserts required sections and sentences with 12 in-process negative controls"
+    },
+    {
+      "file": "scripts/check-reengage-schema.mjs",
+      "reason": "STRUCTURAL-ONLY (2026-11-27): the protected thing is SQL DDL with no local Postgres to execute it; parses the comment-stripped migration and asserts RLS on + anon/authenticated revoked + zero policies for exactly 5 tables, with 6 in-process negative controls"
     }
   ]
 }
