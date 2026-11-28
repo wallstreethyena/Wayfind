@@ -14,7 +14,7 @@
 // readAdClickContextFromCookieHeader.
 import { captureLanding, writeLandingCookie } from "../lib/campaignAttribution.js";
 import { syncAdClickCookieFromWindow, readAdClickContextFromCookieHeader, encodeAdClickCookie } from "../lib/adClickCookie.js";
-import { captureAttribution, isOwnLifecycleTouch, OWN_LIFECYCLE_SOURCES, LIFECYCLE_RETAIN_MAX_AGE_MS } from "../lib/attribution.js";
+import { captureAttribution, decorateHref, isOwnLifecycleTouch, OWN_LIFECYCLE_SOURCES, LIFECYCLE_RETAIN_MAX_AGE_MS } from "../lib/attribution.js";
 
 let passed = 0;
 const fails = [];
@@ -97,6 +97,53 @@ for (const k of ["gbraid", "wbraid"]) {
   ok(edge.ctx && edge.ctx.gclid === "TESTGCLID123", "a click exactly 30 days old was not retained");
   const over = run(PAID, MAIL, { t1: new Date(Date.parse(T0) + LIFECYCLE_RETAIN_MAX_AGE_MS + 60000).toISOString() });
   ok(over.ctx && !over.ctx.gclid, "a click 30 days and one minute old was retained");
+}
+// MULTI-HOP: later pages in the same lifecycle session (no params) must decorate
+// internal links with the lifecycle params, and following that link (a full
+// load) must keep the click id AND the lifecycle session (ExploreBridge /
+// PaidLanding render plain <a> tags from captureAttribution's return value).
+const follow = (returned) => { const h = decorateHref("/explore", returned); const i = h.indexOf("?"); return i >= 0 ? h.slice(i) : ""; };
+for (const order of ["google-first", "posthog-first"]) {
+  const local = mkStore(); const jar = new Map();
+  let win = mkWin(local, mkStore(), jar);
+  land(win, PAID, { order, now: T0 });
+  win = mkWin(local, mkStore(), jar); // new tab from the email
+  land(win, MAIL, { order, now: T1 });
+  const later = land(win, "", { order, now: T1 }); // a guide page, no params
+  ok(later && later.utm_source === "resend_lifecycle" && !later.gclid, `a later param-less page in a lifecycle session returned the old paid params (${order}): ` + JSON.stringify(later));
+  const q = follow(later);
+  ok(/utm_source=resend_lifecycle/.test(q) && !/gclid|utm_source=google/.test(q), `the decorated internal link re-emitted paid params (${order}): ` + q);
+  land(win, q, { order, now: T1 }); // tap it
+  const c = ctxOf(win);
+  ok(c && c.gclid === "TESTGCLID123" && c.session_attribution && c.session_attribution.utm_source === "resend_lifecycle" && !c.session_attribution.ct, `after following the decorated link the lifecycle session was re-recorded as paid or lost the click id (${order}): ` + JSON.stringify(c && { g: c.gclid, s: c.session_attribution }));
+  // a real new campaign landing in the same session clears the lifecycle marker
+  const after = land(win, "?utm_source=newsletter&utm_medium=email&utm_campaign=weekly", { order, now: T1 });
+  const later2 = land(win, "", { order, now: T1 });
+  ok(after && after.utm_source === "newsletter" && later2 && later2.utm_source === "newsletter", `a new campaign landing did not supersede the lifecycle marker (${order}): ` + JSON.stringify(later2));
+}
+// THE BOUND RUNS FROM THE CLICK: re-landing the SAME click id (a decorated link
+// hop on a plain paid return) must not restart the 30 days.
+{
+  const local = mkStore(); const jar = new Map();
+  let win = mkWin(local, mkStore(), jar);
+  land(win, PAID, { now: "2026-11-01T00:00:00.000Z" });
+  win = mkWin(local, mkStore(), jar);
+  const back = land(win, "", { now: "2026-11-20T00:00:00.000Z" }); // plain return, no params
+  ok(back && back.gclid === "TESTGCLID123", "positive control: a plain paid return did not return the stored paid params");
+  land(win, follow(back), { now: "2026-11-20T00:05:00.000Z" }); // tap a decorated link: same gclid re-lands
+  const rec = JSON.parse(local.getItem("wf_attribution") || "null");
+  ok(rec && rec.click_at === "2026-11-01T00:00:00.000Z" && rec.landed_at === "2026-11-20T00:05:00.000Z", "re-landing the same click id moved click_at (or landed_at did not update): " + JSON.stringify(rec));
+  win = mkWin(local, mkStore(), jar);
+  land(win, MAIL, { now: "2026-12-05T00:00:00.000Z" }); // 34 days after the click
+  const c = ctxOf(win);
+  ok(c && !c.gclid, "a click 34 days old was kept because a same-gclid hop restarted the 30 days: " + JSON.stringify(c && c.gclid));
+  // a DIFFERENT, newer click id starts a new window
+  const local2 = mkStore(); const jar2 = new Map();
+  let w2 = mkWin(local2, mkStore(), jar2);
+  land(w2, PAID, { now: "2026-11-01T00:00:00.000Z" });
+  land(w2, "?gclid=NEWG&utm_source=google&utm_medium=cpc&utm_campaign=wf_fl_search", { now: "2026-11-25T00:00:00.000Z" });
+  const r2 = JSON.parse(local2.getItem("wf_attribution") || "null");
+  ok(r2 && r2.click_at === "2026-11-25T00:00:00.000Z", "a new click id did not start a new click_at window: " + JSON.stringify(r2));
 }
 // an organic visitor whose first touch is our push records webpush normally
 {
