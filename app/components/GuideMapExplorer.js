@@ -357,6 +357,7 @@ export default function GuideMapExplorer({
                 <RailCard
                   key={spot.id}
                   className="wf-exploding-primary"
+                  separateActions
                   domRef={(node) => {
                     const key = String(spot.id);
                     if (node) {

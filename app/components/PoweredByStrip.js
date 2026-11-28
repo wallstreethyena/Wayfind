@@ -41,6 +41,9 @@ export default function PoweredByStrip({ compact = false } = {}) {
       </div>
       <div
         data-wf-powered-by-scroll="1"
+        role="group"
+        aria-label="Technology partners"
+        tabIndex={0}
         style={{
           width: "100%",
           overflowX: "auto",
