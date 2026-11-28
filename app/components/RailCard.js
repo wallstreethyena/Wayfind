@@ -510,7 +510,8 @@ export default function RailCard({
     placeId: (actionItem && (actionItem.placeId || actionItem.place_id)) || "",
     type: (actionItem && actionItem.type) || "experience",
     title: (actionItem && (actionItem.title || actionItem.name)) || title,
-    image: (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
+    // Editorial-only images stay on the guide when the entry is saved or shared.
+    image: actionItem?.omitPhoto ? null : (actionItem && (actionItem.image || actionItem.photo)) || photo || null,
     url: (actionItem && actionItem.url) || cardHref || "",
     provider: actionItem && actionItem.provider,
   } : null;

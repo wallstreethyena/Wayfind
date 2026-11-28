@@ -1229,6 +1229,7 @@ export default async function GuidePage({ params }) {
         const resolved = pickPlaces[i];
         const noSale = unavailableFor(pick.eventSlug);
         const ticket = noSale ? null : guidePickTicket(pick.ticket);
+        const relatedGuide = pick.relatedGuide;
         // One editorial photograph per recommendation. Curated images win;
         // otherwise use the same venue-owned source as discovery cards.
         const pickImage = curatedPickImages[i] || editorialImages.get(pickPlaceIds[i]);
@@ -1244,6 +1245,9 @@ export default async function GuidePage({ params }) {
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
+              {relatedGuide?.label && liveGuides[relatedGuide.slug] ? (
+                <p style={S.p}><a href={"/guides/" + encodeURIComponent(relatedGuide.slug)} style={S.footerLink}>{relatedGuide.label}</a></p>
+              ) : null}
               {(() => {
                 const facts = guidePickFacts(pick, g);
                 return facts.length ? (

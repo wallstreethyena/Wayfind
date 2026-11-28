@@ -34,5 +34,5 @@ export function FoodFilters() {
       row.hidden = active !== "all" && park !== active;
     });
   }, [active]);
-  return <div className={styles.foodFilters} aria-label="Filter food by park">{[["all", "All parks"], ["islands", "Islands"], ["studios", "Studios"], ["epic", "Epic"]].map(([id, title]) => <button key={id} type="button" aria-pressed={active === id} onClick={() => setActive(id)}>{title}</button>)}</div>;
+  return <div className={styles.foodFilters} aria-label="Filter food by park">{[["all", "All parks"], ["islands", "Islands"], ["studios", "Studios"], ["epic", "Epic"], ["citywalk", "CityWalk"]].map(([id, title]) => <button key={id} type="button" aria-pressed={active === id} onClick={() => setActive(id)}>{title}</button>)}</div>;
 }
