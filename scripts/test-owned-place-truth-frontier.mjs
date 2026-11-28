@@ -450,10 +450,11 @@ function eq(a, b, msg) {
   const enabled = {
     WAYFIND_PHOTOS_BACKFILL: "1",
     GOOGLE_PHOTOS_BACKFILL_CAP: "1",
+    GOOGLE_PHOTOS_BACKFILL_PER_HOUR: "1",
     GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
     VERCEL_ENV: "production",
   };
-  const saved = Object.entries(enabled).map(([key]) => [key, process.env[key]]);
+  const saved = { ...process.env };
   mock.timers.enable({ apis: ["Date"], now: new Date("2026-11-28T02:00:00Z") });
   try {
     process.env.WAYFIND_PHOTOS_BACKFILL = "0";
@@ -462,7 +463,7 @@ function eq(a, b, msg) {
     ok(dropped.placeholder && dropped.placeholder.label, "Card receives designed placeholder tile instead of emitting a 404 image request");
     eq((await dropUnservableCardPhotos(cover, deps)).image, null, "Switching off backfill also drops the unservable place-based cover");
 
-    Object.assign(process.env, enabled);
+    for (const [key, value] of Object.entries(enabled)) process.env[key] = value;
     const stillDropped = await dropUnservableCardPhotos(legacy, deps);
     eq(stillDropped.image, null, "Backfill never retains a legacy pseudo-ref that the photo endpoint cannot backfill");
     ok(stillDropped.placeholder?.label, "The pseudo-ref falls back to the designed tile while backfill is enabled");
@@ -471,9 +472,9 @@ function eq(a, b, msg) {
     eq(kept.placeholder, cover.placeholder, "The retained cover keeps its designed fallback tile");
   } finally {
     mock.timers.reset();
-    for (const [key, value] of saved) {
-      if (value === undefined) delete process.env[key];
-      else process.env[key] = value;
+    for (const key of Object.keys(enabled)) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
     }
   }
 }
