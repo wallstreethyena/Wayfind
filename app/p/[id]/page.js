@@ -2,7 +2,7 @@ import Home from "../../home";
 import { preload } from "react-dom";
 import { placeHeroPreloadSrc } from "../../../lib/inventoryDetailGallery.js";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
 import { placeCanonical } from "../../../lib/locationHonesty";
 import { retiredLunchLaunchTarget } from "../../../lib/lunchLaunch";
@@ -25,29 +25,37 @@ import { homeShellData } from "../../../lib/homeShellData";
 import { fallCardClass } from "../../../lib/fallSkin";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { getInventoryIdentity } from "../../../lib/inventoryIdentity.js";
-import { durablePlaceUrl } from "../../../lib/placeData";
+import { durablePlaceUrl, editorialSharePlaceName, trimDescriptionToLimit } from "../../../lib/placeData";
+import { isGooglePlaceId } from "../../../lib/placePhoto.js";
 
 function s(v) {
   if (Array.isArray(v)) return v[0] || "";
   return v || "";
 }
 
+function shareRouteId(params) {
+  const id = s(params?.id);
+  if (typeof id !== "string" || !/^[A-Za-z0-9_-]+$/.test(id) ||
+      !(isGooglePlaceId(id) || /^wfadd_[A-Za-z0-9][A-Za-z0-9_-]*$/.test(id))) notFound();
+  return id;
+}
+
 export async function generateMetadata({ params, searchParams }) {
   params = await params;
   searchParams = (await searchParams) || {};
-  const id = s(params.id);
+  const id = shareRouteId(params);
   // Bare /p links from shared card stores carry no t=. Recover the actual
   // fresh server-held identity without a paid place lookup. A verified name
   // also outranks a caller-supplied title, which is an untrusted URL field.
   const identity = await getInventoryIdentity(id, { freshOnly: true });
-  const t = identity?.name || s(searchParams.t) || "A spot worth your time";
+  const t = identity?.name || editorialSharePlaceName(id) || s(searchParams.t) || "A spot worth your time";
   const loc = s(searchParams.loc);
   const r = s(searchParams.r);
   const rev = s(searchParams.rev);
   const mi = s(searchParams.mi);
   const cat = s(searchParams.cat);
   const sc = s(searchParams.sc);
-  const hk = s(searchParams.hk).slice(0, 110);
+  const hk = trimDescriptionToLimit(s(searchParams.hk), 110);
   const bits = [];
   if (cat) bits.push(cat);
   if (r) bits.push(r + "\u2605");
@@ -55,7 +63,10 @@ export async function generateMetadata({ params, searchParams }) {
   const isFall = !!fallCardClass(id, siteTodayStr());
   // The preview text under the image is the other half of what lands in the
   // thread. A fall place says so there too, in one word, before the facts.
-  const desc = (isFall ? "Fall on Wayfind \u00b7 " : "") + (hk ? hk + " \u00b7 " : "") + (bits.length ? bits.join(" \u00b7 ") : "A great nearby spot") + " \u00b7 Tap to open on Wayfind";
+  const facts = bits.length ? bits.join(" · ") : "A great nearby spot";
+  const desc = trimDescriptionToLimit(
+    [isFall && "Fall on Wayfind", hk, facts, "Tap to open on Wayfind"].filter(Boolean).join(" · "), 155
+  ) || "Tap to open on Wayfind";
   // v6.72: ABSOLUTE. Relative worked only because metadataBase resolved it,
   // and several scrapers (iMessage among them) fetch the raw value instead.
   // Only the base is prefixed; the += query appends below are unaffected.
@@ -76,16 +87,18 @@ export async function generateMetadata({ params, searchParams }) {
   if (sc) og += "&sc=" + encodeURIComponent(sc);
   if (hk) og += "&hk=" + encodeURIComponent(hk);
   if (isFall) og += "&tone=fall";
+  const shareUrl = placeCanonical(id, SITE_URL) || (SITE_URL + "/p/" + encodeURIComponent(id));
   return {
     robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)
     metadataBase: new URL(SITE_URL),
     // A share link for a place that has a durable, indexable /places/{id}
     // page hands its signals there (that page is the one built to rank);
     // otherwise it keeps its own /p canonical. Never spends Google Places.
-    alternates: { canonical: (await durablePlaceUrl(id)) || placeCanonical(id, SITE_URL) || (SITE_URL + "/p/" + encodeURIComponent(id)) },
+    alternates: { canonical: (await durablePlaceUrl(id)) || shareUrl },
     title: t + " \u00b7 Wayfind",
     description: desc,
     openGraph: {
+      url: shareUrl,
       title: t,
       description: desc,
       type: "website",
@@ -102,7 +115,8 @@ export async function generateMetadata({ params, searchParams }) {
 }
 
 export default async function PlaceSharePage({ params, searchParams }) {
-  const id = s(params.id);
+  const id = shareRouteId(await params);
+  searchParams = (await searchParams) || {};
   // A short-lived release accidentally made the Lunch in My City homepage
   // poster a direct Gatorland link. Safari can keep that old anchor alive in
   // a restored tab even after the corrected bundle deploys. Recover only the
@@ -110,7 +124,7 @@ export default async function PlaceSharePage({ params, searchParams }) {
   // guide, and Summer Picks links to Gatorland remain real Gatorland pages.
   const recoveredLunch = retiredLunchLaunchTarget({
     placeId: id,
-    referrer: headers().get("referer") || "",
+    referrer: (await headers()).get("referer") || "",
     siteUrl: SITE_URL,
   });
   if (recoveredLunch) redirect(recoveredLunch);
