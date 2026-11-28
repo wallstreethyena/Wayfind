@@ -626,7 +626,7 @@ scripts/test-christmas-card-gallery.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	a
 scripts/test-christmas-city-guides.mjs	0	RENDER	blocks-ci-and-deploy	1	-	15	0	0	7f432dd250f794709d723abf23519d44ac60825faf7c183a109a60ad9ad0c428
 scripts/test-christmas-map-pins.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	ce7eb25a6d52acc1778155e2fc619cf565d30344327c62cca5ff7ba782695f5a
 scripts/test-christmas-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	64f422e5a4fc0dc8199e11d05b6198b3adaf7c36b48d3c88835a58f70053a80a
-scripts/test-christmas-site-backdrop.mjs	0	RENDER	blocks-ci-and-deploy	1	-	48	0	0	4d9bc06496a39f2a5bf13694e41088366041da586dcdc212617263bf5fa92777
+scripts/test-christmas-site-backdrop.mjs	0	RENDER	blocks-ci-and-deploy	1	-	52	0	0	3215019cc6d3c7af75f5da47ec3580527097966463f9a6ed6dcaba63e38cf03d
 scripts/test-christmas-stubhub-dark.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	ad380a9fc53e69ad945dcb9f970bc7f1c71c059938b3a37961298b70d18e6a58
 scripts/test-christmas-temporal-modes.mjs	0	RENDER	blocks-ci-and-deploy	1	-	39	0	0	44d8334b696cfaaed3a411235a2b3f447afbc2387ecbdba6382c7cd3759d21fe
 scripts/test-christmas-ticketmaster.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	35	0	0	1e2e375e82e90100ee9a3b3664020e0b21075b50628ffb92ba667e6d720ce80a
@@ -1097,6 +1097,7 @@ scripts/test-places-photo-breaker.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	155
 scripts/test-planner-arrival.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	70f2c018ed7b1bb44d4013561f34c3f60cf2b3c91c9b17a23c9bed189dc833e3
 scripts/test-planner-host-voice.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	67d3b9fc349b154f8712b67e4e3b9938350992a4d885159785248da573bdd01a
 scripts/test-planner-imessage.mjs	0	RENDER	blocks-ci-and-deploy	1	-	50	0	0	c880bad81343be42b6d346c19f23c3ba0c8815d59e967109c4a186db54ea6bd5
+scripts/test-planner-recommend.mjs	0	CALL	blocks-ci-and-deploy	1	-	73	0	0	b5e6cfb75bcea26371f5c9383506de0f715efbd84dcc22f41b9c7cc4792a17d4
 scripts/test-planner-right-now.mjs	0	CALL	blocks-ci-and-deploy	1	-	110	0	0	1729ac1c6d364a445deece36206f4d2b938bcd5ce0077544d365644991bfbb95
 scripts/test-plist-parse.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	60eca4881e8f46ca518cce4708a8e6c9f530af4e7b8bead1cc4d53d04066f3cf
 scripts/test-popularity.mjs	0	CALL	blocks-ci-and-deploy	1	-	94	0	0	7870002a209202401d6786ba3df16131fad8528baeeaf82e2d6a4b821fa4c867
@@ -1173,7 +1174,7 @@ scripts/test-santa-chat.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	37ee8c7cdde
 scripts/test-santa-companion.mjs	0	RENDER	blocks-ci-and-deploy	1	-	87	0	0	a870c90f363c9aac1cae5488ef8da3ff5cf33bc8ea212ffaeaabdd7cfebd37c6
 scripts/test-santa-dock.mjs	0	RENDER	blocks-ci-and-deploy	1	-	69	0	0	d5290a433d213fe32caf17e3a903668744555b29766547b78d7e84a359cd29ca
 scripts/test-santa-local-dates.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	2279bd7af407ded7a11cfb539b6583712bc4c0268929773097fa407992943590
-scripts/test-santa-one-thread.mjs	0	RENDER	blocks-ci-and-deploy	1	-	59	0	0	0bf576d9ea809782d367fca687ac39fa393b1bdedfea82c85567f22506f6fd18
+scripts/test-santa-one-thread.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	3c24b73e33a2c6934bc45d421ee04e995adb4caed190701d7b88826d473b9612
 scripts/test-save-single-emitter.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	1ab6e3d6acd7791070c30b79f5763811b231c7abf1eafb3b63aa88c9fd5b1909
 scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	80b413bed0d1ff93e69541e5e1d91d0e6590745d2f0565967b09ef392b885010
 scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	66ce6bb8d963c3794ed7e0a60023cae63e93fc48bec98c83697c4743d4415f40

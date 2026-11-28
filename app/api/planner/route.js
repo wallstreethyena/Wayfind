@@ -22,7 +22,7 @@ import { breakerOpen, tripBreaker, classifyProviderFailure } from "../../../lib/
 import { siteTodayStr } from "../../../lib/siteTime.js";
 import { fetchCuratedEvents } from "../../../lib/curatedEvents.js";
 import { checkPlannerEntitlement } from "../../../lib/plannerEntitlement.js";
-import { parsePlannerRequest } from "../../../lib/plannerParse.js";
+import { parsePlannerRequest, isPlannerIntent, parsePlannerCity } from "../../../lib/plannerParse.js";
 import {
   buildGroundedCandidatePool,
   plannerInventoryQueries,
@@ -42,6 +42,9 @@ import {
   parseAndValidateClaudeDraftRevision,
 } from "../../../lib/wayfindPlanner.js";
 import { sameDayPlannerWindow } from "../../../lib/plannerSameDay.js";
+import { readAsk, askedWhen, rankRecommendations, recommendReply, SUBJECTS } from "../../../lib/plannerRecommend.js";
+import { fetchCurrentWeather } from "../../../lib/plannerWeather.js";
+import { siteHourFloat, siteDayOfWeek } from "../../../lib/nowContext.js";
 import { serveInventoryByPlaceIds } from "../../../lib/inventoryServe.js";
 import { executePlannerActionBatch } from "../../../lib/plannerActions.js";
 import {
@@ -528,6 +531,58 @@ async function planSameDay(parsed, window, candidates, { voice, req }) {
   };
 }
 
+/**
+ * Picks for "one restaurant", "best brunch?", "3 bars in St Pete", "somewhere fun right now": real Wayfind places,
+ * exactly `ask.count` of them, never closed now, with the local time, weather and each place's hours status.
+ * No model call: grounded search plus pure ranking (lib/plannerRecommend.js).
+ */
+async function recommendPicks({ message, ask, voice, contextCity, homeCity, point, nowMs }) {
+  const typed = parsePlannerCity(message);
+  const fromContext = contextCity ? parsePlannerCity(contextCity) : null;
+  const fromHome = homeCity ? parsePlannerCity(homeCity) : null;
+  const near = /\b(?:near\s+me|nearby|close\s+by|around\s+here|close\s+to\s+me)\b/i.test(message);
+  // Where to look: a city typed in the message, then "near me" with the visitor's point, then the page's city,
+  // then the city they picked on the site (its point, or its name). Unknown only when none exists.
+  const cityArea = (c) => (c && Number.isFinite(c.lat) && Number.isFinite(c.lng) ? { name: c.neighborhood || c.name, lat: c.lat, lng: c.lng, state: c.state || "FL" } : null);
+  const homeName = homeCity ? homeCity.replace(/,\s*[A-Z]{2}$/, "") : null;
+  const pointArea = point ? { name: homeName || (fromHome && fromHome.name) || null, lat: point.lat, lng: point.lng, state: "FL" } : null;
+  const area = cityArea(typed) || (near && pointArea) || cityArea(fromContext) || pointArea || cityArea(fromHome);
+  const persona = plannerPersona(voice);
+  if (!area) {
+    return { mode: "clarify", voice, reply: persona.askWhere || "Which city should I look in? Pick it at the top of the page or tell me here.", ask, source: "deterministic", fallbackReason: "no_location" };
+  }
+  const subject = SUBJECTS.find((x) => x.key === ask.subject) || SUBJECTS[SUBJECTS.length - 1];
+  const now = new Date(nowMs);
+  const localHour = siteHourFloat(now);
+  const dayIndex = siteDayOfWeek(now);
+  const when = askedWhen(message, localHour);
+  const queries = [...new Set(subject.q.map((q) => `${q} ${area.name || ""}`.trim()))].slice(0, 2);
+  if (subject.key === "fun" && (localHour >= 17 || when.when === "tonight")) queries.push(`bars live music ${area.name || ""}`.trim());
+  const [lists, weather] = await Promise.all([
+    Promise.all(queries.map((q) => runOwnedSearchQuery(q, area))),
+    fetchCurrentWeather(area),
+  ]);
+  const rawGroups = [
+    ...lists.map((items) => ({ sourceKind: "owned_search", items })),
+    { sourceKind: "atlas_places", items: getFirstPartyAtlasPlaces() },
+  ];
+  const candidates = buildGroundedCandidatePool(rawGroups, { destination: area, maxRadiusKm: 40, today: siteTodayStr(now) });
+  const ranked = rankRecommendations(candidates, { count: ask.count, subject: subject.key, nowMs, localHour, weather, origin: area, when });
+  const reply = recommendReply({ picks: ranked.picks, count: ask.count, countGiven: ask.countGiven, subject: subject.key, areaLabel: area.name, localHour, dayIndex, weather, when, closedSkipped: ranked.closedSkipped });
+  return {
+    mode: "recommend",
+    voice,
+    reply,
+    picks: ranked.picks,
+    ask: { count: ask.count, countGiven: ask.countGiven, subject: subject.key },
+    area: { name: area.name, lat: area.lat, lng: area.lng },
+    context: { localHour: Math.round(localHour * 100) / 100, dayIndex, weather, when: when.when },
+    planPrompt: area.name ? `Plan my day today in ${area.name} around ${subject.noun[1]}` : null,
+    metrics: { candidateCount: candidates.length, matched: ranked.matched, closedSkipped: ranked.closedSkipped },
+    source: "deterministic",
+  };
+}
+
 export async function POST(req) {
   const entitlement = checkPlannerEntitlement(null);
   if (!entitlement.allowed) {
@@ -551,7 +606,10 @@ export async function POST(req) {
   const voice = normalizePlannerVoice(body && body.voice);
   const persona = plannerPersona(voice);
   const dateOnlyReply = /^(?:today|tonight|tomorrow)[.!?]*$/i.test(message);
-  const requestedCity = body?.contextCity || (dateOnlyReply ? body?.proposedPlan?.city : null);
+  // The city the visitor picked on the site (the location picker, wf_center.loc) is where they are unless the
+  // message or the page says otherwise (owner 2026-11-28: "It should know what the user location is").
+  const homeCity = typeof body?.homeCity === "string" && body.homeCity.trim() ? body.homeCity.trim().slice(0, 80) : null;
+  const requestedCity = body?.contextCity || (dateOnlyReply ? body?.proposedPlan?.city : null) || homeCity;
   const contextCity = typeof requestedCity === "string" ? requestedCity.slice(0, 80) : null;
   const point = sanitizePoint(body && body.point);
   const activeTrip = sanitizeActiveTrip(body && body.activeTrip);
@@ -572,6 +630,16 @@ export async function POST(req) {
   // and the chat runs it through the existing Reserve concierge (/api/reserve/concierge), where server code
   // picks the provider and a table only ever comes from an explicit tap. No model call, no ledger grant here.
   const routed = classifySantaMessage(message, { today, hasActiveTrip: Boolean(activeTrip) });
+
+  // Picks, in exactly the count asked, when the visitor asks for places and not for a plan (owner 2026-11-28).
+  // A plan is only built when they ask for one; the reply offers "Turn this into a plan" instead.
+  const hasDraftForAsk = body && body.proposedPlan !== undefined && body.proposedPlan !== null;
+  const ask = routed.kind === "reserve" ? { kind: "other" } : readAsk(routed.text || message, { plannerIntent: routed.kind === "plan" || isPlannerIntent(message, { hasActiveTrip: Boolean(activeTrip) }) });
+  // While a plan draft or a saved trip is open, the words edit that plan (the draft reviser below), never a new list.
+  if (ask.kind === "picks" && !activeTrip && !hasDraftForAsk) {
+    return okJson(await recommendPicks({ message, ask, voice, contextCity: typeof body?.contextCity === "string" ? body.contextCity.slice(0, 80) : null, homeCity, point, nowMs }));
+  }
+
   if (routed.kind === "reserve" || routed.kind === "find_food") {
     return okJson({
       mode: "reserve",
