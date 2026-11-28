@@ -370,6 +370,9 @@ const seedForConversion = () => {
   world({ pushSubs: [sub({ revoked_at: NOWISO() })], cache: { ["reengage-plan:" + PLAN_REF]: SNAP } });
   await post({ kind: "itinerary_generated", planRef: PLAN_REF });
   ok(S.queue.length === 0, "B16 a visitor whose only subscription is revoked had a row queued");
+  world();
+  await post({ kind: "hub_view", path: "/christmas-in-florida" });
+  ok(S.queue.length === 0 && S.signals.length === 1, "B16 a hub view from a visitor with no active subscription queued a row");
   world({ pushSubs: [sub()], cache: { ["reengage-plan:" + PLAN_REF]: SNAP } });
   await post({ kind: "itinerary_generated" });
   await post({ kind: "itinerary_generated", planRef: "NOT-A-PLAN-REF" });
