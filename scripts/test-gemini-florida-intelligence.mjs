@@ -233,10 +233,12 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
     ok(noKeys.aiStatus === "unconfigured", "with neither key set the run still reads unconfigured");
   }
 
-  // 3b. Active Gemini response -> validated and merged
+  // 3b. OpenAI credit refusal -> valid Gemini fallback still counts as AI output.
   const activeRes = await runFloridaIntelligenceMonitor({
     now: new Date("2026-11-23T19:00:00Z"),
     apiKeyOverride: "AIzaValidFixtureKey00000000000000000000",
+    openaiApiKeyOverride: "sk-test-fixture",
+    openaiRequestImpl: async () => Response.json({ error: { message: "You have no credits remaining." } }, { status: 429 }),
     inputsOverride: fixedInputs,
     geminiRequestImpl: async () => new Response(JSON.stringify({
       candidates: [{ content: { parts: [{ text: JSON.stringify({
@@ -248,22 +250,28 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
     }), { status: 200, headers: { "content-type": "application/json" } }),
     cacheSetImpl: cacheSet,
     breakerOpenImpl: async () => null,
+    tripBreakerImpl: async () => {},
   });
-  ok(activeRes.ok && activeRes.aiStatus === "active" && activeRes.snapshot.monitor.aiActive === true, "valid Gemini run activates AI brief and persists grounded snapshot");
+  ok(activeRes.ok && activeRes.aiStatus === "active" && activeRes.breakerKind === null &&
+    activeRes.snapshot.monitor.aiActive === true && activeRes.snapshot.monitor.provider === "gemini",
+  "valid Gemini fallback after an OpenAI refusal still activates the AI brief and persists a grounded snapshot");
 
   // 3c. Gemini 429 RESOURCE_EXHAUSTED -> trips gemini circuit breaker
   let tripped = null;
+  const geminiEcho = "fixture-Gemini-credential-echo";
   const quotaRes = await runFloridaIntelligenceMonitor({
     now: new Date("2026-11-23T19:00:00Z"),
     apiKeyOverride: "AIzaValidFixtureKey00000000000000000000",
     inputsOverride: fixedInputs,
-    geminiRequestImpl: async () => new Response('{"error":{"status":"RESOURCE_EXHAUSTED","message":"Quota exceeded"}}', { status: 429 }),
+    geminiRequestImpl: async () => Response.json({ error: { status: "RESOURCE_EXHAUSTED", message: "Quota exceeded " + geminiEcho } }, { status: 429 }),
     cacheSetImpl: cacheSet,
     breakerOpenImpl: async () => null,
     tripBreakerImpl: async (provider, kind, reason) => { tripped = { provider, kind, reason }; },
   });
   ok(quotaRes.aiStatus === "circuit_tripped" && quotaRes.breakerKind === "quota" && tripped?.provider === "gemini" && tripped?.kind === "quota",
     "Gemini quota 429 classifies as quota and trips the gemini circuit breaker");
+  ok(quotaRes.aiReason === "gemini 429: provider quota exceeded" && !JSON.stringify([quotaRes, tripped]).includes(geminiEcho),
+    "Gemini quota classification retains HTTP status while stripping the provider's credential echo");
 
   // 3d. Open breaker -> short-circuits before calling Gemini
   let calledWhenOpen = 0;
@@ -273,9 +281,124 @@ const ok = (cond, msg) => { if (cond) pass++; else failures.push(msg); };
     inputsOverride: fixedInputs,
     geminiRequestImpl: async () => { calledWhenOpen++; return new Response("{}", { status: 200 }); },
     cacheSetImpl: cacheSet,
-    breakerOpenImpl: async () => ({ kind: "billing", reason: "key invalid" }),
+    breakerOpenImpl: async () => ({ kind: "billing", reason: geminiEcho }),
   });
   ok(openRes.aiStatus === "circuit_open" && openRes.breakerKind === "billing" && calledWhenOpen === 0, "open gemini breaker skips provider call immediately");
+  ok(openRes.aiReason === "gemini billing circuit open" && !JSON.stringify(openRes).includes(geminiEcho),
+    "a previously persisted breaker message is never replayed in the snapshot");
+}
+
+// Exercise the scheduled route, cache write, and job-watch classifier together.
+// A child process owns the fixture environment and replaceable fetch.
+async function scheduledRouteFixture() {
+  const { FLORIDA_INTEL_CACHE_KEY } = await import("./lib/floridaIntelligence.js");
+  const { classifyHealth, isBudgetLimitNote } = await import("./lib/jobPulse.js");
+  const { resetBreaker } = await import("./lib/providerHealth.js");
+  const { GET: floridaCron } = await import("./app/api/cron/florida-intelligence/route.js");
+  const checks = [];
+  const ok = (passed, message) => checks.push([Boolean(passed), message]);
+  const pulses = [];
+  const snapshots = [];
+  const unexpectedRequests = [];
+  const providerEcho = "fixture-OpenAI-credential-echo";
+  let providerCalls = 0;
+  let providerStatus = 429;
+  let grant = true;
+  let ledger = [{ used: 10, cap: 10 }];
+  globalThis.fetch = async (input, init = {}) => {
+    const url = new URL(input);
+    if (url.hostname === "api.openai.com") {
+      providerCalls++;
+      const data = providerStatus === 200
+        ? { choices: [{ message: { content: '{"floridaBrief":"Explore waterfront walks around Florida this week."}' } }] }
+        : { error: { message: "You have no credits remaining. Credential: " + providerEcho } };
+      return Response.json(data, { status: providerStatus });
+    }
+    if (url.hostname === "florida-monitor.test") {
+      if (url.pathname.endsWith("/wf_spend_take")) return Response.json(grant);
+      if (url.pathname.endsWith("/wf_spend_ledger")) return Response.json(ledger);
+      if (url.pathname.endsWith("/wf_job_pulse")) {
+        pulses.push(JSON.parse(init.body));
+        return new Response(null, { status: 201 });
+      }
+      if (url.pathname.endsWith("/wf_places_cache") && init.method === "POST") {
+        const { k, v } = JSON.parse(init.body);
+        if (k === FLORIDA_INTEL_CACHE_KEY) snapshots.push(v);
+        return new Response(null, { status: 201 });
+      }
+      return Response.json([]);
+    }
+    unexpectedRequests.push(url.hostname);
+    throw new Error("unexpected fixture request");
+  };
+  const callCron = () => floridaCron(new Request("https://florida-monitor.test", {
+    headers: { authorization: "Bearer florida-monitor-fixture" },
+  }));
+
+  const refused = await callCron();
+  const refusedPayload = await refused.json();
+  const refusal = pulses.at(-1);
+  ok(refused.status === 503 && refusedPayload.refresh === "fallback" &&
+    refusal?.attempted === 1 && refusal?.succeeded === 0 && refusal?.failed === 1 &&
+    /^billing: .*ai=provider_error\(gpt-4o-mini\).*openai 429/.test(refusal.note),
+  "the historical no-credits 429 reports a billing failure even with a valid fallback refresh");
+  ok(snapshots.at(-1)?.monitor.aiActive === false, "the provider failure still writes the deterministic snapshot");
+  ok(!JSON.stringify([refusal, refusedPayload, snapshots.at(-1)]).includes(providerEcho),
+    "the provider's credential echo is absent from the stored pulse, response, and fallback snapshot");
+  ok(classifyHealth([{ attempted: 5, succeeded: 4, consecutive_zero: 1, last_note: refusal?.note }]).incidents.length === 1,
+    "the first billing failure alerts even when earlier runs in the rolling window had succeeded");
+
+  const callsBeforePause = providerCalls;
+  process.env.WAYFIND_GATE = "shut";
+  const gated = await callCron();
+  ok(gated.status === 200 && providerCalls === callsBeforePause && pulses.at(-1)?.attempted === 0 &&
+    pulses.at(-1)?.failed === 0 && isBudgetLimitNote(pulses.at(-1)?.note),
+  "an intentional shut gate records a budget skip while the earlier billing breaker is open");
+
+  process.env.WAYFIND_GATE = "free";
+  await resetBreaker("openai");
+  providerStatus = 200;
+  const recovered = await callCron();
+  const recovery = pulses.at(-1);
+  ok(recovered.status === 200 && recovery?.succeeded === 1 && recovery?.failed === 0 &&
+    snapshots.at(-1)?.monitor.aiActive === true, "validated provider output refreshes the AI snapshot and records recovery");
+  ok(classifyHealth([{ attempted: 6, succeeded: 5, consecutive_zero: 0, last_note: recovery?.note }]).incidents.length === 0,
+    "a successful latest run clears the monitored billing incident");
+
+  const callsAfterRecovery = providerCalls;
+  grant = false;
+  const capped = await callCron();
+  ok(capped.status === 200 && pulses.at(-1)?.attempted === 0 && pulses.at(-1)?.failed === 0 &&
+    isBudgetLimitNote(pulses.at(-1)?.note), "a confirmed application cap records a budget skip without an incident");
+
+  ledger = [];
+  const unavailable = await callCron();
+  ok(unavailable.status === 503 && pulses.at(-1)?.failed === 1 && !isBudgetLimitNote(pulses.at(-1)?.note),
+    "an unconfirmed ledger refusal surfaces as a failure, since no budget decision was established");
+  ok(providerCalls === callsAfterRecovery && snapshots.length === 5 && pulses.length === 5 &&
+    unexpectedRequests.length === 0, "all five fixture runs publish snapshots and pulses without uncontrolled network calls");
+  return checks;
+}
+
+{
+  const child = spawnSync(process.execPath, ["--input-type=module", "-e",
+    `console.log(JSON.stringify(await (${scheduledRouteFixture})()));`
+  ], {
+    cwd: REPO,
+    env: {
+      CRON_SECRET: "florida-monitor-fixture",
+      WAYFIND_GATE: "free",
+      OPENAI_API_KEY: "sk-test-florida-monitor-fixture",
+      OPENAI_MONTHLY_REQUEST_CAP: "10",
+      SUPABASE_URL: "https://florida-monitor.test",
+      SUPABASE_SERVICE_ROLE_KEY: "sb_secret_florida-monitor-fixture",
+    },
+    encoding: "utf8",
+  });
+  if (child.status !== 0) throw new Error("scheduled route fixture failed: " + String(child.stderr || child.error || child.status).slice(0, 500));
+  const checks = JSON.parse(child.stdout.trim().split("\n").at(-1));
+  ok(checks.length === 10, "the scheduled route harness ran every expected assertion");
+  for (const [passed, message] of checks) ok(passed, message);
 }
 
 // ── 4. Provider health, env audit, extractGeminiText, score boundary, wiring ─
