@@ -108,6 +108,24 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   const [viewer, setViewer] = useState(null);
   const [rawFailed, setRawFailed] = useState(null);
   const photo = answer?.request === request ? allow(answer.photo) : peeked;
+  const visible = !!photo && failed !== request;
+  const rawSrc = request ? (!visible && failed === request ? missSrc : null) : src;
+  const rawImage = useRef(null);
+  const handledRawError = useRef(null);
+  function handleRawError(event) {
+    const image = event.currentTarget;
+    const url = image.currentSrc || image.src;
+    if (handledRawError.current?.image === image && handledRawError.current.url === url) return;
+    handledRawError.current = { image, url };
+    if (onError) onError(event);
+    else setRawFailed(rawSrc);
+  }
+  useEffect(() => {
+    // A server-rendered image can finish failing before React attaches onError.
+    // Replay that one failure through the same caller-owned or default ladder.
+    const image = rawImage.current;
+    if (rawSrc && image?.complete && image.naturalWidth === 0) image.dispatchEvent(new Event("error"));
+  }, [rawSrc]);
   const notifyError = () => {
     if (!onErrorRef.current || missSrc) return;
     const fbRaw = fallbackAttrRef.current || "";
@@ -160,18 +178,12 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     (mod) => mod.recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed, onTerminalFail: notifyError }),
     () => { setFailed(request); notifyError(); },
   );
-  if (!request) {
-    // Ordinary owned/partner image. A caller that passes onError owns its own ladder
-    // (RailCard swaps src in the handler) so the <img> must stay mounted for it. With
-    // no handler this component owns the outcome: an empty src or ONE decode error
-    // swaps to the shared tile, and the handler is gone with the <img> (no loop).
-    if (!onError && (!src || rawFailed === src)) return placeholder || <PhotoFallbackTile name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} style={style} />;
-    return <img {...props} src={src} alt={alt} style={style} onError={onError || (() => setRawFailed(src))} onLoad={onLoad} onClick={onClick} />;
+  if (!request || rawSrc) {
+    // A custom handler owns its fallback. Without one, a failed direct photo
+    // or a failed replacement uses the same unavailable tile.
+    if (!onError && (!rawSrc || rawFailed === rawSrc)) return placeholder || <PhotoFallbackTile name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} style={style} />;
+    return <img {...props} key={rawSrc} ref={rawImage} src={rawSrc} alt={alt} style={style} onError={handleRawError} onLoad={onLoad} onClick={request ? undefined : onClick} />;
   }
-  const visible = !!photo && failed !== request;
-  // `missSrc`: an owned stand-in image for a slot that has always shown one (e.g. paid landing
-  // cards). Used only after the credited lane has answered "no photo"; never while pending.
-  if (!visible && failed === request && missSrc) return <img {...props} src={missSrc} alt={alt} style={style} onError={onError} onLoad={onLoad} />;
   // The viewer holds the exact {photo, credit} object of THIS request; a place
   // change makes viewer.request stale, so an old photo/credit pair can't render.
   const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer({ request, photo }); };
