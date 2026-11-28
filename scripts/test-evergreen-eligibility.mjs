@@ -187,7 +187,7 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
     "no evergreen links for a LANDING_CITIES town, a near-miss name, or no region");
 }
 
-// ── 7. Evergreen and regular cards identify illustrative photos ───────────
+// ── 7. Evergreen and regular cards disclose missing venue photos ───────────
 {
   const Card = card.default;
   // No id and no photo = no photo source at all, so the server render takes
@@ -195,9 +195,9 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
   // its nospend place photo 404s (onError -> setImgFailed).
   const base = { name: "Corkscrew Swamp Sanctuary", rating: 4.8, reviews: 3100, photo: null, cardCategory: "Things to Do" };
   const ev1 = renderToStaticMarkup(React.createElement(Card, { place: { ...base, photoNoSpend: true }, rank: 1 }));
-  ok(/role="img" aria-label="Illustrative photo for Corkscrew Swamp Sanctuary"/.test(ev1) && />Illustrative photo</.test(ev1), "evergreen card with no verified photo has a labelled image and visible caption");
+  ok(ev1.includes("wf-place-photo-unavailable") && />Photo unavailable</.test(ev1) && !/<img\b/.test(ev1), "evergreen card with no verified photo has an explicit missing-photo label");
   const plain = renderToStaticMarkup(React.createElement(Card, { place: base, rank: 1 }));
-  ok(plain.includes('/place-photos/representative/neutral.webp') && />Illustrative photo</.test(plain), "the standard card gives uncategorized places the same honest illustrative photo");
+  ok(plain.includes("wf-place-photo-unavailable") && />Photo unavailable</.test(plain) && !/<img\b/.test(plain), "the standard card gives uncategorized places the same image-free state");
 }
 
 ok(google === 0, `no Google request anywhere in this test (${google})`);

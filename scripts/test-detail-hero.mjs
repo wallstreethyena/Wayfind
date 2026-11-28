@@ -141,10 +141,10 @@ ok(/setDetail\(\s*p\s*\)\s*;[\s\S]{0,120}setDetail\(\s*attachOfficialScoreReceip
   "receipt attach is a same-turn follow-up after setDetail(p), not a replacement of the first paint");
 
 // The detail hero stays separate from the main list-card photo policy.
-ok(/placeFallback=\{<PlaceCardPhotoFallback place=\{p\}/.test(home),
-  "list PlaceCard uses the labelled representative photo component");
+ok(/placeFallback=\{<PlaceCardPhotoFallback name=\{p\.name\}/.test(home),
+  "list PlaceCard uses the shared unavailable-photo component");
 ok(!readFileSync(new URL("../app/components/PlaceDetailPhotoHeader.js", import.meta.url), "utf8").includes("PlaceCardPhotoFallback"),
-  "the detail hero does not use the list's representative photo component");
+  "the detail hero does not use the list's unavailable-photo component");
 
 // A /p/{id} arrival may keep the populated Home shell mounted for Back, but
 // an unrelated homepage poster must not be the visual backdrop of the shared

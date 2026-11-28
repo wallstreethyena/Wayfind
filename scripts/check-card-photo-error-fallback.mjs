@@ -178,7 +178,7 @@ function railRecoveryContract(src) {
     "…and the tour <img> wires onError to it");
 }
 
-/* ── 4. PLACE-CARD MISSES RENDER THE SHARED REPRESENTATIVE PHOTO ────── */
+/* ── 4. PLACE-CARD MISSES RENDER THE SHARED UNAVAILABLE-PHOTO STATE ────── */
 for (const [name, src] of [["RailCard.js", RAIL], ["IconicPlaceCard.js", ICONIC], ["ThingsToDoList.js", TTD]]) {
   ok(/<PlaceCardPhotoFallback\b/.test(src) && /:\s*(?:placeFallback|<PlaceCardPhotoFallback)/.test(src),
     `${name}: a failed or missing venue photo renders the shared labelled fallback`);

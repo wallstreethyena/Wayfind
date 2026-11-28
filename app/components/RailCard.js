@@ -49,7 +49,7 @@ import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useRef, useState } from "react";
 import CardPhoto from "./CardPhoto";
-import PlaceCardPhotoFallback from "./PlaceCardPhotoFallback.js";
+import PlaceCardPhotoFallback, { placeInitials } from "./PlaceCardPhotoFallback.js";
 import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
 // thumbs were WORSE than a navigation: `onClick={... if (onLike) onLike(e)}`
@@ -156,7 +156,6 @@ export function isDirectionsCta(cta) {
     || /^https?:\/\/(?:www\.)?(?:google\.[a-z.]+\/maps|maps\.google\.|maps\.apple\.com)/i.test(href);
 }
 
-const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
 // THE "THERE IS MORE" ROW (owner, 2026-08-08: "use a sign above the card to let
 // the user know there is more, i want the card size to be full").
@@ -552,7 +551,7 @@ export default function RailCard({
   // Keep filtering other Google URLs on guide surfaces.
   const photoSrcFilter = (src) => typeof src === "string" && /^\/api\/photo\/stored\/[A-Za-z0-9_-]+(?:[?#]|$)/.test(src) ? src : routePhotoFilter(src);
   const placeFallback = place && !visitFacts && !actionItem
-    ? <PlaceCardPhotoFallback place={place} category={eyebrow} name={title} eager={eagerMedia} /> : null;
+    ? <PlaceCardPhotoFallback name={title} /> : null;
   const shownPhoto = photoSrcFilter(photo);
   const usingFallback = !!fallbackPhoto && fallbackPhoto.primary === shownPhoto;
   const displayedPhoto = usingFallback ? fallbackPhoto.src : shownPhoto;
@@ -671,7 +670,7 @@ export default function RailCard({
                 style={shownPhotoStyle}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
-              : placeFallback || <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
+              : placeFallback || <div className="wf-place-card-monogram" aria-hidden="true">{placeInitials(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={shownAward} />
           {/* CC-license credit for the free permanent photo lane. A tiny line

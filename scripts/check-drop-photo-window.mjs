@@ -184,7 +184,7 @@ const CSS = strip(readFileSync(join(ROOT, "app/components/railMenuCss.js"), "utf
 {
   const card = readFileSync(join(ROOT, "app/components/IconicPlaceCard.js"), "utf8");
   ok(/<PlaceCardPhotoFallback\b/.test(card) && /:\s*placeFallback\}/.test(card),
-    "a photoless card in the virtualized window has a labelled representative photo");
+    "a photoless card in the virtualized window has an explicit unavailable-photo state");
   ok(
     /photoUrl\(place\)\s*\n?\s*\?/.test(card)
       || /\{photoUrl\(place\)/.test(card)
