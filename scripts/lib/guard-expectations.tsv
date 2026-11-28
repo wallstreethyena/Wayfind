@@ -75,7 +75,7 @@ scripts/check-christmas-photo-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0
 scripts/check-christmas-photo-rights-field.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	0c16e188d61aa809b99247f66599a39f9f0458fb0b95a5b52beb742139f153e1
 scripts/check-christmas-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	260	0	0	4e65df21516e5a83aeed3a1a31f919f5e6c7a7e55fff9e15d0abfd8bb1e3ac28
 scripts/check-christmas-rejected-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	819c85fc14cdcf04b76f2bbd1946ff834bcda13de5d35d073aa7edea6bbd31ce
-scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	173	0	0	38fd7115d68bd06c3eb8e9d88563351d73ebe023685aab121296d65b27bcee3f
+scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	175	0	0	701e1dcdda3e9fea0bc02808a2f5f5e7af942d58afebd489cceab614aa982b7c
 scripts/check-christmas-retired-redirects.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	c074760686ffb6e21e1bbcbcda11b080f975645a89524e757414d1c8c1eadff3
 scripts/check-christmas-static-gallery-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	8034aeecc1fae46c7c29699a51a43245bd5ecb3b553f6fe978116fe73179f170
 scripts/check-christmas-treats-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	8955551c1c731e4d2e06d94bd5850dcfc51eb239115115fbbd5d1e3a1813a9fd
@@ -162,7 +162,7 @@ scripts/check-event-day-is-venue-local.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	
 scripts/check-event-hero-and-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	456075b8b7decac063799f05e69db89f1b2a7353a5f6ac3538e264b5b4022cbf
 scripts/check-event-jsonld-offset.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0	1ebe6723acd038f7c22e0cef9d060533e56c52de42a3f441d407d85c42e3e5ff
 scripts/check-event-not-found-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	14	0	0	5386a52906e6e458ee0dcda6467cb4e139c8504905228ec1e791550edfb089f0
-scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	220	0	0	b95ee8457a9eb4afa0a03a9cc13dde0e85ddc83ee2408716814aeb17a17e9dbc
+scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	229	0	0	32e739e5a6a3a7b786766ccefe928655f34e56b128484ec98e19852cd67eb113
 scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	52dd1b51f0a54a5909927ba63b4b4b75da2f102461575638b20bab12f05b89a1
 scripts/check-event-photo-honesty.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	d4b22cdc881a106bdbd88e0f0a03678073c6f2d44ec4025f1537f6647a830d30
 scripts/check-event-photo-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	30b2133b0aaa364cfc7012c1b67b11dad94f5feee8e7b9f30857f1db4c239632
