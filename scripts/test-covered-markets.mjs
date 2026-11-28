@@ -46,7 +46,16 @@ for (const slug of Object.keys(LANDING_CITIES)) ok(COVERED_CITIES[slug] === LAND
 // Held because their real feed was (near) empty — see the table's header
 // comment. Re-adding one must come with a fresh feed measurement. Key West
 // was promoted 2026-11-18 on a fresh measurement (71 distinct, 13 breakfast).
-for (const slug of ["gainesville", "port-st-lucie", "vero-beach", "stuart", "sebring"]) ok(!COVERED_CITIES[slug], `${slug} stays held until its feed fills (measured thin 2026-11-18)`);
+for (const slug of ["port-st-lucie", "vero-beach", "stuart", "sebring"]) ok(!COVERED_CITIES[slug], `${slug} stays held until its feed fills (measured thin 2026-11-18)`);
+ok(!!MARKET_CITIES.gainesville, "gainesville is a covered market (160 rated places within 17 mi, measured 2026-11-28 after the held-town rating fetch)");
+{
+  const { parsePlannerCity } = await import("../lib/plannerParse.js");
+  for (const text of ["a day in Gainesville with my kids", "weekend in gainesville, fl", "date night in GNV"]) {
+    const hit = parsePlannerCity(text);
+    ok(hit && (hit.slug === "gainesville" || (hit.city && hit.city.name === "Gainesville")), `planner reads "${text}" as Gainesville (got ${JSON.stringify(hit && (hit.slug || hit.city && hit.city.name))})`);
+  }
+  ok(knownCityGeocode("gainesville")?.lat === MARKET_CITIES.gainesville.lat, "the Location box resolves Gainesville locally, no provider call");
+}
 for (const slug of ["port-charlotte", "homestead", "the-villages", "key-west", "spring-hill"]) ok(!!MARKET_CITIES[slug], `${slug} is a covered market (measured full 2026-11-18)`);
 for (const slug of Object.keys(CITY_ALIASES)) ok(!!COVERED_CITIES[slug], `alias owner ${slug} is a covered city`);
 
