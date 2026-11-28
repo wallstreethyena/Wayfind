@@ -333,7 +333,7 @@ const containsAt = (win) => surfaces(win).some((s) => String(s).includes("@"));
   ok(/setFlag\("hasSavedEmail", true/.test(drawer), "SOURCE-LEVEL: a successful send stores the boolean flag");
   ok(/key === "Escape"/.test(drawer) && /e\.key !== "Tab"/.test(drawer) && /aria-modal="true"/.test(drawer), "SOURCE-LEVEL: Escape and Tab handling and aria-modal are present");
   ok(/style\.overflow = saved\[i\]/.test(drawer) && /prev\.focus\(\)/.test(drawer), "SOURCE-LEVEL: scroll lock and focus are restored on close");
-  ok(/Sent\. Check your inbox\./.test(drawer) && /This plan expired\. Build it again and we'll send the new one\./.test(drawer) && /One moment, then try again\./.test(drawer) && /Email is not available right now\./.test(drawer), "SOURCE-LEVEL: the success and error copy matches the brief");
+  ok(/If that address can get email, your plan is on its way\./.test(drawer) && !/Check your inbox/.test(drawer) && /This plan expired\. Build it again and we'll send the new one\./.test(drawer) && /One moment, then try again\./.test(drawer) && /Email is not available right now\./.test(drawer), "SOURCE-LEVEL: the success and error copy matches the brief");
   ok(/role="region"/.test(banner) && /aria-label="Dismiss this reminder"/.test(banner) && /zIndex: 890/.test(banner), "SOURCE-LEVEL: banner is a labelled region with a labelled dismiss, z-index under the sheets");
   ok(/rel=\{outbound \? "sponsored nofollow" : undefined\}/.test(banner), "SOURCE-LEVEL: an /api/ offer link is rel=sponsored nofollow");
   ok(/<ReengageMount \/>/.test(layout) && (layout.match(/<ReengageMount \/>/g) || []).length === 1, "SOURCE-LEVEL: layout renders <ReengageMount /> exactly once");

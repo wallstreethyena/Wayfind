@@ -113,7 +113,7 @@ export default function EmailItineraryDrawer({ planRef, areaName, surface, onClo
         </div>
         {phase === "sent" ? (
           <div style={{ marginTop: 14 }}>
-            <p role="status" style={{ margin: 0, color: T.green, fontSize: 16, fontWeight: 800 }}>Sent. Check your inbox.</p>
+            <p role="status" style={{ margin: 0, color: T.green, fontSize: 16, fontWeight: 800 }}>If that address can get email, your plan is on its way.</p>
             <button type="button" onClick={() => closeRef.current && closeRef.current()}
               style={{ marginTop: 16, width: "100%", minHeight: 48, borderRadius: 14, border: `1px solid ${T.border}`, background: T.card2, color: T.text, font: "inherit", fontSize: 16, fontWeight: 800, cursor: "pointer" }}>Done</button>
           </div>

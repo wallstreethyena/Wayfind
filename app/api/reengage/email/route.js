@@ -5,7 +5,7 @@
 //   400 { ok: false, code: "invalid" }       bad address, plan reference or anonymous id
 //   400 { ok: false, code: "consent" }       the box was not ticked
 //   404 { ok: false, code: "plan_expired" }  the 7 day plan snapshot is gone
-//   429                                      middleware.js (same-origin + per-IP limit)
+//   429                                      middleware.js (same-origin + this route's own per-IP limit)
 //   503 { ok: false, code: "unconfigured" }  WF_REENGAGE_ENABLED is not "1", or Supabase/Resend env is missing
 //   503 { ok: false, code: "unavailable" }   a store or Resend refused the request
 //
@@ -14,14 +14,20 @@
 // lib/reengageServer.js), not from anything the browser sent. A contact who is
 // unsubscribed, bounced or complained, or whose address is on the suppression
 // list, still gets { ok: true } and no email: the answer must not reveal who is
-// on a list. Drip rows (+2h, +24h, +72h) are queued only after the first email
-// went out, and queueing twice adds nothing.
+// on a list. The same {ok:true} answers a recipient who already got 3 itinerary
+// emails in the last 24 hours (nothing sent, nothing queued). An existing
+// contact's record is never rewritten, and the address is never in a URL. Every
+// send leaves a queue row (itinerary_email) that the daily cap counts. Drip rows
+// (+2h, +24h, +72h) are queued only after the first email went out, once per
+// contact and plan; the PR 2 dispatcher sends them only to CONFIRMED contacts
+// (confirmed_at, set when the recipient clicks "Open my plan").
 import { randomUUID } from "node:crypto";
 import { cget } from "../../../../lib/serverCache.js";
 import { isSyntheticRequest } from "../../../../lib/productionWriteFirewall.js";
 import {
   ANON_ID_RX, PLAN_REF_RX, enqueueDrip, isEmailSuppressed, isValidEmail, normalizeEmail,
-  planSnapshotKey, reengageConfigured, sanitizePlan, sendItineraryEmail, upsertContact,
+  planSnapshotKey, recordItinerarySend, reengageConfigured, sanitizePlan, sendItineraryEmail, upsertContact,
+  withinItineraryEmailCap,
 } from "../../../../lib/reengageServer.js";
 
 export const runtime = "nodejs";
@@ -68,9 +74,16 @@ export async function POST(req) {
   if (!sup.ok) return json({ ok: false, code: "unavailable" }, 503);
   if (contact.status !== "subscribed" || sup.suppressed) return json({ ok: true });
 
+  // At most 3 immediate emails per recipient per day. A read error means "do not send".
+  const cap = await withinItineraryEmailCap(contact.id);
+  if (!cap.ok) return json({ ok: false, code: "unavailable" }, 503);
+  if (!cap.allowed) return json({ ok: true });
+
   const sent = await sendItineraryEmail({ to: email, plan, unsubscribeToken: contact.unsubscribe_token, planRef });
   if (!sent.sent) return json({ ok: false, code: sent.reason === "unconfigured" ? "unconfigured" : "unavailable" }, 503);
 
+  const logged = await recordItinerarySend({ anonId, contactId: contact.id, planRef, resendId: sent.id });
+  if (!logged.ok) console.error("[reengage] send not recorded:", logged.reason || "write_failed");
   const queued = await enqueueDrip({ anonId, contactId: contact.id, planRef, plan });
   if (!queued.ok) console.error("[reengage] drip not queued:", queued.reason);
   return json({ ok: true });

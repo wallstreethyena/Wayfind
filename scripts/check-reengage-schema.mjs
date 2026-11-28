@@ -58,6 +58,27 @@ export function checkSchema(rawSql) {
   return { problems, tables: created };
 }
 
+// The columns and keys the re-engagement routes depend on. Each is a position in
+// the DDL (inside the named table's own body, or its own statement), not a name
+// that appears somewhere in the file.
+function tableBody(sql, t) {
+  const m = new RegExp(`create\\s+table\\s+(?:if\\s+not\\s+exists\\s+)?(?:public\\.)?${t}\\s*\\(([\\s\\S]*?)\\n\\);`, "i").exec(sql);
+  return m ? m[1] : "";
+}
+export function checkShape(rawSql) {
+  const sql = stripSqlComments(rawSql);
+  const problems = [];
+  const contacts = tableBody(sql, "wf_reengage_contacts");
+  const queue = tableBody(sql, "wf_reengage_queue");
+  if (!/^\s*email_hash\s+text\s+not\s+null\s+unique\b/im.test(contacts)) problems.push("wf_reengage_contacts has no `email_hash text not null unique` column (the address must never be a lookup key in a URL)");
+  if (!/^\s*confirmed_at\s+timestamptz\s*,/im.test(contacts)) problems.push("wf_reengage_contacts has no nullable `confirmed_at timestamptz` column (the click that confirms a recipient)");
+  if (!/trigger_type[^\n]*\n?[^\n]*check\s*\(trigger_type\s+in\s*\([^)]*'itinerary_email'/i.test(queue)) problems.push("wf_reengage_queue.trigger_type does not allow 'itinerary_email' (the immediate send rows the daily cap counts)");
+  const idx = /create\s+unique\s+index\s+(?:if\s+not\s+exists\s+)?\w+\s+on\s+(?:public\.)?wf_reengage_queue\s*\(\s*contact_id\s*,\s*trigger_type\s*,\s*channel\s*,\s*step\s*,\s*dedupe_key\s*\)\s*([^;]*);/i.exec(sql);
+  if (!idx) problems.push("wf_reengage_queue has no unique index on (contact_id, trigger_type, channel, step, dedupe_key): per contact drip dedupe is gone");
+  else if (/\bwhere\b/i.test(idx[1])) problems.push("the contact unique index is PARTIAL: PostgREST on_conflict cannot target a partial index, so every drip insert would fail");
+  return problems;
+}
+
 let failures = 0;
 const ok = (cond, msg) => { if (!cond) { console.error("check-reengage-schema: FAIL — " + msg); failures += 1; } };
 
@@ -83,9 +104,24 @@ for (const [name, mutate] of Object.entries(breakers)) {
   ok(mutated !== sql, `negative control "${name}" did not change the SQL, so it proves nothing`);
   ok(checkSchema(mutated).problems.length > 0, `negative control "${name}" was NOT caught`);
 }
+const shape = checkShape(sql);
+for (const p of shape) ok(false, p);
+const shapeBreakers = {
+  "email_hash column dropped": (x) => x.replace(/^\s*email_hash\s+text\s+not\s+null\s+unique[^\n]*\n/m, ""),
+  "confirmed_at column dropped": (x) => x.replace(/^\s*confirmed_at\s+timestamptz,\n/m, ""),
+  "itinerary_email trigger dropped": (x) => x.replace("'itinerary_email', ", ""),
+  "contact unique index dropped": (x) => x.replace(/create unique index if not exists wf_reengage_queue_contact_key[\s\S]*?;\n/, ""),
+  "contact unique index made partial": (x) => x.replace("(contact_id, trigger_type, channel, step, dedupe_key);", "(contact_id, trigger_type, channel, step, dedupe_key) where contact_id is not null;"),
+  "email_hash only in a comment": (x) => x.replace(/^(\s*)email_hash(\s+text\s+not\s+null\s+unique[^\n]*\n)/m, "$1-- email_hash$2"),
+};
+for (const [name, mutate] of Object.entries(shapeBreakers)) {
+  const mutated = mutate(sql);
+  ok(mutated !== sql, `shape negative control "${name}" did not change the SQL, so it proves nothing`);
+  ok(checkShape(mutated).length > 0, `shape negative control "${name}" was NOT caught`);
+}
 // A commented-out revoke must not satisfy the check.
 const commentedRevoke = sql.replace(`revoke all on table public.${first} from public, anon, authenticated;`, `-- revoke all on table public.${first} from public, anon, authenticated;`);
 ok(commentedRevoke !== sql && checkSchema(commentedRevoke).problems.length > 0, "a commented-out revoke satisfied the check");
 
 if (failures) { console.error(`check-reengage-schema: ${failures} failure(s)`); process.exit(1); }
-console.log(`check-reengage-schema: OK — ${real.tables.length} tables (${real.tables.join(", ")}) each with RLS on, revoke from anon+authenticated, service_role grant only; 0 policies; ${Object.keys(breakers).length + 1} negative controls caught`);
+console.log(`check-reengage-schema: OK — ${real.tables.length} tables (${real.tables.join(", ")}) each with RLS on, revoke from anon+authenticated, service_role grant only; 0 policies; ${Object.keys(breakers).length + 1} negative controls caught; contacts.email_hash + confirmed_at, queue itinerary_email trigger and a non partial contact unique index present (${Object.keys(shapeBreakers).length} shape negative controls caught)`);

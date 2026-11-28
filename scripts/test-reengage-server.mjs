@@ -39,10 +39,11 @@ const EMAIL = "test.user@example.test";
 
 // ── fetch stub: records every call ──────────────────────────────────────────
 let calls = [];
+const allCalls = []; // never reset: the whole-run "no address in any URL" check reads this
 let S = {};
 function reset(over = {}) {
   calls = [];
-  S = { plan: { [PLAN_REF]: null }, cache: {}, contact: null, insertConflict: false, suppressed: false, resendOk: true, queueOk: true, sentRows: [], unsubRows: null, dbDown: false, ...over };
+  S = { plan: { [PLAN_REF]: null }, cache: {}, contact: null, insertConflict: false, suppressed: false, resendOk: true, queueOk: true, sentRows: [], itinRows: [], capDown: false, unsubRows: null, dbDown: false, ...over };
 }
 const jsonRes = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json" } });
 const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
@@ -51,7 +52,9 @@ globalThis.fetch = async (url, init = {}) => {
   const u = String(url);
   const method = (init && init.method) || "GET";
   const raw = init && init.body ? String(init.body) : "";
-  calls.push({ u, method, raw, body: parse(raw), headers: (init && init.headers) || {} });
+  const rec = { u, method, raw, body: parse(raw), headers: (init && init.headers) || {} };
+  calls.push(rec);
+  allCalls.push(rec);
   if (u.startsWith("https://api.resend.com/emails")) return S.resendOk ? jsonRes({ id: "em_1" }) : jsonRes({ message: "no" }, 422);
   if (!u.includes("/rest/v1/")) return jsonRes({}, 404);
   if (S.dbDown) return jsonRes({}, 500);
@@ -67,10 +70,29 @@ globalThis.fetch = async (url, init = {}) => {
   if (u.includes("/rest/v1/wf_reengage_contacts")) {
     if (method === "GET") return jsonRes(S.contact ? [S.contact] : []);
     if (method === "POST") return S.insertConflict ? jsonRes([]) : jsonRes([{ id: 7, status: "subscribed", unsubscribe_token: raw.includes('"unsubscribe_token"') ? parse(raw).unsubscribe_token : TOKEN }], 201);
-    if (method === "PATCH") return u.includes("unsubscribe_token=eq.") ? jsonRes(S.unsubRows || [{ id: 7, email: EMAIL, anon_id: ANON }]) : new Response(null, { status: 204 });
+    if (method === "PATCH" && u.includes("unsubscribe_token=eq.") && u.includes("confirmed_at=is.null")) {
+      // confirm: honours its own filters against the stateful contact
+      if (S.contact && u.includes("status=eq.subscribed") && S.contact.status === "subscribed" && !S.contact.confirmed_at) S.contact.confirmed_at = parse(raw).confirmed_at;
+      return new Response(null, { status: 204 });
+    }
+    if (method === "PATCH" && u.includes("unsubscribe_token=eq.")) {
+      // unsubscribe: a stateful contact is flipped only when the status filter lets it through
+      if (S.contact && !S.unsubRows) {
+        if (u.includes("status=eq.subscribed") && S.contact.status !== "subscribed") return jsonRes([]);
+        S.contact.status = parse(raw).status; S.contact.unsubscribed_at = parse(raw).unsubscribed_at;
+        return jsonRes([{ id: S.contact.id, email: EMAIL, anon_id: ANON }]);
+      }
+      return jsonRes(S.unsubRows || [{ id: 7, email: EMAIL, anon_id: ANON }]);
+    }
+    if (method === "PATCH") return new Response(null, { status: 204 });
   }
   if (u.includes("/rest/v1/wf_reengage_suppressions")) return method === "GET" ? jsonRes(S.suppressed ? [{ id: 1 }] : []) : jsonRes({}, 201);
   if (u.includes("/rest/v1/wf_reengage_queue")) {
+    if (method === "GET" && u.includes("trigger_type=eq.itinerary_email")) {
+      if (S.capDown) return jsonRes({}, 500);
+      const lim = Number((u.match(/[?&]limit=(\d+)/) || [])[1]) || 1000;
+      return jsonRes(S.itinRows.slice(0, lim));
+    }
     if (method === "GET") return jsonRes(S.sentRows);
     if (method === "POST") return S.queueOk ? jsonRes({}, 201) : jsonRes({}, 500);
     return new Response(null, { status: 204 });
@@ -132,6 +154,8 @@ ok(msg && msg.subject === "Your Sarasota plan", "email subject wrong: " + (msg &
   const mine = hrefs.filter((h) => { try { return new URL(h).hostname === "www.gowayfind.com"; } catch { return false; } });
   ok(mine.length >= 3, "expected at least 3 Wayfind links (place, open, unsubscribe), found " + mine.length);
   ok(mine.every((h) => { const q = new URL(h).searchParams; return q.get("utm_source") === "resend_lifecycle" && q.get("utm_medium") === "email" && q.get("utm_campaign") === "itinerary_email"; }), "a Wayfind link in the email lacks the three utm tags: " + mine.join(" | "));
+  const open = mine.map((h) => new URL(h)).find((u) => u.pathname === "/api/reengage/open");
+  ok(open && open.searchParams.get("t") === TOKEN && open.searchParams.get("to") === "/plan-my-day" && />Open my plan<\/a>/.test(msg.html) && /Open my plan: https:\/\/www\.gowayfind\.com\/api\/reengage\/open\?t=/.test(msg.text), "the primary \"Open my plan\" link is missing, does not go through /api/reengage/open, or lacks the token or a plan-my-day target");
   const unsub = mine.map((h) => new URL(h)).find((u) => u.pathname === "/api/reengage/unsubscribe");
   ok(unsub && unsub.searchParams.get("t") === TOKEN, "visible unsubscribe link missing or carries the wrong token");
   ok(/Unsubscribe<\/a>/.test(msg.html) && /Unsubscribe: https:\/\/www\.gowayfind\.com\/api\/reengage\/unsubscribe\?t=/.test(msg.text), "unsubscribe link is not visible in both parts");
@@ -198,10 +222,13 @@ ok(msg && msg.subject === "Your Sarasota plan", "email subject wrong: " + (msg &
   const p = queuePosts();
   ok(q.ok && q.rows === 3 && p.length === 1, "enqueueDrip did not make exactly one insert of 3 rows");
   const c = p[0];
-  ok(c && c.u.includes("on_conflict=anon_id,trigger_type,channel,step,dedupe_key") && /resolution=ignore-duplicates/.test(c.headers.Prefer), "enqueueDrip insert is not idempotent (on_conflict + ignore-duplicates)");
+  ok(c && c.u.includes("on_conflict=contact_id,trigger_type,channel,step,dedupe_key") && !c.u.includes("anon_id,trigger_type") && /resolution=ignore-duplicates/.test(c.headers.Prefer), "enqueueDrip insert is not idempotent PER CONTACT (on_conflict must name contact_id, with ignore-duplicates): " + (c && c.u));
   ok(c && c.body.length === 3 && c.body.every((r) => r.trigger_type === "itinerary_abandoned" && r.channel === "email" && r.status === "pending" && r.dedupe_key === PLAN_REF && r.anon_id === ANON && r.contact_id === 7 && r.payload.planRef === PLAN_REF && r.payload.plan.days[0].stops[0].id === "p1"), "queue rows have the wrong shape");
   ok(c && c.body.map((r) => r.step).join() === "1,2,3" && c.body.map((r) => Date.parse(r.scheduled_for) - t0).join() === [2, 24, 72].map((h) => h * 3600e3).join(), "queue rows have the wrong steps or times");
   ok(c && c.body.every((r) => Buffer.byteLength(JSON.stringify(r.payload)) <= 16000), "queue payload exceeds the table's 16000 byte check");
+  reset();
+  await lib.enqueueDrip({ anonId: ANON, contactId: null, planRef: PLAN_REF, plan: SNAP }, { fetchImpl: globalThis.fetch, now: t0 });
+  ok(queuePosts().length === 1 && queuePosts()[0].u.includes("on_conflict=anon_id,trigger_type,channel,step,dedupe_key") && queuePosts()[0].body.every((r) => r.contact_id === null), "with no contact the drip did not fall back to the anon key");
   reset();
   const badRef = await lib.enqueueDrip({ anonId: ANON, contactId: 7, planRef: "nope", plan: SNAP }, { fetchImpl: globalThis.fetch });
   ok(!badRef.ok && calls.length === 0, "enqueueDrip ran with a bad plan reference");
@@ -210,17 +237,19 @@ ok(msg && msg.subject === "Your Sarasota plan", "email subject wrong: " + (msg &
 // ── 5. the 7 day cap ────────────────────────────────────────────────────────
 {
   reset({ sentRows: [{ id: 1 }] });
-  ok(await lib.withinWeeklyCap(ANON, "email", { max: 2, fetchImpl: globalThis.fetch }) === true, "1 sent in 7 days should still be within the cap of 2");
+  ok(await lib.withinWeeklyCap(ANON, "email", { contactId: 7, max: 2, fetchImpl: globalThis.fetch }) === true, "1 sent in 7 days should still be within the cap of 2");
   const u = calls[0] && calls[0].u;
-  ok(u && u.includes(`anon_id=eq.${ANON}`) && u.includes("channel=eq.email") && u.includes("status=eq.sent") && u.includes("sent_at=gte.") && u.includes("limit=2"), "cap query does not look at this visitor's sent email in the window: " + u);
+  ok(u && u.includes("contact_id=eq.7") && !u.includes("anon_id=") && u.includes("trigger_type=neq.itinerary_email") && u.includes("channel=eq.email") && u.includes("status=eq.sent") && u.includes("sent_at=gte.") && u.includes("limit=2"), "the email cap query does not count this CONTACT's sent follow ups in the window: " + u);
   reset({ sentRows: [{ id: 1 }, { id: 2 }] });
-  ok(await lib.withinWeeklyCap(ANON, "email", { max: 2, fetchImpl: globalThis.fetch }) === false, "2 sent in 7 days should be AT the cap of 2");
-  reset({ sentRows: [] });
-  ok(await lib.withinWeeklyCap(ANON, "push", { max: 2, fetchImpl: globalThis.fetch }) === true && calls[0].u.includes("channel=eq.push"), "0 sent should be within the cap, scoped to the channel asked");
-  reset({ dbDown: true });
-  ok(await lib.withinWeeklyCap(ANON, "email", { max: 2, fetchImpl: globalThis.fetch }) === false, "the cap must fail closed on a read error");
+  ok(await lib.withinWeeklyCap(ANON, "email", { contactId: 7, max: 2, fetchImpl: globalThis.fetch }) === false, "2 sent in 7 days should be AT the cap of 2");
   reset();
-  ok(await lib.withinWeeklyCap("not-a-uuid", "email", { fetchImpl: globalThis.fetch }) === false && await lib.withinWeeklyCap(ANON, "sms", { fetchImpl: globalThis.fetch }) === false && calls.length === 0, "the cap ran for a bad anon id or channel");
+  ok(await lib.withinWeeklyCap(ANON, "email", { fetchImpl: globalThis.fetch }) === false && calls.length === 0, "the email cap ran without a contact id (a GPC visitor's anon id is new every request, so it would always pass)");
+  reset({ sentRows: [] });
+  ok(await lib.withinWeeklyCap(ANON, "push", { max: 2, fetchImpl: globalThis.fetch }) === true && calls[0].u.includes("channel=eq.push") && calls[0].u.includes(`anon_id=eq.${ANON}`), "0 sent should be within the cap, scoped to the channel asked (push counts by anon id)");
+  reset({ dbDown: true });
+  ok(await lib.withinWeeklyCap(ANON, "email", { contactId: 7, max: 2, fetchImpl: globalThis.fetch }) === false, "the cap must fail closed on a read error");
+  reset();
+  ok(await lib.withinWeeklyCap("not-a-uuid", "push", { fetchImpl: globalThis.fetch }) === false && await lib.withinWeeklyCap(ANON, "sms", { fetchImpl: globalThis.fetch }) === false && calls.length === 0, "the cap ran for a bad anon id or channel");
 }
 
 // ── 6. cancelling pending rows ──────────────────────────────────────────────
@@ -258,6 +287,7 @@ const REAL_OUT = {
 }
 
 // ── 8. the email route ──────────────────────────────────────────────────────
+const ANON_RX_TEST = (v) => /^[0-9a-f-]{36}$/.test(String(v));
 const GOOD = { email: EMAIL_IN, consent: true, planRef: PLAN_REF, anonId: ANON, page: "/plan-my-day" };
 const bodies = [];
 const run = async (body, headers) => { const r = await post(emailRoute, body, headers); const text = await r.clone().text(); bodies.push(text); return { r, text, json: parse(text) }; };
@@ -308,7 +338,10 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
   x = await run(GOOD);
   ok(x.r.status === 200 && JSON.stringify(x.json) === '{"ok":true}', "happy path did not answer exactly {ok:true}: " + x.text);
   ok(resendCalls().length === 1, "happy path made " + resendCalls().length + " Resend calls");
-  ok(queuePosts().length === 1 && queuePosts()[0].body.length === 3 && queuePosts()[0].body[0].contact_id === 7, "happy path did not queue 3 drip rows for the contact");
+  const dripPost = queuePosts().find((c) => c.body && c.body.length === 3);
+  const sentPost = queuePosts().find((c) => c.body && c.body.length === 1);
+  ok(queuePosts().length === 2 && dripPost && dripPost.body.every((r) => r.contact_id === 7 && r.trigger_type === "itinerary_abandoned"), "happy path did not queue 3 drip rows for the contact (and exactly one more queue write)");
+  ok(sentPost && sentPost.body[0].trigger_type === "itinerary_email" && sentPost.body[0].channel === "email" && sentPost.body[0].step === 0 && sentPost.body[0].status === "sent" && typeof sentPost.body[0].sent_at === "string" && sentPost.body[0].resend_email_id === "em_1" && sentPost.body[0].dedupe_key === PLAN_REF && sentPost.body[0].contact_id === 7 && sentPost.u.includes("on_conflict=contact_id,trigger_type,channel,step,dedupe_key"), "the immediate send left no itinerary_email 'sent' queue row for the contact: " + JSON.stringify(sentPost && sentPost.body));
   const ins = only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts"))[0];
   ok(ins && ins.body.email === EMAIL && ins.body.status === "subscribed" && ins.body.consent_version === "trip-v1" && ins.body.consent_text === lib.CONSENT_TEXT && ins.body.consent_page === "/plan-my-day" && ins.body.anon_id === ANON && /^[a-f0-9]{64}$/.test(ins.body.unsubscribe_token), "contact row missing the consent or token: " + JSON.stringify(ins && ins.body));
   const sent = resendCalls()[0].body;
@@ -317,12 +350,16 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
   // order: the email goes out before the drip is queued
   const iR = calls.findIndex((c) => c.u.startsWith("https://api.resend.com/"));
   const iQ = calls.findIndex((c) => c.method === "POST" && c.u.includes("wf_reengage_queue"));
-  ok(iR > -1 && iQ > iR, "the drip was queued before the email was sent");
+  const iD = calls.findIndex((c) => c.method === "POST" && c.u.includes("wf_reengage_queue") && c.body && c.body.length === 3);
+  ok(iR > -1 && iQ > iR && iD > iQ, "the send row or the drip was queued out of order (send, then its row, then the drip)");
+  ok(calls.findIndex((c) => c.u.includes("trigger_type=eq.itinerary_email")) > -1 && calls.findIndex((c) => c.u.includes("trigger_type=eq.itinerary_email")) < iR, "the per recipient cap was not read before the email was sent");
+  ok(!calls.some((c) => c.u.includes("wf_reengage_contacts") && c.method === "GET" && c.u.includes("email=eq")) && calls.some((c) => c.u.includes("wf_reengage_contacts") && c.u.includes(`email_hash=eq.${lib.emailHash(EMAIL)}`)), "the contact was not looked up by email_hash alone");
+  ok(ins && ins.body.email_hash === lib.emailHash(EMAIL) && ins.u.includes("on_conflict=email_hash"), "the contact insert is not keyed and conflicted on email_hash");
 
-  // an existing subscribed contact: consent refreshed, no second insert, token kept
+  // an existing contact: its consent record is NEVER rewritten (no PATCH at all), no second insert, token kept
   reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN } });
-  x = await run(GOOD);
-  ok(x.r.status === 200 && resendCalls().length === 1 && only((c) => c.method === "PATCH" && c.u.includes("wf_reengage_contacts?id=eq.7")).length === 1 && only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts")).length === 0, "an existing contact was re-inserted or not refreshed");
+  x = await run({ ...GOOD, anonId: "00000000-0000-4000-8000-000000000001", page: "/somewhere-else" });
+  ok(x.r.status === 200 && resendCalls().length === 1 && only((c) => c.method === "PATCH").length === 0 && only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts")).length === 0, "an existing contact was re-inserted, or a later request PATCHed its consent fields (" + only((c) => c.method === "PATCH").length + " PATCH calls)");
   ok(resendCalls()[0].body.headers["List-Unsubscribe"].includes(TOKEN), "an existing contact's unsubscribe token changed");
 
   // a parallel insert won the race: the route reads the winner and carries on
@@ -341,10 +378,37 @@ const run = async (body, headers) => { const r = await post(emailRoute, body, he
     x = await run(GOOD);
     ok(x.r.status === 200 && JSON.stringify(x.json) === '{"ok":true}', status + " contact did not get {ok:true}");
     ok(resendCalls().length === 0 && queuePosts().length === 0, status + " contact was emailed or queued");
+    ok(only((c) => c.method === "PATCH").length === 0 && only((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts")).length === 0 && S.contact.status === status, status + " contact was rewritten by someone asking for a plan");
   }
   reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN }, suppressed: true });
   x = await run(GOOD);
   ok(x.r.status === 200 && x.text === '{"ok":true}' && resendCalls().length === 0 && queuePosts().length === 0, "a suppressed address was emailed or queued");
+
+  // per recipient cap: 3 immediate emails a day, the 4th is {ok:true} and nothing else
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN }, itinRows: [{ id: 1 }, { id: 2 }, { id: 3 }] });
+  x = await run(GOOD);
+  ok(x.r.status === 200 && x.text === '{"ok":true}' && resendCalls().length === 0 && queuePosts().length === 0, "the 4th itinerary email in 24 hours was sent or queued (" + resendCalls().length + " Resend calls)");
+  const capQ = calls.find((c) => c.u.includes("trigger_type=eq.itinerary_email"));
+  ok(capQ && capQ.u.includes("contact_id=eq.7") && capQ.u.includes("status=eq.sent") && capQ.u.includes("channel=eq.email") && /sent_at=gte\.[^&]+/.test(capQ.u) && capQ.u.includes("limit=3"), "the daily cap did not count this contact's sent itinerary emails in the window: " + (capQ && capQ.u));
+  const since = capQ ? Date.parse(decodeURIComponent(capQ.u.match(/sent_at=gte\.([^&]+)/)[1])) : 0;
+  ok(Math.abs((Date.now() - since) - 24 * 3600e3) < 60e3, "the daily cap window is not 24 hours");
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN }, itinRows: [{ id: 1 }, { id: 2 }] });
+  x = await run(GOOD);
+  ok(x.r.status === 200 && resendCalls().length === 1, "the 3rd itinerary email in 24 hours was refused (cap is 3)");
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN }, capDown: true });
+  x = await run(GOOD);
+  ok(x.r.status === 503 && resendCalls().length === 0, "a failed cap read still sent mail (it must fail closed)");
+
+  // GPC visitors (no anonId): a fresh server id each request, so dedupe must be per CONTACT
+  reset({ plan: { [PLAN_REF]: SNAP } });
+  await run({ ...GOOD, anonId: undefined });
+  const gpc1 = queuePosts().find((c) => c.body && c.body.length === 3);
+  reset({ plan: { [PLAN_REF]: SNAP }, contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN } });
+  await run({ ...GOOD, anonId: undefined });
+  const gpc2 = queuePosts().find((c) => c.body && c.body.length === 3);
+  const ck = (c) => c.body.map((r) => [r.contact_id, r.trigger_type, r.channel, r.step, r.dedupe_key].join("|")).join(",");
+  ok(gpc1 && gpc2 && gpc1.body[0].anon_id !== gpc2.body[0].anon_id && ANON_RX_TEST(gpc1.body[0].anon_id), "positive control: two GPC requests did not get different server ids, so the dedupe check below proves nothing");
+  ok(gpc1 && gpc2 && ck(gpc1) === ck(gpc2) && gpc1.u.includes("on_conflict=contact_id,trigger_type,channel,step,dedupe_key") && gpc2.u.includes("on_conflict=contact_id,trigger_type,channel,step,dedupe_key"), "two GPC requests for one address and plan would queue duplicate drips: the conflict key is not the contact's");
 
   // failures are reported, not swallowed, and nothing is queued for a mail that never left
   reset({ plan: { [PLAN_REF]: SNAP }, resendOk: false });
@@ -392,6 +456,7 @@ const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe
   ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/unsubscribe?list=trip&done=1", "the confirm button did not redirect to done=1: " + r.headers.get("location"));
   const patch = calls.find((c) => c.method === "PATCH" && c.u.includes(`unsubscribe_token=eq.${TOKEN}`));
   ok(patch && patch.body.status === "unsubscribed" && typeof patch.body.unsubscribed_at === "string", "the contact was not flipped to unsubscribed");
+  ok(patch && patch.u.includes("&status=eq.subscribed"), "the unsubscribe PATCH has no status=eq.subscribed filter: " + (patch && patch.u));
   const cancel = calls.find((c) => c.method === "PATCH" && c.u.includes("wf_reengage_queue"));
   ok(cancel && cancel.u.includes("contact_id=eq.7") && cancel.u.includes("status=eq.pending") && cancel.body.status === "cancelled" && cancel.body.cancelled_reason === "unsubscribed", "pending drip rows were not cancelled for this contact");
   const sup = calls.find((c) => c.method === "POST" && c.u.includes("wf_reengage_suppressions"));
@@ -405,6 +470,23 @@ const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe
   r = await unsubRoute.POST(P(TOKEN));
   ok(r.status === 303 && r.headers.get("location").endsWith("done=1"), "a repeat click did not give the same answer");
 
+  // a bounced / complained contact: found (done=1), status and unsubscribed_at NOT rewritten
+  for (const status of ["bounced", "complained"]) {
+    reset({ contact: { id: 7, status, unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON, unsubscribed_at: null } });
+    r = await unsubRoute.POST(P(TOKEN));
+    ok(r.status === 303 && r.headers.get("location").endsWith("done=1"), status + " token did not count as found (done=1): " + r.headers.get("location"));
+    ok(S.contact.status === status && S.contact.unsubscribed_at === null, status + " contact's status or unsubscribed_at was overwritten by an unsubscribe click");
+    ok(calls.some((c) => c.method === "PATCH" && c.u.includes("wf_reengage_queue") && c.u.includes("contact_id=eq.7") && c.u.includes("status=eq.pending")), status + " click did not still cancel pending drip rows");
+  }
+  // an already unsubscribed contact: a repeat click does not rewrite unsubscribed_at
+  reset({ contact: { id: 7, status: "unsubscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON, unsubscribed_at: "2026-11-01T00:00:00.000Z" } });
+  r = await unsubRoute.POST(P(TOKEN));
+  ok(r.headers.get("location").endsWith("done=1") && S.contact.unsubscribed_at === "2026-11-01T00:00:00.000Z", "a repeat unsubscribe click rewrote unsubscribed_at");
+  // a subscribed contact is flipped by the same stateful stub (positive control for the checks above)
+  reset({ contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON, unsubscribed_at: null } });
+  r = await unsubRoute.POST(P(TOKEN));
+  ok(S.contact.status === "unsubscribed" && typeof S.contact.unsubscribed_at === "string", "positive control: the stateful stub did not flip a subscribed contact, so the no-overwrite checks above proved nothing");
+  // an unknown token is still found:false (nothing cancelled, nothing suppressed)
   reset({ unsubRows: [] });
   r = await unsubRoute.POST(P("c".repeat(64)));
   ok(r.headers.get("location").endsWith("done=invalid") && only((c) => c.u.includes("wf_reengage_queue") || c.u.includes("wf_reengage_suppressions")).length === 0, "an unknown token cancelled queue rows or wrote a suppression");
@@ -419,6 +501,63 @@ const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe
   reset();
   r = await unsubRoute.HEAD(U("HEAD", TOKEN));
   ok(r.status === 200 && calls.length === 0, "a HEAD request (link prefetch) changed or read the database");
+}
+
+// ── 9b. the open route: "Open my plan" confirms, and is never an open redirect ─
+const openRoute = await loadComponent(path.join(ROOT, "app/api/reengage/open/route.js"), ROOT);
+const O = (qs, m = "GET") => new Request("https://www.gowayfind.com/api/reengage/open" + qs, { method: m });
+const UTMQ = "&utm_source=resend_lifecycle&utm_medium=email&utm_campaign=itinerary_email";
+{
+  reset({ contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON, confirmed_at: null } });
+  let r = await openRoute.GET(O(`?t=${TOKEN}&to=${encodeURIComponent("/plan-my-day")}${UTMQ}`));
+  const conf = calls.find((c) => c.method === "PATCH" && c.u.includes("wf_reengage_contacts"));
+  ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/plan-my-day?utm_source=resend_lifecycle&utm_medium=email&utm_campaign=itinerary_email", "a valid open click did not 303 to the plan page keeping its utm params: " + r.headers.get("location"));
+  ok(conf && conf.u.includes(`unsubscribe_token=eq.${TOKEN}`) && conf.u.includes("status=eq.subscribed") && conf.u.includes("confirmed_at=is.null") && typeof conf.body.confirmed_at === "string" && !("status" in conf.body), "the confirm PATCH is not scoped to a subscribed, unconfirmed contact: " + (conf && conf.u));
+  ok(typeof S.contact.confirmed_at === "string" && calls.length === 1, "a valid token did not set confirmed_at (or made extra calls)");
+  const firstAt = S.contact.confirmed_at;
+  // a second click never moves confirmed_at; an opted out contact is never confirmed
+  await openRoute.GET(O(`?t=${TOKEN}&to=%2F`));
+  ok(S.contact.confirmed_at === firstAt, "a second click moved confirmed_at");
+  reset({ contact: { id: 7, status: "unsubscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON, confirmed_at: null } });
+  await openRoute.GET(O(`?t=${TOKEN}&to=%2Fplan-my-day`));
+  ok(S.contact.confirmed_at === null, "an unsubscribed contact was confirmed by a click");
+  // allowed targets
+  for (const [to, want] of [["/", "/"], ["/plan-my-day", "/plan-my-day"], ["/p/ChIJabc_-9", "/p/ChIJabc_-9"], ["/guides/best-beaches", "/guides/best-beaches"]]) {
+    reset({ contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON } });
+    r = await openRoute.GET(O(`?t=${TOKEN}&to=${encodeURIComponent(to)}`));
+    ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com" + want, `allowed target ${to} was not honoured: ` + r.headers.get("location"));
+  }
+  // never an open redirect: everything else lands on "/"
+  const evil = ["//evil.com", "https://evil.com", "/\\evil", "/\\evil.com/x", "http://www.gowayfind.com@evil.com", "javascript:alert(1)", "/plan-my-day?x=1", "/plan-my-day/../../evil", "/p/", "/p/a/b", "/guides/UPPER", "/api/reengage/unsubscribe", "///evil.com", "/%2F%2Fevil.com", "/plan-my-day\n", "evil.com", "", "/" + "a".repeat(300)];
+  for (const to of evil) {
+    reset({ contact: { id: 7, status: "subscribed", unsubscribe_token: TOKEN, email: EMAIL, anon_id: ANON } });
+    r = await openRoute.GET(O(`?t=${TOKEN}&to=${encodeURIComponent(to)}`));
+    const loc = r.headers.get("location");
+    ok(r.status === 303 && loc === "https://www.gowayfind.com/", `to=${JSON.stringify(to).slice(0, 40)} did not land on "/": ${loc}`);
+  }
+  ok(new URL((await openRoute.GET(O(`?t=${TOKEN}&to=${encodeURIComponent("//evil.com")}`))).headers.get("location")).hostname === "www.gowayfind.com", "positive control: the redirect host check did not run");
+  // utm values are re-checked, unknown params dropped
+  reset();
+  r = await openRoute.GET(O(`?t=${TOKEN}&to=%2F&utm_source=${encodeURIComponent("x y<script>")}&utm_medium=email&evil=1`));
+  const lu = new URL(r.headers.get("location"));
+  ok(!lu.searchParams.has("utm_source") && lu.searchParams.get("utm_medium") === "email" && !lu.searchParams.has("evil"), "the redirect kept a malformed utm value or an unknown param: " + lu.search);
+  // a bad token costs zero database calls and still opens the page
+  for (const bad of ["short", "'; drop table--", "A".repeat(64), ""]) {
+    reset();
+    r = await openRoute.GET(O(`?t=${encodeURIComponent(bad)}&to=%2Fplan-my-day`));
+    ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/plan-my-day" && calls.length === 0, `a malformed token (${bad.slice(0, 12)}) made a database call or did not redirect`);
+  }
+  reset();
+  r = await openRoute.GET(O(`?to=%2Fplan-my-day`));
+  ok(r.status === 303 && calls.length === 0, "no token made a database call");
+  // a database failure never blocks the redirect
+  reset({ dbDown: true });
+  r = await openRoute.GET(O(`?t=${TOKEN}&to=%2Fplan-my-day`));
+  ok(r.status === 303 && r.headers.get("location") === "https://www.gowayfind.com/plan-my-day", "a database failure blocked the redirect");
+  // HEAD (link prefetch) changes nothing
+  reset();
+  r = await openRoute.HEAD(O(`?t=${TOKEN}`, "HEAD"));
+  ok(r.status === 200 && calls.length === 0, "a HEAD request confirmed a contact or touched the database");
 }
 
 // ── 10. planRef on /api/plan-my-day (EXECUTES the real route on a cached plan) ─
@@ -455,6 +594,39 @@ const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe
   ok(none.ok === true && !("planRef" in none), "a plan with no stops still got a planRef");
   const invalid = await (await route.POST(new Request("https://www.gowayfind.com/api/plan-my-day", { method: "POST", body: JSON.stringify({ area: "nowhere" }) }))).json();
   ok(invalid.ok === false && !("planRef" in invalid), "an error answer carried a planRef");
+
+  // feature OFF: a cached answer goes out unchanged: no planRef, and ZERO cache writes
+  const askFrom = (ip) => route.POST(new Request("https://www.gowayfind.com/api/plan-my-day", { method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": ip }, body: JSON.stringify({ area: "sarasota", when: "today", vibe: "easy" }) }));
+  const freshCache = () => { S.cache[cacheKey] = { ...REAL_OUT, _gap: null }; globalThis.__wfServerCacheMem && globalThis.__wfServerCacheMem.delete(cacheKey); };
+  const snapshotWrites = () => calls.filter((c) => c.method === "POST" && c.u.includes("wf_places_cache") && c.body && String(c.body.k).startsWith("reengage-plan:")).length;
+  freshCache();
+  delete process.env.WF_REENGAGE_ENABLED;
+  calls = [];
+  const off = await (await askFrom("203.0.113.1")).json();
+  await settle();
+  ok(off.ok === true && off.cached === true && Array.isArray(off.itinerary && off.itinerary.days), "positive control: the feature-off request did not return the cached plan");
+  ok(!("planRef" in off), "feature off: the plan answer still carried a planRef");
+  ok(calls.filter((c) => c.method !== "GET" && c.u.includes("wf_places_cache")).length === 0, "feature off: the plan route still wrote to the cache store (" + calls.filter((c) => c.method !== "GET" && c.u.includes("wf_places_cache")).length + " writes)");
+  // feature ON, same request: the control that the checks above could have failed
+  process.env.WF_REENGAGE_ENABLED = "1";
+  freshCache();
+  calls = [];
+  const on = await (await askFrom("203.0.113.2")).json();
+  await settle();
+  ok(/^[a-f0-9]{32}$/.test(on.planRef || "") && snapshotWrites() === 1, "positive control: with the feature on the same cached request minted one planRef and one snapshot write");
+  // a cache hit loop cannot mint without limit: the per-IP limit applies BEFORE minting
+  freshCache();
+  calls = [];
+  const burst = [];
+  for (let i = 0; i < 9; i++) burst.push(/^[a-f0-9]{32}$/.test((await (await askFrom("203.0.113.9")).json()).planRef || ""));
+  await settle();
+  ok(burst.slice(0, 6).every(Boolean) && burst.slice(6).every((m) => !m), "cache hits minted past the per-IP limit: " + burst.join());
+  ok(snapshotWrites() === 6, "cache hits wrote " + snapshotWrites() + " snapshots for one IP, expected exactly the 6 allowed");
+  // SOURCE-LEVEL (the cache MISS path needs a full itinerary build, which this test cannot run): withPlanRef itself is gated on the feature
+  const routeSrc = readFileSync(path.join(ROOT, "app/api/plan-my-day/route.js"), "utf8").replace(/\/\*[\s\S]*?\*\/|(^|[^:])\/\/.*$/gm, "$1");
+  ok(/function withPlanRef\(out\) \{\s*try \{\s*if \(!reengageConfigured\(\)\) return out;/.test(routeSrc) && (routeSrc.match(/withPlanRef\(/g) || []).length === 4, "SOURCE-LEVEL: withPlanRef is not gated on reengageConfigured() first (the cache miss paths mint through it)");
+  const other = await (await askFrom("203.0.113.10")).json();
+  ok(/^[a-f0-9]{32}$/.test(other.planRef || ""), "the per-IP limit leaked to a different IP");
 }
 
 // ── 11. middleware wiring (EXECUTES the real middleware) ────────────────────
@@ -465,7 +637,7 @@ const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe
   ok(source !== mwSrc, "the middleware NextResponse import was not stubbed, so the checks below ran against nothing");
   const real = await loadComponent(entry, ROOT, { sourceOverrides: new Map([[entry, source]]) });
   ok(real.config.matcher.includes("/api/newsletter/subscribe"), "positive control: an existing matcher entry was not found");
-  ok(real.config.matcher.includes("/api/reengage/email") && real.config.matcher.includes("/api/reengage/unsubscribe"), "a reengage route is missing from the middleware matcher");
+  ok(real.config.matcher.includes("/api/reengage/email") && real.config.matcher.includes("/api/reengage/unsubscribe") && real.config.matcher.includes("/api/reengage/open"), "a reengage route is missing from the middleware matcher");
   const call = (p, method, headers) => real.middleware({ nextUrl: new URL("https://www.gowayfind.com" + p), method, headers: new Headers({ "x-forwarded-for": "203.0.113." + Math.floor(Math.random() * 250), ...headers }) });
   ok(call("/api/reengage/email", "POST", { "sec-fetch-site": "cross-site", origin: "https://external.example" }).status === 403, "a cross-site POST to /api/reengage/email was not refused");
   ok(call("/api/reengage/email", "POST", {}).status === 403, "a headerless POST to /api/reengage/email was not refused");
@@ -477,6 +649,19 @@ const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe
   const burst = [];
   for (let i = 0; i < 7; i++) burst.push(real.middleware({ nextUrl: new URL("https://www.gowayfind.com/api/reengage/email"), method: "POST", headers: new Headers(ip) }).status);
   ok(burst.slice(0, 5).every((s) => s === 204) && burst[5] === 429, "the per-IP limit on /api/reengage/email is not 5 a minute: " + burst.join());
+  // the open link is opened from mail apps: rate limited, never same-origin gated
+  ok(call("/api/reengage/open", "GET", {}).status === 204 && call("/api/reengage/open", "GET", { "sec-fetch-site": "cross-site" }).status === 204, "the mail link /api/reengage/open was blocked by the same-origin gate");
+  const openBurst = [];
+  for (let i = 0; i < 130; i++) openBurst.push(real.middleware({ nextUrl: new URL("https://www.gowayfind.com/api/reengage/open"), method: "GET", headers: new Headers({ "x-forwarded-for": "198.51.100.79" }) }).status);
+  ok(openBurst[0] === 204 && openBurst.includes(429) && openBurst.slice(0, 100).every((s) => s === 204), "/api/reengage/open is not rate limited by the general per-IP limit (and must not get the tight send limit)");
+  // its OWN bucket: newsletter signups from one IP do not spend the plan email budget, and the reverse
+  const mw = (p, ip) => real.middleware({ nextUrl: new URL("https://www.gowayfind.com" + p), method: "POST", headers: new Headers({ "x-forwarded-for": ip, "sec-fetch-site": "same-origin" }) }).status;
+  const nl5 = Array.from({ length: 5 }, () => mw("/api/newsletter/subscribe", "198.51.100.90"));
+  ok(nl5.every((s) => s === 204) && mw("/api/newsletter/subscribe", "198.51.100.90") === 429, "positive control: 5 newsletter signups were not exactly the newsletter limit: " + nl5.join());
+  ok(mw("/api/reengage/email", "198.51.100.90") === 204, "newsletter signups spent the plan email rate limit (shared bucket)");
+  const re5 = Array.from({ length: 5 }, () => mw("/api/reengage/email", "198.51.100.91"));
+  ok(re5.every((s) => s === 204) && mw("/api/reengage/email", "198.51.100.91") === 429, "positive control: the plan email limit is not 5 a minute: " + re5.join());
+  ok(mw("/api/newsletter/subscribe", "198.51.100.91") === 204, "plan emails spent the newsletter signup rate limit (shared bucket)");
   const unsubBurst = [];
   for (let i = 0; i < 7; i++) unsubBurst.push(real.middleware({ nextUrl: new URL("https://www.gowayfind.com/api/reengage/unsubscribe"), method: "POST", headers: new Headers({ "x-forwarded-for": "198.51.100.78" }) }).status);
   ok(unsubBurst.every((s) => s === 204), "the unsubscribe route got the tight send limit (a person unsubscribing must not be throttled at 5)");
@@ -487,6 +672,16 @@ const P = (t) => new Request("https://www.gowayfind.com/api/reengage/unsubscribe
   const page = readFileSync(path.join(ROOT, "app/unsubscribe/page.js"), "utf8").replace(/\/\*[\s\S]*?\*\/|(^|[^:])\/\/.*$/gm, "$1");
   ok(/sp\.list === "trip" && done === "1"/.test(page) && /You are unsubscribed from trip emails\./.test(page), "unsubscribe page does not handle ?list=trip&done=1 (source check, the page was not rendered)");
   ok(/if \(done === "1"\) \{[\s\S]*You&apos;re unsubscribed/.test(page), "the newsletter unsubscribe confirmation was removed");
+}
+
+// ── 13. the address never rides in a URL (EVERY recorded request of the whole run) ─
+{
+  const probe = (u) => /@|%40/i.test(u);
+  ok(probe("https://x.test/rest/v1/wf_reengage_contacts?email=eq.test.user%40example.test") && probe("a@b.test") && !probe("https://x.test/rest/v1/wf_reengage_contacts?email_hash=eq." + "a".repeat(64)), "positive control: the URL probe does not recognise an address in a query string");
+  const inUrl = allCalls.filter((c) => probe(c.u));
+  ok(allCalls.length > 150 && inUrl.length === 0, "an '@' or '%40' appeared in " + inUrl.length + " of " + allCalls.length + " request URLs, e.g. " + (inUrl[0] && inUrl[0].u));
+  ok(allCalls.some((c) => c.method === "POST" && c.u.includes("wf_reengage_contacts") && c.raw.includes(EMAIL)) && allCalls.some((c) => c.u.startsWith("https://api.resend.com/") && c.raw.includes(EMAIL)), "positive control: the address did not appear in any request BODY (the contact insert and the Resend call), so the URL check proved nothing");
+  ok(allCalls.filter((c) => c.u.includes("wf_reengage_contacts") && c.method === "GET").every((c) => /[?&](?:email_hash|unsubscribe_token)=eq\.[a-f0-9]{64}/.test(c.u)) && allCalls.some((c) => c.u.includes("wf_reengage_contacts") && c.u.includes("email_hash=eq.")), "a contacts lookup used a key other than email_hash or the token");
 }
 
 if (failures) { console.error(`test-reengage-server: ${failures} failure(s) out of ${assertions} assertions`); process.exit(1); }

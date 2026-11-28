@@ -4,18 +4,41 @@
 -- service role.
 --
 --   wf_reengage_contacts      one row per address that asked for an itinerary
---                             email. Holds the address, the exact consent the
---                             reader gave (words, version, page, time), a random
---                             unsubscribe token and open counters. No name, no
+--                             email. Holds the address, its sha256 (email_hash,
+--                             the ONLY lookup key: the address must never ride in
+--                             a request URL), the exact consent the FIRST request
+--                             gave (words, version, page, time, never rewritten by
+--                             a later request), a random unsubscribe token,
+--                             confirmed_at and open counters. No name, no
 --                             location, no IP.
+--                             confirmed_at is set when the recipient clicks the
+--                             email's own "Open my plan" link. Anyone can type
+--                             anyone's address, so a contact with confirmed_at
+--                             NULL is unconfirmed: the itinerary email they
+--                             received is the only mail they get. THE PR 2 DRIP
+--                             DISPATCHER MUST ONLY SEND FOLLOW UPS TO CONTACTS
+--                             WITH status = 'subscribed' AND confirmed_at NOT NULL.
+--                             Drip rows are still queued before confirmation so a
+--                             later click releases them; the dispatcher gates.
 --   wf_reengage_push_subs     web push subscriptions (PR 2). The endpoint and keys
 --                             are stored encrypted (endpoint_enc, keys_enc); the
 --                             unique key is a sha256 of the endpoint.
---   wf_reengage_queue         one row per planned message (a drip step). The unique
---                             key (anon_id, trigger_type, channel, step, dedupe_key)
---                             makes enqueueing idempotent. A partial index on
---                             pending rows keeps the sender cheap, and an index on
---                             sent rows serves the 7 day frequency caps.
+--   wf_reengage_queue         one row per planned or sent message. Two unique keys
+--                             make enqueueing idempotent: (anon_id, trigger_type,
+--                             channel, step, dedupe_key) for push and anonymous
+--                             rows, and (contact_id, trigger_type, channel, step,
+--                             dedupe_key) for email rows, because a visitor with no
+--                             wf_anon_id gets a fresh server id every request and
+--                             only the contact is stable. The contact key is a plain
+--                             (not partial) unique index on purpose: PostgREST's
+--                             on_conflict cannot name a partial index predicate, and
+--                             NULL contact_ids never collide in a unique index, so
+--                             the plain index constrains exactly the rows with a
+--                             contact. trigger_type 'itinerary_email' rows (step 0,
+--                             status 'sent') are the immediate emails and serve the
+--                             per recipient cap of 3 a day. A partial index on
+--                             pending rows keeps the sender cheap, and indexes on
+--                             sent rows serve the frequency caps.
 --   wf_reengage_suppressions  addresses that must never be mailed again (hard
 --                             bounce, complaint, unsubscribe, manual). Keyed by a
 --                             sha256 of the lowercased address, so it survives a
@@ -44,6 +67,7 @@ create table if not exists public.wf_reengage_contacts (
   user_id           uuid,
   email             text not null unique
                     check (char_length(email) between 6 and 254 and email = lower(email) and email ~ '^[^\s@<>,;]+@[^\s@<>,;]+\.[a-z]{2,}$'),
+  email_hash        text not null unique check (email_hash ~ '^[a-f0-9]{64}$'),
   status            text not null default 'subscribed'
                     check (status in ('subscribed', 'unsubscribed', 'bounced', 'complained')),
   consent_text      text not null check (char_length(consent_text) between 10 and 500),
@@ -51,6 +75,7 @@ create table if not exists public.wf_reengage_contacts (
   consent_page      text check (consent_page is null or (char_length(consent_page) <= 200 and consent_page ~ '^/')),
   consented_at      timestamptz not null default now(),
   unsubscribe_token text not null unique check (unsubscribe_token ~ '^[a-f0-9]{64}$'),
+  confirmed_at      timestamptz,
   sends_unopened    smallint not null default 0 check (sends_unopened >= 0),
   last_opened_at    timestamptz,
   unsubscribed_at   timestamptz,
@@ -83,7 +108,7 @@ create table if not exists public.wf_reengage_queue (
   anon_id          uuid not null,
   contact_id       bigint references public.wf_reengage_contacts (id) on delete cascade,
   trigger_type     text not null
-                   check (trigger_type in ('itinerary_abandoned', 'affiliate_drop', 'hub_browse', 'winback')),
+                   check (trigger_type in ('itinerary_abandoned', 'itinerary_email', 'affiliate_drop', 'hub_browse', 'winback')),
   channel          text not null check (channel in ('push', 'email')),
   step             smallint not null check (step between 0 and 20),
   dedupe_key       text not null default '' check (char_length(dedupe_key) <= 120),
@@ -100,12 +125,19 @@ create table if not exists public.wf_reengage_queue (
   unique (anon_id, trigger_type, channel, step, dedupe_key)
 );
 
+-- One row per contact, trigger, channel, step and plan (see the header: plain,
+-- not partial, so on_conflict can target it).
+create unique index if not exists wf_reengage_queue_contact_key
+  on public.wf_reengage_queue (contact_id, trigger_type, channel, step, dedupe_key);
+
 create index if not exists wf_reengage_queue_due_idx
   on public.wf_reengage_queue (scheduled_for) where status = 'pending';
 create index if not exists wf_reengage_queue_anon_pending_idx
   on public.wf_reengage_queue (anon_id) where status = 'pending';
 create index if not exists wf_reengage_queue_sent_cap_idx
   on public.wf_reengage_queue (anon_id, channel, sent_at) where status = 'sent';
+create index if not exists wf_reengage_queue_contact_sent_idx
+  on public.wf_reengage_queue (contact_id, trigger_type, sent_at) where status = 'sent';
 create index if not exists wf_reengage_queue_contact_idx
   on public.wf_reengage_queue (contact_id) where status = 'pending';
 

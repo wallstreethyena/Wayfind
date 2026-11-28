@@ -40,7 +40,7 @@ import { GET as christmasBrowseGet } from "../christmas/browse/route.js";
 import { waitUntil } from "@vercel/functions";
 import { fetchForecast, weatherLean, weatherNote, leanParsed } from "../../../lib/plannerWeather.js";
 import { gapRow, logGap, uncoveredCityMessage } from "../../../lib/plannerGaps.js";
-import { PLAN_SNAPSHOT_TTL_MS, newPlanRef, planSnapshot, planSnapshotKey } from "../../../lib/reengageServer.js";
+import { PLAN_SNAPSHOT_TTL_MS, newPlanRef, planSnapshot, planSnapshotKey, reengageConfigured } from "../../../lib/reengageServer.js";
 
 const NO_STORE = { "cache-control": "no-store" };
 const RATE_WINDOW_MS = 60_000;
@@ -90,13 +90,16 @@ function stopsIn(itinerary) {
 /**
  * Re-engagement (PR 1): give an ok answer a planRef and keep a server held
  * snapshot of it for 7 days, so "email me this plan" can send what the SERVER
- * built, never what the browser claims. The write rides waitUntil so it never
- * delays the response, and a failure here never touches the plan itself.
+ * built, never what the browser claims. With the feature OFF (the same
+ * reengageConfigured() the email route gates on) the answer goes out unchanged:
+ * no planRef, no cache write. The write rides waitUntil so it never delays the
+ * response, and a failure here never touches the plan itself.
  * Called only AFTER the shared plan cache is written, so planRef never lands
  * in that shared entry (each response gets its own).
  */
 function withPlanRef(out) {
   try {
+    if (!reengageConfigured()) return out;
     const snap = planSnapshot(out);
     if (!snap) return out;
     const planRef = newPlanRef();
@@ -108,11 +111,17 @@ function withPlanRef(out) {
   }
 }
 
-/** Strip the private cache field before a cached answer goes out. */
-function fromCache(v) {
+/**
+ * Strip the private cache field before a cached answer goes out. A cached hit
+ * mints a planRef (a 7 day cache write) only with the feature on AND the visitor
+ * under the per-IP limit, so a cache hit loop cannot be used to fill the store.
+ */
+function fromCache(v, ip) {
   const { _gap, ...rest } = v;
   recordGap(_gap || null);
-  return withPlanRef({ ...rest, cached: true });
+  const out = { ...rest, cached: true };
+  if (!reengageConfigured() || limited(ip)) return out;
+  return withPlanRef(out);
 }
 
 async function writeCopy(result, titleHint) {
@@ -156,7 +165,7 @@ export async function POST(req) {
     if (notes) {
       const key = notesCacheKey(notes, today);
       const hit = await cget(key).catch(() => null);
-      if (hit && hit.v && hit.v.ok) return json(fromCache(hit.v));
+      if (hit && hit.v && hit.v.ok) return json(fromCache(hit.v, clientIp(req)));
       if (limited(clientIp(req))) return json({ ok: false, code: "RATE_LIMITED", message: "One moment, then try again." }, 429);
       const aiNotes = notesForOpenAi(notes);
       const read = aiNotes
@@ -189,7 +198,7 @@ export async function POST(req) {
     const wx = await weatherFor(parsed0, today);
     const key = planCacheKey(picks) + (wx.w && wx.w.lean ? "|w:" + wx.w.lean : "");
     const hit = await cget(key).catch(() => null);
-    if (hit && hit.v && hit.v.ok) return json(fromCache(hit.v));
+    if (hit && hit.v && hit.v.ok) return json(fromCache(hit.v, clientIp(req)));
     if (limited(clientIp(req))) return json({ ok: false, code: "RATE_LIMITED", message: "One moment, then try again." }, 429);
     const built = await buildItinerary(wx.parsed, { deps });
     if (!built.ok) {
