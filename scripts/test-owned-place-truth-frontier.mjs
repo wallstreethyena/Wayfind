@@ -446,6 +446,7 @@ function eq(a, b, msg) {
       resolve: async () => ({ type: "miss", location: null }),
       findFree: async () => null,
     },
+    backfillEnv: {},
   };
   const enabled = {
     WAYFIND_PHOTOS_BACKFILL: "1",
@@ -453,28 +454,22 @@ function eq(a, b, msg) {
     GOOGLE_PHOTOS_BACKFILL_MONTH: "2026-11",
     VERCEL_ENV: "production",
   };
-  const saved = Object.entries(enabled).map(([key]) => [key, process.env[key]]);
   mock.timers.enable({ apis: ["Date"], now: new Date("2026-11-28T02:00:00Z") });
   try {
-    process.env.WAYFIND_PHOTOS_BACKFILL = "0";
     const dropped = await dropUnservableCardPhotos(legacy, deps);
     eq(dropped.image, null, "Unservable wfplacediscovery card image is dropped before render");
     ok(dropped.placeholder && dropped.placeholder.label, "Card receives designed placeholder tile instead of emitting a 404 image request");
     eq((await dropUnservableCardPhotos(cover, deps)).image, null, "Switching off backfill also drops the unservable place-based cover");
 
-    Object.assign(process.env, enabled);
-    const stillDropped = await dropUnservableCardPhotos(legacy, deps);
+    const enabledDeps = { ...deps, backfillEnv: enabled };
+    const stillDropped = await dropUnservableCardPhotos(legacy, enabledDeps);
     eq(stillDropped.image, null, "Backfill never retains a legacy pseudo-ref that the photo endpoint cannot backfill");
     ok(stillDropped.placeholder?.label, "The pseudo-ref falls back to the designed tile while backfill is enabled");
-    const kept = await dropUnservableCardPhotos(cover, deps);
+    const kept = await dropUnservableCardPhotos(cover, enabledDeps);
     eq(kept.image, cover.image, "The eligible place-based cover is retained while backfill is enabled");
     eq(kept.placeholder, cover.placeholder, "The retained cover keeps its designed fallback tile");
   } finally {
     mock.timers.reset();
-    for (const [key, value] of saved) {
-      if (value === undefined) delete process.env[key];
-      else process.env[key] = value;
-    }
   }
 }
 
