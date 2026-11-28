@@ -208,6 +208,19 @@ ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/
   ok(/"@type": "ItemList"/.test(read("app/christmas-in-florida/page.js")), "the browse carries an ItemList of events (static)");
 }
 
+// The detail and collection share the same verified admission, without
+// treating suggested donations or the opening ceremony as a ticket.
+{
+  const slug = "fantasy-lights-festival-palm-coast-2026";
+  const source = DB.find((row) => row.event_id === slug);
+  const detail = christmasEventPageRow(source, slug);
+  const card = christmasEventCard(merged.find((row) => row.event_id === slug));
+  ok(detail?.is_free === true && detail.christmas_price_line === "Free admission; optional donations support Rotary community service programs"
+    && card?.price_label === "Free", "Palm Coast Fantasy Lights: event detail says donations are optional and the collection card says Free");
+  ok(detail?.start_date === "2026-11-28" && detail?.end_date === "2026-12-30"
+    && !detail?.official_ticket_url, "Palm Coast Fantasy Lights: season schedule preserved, no ticket is required");
+}
+
 // Verified party prices flow through the existing database overlay. Keep the
 // occurrence dates and availability separate from the published price.
 for (const [id, slug, price, venue, entryTime, nights, status] of [
