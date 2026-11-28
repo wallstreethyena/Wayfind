@@ -266,6 +266,38 @@ ok((await cls({ ua: UA.staleWinChrome, meta: true }, U + "&wf_confirm=1")) === "
   ok(stale.klass === "suspect" && stale.reason === "stale-rotation-ua", `classifier: the off switch leaves the 2023-rotation gate in place (got ${stale.klass}/${stale.reason})`);
 }
 
+// 2026-11-28 proof mismatch: a click_id or gowayfind.com Referer that the browser's own
+// Sec-Fetch-Site contradicts (none / cross-site) is not a tap on our page.
+{
+  const { fetchSiteLabel } = await import(REPO + "lib/redirectTrafficClass.js");
+  const CN_BOT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36";
+  const meta = (site, extra = {}) => ({ ua: CN_BOT, extra: { "sec-fetch-mode": "navigate", "sec-fetch-dest": "document", "sec-fetch-user": "?1", "sec-fetch-site": site, ...extra } });
+  const CID = U + "&click_id=c5506240-5bcb-4fda-a325-9cbab0c54baf";
+  for (const site of ["none", "cross-site"]) {
+    const r = await classifyRedirectRequest(req(CID, meta(site)), { env: {} });
+    ok(r.klass === "suspect" && r.reason === "desktop-proof-mismatch:click_id:" + site, `classifier: desktop + click_id opened with Sec-Fetch-Site ${site} (lifted href) gets Continue (got ${r.klass}/${r.reason})`);
+    const f = await classifyRedirectRequest(req(U, meta(site, { referer: "https://www.gowayfind.com/places/x" })), { env: {} });
+    ok(f.klass === "suspect" && f.reason === "desktop-proof-mismatch:referer:" + site, `classifier: desktop + a gowayfind.com Referer the browser calls ${site} (forged) gets Continue (got ${f.klass}/${f.reason})`);
+  }
+  // Positive controls: every way a real tap arrives.
+  ok((await cls(meta("same-origin"), CID)) === "human", "classifier: desktop + click_id from a tap on our page (same-origin) is human");
+  ok((await cls(meta("same-site"), CID)) === "human", "classifier: desktop + click_id from blog.gowayfind.com (same-site) is human");
+  ok((await cls({ ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15" }, CID)) === "human", "classifier: desktop Safari + click_id with NO Fetch Metadata (pre-16.4) is never this reason");
+  ok((await cls(meta("none", { cookie: "wf_device=d_abc123" }), CID)) === "human", "classifier: desktop + click_id + a cookie of ours is human even when pasted (none)");
+  ok((await cls(meta("none"), CID + "&wf_confirm=1")) === "human", "classifier: a pasted link that tapped Continue (wf_confirm=1) goes through");
+  ok((await cls(meta("cross-site"), CID + "&surface=instagram_bio")) === "human", "classifier: an off-site direct-link surface opened cross-site is human");
+  ok((await cls({ ...meta("cross-site"), ua: UA.mobileSafari }, CID)) === "human", "classifier: iPhone + click_id opened cross-site is never touched (desktop only)");
+  ok((await cls({ ...meta("cross-site"), ua: UA.instagramAndroid }, CID)) === "human", "classifier: Instagram in-app + click_id cross-site is never touched");
+  for (const off of ["off", "0", "false"]) {
+    const k = await classifyRedirectRequest(req(CID, meta("none")), { env: { REDIRECT_PROOF_MISMATCH_GATE: off } });
+    ok(k.klass === "human", `classifier: REDIRECT_PROOF_MISMATCH_GATE=${off} turns the proof-mismatch rule off (got ${k.klass}/${k.reason})`);
+  }
+  // The label the events carry.
+  ok(fetchSiteLabel(new Headers({ "sec-fetch-site": "Same-Origin" })) === "same-origin", "fetchSiteLabel: normalises case");
+  ok(fetchSiteLabel(new Headers()) === "absent", "fetchSiteLabel: no header is absent");
+  ok(fetchSiteLabel(new Headers({ "sec-fetch-site": "<script>" })) === "absent", "fetchSiteLabel: an unknown value is absent, never echoed");
+}
+
 /* ── A2. the ten identities, SWEPT, and the browser-side mirror ───────────── */
 {
   const SHAPES = {

@@ -436,7 +436,7 @@ scripts/check-rails-geo-grid.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	85057011
 scripts/check-rails-wire.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	028bd913bfb95c98515c6ef00f32c23e099cebb5bb1c95ec08bd443ef45585f8
 scripts/check-ranking-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	9cc975a5a53db1e749eecc7a53f0bd5a71d5a47f1e5c8c8e01cb77e4ee46d982
 scripts/check-redirect-host-classification.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	3cbc3295d6609ec3c431fc1bd43265a7f5ae29d413b1d27bcfce07211dec3e59
-scripts/check-redirect-suspect-gate.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	110	0	0	6319eb7afb567d39963b23f9c5dc5deca7cd8358e98f8c78ada5bb007298f59a
+scripts/check-redirect-suspect-gate.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	137	0	0	94a395831ff3dee2d6e86bc21bb249d09be83f8a847b7ec795c77a3e443ba790
 scripts/check-redirect-traffic-class.mjs	0	CALL	blocks-ci-and-deploy	1	-	69	0	0	46aefdea49373e6beff72362559440e5a13b0963d2f854d6a07392e7a702d4f3
 scripts/check-reengage-schema.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	0	0	f6908dc443b9ca32708ec3aface3d8e638994c648211a6e68c18dd5e899589f8
 scripts/check-release-contamination.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	e1de05ca3d31afc66d316641720f42ab41ad784a47881a66e2aa62d86823778d

@@ -24,7 +24,7 @@ import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../
 import { attributedViatorDestination } from "../../../../lib/viatorAttribution.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isInternalVerifier, isSyntheticMonitor } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic, headResponse, noStoreHeaders, noStoreRedirect, clickProof } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders, noStoreRedirect, clickProof, fetchSiteLabel } from "../../../../lib/redirectTrafficClass.js";
 import {
   chooseViatorGoLocation,
   isDeniedViatorSku,
@@ -303,7 +303,7 @@ export async function GET(req) {
   if (trafficClass === "human" && synthTraffic.synthetic) trafficClass = "synthetic";
   const emit = (event, extra) => {
     try {
-      const props = commercePayload(event, { ...baseProps, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), ...(extra || {}) });
+      const props = commercePayload(event, { ...baseProps, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), fetch_site: fetchSiteLabel(req.headers), ...(extra || {}) });
       captureServerInBackground(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
