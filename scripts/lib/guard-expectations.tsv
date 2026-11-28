@@ -925,7 +925,7 @@ scripts/test-inventory-gallery-card-photo.mjs	0	CALL	blocks-ci-and-deploy	1	-	41
 scripts/test-inventory-row-card-fields.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	358a8d386b62c0c8abb658d0d3be9088c3c10670ba4d02c08bf9fd93b84452e8
 scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	aa21f75f53d5223eb9334a6d755172239f1ae348d4da4e994b128846bea5310f
 scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	69b2842b1e6984e7515c77c884a4b3806816a49af40b65168337598e45577bdb
-scripts/test-itinerary-dates-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0	f2d52ef93adfd6ee5783f3f8af2f9a8109f78bc2830484d0372b5f05cbbdbab6
+scripts/test-itinerary-dates-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	6f5d5a77d0559bbcbd7eab26c47167c3a68bae170c6fd829d5a6af6a67d2f8c0
 scripts/test-itinerary-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	265	0	0	81552a3ebb57b4e3aea40468d702c725ddf5571af928fef60d2dab090499cc76
 scripts/test-itinerary-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	d991cbb7d6aa6e730b9496b5cb7330f6011eaa792a632c8279d3080dc0d6414c
 scripts/test-jev-mcp.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	92b552a17c1ffe5ea593b0296922d167adf48e497cf0d6f736dff321b8786477
@@ -1019,7 +1019,7 @@ scripts/test-official-event-covers.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	f5
 scripts/test-og-bodies.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	2114f3fa9f73d293aaf33c9cd9424f9a62979830d9198314afc20a472f7b24e8
 scripts/test-og-every-path.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	5ee8da6146bd4eb5588f12bc6f1535173fba64f0fe481e453069569352205ca7
 scripts/test-og-movie-function-size.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	a23941ed6ee7bc87f09399494f2a72775b649528b80060b0b504079c11129ca4
-scripts/test-openai-copy-features.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0	5a7a6361411ba0ee134c66a926847a74043288e1f15fc556d9a6eb1423c55f6a
+scripts/test-openai-copy-features.mjs	0	CALL	blocks-ci-and-deploy	1	-	84	0	0	76e47f21babd64ef86d800a916ba39658f3d1fe3f2d99e8299a4921287c1a54a
 scripts/test-openverse-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	fe51e5571a85782f938c5cc76ca5bb7198c61e0926f9330c9f472c5aeef76c18
 scripts/test-orlando-guide-tiqets.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	11	0	0	1dfcd99131f0130985ac4ba0433b54e5c13419722fb894fcbe572638b9b8f79c
 scripts/test-osm-regional.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	93024b25487db6666f7020cff100585ed829d68c4c33ee2970dc779d633bafc2

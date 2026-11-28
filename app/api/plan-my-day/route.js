@@ -31,7 +31,7 @@ import { cget, cset } from "../../../lib/serverCache.js";
 import { openAiCopy } from "../../../lib/openAiCopy.js";
 import {
   parsePlanRequest, plannerParsedFor, planCacheKey, PLAN_DAY_CACHE_TTL_MS,
-  cleanNotes, notesCacheKey, NOTES_SYSTEM, validateNotesIntent, parsedFromNotes,
+  cleanNotes, notesForOpenAi, notesCacheKey, NOTES_SYSTEM, validateNotesIntent, parsedFromNotes,
   PLAN_DAY_SYSTEM, validatePlanCopy, stopFacts,
 } from "../../../lib/planMyDay.js";
 import { buildItinerary } from "../../../lib/itineraryBuilderServer.js";
@@ -136,11 +136,14 @@ export async function POST(req) {
       const hit = await cget(key).catch(() => null);
       if (hit && hit.v && hit.v.ok) return json(fromCache(hit.v));
       if (limited(clientIp(req))) return json({ ok: false, code: "RATE_LIMITED", message: "One moment, then try again." }, 429);
-      const read = await openAiCopy("plan_day", { system: NOTES_SYSTEM, user: JSON.stringify({ today, notes }), json: true, temperature: 0 });
-      const intent = validateNotesIntent(read.ok ? read.json : null, today);
+      const aiNotes = notesForOpenAi(notes);
+      const read = aiNotes
+        ? await openAiCopy("plan_day", { system: NOTES_SYSTEM, user: JSON.stringify({ today, notes: aiNotes }), json: true, temperature: 0 })
+        : null;
+      const intent = validateNotesIntent(read?.ok ? read.json : null, today);
       const parsedNotes = parsedFromNotes(notes, intent, today);
       if (parsedNotes.clarify) {
-        const askedCity = read.ok && read.json ? read.json.city : null;
+        const askedCity = read?.ok && read.json ? read.json.city : null;
         recordGap(gapRow({ mode: "notes", outcome: "NEED_CITY", requestedCity: askedCity }));
         return json({ ok: false, code: "NEED_CITY", message: uncoveredCityMessage(askedCity) || parsedNotes.clarify }, 200);
       }

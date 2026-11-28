@@ -22,7 +22,7 @@ import { whyGoEvidence, validateWhyGo, whyGoCacheKey, readWhyGo, WHY_GO_READ_REV
 import { reviewEvidence, validateReviewSummary, reviewSummaryKey, validPlaceId } from "../lib/reviewSummary.js";
 import {
   parsePlanRequest, resolvePlanDate, vibesFor, christmasSeason, validatePlanCopy, plannerParsedFor,
-  cleanNotes, validateNotesIntent, parsedFromNotes, nameMatches, PLAN_DAY_AREAS,
+  cleanNotes, notesForOpenAi, validateNotesIntent, parsedFromNotes, nameMatches, PLAN_DAY_AREAS,
 } from "../lib/planMyDay.js";
 import { travelEstimate, legDirectionsUrl } from "../lib/travelEstimate.js";
 import { PARTNER_GO_RX, clientStop, withTravel, stopTypeLabel, isAdultOnlyCandidate, wantsKidFriendly, wantsChristmas, withPartnerTicket, buildItinerary } from "../lib/itineraryBuilderServer.js";
@@ -50,6 +50,20 @@ for (const f of ["lib/openAiCopy.js", "lib/eventWhyGo.js", "lib/reviewSummary.js
   ok(!/api\.openai\.com/.test(rd(f)), `${f} never calls OpenAI directly (only through lib/paidOpenAi.js)`);
 }
 ok(/paidOpenAiRequest\(/.test(rd("lib/openAiCopy.js")), "the copy gate calls paidOpenAiRequest");
+const publicNotes = "Tampa tomorrow. An indoor museum followed by lunch.";
+ok(notesForOpenAi(publicNotes) === publicNotes, "ordinary outing notes are eligible for OpenAI interpretation");
+const datedNotes = "Tampa 2027-02-17. Looking for dinner reservation ideas.";
+ok(notesForOpenAi(datedNotes) === datedNotes, "ordinary dates and reservation ideas remain eligible");
+for (const privateDetail of [
+  "email example@wayfind.invalid", "call 813-555-0100", "call +44 20 7946 0958",
+  "reservation number ABC42F", "Confirmation ABC42F", "meet at 123 West Main Street",
+  "my name is Jane", "record locator ABC123", "passport X12345678", "my SSN is 000-12-3456", "000-12-3456",
+]) {
+  ok(notesForOpenAi(publicNotes + " " + privateDetail) === null, "private notes stay with the local parser");
+}
+ok(/const aiNotes = notesForOpenAi\(notes\)/.test(rd("app/api/plan-my-day/route.js")) &&
+  /user: JSON\.stringify\(\{ today, notes: aiNotes \}\)/.test(rd("app/api/plan-my-day/route.js")),
+  "the route sends only eligible notes to OpenAI");
 ok(parseJsonObject("```json\n{\"a\":1}\n```").a === 1 && parseJsonObject("[1]") === null && parseJsonObject("nope") === null, "JSON parsing accepts fenced objects only");
 
 // ── 2. No invention ─────────────────────────────────────────────────────────
