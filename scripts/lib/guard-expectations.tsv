@@ -212,7 +212,7 @@ scripts/check-guard-manifest.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	2d3
 scripts/check-guard-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	ac69ccdaaa8e406fd72bacd747ddabd0d63e2783a5df41e2706d79d5b463f4ff
 scripts/check-guards-can-fail.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	7477dec496a8bb96ba48073c0dcb56bf26e0f429bfbd4f34904c1d0f6c18c8c8
 scripts/check-guards-emit-no-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8941f0a9b3385a4e1607abbdf404e1760d6334b529350303b3432f1dfb0116ea
-scripts/check-guide-card.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0	76ba58e0fbd0bb64eb020fd3e3aacd305d758904afcb2d2059ea0f0af9438d1a
+scripts/check-guide-card.mjs	0	RENDER	blocks-ci-and-deploy	1	-	63	0	0	113a552d46579f2cd0fa0e2b4c11d34aed6e71eb3309b4f8a98f250b4a90e5e1
 scripts/check-guide-conversion.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	e8282dd4709270de281dea120d16ddd248c85fba4b2ccbdf14d4c1896e8a6f98
 scripts/check-guide-cta-honesty.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	40	1	1	61654127038fd8dd127d2482b79736f8abf041f27691e0c56222b524148cbb0a
 scripts/check-guide-cta-single-capture.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	3a758a72d232afb43eff578618db23c8ec36835e8834af8c2785f89cf2750d7f
