@@ -95,13 +95,14 @@ const badRows = [
   { ...miami, link_ok: false }, { ...keys, image: "" },
 ];
 const rows = [keysSecond, miamiSecond, ...badRows, miami, keys];
-const restoreFetch = globalThis.fetch, savedUrl = process.env.SUPABASE_URL, savedKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-process.env.SUPABASE_URL = "https://owned-catalog.invalid";
+const restoreFetch = globalThis.fetch;
+const ownedCatalog = "https://owned-catalog.invalid";
+process.env.SUPABASE_URL = ownedCatalog;
 process.env.SUPABASE_SERVICE_ROLE_KEY = "local-test";
 const queries = [];
 globalThis.fetch = async (input, init) => {
   const url = new URL(input);
-  const onlyOwnedRead = url.origin === process.env.SUPABASE_URL && url.pathname === "/rest/v1/wf_experiences" && (!init?.method || init.method === "GET");
+  const onlyOwnedRead = url.origin === ownedCatalog && url.pathname === "/rest/v1/wf_experiences" && (!init?.method || init.method === "GET");
   ok(onlyOwnedRead, "every underlying network call is a read of the owned catalog");
   if (!onlyOwnedRead) throw new Error("Unexpected external request");
   const ids = url.searchParams.get("dest_id").match(/^in\.\((.*)\)$/)?.[1].split(",") || [];
@@ -132,8 +133,8 @@ try {
   ok(queries.length >= 7, "the positive, negative, and default probes actually queried the owned table");
 } finally {
   globalThis.fetch = restoreFetch;
-  if (savedUrl === undefined) delete process.env.SUPABASE_URL; else process.env.SUPABASE_URL = savedUrl;
-  if (savedKey === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY; else process.env.SUPABASE_SERVICE_ROLE_KEY = savedKey;
+  delete process.env.SUPABASE_URL;
+  delete process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 
 console.log(`test-experiences-location: ${n - failn}/${n} passed`);
