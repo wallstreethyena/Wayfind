@@ -26,7 +26,9 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { isNative, initNativeShell, registerPushNotifications, getPushPermission } from "../../lib/native";
-import { supabase, hasSupabase } from "../../lib/supabase";
+// Supabase loads behind a dynamic import (lib/lazySupabase.js) so the root
+// layout never ships it in first-load JS; this component is a no-op on the web.
+import { getSupabase } from "../../lib/lazySupabase";
 import { deviceId } from "../../lib/deviceId";
 
 // Lazy: this card only ever renders on native, and only for a fraction of
@@ -74,7 +76,9 @@ export default function NativeShellInit() {
           window.__wfPushToken = token;
         } catch (e) {}
         let bearer = null;
-        if (hasSupabase && supabase) {
+        let supabase = null;
+        try { supabase = await getSupabase(); } catch (e) {}
+        if (supabase) {
           try {
             const { data } = await supabase.auth.getSession();
             bearer = data?.session?.access_token || null;
@@ -99,7 +103,9 @@ export default function NativeShellInit() {
     maybeShowPushPrompt(launches >= 2);
 
     let authSub = null;
-    if (hasSupabase && supabase) {
+    let unmounted = false;
+    getSupabase().then((supabase) => {
+      if (!supabase || unmounted) return;
       try {
         const { data } = supabase.auth.onAuthStateChange((event, session) => {
           if (event !== "SIGNED_IN") return;
@@ -115,9 +121,9 @@ export default function NativeShellInit() {
         });
         authSub = data?.subscription || null;
       } catch (e) {}
-    }
+    }, () => {});
 
-    return () => { try { authSub && authSub.unsubscribe(); } catch (e) {} };
+    return () => { unmounted = true; try { authSub && authSub.unsubscribe(); } catch (e) {} };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

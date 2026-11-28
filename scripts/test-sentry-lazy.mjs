@@ -55,9 +55,10 @@ ok(/process\.env\.SENTRY_DSN/.test(read("sentry.server.config.js")), "server con
 
 // 6. The measured full-homepage bundle ratchet remains enforced.
 const cb = read("scripts/check-bundle.mjs");
-ok(/const TOTAL_BUDGET_KB = 489;/.test(cb), "check-bundle enforces the documented 489KB homepage ceiling (504 -> 492 on 2026-11-05; 494 -> 489 on 2026-11-12 after the browser Buffer polyfill left)");
-ok(/const FIRST_LOAD_BUDGET_KB = 569;/.test(cb), "check-bundle also enforces the 569KB first load ceiling (page + root layout; measured 564.0KB on 2026-11-14 when this landed)");
-ok(/const CI_GAP_KB = 1\.0;/.test(cb) && /if \(process\.env\.GITHUB_ACTIONS === "true" && headroomKb < CI_GAP_KB\) \{\s*fail\(/.test(cb), "in CI the bundle gate fails inside the 1KB Vercel gzip margin, before merge");
+ok(/const TOTAL_BUDGET_KB = 489;/.test(cb), "check-bundle still measures and prints the \"/page\" share against its documented 489KB line");
+ok(/const FIRST_LOAD_BUDGET_KB = 545;/.test(cb), "check-bundle enforces the 545KB first load ceiling (page + root layout; 569 -> 545 on 2026-11-28 when Supabase left the root layout's first load, measured 514.7KB)");
+ok(/const CI_GAP_KB = 1\.0;/.test(cb) && /if \(process\.env\.GITHUB_ACTIONS === "true" && firstLoadHeadroomKb < CI_GAP_KB\) \{\s*fail\(/.test(cb), "in CI the bundle gate fails inside the 1KB margin, before merge");
+ok(/const VERCEL_DRIFT_KB = 2\.0;/.test(cb) && /onVercel && !routeOver && firstLoadOverKb <= VERCEL_DRIFT_KB/.test(cb), "on Vercel only a drift-sized overage (<=2KB) warns instead of failing the deploy; anything larger still fails");
 
 // 7. THIRD-PARTY FRAMES ARE NOT OUR ERRORS (v8.29.7). The Vercel Toolbar's
 // feedback bundle threw InvalidNodeTypeError in its own text-selection code and
